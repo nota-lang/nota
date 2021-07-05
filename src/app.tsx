@@ -58,7 +58,7 @@ let App: React.FC = _ => <Rtx.Document bibtex={bibtex}>
       <li>We formalize an algorithm for modular static slicing as an extension to the type system of Oxide <Cite v="weiss2019oxide" />, a formal model of Rust's static and dynamic semantics (<Ref label="sec:model" /> and <Ref label="sec:algorithm" />).</li>
       <li>We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by <Cite v="abadi1999core" f /> (<Ref label="sec:soundness" /> and <Ref label="sec:appendix" />).</li>
       <li>We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (<Ref label="sec:implementation" />)</li>
-      <li>We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4\% of the time, and are on average 7.6\% larger in the remaining 4.6\% of cases (<Ref label="sec:evaluation" />).</li>
+      <li>We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (<Ref label="sec:evaluation" />).</li>
     </ol>
   </Rtx.Section>
   <Rtx.Section>

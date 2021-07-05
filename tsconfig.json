@@ -3,8 +3,7 @@
         "strict": true,
         "sourceMap": true,
         "esModuleInterop": true,
-        "jsx": "react",
-        "lib": ["es2015"]
+        "jsx": "react"
     },
     "include": ["src/**/*"]
 }
