@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "jsx": "react"
+    },
+    "include": ["src/**/*"]
+}

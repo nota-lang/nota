@@ -1,0 +1,91 @@
+@mixin loadserif($suffix) {
+  font-family: "Linux Libertine O";
+  src: url("../fonts/LinLibertine_#{$suffix}.otf");
+}
+
+@mixin loadsans($suffix) {
+  font-family: "Linux Biolinum O";
+  src: url("../fonts/LinBiolinum_#{$suffix}.otf");
+}
+
+@font-face { @include loadserif("R"); }
+@font-face { @include loadserif("RB"); font-weight: bold; }
+@font-face { @include loadserif("RI"); font-style: italic; }
+
+@font-face { @include loadsans("R"); }
+@font-face { @include loadsans("RB"); font-weight: bold; }
+@font-face { @include loadsans("RI"); font-style: italic; }
+
+$serif: "Linux Libertine O", serif;
+$sans-serif: "Linux Biolinum O", serif;
+
+$size-small: 16px;
+$size-normal: 18px;
+$size-large: 22px;
+$size-Large: 24px;
+$size-LARGE: 28px;
+$size-huge: 32px;
+$size-Huge: 36px;
+
+body {
+  font-family: $serif;
+  font-size: $size-normal;
+}
+
+.document {
+  width: 1000px; 
+  margin: 0 auto;
+  line-height: 1.3em;
+  padding-top: 20px;
+}
+
+h1, h2 {
+  font-family: $sans-serif;
+  margin: 0;
+}
+
+p {
+  text-indent: 10pt;     
+  margin: 0;
+
+  .section-title + & {
+    text-indent: 0;
+  }
+}
+
+.document-title {
+  margin-bottom: 2rem;
+}
+
+.authors {
+  .author {
+    .author-name {
+      text-transform: uppercase;
+      font-family: $sans-serif;
+      font-size: $size-large;
+    }    
+  }
+}
+
+.abstract {
+  margin: 1em 0 2rem;
+}
+
+.section-title {
+  text-transform: uppercase;  
+  font-size: $size-large;
+  margin-bottom: 1rem;
+
+  .section-number {
+    margin-right: 20px;
+  }
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+span.katex {
+  font-size: 1em;
+  line-height: 1;
+}
