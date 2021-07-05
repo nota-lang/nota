@@ -40,18 +40,6 @@ class BibliographyEntry {
       return "??";
     }
   }
-
-  cite(full: boolean, yearonly: boolean) {
-   
-
-    if (full) {
-      return <span>{author} [{this.year}]</span>
-    } else if (yearonly) {
-      return <span>[{this.year}]</span>
-    } else {
-      return <span>[{author} {this.year}]</span>
-    }
-  }
 }
 
 /* intersperse: Return an array with the separator interspersed between
@@ -60,7 +48,7 @@ class BibliographyEntry {
  * > _([1,2,3]).intersperse(0)
  * [1,0,2,0,3]
  */
-function intersperse(arr, sep) {
+function intersperse<T>(arr: T[], sep: T): T[] {
   if (arr.length === 0) {
       return [];
   }
@@ -109,5 +97,5 @@ export let ReactBibliographyContext = React.createContext<BibliographyContext | 
 
 export let Cite: React.FC<{v: string | string[], f?: boolean, y?: boolean}> = ({v, f, y}) => {
   let ctx = useContext(ReactBibliographyContext)!;
-  return ctx.cite(v, f, y);
+  return ctx.cite(v, f || false, y || false);
 }

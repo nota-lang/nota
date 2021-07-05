@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom';
 import * as Rtx from './document';
 import katex from 'katex';
+
+// @ts-ignore
 import bibtex from './example.bib';
 
 const {$, Cite, Ref} = Rtx;
