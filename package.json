@@ -9,6 +9,7 @@
     "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
+    "commander": "^8.0.0",
     "esbuild": "^0.12.14",
     "esbuild-sass-plugin": "^1.4.8",
     "katex": "^0.13.11",
