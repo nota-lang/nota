@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
-// import notation from './notation.js';
-// import nearley from 'nearley';
 
 export class TexContext {
   macros: any
@@ -25,13 +23,3 @@ export let Tex: React.FC = ({children}) => {
 };
 
 export let $ = Tex;
-
-// const parser = new nearley.Parser(nearley.Grammar.fromCompiled(notation));
-// console.log(notation);
-
-// export let P: React.FC = ({children}) => {
-//   console.log(notation.parse(children));
-//   // parser.feed(children);
-//   // console.log(parser.results);
-//   return <>hi</>;
-// }

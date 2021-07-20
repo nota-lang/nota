@@ -128,6 +128,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@codemirror/lang-rust@npm:^0.18.0":
+  version: 0.18.0
+  resolution: "@codemirror/lang-rust@npm:0.18.0"
+  dependencies:
+    "@codemirror/highlight": ^0.18.0
+    "@codemirror/language": ^0.18.0
+    lezer-rust: ^0.13.0
+  checksum: a50027c2584f2e21dc350158469359f65fa522f68da97df2fd3d966bde5698cceb9555721475c9cf9ed96f31fe6f13909459227445a714fbdb12905956439d74
+  languageName: node
+  linkType: hard
+
 "@codemirror/language@npm:^0.18.0":
   version: 0.18.2
   resolution: "@codemirror/language@npm:0.18.2"
@@ -620,7 +631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.12.14, esbuild@npm:^0.12.9":
+"esbuild@npm:^0.12.14, esbuild@npm:^0.12.15, esbuild@npm:^0.12.9":
   version: 0.12.15
   resolution: "esbuild@npm:0.12.15"
   bin:
@@ -920,6 +931,13 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"js-tokens@npm:^3.0.0 || ^4.0.0":
+  version: 4.0.0
+  resolution: "js-tokens@npm:4.0.0"
+  checksum: 1fc4e4667ac2d972aba65148b9cbf9c17566b2394d3504238d8492bbd3e68f496c657eab06b26b40b17db5cac0a34d153a12130e2d2d2bb6dc2cdc8a4764eb1b
+  languageName: node
+  linkType: hard
+
 "katex@npm:^0.13.11":
   version: 0.13.11
   resolution: "katex@npm:0.13.11"
@@ -931,6 +949,15 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"lezer-rust@npm:^0.13.0":
+  version: 0.13.1
+  resolution: "lezer-rust@npm:0.13.1"
+  dependencies:
+    lezer: ^0.13.0
+  checksum: a7d4c8eb6a4014e0cdf4596f3c0de11fbb2b83d6b4101e8cb2bc8c9e4942213d4963065b3a6f0e1526b00738d446961fa698867b7e96e066ffe9c256539fefef
+  languageName: node
+  linkType: hard
+
 "lezer-tree@npm:^0.13.0, lezer-tree@npm:^0.13.2":
   version: 0.13.2
   resolution: "lezer-tree@npm:0.13.2"
@@ -938,7 +965,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"lezer@npm:^0.13.4":
+"lezer@npm:^0.13.0, lezer@npm:^0.13.4":
   version: 0.13.5
   resolution: "lezer@npm:0.13.5"
   dependencies:
@@ -951,6 +978,17 @@ fsevents@~2.3.2:
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 4983720b9abca930a4a46f18db163d7dad8dd00dbed6db0cc7b499b33b717cce69f80928b27bbb1ff2cbd3b19d251ee90669a8b5ea466072ca81c2ebe91e7468
+  languageName: node
+  linkType: hard
+
+"loose-envify@npm:^1.1.0":
+  version: 1.4.0
+  resolution: "loose-envify@npm:1.4.0"
+  dependencies:
+    js-tokens: ^3.0.0 || ^4.0.0
+  bin:
+    loose-envify: cli.js
+  checksum: 5c3b47bbe5f597a3889fb001a3a98aaea2a3fafa48089c19034de1e0121bf57dbee609d184478514d74d5c5a7e9cfa3d846343455e5123b060040d46c39e91dc
   languageName: node
   linkType: hard
 
@@ -1145,7 +1183,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4.1.0":
+"object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: 66cf021898fc1b13ea573ea8635fbd5a76533f50cecbc2fcd5eee1e8029af41bcebe7023788b6d0e06cbe4401ecea075d972f78ec74467cdc571a0f1a4d1a081
@@ -1215,9 +1253,32 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"reactex@workspace:.":
+"react-dom@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react-dom@npm:17.0.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    scheduler: ^0.20.2
+  peerDependencies:
+    react: 17.0.2
+  checksum: 960a74ff6670766846a73097a599115963df1574833c59ca0c2fd909758ebe7a6214cd14f5e6aa63ce846d8f39fde7f3b80474ccfcfadc45dd7f3246364718c6
+  languageName: node
+  linkType: hard
+
+"react@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react@npm:17.0.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: 7d0dfebafe1d297503157abb2e9acdb49852185deb8700c16f4a6faad87642f84903ab18cfc16f40b9a0dfe97540f99834982ee953e6d48b39c41608dc3e4b29
+  languageName: node
+  linkType: hard
+
+"reactex@portal:/Users/will/Code/reactex::locator=slicing%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "reactex@workspace:."
+  resolution: "reactex@portal:/Users/will/Code/reactex::locator=slicing%40workspace%3A."
   dependencies:
     "@codemirror/basic-setup": ^0.18.2
     "@orcid/bibtex-parse-js": ^0.0.25
@@ -1237,7 +1298,7 @@ fsevents@~2.3.2:
   peerDependencies:
     react: ^17.0.2
     react-dom: ^17.0.2
-  languageName: unknown
+  languageName: node
   linkType: soft
 
 "readable-stream@npm:^2.0.6":
@@ -1327,6 +1388,16 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
+"scheduler@npm:^0.20.2":
+  version: 0.20.2
+  resolution: "scheduler@npm:0.20.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: 2ba121e53e8a438394598612ec9a8f465b39157042f912d2dd5956af643e0d45ec6937ae4eeb0a807d1945b209515263aed12fc3bca95c7a027ec2a54e76b399
+  languageName: node
+  linkType: hard
+
 "semver@npm:^7.3.5":
   version: 7.3.5
   resolution: "semver@npm:7.3.5"
@@ -1351,6 +1422,19 @@ resolve@^1.20.0:
   checksum: f8f3fec95c8d1f9ad7e3cce07e1195f84e7a85cdcb4e825e8a2b76aa5406a039083d2bc9662b3cf40e6948262f41277047d20e6fbd58c77edced0b18fab647d8
   languageName: node
   linkType: hard
+
+"slicing@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "slicing@workspace:."
+  dependencies:
+    "@codemirror/lang-rust": ^0.18.0
+    commander: ^8.0.0
+    esbuild: ^0.12.15
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    reactex: ../..
+  languageName: unknown
+  linkType: soft
 
 "smart-buffer@npm:^4.1.0":
   version: 4.1.0

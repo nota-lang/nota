@@ -19,6 +19,7 @@
 $serif: "Linux Libertine O", serif;
 $sans-serif: "Linux Biolinum O", serif;
 
+$size-footnote: 14px;
 $size-small: 16px;
 $size-normal: 18px;
 $size-large: 22px;
@@ -27,25 +28,58 @@ $size-LARGE: 28px;
 $size-huge: 32px;
 $size-Huge: 36px;
 
+$acm-purple: #6200D9;
+
 body {
   font-family: $serif;
   font-size: $size-normal;
+  overflow-wrap: anywhere;
 }
 
-.document {
-  width: 1000px; 
+.document-wrapper {
+  width: 800px; 
   margin: 0 auto;
-  line-height: 1.3em;
   padding-top: 20px;
 }
 
-h1, h2 {
+.document {
+  text-align: justify;
+  line-height: 1.25em;
+}
+
+.footnotes {  
+  font-size: $size-footnote;
+  line-height: 1.2em;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  margin-top: 2rem;
+
+  .backlink {
+    color: black;
+    font-size: 10px;
+  }
+
+  .footnote-number {
+    font-size: $size-normal;
+    margin-right: 5px;
+  }
+}
+
+
+h1, h2, h3, h4, h5, h6 {
   font-family: $sans-serif;
   margin: 0;
+  text-align: left;
+  line-height: 1em;
+}
+
+a {
+  color: $acm-purple;
+  text-decoration: none;
 }
 
 p {
-  text-indent: 10pt;     
+  text-indent: 1em;     
   margin: 0;
 
   .section-title + & {
@@ -72,20 +106,55 @@ p {
 }
 
 .section-title {
-  text-transform: uppercase;  
-  font-size: $size-large;
   margin-bottom: 1rem;
+  margin-top: 0;
+  font-size: $size-large;
 
   .section-number {
     margin-right: 20px;
+  }  
+
+  h2#{&} {
+    text-transform: uppercase;  
   }
+
+  // h3#{&} {
+  //   font-size: $size-normal;
+  // }
+}
+
+pre, code {
+  font-family: Inconsolata, monospace;
+} 
+
+code {
+  border: 1px solid #eee;
+  padding: 0 3px 1px;
+  border-radius: 4px;
+}
+
+pre {
+  margin: 0.5rem 0;
 }
 
 section {
-  margin-bottom: 2rem;
+  margin-top: 2rem;
 }
 
 span.katex {
   font-size: 1em;
   line-height: 1;
+}
+
+.references {
+  text-align: justify;
+
+  font-size: $size-small;
+  line-height: 1.3em;
+  margin-top: 2rem;
+
+  .reference {
+    text-indent: -1em;
+    padding-left: 1em;
+  }
 }

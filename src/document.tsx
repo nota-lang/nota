@@ -1,48 +1,185 @@
-import './css/app.scss';
+import React, { useState, useContext, useEffect } from "react";
+import ReactDOM from "react-dom";
+import { ReactTexContext, TexContext } from "./tex";
+import {
+  ReactBibliographyContext,
+  References,
+  BibliographyContext,
+} from "./bibliography";
+import { ListingContext, ListingData } from "./code";
+import _ from "lodash";
+import CSS from "csstype";
 
-import {createContext, useContext, default as React} from 'react';
-import {ReactTexContext, TexContext} from './tex';
-import {ReactBibliographyContext, BibliographyContext} from './bibliography';
+class SectionData {
+  subsections: number = 0;
+}
 
-export {Cite} from './bibliography';
-export {Tex, $} from './tex';
-export {Abstract, Authors, Author, Name, Affiliation, Institution, Title} from './header';
+class DocumentData {
+  sections: number = 0;
+  footnotes: React.ReactNode[] = [];
+  labels: { [key: string]: string } = {};
+  section_contexts: SectionData[] = [];
 
-interface DocumentData {
-  sections: number
+  add_label(key: string, value: string) {
+    if (!this.labels[key]) {
+      this.labels[key] = value;
+    }
+  }
+}
+
+let DocumentContext = React.createContext<DocumentData>(new DocumentData());
+
+export let SectionTitle: React.FC<{ level?: number }> = ({
+  level,
+  children,
+}) => {
+  let Header: React.FC<
+    React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLHeadingElement>,
+      HTMLHeadingElement
+    >
+  >;
+  if (!level || level == 0) {
+    Header = (props) => <h2 {...props} />;
+  } else if (level == 1) {
+    Header = (props) => <h3 {...props} />;
+  } else {
+    Header = (props) => <h4 {...props} />;
+  }
+  return <Header className="section-title">{children}</Header>;
 };
 
-let DocumentContext = React.createContext<DocumentData>({sections: 0});
+export let Section: React.FC<{ title: string; label?: string }> = ({
+  label,
+  title,
+  children,
+}) => {
+  let doc_ctx = useContext(DocumentContext);
+  if (doc_ctx.section_contexts.length == 0) {
+    doc_ctx.sections += 1;
+  } else {
+    _.last(doc_ctx.section_contexts)!.subsections += 1;
+  }
 
-export let Section: React.FC = ({children}) => <section>{children}</section>
+  let level = doc_ctx.section_contexts.length;
 
-export let SectionTitle: React.FC = ({children}) => {
+  let sec_num = [
+    doc_ctx.sections,
+    ...doc_ctx.section_contexts.map((ctx) => ctx.subsections),
+  ].join(".");
+  if (label) {
+    doc_ctx.add_label(label, `Section ${sec_num}`);
+  }
+
+  let sec_ctx = new SectionData();
+  doc_ctx.section_contexts.push(sec_ctx);
+
+  let Cleanup: React.FC = (_) => {
+    doc_ctx.section_contexts.pop();
+    return null;
+  };
+
+  return (
+    <section id={label}>
+      <SectionTitle level={level}>
+        <span className="section-number">{sec_num}</span> {title}
+      </SectionTitle>
+      {children}
+      <Cleanup />
+    </section>
+  );
+};
+
+export let Ref: React.FC<{ label: string }> = ({ label }) => {
   let ctx = useContext(DocumentContext);
-  let sec_num = ctx.sections;
-  ctx.sections += 1;
-  return <h2 className='section-title'>
-    <span className='section-number'>{sec_num}</span> 
-    {children}
-  </h2>
+  return <a href={`#${label}`}>{ctx.labels[label] || label}</a>;
 };
 
-export let Ref: React.FC<{label: string}> = ({label}) => {
-  return <>{label}</>;
+export let Footnote: React.FC = ({ children }) => {
+  let ctx = useContext(DocumentContext);
+  ctx.footnotes.push(children);
+  let i = ctx.footnotes.length;
+  return (
+    <a href={`#footnote-${i}`} id={`footnote-ref-${i}`}>
+      <sup>{i}</sup>
+    </a>
+  );
+};
+
+export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({
+  align,
+  children,
+}) => {
+  let margin = "1rem";
+  let style;
+  if (align == "left") {
+    style = { marginRight: margin };
+  } else if (align == "right") {
+    style = { marginLeft: margin };
+  } else {
+    style = {};
+  }
+
+  return <div style={{ float: align, ...style }}>{children}</div>;
+};
+
+export let Row: React.FC = ({ children }) => {
+  return <div className="row">{children}</div>;
 };
 
 interface DocumentProps {
-  bibtex?: string
+  bibtex?: string;
 }
 
-export let Document: React.FC<DocumentProps> = ({children, bibtex}) => {
-  let ctx = {sections: 1};
-  return <DocumentContext.Provider value={ctx}>
-    <ReactTexContext.Provider value={new TexContext()}>
-      <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || '')}>
-        <div className='document'>
-          {children}
-        </div>      
-      </ReactBibliographyContext.Provider>
-    </ReactTexContext.Provider>    
-  </DocumentContext.Provider>
+export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
+  console.log(useState, React, React.useState);
+  let [second_pass, set_second_pass] = useState(false);
+  useEffect(() => {
+    set_second_pass(true);
+  });
+
+  let [ctx, set_ctx] = useState(new DocumentData());
+  useEffect(() => {
+    if (second_pass) {
+      let new_ctx = new DocumentData();
+      new_ctx.labels = ctx.labels;
+      set_ctx(new_ctx);
+    }
+  }, [second_pass]);
+
+  let Footnotes: React.FC = (_) => (
+    <div className="footnotes">
+      {ctx.footnotes.map((footnote, i) => {
+        let top = {};
+        i += 1;
+        return (
+          <div className="footnote" id={`footnote-${i}`} key={i}>
+            <a className="backlink" href={`#footnote-ref-${i}`}>
+              ⬅
+            </a>
+            <span className="footnote-number">{i}</span>
+            {footnote}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <DocumentContext.Provider value={ctx}>
+      <ReactTexContext.Provider value={new TexContext()}>
+        <ReactBibliographyContext.Provider
+          value={new BibliographyContext(bibtex || "")}
+        >
+          <ListingContext.Provider value={new ListingData()}>
+            <div className="document-wrapper" key={second_pass.toString()}>
+              <div className="document">{children}</div>
+              <References />
+              <Footnotes />
+            </div>
+          </ListingContext.Provider>
+        </ReactBibliographyContext.Provider>
+      </ReactTexContext.Provider>
+    </DocumentContext.Provider>
+  );
 };
