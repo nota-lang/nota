@@ -15,16 +15,15 @@ import {
   Abstract,
   Document,
   Wrap,
-  // Row,
-  Listing,
   ListingConfigure,
 } from "reactex";
 import { rust } from "@codemirror/lang-rust";
+import { SliceListing } from "./slicer";
 
 // @ts-ignore
 import bibtex from "./example.bib";
 
-import "../node_modules/reactex/dist/index.css";
+import "../node_modules/reactex/dist/assets.css";
 
 const r = String.raw;
 const C: React.FC = (props) => <code {...props} />;
@@ -246,12 +245,12 @@ export let App: React.FC = (_) => (
 
       <Section title="Places" label="sec:places">
         <Wrap align="right">
-          <Listing
+          <SliceListing
             code={`let mut x = 1;
 let y = 2;
 let z = 3;
 x = y;
-println!("{} {}", x, z);`}
+println!("{}", @x@);`}
           />
         </Wrap>
         <p>
@@ -271,7 +270,7 @@ println!("{} {}", x, z);`}
         </p>
 
         <Wrap align="left">
-          <Listing
+          <SliceListing
             code={`let mut x = 1;
 let mut y = 2;
 if y > 0 { x = 3; } 
@@ -293,8 +292,8 @@ println!("{}", @x@);`}
           conflicts with a particular path into the data structure. For example,
           consider slicing on a tuple as in the three snippets below (note that{" "}
           <C>t.n</C> gets the <$>n</$>-th field of the tuple <C>t</C>):
-        </p>        
-      </Section> 
+        </p>
+      </Section>
     </Section>
   </Document>
 );

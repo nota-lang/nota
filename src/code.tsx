@@ -1,14 +1,25 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import { EditorView, Decoration, DecorationSet } from "@codemirror/view";
+import {
+  EditorView,
+  Decoration,
+  DecorationSet,
+  ViewPlugin,
+} from "@codemirror/view";
 import { lineNumbers } from "@codemirror/gutter";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
-import { EditorState, StateField, StateEffect } from "@codemirror/state";
+import {
+  EditorState,
+  StateField,
+  StateEffect,
+  Extension,
+} from "@codemirror/state";
 import _ from "lodash";
-import axios from "axios";
 
-const add_highlight =
+export const add_highlight =
   StateEffect.define<{ from: number; to: number; mark: string }>();
+
+export const clear_highlights = StateEffect.define();
 
 const highlight_marks = _.fromPairs(
   ["peach", "green"].map((color) => [
@@ -23,7 +34,7 @@ const highlight_field = StateField.define<DecorationSet>({
   },
   update(highlights, tr) {
     highlights = highlights.map(tr.changes);
-    tr.effects.forEach((e) => {
+    for (let e of tr.effects) {
       if (e.is(add_highlight)) {
         let mark = highlight_marks[e.value.mark];
         if (!mark) {
@@ -33,8 +44,10 @@ const highlight_field = StateField.define<DecorationSet>({
         highlights = highlights.update({
           add: [mark.range(e.value.from, e.value.to)],
         });
+      } else if (e.is(clear_highlights)) {
+        return highlights.update({ filter: (_) => false });
       }
-    });
+    }
     return highlights;
   },
   provide: (f) => EditorView.decorations.from(f),
@@ -63,9 +76,30 @@ let theme = EditorView.theme({
     background: "rgb(250,223,203)",
   },
   ".hl-green": {
-    background: "rgb(186,220,199)"
+    background: "rgb(186,220,199)",
   },
 });
+
+interface Linecol {
+  line: number;
+  col: number;
+}
+
+export let linecol_to_pos = (
+  editor: EditorView,
+  { line, col }: Linecol
+): number => {
+  let line_obj = editor.state.doc.line(line);
+  return line_obj.from + col;
+};
+
+export let pos_to_linecol = (editor: EditorView, pos: number): Linecol => {
+  let line_obj = editor.state.doc.lineAt(pos);
+  return {
+    line: line_obj.number,
+    col: pos - line_obj.from,
+  };
+};
 
 export class ListingData {
   language?: LanguageSupport;
@@ -81,7 +115,66 @@ export let ListingConfigure: React.FC<{ language?: LanguageSupport }> = ({
   return null;
 };
 
-export let Listing: React.FC<{ code: string; language?: LanguageSupport }> = (props) => {
+let parse_with_delimiters = (
+  code: string,
+  delimiters: string[][]
+): { output_code?: string; ranges?: number[][]; error?: string } => {
+  let [open, close] = _.unzip(delimiters);
+  let make_check = (arr: string[]) => {
+    let r = new RegExp(`^${arr.join("|")}`);
+    return (s: string) => {
+      let match = s.match(r);
+      return match ? match[0].length : null;
+    };
+  };
+  let [open_check, close_check] = [make_check(open), make_check(close)];
+
+  let index = 0;
+  let in_seq = null;
+  let ranges = [];
+  let output_code = [];
+  let i = 0;
+  while (i < code.length) {
+    if (in_seq === null) {
+      let n = open_check(code.substring(i));
+      if (n) {
+        i += n;
+        in_seq = index;
+        continue;
+      }
+    } else {
+      let n = close_check(code.substring(i));
+      if (n) {
+        i += n;
+        ranges.push([in_seq!, index]);
+        in_seq = null;
+        continue;
+      }
+    }
+
+    index += 1;
+    output_code.push(code[i]);
+    i += 1;
+  }
+
+  return { output_code: output_code.join(""), ranges };
+};
+
+export interface ListingDelimiterProps {
+  delimiters: string[][];
+  onParse: (ranges: number[][]) => void;
+}
+
+export interface ListingProps {
+  code: string;
+  editable?: boolean;
+  language?: LanguageSupport;
+  onLoad?: (editor: EditorView) => void;
+  delimiters?: ListingDelimiterProps;
+  extensions?: Extension[];
+}
+
+export let Listing: React.FC<ListingProps> = (props) => {
   let [editor, set_editor] = useState<EditorView | null>(null);
   let ctx = useContext(ListingContext);
   let ref = useRef(null);
@@ -89,76 +182,45 @@ export let Listing: React.FC<{ code: string; language?: LanguageSupport }> = (pr
   useEffect(() => {
     let language = props.language || ctx.language;
     if (!language) {
-      throw 'Language not specified !!!!';
+      throw "Language not specified";
+    }
+
+    let code = props.code;
+    let parse_result = null;
+    if (props.delimiters) {
+      parse_result = parse_with_delimiters(code, props.delimiters.delimiters);
+      if (parse_result.error) {
+        throw parse_result.error;
+      } else {
+        code = parse_result.output_code!;
+      }
     }
 
     let editor = new EditorView({
       state: EditorState.create({
-        doc: props.code,
+        doc: code,
         extensions: [
           lineNumbers(),
           defaultHighlightStyle,
           language,
           theme,
-          EditorView.editable.of(false),
+          EditorView.editable.of(props.editable || false),
           highlight_field,
-        ],
+        ].concat(props.extensions || []),
       }),
       parent: ref.current!,
     });
-    set_editor(editor);
 
-    // editor.dispatch({ effects: [add_highlight.of({ from: 0, to: 5, mark: 'peach' })] });
+    if (props.onLoad) {
+      props.onLoad(editor);
+    }
+
+    if (props.delimiters) {
+      props.delimiters.onParse(parse_result!.ranges!);
+    }
+
+    set_editor(editor);
   }, []);
 
-  let linecol_to_byte = (line_num: number, col: number) => {
-    let line = editor!.state.doc.line(line_num);
-    return line.from + col;
-  };
-
-  return (
-    <>
-      <div ref={ref} />
-      <button
-        onClick={async () => {
-          let program = editor!.state.doc.toJSON().join("\n");
-          let request = { program, line: 5, start: 15, end: 16 };
-          let response = await axios.post(
-            "http://charlotte.stanford.edu:8889",
-            request
-          );
-
-          interface Range {
-            start_line: number;
-            start_col: number;
-            end_line: number;
-            end_col: number;
-            filename: string;
-          }
-          let ranges: Range[] = response.data.ranges;
-
-          editor!.dispatch({
-            effects: ranges
-              .filter(range => range.filename.includes("main.rs"))
-              .filter(range => !(range.start_line == request.line && range.start_col == request.start))
-              .map(range => {
-                let from = linecol_to_byte(range.start_line, range.start_col);
-                let to = linecol_to_byte(range.end_line, range.end_col);
-                return add_highlight.of({ from, to, mark: "peach" });
-              }),
-          });          
-          
-          editor!.dispatch({
-            effects: [add_highlight.of({
-              from: linecol_to_byte(request.line, request.start),
-              to: linecol_to_byte(request.line, request.end),
-              mark: "green"
-            })]
-          });
-        }}
-      >
-        Click
-      </button>
-    </>
-  );
+  return <div ref={ref} />;
 };

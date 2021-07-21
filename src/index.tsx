@@ -19,4 +19,3 @@ export {
   Document,
 } from "./document";
 
-import "./css/app.scss";
