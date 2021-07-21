@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import { EditorState } from "@codemirror/state";
 import { EditorView, Decoration, DecorationSet } from "@codemirror/view";
 import { lineNumbers } from "@codemirror/gutter";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
-import { StateField, StateEffect } from "@codemirror/state";
+import { EditorState, StateField, StateEffect } from "@codemirror/state";
 import _ from "lodash";
 import axios from "axios";
 
@@ -82,22 +81,24 @@ export let ListingConfigure: React.FC<{ language?: LanguageSupport }> = ({
   return null;
 };
 
-export let Listing: React.FC<{ code: string; language?: LanguageSupport }> = ({
-  code,
-  language,
-}) => {
+export let Listing: React.FC<{ code: string; language?: LanguageSupport }> = (props) => {
   let [editor, set_editor] = useState<EditorView | null>(null);
   let ctx = useContext(ListingContext);
   let ref = useRef(null);
 
   useEffect(() => {
+    let language = props.language || ctx.language;
+    if (!language) {
+      throw 'Language not specified !!!!';
+    }
+
     let editor = new EditorView({
       state: EditorState.create({
-        doc: code,
+        doc: props.code,
         extensions: [
           lineNumbers(),
           defaultHighlightStyle,
-          language || ctx.language!,
+          language,
           theme,
           EditorView.editable.of(false),
           highlight_field,

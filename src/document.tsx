@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import ReactDOM from "react-dom";
 import { ReactTexContext, TexContext } from "./tex";
 import {
   ReactBibliographyContext,
@@ -132,7 +131,6 @@ interface DocumentProps {
 }
 
 export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
-  console.log(useState, React, React.useState);
   let [second_pass, set_second_pass] = useState(false);
   useEffect(() => {
     set_second_pass(true);

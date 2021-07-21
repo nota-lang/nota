@@ -24,6 +24,8 @@ import { rust } from "@codemirror/lang-rust";
 // @ts-ignore
 import bibtex from "./example.bib";
 
+import "../node_modules/reactex/dist/index.css";
+
 const r = String.raw;
 const C: React.FC = (props) => <code {...props} />;
 
@@ -291,12 +293,8 @@ println!("{}", @x@);`}
           conflicts with a particular path into the data structure. For example,
           consider slicing on a tuple as in the three snippets below (note that{" "}
           <C>t.n</C> gets the <$>n</$>-th field of the tuple <C>t</C>):
-        </p>
-
-        {/* <Row>
-        <Listing co
-      </Row> */}
-      </Section>
+        </p>        
+      </Section> 
     </Section>
   </Document>
 );

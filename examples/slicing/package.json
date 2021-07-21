@@ -3,19 +3,23 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "build": "node build.cjs"
+    "build": "node build.cjs",
+    "tc": "tsc"
   },
   "dependencies": {
+    "@codemirror/gutter": "^0.18.0",
+    "@codemirror/highlight": "^0.18.0",
     "@codemirror/lang-rust": "^0.18.0",
+    "@codemirror/language": "^0.18.0",
+    "@codemirror/state": "^0.18.0",
+    "@codemirror/view": "^0.18.0",
+    "@types/react-dom": "^17.0.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "reactex": "../.."
+    "reactex": "file:../.."
   },
   "devDependencies": {
     "commander": "^8.0.0",
     "esbuild": "^0.12.15"
-  },
-  "resolutions": {
-    "reactex": "portal:/Users/will/Code/reactex"
   }
 }

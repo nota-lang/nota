@@ -1,36 +1,41 @@
 {
   "name": "reactex",
   "version": "0.1.0",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "node build.cjs"
+    "build": "node build.cjs",
+    "tc": "tsc"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.18.2",
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@types/katex": "^0.11.0",
     "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.13",
-    "@yarnpkg/esbuild-plugin-pnp": "^1.0.0-rc.12",
     "axios": "^0.21.1",
     "csstype": "^3.0.8",
-    "katex": "^0.13.11",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "katex": "0.13.11"
   },
   "devDependencies": {
     "commander": "^8.0.0",
     "esbuild": "^0.12.14",
     "esbuild-sass-plugin": "^1.4.8",
     "sass": "^1.35.2",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "@codemirror/view": "^0.18.0",
+    "@codemirror/gutter": "^0.18.0",
+    "@codemirror/highlight": "^0.18.0",
+    "@codemirror/language": "^0.18.0",
+    "@codemirror/state": "^0.18.0"
   },
   "peerDependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  },
-  "resolutions": {
-    "reactex": "portal:/Users/will/Code/reactex"
+    "@codemirror/view": "^0.18.0",
+    "@codemirror/gutter": "^0.18.0",
+    "@codemirror/highlight": "^0.18.0",
+    "@codemirror/language": "^0.18.0",
+    "@codemirror/state": "^0.18.0"
   }
 }

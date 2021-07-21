@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        // Type-checker options
+        "strict": true,
+
+        // Codegen options
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "jsx": "react",
+        "lib": ["es2015", "dom"],
+    },
+
+    "include": ["src/**/*"]
+}
