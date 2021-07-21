@@ -17,16 +17,9 @@ import {
 import _ from "lodash";
 
 export const add_highlight =
-  StateEffect.define<{ from: number; to: number; mark: string }>();
+  StateEffect.define<{ from: number; to: number; color: string }>();
 
 export const clear_highlights = StateEffect.define();
-
-const highlight_marks = _.fromPairs(
-  ["peach", "green"].map((color) => [
-    color,
-    Decoration.mark({ class: `cm-highlight hl-${color}` }),
-  ])
-);
 
 const highlight_field = StateField.define<DecorationSet>({
   create() {
@@ -36,13 +29,12 @@ const highlight_field = StateField.define<DecorationSet>({
     highlights = highlights.map(tr.changes);
     for (let e of tr.effects) {
       if (e.is(add_highlight)) {
-        let mark = highlight_marks[e.value.mark];
-        if (!mark) {
-          throw `Missing mark "${e.value.mark}"`;
-        }
-
+        let { to, from, color } = e.value;
+        let mark = Decoration.mark({
+          class: `cm-highlight bgcolor-${color}`,
+        });
         highlights = highlights.update({
-          add: [mark.range(e.value.from, e.value.to)],
+          add: [mark.range(from, to)],
         });
       } else if (e.is(clear_highlights)) {
         return highlights.update({ filter: (_) => false });
@@ -71,12 +63,6 @@ let theme = EditorView.theme({
     padding: "0 3px",
     margin: "-1px -3px",
     borderRadius: "2px",
-  },
-  ".hl-peach": {
-    background: "rgb(250,223,203)",
-  },
-  ".hl-green": {
-    background: "rgb(186,220,199)",
   },
 });
 

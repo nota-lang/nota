@@ -12,8 +12,8 @@ import axios from "axios";
 export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
   let [editor, set_editor] = useState<EditorView | null>(null);
 
-  let get_slice = async (range) => {
-    editor!.dispatch({ effects: clear_highlights.of() });
+  let get_slice = async (range: number[]) => {
+    editor!.dispatch({ effects: clear_highlights.of(null) });
 
     let program = editor!.state.doc.toJSON().join("\n");
     let start = pos_to_linecol(editor!, range[0]);
@@ -57,7 +57,7 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
             line: range.end_line,
             col: range.end_col,
           });
-          return add_highlight.of({ from, to, mark: "peach" });
+          return add_highlight.of({ from, to, color: "peach" });
         }),
     });
 
@@ -66,11 +66,16 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
         add_highlight.of({
           from: range[0],
           to: range[1],
-          mark: "green",
+          color: "forest-green",
         }),
       ],
     });
   };
+
+  // TODO: 
+  //   1. loading animation
+  //   2. error messages for compile fail
+  //   3. error messages for no selected range
 
   return (
     <div>
@@ -80,7 +85,7 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
         extensions={[
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
-              editor!.dispatch({ effects: clear_highlights.of() });
+              editor!.dispatch({ effects: clear_highlights.of(null) });
             }
           }),
         ]}
@@ -97,9 +102,9 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
       />
       <button
         onClick={() => {
-          let selection = editor!.state.selection;
-          if (selection) {
-            let range = selection.main;
+          let selection = editor!.state.selection!;
+          let range = selection.main;
+          if (!range.empty) {
             get_slice([range.from, range.to]);
           }
         }}

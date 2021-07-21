@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build": "node build.cjs",
-    "tc": "tsc"
+    "tc": "tsc -noEmit"
   },
   "dependencies": {
     "@codemirror/gutter": "^0.18.0",

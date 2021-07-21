@@ -28,7 +28,25 @@ $size-LARGE: 28px;
 $size-huge: 32px;
 $size-Huge: 36px;
 
-$acm-purple: #6200D9;
+$colors: (
+  acm-purple: #6200D9,
+  peach: rgb(250,223,203),
+  forest-green: rgb(186,220,199)
+);
+
+@each $name, $color in $colors {
+  .textcolor-#{$name} {
+    color: $color;
+  }
+
+  .bgcolor-#{$name} {
+    background: $color;
+  }
+}
+
+@function color($key) {
+  @return map-get($colors, $key)
+}
 
 body {
   font-family: $serif;
@@ -74,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: $acm-purple;
+  color: color("acm-purple");
   text-decoration: none;
 }
 
