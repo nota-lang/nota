@@ -38,6 +38,10 @@ export let Tex: React.FC = ({ children }) => {
     let container = ref.current!;
     let elems = container.querySelectorAll("[data-def]");
     let cbs = Array.from(elems).map((elem) => {
+      if (!(elem instanceof HTMLElement)) {
+        throw `Elem with [data-def] not HTMLElement`;
+      }
+
       let on_click = () => {
         let anchor_id = `def-${elem.dataset.def}`;
         let anchor_elem = document.getElementById(anchor_id);
@@ -56,7 +60,7 @@ export let Tex: React.FC = ({ children }) => {
         // TODO: bad workaround
         setTimeout(
           () =>
-            anchor_elem.scrollIntoView({
+            anchor_elem!.scrollIntoView({
               behavior: "smooth",
               block: "center",
               inline: "center",

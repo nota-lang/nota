@@ -122,7 +122,7 @@ export class BibliographyContext {
             <a href={`#ref-${key}`} key={key}>{`${author} [${entry.year}]`}</a>
           );
         }),
-        "; "
+        <>{"; "}</>
       )
     ) : (
       <span>
