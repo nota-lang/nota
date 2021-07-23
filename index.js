@@ -25,9 +25,9 @@ var require_object_assign = __commonJS({
   "node_modules/object-assign/index.js"(exports, module) {
     "use strict";
     var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var hasOwnProperty2 = Object.prototype.hasOwnProperty;
     var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-    function toObject(val) {
+    function toObject2(val) {
       if (val === null || val === void 0) {
         throw new TypeError("Object.assign cannot be called with null or undefined");
       }
@@ -67,12 +67,12 @@ var require_object_assign = __commonJS({
     }
     module.exports = shouldUseNative() ? Object.assign : function(target, source) {
       var from;
-      var to = toObject(target);
+      var to = toObject2(target);
       var symbols;
       for (var s = 1; s < arguments.length; s++) {
         from = Object(arguments[s]);
         for (var key in from) {
-          if (hasOwnProperty.call(from, key)) {
+          if (hasOwnProperty2.call(from, key)) {
             to[key] = from[key];
           }
         }
@@ -264,14 +264,14 @@ var require_react_development = __commonJS({
         {
           Object.freeze(emptyObject);
         }
-        function Component(props, context, updater) {
+        function Component4(props, context, updater) {
           this.props = props;
           this.context = context;
           this.refs = emptyObject;
           this.updater = updater || ReactNoopUpdateQueue;
         }
-        Component.prototype.isReactComponent = {};
-        Component.prototype.setState = function(partialState, callback) {
+        Component4.prototype.isReactComponent = {};
+        Component4.prototype.setState = function(partialState, callback) {
           if (!(typeof partialState === "object" || typeof partialState === "function" || partialState == null)) {
             {
               throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");
@@ -279,7 +279,7 @@ var require_react_development = __commonJS({
           }
           this.updater.enqueueSetState(this, partialState, callback, "setState");
         };
-        Component.prototype.forceUpdate = function(callback) {
+        Component4.prototype.forceUpdate = function(callback) {
           this.updater.enqueueForceUpdate(this, callback, "forceUpdate");
         };
         {
@@ -288,7 +288,7 @@ var require_react_development = __commonJS({
             replaceState: ["replaceState", "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."]
           };
           var defineDeprecationWarning = function(methodName, info) {
-            Object.defineProperty(Component.prototype, methodName, {
+            Object.defineProperty(Component4.prototype, methodName, {
               get: function() {
                 warn("%s(...) is deprecated in plain JavaScript React classes. %s", info[0], info[1]);
                 return void 0;
@@ -303,7 +303,7 @@ var require_react_development = __commonJS({
         }
         function ComponentDummy() {
         }
-        ComponentDummy.prototype = Component.prototype;
+        ComponentDummy.prototype = Component4.prototype;
         function PureComponent(props, context, updater) {
           this.props = props;
           this.context = context;
@@ -312,9 +312,9 @@ var require_react_development = __commonJS({
         }
         var pureComponentPrototype = PureComponent.prototype = new ComponentDummy();
         pureComponentPrototype.constructor = PureComponent;
-        _assign(pureComponentPrototype, Component.prototype);
+        _assign(pureComponentPrototype, Component4.prototype);
         pureComponentPrototype.isPureReactComponent = true;
-        function createRef() {
+        function createRef2() {
           var refObject = {
             current: null
           };
@@ -387,7 +387,7 @@ var require_react_development = __commonJS({
           }
           return null;
         }
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
         var RESERVED_PROPS = {
           key: true,
           ref: true,
@@ -400,7 +400,7 @@ var require_react_development = __commonJS({
         }
         function hasValidRef(config) {
           {
-            if (hasOwnProperty.call(config, "ref")) {
+            if (hasOwnProperty2.call(config, "ref")) {
               var getter = Object.getOwnPropertyDescriptor(config, "ref").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -411,7 +411,7 @@ var require_react_development = __commonJS({
         }
         function hasValidKey(config) {
           {
-            if (hasOwnProperty.call(config, "key")) {
+            if (hasOwnProperty2.call(config, "key")) {
               var getter = Object.getOwnPropertyDescriptor(config, "key").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -497,7 +497,7 @@ var require_react_development = __commonJS({
           }
           return element;
         };
-        function createElement(type, config, children) {
+        function createElement10(type, config, children) {
           var propName;
           var props = {};
           var key = null;
@@ -517,7 +517,7 @@ var require_react_development = __commonJS({
             self2 = config.__self === void 0 ? null : config.__self;
             source = config.__source === void 0 ? null : config.__source;
             for (propName in config) {
-              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = config[propName];
               }
             }
@@ -562,7 +562,7 @@ var require_react_development = __commonJS({
           var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
           return newElement;
         }
-        function cloneElement(element, config, children) {
+        function cloneElement2(element, config, children) {
           if (!!(element === null || element === void 0)) {
             {
               throw Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + ".");
@@ -588,7 +588,7 @@ var require_react_development = __commonJS({
               defaultProps = element.type.defaultProps;
             }
             for (propName in config) {
-              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 if (config[propName] === void 0 && defaultProps !== void 0) {
                   props[propName] = defaultProps[propName];
                 } else {
@@ -620,8 +620,8 @@ var require_react_development = __commonJS({
             "=": "=0",
             ":": "=2"
           };
-          var escapedString = key.replace(escapeRegex, function(match) {
-            return escaperLookup[match];
+          var escapedString = key.replace(escapeRegex, function(match2) {
+            return escaperLookup[match2];
           });
           return "$" + escapedString;
         }
@@ -630,11 +630,11 @@ var require_react_development = __commonJS({
         function escapeUserProvidedKey(text) {
           return text.replace(userProvidedKeyEscapeRegex, "$&/");
         }
-        function getElementKey(element, index) {
+        function getElementKey(element, index2) {
           if (typeof element === "object" && element !== null && element.key != null) {
             return escape("" + element.key);
           }
-          return index.toString(36);
+          return index2.toString(36);
         }
         function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
           var type = typeof children;
@@ -755,7 +755,7 @@ var require_react_development = __commonJS({
           }
           return children;
         }
-        function createContext2(defaultValue, calculateChangedBits) {
+        function createContext3(defaultValue, calculateChangedBits) {
           if (calculateChangedBits === void 0) {
             calculateChangedBits = null;
           } else {
@@ -934,7 +934,7 @@ var require_react_development = __commonJS({
           }
           return lazyType;
         }
-        function forwardRef(render) {
+        function forwardRef7(render) {
           {
             if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
               error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
@@ -1043,7 +1043,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context, unstable_observedBits);
         }
-        function useState4(initialState) {
+        function useState10(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1051,29 +1051,29 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer, initialArg, init);
         }
-        function useRef2(initialValue) {
+        function useRef14(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect3(create, deps) {
+        function useEffect14(create2, deps) {
           var dispatcher = resolveDispatcher();
-          return dispatcher.useEffect(create, deps);
+          return dispatcher.useEffect(create2, deps);
         }
-        function useLayoutEffect(create, deps) {
+        function useLayoutEffect2(create2, deps) {
           var dispatcher = resolveDispatcher();
-          return dispatcher.useLayoutEffect(create, deps);
+          return dispatcher.useLayoutEffect(create2, deps);
         }
-        function useCallback(callback, deps) {
+        function useCallback3(callback, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo(create, deps) {
+        function useMemo3(create2, deps) {
           var dispatcher = resolveDispatcher();
-          return dispatcher.useMemo(create, deps);
+          return dispatcher.useMemo(create2, deps);
         }
-        function useImperativeHandle(ref, create, deps) {
+        function useImperativeHandle5(ref, create2, deps) {
           var dispatcher = resolveDispatcher();
-          return dispatcher.useImperativeHandle(ref, create, deps);
+          return dispatcher.useImperativeHandle(ref, create2, deps);
         }
         function useDebugValue(value, formatterFn) {
           {
@@ -1167,8 +1167,8 @@ var require_react_development = __commonJS({
               try {
                 throw Error();
               } catch (x) {
-                var match = x.stack.trim().match(/\n( *(at )?)/);
-                prefix = match && match[1] || "";
+                var match2 = x.stack.trim().match(/\n( *(at )?)/);
+                prefix = match2 && match2[1] || "";
               }
             }
             return "\n" + prefix + name2;
@@ -1285,8 +1285,8 @@ var require_react_development = __commonJS({
             return describeNativeComponentFrame(fn, false);
           }
         }
-        function shouldConstruct(Component2) {
-          var prototype = Component2.prototype;
+        function shouldConstruct(Component5) {
+          var prototype = Component5.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -1343,9 +1343,9 @@ var require_react_development = __commonJS({
         }
         function checkPropTypes(typeSpecs, values, location, componentName, element) {
           {
-            var has = Function.call.bind(Object.prototype.hasOwnProperty);
+            var has2 = Function.call.bind(Object.prototype.hasOwnProperty);
             for (var typeSpecName in typeSpecs) {
-              if (has(typeSpecs, typeSpecName)) {
+              if (has2(typeSpecs, typeSpecName)) {
                 var error$1 = void 0;
                 try {
                   if (typeof typeSpecs[typeSpecName] !== "function") {
@@ -1500,9 +1500,9 @@ var require_react_development = __commonJS({
         }
         function validateFragmentProps(fragment) {
           {
-            var keys = Object.keys(fragment.props);
-            for (var i = 0; i < keys.length; i++) {
-              var key = keys[i];
+            var keys3 = Object.keys(fragment.props);
+            for (var i = 0; i < keys3.length; i++) {
+              var key = keys3[i];
               if (key !== "children" && key !== "key") {
                 setCurrentlyValidatingElement$1(fragment);
                 error("Invalid prop `%s` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.", key);
@@ -1545,7 +1545,7 @@ var require_react_development = __commonJS({
               error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
             }
           }
-          var element = createElement.apply(this, arguments);
+          var element = createElement10.apply(this, arguments);
           if (element == null) {
             return element;
           }
@@ -1584,7 +1584,7 @@ var require_react_development = __commonJS({
           return validatedFactory;
         }
         function cloneElementWithValidation(element, props, children) {
-          var newElement = cloneElement.apply(this, arguments);
+          var newElement = cloneElement2.apply(this, arguments);
           for (var i = 2; i < arguments.length; i++) {
             validateChildKeys(arguments[i], newElement.type);
           }
@@ -1602,36 +1602,36 @@ var require_react_development = __commonJS({
         var createElement$1 = createElementWithValidation;
         var cloneElement$1 = cloneElementWithValidation;
         var createFactory = createFactoryWithValidation;
-        var Children = {
+        var Children4 = {
           map: mapChildren,
           forEach: forEachChildren,
           count: countChildren,
           toArray,
           only: onlyChild
         };
-        exports.Children = Children;
-        exports.Component = Component;
+        exports.Children = Children4;
+        exports.Component = Component4;
         exports.PureComponent = PureComponent;
         exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
         exports.cloneElement = cloneElement$1;
-        exports.createContext = createContext2;
+        exports.createContext = createContext3;
         exports.createElement = createElement$1;
         exports.createFactory = createFactory;
-        exports.createRef = createRef;
-        exports.forwardRef = forwardRef;
+        exports.createRef = createRef2;
+        exports.forwardRef = forwardRef7;
         exports.isValidElement = isValidElement;
         exports.lazy = lazy;
         exports.memo = memo;
-        exports.useCallback = useCallback;
+        exports.useCallback = useCallback3;
         exports.useContext = useContext6;
         exports.useDebugValue = useDebugValue;
-        exports.useEffect = useEffect3;
-        exports.useImperativeHandle = useImperativeHandle;
-        exports.useLayoutEffect = useLayoutEffect;
-        exports.useMemo = useMemo;
+        exports.useEffect = useEffect14;
+        exports.useImperativeHandle = useImperativeHandle5;
+        exports.useLayoutEffect = useLayoutEffect2;
+        exports.useMemo = useMemo3;
         exports.useReducer = useReducer;
-        exports.useRef = useRef2;
-        exports.useState = useState4;
+        exports.useRef = useRef14;
+        exports.useState = useState10;
         exports.version = ReactVersion;
       })();
     }
@@ -1788,10 +1788,10 @@ var require_scheduler_development = __commonJS({
             taskTimeoutID = -1;
           };
         }
-        function push(heap, node) {
-          var index = heap.length;
+        function push2(heap, node) {
+          var index2 = heap.length;
           heap.push(node);
-          siftUp(heap, node, index);
+          siftUp(heap, node, index2);
         }
         function peek(heap) {
           var first = heap[0];
@@ -1811,41 +1811,41 @@ var require_scheduler_development = __commonJS({
           }
         }
         function siftUp(heap, node, i) {
-          var index = i;
+          var index2 = i;
           while (true) {
-            var parentIndex = index - 1 >>> 1;
+            var parentIndex = index2 - 1 >>> 1;
             var parent = heap[parentIndex];
             if (parent !== void 0 && compare2(parent, node) > 0) {
               heap[parentIndex] = node;
-              heap[index] = parent;
-              index = parentIndex;
+              heap[index2] = parent;
+              index2 = parentIndex;
             } else {
               return;
             }
           }
         }
         function siftDown(heap, node, i) {
-          var index = i;
+          var index2 = i;
           var length = heap.length;
-          while (index < length) {
-            var leftIndex = (index + 1) * 2 - 1;
+          while (index2 < length) {
+            var leftIndex = (index2 + 1) * 2 - 1;
             var left = heap[leftIndex];
             var rightIndex = leftIndex + 1;
             var right = heap[rightIndex];
             if (left !== void 0 && compare2(left, node) < 0) {
               if (right !== void 0 && compare2(right, left) < 0) {
-                heap[index] = right;
+                heap[index2] = right;
                 heap[rightIndex] = node;
-                index = rightIndex;
+                index2 = rightIndex;
               } else {
-                heap[index] = left;
+                heap[index2] = left;
                 heap[leftIndex] = node;
-                index = leftIndex;
+                index2 = leftIndex;
               }
             } else if (right !== void 0 && compare2(right, node) < 0) {
-              heap[index] = right;
+              heap[index2] = right;
               heap[rightIndex] = node;
-              index = rightIndex;
+              index2 = rightIndex;
             } else {
               return;
             }
@@ -1884,7 +1884,7 @@ var require_scheduler_development = __commonJS({
             } else if (timer.startTime <= currentTime) {
               pop(timerQueue);
               timer.sortIndex = timer.expirationTime;
-              push(taskQueue, timer);
+              push2(taskQueue, timer);
             } else {
               return;
             }
@@ -2067,7 +2067,7 @@ var require_scheduler_development = __commonJS({
           };
           if (startTime > currentTime) {
             newTask.sortIndex = startTime;
-            push(timerQueue, newTask);
+            push2(timerQueue, newTask);
             if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
               if (isHostTimeoutScheduled) {
                 cancelHostTimeout();
@@ -2078,7 +2078,7 @@ var require_scheduler_development = __commonJS({
             }
           } else {
             newTask.sortIndex = expirationTime;
-            push(taskQueue, newTask);
+            push2(taskQueue, newTask);
             if (!isHostCallbackScheduled && !isPerformingWork) {
               isHostCallbackScheduled = true;
               requestHostCallback(flushWork);
@@ -2439,11 +2439,11 @@ var require_react_dom_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var React8 = require_react();
+        var React27 = require_react();
         var _assign = require_object_assign();
         var Scheduler = require_scheduler();
         var tracing = require_tracing();
-        var ReactSharedInternals = React8.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React27.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2475,7 +2475,7 @@ var require_react_dom_development = __commonJS({
             Function.prototype.apply.call(console[level], console, argsWithFormat);
           }
         }
-        if (!React8) {
+        if (!React27) {
           {
             throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
           }
@@ -2487,7 +2487,7 @@ var require_react_dom_development = __commonJS({
         var HostPortal = 4;
         var HostComponent = 5;
         var HostText = 6;
-        var Fragment = 7;
+        var Fragment2 = 7;
         var Mode = 8;
         var ContextConsumer = 9;
         var ContextProvider = 10;
@@ -2546,14 +2546,14 @@ var require_react_dom_development = __commonJS({
         var ATTRIBUTE_NAME_CHAR = ATTRIBUTE_NAME_START_CHAR + "\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
         var ROOT_ATTRIBUTE_NAME = "data-reactroot";
         var VALID_ATTRIBUTE_NAME_REGEX = new RegExp("^[" + ATTRIBUTE_NAME_START_CHAR + "][" + ATTRIBUTE_NAME_CHAR + "]*$");
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
         var illegalAttributeNameCache = {};
         var validatedAttributeNameCache = {};
         function isAttributeNameSafe(attributeName) {
-          if (hasOwnProperty.call(validatedAttributeNameCache, attributeName)) {
+          if (hasOwnProperty2.call(validatedAttributeNameCache, attributeName)) {
             return true;
           }
-          if (hasOwnProperty.call(illegalAttributeNameCache, attributeName)) {
+          if (hasOwnProperty2.call(illegalAttributeNameCache, attributeName)) {
             return false;
           }
           if (VALID_ATTRIBUTE_NAME_REGEX.test(attributeName)) {
@@ -3089,8 +3089,8 @@ var require_react_dom_development = __commonJS({
               try {
                 throw Error();
               } catch (x) {
-                var match = x.stack.trim().match(/\n( *(at )?)/);
-                prefix = match && match[1] || "";
+                var match2 = x.stack.trim().match(/\n( *(at )?)/);
+                prefix = match2 && match2[1] || "";
               }
             }
             return "\n" + prefix + name2;
@@ -3212,8 +3212,8 @@ var require_react_dom_development = __commonJS({
             return describeNativeComponentFrame(fn, false);
           }
         }
-        function shouldConstruct(Component) {
-          var prototype = Component.prototype;
+        function shouldConstruct(Component4) {
+          var prototype = Component4.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -3405,7 +3405,7 @@ var require_react_dom_development = __commonJS({
             return isRendering;
           }
         }
-        function toString(value) {
+        function toString2(value) {
           return "" + value;
         }
         function getToStringValue(value) {
@@ -3469,15 +3469,15 @@ var require_react_dom_development = __commonJS({
           if (node.hasOwnProperty(valueField) || typeof descriptor === "undefined" || typeof descriptor.get !== "function" || typeof descriptor.set !== "function") {
             return;
           }
-          var get2 = descriptor.get, set2 = descriptor.set;
+          var get4 = descriptor.get, set4 = descriptor.set;
           Object.defineProperty(node, valueField, {
             configurable: true,
             get: function() {
-              return get2.call(this);
+              return get4.call(this);
             },
             set: function(value) {
               currentValue = "" + value;
-              set2.call(this, value);
+              set4.call(this, value);
             }
           });
           Object.defineProperty(node, valueField, {
@@ -3595,10 +3595,10 @@ var require_react_dom_development = __commonJS({
           if (value != null) {
             if (type === "number") {
               if (value === 0 && node.value === "" || node.value != value) {
-                node.value = toString(value);
+                node.value = toString2(value);
               }
-            } else if (node.value !== toString(value)) {
-              node.value = toString(value);
+            } else if (node.value !== toString2(value)) {
+              node.value = toString2(value);
             }
           } else if (type === "submit" || type === "reset") {
             node.removeAttribute("value");
@@ -3625,7 +3625,7 @@ var require_react_dom_development = __commonJS({
             if (isButton && (props.value === void 0 || props.value === null)) {
               return;
             }
-            var initialValue = toString(node._wrapperState.initialValue);
+            var initialValue = toString2(node._wrapperState.initialValue);
             if (!isHydrating2) {
               {
                 if (initialValue !== node.value) {
@@ -3681,9 +3681,9 @@ var require_react_dom_development = __commonJS({
         function setDefaultValue(node, type, value) {
           if (type !== "number" || getActiveElement(node.ownerDocument) !== node) {
             if (value == null) {
-              node.defaultValue = toString(node._wrapperState.initialValue);
-            } else if (node.defaultValue !== toString(value)) {
-              node.defaultValue = toString(value);
+              node.defaultValue = toString2(node._wrapperState.initialValue);
+            } else if (node.defaultValue !== toString2(value)) {
+              node.defaultValue = toString2(value);
             }
           }
         }
@@ -3691,7 +3691,7 @@ var require_react_dom_development = __commonJS({
         var didWarnInvalidChild = false;
         function flattenChildren(children) {
           var content2 = "";
-          React8.Children.forEach(children, function(child) {
+          React27.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -3702,7 +3702,7 @@ var require_react_dom_development = __commonJS({
         function validateProps(element, props) {
           {
             if (typeof props.children === "object" && props.children !== null) {
-              React8.Children.forEach(props.children, function(child) {
+              React27.Children.forEach(props.children, function(child) {
                 if (child == null) {
                   return;
                 }
@@ -3726,7 +3726,7 @@ var require_react_dom_development = __commonJS({
         }
         function postMountWrapper$1(element, props) {
           if (props.value != null) {
-            element.setAttribute("value", toString(getToStringValue(props.value)));
+            element.setAttribute("value", toString2(getToStringValue(props.value)));
           }
         }
         function getHostProps$1(element, props) {
@@ -3759,10 +3759,10 @@ var require_react_dom_development = __commonJS({
               if (props[propName] == null) {
                 continue;
               }
-              var isArray2 = Array.isArray(props[propName]);
-              if (props.multiple && !isArray2) {
+              var isArray4 = Array.isArray(props[propName]);
+              if (props.multiple && !isArray4) {
                 error("The `%s` prop supplied to <select> must be an array if `multiple` is true.%s", propName, getDeclarationErrorAddendum());
-              } else if (!props.multiple && isArray2) {
+              } else if (!props.multiple && isArray4) {
                 error("The `%s` prop supplied to <select> must be a scalar value if `multiple` is false.%s", propName, getDeclarationErrorAddendum());
               }
             }
@@ -3786,7 +3786,7 @@ var require_react_dom_development = __commonJS({
               }
             }
           } else {
-            var _selectedValue = toString(getToStringValue(propValue));
+            var _selectedValue = toString2(getToStringValue(propValue));
             var defaultSelected = null;
             for (var _i2 = 0; _i2 < options2.length; _i2++) {
               if (options2[_i2].value === _selectedValue) {
@@ -3868,7 +3868,7 @@ var require_react_dom_development = __commonJS({
           var hostProps = _assign({}, props, {
             value: void 0,
             defaultValue: void 0,
-            children: toString(node._wrapperState.initialValue)
+            children: toString2(node._wrapperState.initialValue)
           });
           return hostProps;
         }
@@ -3919,7 +3919,7 @@ var require_react_dom_development = __commonJS({
           var value = getToStringValue(props.value);
           var defaultValue = getToStringValue(props.defaultValue);
           if (value != null) {
-            var newValue = toString(value);
+            var newValue = toString2(value);
             if (newValue !== node.value) {
               node.value = newValue;
             }
@@ -3928,7 +3928,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           if (defaultValue != null) {
-            node.defaultValue = toString(defaultValue);
+            node.defaultValue = toString2(defaultValue);
           }
         }
         function postMountWrapper$3(element, props) {
@@ -3982,11 +3982,11 @@ var require_react_dom_development = __commonJS({
           }
         };
         var reusableSVGContainer;
-        var setInnerHTML = createMicrosoftUnsafeLocalFunction(function(node, html) {
+        var setInnerHTML = createMicrosoftUnsafeLocalFunction(function(node, html2) {
           if (node.namespaceURI === Namespaces.svg) {
             if (!("innerHTML" in node)) {
               reusableSVGContainer = reusableSVGContainer || document.createElement("div");
-              reusableSVGContainer.innerHTML = "<svg>" + html.valueOf().toString() + "</svg>";
+              reusableSVGContainer.innerHTML = "<svg>" + html2.valueOf().toString() + "</svg>";
               var svgNode = reusableSVGContainer.firstChild;
               while (node.firstChild) {
                 node.removeChild(node.firstChild);
@@ -3997,7 +3997,7 @@ var require_react_dom_development = __commonJS({
               return;
             }
           }
-          node.innerHTML = html;
+          node.innerHTML = html2;
         });
         var ELEMENT_NODE = 1;
         var TEXT_NODE = 3;
@@ -4220,7 +4220,7 @@ var require_react_dom_development = __commonJS({
           }
         }
         function setValueForStyles(node, styles) {
-          var style2 = node.style;
+          var style3 = node.style;
           for (var styleName in styles) {
             if (!styles.hasOwnProperty(styleName)) {
               continue;
@@ -4236,9 +4236,9 @@ var require_react_dom_development = __commonJS({
               styleName = "cssFloat";
             }
             if (isCustomProperty) {
-              style2.setProperty(styleName, styleValue);
+              style3.setProperty(styleName, styleValue);
             } else {
-              style2[styleName] = styleValue;
+              style3[styleName] = styleValue;
             }
           }
         }
@@ -5279,7 +5279,7 @@ var require_react_dom_development = __commonJS({
             passiveBrowserEventsSupported = false;
           }
         }
-        function invokeGuardedCallbackProd(name2, func, context, a, b, c, d, e, f) {
+        function invokeGuardedCallbackProd(name2, func, context, a, b, c, d, e, f2) {
           var funcArgs = Array.prototype.slice.call(arguments, 3);
           try {
             func.apply(context, funcArgs);
@@ -5291,7 +5291,7 @@ var require_react_dom_development = __commonJS({
         {
           if (typeof window !== "undefined" && typeof window.dispatchEvent === "function" && typeof document !== "undefined" && typeof document.createEvent === "function") {
             var fakeNode = document.createElement("react");
-            invokeGuardedCallbackImpl = function invokeGuardedCallbackDev(name2, func, context, a, b, c, d, e, f) {
+            invokeGuardedCallbackImpl = function invokeGuardedCallbackDev(name2, func, context, a, b, c, d, e, f2) {
               if (!(typeof document !== "undefined")) {
                 {
                   throw Error("The `document` global was defined when React was initialized, but is not defined anymore. This can happen in a test environment if a component schedules an update from an asynchronous callback, but the test has already finished running. To solve this, you can either unmount the component at the end of your test (and ensure that any asynchronous operations get canceled in `componentWillUnmount`), or you can change the test itself to be asynchronous.");
@@ -5368,12 +5368,12 @@ var require_react_dom_development = __commonJS({
             caughtError = error2;
           }
         };
-        function invokeGuardedCallback(name2, func, context, a, b, c, d, e, f) {
+        function invokeGuardedCallback(name2, func, context, a, b, c, d, e, f2) {
           hasError = false;
           caughtError = null;
           invokeGuardedCallbackImpl$1.apply(reporter, arguments);
         }
-        function invokeGuardedCallbackAndCatchFirstError(name2, func, context, a, b, c, d, e, f) {
+        function invokeGuardedCallbackAndCatchFirstError(name2, func, context, a, b, c, d, e, f2) {
           invokeGuardedCallback.apply(this, arguments);
           if (hasError) {
             var error2 = clearCaughtError();
@@ -5408,13 +5408,13 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function get(key) {
+        function get3(key) {
           return key._reactInternals;
         }
-        function has(key) {
+        function has2(key) {
           return key._reactInternals !== void 0;
         }
-        function set(key, value) {
+        function set3(key, value) {
           key._reactInternals = value;
         }
         var NoFlags = 0;
@@ -5493,7 +5493,7 @@ var require_react_dom_development = __commonJS({
               instance._warnedAboutRefsInRender = true;
             }
           }
-          var fiber = get(component);
+          var fiber = get3(component);
           if (!fiber) {
             return false;
           }
@@ -5978,50 +5978,50 @@ var require_react_dom_development = __commonJS({
         var DiscreteEvent = 0;
         var UserBlockingEvent = 1;
         var ContinuousEvent = 2;
-        function makePrefixMap(styleProp, eventName) {
+        function makePrefixMap2(styleProp, eventName) {
           var prefixes2 = {};
           prefixes2[styleProp.toLowerCase()] = eventName.toLowerCase();
           prefixes2["Webkit" + styleProp] = "webkit" + eventName;
           prefixes2["Moz" + styleProp] = "moz" + eventName;
           return prefixes2;
         }
-        var vendorPrefixes = {
-          animationend: makePrefixMap("Animation", "AnimationEnd"),
-          animationiteration: makePrefixMap("Animation", "AnimationIteration"),
-          animationstart: makePrefixMap("Animation", "AnimationStart"),
-          transitionend: makePrefixMap("Transition", "TransitionEnd")
+        var vendorPrefixes2 = {
+          animationend: makePrefixMap2("Animation", "AnimationEnd"),
+          animationiteration: makePrefixMap2("Animation", "AnimationIteration"),
+          animationstart: makePrefixMap2("Animation", "AnimationStart"),
+          transitionend: makePrefixMap2("Transition", "TransitionEnd")
         };
-        var prefixedEventNames = {};
-        var style = {};
+        var prefixedEventNames2 = {};
+        var style2 = {};
         if (canUseDOM) {
-          style = document.createElement("div").style;
+          style2 = document.createElement("div").style;
           if (!("AnimationEvent" in window)) {
-            delete vendorPrefixes.animationend.animation;
-            delete vendorPrefixes.animationiteration.animation;
-            delete vendorPrefixes.animationstart.animation;
+            delete vendorPrefixes2.animationend.animation;
+            delete vendorPrefixes2.animationiteration.animation;
+            delete vendorPrefixes2.animationstart.animation;
           }
           if (!("TransitionEvent" in window)) {
-            delete vendorPrefixes.transitionend.transition;
+            delete vendorPrefixes2.transitionend.transition;
           }
         }
-        function getVendorPrefixedEventName(eventName) {
-          if (prefixedEventNames[eventName]) {
-            return prefixedEventNames[eventName];
-          } else if (!vendorPrefixes[eventName]) {
+        function getVendorPrefixedEventName2(eventName) {
+          if (prefixedEventNames2[eventName]) {
+            return prefixedEventNames2[eventName];
+          } else if (!vendorPrefixes2[eventName]) {
             return eventName;
           }
-          var prefixMap = vendorPrefixes[eventName];
+          var prefixMap = vendorPrefixes2[eventName];
           for (var styleProp in prefixMap) {
-            if (prefixMap.hasOwnProperty(styleProp) && styleProp in style) {
-              return prefixedEventNames[eventName] = prefixMap[styleProp];
+            if (prefixMap.hasOwnProperty(styleProp) && styleProp in style2) {
+              return prefixedEventNames2[eventName] = prefixMap[styleProp];
             }
           }
           return eventName;
         }
-        var ANIMATION_END = getVendorPrefixedEventName("animationend");
-        var ANIMATION_ITERATION = getVendorPrefixedEventName("animationiteration");
-        var ANIMATION_START = getVendorPrefixedEventName("animationstart");
-        var TRANSITION_END = getVendorPrefixedEventName("transitionend");
+        var ANIMATION_END = getVendorPrefixedEventName2("animationend");
+        var ANIMATION_ITERATION = getVendorPrefixedEventName2("animationiteration");
+        var ANIMATION_START = getVendorPrefixedEventName2("animationstart");
+        var TRANSITION_END = getVendorPrefixedEventName2("transitionend");
         var topLevelEventsToReactNames = new Map();
         var eventPriorities = new Map();
         var discreteEventPairsForSimpleEventPlugin = [
@@ -6355,9 +6355,9 @@ var require_react_dom_development = __commonJS({
             var entanglements = root2.entanglements;
             var lanes = nextLanes & entangledLanes;
             while (lanes > 0) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
-              nextLanes |= entanglements[index2];
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
+              nextLanes |= entanglements[index3];
               lanes &= ~lane;
             }
           }
@@ -6367,9 +6367,9 @@ var require_react_dom_development = __commonJS({
           var eventTimes = root2.eventTimes;
           var mostRecentEventTime = NoTimestamp;
           while (lanes > 0) {
-            var index2 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index2;
-            var eventTime = eventTimes[index2];
+            var index3 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index3;
+            var eventTime = eventTimes[index3];
             if (eventTime > mostRecentEventTime) {
               mostRecentEventTime = eventTime;
             }
@@ -6395,12 +6395,12 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = pendingLanes;
           while (lanes > 0) {
-            var index2 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index2;
-            var expirationTime = expirationTimes[index2];
+            var index3 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index3;
+            var expirationTime = expirationTimes[index3];
             if (expirationTime === NoTimestamp) {
               if ((lane & suspendedLanes) === NoLanes || (lane & pingedLanes) !== NoLanes) {
-                expirationTimes[index2] = computeExpirationTime(lane, currentTime);
+                expirationTimes[index3] = computeExpirationTime(lane, currentTime);
               }
             } else if (expirationTime <= currentTime) {
               root2.expiredLanes |= lane;
@@ -6499,8 +6499,8 @@ var require_react_dom_development = __commonJS({
           return lanes & -lanes;
         }
         function getLowestPriorityLane(lanes) {
-          var index2 = 31 - clz32(lanes);
-          return index2 < 0 ? NoLanes : 1 << index2;
+          var index3 = 31 - clz32(lanes);
+          return index3 < 0 ? NoLanes : 1 << index3;
         }
         function getEqualOrHigherPriorityLanes(lanes) {
           return (getLowestPriorityLane(lanes) << 1) - 1;
@@ -6517,14 +6517,14 @@ var require_react_dom_development = __commonJS({
         function includesSomeLane(a, b) {
           return (a & b) !== NoLanes;
         }
-        function isSubsetOfLanes(set2, subset) {
-          return (set2 & subset) === subset;
+        function isSubsetOfLanes(set4, subset) {
+          return (set4 & subset) === subset;
         }
         function mergeLanes(a, b) {
           return a | b;
         }
-        function removeLanes(set2, subset) {
-          return set2 & ~subset;
+        function removeLanes(set4, subset) {
+          return set4 & ~subset;
         }
         function laneToLanes(lane) {
           return lane;
@@ -6545,8 +6545,8 @@ var require_react_dom_development = __commonJS({
           root2.suspendedLanes &= higherPriorityLanes;
           root2.pingedLanes &= higherPriorityLanes;
           var eventTimes = root2.eventTimes;
-          var index2 = laneToIndex(updateLane);
-          eventTimes[index2] = eventTime;
+          var index3 = laneToIndex(updateLane);
+          eventTimes[index3] = eventTime;
         }
         function markRootSuspended(root2, suspendedLanes) {
           root2.suspendedLanes |= suspendedLanes;
@@ -6554,9 +6554,9 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = suspendedLanes;
           while (lanes > 0) {
-            var index2 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index2;
-            expirationTimes[index2] = NoTimestamp;
+            var index3 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index3;
+            expirationTimes[index3] = NoTimestamp;
             lanes &= ~lane;
           }
         }
@@ -6585,11 +6585,11 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = noLongerPendingLanes;
           while (lanes > 0) {
-            var index2 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index2;
-            entanglements[index2] = NoLanes;
-            eventTimes[index2] = NoTimestamp;
-            expirationTimes[index2] = NoTimestamp;
+            var index3 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index3;
+            entanglements[index3] = NoLanes;
+            eventTimes[index3] = NoTimestamp;
+            expirationTimes[index3] = NoTimestamp;
             lanes &= ~lane;
           }
         }
@@ -6598,9 +6598,9 @@ var require_react_dom_development = __commonJS({
           var entanglements = root2.entanglements;
           var lanes = entangledLanes;
           while (lanes > 0) {
-            var index2 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index2;
-            entanglements[index2] |= entangledLanes;
+            var index3 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index3;
+            entanglements[index3] |= entangledLanes;
             lanes &= ~lane;
           }
         }
@@ -6811,9 +6811,9 @@ var require_react_dom_development = __commonJS({
               if (!Interface.hasOwnProperty(_propName)) {
                 continue;
               }
-              var normalize = Interface[_propName];
-              if (normalize) {
-                this[_propName] = normalize(nativeEvent);
+              var normalize2 = Interface[_propName];
+              if (normalize2) {
+                this[_propName] = normalize2(nativeEvent);
               } else {
                 this[_propName] = nativeEvent[_propName];
               }
@@ -7565,17 +7565,17 @@ var require_react_dom_development = __commonJS({
             node = node.parentNode;
           }
         }
-        function getNodeForCharacterOffset(root2, offset) {
+        function getNodeForCharacterOffset(root2, offset2) {
           var node = getLeafNode(root2);
           var nodeStart = 0;
           var nodeEnd = 0;
           while (node) {
             if (node.nodeType === TEXT_NODE) {
               nodeEnd = nodeStart + node.textContent.length;
-              if (nodeStart <= offset && nodeEnd >= offset) {
+              if (nodeStart <= offset2 && nodeEnd >= offset2) {
                 return {
                   node,
-                  offset: offset - nodeStart
+                  offset: offset2 - nodeStart
                 };
               }
               nodeStart = nodeEnd;
@@ -8213,7 +8213,7 @@ var require_react_dom_development = __commonJS({
           }
           return listeners;
         }
-        function getParent(inst) {
+        function getParent5(inst) {
           if (inst === null) {
             return null;
           }
@@ -8229,19 +8229,19 @@ var require_react_dom_development = __commonJS({
           var nodeA = instA;
           var nodeB = instB;
           var depthA = 0;
-          for (var tempA = nodeA; tempA; tempA = getParent(tempA)) {
+          for (var tempA = nodeA; tempA; tempA = getParent5(tempA)) {
             depthA++;
           }
           var depthB = 0;
-          for (var tempB = nodeB; tempB; tempB = getParent(tempB)) {
+          for (var tempB = nodeB; tempB; tempB = getParent5(tempB)) {
             depthB++;
           }
           while (depthA - depthB > 0) {
-            nodeA = getParent(nodeA);
+            nodeA = getParent5(nodeA);
             depthA--;
           }
           while (depthB - depthA > 0) {
-            nodeB = getParent(nodeB);
+            nodeB = getParent5(nodeB);
             depthB--;
           }
           var depth = depthA;
@@ -8249,8 +8249,8 @@ var require_react_dom_development = __commonJS({
             if (nodeA === nodeB || nodeB !== null && nodeA === nodeB.alternate) {
               return nodeA;
             }
-            nodeA = getParent(nodeA);
-            nodeB = getParent(nodeB);
+            nodeA = getParent5(nodeA);
+            nodeB = getParent5(nodeB);
           }
           return null;
         }
@@ -8382,19 +8382,19 @@ var require_react_dom_development = __commonJS({
               error("Expected `%s` listener to be a function, instead got a value of `%s` type.", registrationName, typeof listener);
             }
           };
-          normalizeHTML = function(parent, html) {
+          normalizeHTML = function(parent, html2) {
             var testElement = parent.namespaceURI === HTML_NAMESPACE$1 ? parent.ownerDocument.createElement(parent.tagName) : parent.ownerDocument.createElementNS(parent.namespaceURI, parent.tagName);
-            testElement.innerHTML = html;
+            testElement.innerHTML = html2;
             return testElement.innerHTML;
           };
         }
         function getOwnerDocumentFromRootContainer(rootContainerElement) {
           return rootContainerElement.nodeType === DOCUMENT_NODE ? rootContainerElement : rootContainerElement.ownerDocument;
         }
-        function noop() {
+        function noop2() {
         }
         function trapClickOnNonInteractiveElement(node) {
-          node.onclick = noop;
+          node.onclick = noop2;
         }
         function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps, isCustomComponentTag) {
           for (var propKey in nextProps) {
@@ -8456,7 +8456,7 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function createElement(type, props, rootContainerElement, parentNamespace) {
+        function createElement10(type, props, rootContainerElement, parentNamespace) {
           var isCustomComponentTag;
           var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
           var domElement;
@@ -9333,7 +9333,7 @@ var require_react_dom_development = __commonJS({
             }
             parentNamespace = hostContextDev.namespace;
           }
-          var domElement = createElement(type, props, rootContainerInstance, parentNamespace);
+          var domElement = createElement10(type, props, rootContainerInstance, parentNamespace);
           precacheFiberNode(internalInstanceHandle, domElement);
           updateFiberProps(domElement, props);
           return domElement;
@@ -9425,11 +9425,11 @@ var require_react_dom_development = __commonJS({
         }
         function hideInstance(instance) {
           instance = instance;
-          var style2 = instance.style;
-          if (typeof style2.setProperty === "function") {
-            style2.setProperty("display", "none", "important");
+          var style3 = instance.style;
+          if (typeof style3.setProperty === "function") {
+            style3.setProperty("display", "none", "important");
           } else {
-            style2.display = "none";
+            style3.display = "none";
           }
         }
         function hideTextInstance(textInstance) {
@@ -9506,14 +9506,14 @@ var require_react_dom_development = __commonJS({
           var depth = 0;
           while (node) {
             if (node.nodeType === COMMENT_NODE) {
-              var data = node.data;
-              if (data === SUSPENSE_END_DATA) {
+              var data2 = node.data;
+              if (data2 === SUSPENSE_END_DATA) {
                 if (depth === 0) {
                   return getNextHydratableSibling(node);
                 } else {
                   depth--;
                 }
-              } else if (data === SUSPENSE_START_DATA || data === SUSPENSE_FALLBACK_START_DATA || data === SUSPENSE_PENDING_START_DATA) {
+              } else if (data2 === SUSPENSE_START_DATA || data2 === SUSPENSE_FALLBACK_START_DATA || data2 === SUSPENSE_PENDING_START_DATA) {
                 depth++;
               }
             }
@@ -9526,14 +9526,14 @@ var require_react_dom_development = __commonJS({
           var depth = 0;
           while (node) {
             if (node.nodeType === COMMENT_NODE) {
-              var data = node.data;
-              if (data === SUSPENSE_START_DATA || data === SUSPENSE_FALLBACK_START_DATA || data === SUSPENSE_PENDING_START_DATA) {
+              var data2 = node.data;
+              if (data2 === SUSPENSE_START_DATA || data2 === SUSPENSE_FALLBACK_START_DATA || data2 === SUSPENSE_PENDING_START_DATA) {
                 if (depth === 0) {
                   return node;
                 } else {
                   depth--;
                 }
-              } else if (data === SUSPENSE_END_DATA) {
+              } else if (data2 === SUSPENSE_END_DATA) {
                 depth++;
               }
             }
@@ -9605,15 +9605,15 @@ var require_react_dom_development = __commonJS({
         }
         var clientId = 0;
         function makeClientIdInDEV(warnOnAccessInDEV) {
-          var id = "r:" + (clientId++).toString(36);
+          var id2 = "r:" + (clientId++).toString(36);
           return {
             toString: function() {
               warnOnAccessInDEV();
-              return id;
+              return id2;
             },
             valueOf: function() {
               warnOnAccessInDEV();
-              return id;
+              return id2;
             }
           };
         }
@@ -9725,9 +9725,9 @@ var require_react_dom_development = __commonJS({
         }
         function checkPropTypes(typeSpecs, values, location, componentName, element) {
           {
-            var has2 = Function.call.bind(Object.prototype.hasOwnProperty);
+            var has3 = Function.call.bind(Object.prototype.hasOwnProperty);
             for (var typeSpecName in typeSpecs) {
-              if (has2(typeSpecs, typeSpecName)) {
+              if (has3(typeSpecs, typeSpecName)) {
                 var error$1 = void 0;
                 try {
                   if (typeof typeSpecs[typeSpecName] !== "function") {
@@ -9759,36 +9759,36 @@ var require_react_dom_development = __commonJS({
         {
           fiberStack = [];
         }
-        var index = -1;
+        var index2 = -1;
         function createCursor(defaultValue) {
           return {
             current: defaultValue
           };
         }
         function pop(cursor, fiber) {
-          if (index < 0) {
+          if (index2 < 0) {
             {
               error("Unexpected pop.");
             }
             return;
           }
           {
-            if (fiber !== fiberStack[index]) {
+            if (fiber !== fiberStack[index2]) {
               error("Unexpected Fiber popped.");
             }
           }
-          cursor.current = valueStack[index];
-          valueStack[index] = null;
+          cursor.current = valueStack[index2];
+          valueStack[index2] = null;
           {
-            fiberStack[index] = null;
+            fiberStack[index2] = null;
           }
-          index--;
+          index2--;
         }
-        function push(cursor, value, fiber) {
-          index++;
-          valueStack[index] = cursor.current;
+        function push2(cursor, value, fiber) {
+          index2++;
+          valueStack[index2] = cursor.current;
           {
-            fiberStack[index] = fiber;
+            fiberStack[index2] = fiber;
           }
           cursor.current = value;
         }
@@ -9803,9 +9803,9 @@ var require_react_dom_development = __commonJS({
         var contextStackCursor = createCursor(emptyContextObject);
         var didPerformWorkStackCursor = createCursor(false);
         var previousContext = emptyContextObject;
-        function getUnmaskedContext(workInProgress2, Component, didPushOwnContextIfProvider) {
+        function getUnmaskedContext(workInProgress2, Component4, didPushOwnContextIfProvider) {
           {
-            if (didPushOwnContextIfProvider && isContextProvider(Component)) {
+            if (didPushOwnContextIfProvider && isContextProvider(Component4)) {
               return previousContext;
             }
             return contextStackCursor.current;
@@ -9873,8 +9873,8 @@ var require_react_dom_development = __commonJS({
                 throw Error("Unexpected context found on stack. This error is likely caused by a bug in React. Please file an issue.");
               }
             }
-            push(contextStackCursor, context, fiber);
-            push(didPerformWorkStackCursor, didChange, fiber);
+            push2(contextStackCursor, context, fiber);
+            push2(didPerformWorkStackCursor, didChange, fiber);
           }
         }
         function processChildContext(fiber, type, parentContext) {
@@ -9911,8 +9911,8 @@ var require_react_dom_development = __commonJS({
             var instance = workInProgress2.stateNode;
             var memoizedMergedChildContext = instance && instance.__reactInternalMemoizedMergedChildContext || emptyContextObject;
             previousContext = contextStackCursor.current;
-            push(contextStackCursor, memoizedMergedChildContext, workInProgress2);
-            push(didPerformWorkStackCursor, didPerformWorkStackCursor.current, workInProgress2);
+            push2(contextStackCursor, memoizedMergedChildContext, workInProgress2);
+            push2(didPerformWorkStackCursor, didPerformWorkStackCursor.current, workInProgress2);
             return true;
           }
         }
@@ -9929,11 +9929,11 @@ var require_react_dom_development = __commonJS({
               instance.__reactInternalMemoizedMergedChildContext = mergedContext;
               pop(didPerformWorkStackCursor, workInProgress2);
               pop(contextStackCursor, workInProgress2);
-              push(contextStackCursor, mergedContext, workInProgress2);
-              push(didPerformWorkStackCursor, didChange, workInProgress2);
+              push2(contextStackCursor, mergedContext, workInProgress2);
+              push2(didPerformWorkStackCursor, didChange, workInProgress2);
             } else {
               pop(didPerformWorkStackCursor, workInProgress2);
-              push(didPerformWorkStackCursor, didChange, workInProgress2);
+              push2(didPerformWorkStackCursor, didChange, workInProgress2);
             }
           }
         }
@@ -9950,8 +9950,8 @@ var require_react_dom_development = __commonJS({
                 case HostRoot:
                   return node.stateNode.context;
                 case ClassComponent: {
-                  var Component = node.type;
-                  if (isContextProvider(Component)) {
+                  var Component4 = node.type;
+                  if (isContextProvider(Component4)) {
                     return node.stateNode.__reactInternalMemoizedMergedChildContext;
                   }
                   break;
@@ -10202,9 +10202,9 @@ var require_react_dom_development = __commonJS({
             }
             return maybeStrictRoot;
           };
-          var setToSortedString = function(set2) {
+          var setToSortedString = function(set4) {
             var array = [];
-            set2.forEach(function(value) {
+            set4.forEach(function(value) {
               array.push(value);
             });
             return array.sort().join(", ");
@@ -10363,10 +10363,10 @@ var require_react_dom_development = __commonJS({
             pendingLegacyContextWarning = new Map();
           };
         }
-        function resolveDefaultProps(Component, baseProps) {
-          if (Component && Component.defaultProps) {
+        function resolveDefaultProps(Component4, baseProps) {
+          if (Component4 && Component4.defaultProps) {
             var props = _assign({}, baseProps);
-            var defaultProps = Component.defaultProps;
+            var defaultProps = Component4.defaultProps;
             for (var propName in defaultProps) {
               if (props[propName] === void 0) {
                 props[propName] = defaultProps[propName];
@@ -10407,7 +10407,7 @@ var require_react_dom_development = __commonJS({
         function pushProvider(providerFiber, nextValue) {
           var context = providerFiber.type._context;
           {
-            push(valueCursor, context._currentValue, providerFiber);
+            push2(valueCursor, context._currentValue, providerFiber);
             context._currentValue = nextValue;
             {
               if (context._currentRenderer !== void 0 && context._currentRenderer !== null && context._currentRenderer !== rendererSigil) {
@@ -10593,14 +10593,14 @@ var require_react_dom_development = __commonJS({
           var queue = workInProgress2.updateQueue;
           var currentQueue = current2.updateQueue;
           if (queue === currentQueue) {
-            var clone = {
+            var clone2 = {
               baseState: currentQueue.baseState,
               firstBaseUpdate: currentQueue.firstBaseUpdate,
               lastBaseUpdate: currentQueue.lastBaseUpdate,
               shared: currentQueue.shared,
               effects: currentQueue.effects
             };
-            workInProgress2.updateQueue = clone;
+            workInProgress2.updateQueue = clone2;
           }
         }
         function createUpdate(eventTime, lane) {
@@ -10647,7 +10647,7 @@ var require_react_dom_development = __commonJS({
               if (firstBaseUpdate !== null) {
                 var update = firstBaseUpdate;
                 do {
-                  var clone = {
+                  var clone2 = {
                     eventTime: update.eventTime,
                     lane: update.lane,
                     tag: update.tag,
@@ -10656,10 +10656,10 @@ var require_react_dom_development = __commonJS({
                     next: null
                   };
                   if (newLast === null) {
-                    newFirst = newLast = clone;
+                    newFirst = newLast = clone2;
                   } else {
-                    newLast.next = clone;
-                    newLast = clone;
+                    newLast.next = clone2;
+                    newLast = clone2;
                   }
                   update = update.next;
                 } while (update !== null);
@@ -10797,7 +10797,7 @@ var require_react_dom_development = __commonJS({
               var updateLane = update.lane;
               var updateEventTime = update.eventTime;
               if (!isSubsetOfLanes(renderLanes2, updateLane)) {
-                var clone = {
+                var clone2 = {
                   eventTime: updateEventTime,
                   lane: updateLane,
                   tag: update.tag,
@@ -10806,10 +10806,10 @@ var require_react_dom_development = __commonJS({
                   next: null
                 };
                 if (newLastBaseUpdate === null) {
-                  newFirstBaseUpdate = newLastBaseUpdate = clone;
+                  newFirstBaseUpdate = newLastBaseUpdate = clone2;
                   newBaseState = newState;
                 } else {
-                  newLastBaseUpdate = newLastBaseUpdate.next = clone;
+                  newLastBaseUpdate = newLastBaseUpdate.next = clone2;
                 }
                 newLanes = mergeLanes(newLanes, updateLane);
               } else {
@@ -10894,8 +10894,8 @@ var require_react_dom_development = __commonJS({
           }
         }
         var fakeInternalInstance = {};
-        var isArray = Array.isArray;
-        var emptyRefsObject = new React8.Component().refs;
+        var isArray3 = Array.isArray;
+        var emptyRefsObject = new React27.Component().refs;
         var didWarnAboutStateAssignmentForComponent;
         var didWarnAboutUninitializedState;
         var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -10973,7 +10973,7 @@ var require_react_dom_development = __commonJS({
         var classComponentUpdater = {
           isMounted,
           enqueueSetState: function(inst, payload, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -10988,7 +10988,7 @@ var require_react_dom_development = __commonJS({
             scheduleUpdateOnFiber(fiber, lane, eventTime);
           },
           enqueueReplaceState: function(inst, payload, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -11004,7 +11004,7 @@ var require_react_dom_development = __commonJS({
             scheduleUpdateOnFiber(fiber, lane, eventTime);
           },
           enqueueForceUpdate: function(inst, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -11117,7 +11117,7 @@ var require_react_dom_development = __commonJS({
               error("%s: getSnapshotBeforeUpdate() is defined as a static method and will be ignored. Instead, declare it as an instance method.", name2);
             }
             var _state = instance.state;
-            if (_state && (typeof _state !== "object" || isArray(_state))) {
+            if (_state && (typeof _state !== "object" || isArray3(_state))) {
               error("%s.state: must be set to an object or null", name2);
             }
             if (typeof instance.getChildContext === "function" && typeof ctor.childContextTypes !== "object") {
@@ -11128,7 +11128,7 @@ var require_react_dom_development = __commonJS({
         function adoptClassInstance(workInProgress2, instance) {
           instance.updater = classComponentUpdater;
           workInProgress2.stateNode = instance;
-          set(instance, workInProgress2);
+          set3(instance, workInProgress2);
           {
             instance._reactInternalInstance = fakeInternalInstance;
           }
@@ -11600,10 +11600,10 @@ var require_react_dom_development = __commonJS({
             return existingChildren;
           }
           function useFiber(fiber, pendingProps) {
-            var clone = createWorkInProgress(fiber, pendingProps);
-            clone.index = 0;
-            clone.sibling = null;
-            return clone;
+            var clone2 = createWorkInProgress(fiber, pendingProps);
+            clone2.index = 0;
+            clone2.sibling = null;
+            return clone2;
           }
           function placeChild(newFiber, lastPlacedIndex, newIndex) {
             newFiber.index = newIndex;
@@ -11671,7 +11671,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-            if (current2 === null || current2.tag !== Fragment) {
+            if (current2 === null || current2.tag !== Fragment2) {
               var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
               created.return = returnFiber;
               return created;
@@ -12039,7 +12039,7 @@ var require_react_dom_development = __commonJS({
             while (child !== null) {
               if (child.key === key) {
                 switch (child.tag) {
-                  case Fragment: {
+                  case Fragment2: {
                     if (element.type === REACT_FRAGMENT_TYPE) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
@@ -12114,8 +12114,8 @@ var require_react_dom_development = __commonJS({
             if (isUnkeyedTopLevelFragment) {
               newChild = newChild.props.children;
             }
-            var isObject = typeof newChild === "object" && newChild !== null;
-            if (isObject) {
+            var isObject2 = typeof newChild === "object" && newChild !== null;
+            if (isObject2) {
               switch (newChild.$$typeof) {
                 case REACT_ELEMENT_TYPE:
                   return placeSingleChild(reconcileSingleElement(returnFiber, currentFirstChild, newChild, lanes));
@@ -12132,7 +12132,7 @@ var require_react_dom_development = __commonJS({
             if (getIteratorFn(newChild)) {
               return reconcileChildrenIterator(returnFiber, currentFirstChild, newChild, lanes);
             }
-            if (isObject) {
+            if (isObject2) {
               throwOnInvalidObjectType(returnFiber, newChild);
             }
             {
@@ -12212,12 +12212,12 @@ var require_react_dom_development = __commonJS({
           return rootInstance;
         }
         function pushHostContainer(fiber, nextRootInstance) {
-          push(rootInstanceStackCursor, nextRootInstance, fiber);
-          push(contextFiberStackCursor, fiber, fiber);
-          push(contextStackCursor$1, NO_CONTEXT, fiber);
+          push2(rootInstanceStackCursor, nextRootInstance, fiber);
+          push2(contextFiberStackCursor, fiber, fiber);
+          push2(contextStackCursor$1, NO_CONTEXT, fiber);
           var nextRootContext = getRootHostContext(nextRootInstance);
           pop(contextStackCursor$1, fiber);
-          push(contextStackCursor$1, nextRootContext, fiber);
+          push2(contextStackCursor$1, nextRootContext, fiber);
         }
         function popHostContainer(fiber) {
           pop(contextStackCursor$1, fiber);
@@ -12235,8 +12235,8 @@ var require_react_dom_development = __commonJS({
           if (context === nextContext) {
             return;
           }
-          push(contextFiberStackCursor, fiber, fiber);
-          push(contextStackCursor$1, nextContext, fiber);
+          push2(contextFiberStackCursor, fiber, fiber);
+          push2(contextStackCursor$1, nextContext, fiber);
         }
         function popHostContext(fiber) {
           if (contextFiberStackCursor.current !== fiber) {
@@ -12263,7 +12263,7 @@ var require_react_dom_development = __commonJS({
           return parentContext | subtreeContext;
         }
         function pushSuspenseContext(fiber, newContext) {
-          push(suspenseStackCursor, newContext, fiber);
+          push2(suspenseStackCursor, newContext, fiber);
         }
         function popSuspenseContext(fiber) {
           pop(suspenseStackCursor, fiber);
@@ -12564,9 +12564,9 @@ var require_react_dom_development = __commonJS({
             return mutableSource._workInProgressVersionPrimary;
           }
         }
-        function setWorkInProgressVersion(mutableSource, version) {
+        function setWorkInProgressVersion(mutableSource, version2) {
           {
-            mutableSource._workInProgressVersionPrimary = version;
+            mutableSource._workInProgressVersionPrimary = version2;
           }
           workInProgressSources.push(mutableSource);
         }
@@ -12682,7 +12682,7 @@ var require_react_dom_development = __commonJS({
           }
           return true;
         }
-        function renderWithHooks(current2, workInProgress2, Component, props, secondArg, nextRenderLanes) {
+        function renderWithHooks(current2, workInProgress2, Component4, props, secondArg, nextRenderLanes) {
           renderLanes = nextRenderLanes;
           currentlyRenderingFiber$1 = workInProgress2;
           {
@@ -12702,7 +12702,7 @@ var require_react_dom_development = __commonJS({
               ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
             }
           }
-          var children = Component(props, secondArg);
+          var children = Component4(props, secondArg);
           if (didScheduleRenderPhaseUpdateDuringThisPass) {
             var numberOfReRenders = 0;
             do {
@@ -12723,7 +12723,7 @@ var require_react_dom_development = __commonJS({
                 hookTypesUpdateIndexDev = -1;
               }
               ReactCurrentDispatcher$1.current = HooksDispatcherOnRerenderInDEV;
-              children = Component(props, secondArg);
+              children = Component4(props, secondArg);
             } while (didScheduleRenderPhaseUpdateDuringThisPass);
           }
           ReactCurrentDispatcher$1.current = ContextOnlyDispatcher;
@@ -12900,7 +12900,7 @@ var require_react_dom_development = __commonJS({
             do {
               var updateLane = update.lane;
               if (!isSubsetOfLanes(renderLanes, updateLane)) {
-                var clone = {
+                var clone2 = {
                   lane: updateLane,
                   action: update.action,
                   eagerReducer: update.eagerReducer,
@@ -12908,10 +12908,10 @@ var require_react_dom_development = __commonJS({
                   next: null
                 };
                 if (newBaseQueueLast === null) {
-                  newBaseQueueFirst = newBaseQueueLast = clone;
+                  newBaseQueueFirst = newBaseQueueLast = clone2;
                   newBaseState = newState;
                 } else {
-                  newBaseQueueLast = newBaseQueueLast.next = clone;
+                  newBaseQueueLast = newBaseQueueLast.next = clone2;
                 }
                 currentlyRenderingFiber$1.lanes = mergeLanes(currentlyRenderingFiber$1.lanes, updateLane);
                 markSkippedUpdateLanes(updateLane);
@@ -12988,15 +12988,15 @@ var require_react_dom_development = __commonJS({
             warnAboutMultipleRenderersDEV(source);
           }
           var getVersion = source._getVersion;
-          var version = getVersion(source._source);
+          var version2 = getVersion(source._source);
           var isSafeToReadFromSource = false;
           var currentRenderVersion = getWorkInProgressVersion(source);
           if (currentRenderVersion !== null) {
-            isSafeToReadFromSource = currentRenderVersion === version;
+            isSafeToReadFromSource = currentRenderVersion === version2;
           } else {
             isSafeToReadFromSource = isSubsetOfLanes(renderLanes, root2.mutableReadLanes);
             if (isSafeToReadFromSource) {
-              setWorkInProgressVersion(source, version);
+              setWorkInProgressVersion(source, version2);
             }
           }
           if (isSafeToReadFromSource) {
@@ -13024,7 +13024,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           var getVersion = source._getVersion;
-          var version = getVersion(source._source);
+          var version2 = getVersion(source._source);
           var dispatcher = ReactCurrentDispatcher$1.current;
           var _dispatcher$useState = dispatcher.useState(function() {
             return readFromUnsubcribedMutableSource(root2, source, getSnapshot);
@@ -13046,7 +13046,7 @@ var require_react_dom_development = __commonJS({
             refs.getSnapshot = getSnapshot;
             refs.setSnapshot = setSnapshot;
             var maybeNewVersion = getVersion(source._source);
-            if (!objectIs(version, maybeNewVersion)) {
+            if (!objectIs(version2, maybeNewVersion)) {
               var maybeNewSnapshot = getSnapshot(source._source);
               {
                 if (typeof maybeNewSnapshot === "function") {
@@ -13135,10 +13135,10 @@ var require_react_dom_development = __commonJS({
         function rerenderState(initialState) {
           return rerenderReducer(basicStateReducer);
         }
-        function pushEffect(tag, create, destroy, deps) {
+        function pushEffect(tag, create2, destroy, deps) {
           var effect = {
             tag,
-            create,
+            create: create2,
             destroy,
             deps,
             next: null
@@ -13176,13 +13176,13 @@ var require_react_dom_development = __commonJS({
           var hook = updateWorkInProgressHook();
           return hook.memoizedState;
         }
-        function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
+        function mountEffectImpl(fiberFlags, hookFlags, create2, deps) {
           var hook = mountWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
           currentlyRenderingFiber$1.flags |= fiberFlags;
-          hook.memoizedState = pushEffect(HasEffect | hookFlags, create, void 0, nextDeps);
+          hook.memoizedState = pushEffect(HasEffect | hookFlags, create2, void 0, nextDeps);
         }
-        function updateEffectImpl(fiberFlags, hookFlags, create, deps) {
+        function updateEffectImpl(fiberFlags, hookFlags, create2, deps) {
           var hook = updateWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
           var destroy = void 0;
@@ -13192,40 +13192,40 @@ var require_react_dom_development = __commonJS({
             if (nextDeps !== null) {
               var prevDeps = prevEffect.deps;
               if (areHookInputsEqual(nextDeps, prevDeps)) {
-                pushEffect(hookFlags, create, destroy, nextDeps);
+                pushEffect(hookFlags, create2, destroy, nextDeps);
                 return;
               }
             }
           }
           currentlyRenderingFiber$1.flags |= fiberFlags;
-          hook.memoizedState = pushEffect(HasEffect | hookFlags, create, destroy, nextDeps);
+          hook.memoizedState = pushEffect(HasEffect | hookFlags, create2, destroy, nextDeps);
         }
-        function mountEffect(create, deps) {
+        function mountEffect(create2, deps) {
           {
             if (typeof jest !== "undefined") {
               warnIfNotCurrentlyActingEffectsInDEV(currentlyRenderingFiber$1);
             }
           }
-          return mountEffectImpl(Update | Passive, Passive$1, create, deps);
+          return mountEffectImpl(Update | Passive, Passive$1, create2, deps);
         }
-        function updateEffect(create, deps) {
+        function updateEffect(create2, deps) {
           {
             if (typeof jest !== "undefined") {
               warnIfNotCurrentlyActingEffectsInDEV(currentlyRenderingFiber$1);
             }
           }
-          return updateEffectImpl(Update | Passive, Passive$1, create, deps);
+          return updateEffectImpl(Update | Passive, Passive$1, create2, deps);
         }
-        function mountLayoutEffect(create, deps) {
-          return mountEffectImpl(Update, Layout, create, deps);
+        function mountLayoutEffect(create2, deps) {
+          return mountEffectImpl(Update, Layout, create2, deps);
         }
-        function updateLayoutEffect(create, deps) {
-          return updateEffectImpl(Update, Layout, create, deps);
+        function updateLayoutEffect(create2, deps) {
+          return updateEffectImpl(Update, Layout, create2, deps);
         }
-        function imperativeHandleEffect(create, ref) {
+        function imperativeHandleEffect(create2, ref) {
           if (typeof ref === "function") {
             var refCallback = ref;
-            var _inst = create();
+            var _inst = create2();
             refCallback(_inst);
             return function() {
               refCallback(null);
@@ -13237,30 +13237,30 @@ var require_react_dom_development = __commonJS({
                 error("Expected useImperativeHandle() first argument to either be a ref callback or React.createRef() object. Instead received: %s.", "an object with keys {" + Object.keys(refObject).join(", ") + "}");
               }
             }
-            var _inst2 = create();
+            var _inst2 = create2();
             refObject.current = _inst2;
             return function() {
               refObject.current = null;
             };
           }
         }
-        function mountImperativeHandle(ref, create, deps) {
+        function mountImperativeHandle(ref, create2, deps) {
           {
-            if (typeof create !== "function") {
-              error("Expected useImperativeHandle() second argument to be a function that creates a handle. Instead received: %s.", create !== null ? typeof create : "null");
+            if (typeof create2 !== "function") {
+              error("Expected useImperativeHandle() second argument to be a function that creates a handle. Instead received: %s.", create2 !== null ? typeof create2 : "null");
             }
           }
           var effectDeps = deps !== null && deps !== void 0 ? deps.concat([ref]) : null;
-          return mountEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
+          return mountEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create2, ref), effectDeps);
         }
-        function updateImperativeHandle(ref, create, deps) {
+        function updateImperativeHandle(ref, create2, deps) {
           {
-            if (typeof create !== "function") {
-              error("Expected useImperativeHandle() second argument to be a function that creates a handle. Instead received: %s.", create !== null ? typeof create : "null");
+            if (typeof create2 !== "function") {
+              error("Expected useImperativeHandle() second argument to be a function that creates a handle. Instead received: %s.", create2 !== null ? typeof create2 : "null");
             }
           }
           var effectDeps = deps !== null && deps !== void 0 ? deps.concat([ref]) : null;
-          return updateEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
+          return updateEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create2, ref), effectDeps);
         }
         function mountDebugValue(value, formatterFn) {
         }
@@ -13420,15 +13420,15 @@ var require_react_dom_development = __commonJS({
                 }
               }
             };
-            var id = makeOpaqueHydratingObject(readValue);
-            var setId = mountState(id)[1];
+            var id2 = makeOpaqueHydratingObject(readValue);
+            var setId = mountState(id2)[1];
             if ((currentlyRenderingFiber$1.mode & BlockingMode) === NoMode) {
               currentlyRenderingFiber$1.flags |= Update | Passive;
               pushEffect(HasEffect | Passive$1, function() {
                 setId(makeId());
               }, void 0, null);
             }
-            return id;
+            return id2;
           } else {
             var _id = makeId();
             mountState(_id);
@@ -13436,12 +13436,12 @@ var require_react_dom_development = __commonJS({
           }
         }
         function updateOpaqueIdentifier() {
-          var id = updateState()[0];
-          return id;
+          var id2 = updateState()[0];
+          return id2;
         }
         function rerenderOpaqueIdentifier() {
-          var id = rerenderState()[0];
-          return id;
+          var id2 = rerenderState()[0];
+          return id2;
         }
         function dispatchAction(fiber, queue, action) {
           {
@@ -13550,32 +13550,32 @@ var require_react_dom_development = __commonJS({
               mountHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               mountHookTypesDev();
               checkDepsAreArrayDev(deps);
-              return mountEffect(create, deps);
+              return mountEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               mountHookTypesDev();
               checkDepsAreArrayDev(deps);
-              return mountImperativeHandle(ref, create, deps);
+              return mountImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               mountHookTypesDev();
               checkDepsAreArrayDev(deps);
-              return mountLayoutEffect(create, deps);
+              return mountLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               mountHookTypesDev();
               checkDepsAreArrayDev(deps);
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnMountInDEV;
               try {
-                return mountMemo(create, deps);
+                return mountMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -13648,28 +13648,28 @@ var require_react_dom_development = __commonJS({
               updateHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               updateHookTypesDev();
-              return mountEffect(create, deps);
+              return mountEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               updateHookTypesDev();
-              return mountImperativeHandle(ref, create, deps);
+              return mountImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               updateHookTypesDev();
-              return mountLayoutEffect(create, deps);
+              return mountLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               updateHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnMountInDEV;
               try {
-                return mountMemo(create, deps);
+                return mountMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -13742,28 +13742,28 @@ var require_react_dom_development = __commonJS({
               updateHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               updateHookTypesDev();
-              return updateEffect(create, deps);
+              return updateEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               updateHookTypesDev();
-              return updateImperativeHandle(ref, create, deps);
+              return updateImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               updateHookTypesDev();
-              return updateLayoutEffect(create, deps);
+              return updateLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               updateHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
               try {
-                return updateMemo(create, deps);
+                return updateMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -13836,28 +13836,28 @@ var require_react_dom_development = __commonJS({
               updateHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               updateHookTypesDev();
-              return updateEffect(create, deps);
+              return updateEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               updateHookTypesDev();
-              return updateImperativeHandle(ref, create, deps);
+              return updateImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               updateHookTypesDev();
-              return updateLayoutEffect(create, deps);
+              return updateLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               updateHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnRerenderInDEV;
               try {
-                return updateMemo(create, deps);
+                return updateMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -13933,32 +13933,32 @@ var require_react_dom_development = __commonJS({
               mountHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               warnInvalidHookAccess();
               mountHookTypesDev();
-              return mountEffect(create, deps);
+              return mountEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               warnInvalidHookAccess();
               mountHookTypesDev();
-              return mountImperativeHandle(ref, create, deps);
+              return mountImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               warnInvalidHookAccess();
               mountHookTypesDev();
-              return mountLayoutEffect(create, deps);
+              return mountLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               warnInvalidHookAccess();
               mountHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnMountInDEV;
               try {
-                return mountMemo(create, deps);
+                return mountMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -14042,32 +14042,32 @@ var require_react_dom_development = __commonJS({
               updateHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateEffect(create, deps);
+              return updateEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateImperativeHandle(ref, create, deps);
+              return updateImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateLayoutEffect(create, deps);
+              return updateLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               warnInvalidHookAccess();
               updateHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
               try {
-                return updateMemo(create, deps);
+                return updateMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -14151,32 +14151,32 @@ var require_react_dom_development = __commonJS({
               updateHookTypesDev();
               return readContext(context, observedBits);
             },
-            useEffect: function(create, deps) {
+            useEffect: function(create2, deps) {
               currentHookNameInDev = "useEffect";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateEffect(create, deps);
+              return updateEffect(create2, deps);
             },
-            useImperativeHandle: function(ref, create, deps) {
+            useImperativeHandle: function(ref, create2, deps) {
               currentHookNameInDev = "useImperativeHandle";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateImperativeHandle(ref, create, deps);
+              return updateImperativeHandle(ref, create2, deps);
             },
-            useLayoutEffect: function(create, deps) {
+            useLayoutEffect: function(create2, deps) {
               currentHookNameInDev = "useLayoutEffect";
               warnInvalidHookAccess();
               updateHookTypesDev();
-              return updateLayoutEffect(create, deps);
+              return updateLayoutEffect(create2, deps);
             },
-            useMemo: function(create, deps) {
+            useMemo: function(create2, deps) {
               currentHookNameInDev = "useMemo";
               warnInvalidHookAccess();
               updateHookTypesDev();
               var prevDispatcher = ReactCurrentDispatcher$1.current;
               ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
               try {
-                return updateMemo(create, deps);
+                return updateMemo(create2, deps);
               } finally {
                 ReactCurrentDispatcher$1.current = prevDispatcher;
               }
@@ -14310,16 +14310,16 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = reconcileChildFibers(workInProgress2, current2.child, null, renderLanes2);
           workInProgress2.child = reconcileChildFibers(workInProgress2, null, nextChildren, renderLanes2);
         }
-        function updateForwardRef(current2, workInProgress2, Component, nextProps, renderLanes2) {
+        function updateForwardRef(current2, workInProgress2, Component4, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component.propTypes;
+              var innerPropTypes = Component4.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
               }
             }
           }
-          var render2 = Component.render;
+          var render2 = Component4.render;
           var ref = workInProgress2.ref;
           var nextChildren;
           prepareToReadContext(workInProgress2, renderLanes2);
@@ -14345,10 +14345,10 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateMemoComponent(current2, workInProgress2, Component, nextProps, updateLanes, renderLanes2) {
+        function updateMemoComponent(current2, workInProgress2, Component4, nextProps, updateLanes, renderLanes2) {
           if (current2 === null) {
-            var type = Component.type;
-            if (isSimpleFunctionComponent(type) && Component.compare === null && Component.defaultProps === void 0) {
+            var type = Component4.type;
+            if (isSimpleFunctionComponent(type) && Component4.compare === null && Component4.defaultProps === void 0) {
               var resolvedType = type;
               {
                 resolvedType = resolveFunctionForHotReloading(type);
@@ -14366,14 +14366,14 @@ var require_react_dom_development = __commonJS({
                 checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(type));
               }
             }
-            var child = createFiberFromTypeAndProps(Component.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
+            var child = createFiberFromTypeAndProps(Component4.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
             child.ref = workInProgress2.ref;
             child.return = workInProgress2;
             workInProgress2.child = child;
             return child;
           }
           {
-            var _type = Component.type;
+            var _type = Component4.type;
             var _innerPropTypes = _type.propTypes;
             if (_innerPropTypes) {
               checkPropTypes(_innerPropTypes, nextProps, "prop", getComponentName(_type));
@@ -14382,7 +14382,7 @@ var require_react_dom_development = __commonJS({
           var currentChild = current2.child;
           if (!includesSomeLane(updateLanes, renderLanes2)) {
             var prevProps = currentChild.memoizedProps;
-            var compare2 = Component.compare;
+            var compare2 = Component4.compare;
             compare2 = compare2 !== null ? compare2 : shallowEqual;
             if (compare2(prevProps, nextProps) && current2.ref === workInProgress2.ref) {
               return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
@@ -14395,7 +14395,7 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = newChild;
           return newChild;
         }
-        function updateSimpleMemoComponent(current2, workInProgress2, Component, nextProps, updateLanes, renderLanes2) {
+        function updateSimpleMemoComponent(current2, workInProgress2, Component4, nextProps, updateLanes, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
               var outerMemoType = workInProgress2.elementType;
@@ -14427,7 +14427,7 @@ var require_react_dom_development = __commonJS({
               }
             }
           }
-          return updateFunctionComponent(current2, workInProgress2, Component, nextProps, renderLanes2);
+          return updateFunctionComponent(current2, workInProgress2, Component4, nextProps, renderLanes2);
         }
         function updateOffscreenComponent(current2, workInProgress2, renderLanes2) {
           var nextProps = workInProgress2.pendingProps;
@@ -14508,18 +14508,18 @@ var require_react_dom_development = __commonJS({
             workInProgress2.flags |= Ref2;
           }
         }
-        function updateFunctionComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+        function updateFunctionComponent(current2, workInProgress2, Component4, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component.propTypes;
+              var innerPropTypes = Component4.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
               }
             }
           }
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component, true);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component4, true);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           var nextChildren;
@@ -14527,11 +14527,11 @@ var require_react_dom_development = __commonJS({
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            nextChildren = renderWithHooks(current2, workInProgress2, Component, nextProps, context, renderLanes2);
+            nextChildren = renderWithHooks(current2, workInProgress2, Component4, nextProps, context, renderLanes2);
             if (workInProgress2.mode & StrictMode) {
               disableLogs();
               try {
-                nextChildren = renderWithHooks(current2, workInProgress2, Component, nextProps, context, renderLanes2);
+                nextChildren = renderWithHooks(current2, workInProgress2, Component4, nextProps, context, renderLanes2);
               } finally {
                 reenableLogs();
               }
@@ -14546,17 +14546,17 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateClassComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+        function updateClassComponent(current2, workInProgress2, Component4, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component.propTypes;
+              var innerPropTypes = Component4.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
               }
             }
           }
           var hasContext;
-          if (isContextProvider(Component)) {
+          if (isContextProvider(Component4)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
@@ -14571,15 +14571,15 @@ var require_react_dom_development = __commonJS({
               workInProgress2.alternate = null;
               workInProgress2.flags |= Placement;
             }
-            constructClassInstance(workInProgress2, Component, nextProps);
-            mountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
+            constructClassInstance(workInProgress2, Component4, nextProps);
+            mountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
             shouldUpdate = true;
           } else if (current2 === null) {
-            shouldUpdate = resumeMountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
+            shouldUpdate = resumeMountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
           } else {
-            shouldUpdate = updateClassInstance(current2, workInProgress2, Component, nextProps, renderLanes2);
+            shouldUpdate = updateClassInstance(current2, workInProgress2, Component4, nextProps, renderLanes2);
           }
-          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component, shouldUpdate, hasContext, renderLanes2);
+          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component4, shouldUpdate, hasContext, renderLanes2);
           {
             var inst = workInProgress2.stateNode;
             if (shouldUpdate && inst.props !== nextProps) {
@@ -14591,19 +14591,19 @@ var require_react_dom_development = __commonJS({
           }
           return nextUnitOfWork;
         }
-        function finishClassComponent(current2, workInProgress2, Component, shouldUpdate, hasContext, renderLanes2) {
+        function finishClassComponent(current2, workInProgress2, Component4, shouldUpdate, hasContext, renderLanes2) {
           markRef(current2, workInProgress2);
           var didCaptureError = (workInProgress2.flags & DidCapture) !== NoFlags;
           if (!shouldUpdate && !didCaptureError) {
             if (hasContext) {
-              invalidateContextProvider(workInProgress2, Component, false);
+              invalidateContextProvider(workInProgress2, Component4, false);
             }
             return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
           }
           var instance = workInProgress2.stateNode;
           ReactCurrentOwner$1.current = workInProgress2;
           var nextChildren;
-          if (didCaptureError && typeof Component.getDerivedStateFromError !== "function") {
+          if (didCaptureError && typeof Component4.getDerivedStateFromError !== "function") {
             nextChildren = null;
             {
               stopProfilerTimerIfRunning();
@@ -14631,7 +14631,7 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.memoizedState = instance.state;
           if (hasContext) {
-            invalidateContextProvider(workInProgress2, Component, true);
+            invalidateContextProvider(workInProgress2, Component4, true);
           }
           return workInProgress2.child;
         }
@@ -14670,8 +14670,8 @@ var require_react_dom_development = __commonJS({
               if (mutableSourceEagerHydrationData != null) {
                 for (var i = 0; i < mutableSourceEagerHydrationData.length; i += 2) {
                   var mutableSource = mutableSourceEagerHydrationData[i];
-                  var version = mutableSourceEagerHydrationData[i + 1];
-                  setWorkInProgressVersion(mutableSource, version);
+                  var version2 = mutableSourceEagerHydrationData[i + 1];
+                  setWorkInProgressVersion(mutableSource, version2);
                 }
               }
             }
@@ -14723,60 +14723,60 @@ var require_react_dom_development = __commonJS({
           var lazyComponent = elementType;
           var payload = lazyComponent._payload;
           var init = lazyComponent._init;
-          var Component = init(payload);
-          workInProgress2.type = Component;
-          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component);
-          var resolvedProps = resolveDefaultProps(Component, props);
+          var Component4 = init(payload);
+          workInProgress2.type = Component4;
+          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component4);
+          var resolvedProps = resolveDefaultProps(Component4, props);
           var child;
           switch (resolvedTag) {
             case FunctionComponent: {
               {
-                validateFunctionComponentInDev(workInProgress2, Component);
-                workInProgress2.type = Component = resolveFunctionForHotReloading(Component);
+                validateFunctionComponentInDev(workInProgress2, Component4);
+                workInProgress2.type = Component4 = resolveFunctionForHotReloading(Component4);
               }
-              child = updateFunctionComponent(null, workInProgress2, Component, resolvedProps, renderLanes2);
+              child = updateFunctionComponent(null, workInProgress2, Component4, resolvedProps, renderLanes2);
               return child;
             }
             case ClassComponent: {
               {
-                workInProgress2.type = Component = resolveClassForHotReloading(Component);
+                workInProgress2.type = Component4 = resolveClassForHotReloading(Component4);
               }
-              child = updateClassComponent(null, workInProgress2, Component, resolvedProps, renderLanes2);
+              child = updateClassComponent(null, workInProgress2, Component4, resolvedProps, renderLanes2);
               return child;
             }
             case ForwardRef: {
               {
-                workInProgress2.type = Component = resolveForwardRefForHotReloading(Component);
+                workInProgress2.type = Component4 = resolveForwardRefForHotReloading(Component4);
               }
-              child = updateForwardRef(null, workInProgress2, Component, resolvedProps, renderLanes2);
+              child = updateForwardRef(null, workInProgress2, Component4, resolvedProps, renderLanes2);
               return child;
             }
             case MemoComponent: {
               {
                 if (workInProgress2.type !== workInProgress2.elementType) {
-                  var outerPropTypes = Component.propTypes;
+                  var outerPropTypes = Component4.propTypes;
                   if (outerPropTypes) {
-                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component));
+                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component4));
                   }
                 }
               }
-              child = updateMemoComponent(null, workInProgress2, Component, resolveDefaultProps(Component.type, resolvedProps), updateLanes, renderLanes2);
+              child = updateMemoComponent(null, workInProgress2, Component4, resolveDefaultProps(Component4.type, resolvedProps), updateLanes, renderLanes2);
               return child;
             }
           }
           var hint = "";
           {
-            if (Component !== null && typeof Component === "object" && Component.$$typeof === REACT_LAZY_TYPE) {
+            if (Component4 !== null && typeof Component4 === "object" && Component4.$$typeof === REACT_LAZY_TYPE) {
               hint = " Did you wrap a component in React.lazy() more than once?";
             }
           }
           {
             {
-              throw Error("Element type is invalid. Received a promise that resolves to: " + Component + ". Lazy element type must resolve to a class or function." + hint);
+              throw Error("Element type is invalid. Received a promise that resolves to: " + Component4 + ". Lazy element type must resolve to a class or function." + hint);
             }
           }
         }
-        function mountIncompleteClassComponent(_current, workInProgress2, Component, nextProps, renderLanes2) {
+        function mountIncompleteClassComponent(_current, workInProgress2, Component4, nextProps, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14784,18 +14784,18 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.tag = ClassComponent;
           var hasContext;
-          if (isContextProvider(Component)) {
+          if (isContextProvider(Component4)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
             hasContext = false;
           }
           prepareToReadContext(workInProgress2, renderLanes2);
-          constructClassInstance(workInProgress2, Component, nextProps);
-          mountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
-          return finishClassComponent(null, workInProgress2, Component, true, hasContext, renderLanes2);
+          constructClassInstance(workInProgress2, Component4, nextProps);
+          mountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
+          return finishClassComponent(null, workInProgress2, Component4, true, hasContext, renderLanes2);
         }
-        function mountIndeterminateComponent(_current, workInProgress2, Component, renderLanes2) {
+        function mountIndeterminateComponent(_current, workInProgress2, Component4, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14804,14 +14804,14 @@ var require_react_dom_development = __commonJS({
           var props = workInProgress2.pendingProps;
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component, false);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component4, false);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           prepareToReadContext(workInProgress2, renderLanes2);
           var value;
           {
-            if (Component.prototype && typeof Component.prototype.render === "function") {
-              var componentName = getComponentName(Component) || "Unknown";
+            if (Component4.prototype && typeof Component4.prototype.render === "function") {
+              var componentName = getComponentName(Component4) || "Unknown";
               if (!didWarnAboutBadClass[componentName]) {
                 error("The <%s /> component appears to have a render method, but doesn't extend React.Component. This is likely to cause errors. Change %s to extend React.Component instead.", componentName, componentName);
                 didWarnAboutBadClass[componentName] = true;
@@ -14822,13 +14822,13 @@ var require_react_dom_development = __commonJS({
             }
             setIsRendering(true);
             ReactCurrentOwner$1.current = workInProgress2;
-            value = renderWithHooks(null, workInProgress2, Component, props, context, renderLanes2);
+            value = renderWithHooks(null, workInProgress2, Component4, props, context, renderLanes2);
             setIsRendering(false);
           }
           workInProgress2.flags |= PerformedWork;
           {
             if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
-              var _componentName = getComponentName(Component) || "Unknown";
+              var _componentName = getComponentName(Component4) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName, _componentName, _componentName);
                 didWarnAboutModulePatternComponent[_componentName] = true;
@@ -14837,7 +14837,7 @@ var require_react_dom_development = __commonJS({
           }
           if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
             {
-              var _componentName2 = getComponentName(Component) || "Unknown";
+              var _componentName2 = getComponentName(Component4) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName2]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName2, _componentName2, _componentName2);
                 didWarnAboutModulePatternComponent[_componentName2] = true;
@@ -14847,7 +14847,7 @@ var require_react_dom_development = __commonJS({
             workInProgress2.memoizedState = null;
             workInProgress2.updateQueue = null;
             var hasContext = false;
-            if (isContextProvider(Component)) {
+            if (isContextProvider(Component4)) {
               hasContext = true;
               pushContextProvider(workInProgress2);
             } else {
@@ -14855,20 +14855,20 @@ var require_react_dom_development = __commonJS({
             }
             workInProgress2.memoizedState = value.state !== null && value.state !== void 0 ? value.state : null;
             initializeUpdateQueue(workInProgress2);
-            var getDerivedStateFromProps = Component.getDerivedStateFromProps;
+            var getDerivedStateFromProps = Component4.getDerivedStateFromProps;
             if (typeof getDerivedStateFromProps === "function") {
-              applyDerivedStateFromProps(workInProgress2, Component, getDerivedStateFromProps, props);
+              applyDerivedStateFromProps(workInProgress2, Component4, getDerivedStateFromProps, props);
             }
             adoptClassInstance(workInProgress2, value);
-            mountClassInstance(workInProgress2, Component, props, renderLanes2);
-            return finishClassComponent(null, workInProgress2, Component, true, hasContext, renderLanes2);
+            mountClassInstance(workInProgress2, Component4, props, renderLanes2);
+            return finishClassComponent(null, workInProgress2, Component4, true, hasContext, renderLanes2);
           } else {
             workInProgress2.tag = FunctionComponent;
             {
               if (workInProgress2.mode & StrictMode) {
                 disableLogs();
                 try {
-                  value = renderWithHooks(null, workInProgress2, Component, props, context, renderLanes2);
+                  value = renderWithHooks(null, workInProgress2, Component4, props, context, renderLanes2);
                 } finally {
                   reenableLogs();
                 }
@@ -14876,16 +14876,16 @@ var require_react_dom_development = __commonJS({
             }
             reconcileChildren(null, workInProgress2, value, renderLanes2);
             {
-              validateFunctionComponentInDev(workInProgress2, Component);
+              validateFunctionComponentInDev(workInProgress2, Component4);
             }
             return workInProgress2.child;
           }
         }
-        function validateFunctionComponentInDev(workInProgress2, Component) {
+        function validateFunctionComponentInDev(workInProgress2, Component4) {
           {
-            if (Component) {
-              if (Component.childContextTypes) {
-                error("%s(...): childContextTypes cannot be defined on a function component.", Component.displayName || Component.name || "Component");
+            if (Component4) {
+              if (Component4.childContextTypes) {
+                error("%s(...): childContextTypes cannot be defined on a function component.", Component4.displayName || Component4.name || "Component");
               }
             }
             if (workInProgress2.ref !== null) {
@@ -14904,15 +14904,15 @@ var require_react_dom_development = __commonJS({
                 error("Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s", info);
               }
             }
-            if (typeof Component.getDerivedStateFromProps === "function") {
-              var _componentName3 = getComponentName(Component) || "Unknown";
+            if (typeof Component4.getDerivedStateFromProps === "function") {
+              var _componentName3 = getComponentName(Component4) || "Unknown";
               if (!didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3]) {
                 error("%s: Function components do not support getDerivedStateFromProps.", _componentName3);
                 didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3] = true;
               }
             }
-            if (typeof Component.contextType === "object" && Component.contextType !== null) {
-              var _componentName4 = getComponentName(Component) || "Unknown";
+            if (typeof Component4.contextType === "object" && Component4.contextType !== null) {
+              var _componentName4 = getComponentName(Component4) || "Unknown";
               if (!didWarnAboutContextTypeOnFunctionComponent[_componentName4]) {
                 error("%s: Function components do not support contextType.", _componentName4);
                 didWarnAboutContextTypeOnFunctionComponent[_componentName4] = true;
@@ -15228,13 +15228,13 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function validateSuspenseListNestedChild(childSlot, index2) {
+        function validateSuspenseListNestedChild(childSlot, index3) {
           {
-            var isArray2 = Array.isArray(childSlot);
-            var isIterable = !isArray2 && typeof getIteratorFn(childSlot) === "function";
-            if (isArray2 || isIterable) {
-              var type = isArray2 ? "array" : "iterable";
-              error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index2, type);
+            var isArray4 = Array.isArray(childSlot);
+            var isIterable = !isArray4 && typeof getIteratorFn(childSlot) === "function";
+            if (isArray4 || isIterable) {
+              var type = isArray4 ? "array" : "iterable";
+              error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index3, type);
               return false;
             }
           }
@@ -15521,8 +15521,8 @@ var require_react_dom_development = __commonJS({
                   pushHostContext(workInProgress2);
                   break;
                 case ClassComponent: {
-                  var Component = workInProgress2.type;
-                  if (isContextProvider(Component)) {
+                  var Component4 = workInProgress2.type;
+                  if (isContextProvider(Component4)) {
                     pushContextProvider(workInProgress2);
                   }
                   break;
@@ -15643,7 +15643,7 @@ var require_react_dom_development = __commonJS({
               var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
               return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
             }
-            case Fragment:
+            case Fragment2:
               return updateFragment(current2, workInProgress2, renderLanes2);
             case Mode:
               return updateMode(current2, workInProgress2, renderLanes2);
@@ -15810,15 +15810,15 @@ var require_react_dom_development = __commonJS({
             case SimpleMemoComponent:
             case FunctionComponent:
             case ForwardRef:
-            case Fragment:
+            case Fragment2:
             case Mode:
             case Profiler:
             case ContextConsumer:
             case MemoComponent:
               return null;
             case ClassComponent: {
-              var Component = workInProgress2.type;
-              if (isContextProvider(Component)) {
+              var Component4 = workInProgress2.type;
+              if (isContextProvider(Component4)) {
                 popContext(workInProgress2);
               }
               return null;
@@ -16100,8 +16100,8 @@ var require_react_dom_development = __commonJS({
         function unwindWork(workInProgress2, renderLanes2) {
           switch (workInProgress2.tag) {
             case ClassComponent: {
-              var Component = workInProgress2.type;
-              if (isContextProvider(Component)) {
+              var Component4 = workInProgress2.type;
+              if (isContextProvider(Component4)) {
                 popContext(workInProgress2);
               }
               var flags = workInProgress2.flags;
@@ -16535,8 +16535,8 @@ var require_react_dom_development = __commonJS({
             var effect = firstEffect;
             do {
               if ((effect.tag & tag) === tag) {
-                var create = effect.create;
-                effect.destroy = create();
+                var create2 = effect.create;
+                effect.destroy = create2();
                 {
                   var destroy = effect.destroy;
                   if (destroy !== void 0 && typeof destroy !== "function") {
@@ -17248,7 +17248,7 @@ var require_react_dom_development = __commonJS({
             });
           }
         }
-        var ceil = Math.ceil;
+        var ceil2 = Math.ceil;
         var ReactCurrentDispatcher$2 = ReactSharedInternals.ReactCurrentDispatcher, ReactCurrentOwner$2 = ReactSharedInternals.ReactCurrentOwner, IsSomeRendererActing = ReactSharedInternals.IsSomeRendererActing;
         var NoContext = 0;
         var BatchedContext = 1;
@@ -17743,7 +17743,7 @@ var require_react_dom_development = __commonJS({
           }
         }
         function pushRenderLanes(fiber, lanes) {
-          push(subtreeRenderLanesCursor, subtreeRenderLanes, fiber);
+          push2(subtreeRenderLanesCursor, subtreeRenderLanes, fiber);
           subtreeRenderLanes = mergeLanes(subtreeRenderLanes, lanes);
           workInProgressRootIncludedLanes = mergeLanes(workInProgressRootIncludedLanes, lanes);
         }
@@ -18397,8 +18397,8 @@ var require_react_dom_development = __commonJS({
           }
         }
         function invokePassiveEffectCreate(effect) {
-          var create = effect.create;
-          effect.destroy = create();
+          var create2 = effect.create;
+          effect.destroy = create2();
         }
         function flushPassiveEffectsImpl() {
           if (rootWithPendingPassiveEffects === null) {
@@ -18602,7 +18602,7 @@ var require_react_dom_development = __commonJS({
           retryTimedOutBoundary(boundaryFiber, retryLane);
         }
         function jnd(timeElapsed) {
-          return timeElapsed < 120 ? 120 : timeElapsed < 480 ? 480 : timeElapsed < 1080 ? 1080 : timeElapsed < 1920 ? 1920 : timeElapsed < 3e3 ? 3e3 : timeElapsed < 4320 ? 4320 : ceil(timeElapsed / 1960) * 1960;
+          return timeElapsed < 120 ? 120 : timeElapsed < 480 ? 480 : timeElapsed < 1080 ? 1080 : timeElapsed < 1920 ? 1920 : timeElapsed < 3e3 ? 3e3 : timeElapsed < 4320 ? 4320 : ceil2(timeElapsed / 1960) * 1960;
         }
         function checkForNestedUpdates() {
           if (nestedUpdateCount > NESTED_UPDATE_LIMIT) {
@@ -19267,18 +19267,18 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var createFiber = function(tag, pendingProps, key, mode) {
           return new FiberNode(tag, pendingProps, key, mode);
         };
-        function shouldConstruct$1(Component) {
-          var prototype = Component.prototype;
+        function shouldConstruct$1(Component4) {
+          var prototype = Component4.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function isSimpleFunctionComponent(type) {
           return typeof type === "function" && !shouldConstruct$1(type) && type.defaultProps === void 0;
         }
-        function resolveLazyComponentTag(Component) {
-          if (typeof Component === "function") {
-            return shouldConstruct$1(Component) ? ClassComponent : FunctionComponent;
-          } else if (Component !== void 0 && Component !== null) {
-            var $$typeof = Component.$$typeof;
+        function resolveLazyComponentTag(Component4) {
+          if (typeof Component4 === "function") {
+            return shouldConstruct$1(Component4) ? ClassComponent : FunctionComponent;
+          } else if (Component4 !== void 0 && Component4 !== null) {
+            var $$typeof = Component4.$$typeof;
             if ($$typeof === REACT_FORWARD_REF_TYPE) {
               return ForwardRef;
             }
@@ -19514,7 +19514,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return fiber;
         }
         function createFiberFromFragment(elements, mode, lanes, key) {
-          var fiber = createFiber(Fragment, elements, key, mode);
+          var fiber = createFiber(Fragment2, elements, key, mode);
           fiber.lanes = lanes;
           return fiber;
         }
@@ -19687,11 +19687,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
         function registerMutableSourceForHydration(root2, mutableSource) {
           var getVersion = mutableSource._getVersion;
-          var version = getVersion(mutableSource._source);
+          var version2 = getVersion(mutableSource._source);
           if (root2.mutableSourceEagerHydrationData == null) {
-            root2.mutableSourceEagerHydrationData = [mutableSource, version];
+            root2.mutableSourceEagerHydrationData = [mutableSource, version2];
           } else {
-            root2.mutableSourceEagerHydrationData.push(mutableSource, version);
+            root2.mutableSourceEagerHydrationData.push(mutableSource, version2);
           }
         }
         function createPortal(children, containerInfo, implementation) {
@@ -19714,19 +19714,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           if (!parentComponent) {
             return emptyContextObject;
           }
-          var fiber = get(parentComponent);
+          var fiber = get3(parentComponent);
           var parentContext = findCurrentUnmaskedContext(fiber);
           if (fiber.tag === ClassComponent) {
-            var Component = fiber.type;
-            if (isContextProvider(Component)) {
-              return processChildContext(fiber, Component, parentContext);
+            var Component4 = fiber.type;
+            if (isContextProvider(Component4)) {
+              return processChildContext(fiber, Component4, parentContext);
             }
           }
           return parentContext;
         }
         function findHostInstanceWithWarning(component, methodName) {
           {
-            var fiber = get(component);
+            var fiber = get3(component);
             if (fiber === void 0) {
               if (typeof component.render === "function") {
                 {
@@ -19899,10 +19899,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var scheduleUpdate = null;
         var setSuspenseHandler = null;
         {
-          var copyWithDeleteImpl = function(obj, path, index2) {
-            var key = path[index2];
+          var copyWithDeleteImpl = function(obj, path2, index3) {
+            var key = path2[index3];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            if (index2 + 1 === path.length) {
+            if (index3 + 1 === path2.length) {
               if (Array.isArray(updated)) {
                 updated.splice(key, 1);
               } else {
@@ -19910,17 +19910,17 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               }
               return updated;
             }
-            updated[key] = copyWithDeleteImpl(obj[key], path, index2 + 1);
+            updated[key] = copyWithDeleteImpl(obj[key], path2, index3 + 1);
             return updated;
           };
-          var copyWithDelete = function(obj, path) {
-            return copyWithDeleteImpl(obj, path, 0);
+          var copyWithDelete = function(obj, path2) {
+            return copyWithDeleteImpl(obj, path2, 0);
           };
-          var copyWithRenameImpl = function(obj, oldPath, newPath, index2) {
-            var oldKey = oldPath[index2];
+          var copyWithRenameImpl = function(obj, oldPath, newPath, index3) {
+            var oldKey = oldPath[index3];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            if (index2 + 1 === oldPath.length) {
-              var newKey = newPath[index2];
+            if (index3 + 1 === oldPath.length) {
+              var newKey = newPath[index3];
               updated[newKey] = updated[oldKey];
               if (Array.isArray(updated)) {
                 updated.splice(oldKey, 1);
@@ -19928,7 +19928,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
                 delete updated[oldKey];
               }
             } else {
-              updated[oldKey] = copyWithRenameImpl(obj[oldKey], oldPath, newPath, index2 + 1);
+              updated[oldKey] = copyWithRenameImpl(obj[oldKey], oldPath, newPath, index3 + 1);
             }
             return updated;
           };
@@ -19946,48 +19946,48 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             }
             return copyWithRenameImpl(obj, oldPath, newPath, 0);
           };
-          var copyWithSetImpl = function(obj, path, index2, value) {
-            if (index2 >= path.length) {
+          var copyWithSetImpl = function(obj, path2, index3, value) {
+            if (index3 >= path2.length) {
               return value;
             }
-            var key = path[index2];
+            var key = path2[index3];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            updated[key] = copyWithSetImpl(obj[key], path, index2 + 1, value);
+            updated[key] = copyWithSetImpl(obj[key], path2, index3 + 1, value);
             return updated;
           };
-          var copyWithSet = function(obj, path, value) {
-            return copyWithSetImpl(obj, path, 0, value);
+          var copyWithSet = function(obj, path2, value) {
+            return copyWithSetImpl(obj, path2, 0, value);
           };
-          var findHook = function(fiber, id) {
+          var findHook = function(fiber, id2) {
             var currentHook2 = fiber.memoizedState;
-            while (currentHook2 !== null && id > 0) {
+            while (currentHook2 !== null && id2 > 0) {
               currentHook2 = currentHook2.next;
-              id--;
+              id2--;
             }
             return currentHook2;
           };
-          overrideHookState = function(fiber, id, path, value) {
-            var hook = findHook(fiber, id);
+          overrideHookState = function(fiber, id2, path2, value) {
+            var hook = findHook(fiber, id2);
             if (hook !== null) {
-              var newState = copyWithSet(hook.memoizedState, path, value);
+              var newState = copyWithSet(hook.memoizedState, path2, value);
               hook.memoizedState = newState;
               hook.baseState = newState;
               fiber.memoizedProps = _assign({}, fiber.memoizedProps);
               scheduleUpdateOnFiber(fiber, SyncLane, NoTimestamp);
             }
           };
-          overrideHookStateDeletePath = function(fiber, id, path) {
-            var hook = findHook(fiber, id);
+          overrideHookStateDeletePath = function(fiber, id2, path2) {
+            var hook = findHook(fiber, id2);
             if (hook !== null) {
-              var newState = copyWithDelete(hook.memoizedState, path);
+              var newState = copyWithDelete(hook.memoizedState, path2);
               hook.memoizedState = newState;
               hook.baseState = newState;
               fiber.memoizedProps = _assign({}, fiber.memoizedProps);
               scheduleUpdateOnFiber(fiber, SyncLane, NoTimestamp);
             }
           };
-          overrideHookStateRenamePath = function(fiber, id, oldPath, newPath) {
-            var hook = findHook(fiber, id);
+          overrideHookStateRenamePath = function(fiber, id2, oldPath, newPath) {
+            var hook = findHook(fiber, id2);
             if (hook !== null) {
               var newState = copyWithRename(hook.memoizedState, oldPath, newPath);
               hook.memoizedState = newState;
@@ -19996,15 +19996,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               scheduleUpdateOnFiber(fiber, SyncLane, NoTimestamp);
             }
           };
-          overrideProps = function(fiber, path, value) {
-            fiber.pendingProps = copyWithSet(fiber.memoizedProps, path, value);
+          overrideProps = function(fiber, path2, value) {
+            fiber.pendingProps = copyWithSet(fiber.memoizedProps, path2, value);
             if (fiber.alternate) {
               fiber.alternate.pendingProps = fiber.pendingProps;
             }
             scheduleUpdateOnFiber(fiber, SyncLane, NoTimestamp);
           };
-          overridePropsDeletePath = function(fiber, path) {
-            fiber.pendingProps = copyWithDelete(fiber.memoizedProps, path);
+          overridePropsDeletePath = function(fiber, path2) {
+            fiber.pendingProps = copyWithDelete(fiber.memoizedProps, path2);
             if (fiber.alternate) {
               fiber.alternate.pendingProps = fiber.pendingProps;
             }
@@ -20227,7 +20227,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           return getPublicRootInstance(fiberRoot);
         }
-        function findDOMNode(componentOrElement) {
+        function findDOMNode2(componentOrElement) {
           {
             var owner = ReactCurrentOwner$3.current;
             if (owner !== null && owner.stateNode !== null) {
@@ -20282,7 +20282,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               throw Error("Target container is not a DOM element.");
             }
           }
-          if (!(parentComponent != null && has(parentComponent))) {
+          if (!(parentComponent != null && has2(parentComponent))) {
             {
               throw Error("parentComponent must be a valid React Component");
             }
@@ -20391,7 +20391,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
         exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = Internals;
         exports.createPortal = createPortal$1;
-        exports.findDOMNode = findDOMNode;
+        exports.findDOMNode = findDOMNode2;
         exports.flushSync = flushSync;
         exports.hydrate = hydrate;
         exports.render = render;
@@ -21092,17 +21092,17 @@ var require_lodash = __commonJS({
         return func.apply(thisArg, args);
       }
       function arrayAggregator(array, setter, iteratee, accumulator) {
-        var index = -1, length = array == null ? 0 : array.length;
-        while (++index < length) {
-          var value = array[index];
+        var index2 = -1, length = array == null ? 0 : array.length;
+        while (++index2 < length) {
+          var value = array[index2];
           setter(accumulator, value, iteratee(value), array);
         }
         return accumulator;
       }
       function arrayEach(array, iteratee) {
-        var index = -1, length = array == null ? 0 : array.length;
-        while (++index < length) {
-          if (iteratee(array[index], index, array) === false) {
+        var index2 = -1, length = array == null ? 0 : array.length;
+        while (++index2 < length) {
+          if (iteratee(array[index2], index2, array) === false) {
             break;
           }
         }
@@ -21118,58 +21118,58 @@ var require_lodash = __commonJS({
         return array;
       }
       function arrayEvery(array, predicate) {
-        var index = -1, length = array == null ? 0 : array.length;
-        while (++index < length) {
-          if (!predicate(array[index], index, array)) {
+        var index2 = -1, length = array == null ? 0 : array.length;
+        while (++index2 < length) {
+          if (!predicate(array[index2], index2, array)) {
             return false;
           }
         }
         return true;
       }
       function arrayFilter(array, predicate) {
-        var index = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
-        while (++index < length) {
-          var value = array[index];
-          if (predicate(value, index, array)) {
+        var index2 = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
+        while (++index2 < length) {
+          var value = array[index2];
+          if (predicate(value, index2, array)) {
             result[resIndex++] = value;
           }
         }
         return result;
       }
-      function arrayIncludes(array, value) {
+      function arrayIncludes2(array, value) {
         var length = array == null ? 0 : array.length;
         return !!length && baseIndexOf(array, value, 0) > -1;
       }
       function arrayIncludesWith(array, value, comparator) {
-        var index = -1, length = array == null ? 0 : array.length;
-        while (++index < length) {
-          if (comparator(value, array[index])) {
+        var index2 = -1, length = array == null ? 0 : array.length;
+        while (++index2 < length) {
+          if (comparator(value, array[index2])) {
             return true;
           }
         }
         return false;
       }
       function arrayMap(array, iteratee) {
-        var index = -1, length = array == null ? 0 : array.length, result = Array(length);
-        while (++index < length) {
-          result[index] = iteratee(array[index], index, array);
+        var index2 = -1, length = array == null ? 0 : array.length, result = Array(length);
+        while (++index2 < length) {
+          result[index2] = iteratee(array[index2], index2, array);
         }
         return result;
       }
       function arrayPush(array, values) {
-        var index = -1, length = values.length, offset = array.length;
-        while (++index < length) {
-          array[offset + index] = values[index];
+        var index2 = -1, length = values.length, offset2 = array.length;
+        while (++index2 < length) {
+          array[offset2 + index2] = values[index2];
         }
         return array;
       }
       function arrayReduce(array, iteratee, accumulator, initAccum) {
-        var index = -1, length = array == null ? 0 : array.length;
+        var index2 = -1, length = array == null ? 0 : array.length;
         if (initAccum && length) {
-          accumulator = array[++index];
+          accumulator = array[++index2];
         }
-        while (++index < length) {
-          accumulator = iteratee(accumulator, array[index], index, array);
+        while (++index2 < length) {
+          accumulator = iteratee(accumulator, array[index2], index2, array);
         }
         return accumulator;
       }
@@ -21184,9 +21184,9 @@ var require_lodash = __commonJS({
         return accumulator;
       }
       function arraySome(array, predicate) {
-        var index = -1, length = array == null ? 0 : array.length;
-        while (++index < length) {
-          if (predicate(array[index], index, array)) {
+        var index2 = -1, length = array == null ? 0 : array.length;
+        while (++index2 < length) {
+          if (predicate(array[index2], index2, array)) {
             return true;
           }
         }
@@ -21210,10 +21210,10 @@ var require_lodash = __commonJS({
         return result;
       }
       function baseFindIndex(array, predicate, fromIndex, fromRight) {
-        var length = array.length, index = fromIndex + (fromRight ? 1 : -1);
-        while (fromRight ? index-- : ++index < length) {
-          if (predicate(array[index], index, array)) {
-            return index;
+        var length = array.length, index2 = fromIndex + (fromRight ? 1 : -1);
+        while (fromRight ? index2-- : ++index2 < length) {
+          if (predicate(array[index2], index2, array)) {
+            return index2;
           }
         }
         return -1;
@@ -21222,10 +21222,10 @@ var require_lodash = __commonJS({
         return value === value ? strictIndexOf(array, value, fromIndex) : baseFindIndex(array, baseIsNaN, fromIndex);
       }
       function baseIndexOfWith(array, value, fromIndex, comparator) {
-        var index = fromIndex - 1, length = array.length;
-        while (++index < length) {
-          if (comparator(array[index], value)) {
-            return index;
+        var index2 = fromIndex - 1, length = array.length;
+        while (++index2 < length) {
+          if (comparator(array[index2], value)) {
+            return index2;
           }
         }
         return -1;
@@ -21248,8 +21248,8 @@ var require_lodash = __commonJS({
         };
       }
       function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
-        eachFunc(collection, function(value, index, collection2) {
-          accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index, collection2);
+        eachFunc(collection, function(value, index2, collection2) {
+          accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index2, collection2);
         });
         return accumulator;
       }
@@ -21262,9 +21262,9 @@ var require_lodash = __commonJS({
         return array;
       }
       function baseSum(array, iteratee) {
-        var result, index = -1, length = array.length;
-        while (++index < length) {
-          var current = iteratee(array[index]);
+        var result, index2 = -1, length = array.length;
+        while (++index2 < length) {
+          var current = iteratee(array[index2]);
           if (current !== undefined2) {
             result = result === undefined2 ? current : result + current;
           }
@@ -21272,9 +21272,9 @@ var require_lodash = __commonJS({
         return result;
       }
       function baseTimes(n, iteratee) {
-        var index = -1, result = Array(n);
-        while (++index < n) {
-          result[index] = iteratee(index);
+        var index2 = -1, result = Array(n);
+        while (++index2 < n) {
+          result[index2] = iteratee(index2);
         }
         return result;
       }
@@ -21300,16 +21300,16 @@ var require_lodash = __commonJS({
         return cache.has(key);
       }
       function charsStartIndex(strSymbols, chrSymbols) {
-        var index = -1, length = strSymbols.length;
-        while (++index < length && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
+        var index2 = -1, length = strSymbols.length;
+        while (++index2 < length && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
         }
-        return index;
+        return index2;
       }
       function charsEndIndex(strSymbols, chrSymbols) {
-        var index = strSymbols.length;
-        while (index-- && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
+        var index2 = strSymbols.length;
+        while (index2-- && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
         }
-        return index;
+        return index2;
       }
       function countHolders(array, placeholder) {
         var length = array.length, result = 0;
@@ -21335,16 +21335,16 @@ var require_lodash = __commonJS({
         return reHasUnicodeWord.test(string2);
       }
       function iteratorToArray(iterator) {
-        var data, result = [];
-        while (!(data = iterator.next()).done) {
-          result.push(data.value);
+        var data2, result = [];
+        while (!(data2 = iterator.next()).done) {
+          result.push(data2.value);
         }
         return result;
       }
       function mapToArray(map) {
-        var index = -1, result = Array(map.size);
+        var index2 = -1, result = Array(map.size);
         map.forEach(function(value, key) {
-          result[++index] = [key, value];
+          result[++index2] = [key, value];
         });
         return result;
       }
@@ -21354,47 +21354,47 @@ var require_lodash = __commonJS({
         };
       }
       function replaceHolders(array, placeholder) {
-        var index = -1, length = array.length, resIndex = 0, result = [];
-        while (++index < length) {
-          var value = array[index];
+        var index2 = -1, length = array.length, resIndex = 0, result = [];
+        while (++index2 < length) {
+          var value = array[index2];
           if (value === placeholder || value === PLACEHOLDER) {
-            array[index] = PLACEHOLDER;
-            result[resIndex++] = index;
+            array[index2] = PLACEHOLDER;
+            result[resIndex++] = index2;
           }
         }
         return result;
       }
-      function setToArray(set) {
-        var index = -1, result = Array(set.size);
-        set.forEach(function(value) {
-          result[++index] = value;
+      function setToArray(set3) {
+        var index2 = -1, result = Array(set3.size);
+        set3.forEach(function(value) {
+          result[++index2] = value;
         });
         return result;
       }
-      function setToPairs(set) {
-        var index = -1, result = Array(set.size);
-        set.forEach(function(value) {
-          result[++index] = [value, value];
+      function setToPairs(set3) {
+        var index2 = -1, result = Array(set3.size);
+        set3.forEach(function(value) {
+          result[++index2] = [value, value];
         });
         return result;
       }
       function strictIndexOf(array, value, fromIndex) {
-        var index = fromIndex - 1, length = array.length;
-        while (++index < length) {
-          if (array[index] === value) {
-            return index;
+        var index2 = fromIndex - 1, length = array.length;
+        while (++index2 < length) {
+          if (array[index2] === value) {
+            return index2;
           }
         }
         return -1;
       }
       function strictLastIndexOf(array, value, fromIndex) {
-        var index = fromIndex + 1;
-        while (index--) {
-          if (array[index] === value) {
-            return index;
+        var index2 = fromIndex + 1;
+        while (index2--) {
+          if (array[index2] === value) {
+            return index2;
           }
         }
-        return index;
+        return index2;
       }
       function stringSize(string2) {
         return hasUnicode(string2) ? unicodeSize(string2) : asciiSize(string2);
@@ -21403,10 +21403,10 @@ var require_lodash = __commonJS({
         return hasUnicode(string2) ? unicodeToArray(string2) : asciiToArray(string2);
       }
       function trimmedEndIndex(string2) {
-        var index = string2.length;
-        while (index-- && reWhitespace.test(string2.charAt(index))) {
+        var index2 = string2.length;
+        while (index2-- && reWhitespace.test(string2.charAt(index2))) {
         }
-        return index;
+        return index2;
       }
       var unescapeHtmlChar = basePropertyOf(htmlUnescapes);
       function unicodeSize(string2) {
@@ -21428,18 +21428,18 @@ var require_lodash = __commonJS({
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
         var funcToString = funcProto.toString;
-        var hasOwnProperty = objectProto.hasOwnProperty;
+        var hasOwnProperty2 = objectProto.hasOwnProperty;
         var idCounter = 0;
         var maskSrcKey = function() {
-          var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
-          return uid ? "Symbol(src)_1." + uid : "";
+          var uid2 = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
+          return uid2 ? "Symbol(src)_1." + uid2 : "";
         }();
         var nativeObjectToString = objectProto.toString;
         var objectCtorString = funcToString.call(Object2);
         var oldDash = root._;
-        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
-        var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
-        var defineProperty = function() {
+        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty2).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
+        var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate2 = Object2.create, propertyIsEnumerable2 = objectProto.propertyIsEnumerable, splice = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
+        var defineProperty2 = function() {
           try {
             var func = getNative(Object2, "defineProperty");
             func({}, "", {});
@@ -21449,17 +21449,17 @@ var require_lodash = __commonJS({
         }();
         var ctxClearTimeout = context.clearTimeout !== root.clearTimeout && context.clearTimeout, ctxNow = Date2 && Date2.now !== root.Date.now && Date2.now, ctxSetTimeout = context.setTimeout !== root.setTimeout && context.setTimeout;
         var nativeCeil = Math2.ceil, nativeFloor = Math2.floor, nativeGetSymbols = Object2.getOwnPropertySymbols, nativeIsBuffer = Buffer2 ? Buffer2.isBuffer : undefined2, nativeIsFinite = context.isFinite, nativeJoin = arrayProto.join, nativeKeys = overArg(Object2.keys, Object2), nativeMax = Math2.max, nativeMin = Math2.min, nativeNow = Date2.now, nativeParseInt = context.parseInt, nativeRandom = Math2.random, nativeReverse = arrayProto.reverse;
-        var DataView = getNative(context, "DataView"), Map2 = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set2 = getNative(context, "Set"), WeakMap2 = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
-        var metaMap = WeakMap2 && new WeakMap2();
+        var DataView = getNative(context, "DataView"), Map2 = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set2 = getNative(context, "Set"), WeakMap3 = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
+        var metaMap = WeakMap3 && new WeakMap3();
         var realNames = {};
-        var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map2), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set2), weakMapCtorString = toSource(WeakMap2);
+        var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map2), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set2), weakMapCtorString = toSource(WeakMap3);
         var symbolProto = Symbol2 ? Symbol2.prototype : undefined2, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined2, symbolToString = symbolProto ? symbolProto.toString : undefined2;
         function lodash(value) {
-          if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
+          if (isObjectLike(value) && !isArray3(value) && !(value instanceof LazyWrapper)) {
             if (value instanceof LodashWrapper) {
               return value;
             }
-            if (hasOwnProperty.call(value, "__wrapped__")) {
+            if (hasOwnProperty2.call(value, "__wrapped__")) {
               return wrapperClone(value);
             }
           }
@@ -21469,11 +21469,11 @@ var require_lodash = __commonJS({
           function object() {
           }
           return function(proto) {
-            if (!isObject(proto)) {
+            if (!isObject2(proto)) {
               return {};
             }
-            if (objectCreate) {
-              return objectCreate(proto);
+            if (objectCreate2) {
+              return objectCreate2(proto);
             }
             object.prototype = proto;
             var result2 = new object();
@@ -21534,17 +21534,17 @@ var require_lodash = __commonJS({
           return result2;
         }
         function lazyValue() {
-          var array = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array), isRight = dir < 0, arrLength = isArr ? array.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+          var array = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray3(array), isRight = dir < 0, arrLength = isArr ? array.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index2 = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
           if (!isArr || !isRight && arrLength == length && takeCount == length) {
             return baseWrapperValue(array, this.__actions__);
           }
           var result2 = [];
           outer:
             while (length-- && resIndex < takeCount) {
-              index += dir;
-              var iterIndex = -1, value = array[index];
+              index2 += dir;
+              var iterIndex = -1, value = array[index2];
               while (++iterIndex < iterLength) {
-                var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed = iteratee2(value);
+                var data2 = iteratees[iterIndex], iteratee2 = data2.iteratee, type = data2.type, computed = iteratee2(value);
                 if (type == LAZY_MAP_FLAG) {
                   value = computed;
                 } else if (!computed) {
@@ -21562,10 +21562,10 @@ var require_lodash = __commonJS({
         LazyWrapper.prototype = baseCreate(baseLodash.prototype);
         LazyWrapper.prototype.constructor = LazyWrapper;
         function Hash2(entries) {
-          var index = -1, length = entries == null ? 0 : entries.length;
+          var index2 = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index < length) {
-            var entry = entries[index];
+          while (++index2 < length) {
+            var entry = entries[index2];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21579,21 +21579,21 @@ var require_lodash = __commonJS({
           return result2;
         }
         function hashGet(key) {
-          var data = this.__data__;
+          var data2 = this.__data__;
           if (nativeCreate) {
-            var result2 = data[key];
+            var result2 = data2[key];
             return result2 === HASH_UNDEFINED ? undefined2 : result2;
           }
-          return hasOwnProperty.call(data, key) ? data[key] : undefined2;
+          return hasOwnProperty2.call(data2, key) ? data2[key] : undefined2;
         }
         function hashHas(key) {
-          var data = this.__data__;
-          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty.call(data, key);
+          var data2 = this.__data__;
+          return nativeCreate ? data2[key] !== undefined2 : hasOwnProperty2.call(data2, key);
         }
         function hashSet(key, value) {
-          var data = this.__data__;
+          var data2 = this.__data__;
           this.size += this.has(key) ? 0 : 1;
-          data[key] = nativeCreate && value === undefined2 ? HASH_UNDEFINED : value;
+          data2[key] = nativeCreate && value === undefined2 ? HASH_UNDEFINED : value;
           return this;
         }
         Hash2.prototype.clear = hashClear;
@@ -21602,10 +21602,10 @@ var require_lodash = __commonJS({
         Hash2.prototype.has = hashHas;
         Hash2.prototype.set = hashSet;
         function ListCache(entries) {
-          var index = -1, length = entries == null ? 0 : entries.length;
+          var index2 = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index < length) {
-            var entry = entries[index];
+          while (++index2 < length) {
+            var entry = entries[index2];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21614,33 +21614,33 @@ var require_lodash = __commonJS({
           this.size = 0;
         }
         function listCacheDelete(key) {
-          var data = this.__data__, index = assocIndexOf(data, key);
-          if (index < 0) {
+          var data2 = this.__data__, index2 = assocIndexOf(data2, key);
+          if (index2 < 0) {
             return false;
           }
-          var lastIndex = data.length - 1;
-          if (index == lastIndex) {
-            data.pop();
+          var lastIndex = data2.length - 1;
+          if (index2 == lastIndex) {
+            data2.pop();
           } else {
-            splice.call(data, index, 1);
+            splice.call(data2, index2, 1);
           }
           --this.size;
           return true;
         }
         function listCacheGet(key) {
-          var data = this.__data__, index = assocIndexOf(data, key);
-          return index < 0 ? undefined2 : data[index][1];
+          var data2 = this.__data__, index2 = assocIndexOf(data2, key);
+          return index2 < 0 ? undefined2 : data2[index2][1];
         }
         function listCacheHas(key) {
           return assocIndexOf(this.__data__, key) > -1;
         }
         function listCacheSet(key, value) {
-          var data = this.__data__, index = assocIndexOf(data, key);
-          if (index < 0) {
+          var data2 = this.__data__, index2 = assocIndexOf(data2, key);
+          if (index2 < 0) {
             ++this.size;
-            data.push([key, value]);
+            data2.push([key, value]);
           } else {
-            data[index][1] = value;
+            data2[index2][1] = value;
           }
           return this;
         }
@@ -21650,10 +21650,10 @@ var require_lodash = __commonJS({
         ListCache.prototype.has = listCacheHas;
         ListCache.prototype.set = listCacheSet;
         function MapCache(entries) {
-          var index = -1, length = entries == null ? 0 : entries.length;
+          var index2 = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index < length) {
-            var entry = entries[index];
+          while (++index2 < length) {
+            var entry = entries[index2];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21677,9 +21677,9 @@ var require_lodash = __commonJS({
           return getMapData(this, key).has(key);
         }
         function mapCacheSet(key, value) {
-          var data = getMapData(this, key), size2 = data.size;
-          data.set(key, value);
-          this.size += data.size == size2 ? 0 : 1;
+          var data2 = getMapData(this, key), size2 = data2.size;
+          data2.set(key, value);
+          this.size += data2.size == size2 ? 0 : 1;
           return this;
         }
         MapCache.prototype.clear = mapCacheClear;
@@ -21688,10 +21688,10 @@ var require_lodash = __commonJS({
         MapCache.prototype.has = mapCacheHas;
         MapCache.prototype.set = mapCacheSet;
         function SetCache(values2) {
-          var index = -1, length = values2 == null ? 0 : values2.length;
+          var index2 = -1, length = values2 == null ? 0 : values2.length;
           this.__data__ = new MapCache();
-          while (++index < length) {
-            this.add(values2[index]);
+          while (++index2 < length) {
+            this.add(values2[index2]);
           }
         }
         function setCacheAdd(value) {
@@ -21704,16 +21704,16 @@ var require_lodash = __commonJS({
         SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
         SetCache.prototype.has = setCacheHas;
         function Stack2(entries) {
-          var data = this.__data__ = new ListCache(entries);
-          this.size = data.size;
+          var data2 = this.__data__ = new ListCache(entries);
+          this.size = data2.size;
         }
         function stackClear() {
           this.__data__ = new ListCache();
           this.size = 0;
         }
         function stackDelete(key) {
-          var data = this.__data__, result2 = data["delete"](key);
-          this.size = data.size;
+          var data2 = this.__data__, result2 = data2["delete"](key);
+          this.size = data2.size;
           return result2;
         }
         function stackGet(key) {
@@ -21723,18 +21723,18 @@ var require_lodash = __commonJS({
           return this.__data__.has(key);
         }
         function stackSet(key, value) {
-          var data = this.__data__;
-          if (data instanceof ListCache) {
-            var pairs = data.__data__;
+          var data2 = this.__data__;
+          if (data2 instanceof ListCache) {
+            var pairs = data2.__data__;
             if (!Map2 || pairs.length < LARGE_ARRAY_SIZE - 1) {
               pairs.push([key, value]);
-              this.size = ++data.size;
+              this.size = ++data2.size;
               return this;
             }
-            data = this.__data__ = new MapCache(pairs);
+            data2 = this.__data__ = new MapCache(pairs);
           }
-          data.set(key, value);
-          this.size = data.size;
+          data2.set(key, value);
+          this.size = data2.size;
           return this;
         }
         Stack2.prototype.clear = stackClear;
@@ -21743,9 +21743,9 @@ var require_lodash = __commonJS({
         Stack2.prototype.has = stackHas;
         Stack2.prototype.set = stackSet;
         function arrayLikeKeys(value, inherited) {
-          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
+          var isArr = isArray3(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
           for (var key in value) {
-            if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
+            if ((inherited || hasOwnProperty2.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
               result2.push(key);
             }
           }
@@ -21768,7 +21768,7 @@ var require_lodash = __commonJS({
         }
         function assignValue(object, key, value) {
           var objValue = object[key];
-          if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === undefined2 && !(key in object)) {
+          if (!(hasOwnProperty2.call(object, key) && eq(objValue, value)) || value === undefined2 && !(key in object)) {
             baseAssignValue(object, key, value);
           }
         }
@@ -21788,14 +21788,14 @@ var require_lodash = __commonJS({
           return accumulator;
         }
         function baseAssign(object, source) {
-          return object && copyObject(source, keys(source), object);
+          return object && copyObject(source, keys3(source), object);
         }
         function baseAssignIn(object, source) {
           return object && copyObject(source, keysIn(source), object);
         }
         function baseAssignValue(object, key, value) {
-          if (key == "__proto__" && defineProperty) {
-            defineProperty(object, key, {
+          if (key == "__proto__" && defineProperty2) {
+            defineProperty2(object, key, {
               "configurable": true,
               "enumerable": true,
               "value": value,
@@ -21806,9 +21806,9 @@ var require_lodash = __commonJS({
           }
         }
         function baseAt(object, paths) {
-          var index = -1, length = paths.length, result2 = Array2(length), skip = object == null;
-          while (++index < length) {
-            result2[index] = skip ? undefined2 : get(object, paths[index]);
+          var index2 = -1, length = paths.length, result2 = Array2(length), skip = object == null;
+          while (++index2 < length) {
+            result2[index2] = skip ? undefined2 : get3(object, paths[index2]);
           }
           return result2;
         }
@@ -21831,10 +21831,10 @@ var require_lodash = __commonJS({
           if (result2 !== undefined2) {
             return result2;
           }
-          if (!isObject(value)) {
+          if (!isObject2(value)) {
             return value;
           }
-          var isArr = isArray(value);
+          var isArr = isArray3(value);
           if (isArr) {
             result2 = initCloneArray(value);
             if (!isDeep) {
@@ -21872,7 +21872,7 @@ var require_lodash = __commonJS({
               result2.set(key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
             });
           }
-          var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys;
+          var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys3;
           var props = isArr ? undefined2 : keysFunc(value);
           arrayEach(props || value, function(subValue, key2) {
             if (props) {
@@ -21884,7 +21884,7 @@ var require_lodash = __commonJS({
           return result2;
         }
         function baseConforms(source) {
-          var props = keys(source);
+          var props = keys3(source);
           return function(object) {
             return baseConformsTo(object, source, props);
           };
@@ -21912,7 +21912,7 @@ var require_lodash = __commonJS({
           }, wait);
         }
         function baseDifference(array, values2, iteratee2, comparator) {
-          var index = -1, includes2 = arrayIncludes, isCommon = true, length = array.length, result2 = [], valuesLength = values2.length;
+          var index2 = -1, includes2 = arrayIncludes2, isCommon = true, length = array.length, result2 = [], valuesLength = values2.length;
           if (!length) {
             return result2;
           }
@@ -21928,8 +21928,8 @@ var require_lodash = __commonJS({
             values2 = new SetCache(values2);
           }
           outer:
-            while (++index < length) {
-              var value = array[index], computed = iteratee2 == null ? value : iteratee2(value);
+            while (++index2 < length) {
+              var value = array[index2], computed = iteratee2 == null ? value : iteratee2(value);
               value = comparator || value !== 0 ? value : 0;
               if (isCommon && computed === computed) {
                 var valuesIndex = valuesLength;
@@ -21949,16 +21949,16 @@ var require_lodash = __commonJS({
         var baseEachRight = createBaseEach(baseForOwnRight, true);
         function baseEvery(collection, predicate) {
           var result2 = true;
-          baseEach(collection, function(value, index, collection2) {
-            result2 = !!predicate(value, index, collection2);
+          baseEach(collection, function(value, index2, collection2) {
+            result2 = !!predicate(value, index2, collection2);
             return result2;
           });
           return result2;
         }
         function baseExtremum(array, iteratee2, comparator) {
-          var index = -1, length = array.length;
-          while (++index < length) {
-            var value = array[index], current = iteratee2(value);
+          var index2 = -1, length = array.length;
+          while (++index2 < length) {
+            var value = array[index2], current = iteratee2(value);
             if (current != null && (computed === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed))) {
               var computed = current, result2 = value;
             }
@@ -21967,15 +21967,15 @@ var require_lodash = __commonJS({
         }
         function baseFill(array, value, start2, end) {
           var length = array.length;
-          start2 = toInteger(start2);
+          start2 = toInteger2(start2);
           if (start2 < 0) {
             start2 = -start2 > length ? 0 : length + start2;
           }
-          end = end === undefined2 || end > length ? length : toInteger(end);
+          end = end === undefined2 || end > length ? length : toInteger2(end);
           if (end < 0) {
             end += length;
           }
-          end = start2 > end ? 0 : toLength(end);
+          end = start2 > end ? 0 : toLength2(end);
           while (start2 < end) {
             array[start2++] = value;
           }
@@ -21983,19 +21983,19 @@ var require_lodash = __commonJS({
         }
         function baseFilter(collection, predicate) {
           var result2 = [];
-          baseEach(collection, function(value, index, collection2) {
-            if (predicate(value, index, collection2)) {
+          baseEach(collection, function(value, index2, collection2) {
+            if (predicate(value, index2, collection2)) {
               result2.push(value);
             }
           });
           return result2;
         }
         function baseFlatten(array, depth, predicate, isStrict, result2) {
-          var index = -1, length = array.length;
+          var index2 = -1, length = array.length;
           predicate || (predicate = isFlattenable);
           result2 || (result2 = []);
-          while (++index < length) {
-            var value = array[index];
+          while (++index2 < length) {
+            var value = array[index2];
             if (depth > 0 && predicate(value)) {
               if (depth > 1) {
                 baseFlatten(value, depth - 1, predicate, isStrict, result2);
@@ -22011,27 +22011,27 @@ var require_lodash = __commonJS({
         var baseFor = createBaseFor();
         var baseForRight = createBaseFor(true);
         function baseForOwn(object, iteratee2) {
-          return object && baseFor(object, iteratee2, keys);
+          return object && baseFor(object, iteratee2, keys3);
         }
         function baseForOwnRight(object, iteratee2) {
-          return object && baseForRight(object, iteratee2, keys);
+          return object && baseForRight(object, iteratee2, keys3);
         }
         function baseFunctions(object, props) {
           return arrayFilter(props, function(key) {
             return isFunction(object[key]);
           });
         }
-        function baseGet(object, path) {
-          path = castPath(path, object);
-          var index = 0, length = path.length;
-          while (object != null && index < length) {
-            object = object[toKey(path[index++])];
+        function baseGet(object, path2) {
+          path2 = castPath(path2, object);
+          var index2 = 0, length = path2.length;
+          while (object != null && index2 < length) {
+            object = object[toKey(path2[index2++])];
           }
-          return index && index == length ? object : undefined2;
+          return index2 && index2 == length ? object : undefined2;
         }
         function baseGetAllKeys(object, keysFunc, symbolsFunc) {
           var result2 = keysFunc(object);
-          return isArray(object) ? result2 : arrayPush(result2, symbolsFunc(object));
+          return isArray3(object) ? result2 : arrayPush(result2, symbolsFunc(object));
         }
         function baseGetTag(value) {
           if (value == null) {
@@ -22043,7 +22043,7 @@ var require_lodash = __commonJS({
           return value > other;
         }
         function baseHas(object, key) {
-          return object != null && hasOwnProperty.call(object, key);
+          return object != null && hasOwnProperty2.call(object, key);
         }
         function baseHasIn(object, key) {
           return object != null && key in Object2(object);
@@ -22052,7 +22052,7 @@ var require_lodash = __commonJS({
           return number2 >= nativeMin(start2, end) && number2 < nativeMax(start2, end);
         }
         function baseIntersection(arrays, iteratee2, comparator) {
-          var includes2 = comparator ? arrayIncludesWith : arrayIncludes, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
+          var includes2 = comparator ? arrayIncludesWith : arrayIncludes2, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
           while (othIndex--) {
             var array = arrays[othIndex];
             if (othIndex && iteratee2) {
@@ -22062,10 +22062,10 @@ var require_lodash = __commonJS({
             caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array.length >= 120) ? new SetCache(othIndex && array) : undefined2;
           }
           array = arrays[0];
-          var index = -1, seen = caches[0];
+          var index2 = -1, seen = caches[0];
           outer:
-            while (++index < length && result2.length < maxLength) {
-              var value = array[index], computed = iteratee2 ? iteratee2(value) : value;
+            while (++index2 < length && result2.length < maxLength) {
+              var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
               if (!(seen ? cacheHas(seen, computed) : includes2(result2, computed, comparator))) {
                 othIndex = othLength;
@@ -22089,10 +22089,10 @@ var require_lodash = __commonJS({
           });
           return accumulator;
         }
-        function baseInvoke(object, path, args) {
-          path = castPath(path, object);
-          object = parent(object, path);
-          var func = object == null ? object : object[toKey(last(path))];
+        function baseInvoke(object, path2, args) {
+          path2 = castPath(path2, object);
+          object = parent(object, path2);
+          var func = object == null ? object : object[toKey(last(path2))];
           return func == null ? undefined2 : apply(func, object, args);
         }
         function baseIsArguments(value) {
@@ -22114,7 +22114,7 @@ var require_lodash = __commonJS({
           return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
         }
         function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-          var objIsArr = isArray(object), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
+          var objIsArr = isArray3(object), othIsArr = isArray3(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
           objTag = objTag == argsTag ? objectTag : objTag;
           othTag = othTag == argsTag ? objectTag : othTag;
           var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
@@ -22130,7 +22130,7 @@ var require_lodash = __commonJS({
             return objIsArr || isTypedArray(object) ? equalArrays(object, other, bitmask, customizer, equalFunc, stack) : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
           }
           if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
-            var objIsWrapped = objIsObj && hasOwnProperty.call(object, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+            var objIsWrapped = objIsObj && hasOwnProperty2.call(object, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty2.call(other, "__wrapped__");
             if (objIsWrapped || othIsWrapped) {
               var objUnwrapped = objIsWrapped ? object.value() : object, othUnwrapped = othIsWrapped ? other.value() : other;
               stack || (stack = new Stack2());
@@ -22147,21 +22147,21 @@ var require_lodash = __commonJS({
           return isObjectLike(value) && getTag(value) == mapTag;
         }
         function baseIsMatch(object, source, matchData, customizer) {
-          var index = matchData.length, length = index, noCustomizer = !customizer;
+          var index2 = matchData.length, length = index2, noCustomizer = !customizer;
           if (object == null) {
             return !length;
           }
           object = Object2(object);
-          while (index--) {
-            var data = matchData[index];
-            if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
+          while (index2--) {
+            var data2 = matchData[index2];
+            if (noCustomizer && data2[2] ? data2[1] !== object[data2[0]] : !(data2[0] in object)) {
               return false;
             }
           }
-          while (++index < length) {
-            data = matchData[index];
-            var key = data[0], objValue = object[key], srcValue = data[1];
-            if (noCustomizer && data[2]) {
+          while (++index2 < length) {
+            data2 = matchData[index2];
+            var key = data2[0], objValue = object[key], srcValue = data2[1];
+            if (noCustomizer && data2[2]) {
               if (objValue === undefined2 && !(key in object)) {
                 return false;
               }
@@ -22178,7 +22178,7 @@ var require_lodash = __commonJS({
           return true;
         }
         function baseIsNative(value) {
-          if (!isObject(value) || isMasked(value)) {
+          if (!isObject2(value) || isMasked(value)) {
             return false;
           }
           var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
@@ -22201,7 +22201,7 @@ var require_lodash = __commonJS({
             return identity;
           }
           if (typeof value == "object") {
-            return isArray(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
+            return isArray3(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
           }
           return property(value);
         }
@@ -22211,19 +22211,19 @@ var require_lodash = __commonJS({
           }
           var result2 = [];
           for (var key in Object2(object)) {
-            if (hasOwnProperty.call(object, key) && key != "constructor") {
+            if (hasOwnProperty2.call(object, key) && key != "constructor") {
               result2.push(key);
             }
           }
           return result2;
         }
         function baseKeysIn(object) {
-          if (!isObject(object)) {
+          if (!isObject2(object)) {
             return nativeKeysIn(object);
           }
           var isProto = isPrototype(object), result2 = [];
           for (var key in object) {
-            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object, key)))) {
+            if (!(key == "constructor" && (isProto || !hasOwnProperty2.call(object, key)))) {
               result2.push(key);
             }
           }
@@ -22233,9 +22233,9 @@ var require_lodash = __commonJS({
           return value < other;
         }
         function baseMap(collection, iteratee2) {
-          var index = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+          var index2 = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
           baseEach(collection, function(value, key, collection2) {
-            result2[++index] = iteratee2(value, key, collection2);
+            result2[++index2] = iteratee2(value, key, collection2);
           });
           return result2;
         }
@@ -22248,13 +22248,13 @@ var require_lodash = __commonJS({
             return object === source || baseIsMatch(object, source, matchData);
           };
         }
-        function baseMatchesProperty(path, srcValue) {
-          if (isKey(path) && isStrictComparable(srcValue)) {
-            return matchesStrictComparable(toKey(path), srcValue);
+        function baseMatchesProperty(path2, srcValue) {
+          if (isKey(path2) && isStrictComparable(srcValue)) {
+            return matchesStrictComparable(toKey(path2), srcValue);
           }
           return function(object) {
-            var objValue = get(object, path);
-            return objValue === undefined2 && objValue === srcValue ? hasIn(object, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+            var objValue = get3(object, path2);
+            return objValue === undefined2 && objValue === srcValue ? hasIn(object, path2) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
           };
         }
         function baseMerge(object, source, srcIndex, customizer, stack) {
@@ -22263,7 +22263,7 @@ var require_lodash = __commonJS({
           }
           baseFor(source, function(srcValue, key) {
             stack || (stack = new Stack2());
-            if (isObject(srcValue)) {
+            if (isObject2(srcValue)) {
               baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
             } else {
               var newValue = customizer ? customizer(safeGet(object, key), srcValue, key + "", object, source, stack) : undefined2;
@@ -22283,10 +22283,10 @@ var require_lodash = __commonJS({
           var newValue = customizer ? customizer(objValue, srcValue, key + "", object, source, stack) : undefined2;
           var isCommon = newValue === undefined2;
           if (isCommon) {
-            var isArr = isArray(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+            var isArr = isArray3(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
             newValue = srcValue;
             if (isArr || isBuff || isTyped) {
-              if (isArray(objValue)) {
+              if (isArray3(objValue)) {
                 newValue = objValue;
               } else if (isArrayLikeObject(objValue)) {
                 newValue = copyArray(objValue);
@@ -22303,7 +22303,7 @@ var require_lodash = __commonJS({
               newValue = objValue;
               if (isArguments(objValue)) {
                 newValue = toPlainObject(objValue);
-              } else if (!isObject(objValue) || isFunction(objValue)) {
+              } else if (!isObject2(objValue) || isFunction(objValue)) {
                 newValue = initCloneObject(srcValue);
               }
             } else {
@@ -22328,7 +22328,7 @@ var require_lodash = __commonJS({
         function baseOrderBy(collection, iteratees, orders) {
           if (iteratees.length) {
             iteratees = arrayMap(iteratees, function(iteratee2) {
-              if (isArray(iteratee2)) {
+              if (isArray3(iteratee2)) {
                 return function(value) {
                   return baseGet(value, iteratee2.length === 1 ? iteratee2[0] : iteratee2);
                 };
@@ -22338,49 +22338,49 @@ var require_lodash = __commonJS({
           } else {
             iteratees = [identity];
           }
-          var index = -1;
+          var index2 = -1;
           iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
           var result2 = baseMap(collection, function(value, key, collection2) {
             var criteria = arrayMap(iteratees, function(iteratee2) {
               return iteratee2(value);
             });
-            return { "criteria": criteria, "index": ++index, "value": value };
+            return { "criteria": criteria, "index": ++index2, "value": value };
           });
           return baseSortBy(result2, function(object, other) {
             return compareMultiple(object, other, orders);
           });
         }
         function basePick(object, paths) {
-          return basePickBy(object, paths, function(value, path) {
-            return hasIn(object, path);
+          return basePickBy(object, paths, function(value, path2) {
+            return hasIn(object, path2);
           });
         }
         function basePickBy(object, paths, predicate) {
-          var index = -1, length = paths.length, result2 = {};
-          while (++index < length) {
-            var path = paths[index], value = baseGet(object, path);
-            if (predicate(value, path)) {
-              baseSet(result2, castPath(path, object), value);
+          var index2 = -1, length = paths.length, result2 = {};
+          while (++index2 < length) {
+            var path2 = paths[index2], value = baseGet(object, path2);
+            if (predicate(value, path2)) {
+              baseSet(result2, castPath(path2, object), value);
             }
           }
           return result2;
         }
-        function basePropertyDeep(path) {
+        function basePropertyDeep(path2) {
           return function(object) {
-            return baseGet(object, path);
+            return baseGet(object, path2);
           };
         }
         function basePullAll(array, values2, iteratee2, comparator) {
-          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index = -1, length = values2.length, seen = array;
+          var indexOf3 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length = values2.length, seen = array;
           if (array === values2) {
             values2 = copyArray(values2);
           }
           if (iteratee2) {
             seen = arrayMap(array, baseUnary(iteratee2));
           }
-          while (++index < length) {
-            var fromIndex = 0, value = values2[index], computed = iteratee2 ? iteratee2(value) : value;
-            while ((fromIndex = indexOf2(seen, computed, fromIndex, comparator)) > -1) {
+          while (++index2 < length) {
+            var fromIndex = 0, value = values2[index2], computed = iteratee2 ? iteratee2(value) : value;
+            while ((fromIndex = indexOf3(seen, computed, fromIndex, comparator)) > -1) {
               if (seen !== array) {
                 splice.call(seen, fromIndex, 1);
               }
@@ -22392,13 +22392,13 @@ var require_lodash = __commonJS({
         function basePullAt(array, indexes) {
           var length = array ? indexes.length : 0, lastIndex = length - 1;
           while (length--) {
-            var index = indexes[length];
-            if (length == lastIndex || index !== previous) {
-              var previous = index;
-              if (isIndex(index)) {
-                splice.call(array, index, 1);
+            var index2 = indexes[length];
+            if (length == lastIndex || index2 !== previous) {
+              var previous = index2;
+              if (isIndex(index2)) {
+                splice.call(array, index2, 1);
               } else {
-                baseUnset(array, index);
+                baseUnset(array, index2);
               }
             }
           }
@@ -22408,9 +22408,9 @@ var require_lodash = __commonJS({
           return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
         }
         function baseRange(start2, end, step, fromRight) {
-          var index = -1, length = nativeMax(nativeCeil((end - start2) / (step || 1)), 0), result2 = Array2(length);
+          var index2 = -1, length = nativeMax(nativeCeil((end - start2) / (step || 1)), 0), result2 = Array2(length);
           while (length--) {
-            result2[fromRight ? length : ++index] = start2;
+            result2[fromRight ? length : ++index2] = start2;
             start2 += step;
           }
           return result2;
@@ -22441,22 +22441,22 @@ var require_lodash = __commonJS({
           var array = values(collection);
           return shuffleSelf(array, baseClamp(n, 0, array.length));
         }
-        function baseSet(object, path, value, customizer) {
-          if (!isObject(object)) {
+        function baseSet(object, path2, value, customizer) {
+          if (!isObject2(object)) {
             return object;
           }
-          path = castPath(path, object);
-          var index = -1, length = path.length, lastIndex = length - 1, nested = object;
-          while (nested != null && ++index < length) {
-            var key = toKey(path[index]), newValue = value;
+          path2 = castPath(path2, object);
+          var index2 = -1, length = path2.length, lastIndex = length - 1, nested = object;
+          while (nested != null && ++index2 < length) {
+            var key = toKey(path2[index2]), newValue = value;
             if (key === "__proto__" || key === "constructor" || key === "prototype") {
               return object;
             }
-            if (index != lastIndex) {
+            if (index2 != lastIndex) {
               var objValue = nested[key];
               newValue = customizer ? customizer(objValue, key, nested) : undefined2;
               if (newValue === undefined2) {
-                newValue = isObject(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
+                newValue = isObject2(objValue) ? objValue : isIndex(path2[index2 + 1]) ? [] : {};
               }
             }
             assignValue(nested, key, newValue);
@@ -22464,12 +22464,12 @@ var require_lodash = __commonJS({
           }
           return object;
         }
-        var baseSetData = !metaMap ? identity : function(func, data) {
-          metaMap.set(func, data);
+        var baseSetData = !metaMap ? identity : function(func, data2) {
+          metaMap.set(func, data2);
           return func;
         };
-        var baseSetToString = !defineProperty ? identity : function(func, string2) {
-          return defineProperty(func, "toString", {
+        var baseSetToString = !defineProperty2 ? identity : function(func, string2) {
+          return defineProperty2(func, "toString", {
             "configurable": true,
             "enumerable": false,
             "value": constant(string2),
@@ -22480,7 +22480,7 @@ var require_lodash = __commonJS({
           return shuffleSelf(values(collection));
         }
         function baseSlice(array, start2, end) {
-          var index = -1, length = array.length;
+          var index2 = -1, length = array.length;
           if (start2 < 0) {
             start2 = -start2 > length ? 0 : length + start2;
           }
@@ -22491,15 +22491,15 @@ var require_lodash = __commonJS({
           length = start2 > end ? 0 : end - start2 >>> 0;
           start2 >>>= 0;
           var result2 = Array2(length);
-          while (++index < length) {
-            result2[index] = array[index + start2];
+          while (++index2 < length) {
+            result2[index2] = array[index2 + start2];
           }
           return result2;
         }
         function baseSome(collection, predicate) {
           var result2;
-          baseEach(collection, function(value, index, collection2) {
-            result2 = predicate(value, index, collection2);
+          baseEach(collection, function(value, index2, collection2) {
+            result2 = predicate(value, index2, collection2);
             return !result2;
           });
           return !!result2;
@@ -22550,10 +22550,10 @@ var require_lodash = __commonJS({
           return nativeMin(high, MAX_ARRAY_INDEX);
         }
         function baseSortedUniq(array, iteratee2) {
-          var index = -1, length = array.length, resIndex = 0, result2 = [];
-          while (++index < length) {
-            var value = array[index], computed = iteratee2 ? iteratee2(value) : value;
-            if (!index || !eq(computed, seen)) {
+          var index2 = -1, length = array.length, resIndex = 0, result2 = [];
+          while (++index2 < length) {
+            var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
+            if (!index2 || !eq(computed, seen)) {
               var seen = computed;
               result2[resIndex++] = value === 0 ? 0 : value;
             }
@@ -22573,7 +22573,7 @@ var require_lodash = __commonJS({
           if (typeof value == "string") {
             return value;
           }
-          if (isArray(value)) {
+          if (isArray3(value)) {
             return arrayMap(value, baseToString) + "";
           }
           if (isSymbol(value)) {
@@ -22583,14 +22583,14 @@ var require_lodash = __commonJS({
           return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
         }
         function baseUniq(array, iteratee2, comparator) {
-          var index = -1, includes2 = arrayIncludes, length = array.length, isCommon = true, result2 = [], seen = result2;
+          var index2 = -1, includes2 = arrayIncludes2, length = array.length, isCommon = true, result2 = [], seen = result2;
           if (comparator) {
             isCommon = false;
             includes2 = arrayIncludesWith;
           } else if (length >= LARGE_ARRAY_SIZE) {
-            var set2 = iteratee2 ? null : createSet(array);
-            if (set2) {
-              return setToArray(set2);
+            var set4 = iteratee2 ? null : createSet(array);
+            if (set4) {
+              return setToArray(set4);
             }
             isCommon = false;
             includes2 = cacheHas;
@@ -22599,8 +22599,8 @@ var require_lodash = __commonJS({
             seen = iteratee2 ? [] : result2;
           }
           outer:
-            while (++index < length) {
-              var value = array[index], computed = iteratee2 ? iteratee2(value) : value;
+            while (++index2 < length) {
+              var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
               if (isCommon && computed === computed) {
                 var seenIndex = seen.length;
@@ -22622,19 +22622,19 @@ var require_lodash = __commonJS({
             }
           return result2;
         }
-        function baseUnset(object, path) {
-          path = castPath(path, object);
-          object = parent(object, path);
-          return object == null || delete object[toKey(last(path))];
+        function baseUnset(object, path2) {
+          path2 = castPath(path2, object);
+          object = parent(object, path2);
+          return object == null || delete object[toKey(last(path2))];
         }
-        function baseUpdate(object, path, updater, customizer) {
-          return baseSet(object, path, updater(baseGet(object, path)), customizer);
+        function baseUpdate(object, path2, updater, customizer) {
+          return baseSet(object, path2, updater(baseGet(object, path2)), customizer);
         }
         function baseWhile(array, predicate, isDrop, fromRight) {
-          var length = array.length, index = fromRight ? length : -1;
-          while ((fromRight ? index-- : ++index < length) && predicate(array[index], index, array)) {
+          var length = array.length, index2 = fromRight ? length : -1;
+          while ((fromRight ? index2-- : ++index2 < length) && predicate(array[index2], index2, array)) {
           }
-          return isDrop ? baseSlice(array, fromRight ? 0 : index, fromRight ? index + 1 : length) : baseSlice(array, fromRight ? index + 1 : 0, fromRight ? length : index);
+          return isDrop ? baseSlice(array, fromRight ? 0 : index2, fromRight ? index2 + 1 : length) : baseSlice(array, fromRight ? index2 + 1 : 0, fromRight ? length : index2);
         }
         function baseWrapperValue(value, actions) {
           var result2 = value;
@@ -22650,22 +22650,22 @@ var require_lodash = __commonJS({
           if (length < 2) {
             return length ? baseUniq(arrays[0]) : [];
           }
-          var index = -1, result2 = Array2(length);
-          while (++index < length) {
-            var array = arrays[index], othIndex = -1;
+          var index2 = -1, result2 = Array2(length);
+          while (++index2 < length) {
+            var array = arrays[index2], othIndex = -1;
             while (++othIndex < length) {
-              if (othIndex != index) {
-                result2[index] = baseDifference(result2[index] || array, arrays[othIndex], iteratee2, comparator);
+              if (othIndex != index2) {
+                result2[index2] = baseDifference(result2[index2] || array, arrays[othIndex], iteratee2, comparator);
               }
             }
           }
           return baseUniq(baseFlatten(result2, 1), iteratee2, comparator);
         }
         function baseZipObject(props, values2, assignFunc) {
-          var index = -1, length = props.length, valsLength = values2.length, result2 = {};
-          while (++index < length) {
-            var value = index < valsLength ? values2[index] : undefined2;
-            assignFunc(result2, props[index], value);
+          var index2 = -1, length = props.length, valsLength = values2.length, result2 = {};
+          while (++index2 < length) {
+            var value = index2 < valsLength ? values2[index2] : undefined2;
+            assignFunc(result2, props[index2], value);
           }
           return result2;
         }
@@ -22676,10 +22676,10 @@ var require_lodash = __commonJS({
           return typeof value == "function" ? value : identity;
         }
         function castPath(value, object) {
-          if (isArray(value)) {
+          if (isArray3(value)) {
             return value;
           }
-          return isKey(value, object) ? [value] : stringToPath(toString(value));
+          return isKey(value, object) ? [value] : stringToPath(toString2(value));
         }
         var castRest = baseRest;
         function castSlice(array, start2, end) {
@@ -22687,8 +22687,8 @@ var require_lodash = __commonJS({
           end = end === undefined2 ? length : end;
           return !start2 && end >= length ? array : baseSlice(array, start2, end);
         }
-        var clearTimeout2 = ctxClearTimeout || function(id) {
-          return root.clearTimeout(id);
+        var clearTimeout2 = ctxClearTimeout || function(id2) {
+          return root.clearTimeout(id2);
         };
         function cloneBuffer(buffer, isDeep) {
           if (isDeep) {
@@ -22733,14 +22733,14 @@ var require_lodash = __commonJS({
           return 0;
         }
         function compareMultiple(object, other, orders) {
-          var index = -1, objCriteria = object.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
-          while (++index < length) {
-            var result2 = compareAscending(objCriteria[index], othCriteria[index]);
+          var index2 = -1, objCriteria = object.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
+          while (++index2 < length) {
+            var result2 = compareAscending(objCriteria[index2], othCriteria[index2]);
             if (result2) {
-              if (index >= ordersLength) {
+              if (index2 >= ordersLength) {
                 return result2;
               }
-              var order = orders[index];
+              var order = orders[index2];
               return result2 * (order == "desc" ? -1 : 1);
             }
           }
@@ -22766,31 +22766,31 @@ var require_lodash = __commonJS({
           while (++argsIndex < rangeLength) {
             result2[argsIndex] = args[argsIndex];
           }
-          var offset = argsIndex;
+          var offset2 = argsIndex;
           while (++rightIndex < rightLength) {
-            result2[offset + rightIndex] = partials[rightIndex];
+            result2[offset2 + rightIndex] = partials[rightIndex];
           }
           while (++holdersIndex < holdersLength) {
             if (isUncurried || argsIndex < argsLength) {
-              result2[offset + holders[holdersIndex]] = args[argsIndex++];
+              result2[offset2 + holders[holdersIndex]] = args[argsIndex++];
             }
           }
           return result2;
         }
         function copyArray(source, array) {
-          var index = -1, length = source.length;
+          var index2 = -1, length = source.length;
           array || (array = Array2(length));
-          while (++index < length) {
-            array[index] = source[index];
+          while (++index2 < length) {
+            array[index2] = source[index2];
           }
           return array;
         }
         function copyObject(source, props, object, customizer) {
           var isNew = !object;
           object || (object = {});
-          var index = -1, length = props.length;
-          while (++index < length) {
-            var key = props[index];
+          var index2 = -1, length = props.length;
+          while (++index2 < length) {
+            var key = props[index2];
             var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined2;
             if (newValue === undefined2) {
               newValue = source[key];
@@ -22811,23 +22811,23 @@ var require_lodash = __commonJS({
         }
         function createAggregator(setter, initializer) {
           return function(collection, iteratee2) {
-            var func = isArray(collection) ? arrayAggregator : baseAggregator, accumulator = initializer ? initializer() : {};
+            var func = isArray3(collection) ? arrayAggregator : baseAggregator, accumulator = initializer ? initializer() : {};
             return func(collection, setter, getIteratee(iteratee2, 2), accumulator);
           };
         }
         function createAssigner(assigner) {
           return baseRest(function(object, sources) {
-            var index = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
+            var index2 = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
             customizer = assigner.length > 3 && typeof customizer == "function" ? (length--, customizer) : undefined2;
             if (guard && isIterateeCall(sources[0], sources[1], guard)) {
               customizer = length < 3 ? undefined2 : customizer;
               length = 1;
             }
             object = Object2(object);
-            while (++index < length) {
-              var source = sources[index];
+            while (++index2 < length) {
+              var source = sources[index2];
               if (source) {
-                assigner(object, source, index, customizer);
+                assigner(object, source, index2, customizer);
               }
             }
             return object;
@@ -22841,9 +22841,9 @@ var require_lodash = __commonJS({
             if (!isArrayLike(collection)) {
               return eachFunc(collection, iteratee2);
             }
-            var length = collection.length, index = fromRight ? length : -1, iterable = Object2(collection);
-            while (fromRight ? index-- : ++index < length) {
-              if (iteratee2(iterable[index], index, iterable) === false) {
+            var length = collection.length, index2 = fromRight ? length : -1, iterable = Object2(collection);
+            while (fromRight ? index2-- : ++index2 < length) {
+              if (iteratee2(iterable[index2], index2, iterable) === false) {
                 break;
               }
             }
@@ -22852,9 +22852,9 @@ var require_lodash = __commonJS({
         }
         function createBaseFor(fromRight) {
           return function(object, iteratee2, keysFunc) {
-            var index = -1, iterable = Object2(object), props = keysFunc(object), length = props.length;
+            var index2 = -1, iterable = Object2(object), props = keysFunc(object), length = props.length;
             while (length--) {
-              var key = props[fromRight ? length : ++index];
+              var key = props[fromRight ? length : ++index2];
               if (iteratee2(iterable[key], key, iterable) === false) {
                 break;
               }
@@ -22872,7 +22872,7 @@ var require_lodash = __commonJS({
         }
         function createCaseFirst(methodName) {
           return function(string2) {
-            string2 = toString(string2);
+            string2 = toString2(string2);
             var strSymbols = hasUnicode(string2) ? stringToArray(string2) : undefined2;
             var chr = strSymbols ? strSymbols[0] : string2.charAt(0);
             var trailing = strSymbols ? castSlice(strSymbols, 1).join("") : string2.slice(1);
@@ -22906,15 +22906,15 @@ var require_lodash = __commonJS({
                 return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
             }
             var thisBinding = baseCreate(Ctor.prototype), result2 = Ctor.apply(thisBinding, args);
-            return isObject(result2) ? result2 : thisBinding;
+            return isObject2(result2) ? result2 : thisBinding;
           };
         }
         function createCurry(func, bitmask, arity) {
           var Ctor = createCtor(func);
           function wrapper() {
-            var length = arguments.length, args = Array2(length), index = length, placeholder = getHolder(wrapper);
-            while (index--) {
-              args[index] = arguments[index];
+            var length = arguments.length, args = Array2(length), index2 = length, placeholder = getHolder(wrapper);
+            while (index2--) {
+              args[index2] = arguments[index2];
             }
             var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
             length -= holders.length;
@@ -22931,23 +22931,23 @@ var require_lodash = __commonJS({
             var iterable = Object2(collection);
             if (!isArrayLike(collection)) {
               var iteratee2 = getIteratee(predicate, 3);
-              collection = keys(collection);
+              collection = keys3(collection);
               predicate = function(key) {
                 return iteratee2(iterable[key], key, iterable);
               };
             }
-            var index = findIndexFunc(collection, predicate, fromIndex);
-            return index > -1 ? iterable[iteratee2 ? collection[index] : index] : undefined2;
+            var index2 = findIndexFunc(collection, predicate, fromIndex);
+            return index2 > -1 ? iterable[iteratee2 ? collection[index2] : index2] : undefined2;
           };
         }
         function createFlow(fromRight) {
           return flatRest(function(funcs) {
-            var length = funcs.length, index = length, prereq = LodashWrapper.prototype.thru;
+            var length = funcs.length, index2 = length, prereq = LodashWrapper.prototype.thru;
             if (fromRight) {
               funcs.reverse();
             }
-            while (index--) {
-              var func = funcs[index];
+            while (index2--) {
+              var func = funcs[index2];
               if (typeof func != "function") {
                 throw new TypeError2(FUNC_ERROR_TEXT);
               }
@@ -22955,24 +22955,24 @@ var require_lodash = __commonJS({
                 var wrapper = new LodashWrapper([], true);
               }
             }
-            index = wrapper ? index : length;
-            while (++index < length) {
-              func = funcs[index];
-              var funcName = getFuncName(func), data = funcName == "wrapper" ? getData(func) : undefined2;
-              if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) {
-                wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
+            index2 = wrapper ? index2 : length;
+            while (++index2 < length) {
+              func = funcs[index2];
+              var funcName = getFuncName(func), data2 = funcName == "wrapper" ? getData(func) : undefined2;
+              if (data2 && isLaziable(data2[0]) && data2[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data2[4].length && data2[9] == 1) {
+                wrapper = wrapper[getFuncName(data2[0])].apply(wrapper, data2[3]);
               } else {
                 wrapper = func.length == 1 && isLaziable(func) ? wrapper[funcName]() : wrapper.thru(func);
               }
             }
             return function() {
               var args = arguments, value = args[0];
-              if (wrapper && args.length == 1 && isArray(value)) {
+              if (wrapper && args.length == 1 && isArray3(value)) {
                 return wrapper.plant(value).value();
               }
-              var index2 = 0, result2 = length ? funcs[index2].apply(this, args) : value;
-              while (++index2 < length) {
-                result2 = funcs[index2].call(this, result2);
+              var index3 = 0, result2 = length ? funcs[index3].apply(this, args) : value;
+              while (++index3 < length) {
+                result2 = funcs[index3].call(this, result2);
               }
               return result2;
             };
@@ -22981,9 +22981,9 @@ var require_lodash = __commonJS({
         function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary2, arity) {
           var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined2 : createCtor(func);
           function wrapper() {
-            var length = arguments.length, args = Array2(length), index = length;
-            while (index--) {
-              args[index] = arguments[index];
+            var length = arguments.length, args = Array2(length), index2 = length;
+            while (index2--) {
+              args[index2] = arguments[index2];
             }
             if (isCurried) {
               var placeholder = getHolder(wrapper), holdersCount = countHolders(args, placeholder);
@@ -23135,16 +23135,16 @@ var require_lodash = __commonJS({
           var func = Math2[methodName];
           return function(number2, precision) {
             number2 = toNumber(number2);
-            precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
+            precision = precision == null ? 0 : nativeMin(toInteger2(precision), 292);
             if (precision && nativeIsFinite(number2)) {
-              var pair2 = (toString(number2) + "e").split("e"), value = func(pair2[0] + "e" + (+pair2[1] + precision));
-              pair2 = (toString(value) + "e").split("e");
+              var pair2 = (toString2(number2) + "e").split("e"), value = func(pair2[0] + "e" + (+pair2[1] + precision));
+              pair2 = (toString2(value) + "e").split("e");
               return +(pair2[0] + "e" + (+pair2[1] - precision));
             }
             return func(number2);
           };
         }
-        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop : function(values2) {
+        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop2 : function(values2) {
           return new Set2(values2);
         };
         function createToPairs(keysFunc) {
@@ -23169,14 +23169,14 @@ var require_lodash = __commonJS({
             bitmask &= ~(WRAP_PARTIAL_FLAG | WRAP_PARTIAL_RIGHT_FLAG);
             partials = holders = undefined2;
           }
-          ary2 = ary2 === undefined2 ? ary2 : nativeMax(toInteger(ary2), 0);
-          arity = arity === undefined2 ? arity : toInteger(arity);
+          ary2 = ary2 === undefined2 ? ary2 : nativeMax(toInteger2(ary2), 0);
+          arity = arity === undefined2 ? arity : toInteger2(arity);
           length -= holders ? holders.length : 0;
           if (bitmask & WRAP_PARTIAL_RIGHT_FLAG) {
             var partialsRight = partials, holdersRight = holders;
             partials = holders = undefined2;
           }
-          var data = isBindKey ? undefined2 : getData(func);
+          var data2 = isBindKey ? undefined2 : getData(func);
           var newData = [
             func,
             bitmask,
@@ -23189,8 +23189,8 @@ var require_lodash = __commonJS({
             ary2,
             arity
           ];
-          if (data) {
-            mergeData(newData, data);
+          if (data2) {
+            mergeData(newData, data2);
           }
           func = newData[0];
           bitmask = newData[1];
@@ -23210,17 +23210,17 @@ var require_lodash = __commonJS({
           } else {
             result2 = createHybrid.apply(undefined2, newData);
           }
-          var setter = data ? baseSetData : setData;
+          var setter = data2 ? baseSetData : setData;
           return setWrapToString(setter(result2, newData), func, bitmask);
         }
         function customDefaultsAssignIn(objValue, srcValue, key, object) {
-          if (objValue === undefined2 || eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key)) {
+          if (objValue === undefined2 || eq(objValue, objectProto[key]) && !hasOwnProperty2.call(object, key)) {
             return srcValue;
           }
           return objValue;
         }
         function customDefaultsMerge(objValue, srcValue, key, object, source, stack) {
-          if (isObject(objValue) && isObject(srcValue)) {
+          if (isObject2(objValue) && isObject2(srcValue)) {
             stack.set(srcValue, objValue);
             baseMerge(objValue, srcValue, undefined2, customDefaultsMerge, stack);
             stack["delete"](srcValue);
@@ -23240,13 +23240,13 @@ var require_lodash = __commonJS({
           if (arrStacked && othStacked) {
             return arrStacked == other && othStacked == array;
           }
-          var index = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
+          var index2 = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
           stack.set(array, other);
           stack.set(other, array);
-          while (++index < arrLength) {
-            var arrValue = array[index], othValue = other[index];
+          while (++index2 < arrLength) {
+            var arrValue = array[index2], othValue = other[index2];
             if (customizer) {
-              var compared = isPartial ? customizer(othValue, arrValue, index, other, array, stack) : customizer(arrValue, othValue, index, array, other, stack);
+              var compared = isPartial ? customizer(othValue, arrValue, index2, other, array, stack) : customizer(arrValue, othValue, index2, array, other, stack);
             }
             if (compared !== undefined2) {
               if (compared) {
@@ -23324,10 +23324,10 @@ var require_lodash = __commonJS({
           if (objLength != othLength && !isPartial) {
             return false;
           }
-          var index = objLength;
-          while (index--) {
-            var key = objProps[index];
-            if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+          var index2 = objLength;
+          while (index2--) {
+            var key = objProps[index2];
+            if (!(isPartial ? key in other : hasOwnProperty2.call(other, key))) {
               return false;
             }
           }
@@ -23340,8 +23340,8 @@ var require_lodash = __commonJS({
           stack.set(object, other);
           stack.set(other, object);
           var skipCtor = isPartial;
-          while (++index < objLength) {
-            key = objProps[index];
+          while (++index2 < objLength) {
+            key = objProps[index2];
             var objValue = object[key], othValue = other[key];
             if (customizer) {
               var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
@@ -23366,26 +23366,26 @@ var require_lodash = __commonJS({
           return setToString(overRest(func, undefined2, flatten2), func + "");
         }
         function getAllKeys(object) {
-          return baseGetAllKeys(object, keys, getSymbols);
+          return baseGetAllKeys(object, keys3, getSymbols);
         }
         function getAllKeysIn(object) {
           return baseGetAllKeys(object, keysIn, getSymbolsIn);
         }
-        var getData = !metaMap ? noop : function(func) {
+        var getData = !metaMap ? noop2 : function(func) {
           return metaMap.get(func);
         };
         function getFuncName(func) {
-          var result2 = func.name + "", array = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array.length : 0;
+          var result2 = func.name + "", array = realNames[result2], length = hasOwnProperty2.call(realNames, result2) ? array.length : 0;
           while (length--) {
-            var data = array[length], otherFunc = data.func;
+            var data2 = array[length], otherFunc = data2.func;
             if (otherFunc == null || otherFunc == func) {
-              return data.name;
+              return data2.name;
             }
           }
           return result2;
         }
         function getHolder(func) {
-          var object = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
+          var object = hasOwnProperty2.call(lodash, "placeholder") ? lodash : func;
           return object.placeholder;
         }
         function getIteratee() {
@@ -23394,11 +23394,11 @@ var require_lodash = __commonJS({
           return arguments.length ? result2(arguments[0], arguments[1]) : result2;
         }
         function getMapData(map2, key) {
-          var data = map2.__data__;
-          return isKeyable(key) ? data[typeof key == "string" ? "string" : "hash"] : data.map;
+          var data2 = map2.__data__;
+          return isKeyable(key) ? data2[typeof key == "string" ? "string" : "hash"] : data2.map;
         }
         function getMatchData(object) {
-          var result2 = keys(object), length = result2.length;
+          var result2 = keys3(object), length = result2.length;
           while (length--) {
             var key = result2[length], value = object[key];
             result2[length] = [key, value, isStrictComparable(value)];
@@ -23410,7 +23410,7 @@ var require_lodash = __commonJS({
           return baseIsNative(value) ? value : undefined2;
         }
         function getRawTag(value) {
-          var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+          var isOwn = hasOwnProperty2.call(value, symToStringTag), tag = value[symToStringTag];
           try {
             value[symToStringTag] = undefined2;
             var unmasked = true;
@@ -23432,7 +23432,7 @@ var require_lodash = __commonJS({
           }
           object = Object2(object);
           return arrayFilter(nativeGetSymbols(object), function(symbol) {
-            return propertyIsEnumerable.call(object, symbol);
+            return propertyIsEnumerable2.call(object, symbol);
           });
         };
         var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
@@ -23444,7 +23444,7 @@ var require_lodash = __commonJS({
           return result2;
         };
         var getTag = baseGetTag;
-        if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap2 && getTag(new WeakMap2()) != weakMapTag) {
+        if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap3 && getTag(new WeakMap3()) != weakMapTag) {
           getTag = function(value) {
             var result2 = baseGetTag(value), Ctor = result2 == objectTag ? value.constructor : undefined2, ctorString = Ctor ? toSource(Ctor) : "";
             if (ctorString) {
@@ -23465,10 +23465,10 @@ var require_lodash = __commonJS({
           };
         }
         function getView(start2, end, transforms) {
-          var index = -1, length = transforms.length;
-          while (++index < length) {
-            var data = transforms[index], size2 = data.size;
-            switch (data.type) {
+          var index2 = -1, length = transforms.length;
+          while (++index2 < length) {
+            var data2 = transforms[index2], size2 = data2.size;
+            switch (data2.type) {
               case "drop":
                 start2 += size2;
                 break;
@@ -23486,28 +23486,28 @@ var require_lodash = __commonJS({
           return { "start": start2, "end": end };
         }
         function getWrapDetails(source) {
-          var match = source.match(reWrapDetails);
-          return match ? match[1].split(reSplitDetails) : [];
+          var match2 = source.match(reWrapDetails);
+          return match2 ? match2[1].split(reSplitDetails) : [];
         }
-        function hasPath(object, path, hasFunc) {
-          path = castPath(path, object);
-          var index = -1, length = path.length, result2 = false;
-          while (++index < length) {
-            var key = toKey(path[index]);
+        function hasPath(object, path2, hasFunc) {
+          path2 = castPath(path2, object);
+          var index2 = -1, length = path2.length, result2 = false;
+          while (++index2 < length) {
+            var key = toKey(path2[index2]);
             if (!(result2 = object != null && hasFunc(object, key))) {
               break;
             }
             object = object[key];
           }
-          if (result2 || ++index != length) {
+          if (result2 || ++index2 != length) {
             return result2;
           }
           length = object == null ? 0 : object.length;
-          return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
+          return !!length && isLength(length) && isIndex(key, length) && (isArray3(object) || isArguments(object));
         }
         function initCloneArray(array) {
           var length = array.length, result2 = new array.constructor(length);
-          if (length && typeof array[0] == "string" && hasOwnProperty.call(array, "index")) {
+          if (length && typeof array[0] == "string" && hasOwnProperty2.call(array, "index")) {
             result2.index = array.index;
             result2.input = array.input;
           }
@@ -23560,25 +23560,25 @@ var require_lodash = __commonJS({
           return source.replace(reWrapComment, "{\n/* [wrapped with " + details + "] */\n");
         }
         function isFlattenable(value) {
-          return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
+          return isArray3(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
         }
         function isIndex(value, length) {
           var type = typeof value;
           length = length == null ? MAX_SAFE_INTEGER : length;
           return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
         }
-        function isIterateeCall(value, index, object) {
-          if (!isObject(object)) {
+        function isIterateeCall(value, index2, object) {
+          if (!isObject2(object)) {
             return false;
           }
-          var type = typeof index;
-          if (type == "number" ? isArrayLike(object) && isIndex(index, object.length) : type == "string" && index in object) {
-            return eq(object[index], value);
+          var type = typeof index2;
+          if (type == "number" ? isArrayLike(object) && isIndex(index2, object.length) : type == "string" && index2 in object) {
+            return eq(object[index2], value);
           }
           return false;
         }
         function isKey(value, object) {
-          if (isArray(value)) {
+          if (isArray3(value)) {
             return false;
           }
           var type = typeof value;
@@ -23599,8 +23599,8 @@ var require_lodash = __commonJS({
           if (func === other) {
             return true;
           }
-          var data = getData(other);
-          return !!data && func === data[0];
+          var data2 = getData(other);
+          return !!data2 && func === data2[0];
         }
         function isMasked(func) {
           return !!maskSrcKey && maskSrcKey in func;
@@ -23611,7 +23611,7 @@ var require_lodash = __commonJS({
           return value === proto;
         }
         function isStrictComparable(value) {
-          return value === value && !isObject(value);
+          return value === value && !isObject2(value);
         }
         function matchesStrictComparable(key, srcValue) {
           return function(object) {
@@ -23631,41 +23631,41 @@ var require_lodash = __commonJS({
           var cache = result2.cache;
           return result2;
         }
-        function mergeData(data, source) {
-          var bitmask = data[1], srcBitmask = source[1], newBitmask = bitmask | srcBitmask, isCommon = newBitmask < (WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG | WRAP_ARY_FLAG);
-          var isCombo = srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_CURRY_FLAG || srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_REARG_FLAG && data[7].length <= source[8] || srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG) && source[7].length <= source[8] && bitmask == WRAP_CURRY_FLAG;
+        function mergeData(data2, source) {
+          var bitmask = data2[1], srcBitmask = source[1], newBitmask = bitmask | srcBitmask, isCommon = newBitmask < (WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG | WRAP_ARY_FLAG);
+          var isCombo = srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_CURRY_FLAG || srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_REARG_FLAG && data2[7].length <= source[8] || srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG) && source[7].length <= source[8] && bitmask == WRAP_CURRY_FLAG;
           if (!(isCommon || isCombo)) {
-            return data;
+            return data2;
           }
           if (srcBitmask & WRAP_BIND_FLAG) {
-            data[2] = source[2];
+            data2[2] = source[2];
             newBitmask |= bitmask & WRAP_BIND_FLAG ? 0 : WRAP_CURRY_BOUND_FLAG;
           }
           var value = source[3];
           if (value) {
-            var partials = data[3];
-            data[3] = partials ? composeArgs(partials, value, source[4]) : value;
-            data[4] = partials ? replaceHolders(data[3], PLACEHOLDER) : source[4];
+            var partials = data2[3];
+            data2[3] = partials ? composeArgs(partials, value, source[4]) : value;
+            data2[4] = partials ? replaceHolders(data2[3], PLACEHOLDER) : source[4];
           }
           value = source[5];
           if (value) {
-            partials = data[5];
-            data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
-            data[6] = partials ? replaceHolders(data[5], PLACEHOLDER) : source[6];
+            partials = data2[5];
+            data2[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
+            data2[6] = partials ? replaceHolders(data2[5], PLACEHOLDER) : source[6];
           }
           value = source[7];
           if (value) {
-            data[7] = value;
+            data2[7] = value;
           }
           if (srcBitmask & WRAP_ARY_FLAG) {
-            data[8] = data[8] == null ? source[8] : nativeMin(data[8], source[8]);
+            data2[8] = data2[8] == null ? source[8] : nativeMin(data2[8], source[8]);
           }
-          if (data[9] == null) {
-            data[9] = source[9];
+          if (data2[9] == null) {
+            data2[9] = source[9];
           }
-          data[0] = source[0];
-          data[1] = newBitmask;
-          return data;
+          data2[0] = source[0];
+          data2[1] = newBitmask;
+          return data2;
         }
         function nativeKeysIn(object) {
           var result2 = [];
@@ -23682,27 +23682,27 @@ var require_lodash = __commonJS({
         function overRest(func, start2, transform2) {
           start2 = nativeMax(start2 === undefined2 ? func.length - 1 : start2, 0);
           return function() {
-            var args = arguments, index = -1, length = nativeMax(args.length - start2, 0), array = Array2(length);
-            while (++index < length) {
-              array[index] = args[start2 + index];
+            var args = arguments, index2 = -1, length = nativeMax(args.length - start2, 0), array = Array2(length);
+            while (++index2 < length) {
+              array[index2] = args[start2 + index2];
             }
-            index = -1;
+            index2 = -1;
             var otherArgs = Array2(start2 + 1);
-            while (++index < start2) {
-              otherArgs[index] = args[index];
+            while (++index2 < start2) {
+              otherArgs[index2] = args[index2];
             }
             otherArgs[start2] = transform2(array);
             return apply(func, this, otherArgs);
           };
         }
-        function parent(object, path) {
-          return path.length < 2 ? object : baseGet(object, baseSlice(path, 0, -1));
+        function parent(object, path2) {
+          return path2.length < 2 ? object : baseGet(object, baseSlice(path2, 0, -1));
         }
         function reorder(array, indexes) {
           var arrLength = array.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array);
           while (length--) {
-            var index = indexes[length];
-            array[length] = isIndex(index, arrLength) ? oldArray[index] : undefined2;
+            var index2 = indexes[length];
+            array[length] = isIndex(index2, arrLength) ? oldArray[index2] : undefined2;
           }
           return array;
         }
@@ -23740,12 +23740,12 @@ var require_lodash = __commonJS({
           };
         }
         function shuffleSelf(array, size2) {
-          var index = -1, length = array.length, lastIndex = length - 1;
+          var index2 = -1, length = array.length, lastIndex = length - 1;
           size2 = size2 === undefined2 ? length : size2;
-          while (++index < size2) {
-            var rand = baseRandom(index, lastIndex), value = array[rand];
-            array[rand] = array[index];
-            array[index] = value;
+          while (++index2 < size2) {
+            var rand = baseRandom(index2, lastIndex), value = array[rand];
+            array[rand] = array[index2];
+            array[index2] = value;
           }
           array.length = size2;
           return array;
@@ -23755,8 +23755,8 @@ var require_lodash = __commonJS({
           if (string2.charCodeAt(0) === 46) {
             result2.push("");
           }
-          string2.replace(rePropName, function(match, number2, quote, subString) {
-            result2.push(quote ? subString.replace(reEscapeChar, "$1") : number2 || match);
+          string2.replace(rePropName, function(match2, number2, quote, subString) {
+            result2.push(quote ? subString.replace(reEscapeChar, "$1") : number2 || match2);
           });
           return result2;
         });
@@ -23783,7 +23783,7 @@ var require_lodash = __commonJS({
         function updateWrapDetails(details, bitmask) {
           arrayEach(wrapFlags, function(pair2) {
             var value = "_." + pair2[0];
-            if (bitmask & pair2[1] && !arrayIncludes(details, value)) {
+            if (bitmask & pair2[1] && !arrayIncludes2(details, value)) {
               details.push(value);
             }
           });
@@ -23803,22 +23803,22 @@ var require_lodash = __commonJS({
           if (guard ? isIterateeCall(array, size2, guard) : size2 === undefined2) {
             size2 = 1;
           } else {
-            size2 = nativeMax(toInteger(size2), 0);
+            size2 = nativeMax(toInteger2(size2), 0);
           }
           var length = array == null ? 0 : array.length;
           if (!length || size2 < 1) {
             return [];
           }
-          var index = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
-          while (index < length) {
-            result2[resIndex++] = baseSlice(array, index, index += size2);
+          var index2 = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
+          while (index2 < length) {
+            result2[resIndex++] = baseSlice(array, index2, index2 += size2);
           }
           return result2;
         }
         function compact(array) {
-          var index = -1, length = array == null ? 0 : array.length, resIndex = 0, result2 = [];
-          while (++index < length) {
-            var value = array[index];
+          var index2 = -1, length = array == null ? 0 : array.length, resIndex = 0, result2 = [];
+          while (++index2 < length) {
+            var value = array[index2];
             if (value) {
               result2[resIndex++] = value;
             }
@@ -23830,11 +23830,11 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          var args = Array2(length - 1), array = arguments[0], index = length;
-          while (index--) {
-            args[index - 1] = arguments[index];
+          var args = Array2(length - 1), array = arguments[0], index2 = length;
+          while (index2--) {
+            args[index2 - 1] = arguments[index2];
           }
-          return arrayPush(isArray(array) ? copyArray(array) : [array], baseFlatten(args, 1));
+          return arrayPush(isArray3(array) ? copyArray(array) : [array], baseFlatten(args, 1));
         }
         var difference = baseRest(function(array, values2) {
           return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values2, 1, isArrayLikeObject, true)) : [];
@@ -23858,7 +23858,7 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = guard || n === undefined2 ? 1 : toInteger2(n);
           return baseSlice(array, n < 0 ? 0 : n, length);
         }
         function dropRight(array, n, guard) {
@@ -23866,7 +23866,7 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = guard || n === undefined2 ? 1 : toInteger2(n);
           n = length - n;
           return baseSlice(array, 0, n < 0 ? 0 : n);
         }
@@ -23892,23 +23892,23 @@ var require_lodash = __commonJS({
           if (!length) {
             return -1;
           }
-          var index = fromIndex == null ? 0 : toInteger(fromIndex);
-          if (index < 0) {
-            index = nativeMax(length + index, 0);
+          var index2 = fromIndex == null ? 0 : toInteger2(fromIndex);
+          if (index2 < 0) {
+            index2 = nativeMax(length + index2, 0);
           }
-          return baseFindIndex(array, getIteratee(predicate, 3), index);
+          return baseFindIndex(array, getIteratee(predicate, 3), index2);
         }
         function findLastIndex(array, predicate, fromIndex) {
           var length = array == null ? 0 : array.length;
           if (!length) {
             return -1;
           }
-          var index = length - 1;
+          var index2 = length - 1;
           if (fromIndex !== undefined2) {
-            index = toInteger(fromIndex);
-            index = fromIndex < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
+            index2 = toInteger2(fromIndex);
+            index2 = fromIndex < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
           }
-          return baseFindIndex(array, getIteratee(predicate, 3), index, true);
+          return baseFindIndex(array, getIteratee(predicate, 3), index2, true);
         }
         function flatten2(array) {
           var length = array == null ? 0 : array.length;
@@ -23923,13 +23923,13 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          depth = depth === undefined2 ? 1 : toInteger(depth);
+          depth = depth === undefined2 ? 1 : toInteger2(depth);
           return baseFlatten(array, depth);
         }
         function fromPairs(pairs) {
-          var index = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
-          while (++index < length) {
-            var pair2 = pairs[index];
+          var index2 = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
+          while (++index2 < length) {
+            var pair2 = pairs[index2];
             result2[pair2[0]] = pair2[1];
           }
           return result2;
@@ -23937,16 +23937,16 @@ var require_lodash = __commonJS({
         function head(array) {
           return array && array.length ? array[0] : undefined2;
         }
-        function indexOf(array, value, fromIndex) {
+        function indexOf2(array, value, fromIndex) {
           var length = array == null ? 0 : array.length;
           if (!length) {
             return -1;
           }
-          var index = fromIndex == null ? 0 : toInteger(fromIndex);
-          if (index < 0) {
-            index = nativeMax(length + index, 0);
+          var index2 = fromIndex == null ? 0 : toInteger2(fromIndex);
+          if (index2 < 0) {
+            index2 = nativeMax(length + index2, 0);
           }
-          return baseIndexOf(array, value, index);
+          return baseIndexOf(array, value, index2);
         }
         function initial(array) {
           var length = array == null ? 0 : array.length;
@@ -23985,15 +23985,15 @@ var require_lodash = __commonJS({
           if (!length) {
             return -1;
           }
-          var index = length;
+          var index2 = length;
           if (fromIndex !== undefined2) {
-            index = toInteger(fromIndex);
-            index = index < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
+            index2 = toInteger2(fromIndex);
+            index2 = index2 < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
           }
-          return value === value ? strictLastIndexOf(array, value, index) : baseFindIndex(array, baseIsNaN, index, true);
+          return value === value ? strictLastIndexOf(array, value, index2) : baseFindIndex(array, baseIsNaN, index2, true);
         }
         function nth(array, n) {
-          return array && array.length ? baseNth(array, toInteger(n)) : undefined2;
+          return array && array.length ? baseNth(array, toInteger2(n)) : undefined2;
         }
         var pull = baseRest(pullAll);
         function pullAll(array, values2) {
@@ -24007,8 +24007,8 @@ var require_lodash = __commonJS({
         }
         var pullAt = flatRest(function(array, indexes) {
           var length = array == null ? 0 : array.length, result2 = baseAt(array, indexes);
-          basePullAt(array, arrayMap(indexes, function(index) {
-            return isIndex(index, length) ? +index : index;
+          basePullAt(array, arrayMap(indexes, function(index2) {
+            return isIndex(index2, length) ? +index2 : index2;
           }).sort(compareAscending));
           return result2;
         });
@@ -24017,13 +24017,13 @@ var require_lodash = __commonJS({
           if (!(array && array.length)) {
             return result2;
           }
-          var index = -1, indexes = [], length = array.length;
+          var index2 = -1, indexes = [], length = array.length;
           predicate = getIteratee(predicate, 3);
-          while (++index < length) {
-            var value = array[index];
-            if (predicate(value, index, array)) {
+          while (++index2 < length) {
+            var value = array[index2];
+            if (predicate(value, index2, array)) {
               result2.push(value);
-              indexes.push(index);
+              indexes.push(index2);
             }
           }
           basePullAt(array, indexes);
@@ -24041,8 +24041,8 @@ var require_lodash = __commonJS({
             start2 = 0;
             end = length;
           } else {
-            start2 = start2 == null ? 0 : toInteger(start2);
-            end = end === undefined2 ? length : toInteger(end);
+            start2 = start2 == null ? 0 : toInteger2(start2);
+            end = end === undefined2 ? length : toInteger2(end);
           }
           return baseSlice(array, start2, end);
         }
@@ -24055,9 +24055,9 @@ var require_lodash = __commonJS({
         function sortedIndexOf(array, value) {
           var length = array == null ? 0 : array.length;
           if (length) {
-            var index = baseSortedIndex(array, value);
-            if (index < length && eq(array[index], value)) {
-              return index;
+            var index2 = baseSortedIndex(array, value);
+            if (index2 < length && eq(array[index2], value)) {
+              return index2;
             }
           }
           return -1;
@@ -24071,9 +24071,9 @@ var require_lodash = __commonJS({
         function sortedLastIndexOf(array, value) {
           var length = array == null ? 0 : array.length;
           if (length) {
-            var index = baseSortedIndex(array, value, true) - 1;
-            if (eq(array[index], value)) {
-              return index;
+            var index2 = baseSortedIndex(array, value, true) - 1;
+            if (eq(array[index2], value)) {
+              return index2;
             }
           }
           return -1;
@@ -24092,7 +24092,7 @@ var require_lodash = __commonJS({
           if (!(array && array.length)) {
             return [];
           }
-          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = guard || n === undefined2 ? 1 : toInteger2(n);
           return baseSlice(array, 0, n < 0 ? 0 : n);
         }
         function takeRight(array, n, guard) {
@@ -24100,7 +24100,7 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = guard || n === undefined2 ? 1 : toInteger2(n);
           n = length - n;
           return baseSlice(array, n < 0 ? 0 : n, length);
         }
@@ -24146,8 +24146,8 @@ var require_lodash = __commonJS({
               return true;
             }
           });
-          return baseTimes(length, function(index) {
-            return arrayMap(array, baseProperty(index));
+          return baseTimes(length, function(index2) {
+            return arrayMap(array, baseProperty(index2));
           });
         }
         function unzipWith(array, iteratee2) {
@@ -24243,15 +24243,15 @@ var require_lodash = __commonJS({
         function wrapperPlant(value) {
           var result2, parent2 = this;
           while (parent2 instanceof baseLodash) {
-            var clone2 = wrapperClone(parent2);
-            clone2.__index__ = 0;
-            clone2.__values__ = undefined2;
+            var clone3 = wrapperClone(parent2);
+            clone3.__index__ = 0;
+            clone3.__values__ = undefined2;
             if (result2) {
-              previous.__wrapped__ = clone2;
+              previous.__wrapped__ = clone3;
             } else {
-              result2 = clone2;
+              result2 = clone3;
             }
-            var previous = clone2;
+            var previous = clone3;
             parent2 = parent2.__wrapped__;
           }
           previous.__wrapped__ = value;
@@ -24278,24 +24278,24 @@ var require_lodash = __commonJS({
           return baseWrapperValue(this.__wrapped__, this.__actions__);
         }
         var countBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty.call(result2, key)) {
+          if (hasOwnProperty2.call(result2, key)) {
             ++result2[key];
           } else {
             baseAssignValue(result2, key, 1);
           }
         });
         function every(collection, predicate, guard) {
-          var func = isArray(collection) ? arrayEvery : baseEvery;
+          var func = isArray3(collection) ? arrayEvery : baseEvery;
           if (guard && isIterateeCall(collection, predicate, guard)) {
             predicate = undefined2;
           }
           return func(collection, getIteratee(predicate, 3));
         }
         function filter(collection, predicate) {
-          var func = isArray(collection) ? arrayFilter : baseFilter;
+          var func = isArray3(collection) ? arrayFilter : baseFilter;
           return func(collection, getIteratee(predicate, 3));
         }
-        var find2 = createFind(findIndex);
+        var find3 = createFind(findIndex);
         var findLast = createFind(findLastIndex);
         function flatMap(collection, iteratee2) {
           return baseFlatten(map(collection, iteratee2), 1);
@@ -24304,19 +24304,19 @@ var require_lodash = __commonJS({
           return baseFlatten(map(collection, iteratee2), INFINITY);
         }
         function flatMapDepth(collection, iteratee2, depth) {
-          depth = depth === undefined2 ? 1 : toInteger(depth);
+          depth = depth === undefined2 ? 1 : toInteger2(depth);
           return baseFlatten(map(collection, iteratee2), depth);
         }
         function forEach(collection, iteratee2) {
-          var func = isArray(collection) ? arrayEach : baseEach;
+          var func = isArray3(collection) ? arrayEach : baseEach;
           return func(collection, getIteratee(iteratee2, 3));
         }
         function forEachRight(collection, iteratee2) {
-          var func = isArray(collection) ? arrayEachRight : baseEachRight;
+          var func = isArray3(collection) ? arrayEachRight : baseEachRight;
           return func(collection, getIteratee(iteratee2, 3));
         }
         var groupBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty.call(result2, key)) {
+          if (hasOwnProperty2.call(result2, key)) {
             result2[key].push(value);
           } else {
             baseAssignValue(result2, key, [value]);
@@ -24324,17 +24324,17 @@ var require_lodash = __commonJS({
         });
         function includes(collection, value, fromIndex, guard) {
           collection = isArrayLike(collection) ? collection : values(collection);
-          fromIndex = fromIndex && !guard ? toInteger(fromIndex) : 0;
+          fromIndex = fromIndex && !guard ? toInteger2(fromIndex) : 0;
           var length = collection.length;
           if (fromIndex < 0) {
             fromIndex = nativeMax(length + fromIndex, 0);
           }
           return isString2(collection) ? fromIndex <= length && collection.indexOf(value, fromIndex) > -1 : !!length && baseIndexOf(collection, value, fromIndex) > -1;
         }
-        var invokeMap = baseRest(function(collection, path, args) {
-          var index = -1, isFunc = typeof path == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+        var invokeMap = baseRest(function(collection, path2, args) {
+          var index2 = -1, isFunc = typeof path2 == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
           baseEach(collection, function(value) {
-            result2[++index] = isFunc ? apply(path, value, args) : baseInvoke(value, path, args);
+            result2[++index2] = isFunc ? apply(path2, value, args) : baseInvoke(value, path2, args);
           });
           return result2;
         });
@@ -24342,18 +24342,18 @@ var require_lodash = __commonJS({
           baseAssignValue(result2, key, value);
         });
         function map(collection, iteratee2) {
-          var func = isArray(collection) ? arrayMap : baseMap;
+          var func = isArray3(collection) ? arrayMap : baseMap;
           return func(collection, getIteratee(iteratee2, 3));
         }
         function orderBy(collection, iteratees, orders, guard) {
           if (collection == null) {
             return [];
           }
-          if (!isArray(iteratees)) {
+          if (!isArray3(iteratees)) {
             iteratees = iteratees == null ? [] : [iteratees];
           }
           orders = guard ? undefined2 : orders;
-          if (!isArray(orders)) {
+          if (!isArray3(orders)) {
             orders = orders == null ? [] : [orders];
           }
           return baseOrderBy(collection, iteratees, orders);
@@ -24364,32 +24364,32 @@ var require_lodash = __commonJS({
           return [[], []];
         });
         function reduce(collection, iteratee2, accumulator) {
-          var func = isArray(collection) ? arrayReduce : baseReduce, initAccum = arguments.length < 3;
+          var func = isArray3(collection) ? arrayReduce : baseReduce, initAccum = arguments.length < 3;
           return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEach);
         }
         function reduceRight(collection, iteratee2, accumulator) {
-          var func = isArray(collection) ? arrayReduceRight : baseReduce, initAccum = arguments.length < 3;
+          var func = isArray3(collection) ? arrayReduceRight : baseReduce, initAccum = arguments.length < 3;
           return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEachRight);
         }
         function reject(collection, predicate) {
-          var func = isArray(collection) ? arrayFilter : baseFilter;
+          var func = isArray3(collection) ? arrayFilter : baseFilter;
           return func(collection, negate(getIteratee(predicate, 3)));
         }
         function sample(collection) {
-          var func = isArray(collection) ? arraySample : baseSample;
+          var func = isArray3(collection) ? arraySample : baseSample;
           return func(collection);
         }
         function sampleSize(collection, n, guard) {
           if (guard ? isIterateeCall(collection, n, guard) : n === undefined2) {
             n = 1;
           } else {
-            n = toInteger(n);
+            n = toInteger2(n);
           }
-          var func = isArray(collection) ? arraySampleSize : baseSampleSize;
+          var func = isArray3(collection) ? arraySampleSize : baseSampleSize;
           return func(collection, n);
         }
         function shuffle(collection) {
-          var func = isArray(collection) ? arrayShuffle : baseShuffle;
+          var func = isArray3(collection) ? arrayShuffle : baseShuffle;
           return func(collection);
         }
         function size(collection) {
@@ -24406,7 +24406,7 @@ var require_lodash = __commonJS({
           return baseKeys(collection).length;
         }
         function some(collection, predicate, guard) {
-          var func = isArray(collection) ? arraySome : baseSome;
+          var func = isArray3(collection) ? arraySome : baseSome;
           if (guard && isIterateeCall(collection, predicate, guard)) {
             predicate = undefined2;
           }
@@ -24431,7 +24431,7 @@ var require_lodash = __commonJS({
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          n = toInteger(n);
+          n = toInteger2(n);
           return function() {
             if (--n < 1) {
               return func.apply(this, arguments);
@@ -24448,7 +24448,7 @@ var require_lodash = __commonJS({
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          n = toInteger(n);
+          n = toInteger2(n);
           return function() {
             if (--n > 0) {
               result2 = func.apply(this, arguments);
@@ -24493,7 +24493,7 @@ var require_lodash = __commonJS({
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
           wait = toNumber(wait) || 0;
-          if (isObject(options)) {
+          if (isObject2(options)) {
             leading = !!options.leading;
             maxing = "maxWait" in options;
             maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
@@ -24574,7 +24574,7 @@ var require_lodash = __commonJS({
         var delay = baseRest(function(func, wait, args) {
           return baseDelay(func, toNumber(wait) || 0, args);
         });
-        function flip(func) {
+        function flip2(func) {
           return createWrap(func, WRAP_FLIP_FLAG);
         }
         function memoize(func, resolver) {
@@ -24617,12 +24617,12 @@ var require_lodash = __commonJS({
           return before(2, func);
         }
         var overArgs = castRest(function(func, transforms) {
-          transforms = transforms.length == 1 && isArray(transforms[0]) ? arrayMap(transforms[0], baseUnary(getIteratee())) : arrayMap(baseFlatten(transforms, 1), baseUnary(getIteratee()));
+          transforms = transforms.length == 1 && isArray3(transforms[0]) ? arrayMap(transforms[0], baseUnary(getIteratee())) : arrayMap(baseFlatten(transforms, 1), baseUnary(getIteratee()));
           var funcsLength = transforms.length;
           return baseRest(function(args) {
-            var index = -1, length = nativeMin(args.length, funcsLength);
-            while (++index < length) {
-              args[index] = transforms[index].call(this, args[index]);
+            var index2 = -1, length = nativeMin(args.length, funcsLength);
+            while (++index2 < length) {
+              args[index2] = transforms[index2].call(this, args[index2]);
             }
             return apply(func, this, args);
           });
@@ -24642,14 +24642,14 @@ var require_lodash = __commonJS({
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          start2 = start2 === undefined2 ? start2 : toInteger(start2);
+          start2 = start2 === undefined2 ? start2 : toInteger2(start2);
           return baseRest(func, start2);
         }
         function spread(func, start2) {
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          start2 = start2 == null ? 0 : nativeMax(toInteger(start2), 0);
+          start2 = start2 == null ? 0 : nativeMax(toInteger2(start2), 0);
           return baseRest(function(args) {
             var array = args[start2], otherArgs = castSlice(args, 0, start2);
             if (array) {
@@ -24658,12 +24658,12 @@ var require_lodash = __commonJS({
             return apply(func, this, otherArgs);
           });
         }
-        function throttle(func, wait, options) {
+        function throttle2(func, wait, options) {
           var leading = true, trailing = true;
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          if (isObject(options)) {
+          if (isObject2(options)) {
             leading = "leading" in options ? !!options.leading : leading;
             trailing = "trailing" in options ? !!options.trailing : trailing;
           }
@@ -24684,9 +24684,9 @@ var require_lodash = __commonJS({
             return [];
           }
           var value = arguments[0];
-          return isArray(value) ? value : [value];
+          return isArray3(value) ? value : [value];
         }
-        function clone(value) {
+        function clone2(value) {
           return baseClone(value, CLONE_SYMBOLS_FLAG);
         }
         function cloneWith(value, customizer) {
@@ -24701,7 +24701,7 @@ var require_lodash = __commonJS({
           return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG, customizer);
         }
         function conformsTo(object, source) {
-          return source == null || baseConformsTo(object, source, keys(source));
+          return source == null || baseConformsTo(object, source, keys3(source));
         }
         function eq(value, other) {
           return value === other || value !== value && other !== other;
@@ -24713,9 +24713,9 @@ var require_lodash = __commonJS({
         var isArguments = baseIsArguments(function() {
           return arguments;
         }()) ? baseIsArguments : function(value) {
-          return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+          return isObjectLike(value) && hasOwnProperty2.call(value, "callee") && !propertyIsEnumerable2.call(value, "callee");
         };
-        var isArray = Array2.isArray;
+        var isArray3 = Array2.isArray;
         var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
         function isArrayLike(value) {
           return value != null && isLength(value.length) && !isFunction(value);
@@ -24735,7 +24735,7 @@ var require_lodash = __commonJS({
           if (value == null) {
             return true;
           }
-          if (isArrayLike(value) && (isArray(value) || typeof value == "string" || typeof value.splice == "function" || isBuffer(value) || isTypedArray(value) || isArguments(value))) {
+          if (isArrayLike(value) && (isArray3(value) || typeof value == "string" || typeof value.splice == "function" || isBuffer(value) || isTypedArray(value) || isArguments(value))) {
             return !value.length;
           }
           var tag = getTag(value);
@@ -24746,7 +24746,7 @@ var require_lodash = __commonJS({
             return !baseKeys(value).length;
           }
           for (var key in value) {
-            if (hasOwnProperty.call(value, key)) {
+            if (hasOwnProperty2.call(value, key)) {
               return false;
             }
           }
@@ -24771,19 +24771,19 @@ var require_lodash = __commonJS({
           return typeof value == "number" && nativeIsFinite(value);
         }
         function isFunction(value) {
-          if (!isObject(value)) {
+          if (!isObject2(value)) {
             return false;
           }
           var tag = baseGetTag(value);
           return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
         }
         function isInteger(value) {
-          return typeof value == "number" && value == toInteger(value);
+          return typeof value == "number" && value == toInteger2(value);
         }
         function isLength(value) {
           return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
         }
-        function isObject(value) {
+        function isObject2(value) {
           var type = typeof value;
           return value != null && (type == "object" || type == "function");
         }
@@ -24824,7 +24824,7 @@ var require_lodash = __commonJS({
           if (proto === null) {
             return true;
           }
-          var Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
+          var Ctor = hasOwnProperty2.call(proto, "constructor") && proto.constructor;
           return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
         }
         var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
@@ -24833,7 +24833,7 @@ var require_lodash = __commonJS({
         }
         var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
         function isString2(value) {
-          return typeof value == "string" || !isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
+          return typeof value == "string" || !isArray3(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
         }
         function isSymbol(value) {
           return typeof value == "symbol" || isObjectLike(value) && baseGetTag(value) == symbolTag;
@@ -24876,12 +24876,12 @@ var require_lodash = __commonJS({
           }
           return value === value ? value : 0;
         }
-        function toInteger(value) {
+        function toInteger2(value) {
           var result2 = toFinite(value), remainder = result2 % 1;
           return result2 === result2 ? remainder ? result2 - remainder : result2 : 0;
         }
-        function toLength(value) {
-          return value ? baseClamp(toInteger(value), 0, MAX_ARRAY_LENGTH) : 0;
+        function toLength2(value) {
+          return value ? baseClamp(toInteger2(value), 0, MAX_ARRAY_LENGTH) : 0;
         }
         function toNumber(value) {
           if (typeof value == "number") {
@@ -24890,9 +24890,9 @@ var require_lodash = __commonJS({
           if (isSymbol(value)) {
             return NAN;
           }
-          if (isObject(value)) {
+          if (isObject2(value)) {
             var other = typeof value.valueOf == "function" ? value.valueOf() : value;
-            value = isObject(other) ? other + "" : other;
+            value = isObject2(other) ? other + "" : other;
           }
           if (typeof value != "string") {
             return value === 0 ? value : +value;
@@ -24905,18 +24905,18 @@ var require_lodash = __commonJS({
           return copyObject(value, keysIn(value));
         }
         function toSafeInteger(value) {
-          return value ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
+          return value ? baseClamp(toInteger2(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
         }
-        function toString(value) {
+        function toString2(value) {
           return value == null ? "" : baseToString(value);
         }
         var assign = createAssigner(function(object, source) {
           if (isPrototype(source) || isArrayLike(source)) {
-            copyObject(source, keys(source), object);
+            copyObject(source, keys3(source), object);
             return;
           }
           for (var key in source) {
-            if (hasOwnProperty.call(source, key)) {
+            if (hasOwnProperty2.call(source, key)) {
               assignValue(object, key, source[key]);
             }
           }
@@ -24928,30 +24928,30 @@ var require_lodash = __commonJS({
           copyObject(source, keysIn(source), object, customizer);
         });
         var assignWith = createAssigner(function(object, source, srcIndex, customizer) {
-          copyObject(source, keys(source), object, customizer);
+          copyObject(source, keys3(source), object, customizer);
         });
         var at = flatRest(baseAt);
-        function create(prototype, properties) {
+        function create2(prototype, properties) {
           var result2 = baseCreate(prototype);
           return properties == null ? result2 : baseAssign(result2, properties);
         }
         var defaults2 = baseRest(function(object, sources) {
           object = Object2(object);
-          var index = -1;
+          var index2 = -1;
           var length = sources.length;
           var guard = length > 2 ? sources[2] : undefined2;
           if (guard && isIterateeCall(sources[0], sources[1], guard)) {
             length = 1;
           }
-          while (++index < length) {
-            var source = sources[index];
+          while (++index2 < length) {
+            var source = sources[index2];
             var props = keysIn(source);
             var propsIndex = -1;
             var propsLength = props.length;
             while (++propsIndex < propsLength) {
               var key = props[propsIndex];
               var value = object[key];
-              if (value === undefined2 || eq(value, objectProto[key]) && !hasOwnProperty.call(object, key)) {
+              if (value === undefined2 || eq(value, objectProto[key]) && !hasOwnProperty2.call(object, key)) {
                 object[key] = source[key];
               }
             }
@@ -24981,20 +24981,20 @@ var require_lodash = __commonJS({
           return object && baseForOwnRight(object, getIteratee(iteratee2, 3));
         }
         function functions(object) {
-          return object == null ? [] : baseFunctions(object, keys(object));
+          return object == null ? [] : baseFunctions(object, keys3(object));
         }
         function functionsIn(object) {
           return object == null ? [] : baseFunctions(object, keysIn(object));
         }
-        function get(object, path, defaultValue) {
-          var result2 = object == null ? undefined2 : baseGet(object, path);
+        function get3(object, path2, defaultValue) {
+          var result2 = object == null ? undefined2 : baseGet(object, path2);
           return result2 === undefined2 ? defaultValue : result2;
         }
-        function has(object, path) {
-          return object != null && hasPath(object, path, baseHas);
+        function has2(object, path2) {
+          return object != null && hasPath(object, path2, baseHas);
         }
-        function hasIn(object, path) {
-          return object != null && hasPath(object, path, baseHasIn);
+        function hasIn(object, path2) {
+          return object != null && hasPath(object, path2, baseHasIn);
         }
         var invert = createInverter(function(result2, value, key) {
           if (value != null && typeof value.toString != "function") {
@@ -25006,14 +25006,14 @@ var require_lodash = __commonJS({
           if (value != null && typeof value.toString != "function") {
             value = nativeObjectToString.call(value);
           }
-          if (hasOwnProperty.call(result2, value)) {
+          if (hasOwnProperty2.call(result2, value)) {
             result2[value].push(key);
           } else {
             result2[value] = [key];
           }
         }, getIteratee);
         var invoke = baseRest(baseInvoke);
-        function keys(object) {
+        function keys3(object) {
           return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
         }
         function keysIn(object) {
@@ -25035,7 +25035,7 @@ var require_lodash = __commonJS({
           });
           return result2;
         }
-        var merge = createAssigner(function(object, source, srcIndex) {
+        var merge2 = createAssigner(function(object, source, srcIndex) {
           baseMerge(object, source, srcIndex);
         });
         var mergeWith = createAssigner(function(object, source, srcIndex, customizer) {
@@ -25047,10 +25047,10 @@ var require_lodash = __commonJS({
             return result2;
           }
           var isDeep = false;
-          paths = arrayMap(paths, function(path) {
-            path = castPath(path, object);
-            isDeep || (isDeep = path.length > 1);
-            return path;
+          paths = arrayMap(paths, function(path2) {
+            path2 = castPath(path2, object);
+            isDeep || (isDeep = path2.length > 1);
+            return path2;
           });
           copyObject(object, getAllKeysIn(object), result2);
           if (isDeep) {
@@ -25076,66 +25076,66 @@ var require_lodash = __commonJS({
             return [prop];
           });
           predicate = getIteratee(predicate);
-          return basePickBy(object, props, function(value, path) {
-            return predicate(value, path[0]);
+          return basePickBy(object, props, function(value, path2) {
+            return predicate(value, path2[0]);
           });
         }
-        function result(object, path, defaultValue) {
-          path = castPath(path, object);
-          var index = -1, length = path.length;
+        function result(object, path2, defaultValue) {
+          path2 = castPath(path2, object);
+          var index2 = -1, length = path2.length;
           if (!length) {
             length = 1;
             object = undefined2;
           }
-          while (++index < length) {
-            var value = object == null ? undefined2 : object[toKey(path[index])];
+          while (++index2 < length) {
+            var value = object == null ? undefined2 : object[toKey(path2[index2])];
             if (value === undefined2) {
-              index = length;
+              index2 = length;
               value = defaultValue;
             }
             object = isFunction(value) ? value.call(object) : value;
           }
           return object;
         }
-        function set(object, path, value) {
-          return object == null ? object : baseSet(object, path, value);
+        function set3(object, path2, value) {
+          return object == null ? object : baseSet(object, path2, value);
         }
-        function setWith(object, path, value, customizer) {
+        function setWith(object, path2, value, customizer) {
           customizer = typeof customizer == "function" ? customizer : undefined2;
-          return object == null ? object : baseSet(object, path, value, customizer);
+          return object == null ? object : baseSet(object, path2, value, customizer);
         }
-        var toPairs = createToPairs(keys);
+        var toPairs = createToPairs(keys3);
         var toPairsIn = createToPairs(keysIn);
         function transform(object, iteratee2, accumulator) {
-          var isArr = isArray(object), isArrLike = isArr || isBuffer(object) || isTypedArray(object);
+          var isArr = isArray3(object), isArrLike = isArr || isBuffer(object) || isTypedArray(object);
           iteratee2 = getIteratee(iteratee2, 4);
           if (accumulator == null) {
             var Ctor = object && object.constructor;
             if (isArrLike) {
               accumulator = isArr ? new Ctor() : [];
-            } else if (isObject(object)) {
+            } else if (isObject2(object)) {
               accumulator = isFunction(Ctor) ? baseCreate(getPrototype(object)) : {};
             } else {
               accumulator = {};
             }
           }
-          (isArrLike ? arrayEach : baseForOwn)(object, function(value, index, object2) {
-            return iteratee2(accumulator, value, index, object2);
+          (isArrLike ? arrayEach : baseForOwn)(object, function(value, index2, object2) {
+            return iteratee2(accumulator, value, index2, object2);
           });
           return accumulator;
         }
-        function unset(object, path) {
-          return object == null ? true : baseUnset(object, path);
+        function unset(object, path2) {
+          return object == null ? true : baseUnset(object, path2);
         }
-        function update(object, path, updater) {
-          return object == null ? object : baseUpdate(object, path, castFunction(updater));
+        function update(object, path2, updater) {
+          return object == null ? object : baseUpdate(object, path2, castFunction(updater));
         }
-        function updateWith(object, path, updater, customizer) {
+        function updateWith(object, path2, updater, customizer) {
           customizer = typeof customizer == "function" ? customizer : undefined2;
-          return object == null ? object : baseUpdate(object, path, castFunction(updater), customizer);
+          return object == null ? object : baseUpdate(object, path2, castFunction(updater), customizer);
         }
         function values(object) {
-          return object == null ? [] : baseValues(object, keys(object));
+          return object == null ? [] : baseValues(object, keys3(object));
         }
         function valuesIn(object) {
           return object == null ? [] : baseValues(object, keysIn(object));
@@ -25202,44 +25202,44 @@ var require_lodash = __commonJS({
           }
           return baseRandom(lower, upper);
         }
-        var camelCase = createCompounder(function(result2, word, index) {
+        var camelCase = createCompounder(function(result2, word, index2) {
           word = word.toLowerCase();
-          return result2 + (index ? capitalize(word) : word);
+          return result2 + (index2 ? capitalize(word) : word);
         });
         function capitalize(string2) {
-          return upperFirst(toString(string2).toLowerCase());
+          return upperFirst(toString2(string2).toLowerCase());
         }
         function deburr(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && string2.replace(reLatin, deburrLetter).replace(reComboMark, "");
         }
         function endsWith(string2, target, position) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           target = baseToString(target);
           var length = string2.length;
-          position = position === undefined2 ? length : baseClamp(toInteger(position), 0, length);
+          position = position === undefined2 ? length : baseClamp(toInteger2(position), 0, length);
           var end = position;
           position -= target.length;
           return position >= 0 && string2.slice(position, end) == target;
         }
         function escape(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasUnescapedHtml.test(string2) ? string2.replace(reUnescapedHtml, escapeHtmlChar) : string2;
         }
         function escapeRegExp(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasRegExpChar.test(string2) ? string2.replace(reRegExpChar, "\\$&") : string2;
         }
-        var kebabCase = createCompounder(function(result2, word, index) {
-          return result2 + (index ? "-" : "") + word.toLowerCase();
+        var kebabCase = createCompounder(function(result2, word, index2) {
+          return result2 + (index2 ? "-" : "") + word.toLowerCase();
         });
-        var lowerCase = createCompounder(function(result2, word, index) {
-          return result2 + (index ? " " : "") + word.toLowerCase();
+        var lowerCase = createCompounder(function(result2, word, index2) {
+          return result2 + (index2 ? " " : "") + word.toLowerCase();
         });
         var lowerFirst = createCaseFirst("toLowerCase");
         function pad(string2, length, chars) {
-          string2 = toString(string2);
-          length = toInteger(length);
+          string2 = toString2(string2);
+          length = toInteger2(length);
           var strLength = length ? stringSize(string2) : 0;
           if (!length || strLength >= length) {
             return string2;
@@ -25248,14 +25248,14 @@ var require_lodash = __commonJS({
           return createPadding(nativeFloor(mid), chars) + string2 + createPadding(nativeCeil(mid), chars);
         }
         function padEnd(string2, length, chars) {
-          string2 = toString(string2);
-          length = toInteger(length);
+          string2 = toString2(string2);
+          length = toInteger2(length);
           var strLength = length ? stringSize(string2) : 0;
           return length && strLength < length ? string2 + createPadding(length - strLength, chars) : string2;
         }
         function padStart(string2, length, chars) {
-          string2 = toString(string2);
-          length = toInteger(length);
+          string2 = toString2(string2);
+          length = toInteger2(length);
           var strLength = length ? stringSize(string2) : 0;
           return length && strLength < length ? createPadding(length - strLength, chars) + string2 : string2;
         }
@@ -25265,24 +25265,24 @@ var require_lodash = __commonJS({
           } else if (radix) {
             radix = +radix;
           }
-          return nativeParseInt(toString(string2).replace(reTrimStart, ""), radix || 0);
+          return nativeParseInt(toString2(string2).replace(reTrimStart, ""), radix || 0);
         }
         function repeat(string2, n, guard) {
           if (guard ? isIterateeCall(string2, n, guard) : n === undefined2) {
             n = 1;
           } else {
-            n = toInteger(n);
+            n = toInteger2(n);
           }
-          return baseRepeat(toString(string2), n);
+          return baseRepeat(toString2(string2), n);
         }
         function replace() {
-          var args = arguments, string2 = toString(args[0]);
+          var args = arguments, string2 = toString2(args[0]);
           return args.length < 3 ? string2 : string2.replace(args[1], args[2]);
         }
-        var snakeCase = createCompounder(function(result2, word, index) {
-          return result2 + (index ? "_" : "") + word.toLowerCase();
+        var snakeCase = createCompounder(function(result2, word, index2) {
+          return result2 + (index2 ? "_" : "") + word.toLowerCase();
         });
-        function split(string2, separator, limit) {
+        function split2(string2, separator, limit) {
           if (limit && typeof limit != "number" && isIterateeCall(string2, separator, limit)) {
             separator = limit = undefined2;
           }
@@ -25290,7 +25290,7 @@ var require_lodash = __commonJS({
           if (!limit) {
             return [];
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (typeof separator == "string" || separator != null && !isRegExp(separator))) {
             separator = baseToString(separator);
             if (!separator && hasUnicode(string2)) {
@@ -25299,12 +25299,12 @@ var require_lodash = __commonJS({
           }
           return string2.split(separator, limit);
         }
-        var startCase = createCompounder(function(result2, word, index) {
-          return result2 + (index ? " " : "") + upperFirst(word);
+        var startCase = createCompounder(function(result2, word, index2) {
+          return result2 + (index2 ? " " : "") + upperFirst(word);
         });
         function startsWith(string2, target, position) {
-          string2 = toString(string2);
-          position = position == null ? 0 : baseClamp(toInteger(position), 0, string2.length);
+          string2 = toString2(string2);
+          position = position == null ? 0 : baseClamp(toInteger2(position), 0, string2.length);
           target = baseToString(target);
           return string2.slice(position, position + target.length) == target;
         }
@@ -25313,15 +25313,15 @@ var require_lodash = __commonJS({
           if (guard && isIterateeCall(string2, options, guard)) {
             options = undefined2;
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           options = assignInWith({}, options, settings, customDefaultsAssignIn);
-          var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
-          var isEscaping, isEvaluating, index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
+          var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys3(imports), importsValues = baseValues(imports, importsKeys);
+          var isEscaping, isEvaluating, index2 = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
           var reDelimiters = RegExp2((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g");
-          var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
-          string2.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
+          var sourceURL = "//# sourceURL=" + (hasOwnProperty2.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+          string2.replace(reDelimiters, function(match2, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset2) {
             interpolateValue || (interpolateValue = esTemplateValue);
-            source += string2.slice(index, offset).replace(reUnescapedString, escapeStringChar);
+            source += string2.slice(index2, offset2).replace(reUnescapedString, escapeStringChar);
             if (escapeValue) {
               isEscaping = true;
               source += "' +\n__e(" + escapeValue + ") +\n'";
@@ -25333,11 +25333,11 @@ var require_lodash = __commonJS({
             if (interpolateValue) {
               source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
             }
-            index = offset + match.length;
-            return match;
+            index2 = offset2 + match2.length;
+            return match2;
           });
           source += "';\n";
-          var variable = hasOwnProperty.call(options, "variable") && options.variable;
+          var variable = hasOwnProperty2.call(options, "variable") && options.variable;
           if (!variable) {
             source = "with (obj) {\n" + source + "\n}\n";
           } else if (reForbiddenIdentifierChars.test(variable)) {
@@ -25355,13 +25355,13 @@ var require_lodash = __commonJS({
           return result2;
         }
         function toLower(value) {
-          return toString(value).toLowerCase();
+          return toString2(value).toLowerCase();
         }
         function toUpper(value) {
-          return toString(value).toUpperCase();
+          return toString2(value).toUpperCase();
         }
         function trim(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return baseTrim(string2);
           }
@@ -25372,7 +25372,7 @@ var require_lodash = __commonJS({
           return castSlice(strSymbols, start2, end).join("");
         }
         function trimEnd(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return string2.slice(0, trimmedEndIndex(string2) + 1);
           }
@@ -25383,7 +25383,7 @@ var require_lodash = __commonJS({
           return castSlice(strSymbols, 0, end).join("");
         }
         function trimStart(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return string2.replace(reTrimStart, "");
           }
@@ -25395,12 +25395,12 @@ var require_lodash = __commonJS({
         }
         function truncate(string2, options) {
           var length = DEFAULT_TRUNC_LENGTH, omission = DEFAULT_TRUNC_OMISSION;
-          if (isObject(options)) {
+          if (isObject2(options)) {
             var separator = "separator" in options ? options.separator : separator;
-            length = "length" in options ? toInteger(options.length) : length;
+            length = "length" in options ? toInteger2(options.length) : length;
             omission = "omission" in options ? baseToString(options.omission) : omission;
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           var strLength = string2.length;
           if (hasUnicode(string2)) {
             var strSymbols = stringToArray(string2);
@@ -25422,34 +25422,34 @@ var require_lodash = __commonJS({
           }
           if (isRegExp(separator)) {
             if (string2.slice(end).search(separator)) {
-              var match, substring = result2;
+              var match2, substring = result2;
               if (!separator.global) {
-                separator = RegExp2(separator.source, toString(reFlags.exec(separator)) + "g");
+                separator = RegExp2(separator.source, toString2(reFlags.exec(separator)) + "g");
               }
               separator.lastIndex = 0;
-              while (match = separator.exec(substring)) {
-                var newEnd = match.index;
+              while (match2 = separator.exec(substring)) {
+                var newEnd = match2.index;
               }
               result2 = result2.slice(0, newEnd === undefined2 ? end : newEnd);
             }
           } else if (string2.indexOf(baseToString(separator), end) != end) {
-            var index = result2.lastIndexOf(separator);
-            if (index > -1) {
-              result2 = result2.slice(0, index);
+            var index2 = result2.lastIndexOf(separator);
+            if (index2 > -1) {
+              result2 = result2.slice(0, index2);
             }
           }
           return result2 + omission;
         }
         function unescape2(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasEscapedHtml.test(string2) ? string2.replace(reEscapedHtml, unescapeHtmlChar) : string2;
         }
-        var upperCase = createCompounder(function(result2, word, index) {
-          return result2 + (index ? " " : "") + word.toUpperCase();
+        var upperCase = createCompounder(function(result2, word, index2) {
+          return result2 + (index2 ? " " : "") + word.toUpperCase();
         });
         var upperFirst = createCaseFirst("toUpperCase");
         function words(string2, pattern, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           pattern = guard ? undefined2 : pattern;
           if (pattern === undefined2) {
             return hasUnicodeWord(string2) ? unicodeWords(string2) : asciiWords(string2);
@@ -25479,9 +25479,9 @@ var require_lodash = __commonJS({
             return [toIteratee(pair2[0]), pair2[1]];
           });
           return baseRest(function(args) {
-            var index = -1;
-            while (++index < length) {
-              var pair2 = pairs[index];
+            var index2 = -1;
+            while (++index2 < length) {
+              var pair2 = pairs[index2];
               if (apply(pair2[0], this, args)) {
                 return apply(pair2[1], this, args);
               }
@@ -25510,28 +25510,28 @@ var require_lodash = __commonJS({
         function matches(source) {
           return baseMatches(baseClone(source, CLONE_DEEP_FLAG));
         }
-        function matchesProperty(path, srcValue) {
-          return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG));
+        function matchesProperty(path2, srcValue) {
+          return baseMatchesProperty(path2, baseClone(srcValue, CLONE_DEEP_FLAG));
         }
-        var method = baseRest(function(path, args) {
+        var method = baseRest(function(path2, args) {
           return function(object) {
-            return baseInvoke(object, path, args);
+            return baseInvoke(object, path2, args);
           };
         });
         var methodOf = baseRest(function(object, args) {
-          return function(path) {
-            return baseInvoke(object, path, args);
+          return function(path2) {
+            return baseInvoke(object, path2, args);
           };
         });
         function mixin(object, source, options) {
-          var props = keys(source), methodNames = baseFunctions(source, props);
-          if (options == null && !(isObject(source) && (methodNames.length || !props.length))) {
+          var props = keys3(source), methodNames = baseFunctions(source, props);
+          if (options == null && !(isObject2(source) && (methodNames.length || !props.length))) {
             options = source;
             source = object;
             object = this;
-            methodNames = baseFunctions(source, keys(source));
+            methodNames = baseFunctions(source, keys3(source));
           }
-          var chain2 = !(isObject(options) && "chain" in options) || !!options.chain, isFunc = isFunction(object);
+          var chain2 = !(isObject2(options) && "chain" in options) || !!options.chain, isFunc = isFunction(object);
           arrayEach(methodNames, function(methodName) {
             var func = source[methodName];
             object[methodName] = func;
@@ -25556,10 +25556,10 @@ var require_lodash = __commonJS({
           }
           return this;
         }
-        function noop() {
+        function noop2() {
         }
         function nthArg(n) {
-          n = toInteger(n);
+          n = toInteger2(n);
           return baseRest(function(args) {
             return baseNth(args, n);
           });
@@ -25567,12 +25567,12 @@ var require_lodash = __commonJS({
         var over = createOver(arrayMap);
         var overEvery = createOver(arrayEvery);
         var overSome = createOver(arraySome);
-        function property(path) {
-          return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
+        function property(path2) {
+          return isKey(path2) ? baseProperty(toKey(path2)) : basePropertyDeep(path2);
         }
         function propertyOf(object) {
-          return function(path) {
-            return object == null ? undefined2 : baseGet(object, path);
+          return function(path2) {
+            return object == null ? undefined2 : baseGet(object, path2);
           };
         }
         var range = createRange();
@@ -25593,38 +25593,38 @@ var require_lodash = __commonJS({
           return true;
         }
         function times(n, iteratee2) {
-          n = toInteger(n);
+          n = toInteger2(n);
           if (n < 1 || n > MAX_SAFE_INTEGER) {
             return [];
           }
-          var index = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
+          var index2 = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
           iteratee2 = getIteratee(iteratee2);
           n -= MAX_ARRAY_LENGTH;
           var result2 = baseTimes(length, iteratee2);
-          while (++index < n) {
-            iteratee2(index);
+          while (++index2 < n) {
+            iteratee2(index2);
           }
           return result2;
         }
         function toPath(value) {
-          if (isArray(value)) {
+          if (isArray3(value)) {
             return arrayMap(value, toKey);
           }
-          return isSymbol(value) ? [value] : copyArray(stringToPath(toString(value)));
+          return isSymbol(value) ? [value] : copyArray(stringToPath(toString2(value)));
         }
         function uniqueId(prefix) {
-          var id = ++idCounter;
-          return toString(prefix) + id;
+          var id2 = ++idCounter;
+          return toString2(prefix) + id2;
         }
         var add = createMathOperation(function(augend, addend) {
           return augend + addend;
         }, 0);
-        var ceil = createRound("ceil");
+        var ceil2 = createRound("ceil");
         var divide = createMathOperation(function(dividend, divisor) {
           return dividend / divisor;
         }, 1);
-        var floor = createRound("floor");
-        function max(array) {
+        var floor2 = createRound("floor");
+        function max2(array) {
           return array && array.length ? baseExtremum(array, identity, baseGt) : undefined2;
         }
         function maxBy(array, iteratee2) {
@@ -25636,7 +25636,7 @@ var require_lodash = __commonJS({
         function meanBy(array, iteratee2) {
           return baseMean(array, getIteratee(iteratee2, 2));
         }
-        function min(array) {
+        function min2(array) {
           return array && array.length ? baseExtremum(array, identity, baseLt) : undefined2;
         }
         function minBy(array, iteratee2) {
@@ -25675,7 +25675,7 @@ var require_lodash = __commonJS({
         lodash.conforms = conforms;
         lodash.constant = constant;
         lodash.countBy = countBy;
-        lodash.create = create;
+        lodash.create = create2;
         lodash.curry = curry;
         lodash.curryRight = curryRight;
         lodash.debounce = debounce;
@@ -25698,7 +25698,7 @@ var require_lodash = __commonJS({
         lodash.flatten = flatten2;
         lodash.flattenDeep = flattenDeep;
         lodash.flattenDepth = flattenDepth;
-        lodash.flip = flip;
+        lodash.flip = flip2;
         lodash.flow = flow;
         lodash.flowRight = flowRight;
         lodash.fromPairs = fromPairs;
@@ -25714,7 +25714,7 @@ var require_lodash = __commonJS({
         lodash.invokeMap = invokeMap;
         lodash.iteratee = iteratee;
         lodash.keyBy = keyBy;
-        lodash.keys = keys;
+        lodash.keys = keys3;
         lodash.keysIn = keysIn;
         lodash.map = map;
         lodash.mapKeys = mapKeys;
@@ -25722,7 +25722,7 @@ var require_lodash = __commonJS({
         lodash.matches = matches;
         lodash.matchesProperty = matchesProperty;
         lodash.memoize = memoize;
-        lodash.merge = merge;
+        lodash.merge = merge2;
         lodash.mergeWith = mergeWith;
         lodash.method = method;
         lodash.methodOf = methodOf;
@@ -25757,14 +25757,14 @@ var require_lodash = __commonJS({
         lodash.rest = rest;
         lodash.reverse = reverse;
         lodash.sampleSize = sampleSize;
-        lodash.set = set;
+        lodash.set = set3;
         lodash.setWith = setWith;
         lodash.shuffle = shuffle;
         lodash.slice = slice;
         lodash.sortBy = sortBy;
         lodash.sortedUniq = sortedUniq;
         lodash.sortedUniqBy = sortedUniqBy;
-        lodash.split = split;
+        lodash.split = split2;
         lodash.spread = spread;
         lodash.tail = tail;
         lodash.take = take;
@@ -25772,7 +25772,7 @@ var require_lodash = __commonJS({
         lodash.takeRightWhile = takeRightWhile;
         lodash.takeWhile = takeWhile;
         lodash.tap = tap;
-        lodash.throttle = throttle;
+        lodash.throttle = throttle2;
         lodash.thru = thru;
         lodash.toArray = toArray;
         lodash.toPairs = toPairs;
@@ -25813,9 +25813,9 @@ var require_lodash = __commonJS({
         lodash.attempt = attempt;
         lodash.camelCase = camelCase;
         lodash.capitalize = capitalize;
-        lodash.ceil = ceil;
+        lodash.ceil = ceil2;
         lodash.clamp = clamp;
-        lodash.clone = clone;
+        lodash.clone = clone2;
         lodash.cloneDeep = cloneDeep;
         lodash.cloneDeepWith = cloneDeepWith;
         lodash.cloneWith = cloneWith;
@@ -25828,32 +25828,32 @@ var require_lodash = __commonJS({
         lodash.escape = escape;
         lodash.escapeRegExp = escapeRegExp;
         lodash.every = every;
-        lodash.find = find2;
+        lodash.find = find3;
         lodash.findIndex = findIndex;
         lodash.findKey = findKey;
         lodash.findLast = findLast;
         lodash.findLastIndex = findLastIndex;
         lodash.findLastKey = findLastKey;
-        lodash.floor = floor;
+        lodash.floor = floor2;
         lodash.forEach = forEach;
         lodash.forEachRight = forEachRight;
         lodash.forIn = forIn;
         lodash.forInRight = forInRight;
         lodash.forOwn = forOwn;
         lodash.forOwnRight = forOwnRight;
-        lodash.get = get;
+        lodash.get = get3;
         lodash.gt = gt;
         lodash.gte = gte;
-        lodash.has = has;
+        lodash.has = has2;
         lodash.hasIn = hasIn;
         lodash.head = head;
         lodash.identity = identity;
         lodash.includes = includes;
-        lodash.indexOf = indexOf;
+        lodash.indexOf = indexOf2;
         lodash.inRange = inRange;
         lodash.invoke = invoke;
         lodash.isArguments = isArguments;
-        lodash.isArray = isArray;
+        lodash.isArray = isArray3;
         lodash.isArrayBuffer = isArrayBuffer;
         lodash.isArrayLike = isArrayLike;
         lodash.isArrayLikeObject = isArrayLikeObject;
@@ -25877,7 +25877,7 @@ var require_lodash = __commonJS({
         lodash.isNil = isNil;
         lodash.isNull = isNull;
         lodash.isNumber = isNumber;
-        lodash.isObject = isObject;
+        lodash.isObject = isObject2;
         lodash.isObjectLike = isObjectLike;
         lodash.isPlainObject = isPlainObject;
         lodash.isRegExp = isRegExp;
@@ -25897,11 +25897,11 @@ var require_lodash = __commonJS({
         lodash.lowerFirst = lowerFirst;
         lodash.lt = lt;
         lodash.lte = lte;
-        lodash.max = max;
+        lodash.max = max2;
         lodash.maxBy = maxBy;
         lodash.mean = mean;
         lodash.meanBy = meanBy;
-        lodash.min = min;
+        lodash.min = min2;
         lodash.minBy = minBy;
         lodash.stubArray = stubArray;
         lodash.stubFalse = stubFalse;
@@ -25911,7 +25911,7 @@ var require_lodash = __commonJS({
         lodash.multiply = multiply;
         lodash.nth = nth;
         lodash.noConflict = noConflict;
-        lodash.noop = noop;
+        lodash.noop = noop2;
         lodash.now = now;
         lodash.pad = pad;
         lodash.padEnd = padEnd;
@@ -25943,12 +25943,12 @@ var require_lodash = __commonJS({
         lodash.template = template;
         lodash.times = times;
         lodash.toFinite = toFinite;
-        lodash.toInteger = toInteger;
-        lodash.toLength = toLength;
+        lodash.toInteger = toInteger2;
+        lodash.toLength = toLength2;
         lodash.toLower = toLower;
         lodash.toNumber = toNumber;
         lodash.toSafeInteger = toSafeInteger;
-        lodash.toString = toString;
+        lodash.toString = toString2;
         lodash.toUpper = toUpper;
         lodash.trim = trim;
         lodash.trimEnd = trimEnd;
@@ -25964,7 +25964,7 @@ var require_lodash = __commonJS({
         mixin(lodash, function() {
           var source = {};
           baseForOwn(lodash, function(func, methodName) {
-            if (!hasOwnProperty.call(lodash.prototype, methodName)) {
+            if (!hasOwnProperty2.call(lodash.prototype, methodName)) {
               source[methodName] = func;
             }
           });
@@ -25974,10 +25974,10 @@ var require_lodash = __commonJS({
         arrayEach(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(methodName) {
           lodash[methodName].placeholder = lodash;
         });
-        arrayEach(["drop", "take"], function(methodName, index) {
+        arrayEach(["drop", "take"], function(methodName, index2) {
           LazyWrapper.prototype[methodName] = function(n) {
-            n = n === undefined2 ? 1 : nativeMax(toInteger(n), 0);
-            var result2 = this.__filtered__ && !index ? new LazyWrapper(this) : this.clone();
+            n = n === undefined2 ? 1 : nativeMax(toInteger2(n), 0);
+            var result2 = this.__filtered__ && !index2 ? new LazyWrapper(this) : this.clone();
             if (result2.__filtered__) {
               result2.__takeCount__ = nativeMin(n, result2.__takeCount__);
             } else {
@@ -25992,8 +25992,8 @@ var require_lodash = __commonJS({
             return this.reverse()[methodName](n).reverse();
           };
         });
-        arrayEach(["filter", "map", "takeWhile"], function(methodName, index) {
-          var type = index + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
+        arrayEach(["filter", "map", "takeWhile"], function(methodName, index2) {
+          var type = index2 + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
           LazyWrapper.prototype[methodName] = function(iteratee2) {
             var result2 = this.clone();
             result2.__iteratees__.push({
@@ -26004,14 +26004,14 @@ var require_lodash = __commonJS({
             return result2;
           };
         });
-        arrayEach(["head", "last"], function(methodName, index) {
-          var takeName = "take" + (index ? "Right" : "");
+        arrayEach(["head", "last"], function(methodName, index2) {
+          var takeName = "take" + (index2 ? "Right" : "");
           LazyWrapper.prototype[methodName] = function() {
             return this[takeName](1).value()[0];
           };
         });
-        arrayEach(["initial", "tail"], function(methodName, index) {
-          var dropName = "drop" + (index ? "" : "Right");
+        arrayEach(["initial", "tail"], function(methodName, index2) {
+          var dropName = "drop" + (index2 ? "" : "Right");
           LazyWrapper.prototype[methodName] = function() {
             return this.__filtered__ ? new LazyWrapper(this) : this[dropName](1);
           };
@@ -26025,19 +26025,19 @@ var require_lodash = __commonJS({
         LazyWrapper.prototype.findLast = function(predicate) {
           return this.reverse().find(predicate);
         };
-        LazyWrapper.prototype.invokeMap = baseRest(function(path, args) {
-          if (typeof path == "function") {
+        LazyWrapper.prototype.invokeMap = baseRest(function(path2, args) {
+          if (typeof path2 == "function") {
             return new LazyWrapper(this);
           }
           return this.map(function(value) {
-            return baseInvoke(value, path, args);
+            return baseInvoke(value, path2, args);
           });
         });
         LazyWrapper.prototype.reject = function(predicate) {
           return this.filter(negate(getIteratee(predicate)));
         };
         LazyWrapper.prototype.slice = function(start2, end) {
-          start2 = toInteger(start2);
+          start2 = toInteger2(start2);
           var result2 = this;
           if (result2.__filtered__ && (start2 > 0 || end < 0)) {
             return new LazyWrapper(result2);
@@ -26048,7 +26048,7 @@ var require_lodash = __commonJS({
             result2 = result2.drop(start2);
           }
           if (end !== undefined2) {
-            end = toInteger(end);
+            end = toInteger2(end);
             result2 = end < 0 ? result2.dropRight(-end) : result2.take(end - start2);
           }
           return result2;
@@ -26065,7 +26065,7 @@ var require_lodash = __commonJS({
             return;
           }
           lodash.prototype[methodName] = function() {
-            var value = this.__wrapped__, args = isTaker ? [1] : arguments, isLazy = value instanceof LazyWrapper, iteratee2 = args[0], useLazy = isLazy || isArray(value);
+            var value = this.__wrapped__, args = isTaker ? [1] : arguments, isLazy = value instanceof LazyWrapper, iteratee2 = args[0], useLazy = isLazy || isArray3(value);
             var interceptor = function(value2) {
               var result3 = lodashFunc.apply(lodash, arrayPush([value2], args));
               return isTaker && chainAll ? result3[0] : result3;
@@ -26093,10 +26093,10 @@ var require_lodash = __commonJS({
             var args = arguments;
             if (retUnwrapped && !this.__chain__) {
               var value = this.value();
-              return func.apply(isArray(value) ? value : [], args);
+              return func.apply(isArray3(value) ? value : [], args);
             }
             return this[chainName](function(value2) {
-              return func.apply(isArray(value2) ? value2 : [], args);
+              return func.apply(isArray3(value2) ? value2 : [], args);
             });
           };
         });
@@ -26104,7 +26104,7 @@ var require_lodash = __commonJS({
           var lodashFunc = lodash[methodName];
           if (lodashFunc) {
             var key = lodashFunc.name + "";
-            if (!hasOwnProperty.call(realNames, key)) {
+            if (!hasOwnProperty2.call(realNames, key)) {
               realNames[key] = [];
             }
             realNames[key].push({ "name": methodName, "func": lodashFunc });
@@ -26221,7 +26221,7 @@ var require_katex = __commonJS({
         ParseError.prototype.__proto__ = Error.prototype;
         var src_ParseError = ParseError;
         ;
-        var contains2 = function contains3(list, elem) {
+        var contains3 = function contains4(list, elem) {
           return list.indexOf(elem) !== -1;
         };
         var deflt = function deflt2(setting, defaultIfUndefined) {
@@ -26240,8 +26240,8 @@ var require_katex = __commonJS({
         };
         var ESCAPE_REGEX = /[&><"']/g;
         function utils_escape(text) {
-          return String(text).replace(ESCAPE_REGEX, function(match) {
-            return ESCAPE_LOOKUP[match];
+          return String(text).replace(ESCAPE_REGEX, function(match2) {
+            return ESCAPE_LOOKUP[match2];
           });
         }
         var getBaseElem = function getBaseElem2(group) {
@@ -26277,8 +26277,8 @@ var require_katex = __commonJS({
           var protocol = /^\s*([^\\/#]*?)(?::|&#0*58|&#x0*3a)/i.exec(url);
           return protocol != null ? protocol[1] : "_relative";
         };
-        var utils = {
-          contains: contains2,
+        var utils2 = {
+          contains: contains3,
           deflt,
           escape: utils_escape,
           hyphenate,
@@ -26304,20 +26304,20 @@ var require_katex = __commonJS({
             this.maxExpand = void 0;
             this.globalGroup = void 0;
             options = options || {};
-            this.displayMode = utils.deflt(options.displayMode, false);
-            this.output = utils.deflt(options.output, "htmlAndMathml");
-            this.leqno = utils.deflt(options.leqno, false);
-            this.fleqn = utils.deflt(options.fleqn, false);
-            this.throwOnError = utils.deflt(options.throwOnError, true);
-            this.errorColor = utils.deflt(options.errorColor, "#cc0000");
+            this.displayMode = utils2.deflt(options.displayMode, false);
+            this.output = utils2.deflt(options.output, "htmlAndMathml");
+            this.leqno = utils2.deflt(options.leqno, false);
+            this.fleqn = utils2.deflt(options.fleqn, false);
+            this.throwOnError = utils2.deflt(options.throwOnError, true);
+            this.errorColor = utils2.deflt(options.errorColor, "#cc0000");
             this.macros = options.macros || {};
-            this.minRuleThickness = Math.max(0, utils.deflt(options.minRuleThickness, 0));
-            this.colorIsTextColor = utils.deflt(options.colorIsTextColor, false);
-            this.strict = utils.deflt(options.strict, "warn");
-            this.trust = utils.deflt(options.trust, false);
-            this.maxSize = Math.max(0, utils.deflt(options.maxSize, Infinity));
-            this.maxExpand = Math.max(0, utils.deflt(options.maxExpand, 1e3));
-            this.globalGroup = utils.deflt(options.globalGroup, false);
+            this.minRuleThickness = Math.max(0, utils2.deflt(options.minRuleThickness, 0));
+            this.colorIsTextColor = utils2.deflt(options.colorIsTextColor, false);
+            this.strict = utils2.deflt(options.strict, "warn");
+            this.trust = utils2.deflt(options.trust, false);
+            this.maxSize = Math.max(0, utils2.deflt(options.maxSize, Infinity));
+            this.maxExpand = Math.max(0, utils2.deflt(options.maxExpand, 1e3));
+            this.globalGroup = utils2.deflt(options.globalGroup, false);
           }
           var _proto = Settings2.prototype;
           _proto.reportNonstrict = function reportNonstrict(errorCode, errorMsg, token) {
@@ -26358,7 +26358,7 @@ var require_katex = __commonJS({
           };
           _proto.isTrusted = function isTrusted(context) {
             if (context.url && !context.protocol) {
-              context.protocol = utils.protocolFromUrl(context.url);
+              context.protocol = utils2.protocolFromUrl(context.url);
             }
             var trust = typeof this.trust === "function" ? this.trust(context) : this.trust;
             return Boolean(trust);
@@ -26367,11 +26367,11 @@ var require_katex = __commonJS({
         }();
         ;
         var Style = /* @__PURE__ */ function() {
-          function Style2(id, size, cramped) {
+          function Style2(id2, size, cramped) {
             this.id = void 0;
             this.size = void 0;
             this.cramped = void 0;
-            this.id = id;
+            this.id = id2;
             this.size = size;
             this.cramped = cramped;
           }
@@ -26503,27 +26503,27 @@ var require_katex = __commonJS({
         };
         var sqrtPath = function sqrtPath2(size, extraViniculum, viewBoxHeight) {
           extraViniculum = 1e3 * extraViniculum;
-          var path2 = "";
+          var path3 = "";
           switch (size) {
             case "sqrtMain":
-              path2 = sqrtMain(extraViniculum, hLinePad);
+              path3 = sqrtMain(extraViniculum, hLinePad);
               break;
             case "sqrtSize1":
-              path2 = sqrtSize1(extraViniculum, hLinePad);
+              path3 = sqrtSize1(extraViniculum, hLinePad);
               break;
             case "sqrtSize2":
-              path2 = sqrtSize2(extraViniculum, hLinePad);
+              path3 = sqrtSize2(extraViniculum, hLinePad);
               break;
             case "sqrtSize3":
-              path2 = sqrtSize3(extraViniculum, hLinePad);
+              path3 = sqrtSize3(extraViniculum, hLinePad);
               break;
             case "sqrtSize4":
-              path2 = sqrtSize4(extraViniculum, hLinePad);
+              path3 = sqrtSize4(extraViniculum, hLinePad);
               break;
             case "sqrtTall":
-              path2 = sqrtTall(extraViniculum, hLinePad, viewBoxHeight);
+              path3 = sqrtTall(extraViniculum, hLinePad, viewBoxHeight);
           }
-          return path2;
+          return path3;
         };
         var innerPath = function innerPath2(name2, height) {
           switch (name2) {
@@ -26549,7 +26549,7 @@ var require_katex = __commonJS({
               return "";
           }
         };
-        var path = {
+        var path2 = {
           doubleleftarrow: "M262 157\nl10-10c34-36 62.7-77 86-123 3.3-8 5-13.3 5-16 0-5.3-6.7-8-20-8-7.3\n 0-12.2.5-14.5 1.5-2.3 1-4.8 4.5-7.5 10.5-49.3 97.3-121.7 169.3-217 216-28\n 14-57.3 25-88 33-6.7 2-11 3.8-13 5.5-2 1.7-3 4.2-3 7.5s1 5.8 3 7.5\nc2 1.7 6.3 3.5 13 5.5 68 17.3 128.2 47.8 180.5 91.5 52.3 43.7 93.8 96.2 124.5\n 157.5 9.3 8 15.3 12.3 18 13h6c12-.7 18-4 18-10 0-2-1.7-7-5-15-23.3-46-52-87\n-86-123l-10-10h399738v-40H218c328 0 0 0 0 0l-10-8c-26.7-20-65.7-43-117-69 2.7\n-2 6-3.7 10-5 36.7-16 72.3-37.3 107-64l10-8h399782v-40z\nm8 0v40h399730v-40zm0 194v40h399730v-40z",
           doublerightarrow: "M399738 392l\n-10 10c-34 36-62.7 77-86 123-3.3 8-5 13.3-5 16 0 5.3 6.7 8 20 8 7.3 0 12.2-.5\n 14.5-1.5 2.3-1 4.8-4.5 7.5-10.5 49.3-97.3 121.7-169.3 217-216 28-14 57.3-25 88\n-33 6.7-2 11-3.8 13-5.5 2-1.7 3-4.2 3-7.5s-1-5.8-3-7.5c-2-1.7-6.3-3.5-13-5.5-68\n-17.3-128.2-47.8-180.5-91.5-52.3-43.7-93.8-96.2-124.5-157.5-9.3-8-15.3-12.3-18\n-13h-6c-12 .7-18 4-18 10 0 2 1.7 7 5 15 23.3 46 52 87 86 123l10 10H0v40h399782\nc-328 0 0 0 0 0l10 8c26.7 20 65.7 43 117 69-2.7 2-6 3.7-10 5-36.7 16-72.3 37.3\n-107 64l-10 8H0v40zM0 157v40h399730v-40zm0 194v40h399730v-40z",
           leftarrow: "M400000 241H110l3-3c68.7-52.7 113.7-120\n 135-202 4-14.7 6-23 6-25 0-7.3-7-11-21-11-8 0-13.2.8-15.5 2.5-2.3 1.7-4.2 5.8\n-5.5 12.5-1.3 4.7-2.7 10.3-4 17-12 48.7-34.8 92-68.5 130S65.3 228.3 18 247\nc-10 4-16 7.7-18 11 0 8.7 6 14.3 18 17 47.3 18.7 87.8 47 121.5 85S196 441.3 208\n 490c.7 2 1.3 5 2 9s1.2 6.7 1.5 8c.3 1.3 1 3.3 2 6s2.2 4.5 3.5 5.5c1.3 1 3.3\n 1.8 6 2.5s6 1 10 1c14 0 21-3.7 21-11 0-2-2-10.3-6-25-20-79.3-65-146.7-135-202\n l-3-3h399890zM100 241v40h399900v-40z",
@@ -26624,7 +26624,7 @@ var require_katex = __commonJS({
           }
           var _proto = DocumentFragment2.prototype;
           _proto.hasClass = function hasClass(className) {
-            return utils.contains(this.classes, className);
+            return utils2.contains(this.classes, className);
           };
           _proto.toNode = function toNode() {
             var frag = document.createDocumentFragment();
@@ -26654,13 +26654,13 @@ var require_katex = __commonJS({
             return cls;
           }).join(" ");
         };
-        var initNode = function initNode2(classes, options, style) {
+        var initNode = function initNode2(classes, options, style2) {
           this.classes = classes || [];
           this.attributes = {};
           this.height = 0;
           this.depth = 0;
           this.maxFontSize = 0;
-          this.style = style || {};
+          this.style = style2 || {};
           if (options) {
             if (options.style.isTight()) {
               this.classes.push("mtight");
@@ -26674,9 +26674,9 @@ var require_katex = __commonJS({
         var _toNode = function toNode(tagName) {
           var node = document.createElement(tagName);
           node.className = createClass(this.classes);
-          for (var style in this.style) {
-            if (this.style.hasOwnProperty(style)) {
-              node.style[style] = this.style[style];
+          for (var style2 in this.style) {
+            if (this.style.hasOwnProperty(style2)) {
+              node.style[style2] = this.style[style2];
             }
           }
           for (var attr in this.attributes) {
@@ -26692,20 +26692,20 @@ var require_katex = __commonJS({
         var _toMarkup = function toMarkup(tagName) {
           var markup = "<" + tagName;
           if (this.classes.length) {
-            markup += ' class="' + utils.escape(createClass(this.classes)) + '"';
+            markup += ' class="' + utils2.escape(createClass(this.classes)) + '"';
           }
           var styles2 = "";
-          for (var style in this.style) {
-            if (this.style.hasOwnProperty(style)) {
-              styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
+          for (var style2 in this.style) {
+            if (this.style.hasOwnProperty(style2)) {
+              styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
             }
           }
           if (styles2) {
-            markup += ' style="' + utils.escape(styles2) + '"';
+            markup += ' style="' + utils2.escape(styles2) + '"';
           }
           for (var attr in this.attributes) {
             if (this.attributes.hasOwnProperty(attr)) {
-              markup += " " + attr + '="' + utils.escape(this.attributes[attr]) + '"';
+              markup += " " + attr + '="' + utils2.escape(this.attributes[attr]) + '"';
             }
           }
           markup += ">";
@@ -26716,7 +26716,7 @@ var require_katex = __commonJS({
           return markup;
         };
         var Span = /* @__PURE__ */ function() {
-          function Span2(classes, children, options, style) {
+          function Span2(classes, children, options, style2) {
             this.children = void 0;
             this.attributes = void 0;
             this.classes = void 0;
@@ -26725,7 +26725,7 @@ var require_katex = __commonJS({
             this.width = void 0;
             this.maxFontSize = void 0;
             this.style = void 0;
-            initNode.call(this, classes, options, style);
+            initNode.call(this, classes, options, style2);
             this.children = children || [];
           }
           var _proto = Span2.prototype;
@@ -26733,7 +26733,7 @@ var require_katex = __commonJS({
             this.attributes[attribute] = value;
           };
           _proto.hasClass = function hasClass(className) {
-            return utils.contains(this.classes, className);
+            return utils2.contains(this.classes, className);
           };
           _proto.toNode = function toNode() {
             return _toNode.call(this, "span");
@@ -26761,7 +26761,7 @@ var require_katex = __commonJS({
             this.attributes[attribute] = value;
           };
           _proto2.hasClass = function hasClass(className) {
-            return utils.contains(this.classes, className);
+            return utils2.contains(this.classes, className);
           };
           _proto2.toNode = function toNode() {
             return _toNode.call(this, "a");
@@ -26772,7 +26772,7 @@ var require_katex = __commonJS({
           return Anchor2;
         }();
         var Img = /* @__PURE__ */ function() {
-          function Img2(src, alt, style) {
+          function Img2(src, alt, style2) {
             this.src = void 0;
             this.alt = void 0;
             this.classes = void 0;
@@ -26783,20 +26783,20 @@ var require_katex = __commonJS({
             this.alt = alt;
             this.src = src;
             this.classes = ["mord"];
-            this.style = style;
+            this.style = style2;
           }
           var _proto3 = Img2.prototype;
           _proto3.hasClass = function hasClass(className) {
-            return utils.contains(this.classes, className);
+            return utils2.contains(this.classes, className);
           };
           _proto3.toNode = function toNode() {
             var node = document.createElement("img");
             node.src = this.src;
             node.alt = this.alt;
             node.className = "mord";
-            for (var style in this.style) {
-              if (this.style.hasOwnProperty(style)) {
-                node.style[style] = this.style[style];
+            for (var style2 in this.style) {
+              if (this.style.hasOwnProperty(style2)) {
+                node.style[style2] = this.style[style2];
               }
             }
             return node;
@@ -26804,13 +26804,13 @@ var require_katex = __commonJS({
           _proto3.toMarkup = function toMarkup() {
             var markup = "<img  src='" + this.src + " 'alt='" + this.alt + "' ";
             var styles2 = "";
-            for (var style in this.style) {
-              if (this.style.hasOwnProperty(style)) {
-                styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
+            for (var style2 in this.style) {
+              if (this.style.hasOwnProperty(style2)) {
+                styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
               }
             }
             if (styles2) {
-              markup += ' style="' + utils.escape(styles2) + '"';
+              markup += ' style="' + utils2.escape(styles2) + '"';
             }
             markup += "'/>";
             return markup;
@@ -26824,7 +26824,7 @@ var require_katex = __commonJS({
           "\xEC": "\u0131\u0300"
         };
         var SymbolNode = /* @__PURE__ */ function() {
-          function SymbolNode2(text, height, depth, italic, skew, width, classes, style) {
+          function SymbolNode2(text, height, depth, italic, skew, width, classes, style2) {
             this.text = void 0;
             this.height = void 0;
             this.depth = void 0;
@@ -26841,7 +26841,7 @@ var require_katex = __commonJS({
             this.skew = skew || 0;
             this.width = width || 0;
             this.classes = classes || [];
-            this.style = style || {};
+            this.style = style2 || {};
             this.maxFontSize = 0;
             var script = scriptFromCodepoint(this.text.charCodeAt(0));
             if (script) {
@@ -26853,7 +26853,7 @@ var require_katex = __commonJS({
           }
           var _proto4 = SymbolNode2.prototype;
           _proto4.hasClass = function hasClass(className) {
-            return utils.contains(this.classes, className);
+            return utils2.contains(this.classes, className);
           };
           _proto4.toNode = function toNode() {
             var node = document.createTextNode(this.text);
@@ -26866,10 +26866,10 @@ var require_katex = __commonJS({
               span = span || document.createElement("span");
               span.className = createClass(this.classes);
             }
-            for (var style in this.style) {
-              if (this.style.hasOwnProperty(style)) {
+            for (var style2 in this.style) {
+              if (this.style.hasOwnProperty(style2)) {
                 span = span || document.createElement("span");
-                span.style[style] = this.style[style];
+                span.style[style2] = this.style[style2];
               }
             }
             if (span) {
@@ -26885,23 +26885,23 @@ var require_katex = __commonJS({
             if (this.classes.length) {
               needsSpan = true;
               markup += ' class="';
-              markup += utils.escape(createClass(this.classes));
+              markup += utils2.escape(createClass(this.classes));
               markup += '"';
             }
             var styles2 = "";
             if (this.italic > 0) {
               styles2 += "margin-right:" + this.italic + "em;";
             }
-            for (var style in this.style) {
-              if (this.style.hasOwnProperty(style)) {
-                styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
+            for (var style2 in this.style) {
+              if (this.style.hasOwnProperty(style2)) {
+                styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
               }
             }
             if (styles2) {
               needsSpan = true;
-              markup += ' style="' + utils.escape(styles2) + '"';
+              markup += ' style="' + utils2.escape(styles2) + '"';
             }
-            var escaped = utils.escape(this.text);
+            var escaped = utils2.escape(this.text);
             if (needsSpan) {
               markup += ">";
               markup += escaped;
@@ -26964,7 +26964,7 @@ var require_katex = __commonJS({
             if (this.alternate) {
               node.setAttribute("d", this.alternate);
             } else {
-              node.setAttribute("d", path[this.pathName]);
+              node.setAttribute("d", path2[this.pathName]);
             }
             return node;
           };
@@ -26972,7 +26972,7 @@ var require_katex = __commonJS({
             if (this.alternate) {
               return "<path d='" + this.alternate + "'/>";
             } else {
-              return "<path d='" + path[this.pathName] + "'/>";
+              return "<path d='" + path2[this.pathName] + "'/>";
             }
           };
           return PathNode2;
@@ -30072,11 +30072,11 @@ var require_katex = __commonJS({
           2.074,
           2.488
         ];
-        var sizeAtStyle = function sizeAtStyle2(size, style) {
-          return style.size < 2 ? size : sizeStyleMap[size - 1][style.size - 1];
+        var sizeAtStyle = function sizeAtStyle2(size, style2) {
+          return style2.size < 2 ? size : sizeStyleMap[size - 1][style2.size - 1];
         };
         var Options = /* @__PURE__ */ function() {
-          function Options2(data) {
+          function Options2(data2) {
             this.style = void 0;
             this.color = void 0;
             this.size = void 0;
@@ -30090,23 +30090,23 @@ var require_katex = __commonJS({
             this.maxSize = void 0;
             this.minRuleThickness = void 0;
             this._fontMetrics = void 0;
-            this.style = data.style;
-            this.color = data.color;
-            this.size = data.size || Options2.BASESIZE;
-            this.textSize = data.textSize || this.size;
-            this.phantom = !!data.phantom;
-            this.font = data.font || "";
-            this.fontFamily = data.fontFamily || "";
-            this.fontWeight = data.fontWeight || "";
-            this.fontShape = data.fontShape || "";
+            this.style = data2.style;
+            this.color = data2.color;
+            this.size = data2.size || Options2.BASESIZE;
+            this.textSize = data2.textSize || this.size;
+            this.phantom = !!data2.phantom;
+            this.font = data2.font || "";
+            this.fontFamily = data2.fontFamily || "";
+            this.fontWeight = data2.fontWeight || "";
+            this.fontShape = data2.fontShape || "";
             this.sizeMultiplier = sizeMultipliers[this.size - 1];
-            this.maxSize = data.maxSize;
-            this.minRuleThickness = data.minRuleThickness;
+            this.maxSize = data2.maxSize;
+            this.minRuleThickness = data2.minRuleThickness;
             this._fontMetrics = void 0;
           }
           var _proto = Options2.prototype;
           _proto.extend = function extend2(extension) {
-            var data = {
+            var data2 = {
               style: this.style,
               size: this.size,
               textSize: this.textSize,
@@ -30121,18 +30121,18 @@ var require_katex = __commonJS({
             };
             for (var key in extension) {
               if (extension.hasOwnProperty(key)) {
-                data[key] = extension[key];
+                data2[key] = extension[key];
               }
             }
-            return new Options2(data);
+            return new Options2(data2);
           };
-          _proto.havingStyle = function havingStyle(style) {
-            if (this.style === style) {
+          _proto.havingStyle = function havingStyle(style2) {
+            if (this.style === style2) {
               return this;
             } else {
               return this.extend({
-                style,
-                size: sizeAtStyle(this.textSize, style)
+                style: style2,
+                size: sizeAtStyle(this.textSize, style2)
               });
             }
           };
@@ -30151,14 +30151,14 @@ var require_katex = __commonJS({
               });
             }
           };
-          _proto.havingBaseStyle = function havingBaseStyle(style) {
-            style = style || this.style.text();
-            var wantSize = sizeAtStyle(Options2.BASESIZE, style);
-            if (this.size === wantSize && this.textSize === Options2.BASESIZE && this.style === style) {
+          _proto.havingBaseStyle = function havingBaseStyle(style2) {
+            style2 = style2 || this.style.text();
+            var wantSize = sizeAtStyle(Options2.BASESIZE, style2);
+            if (this.size === wantSize && this.textSize === Options2.BASESIZE && this.style === style2) {
               return this;
             } else {
               return this.extend({
-                style,
+                style: style2,
                 size: wantSize
               });
             }
@@ -30421,8 +30421,8 @@ var require_katex = __commonJS({
               return false;
             }
           }
-          for (var style in prev.style) {
-            if (prev.style.hasOwnProperty(style) && prev.style[style] !== next.style[style]) {
+          for (var style2 in prev.style) {
+            if (prev.style.hasOwnProperty(style2) && prev.style[style2] !== next.style[style2]) {
               return false;
             }
           }
@@ -30468,13 +30468,13 @@ var require_katex = __commonJS({
           elem.depth = depth;
           elem.maxFontSize = maxFontSize;
         };
-        var makeSpan = function makeSpan2(classes, children, options, style) {
-          var span = new Span(classes, children, options, style);
+        var makeSpan = function makeSpan2(classes, children, options, style2) {
+          var span = new Span(classes, children, options, style2);
           sizeElementFromChildren(span);
           return span;
         };
-        var makeSvgSpan = function makeSvgSpan2(classes, children, options, style) {
-          return new Span(classes, children, options, style);
+        var makeSvgSpan = function makeSvgSpan2(classes, children, options, style2) {
+          return new Span(classes, children, options, style2);
         };
         var makeLineSpan = function makeLineSpan2(className, options, thickness) {
           var line = makeSpan([className], [], options);
@@ -30572,8 +30572,8 @@ var require_katex = __commonJS({
             } else {
               var _elem = _child.elem;
               var classes = _child.wrapperClasses || [];
-              var style = _child.wrapperStyle || {};
-              var childWrap = makeSpan(classes, [pstrut, _elem], void 0, style);
+              var style2 = _child.wrapperStyle || {};
+              var childWrap = makeSpan(classes, [pstrut, _elem], void 0, style2);
               childWrap.style.top = -pstrutSize - currPos - _elem.depth + "em";
               if (_child.marginLeft) {
                 childWrap.style.marginLeft = _child.marginLeft;
@@ -30698,8 +30698,8 @@ var require_katex = __commonJS({
         };
         var staticSvg = function staticSvg2(value, options) {
           var _svgData$value = svgData[value], pathName = _svgData$value[0], width = _svgData$value[1], height = _svgData$value[2];
-          var path2 = new PathNode(pathName);
-          var svgNode = new SvgNode([path2], {
+          var path3 = new PathNode(pathName);
+          var svgNode = new SvgNode([path3], {
             "width": width + "em",
             "height": height + "em",
             "style": "width:" + width + "em",
@@ -30818,7 +30818,7 @@ var require_katex = __commonJS({
         var _mathmlGroupBuilders = {};
         function defineFunction(_ref) {
           var type = _ref.type, names = _ref.names, props = _ref.props, handler = _ref.handler, htmlBuilder2 = _ref.htmlBuilder, mathmlBuilder2 = _ref.mathmlBuilder;
-          var data = {
+          var data2 = {
             type,
             numArgs: props.numArgs,
             argTypes: props.argTypes,
@@ -30831,7 +30831,7 @@ var require_katex = __commonJS({
             handler
           };
           for (var i2 = 0; i2 < names.length; ++i2) {
-            _functions[names[i2]] = data;
+            _functions[names[i2]] = data2;
           }
           if (type) {
             if (htmlBuilder2) {
@@ -30916,9 +30916,9 @@ var require_katex = __commonJS({
           traverseNonSpaceNodes(groups, function(node2, prev) {
             var prevType = prev.classes[0];
             var type = node2.classes[0];
-            if (prevType === "mbin" && utils.contains(binRightCanceller, type)) {
+            if (prevType === "mbin" && utils2.contains(binRightCanceller, type)) {
               prev.classes[0] = "mord";
-            } else if (type === "mbin" && utils.contains(binLeftCanceller, prevType)) {
+            } else if (type === "mbin" && utils2.contains(binLeftCanceller, prevType)) {
               node2.classes[0] = "mord";
             }
           }, {
@@ -30965,9 +30965,9 @@ var require_katex = __commonJS({
             } else if (isRoot && node.hasClass("newline")) {
               prev.node = buildHTML_makeSpan(["leftmost"]);
             }
-            prev.insertAfter = function(index) {
+            prev.insertAfter = function(index2) {
               return function(n) {
-                nodes.splice(index + 1, 0, n);
+                nodes.splice(index2 + 1, 0, n);
                 i2++;
               };
             }(i2);
@@ -31133,12 +31133,12 @@ var require_katex = __commonJS({
             for (var attr in this.attributes) {
               if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
                 markup += " " + attr + '="';
-                markup += utils.escape(this.attributes[attr]);
+                markup += utils2.escape(this.attributes[attr]);
                 markup += '"';
               }
             }
             if (this.classes.length > 0) {
-              markup += ' class ="' + utils.escape(createClass(this.classes)) + '"';
+              markup += ' class ="' + utils2.escape(createClass(this.classes)) + '"';
             }
             markup += ">";
             for (var i2 = 0; i2 < this.children.length; i2++) {
@@ -31164,7 +31164,7 @@ var require_katex = __commonJS({
             return document.createTextNode(this.text);
           };
           _proto2.toMarkup = function toMarkup() {
-            return utils.escape(this.toText());
+            return utils2.escape(this.toText());
           };
           _proto2.toText = function toText() {
             return this.text;
@@ -31285,7 +31285,7 @@ var require_katex = __commonJS({
             return "monospace";
           }
           var text = group.text;
-          if (utils.contains(["\\imath", "\\jmath"], text)) {
+          if (utils2.contains(["\\imath", "\\jmath"], text)) {
             return null;
           }
           if (src_symbols[mode][text] && src_symbols[mode][text].replace) {
@@ -31359,7 +31359,7 @@ var require_katex = __commonJS({
         function buildMathML(tree, texExpression, options, isDisplayMode, forMathmlOnly) {
           var expression = buildMathML_buildExpression(tree, options);
           var wrapper;
-          if (expression.length === 1 && expression[0] instanceof MathNode && utils.contains(["mrow", "mtable"], expression[0].type)) {
+          if (expression.length === 1 && expression[0] instanceof MathNode && utils2.contains(["mrow", "mtable"], expression[0].type)) {
             wrapper = expression[0];
           } else {
             wrapper = new mathMLTree.MathNode("mrow", expression);
@@ -31521,7 +31521,7 @@ var require_katex = __commonJS({
           function buildSvgSpan_() {
             var viewBoxWidth = 4e5;
             var label = group.label.substr(1);
-            if (utils.contains(["widehat", "widecheck", "widetilde", "utilde"], label)) {
+            if (utils2.contains(["widehat", "widecheck", "widetilde", "utilde"], label)) {
               var grp = group;
               var numChars = groupLength(grp.base);
               var viewBoxHeight;
@@ -31553,8 +31553,8 @@ var require_katex = __commonJS({
                   pathName = "tilde" + imgIndex;
                 }
               }
-              var path2 = new PathNode(pathName);
-              var svgNode = new SvgNode([path2], {
+              var path3 = new PathNode(pathName);
+              var svgNode = new SvgNode([path3], {
                 "width": "100%",
                 "height": _height + "em",
                 "viewBox": "0 0 " + viewBoxWidth + " " + viewBoxHeight,
@@ -31567,14 +31567,14 @@ var require_katex = __commonJS({
               };
             } else {
               var spans = [];
-              var data = katexImagesData[label];
-              var paths = data[0], _minWidth = data[1], _viewBoxHeight = data[2];
+              var data2 = katexImagesData[label];
+              var paths = data2[0], _minWidth = data2[1], _viewBoxHeight = data2[2];
               var _height2 = _viewBoxHeight / 1e3;
               var numSvgChildren = paths.length;
               var widthClasses;
               var aligns;
               if (numSvgChildren === 1) {
-                var align1 = data[3];
+                var align1 = data2[3];
                 widthClasses = ["hide-tail"];
                 aligns = [align1];
               } else if (numSvgChildren === 2) {
@@ -31703,10 +31703,10 @@ var require_katex = __commonJS({
             base2 = group.base;
           }
           var body = buildGroup(base2, options.havingCrampedStyle());
-          var mustShift = group.isShifty && utils.isCharacterBox(base2);
+          var mustShift = group.isShifty && utils2.isCharacterBox(base2);
           var skew = 0;
           if (mustShift) {
-            var baseChar = utils.getBaseElem(base2);
+            var baseChar = utils2.getBaseElem(base2);
             var baseGroup = buildGroup(baseChar, options.havingCrampedStyle());
             skew = assertSymbolDomNode(baseGroup).skew;
           }
@@ -31937,14 +31937,14 @@ var require_katex = __commonJS({
             };
           },
           htmlBuilder: function htmlBuilder2(group, options) {
-            var style = options.style;
-            var newOptions = options.havingStyle(style.sup());
+            var style2 = options.style;
+            var newOptions = options.havingStyle(style2.sup());
             var upperGroup = buildCommon.wrapFragment(buildGroup(group.body, newOptions, options), options);
             var arrowPrefix = group.label.slice(0, 2) === "\\x" ? "x" : "cd";
             upperGroup.classes.push(arrowPrefix + "-arrow-pad");
             var lowerGroup;
             if (group.below) {
-              newOptions = options.havingStyle(style.sub());
+              newOptions = options.havingStyle(style2.sub());
               lowerGroup = buildCommon.wrapFragment(buildGroup(group.below, newOptions, options), options);
               lowerGroup.classes.push(arrowPrefix + "-arrow-pad");
             }
@@ -32561,19 +32561,19 @@ var require_katex = __commonJS({
           span.maxFontSize = newOptions.sizeMultiplier;
           return span;
         };
-        var centerSpan = function centerSpan2(span, options, style) {
-          var newOptions = options.havingBaseStyle(style);
+        var centerSpan = function centerSpan2(span, options, style2) {
+          var newOptions = options.havingBaseStyle(style2);
           var shift2 = (1 - options.sizeMultiplier / newOptions.sizeMultiplier) * options.fontMetrics().axisHeight;
           span.classes.push("delimcenter");
           span.style.top = shift2 + "em";
           span.height -= shift2;
           span.depth += shift2;
         };
-        var makeSmallDelim = function makeSmallDelim2(delim, style, center, options, mode, classes) {
+        var makeSmallDelim = function makeSmallDelim2(delim, style2, center, options, mode, classes) {
           var text = buildCommon.makeSymbol(delim, "Main-Regular", mode, options);
-          var span = styleWrap(text, style, options, classes);
+          var span = styleWrap(text, style2, options, classes);
           if (center) {
-            centerSpan(span, options, style);
+            centerSpan(span, options, style2);
           }
           return span;
         };
@@ -32603,8 +32603,8 @@ var require_katex = __commonJS({
         };
         var makeInner = function makeInner2(ch2, height, options) {
           var width = fontMetricsData["Size4-Regular"][ch2.charCodeAt(0)] ? fontMetricsData["Size4-Regular"][ch2.charCodeAt(0)][4].toFixed(3) : fontMetricsData["Size1-Regular"][ch2.charCodeAt(0)][4].toFixed(3);
-          var path2 = new PathNode("inner", innerPath(ch2, Math.round(1e3 * height)));
-          var svgNode = new SvgNode([path2], {
+          var path3 = new PathNode("inner", innerPath(ch2, Math.round(1e3 * height)));
+          var svgNode = new SvgNode([path3], {
             "width": width + "em",
             "height": height + "em",
             "style": "width:" + width + "em",
@@ -32651,9 +32651,9 @@ var require_katex = __commonJS({
             top2 = "\\Uparrow";
             repeat = "\u2016";
             bottom = "\\Downarrow";
-          } else if (utils.contains(verts, delim)) {
+          } else if (utils2.contains(verts, delim)) {
             repeat = "\u2223";
-          } else if (utils.contains(doubleVerts, delim)) {
+          } else if (utils2.contains(doubleVerts, delim)) {
             repeat = "\u2225";
           } else if (delim === "[" || delim === "\\lbrack") {
             top2 = "\u23A1";
@@ -32772,8 +32772,8 @@ var require_katex = __commonJS({
         var vbPad = 80;
         var emPad = 0.08;
         var sqrtSvg = function sqrtSvg2(sqrtName, height, viewBoxHeight, extraViniculum, options) {
-          var path2 = sqrtPath(sqrtName, extraViniculum, viewBoxHeight);
-          var pathNode = new PathNode(sqrtName, path2);
+          var path3 = sqrtPath(sqrtName, extraViniculum, viewBoxHeight);
+          var pathNode = new PathNode(sqrtName, path3);
           var svg = new SvgNode([pathNode], {
             "width": "400em",
             "height": height + "em",
@@ -32837,9 +32837,9 @@ var require_katex = __commonJS({
           } else if (delim === ">" || delim === "\\gt" || delim === "\u27E9") {
             delim = "\\rangle";
           }
-          if (utils.contains(stackLargeDelimiters, delim) || utils.contains(stackNeverDelimiters, delim)) {
+          if (utils2.contains(stackLargeDelimiters, delim) || utils2.contains(stackNeverDelimiters, delim)) {
             return makeLargeDelim(delim, size, false, options, mode, classes);
-          } else if (utils.contains(stackAlwaysDelimiters, delim)) {
+          } else if (utils2.contains(stackAlwaysDelimiters, delim)) {
             return makeStackedDelim(delim, sizeToMaxHeight[size], false, options, mode, classes);
           } else {
             throw new src_ParseError("Illegal delimiter: '" + delim + "'");
@@ -32939,9 +32939,9 @@ var require_katex = __commonJS({
             delim = "\\rangle";
           }
           var sequence;
-          if (utils.contains(stackNeverDelimiters, delim)) {
+          if (utils2.contains(stackNeverDelimiters, delim)) {
             sequence = stackNeverDelimiterSequence;
-          } else if (utils.contains(stackLargeDelimiters, delim)) {
+          } else if (utils2.contains(stackLargeDelimiters, delim)) {
             sequence = stackLargeDelimiterSequence;
           } else {
             sequence = stackAlwaysDelimiterSequence;
@@ -33040,7 +33040,7 @@ var require_katex = __commonJS({
         var delimiters = ["(", "\\lparen", ")", "\\rparen", "[", "\\lbrack", "]", "\\rbrack", "\\{", "\\lbrace", "\\}", "\\rbrace", "\\lfloor", "\\rfloor", "\u230A", "\u230B", "\\lceil", "\\rceil", "\u2308", "\u2309", "<", ">", "\\langle", "\u27E8", "\\rangle", "\u27E9", "\\lt", "\\gt", "\\lvert", "\\rvert", "\\lVert", "\\rVert", "\\lgroup", "\\rgroup", "\u27EE", "\u27EF", "\\lmoustache", "\\rmoustache", "\u23B0", "\u23B1", "/", "\\backslash", "|", "\\vert", "\\|", "\\Vert", "\\uparrow", "\\Uparrow", "\\downarrow", "\\Downarrow", "\\updownarrow", "\\Updownarrow", "."];
         function checkDelimiter(delim, context) {
           var symDelim = checkSymbolNodeType(delim);
-          if (symDelim && utils.contains(delimiters, symDelim.text)) {
+          if (symDelim && utils2.contains(delimiters, symDelim.text)) {
             return symDelim;
           } else if (symDelim) {
             throw new src_ParseError("Invalid delimiter '" + symDelim.text + "' after '" + context.funcName + "'", delim);
@@ -33246,7 +33246,7 @@ var require_katex = __commonJS({
           var scale = options.sizeMultiplier;
           var img;
           var imgShift = 0;
-          var isSingleChar = utils.isCharacterBox(group.body);
+          var isSingleChar = utils2.isCharacterBox(group.body);
           if (label === "sout") {
             img = buildCommon.makeSpan(["stretchy", "sout"]);
             img.height = options.fontMetrics().defaultRuleThickness / scale;
@@ -33265,8 +33265,8 @@ var require_katex = __commonJS({
             var angleHeight = inner2.height + inner2.depth + lineWeight + clearance;
             inner2.style.paddingLeft = angleHeight / 2 + lineWeight + "em";
             var viewBoxHeight = Math.floor(1e3 * angleHeight * scale);
-            var path2 = phasePath(viewBoxHeight);
-            var svgNode = new SvgNode([new PathNode("phase", path2)], {
+            var path3 = phasePath(viewBoxHeight);
+            var svgNode = new SvgNode([new PathNode("phase", path3)], {
               "width": "400em",
               "height": viewBoxHeight / 1e3 + "em",
               "viewBox": "0 0 400000 " + viewBoxHeight,
@@ -33512,7 +33512,7 @@ var require_katex = __commonJS({
         var _environments = {};
         function defineEnvironment(_ref) {
           var type = _ref.type, names = _ref.names, props = _ref.props, handler = _ref.handler, htmlBuilder2 = _ref.htmlBuilder, mathmlBuilder2 = _ref.mathmlBuilder;
-          var data = {
+          var data2 = {
             type,
             numArgs: props.numArgs || 0,
             allowedInText: false,
@@ -33520,7 +33520,7 @@ var require_katex = __commonJS({
             handler
           };
           for (var i2 = 0; i2 < names.length; ++i2) {
-            _environments[names[i2]] = data;
+            _environments[names[i2]] = data2;
           }
           if (htmlBuilder2) {
             _htmlGroupBuilders[type] = htmlBuilder2;
@@ -33548,7 +33548,7 @@ var require_katex = __commonJS({
             throw new src_ParseError("{" + context.envName + "} can be used only in display mode.");
           }
         };
-        function parseArray(parser2, _ref, style) {
+        function parseArray(parser2, _ref, style2) {
           var hskipBeforeAndAfter = _ref.hskipBeforeAndAfter, addJot = _ref.addJot, cols = _ref.cols, arraystretch = _ref.arraystretch, colSeparationType = _ref.colSeparationType, addEqnNum = _ref.addEqnNum, singleRow = _ref.singleRow, emptySingleRow = _ref.emptySingleRow, maxNumCols = _ref.maxNumCols, leqno = _ref.leqno;
           parser2.gullet.beginGroup();
           if (!singleRow) {
@@ -33580,11 +33580,11 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               body: cell
             };
-            if (style) {
+            if (style2) {
               cell = {
                 type: "styling",
                 mode: parser2.mode,
-                style,
+                style: style2,
                 body: [cell]
               };
             }
@@ -33722,7 +33722,7 @@ var require_katex = __commonJS({
             body[r2] = outrow;
             setHLinePos(hLinesBeforeRow[r2 + 1]);
           }
-          var offset = totalHeight / 2 + options.fontMetrics().axisHeight;
+          var offset2 = totalHeight / 2 + options.fontMetrics().axisHeight;
           var colDescriptions = group.cols || [];
           var cols = [];
           var colSep;
@@ -33731,7 +33731,7 @@ var require_katex = __commonJS({
           if (group.addEqnNum) {
             for (r2 = 0; r2 < nr; ++r2) {
               var rw = body[r2];
-              var shift2 = rw.pos - offset;
+              var shift2 = rw.pos - offset2;
               var eqnTag = buildCommon.makeSpan(["eqn-num"], [], options);
               eqnTag.depth = rw.depth;
               eqnTag.height = rw.height;
@@ -33758,7 +33758,7 @@ var require_katex = __commonJS({
                 separator.style.borderRightWidth = ruleThickness + "em";
                 separator.style.borderRightStyle = lineType;
                 separator.style.margin = "0 -" + ruleThickness / 2 + "em";
-                separator.style.verticalAlign = -(totalHeight - offset) + "em";
+                separator.style.verticalAlign = -(totalHeight - offset2) + "em";
                 cols.push(separator);
               } else {
                 throw new src_ParseError("Invalid separator type: " + colDescr.separator);
@@ -33772,7 +33772,7 @@ var require_katex = __commonJS({
             }
             var sepwidth = void 0;
             if (c > 0 || group.hskipBeforeAndAfter) {
-              sepwidth = utils.deflt(colDescr.pregap, arraycolsep);
+              sepwidth = utils2.deflt(colDescr.pregap, arraycolsep);
               if (sepwidth !== 0) {
                 colSep = buildCommon.makeSpan(["arraycolsep"], []);
                 colSep.style.width = sepwidth + "em";
@@ -33786,7 +33786,7 @@ var require_katex = __commonJS({
               if (!elem) {
                 continue;
               }
-              var _shift = row.pos - offset;
+              var _shift = row.pos - offset2;
               elem.depth = row.depth;
               elem.height = row.height;
               col.push({
@@ -33802,7 +33802,7 @@ var require_katex = __commonJS({
             col = buildCommon.makeSpan(["col-align-" + (colDescr.align || "c")], [col]);
             cols.push(col);
             if (c < nc - 1 || group.hskipBeforeAndAfter) {
-              sepwidth = utils.deflt(colDescr.postgap, arraycolsep);
+              sepwidth = utils2.deflt(colDescr.postgap, arraycolsep);
               if (sepwidth !== 0) {
                 colSep = buildCommon.makeSpan(["arraycolsep"], []);
                 colSep.style.width = sepwidth + "em";
@@ -33821,7 +33821,7 @@ var require_katex = __commonJS({
             }];
             while (hlines.length > 0) {
               var hline = hlines.pop();
-              var lineShift = hline.pos - offset;
+              var lineShift = hline.pos - offset2;
               if (hline.isDashed) {
                 vListElems.push({
                   type: "elem",
@@ -34225,7 +34225,7 @@ var require_katex = __commonJS({
             numArgs: 0
           },
           handler: function handler(context) {
-            if (utils.contains(["gather", "gather*"], context.envName)) {
+            if (utils2.contains(["gather", "gather*"], context.envName)) {
               validateAmsEnvironmentContext(context);
             }
             var res = {
@@ -34401,7 +34401,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass: "m" + funcName.substr(5),
               body: ordargument(body),
-              isCharacterBox: utils.isCharacterBox(body)
+              isCharacterBox: utils2.isCharacterBox(body)
             };
           },
           htmlBuilder: mclass_htmlBuilder,
@@ -34428,7 +34428,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass: binrelClass(args[0]),
               body: ordargument(args[1]),
-              isCharacterBox: utils.isCharacterBox(args[1])
+              isCharacterBox: utils2.isCharacterBox(args[1])
             };
           }
         });
@@ -34470,7 +34470,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass,
               body: [supsub],
-              isCharacterBox: utils.isCharacterBox(supsub)
+              isCharacterBox: utils2.isCharacterBox(supsub)
             };
           },
           htmlBuilder: mclass_htmlBuilder,
@@ -34540,7 +34540,7 @@ var require_katex = __commonJS({
           handler: function handler(_ref2, args) {
             var parser2 = _ref2.parser;
             var body = args[0];
-            var isCharacterBox2 = utils.isCharacterBox(body);
+            var isCharacterBox2 = utils2.isCharacterBox(body);
             return {
               type: "mclass",
               mode: parser2.mode,
@@ -34566,11 +34566,11 @@ var require_katex = __commonJS({
             var parser2 = _ref3.parser, funcName = _ref3.funcName, breakOnTokenText = _ref3.breakOnTokenText;
             var mode = parser2.mode;
             var body = parser2.parseExpression(true, breakOnTokenText);
-            var style = "math" + funcName.slice(1);
+            var style2 = "math" + funcName.slice(1);
             return {
               type: "font",
               mode,
-              font: style,
+              font: style2,
               body: {
                 type: "ordgroup",
                 mode: parser2.mode,
@@ -34583,22 +34583,22 @@ var require_katex = __commonJS({
         });
         ;
         var adjustStyle = function adjustStyle2(size, originalStyle) {
-          var style = originalStyle;
+          var style2 = originalStyle;
           if (size === "display") {
-            style = style.id >= src_Style.SCRIPT.id ? style.text() : src_Style.DISPLAY;
-          } else if (size === "text" && style.size === src_Style.DISPLAY.size) {
-            style = src_Style.TEXT;
+            style2 = style2.id >= src_Style.SCRIPT.id ? style2.text() : src_Style.DISPLAY;
+          } else if (size === "text" && style2.size === src_Style.DISPLAY.size) {
+            style2 = src_Style.TEXT;
           } else if (size === "script") {
-            style = src_Style.SCRIPT;
+            style2 = src_Style.SCRIPT;
           } else if (size === "scriptscript") {
-            style = src_Style.SCRIPTSCRIPT;
+            style2 = src_Style.SCRIPTSCRIPT;
           }
-          return style;
+          return style2;
         };
         var genfrac_htmlBuilder = function htmlBuilder2(group, options) {
-          var style = adjustStyle(group.size, options.style);
-          var nstyle = style.fracNum();
-          var dstyle = style.fracDen();
+          var style2 = adjustStyle(group.size, options.style);
+          var nstyle = style2.fracNum();
+          var dstyle = style2.fracDen();
           var newOptions;
           newOptions = options.havingStyle(nstyle);
           var numerm = buildGroup(group.numer, newOptions, options);
@@ -34630,7 +34630,7 @@ var require_katex = __commonJS({
           var numShift;
           var clearance;
           var denomShift;
-          if (style.size === src_Style.DISPLAY.size || group.size === "display") {
+          if (style2.size === src_Style.DISPLAY.size || group.size === "display") {
             numShift = options.fontMetrics().num1;
             if (ruleWidth > 0) {
               clearance = 3 * ruleSpacing;
@@ -34693,13 +34693,13 @@ var require_katex = __commonJS({
               }]
             }, options);
           }
-          newOptions = options.havingStyle(style);
+          newOptions = options.havingStyle(style2);
           frac.height *= newOptions.sizeMultiplier / options.sizeMultiplier;
           frac.depth *= newOptions.sizeMultiplier / options.sizeMultiplier;
           var delimSize;
-          if (style.size === src_Style.DISPLAY.size) {
+          if (style2.size === src_Style.DISPLAY.size) {
             delimSize = options.fontMetrics().delim1;
-          } else if (style.size === src_Style.SCRIPTSCRIPT.size) {
+          } else if (style2.size === src_Style.SCRIPTSCRIPT.size) {
             delimSize = options.havingStyle(src_Style.SCRIPT).fontMetrics().delim2;
           } else {
             delimSize = options.fontMetrics().delim2;
@@ -34709,14 +34709,14 @@ var require_katex = __commonJS({
           if (group.leftDelim == null) {
             leftDelim = makeNullDelimiter(options, ["mopen"]);
           } else {
-            leftDelim = delimiter.customSizedDelim(group.leftDelim, delimSize, true, options.havingStyle(style), group.mode, ["mopen"]);
+            leftDelim = delimiter.customSizedDelim(group.leftDelim, delimSize, true, options.havingStyle(style2), group.mode, ["mopen"]);
           }
           if (group.continued) {
             rightDelim = buildCommon.makeSpan([]);
           } else if (group.rightDelim == null) {
             rightDelim = makeNullDelimiter(options, ["mclose"]);
           } else {
-            rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style), group.mode, ["mclose"]);
+            rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style2), group.mode, ["mclose"]);
           }
           return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options);
         };
@@ -34728,10 +34728,10 @@ var require_katex = __commonJS({
             var ruleWidth = calculateSize(group.barSize, options);
             node.setAttribute("linethickness", ruleWidth + "em");
           }
-          var style = adjustStyle(group.size, options.style);
-          if (style.size !== options.style.size) {
+          var style2 = adjustStyle(group.size, options.style);
+          if (style2.size !== options.style.size) {
             node = new mathMLTree.MathNode("mstyle", [node]);
-            var isDisplay = style.size === src_Style.DISPLAY.size ? "true" : "false";
+            var isDisplay = style2.size === src_Style.DISPLAY.size ? "true" : "false";
             node.setAttribute("displaystyle", isDisplay);
             node.setAttribute("scriptlevel", "0");
           }
@@ -35004,11 +35004,11 @@ var require_katex = __commonJS({
         });
         ;
         var horizBrace_htmlBuilder = function htmlBuilder2(grp, options) {
-          var style = options.style;
+          var style2 = options.style;
           var supSubGroup;
           var group;
           if (grp.type === "supsub") {
-            supSubGroup = grp.sup ? buildGroup(grp.sup, options.havingStyle(style.sup()), options) : buildGroup(grp.sub, options.havingStyle(style.sub()), options);
+            supSubGroup = grp.sup ? buildGroup(grp.sup, options.havingStyle(style2.sup()), options) : buildGroup(grp.sub, options.havingStyle(style2.sub()), options);
             group = assertNodeType(grp.base, "horizBrace");
           } else {
             group = assertNodeType(grp, "horizBrace");
@@ -35255,9 +35255,9 @@ var require_katex = __commonJS({
                 };
                 break;
               case "\\htmlData": {
-                var data = value.split(",");
-                for (var i2 = 0; i2 < data.length; i2++) {
-                  var keyVal = data[i2].split("=");
+                var data2 = value.split(",");
+                for (var i2 = 0; i2 < data2.length; i2++) {
+                  var keyVal = data2[i2].split("=");
                   if (keyVal.length !== 2) {
                     throw new src_ParseError("Error parsing key-value for \\htmlData");
                   }
@@ -35333,18 +35333,18 @@ var require_katex = __commonJS({
               unit: "bp"
             };
           } else {
-            var match = /([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})/.exec(str);
-            if (!match) {
+            var match2 = /([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})/.exec(str);
+            if (!match2) {
               throw new src_ParseError("Invalid size: '" + str + "' in \\includegraphics");
             }
-            var data = {
-              number: +(match[1] + match[2]),
-              unit: match[3]
+            var data2 = {
+              number: +(match2[1] + match2[2]),
+              unit: match2[3]
             };
-            if (!validUnit(data)) {
-              throw new src_ParseError("Invalid unit: '" + data.unit + "' in \\includegraphics.");
+            if (!validUnit(data2)) {
+              throw new src_ParseError("Invalid unit: '" + data2.unit + "' in \\includegraphics.");
             }
-            return data;
+            return data2;
           }
         };
         defineFunction({
@@ -35430,16 +35430,16 @@ var require_katex = __commonJS({
             if (group.width.number > 0) {
               width = calculateSize(group.width, options);
             }
-            var style = {
+            var style2 = {
               height: height + depth + "em"
             };
             if (width > 0) {
-              style.width = width + "em";
+              style2.width = width + "em";
             }
             if (depth > 0) {
-              style.verticalAlign = -depth + "em";
+              style2.verticalAlign = -depth + "em";
             }
-            var node = new Img(group.src, group.alt, style);
+            var node = new Img(group.src, group.alt, style2);
             node.height = height;
             node.depth = depth;
             return node;
@@ -35544,8 +35544,8 @@ var require_katex = __commonJS({
           mathmlBuilder: function mathmlBuilder2(group, options) {
             var node = new mathMLTree.MathNode("mpadded", [buildMathML_buildGroup(group.body, options)]);
             if (group.alignment !== "rlap") {
-              var offset = group.alignment === "llap" ? "-1" : "-0.5";
-              node.setAttribute("lspace", offset + "width");
+              var offset2 = group.alignment === "llap" ? "-1" : "-0.5";
+              node.setAttribute("lspace", offset2 + "width");
             }
             node.setAttribute("width", "0px");
             return node;
@@ -35632,20 +35632,20 @@ var require_katex = __commonJS({
           }
         });
         ;
-        var assembleSupSub = function assembleSupSub2(base2, supGroup, subGroup, options, style, slant, baseShift) {
+        var assembleSupSub = function assembleSupSub2(base2, supGroup, subGroup, options, style2, slant, baseShift) {
           base2 = buildCommon.makeSpan([], [base2]);
-          var subIsSingleCharacter = subGroup && utils.isCharacterBox(subGroup);
+          var subIsSingleCharacter = subGroup && utils2.isCharacterBox(subGroup);
           var sub;
           var sup;
           if (supGroup) {
-            var elem = buildGroup(supGroup, options.havingStyle(style.sup()), options);
+            var elem = buildGroup(supGroup, options.havingStyle(style2.sup()), options);
             sup = {
               elem,
               kern: Math.max(options.fontMetrics().bigOpSpacing1, options.fontMetrics().bigOpSpacing3 - elem.depth)
             };
           }
           if (subGroup) {
-            var _elem = buildGroup(subGroup, options.havingStyle(style.sub()), options);
+            var _elem = buildGroup(subGroup, options.havingStyle(style2.sub()), options);
             sub = {
               elem: _elem,
               kern: Math.max(options.fontMetrics().bigOpSpacing2, options.fontMetrics().bigOpSpacing4 - _elem.height)
@@ -35748,9 +35748,9 @@ var require_katex = __commonJS({
           } else {
             group = assertNodeType(grp, "op");
           }
-          var style = options.style;
+          var style2 = options.style;
           var large = false;
-          if (style.size === src_Style.DISPLAY.size && group.symbol && !utils.contains(noSuccessor, group.name)) {
+          if (style2.size === src_Style.DISPLAY.size && group.symbol && !utils2.contains(noSuccessor, group.name)) {
             large = true;
           }
           var base2;
@@ -35803,7 +35803,7 @@ var require_katex = __commonJS({
             slant = base2.italic;
           }
           if (hasLimits) {
-            return assembleSupSub(base2, supGroup, subGroup, options, style, slant, baseShift);
+            return assembleSupSub(base2, supGroup, subGroup, options, style2, slant, baseShift);
           } else {
             if (baseShift) {
               base2.style.position = "relative";
@@ -35816,7 +35816,7 @@ var require_katex = __commonJS({
           var node;
           if (group.symbol) {
             node = new MathNode("mo", [makeText(group.name, group.mode)]);
-            if (utils.contains(noSuccessor, group.name)) {
+            if (utils2.contains(noSuccessor, group.name)) {
               node.setAttribute("largeop", "false");
             }
           } else if (group.body) {
@@ -36288,7 +36288,7 @@ var require_katex = __commonJS({
           } else if (next.substr(0, 4) === "\\not") {
             thedots = "\\dotsb";
           } else if (next in src_symbols.math) {
-            if (utils.contains(["bin", "rel"], src_symbols.math[next].group)) {
+            if (utils2.contains(["bin", "rel"], src_symbols.math[next].group)) {
               thedots = "\\dotsb";
             }
           }
@@ -37087,13 +37087,13 @@ var require_katex = __commonJS({
           },
           handler: function handler(_ref, args, optArgs) {
             var parser2 = _ref.parser;
-            var index = optArgs[0];
+            var index2 = optArgs[0];
             var body = args[0];
             return {
               type: "sqrt",
               mode: parser2.mode,
               body,
-              index
+              index: index2
             };
           },
           htmlBuilder: function htmlBuilder2(group, options) {
@@ -37153,8 +37153,8 @@ var require_katex = __commonJS({
             }
           },
           mathmlBuilder: function mathmlBuilder2(group, options) {
-            var body = group.body, index = group.index;
-            return index ? new mathMLTree.MathNode("mroot", [buildMathML_buildGroup(body, options), buildMathML_buildGroup(index, options)]) : new mathMLTree.MathNode("msqrt", [buildMathML_buildGroup(body, options)]);
+            var body = group.body, index2 = group.index;
+            return index2 ? new mathMLTree.MathNode("mroot", [buildMathML_buildGroup(body, options), buildMathML_buildGroup(index2, options)]) : new mathMLTree.MathNode("msqrt", [buildMathML_buildGroup(body, options)]);
           }
         });
         ;
@@ -37175,11 +37175,11 @@ var require_katex = __commonJS({
           handler: function handler(_ref, args) {
             var breakOnTokenText = _ref.breakOnTokenText, funcName = _ref.funcName, parser2 = _ref.parser;
             var body = parser2.parseExpression(true, breakOnTokenText);
-            var style = funcName.slice(1, funcName.length - 5);
+            var style2 = funcName.slice(1, funcName.length - 5);
             return {
               type: "styling",
               mode: parser2.mode,
-              style,
+              style: style2,
               body
             };
           },
@@ -37217,7 +37217,7 @@ var require_katex = __commonJS({
             var _delegate = base2.alwaysHandleSupSub && (options.style.size === src_Style.DISPLAY.size || base2.limits);
             return _delegate ? operatorname_htmlBuilder : null;
           } else if (base2.type === "accent") {
-            return utils.isCharacterBox(base2.base) ? htmlBuilder : null;
+            return utils2.isCharacterBox(base2.base) ? htmlBuilder : null;
           } else if (base2.type === "horizBrace") {
             var isSup = !group.sub;
             return isSup === base2.isOver ? horizBrace_htmlBuilder : null;
@@ -37239,7 +37239,7 @@ var require_katex = __commonJS({
             var metrics = options.fontMetrics();
             var supShift = 0;
             var subShift = 0;
-            var isCharacterBox2 = valueBase && utils.isCharacterBox(valueBase);
+            var isCharacterBox2 = valueBase && utils2.isCharacterBox(valueBase);
             if (valueSup) {
               var newOptions = options.havingStyle(options.style.sup());
               supm = buildGroup(valueSup, newOptions, options);
@@ -37766,11 +37766,11 @@ var require_katex = __commonJS({
             if (pos === input.length) {
               return new Token2("EOF", new SourceLocation(this, pos, pos));
             }
-            var match = this.tokenRegex.exec(input);
-            if (match === null || match.index !== pos) {
+            var match2 = this.tokenRegex.exec(input);
+            if (match2 === null || match2.index !== pos) {
               throw new src_ParseError("Unexpected character: '" + input[pos] + "'", new Token2(input[pos], new SourceLocation(this, pos, pos + 1)));
             }
-            var text = match[6] || match[3] || (match[2] ? "\\ " : " ");
+            var text = match2[6] || match2[3] || (match2[2] ? "\\ " : " ");
             if (this.catcodes[text] === 14) {
               var nlIndex = input.indexOf("\n", this.tokenRegex.lastIndex);
               if (nlIndex === -1) {
@@ -37820,17 +37820,17 @@ var require_katex = __commonJS({
               }
             }
           };
-          _proto.has = function has(name2) {
+          _proto.has = function has2(name2) {
             return this.current.hasOwnProperty(name2) || this.builtins.hasOwnProperty(name2);
           };
-          _proto.get = function get(name2) {
+          _proto.get = function get3(name2) {
             if (this.current.hasOwnProperty(name2)) {
               return this.current[name2];
             } else {
               return this.builtins[name2];
             }
           };
-          _proto.set = function set(name2, value, global2) {
+          _proto.set = function set3(name2, value, global2) {
             if (global2 === void 0) {
               global2 = false;
             }
@@ -37946,7 +37946,7 @@ var require_katex = __commonJS({
             var start2 = this.future();
             var tok;
             var depth = 0;
-            var match = 0;
+            var match2 = 0;
             do {
               tok = this.popToken();
               tokens.push(tok);
@@ -37958,17 +37958,17 @@ var require_katex = __commonJS({
                   throw new src_ParseError("Extra }", tok);
                 }
               } else if (tok.text === "EOF") {
-                throw new src_ParseError("Unexpected end of input in a macro argument, expected '" + (delims && isDelimited ? delims[match] : "}") + "'", tok);
+                throw new src_ParseError("Unexpected end of input in a macro argument, expected '" + (delims && isDelimited ? delims[match2] : "}") + "'", tok);
               }
               if (delims && isDelimited) {
-                if ((depth === 0 || depth === 1 && delims[match] === "{") && tok.text === delims[match]) {
-                  ++match;
-                  if (match === delims.length) {
-                    tokens.splice(-match, match);
+                if ((depth === 0 || depth === 1 && delims[match2] === "{") && tok.text === delims[match2]) {
+                  ++match2;
+                  if (match2 === delims.length) {
+                    tokens.splice(-match2, match2);
                     break;
                   }
                 } else {
-                  match = 0;
+                  match2 = 0;
                 }
               }
             } while (depth !== 0 || isDelimited);
@@ -38878,11 +38878,11 @@ var require_katex = __commonJS({
             if (res == null) {
               return null;
             }
-            var match = /^(#[a-f0-9]{3}|#?[a-f0-9]{6}|[a-z]+)$/i.exec(res.text);
-            if (!match) {
+            var match2 = /^(#[a-f0-9]{3}|#?[a-f0-9]{6}|[a-z]+)$/i.exec(res.text);
+            if (!match2) {
               throw new src_ParseError("Invalid color: '" + res.text + "'", res);
             }
-            var color = match[0];
+            var color = match2[0];
             if (/^[0-9a-f]{6}$/i.test(color)) {
               color = "#" + color;
             }
@@ -38908,21 +38908,21 @@ var require_katex = __commonJS({
               res.text = "0pt";
               isBlank = true;
             }
-            var match = /([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})/.exec(res.text);
-            if (!match) {
+            var match2 = /([-+]?) *(\d+(?:\.\d*)?|\.\d+) *([a-z]{2})/.exec(res.text);
+            if (!match2) {
               throw new src_ParseError("Invalid size: '" + res.text + "'", res);
             }
-            var data = {
-              number: +(match[1] + match[2]),
-              unit: match[3]
+            var data2 = {
+              number: +(match2[1] + match2[2]),
+              unit: match2[3]
             };
-            if (!validUnit(data)) {
-              throw new src_ParseError("Invalid unit: '" + data.unit + "'", res);
+            if (!validUnit(data2)) {
+              throw new src_ParseError("Invalid unit: '" + data2.unit + "'", res);
             }
             return {
               type: "size",
               mode: this.mode,
-              value: data,
+              value: data2,
               isBlank
             };
           };
@@ -39059,9 +39059,9 @@ var require_katex = __commonJS({
               }
               text = unicodeSymbols[text[0]] + text.substr(1);
             }
-            var match = combiningDiacriticalMarksEndRegex.exec(text);
-            if (match) {
-              text = text.substring(0, match.index);
+            var match2 = combiningDiacriticalMarksEndRegex.exec(text);
+            if (match2) {
+              text = text.substring(0, match2.index);
               if (text === "i") {
                 text = "\u0131";
               } else if (text === "j") {
@@ -39112,9 +39112,9 @@ var require_katex = __commonJS({
               return null;
             }
             this.consume();
-            if (match) {
-              for (var i2 = 0; i2 < match[0].length; i2++) {
-                var accent2 = match[0][i2];
+            if (match2) {
+              for (var i2 = 0; i2 < match2[0].length; i2++) {
+                var accent2 = match2[0][i2];
                 if (!unicodeAccents[accent2]) {
                   throw new src_ParseError("Unknown accent ' " + accent2 + "'", nucleus);
                 }
@@ -39241,6 +39241,1272 @@ var require_katex = __commonJS({
   }
 });
 
+// node_modules/reactex/node_modules/react-is/cjs/react-is.development.js
+var require_react_is_development = __commonJS({
+  "node_modules/reactex/node_modules/react-is/cjs/react-is.development.js"(exports) {
+    "use strict";
+    if (true) {
+      (function() {
+        "use strict";
+        var hasSymbol = typeof Symbol === "function" && Symbol.for;
+        var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for("react.element") : 60103;
+        var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for("react.portal") : 60106;
+        var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for("react.fragment") : 60107;
+        var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for("react.strict_mode") : 60108;
+        var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for("react.profiler") : 60114;
+        var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for("react.provider") : 60109;
+        var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for("react.context") : 60110;
+        var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for("react.async_mode") : 60111;
+        var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for("react.concurrent_mode") : 60111;
+        var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for("react.forward_ref") : 60112;
+        var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for("react.suspense") : 60113;
+        var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for("react.suspense_list") : 60120;
+        var REACT_MEMO_TYPE = hasSymbol ? Symbol.for("react.memo") : 60115;
+        var REACT_LAZY_TYPE = hasSymbol ? Symbol.for("react.lazy") : 60116;
+        var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for("react.block") : 60121;
+        var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for("react.fundamental") : 60117;
+        var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for("react.responder") : 60118;
+        var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for("react.scope") : 60119;
+        function isValidElementType(type) {
+          return typeof type === "string" || typeof type === "function" || type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === "object" && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
+        }
+        function typeOf(object) {
+          if (typeof object === "object" && object !== null) {
+            var $$typeof = object.$$typeof;
+            switch ($$typeof) {
+              case REACT_ELEMENT_TYPE:
+                var type = object.type;
+                switch (type) {
+                  case REACT_ASYNC_MODE_TYPE:
+                  case REACT_CONCURRENT_MODE_TYPE:
+                  case REACT_FRAGMENT_TYPE:
+                  case REACT_PROFILER_TYPE:
+                  case REACT_STRICT_MODE_TYPE:
+                  case REACT_SUSPENSE_TYPE:
+                    return type;
+                  default:
+                    var $$typeofType = type && type.$$typeof;
+                    switch ($$typeofType) {
+                      case REACT_CONTEXT_TYPE:
+                      case REACT_FORWARD_REF_TYPE:
+                      case REACT_LAZY_TYPE:
+                      case REACT_MEMO_TYPE:
+                      case REACT_PROVIDER_TYPE:
+                        return $$typeofType;
+                      default:
+                        return $$typeof;
+                    }
+                }
+              case REACT_PORTAL_TYPE:
+                return $$typeof;
+            }
+          }
+          return void 0;
+        }
+        var AsyncMode = REACT_ASYNC_MODE_TYPE;
+        var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
+        var ContextConsumer = REACT_CONTEXT_TYPE;
+        var ContextProvider = REACT_PROVIDER_TYPE;
+        var Element2 = REACT_ELEMENT_TYPE;
+        var ForwardRef = REACT_FORWARD_REF_TYPE;
+        var Fragment2 = REACT_FRAGMENT_TYPE;
+        var Lazy = REACT_LAZY_TYPE;
+        var Memo = REACT_MEMO_TYPE;
+        var Portal2 = REACT_PORTAL_TYPE;
+        var Profiler = REACT_PROFILER_TYPE;
+        var StrictMode = REACT_STRICT_MODE_TYPE;
+        var Suspense = REACT_SUSPENSE_TYPE;
+        var hasWarnedAboutDeprecatedIsAsyncMode = false;
+        function isAsyncMode(object) {
+          {
+            if (!hasWarnedAboutDeprecatedIsAsyncMode) {
+              hasWarnedAboutDeprecatedIsAsyncMode = true;
+              console["warn"]("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 17+. Update your code to use ReactIs.isConcurrentMode() instead. It has the exact same API.");
+            }
+          }
+          return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
+        }
+        function isConcurrentMode(object) {
+          return typeOf(object) === REACT_CONCURRENT_MODE_TYPE;
+        }
+        function isContextConsumer(object) {
+          return typeOf(object) === REACT_CONTEXT_TYPE;
+        }
+        function isContextProvider(object) {
+          return typeOf(object) === REACT_PROVIDER_TYPE;
+        }
+        function isElement(object) {
+          return typeof object === "object" && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+        }
+        function isForwardRef(object) {
+          return typeOf(object) === REACT_FORWARD_REF_TYPE;
+        }
+        function isFragment(object) {
+          return typeOf(object) === REACT_FRAGMENT_TYPE;
+        }
+        function isLazy(object) {
+          return typeOf(object) === REACT_LAZY_TYPE;
+        }
+        function isMemo2(object) {
+          return typeOf(object) === REACT_MEMO_TYPE;
+        }
+        function isPortal(object) {
+          return typeOf(object) === REACT_PORTAL_TYPE;
+        }
+        function isProfiler(object) {
+          return typeOf(object) === REACT_PROFILER_TYPE;
+        }
+        function isStrictMode(object) {
+          return typeOf(object) === REACT_STRICT_MODE_TYPE;
+        }
+        function isSuspense(object) {
+          return typeOf(object) === REACT_SUSPENSE_TYPE;
+        }
+        exports.AsyncMode = AsyncMode;
+        exports.ConcurrentMode = ConcurrentMode;
+        exports.ContextConsumer = ContextConsumer;
+        exports.ContextProvider = ContextProvider;
+        exports.Element = Element2;
+        exports.ForwardRef = ForwardRef;
+        exports.Fragment = Fragment2;
+        exports.Lazy = Lazy;
+        exports.Memo = Memo;
+        exports.Portal = Portal2;
+        exports.Profiler = Profiler;
+        exports.StrictMode = StrictMode;
+        exports.Suspense = Suspense;
+        exports.isAsyncMode = isAsyncMode;
+        exports.isConcurrentMode = isConcurrentMode;
+        exports.isContextConsumer = isContextConsumer;
+        exports.isContextProvider = isContextProvider;
+        exports.isElement = isElement;
+        exports.isForwardRef = isForwardRef;
+        exports.isFragment = isFragment;
+        exports.isLazy = isLazy;
+        exports.isMemo = isMemo2;
+        exports.isPortal = isPortal;
+        exports.isProfiler = isProfiler;
+        exports.isStrictMode = isStrictMode;
+        exports.isSuspense = isSuspense;
+        exports.isValidElementType = isValidElementType;
+        exports.typeOf = typeOf;
+      })();
+    }
+  }
+});
+
+// node_modules/reactex/node_modules/react-is/index.js
+var require_react_is = __commonJS({
+  "node_modules/reactex/node_modules/react-is/index.js"(exports, module) {
+    "use strict";
+    if (false) {
+      module.exports = null;
+    } else {
+      module.exports = require_react_is_development();
+    }
+  }
+});
+
+// node_modules/reactex/node_modules/object-assign/index.js
+var require_object_assign2 = __commonJS({
+  "node_modules/reactex/node_modules/object-assign/index.js"(exports, module) {
+    "use strict";
+    var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+    var hasOwnProperty2 = Object.prototype.hasOwnProperty;
+    var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+    function toObject2(val) {
+      if (val === null || val === void 0) {
+        throw new TypeError("Object.assign cannot be called with null or undefined");
+      }
+      return Object(val);
+    }
+    function shouldUseNative() {
+      try {
+        if (!Object.assign) {
+          return false;
+        }
+        var test1 = new String("abc");
+        test1[5] = "de";
+        if (Object.getOwnPropertyNames(test1)[0] === "5") {
+          return false;
+        }
+        var test2 = {};
+        for (var i = 0; i < 10; i++) {
+          test2["_" + String.fromCharCode(i)] = i;
+        }
+        var order2 = Object.getOwnPropertyNames(test2).map(function(n) {
+          return test2[n];
+        });
+        if (order2.join("") !== "0123456789") {
+          return false;
+        }
+        var test3 = {};
+        "abcdefghijklmnopqrst".split("").forEach(function(letter) {
+          test3[letter] = letter;
+        });
+        if (Object.keys(Object.assign({}, test3)).join("") !== "abcdefghijklmnopqrst") {
+          return false;
+        }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+    module.exports = shouldUseNative() ? Object.assign : function(target, source) {
+      var from;
+      var to = toObject2(target);
+      var symbols;
+      for (var s = 1; s < arguments.length; s++) {
+        from = Object(arguments[s]);
+        for (var key in from) {
+          if (hasOwnProperty2.call(from, key)) {
+            to[key] = from[key];
+          }
+        }
+        if (getOwnPropertySymbols) {
+          symbols = getOwnPropertySymbols(from);
+          for (var i = 0; i < symbols.length; i++) {
+            if (propIsEnumerable.call(from, symbols[i])) {
+              to[symbols[i]] = from[symbols[i]];
+            }
+          }
+        }
+      }
+      return to;
+    };
+  }
+});
+
+// node_modules/reactex/node_modules/prop-types/lib/ReactPropTypesSecret.js
+var require_ReactPropTypesSecret = __commonJS({
+  "node_modules/reactex/node_modules/prop-types/lib/ReactPropTypesSecret.js"(exports, module) {
+    "use strict";
+    var ReactPropTypesSecret = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
+    module.exports = ReactPropTypesSecret;
+  }
+});
+
+// node_modules/reactex/node_modules/prop-types/checkPropTypes.js
+var require_checkPropTypes = __commonJS({
+  "node_modules/reactex/node_modules/prop-types/checkPropTypes.js"(exports, module) {
+    "use strict";
+    var printWarning = function() {
+    };
+    if (true) {
+      ReactPropTypesSecret = require_ReactPropTypesSecret();
+      loggedTypeFailures = {};
+      has2 = Function.call.bind(Object.prototype.hasOwnProperty);
+      printWarning = function(text) {
+        var message = "Warning: " + text;
+        if (typeof console !== "undefined") {
+          console.error(message);
+        }
+        try {
+          throw new Error(message);
+        } catch (x) {
+        }
+      };
+    }
+    var ReactPropTypesSecret;
+    var loggedTypeFailures;
+    var has2;
+    function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+      if (true) {
+        for (var typeSpecName in typeSpecs) {
+          if (has2(typeSpecs, typeSpecName)) {
+            var error;
+            try {
+              if (typeof typeSpecs[typeSpecName] !== "function") {
+                var err = Error((componentName || "React class") + ": " + location + " type `" + typeSpecName + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof typeSpecs[typeSpecName] + "`.");
+                err.name = "Invariant Violation";
+                throw err;
+              }
+              error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
+            } catch (ex) {
+              error = ex;
+            }
+            if (error && !(error instanceof Error)) {
+              printWarning((componentName || "React class") + ": type specification of " + location + " `" + typeSpecName + "` is invalid; the type checker function must return `null` or an `Error` but returned a " + typeof error + ". You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).");
+            }
+            if (error instanceof Error && !(error.message in loggedTypeFailures)) {
+              loggedTypeFailures[error.message] = true;
+              var stack = getStack ? getStack() : "";
+              printWarning("Failed " + location + " type: " + error.message + (stack != null ? stack : ""));
+            }
+          }
+        }
+      }
+    }
+    checkPropTypes.resetWarningCache = function() {
+      if (true) {
+        loggedTypeFailures = {};
+      }
+    };
+    module.exports = checkPropTypes;
+  }
+});
+
+// node_modules/reactex/node_modules/prop-types/factoryWithTypeCheckers.js
+var require_factoryWithTypeCheckers = __commonJS({
+  "node_modules/reactex/node_modules/prop-types/factoryWithTypeCheckers.js"(exports, module) {
+    "use strict";
+    var ReactIs = require_react_is();
+    var assign = require_object_assign2();
+    var ReactPropTypesSecret = require_ReactPropTypesSecret();
+    var checkPropTypes = require_checkPropTypes();
+    var has2 = Function.call.bind(Object.prototype.hasOwnProperty);
+    var printWarning = function() {
+    };
+    if (true) {
+      printWarning = function(text) {
+        var message = "Warning: " + text;
+        if (typeof console !== "undefined") {
+          console.error(message);
+        }
+        try {
+          throw new Error(message);
+        } catch (x) {
+        }
+      };
+    }
+    function emptyFunctionThatReturnsNull() {
+      return null;
+    }
+    module.exports = function(isValidElement, throwOnDirectAccess) {
+      var ITERATOR_SYMBOL = typeof Symbol === "function" && Symbol.iterator;
+      var FAUX_ITERATOR_SYMBOL = "@@iterator";
+      function getIteratorFn(maybeIterable) {
+        var iteratorFn = maybeIterable && (ITERATOR_SYMBOL && maybeIterable[ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL]);
+        if (typeof iteratorFn === "function") {
+          return iteratorFn;
+        }
+      }
+      var ANONYMOUS = "<<anonymous>>";
+      var ReactPropTypes = {
+        array: createPrimitiveTypeChecker("array"),
+        bool: createPrimitiveTypeChecker("boolean"),
+        func: createPrimitiveTypeChecker("function"),
+        number: createPrimitiveTypeChecker("number"),
+        object: createPrimitiveTypeChecker("object"),
+        string: createPrimitiveTypeChecker("string"),
+        symbol: createPrimitiveTypeChecker("symbol"),
+        any: createAnyTypeChecker(),
+        arrayOf: createArrayOfTypeChecker,
+        element: createElementTypeChecker(),
+        elementType: createElementTypeTypeChecker(),
+        instanceOf: createInstanceTypeChecker,
+        node: createNodeChecker(),
+        objectOf: createObjectOfTypeChecker,
+        oneOf: createEnumTypeChecker,
+        oneOfType: createUnionTypeChecker,
+        shape: createShapeTypeChecker,
+        exact: createStrictShapeTypeChecker
+      };
+      function is(x, y) {
+        if (x === y) {
+          return x !== 0 || 1 / x === 1 / y;
+        } else {
+          return x !== x && y !== y;
+        }
+      }
+      function PropTypeError(message) {
+        this.message = message;
+        this.stack = "";
+      }
+      PropTypeError.prototype = Error.prototype;
+      function createChainableTypeChecker(validate) {
+        if (true) {
+          var manualPropTypeCallCache = {};
+          var manualPropTypeWarningCount = 0;
+        }
+        function checkType(isRequired, props, propName, componentName, location, propFullName, secret) {
+          componentName = componentName || ANONYMOUS;
+          propFullName = propFullName || propName;
+          if (secret !== ReactPropTypesSecret) {
+            if (throwOnDirectAccess) {
+              var err = new Error("Calling PropTypes validators directly is not supported by the `prop-types` package. Use `PropTypes.checkPropTypes()` to call them. Read more at http://fb.me/use-check-prop-types");
+              err.name = "Invariant Violation";
+              throw err;
+            } else if (typeof console !== "undefined") {
+              var cacheKey = componentName + ":" + propName;
+              if (!manualPropTypeCallCache[cacheKey] && manualPropTypeWarningCount < 3) {
+                printWarning("You are manually calling a React.PropTypes validation function for the `" + propFullName + "` prop on `" + componentName + "`. This is deprecated and will throw in the standalone `prop-types` package. You may be seeing this warning due to a third-party PropTypes library. See https://fb.me/react-warning-dont-call-proptypes for details.");
+                manualPropTypeCallCache[cacheKey] = true;
+                manualPropTypeWarningCount++;
+              }
+            }
+          }
+          if (props[propName] == null) {
+            if (isRequired) {
+              if (props[propName] === null) {
+                return new PropTypeError("The " + location + " `" + propFullName + "` is marked as required " + ("in `" + componentName + "`, but its value is `null`."));
+              }
+              return new PropTypeError("The " + location + " `" + propFullName + "` is marked as required in " + ("`" + componentName + "`, but its value is `undefined`."));
+            }
+            return null;
+          } else {
+            return validate(props, propName, componentName, location, propFullName);
+          }
+        }
+        var chainedCheckType = checkType.bind(null, false);
+        chainedCheckType.isRequired = checkType.bind(null, true);
+        return chainedCheckType;
+      }
+      function createPrimitiveTypeChecker(expectedType) {
+        function validate(props, propName, componentName, location, propFullName, secret) {
+          var propValue = props[propName];
+          var propType = getPropType(propValue);
+          if (propType !== expectedType) {
+            var preciseType = getPreciseType(propValue);
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + preciseType + "` supplied to `" + componentName + "`, expected ") + ("`" + expectedType + "`."));
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createAnyTypeChecker() {
+        return createChainableTypeChecker(emptyFunctionThatReturnsNull);
+      }
+      function createArrayOfTypeChecker(typeChecker) {
+        function validate(props, propName, componentName, location, propFullName) {
+          if (typeof typeChecker !== "function") {
+            return new PropTypeError("Property `" + propFullName + "` of component `" + componentName + "` has invalid PropType notation inside arrayOf.");
+          }
+          var propValue = props[propName];
+          if (!Array.isArray(propValue)) {
+            var propType = getPropType(propValue);
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + propType + "` supplied to `" + componentName + "`, expected an array."));
+          }
+          for (var i = 0; i < propValue.length; i++) {
+            var error = typeChecker(propValue, i, componentName, location, propFullName + "[" + i + "]", ReactPropTypesSecret);
+            if (error instanceof Error) {
+              return error;
+            }
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createElementTypeChecker() {
+        function validate(props, propName, componentName, location, propFullName) {
+          var propValue = props[propName];
+          if (!isValidElement(propValue)) {
+            var propType = getPropType(propValue);
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + propType + "` supplied to `" + componentName + "`, expected a single ReactElement."));
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createElementTypeTypeChecker() {
+        function validate(props, propName, componentName, location, propFullName) {
+          var propValue = props[propName];
+          if (!ReactIs.isValidElementType(propValue)) {
+            var propType = getPropType(propValue);
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + propType + "` supplied to `" + componentName + "`, expected a single ReactElement type."));
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createInstanceTypeChecker(expectedClass) {
+        function validate(props, propName, componentName, location, propFullName) {
+          if (!(props[propName] instanceof expectedClass)) {
+            var expectedClassName = expectedClass.name || ANONYMOUS;
+            var actualClassName = getClassName(props[propName]);
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + actualClassName + "` supplied to `" + componentName + "`, expected ") + ("instance of `" + expectedClassName + "`."));
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createEnumTypeChecker(expectedValues) {
+        if (!Array.isArray(expectedValues)) {
+          if (true) {
+            if (arguments.length > 1) {
+              printWarning("Invalid arguments supplied to oneOf, expected an array, got " + arguments.length + " arguments. A common mistake is to write oneOf(x, y, z) instead of oneOf([x, y, z]).");
+            } else {
+              printWarning("Invalid argument supplied to oneOf, expected an array.");
+            }
+          }
+          return emptyFunctionThatReturnsNull;
+        }
+        function validate(props, propName, componentName, location, propFullName) {
+          var propValue = props[propName];
+          for (var i = 0; i < expectedValues.length; i++) {
+            if (is(propValue, expectedValues[i])) {
+              return null;
+            }
+          }
+          var valuesString = JSON.stringify(expectedValues, function replacer(key, value) {
+            var type = getPreciseType(value);
+            if (type === "symbol") {
+              return String(value);
+            }
+            return value;
+          });
+          return new PropTypeError("Invalid " + location + " `" + propFullName + "` of value `" + String(propValue) + "` " + ("supplied to `" + componentName + "`, expected one of " + valuesString + "."));
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createObjectOfTypeChecker(typeChecker) {
+        function validate(props, propName, componentName, location, propFullName) {
+          if (typeof typeChecker !== "function") {
+            return new PropTypeError("Property `" + propFullName + "` of component `" + componentName + "` has invalid PropType notation inside objectOf.");
+          }
+          var propValue = props[propName];
+          var propType = getPropType(propValue);
+          if (propType !== "object") {
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type " + ("`" + propType + "` supplied to `" + componentName + "`, expected an object."));
+          }
+          for (var key in propValue) {
+            if (has2(propValue, key)) {
+              var error = typeChecker(propValue, key, componentName, location, propFullName + "." + key, ReactPropTypesSecret);
+              if (error instanceof Error) {
+                return error;
+              }
+            }
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createUnionTypeChecker(arrayOfTypeCheckers) {
+        if (!Array.isArray(arrayOfTypeCheckers)) {
+          true ? printWarning("Invalid argument supplied to oneOfType, expected an instance of array.") : void 0;
+          return emptyFunctionThatReturnsNull;
+        }
+        for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
+          var checker = arrayOfTypeCheckers[i];
+          if (typeof checker !== "function") {
+            printWarning("Invalid argument supplied to oneOfType. Expected an array of check functions, but received " + getPostfixForTypeWarning(checker) + " at index " + i + ".");
+            return emptyFunctionThatReturnsNull;
+          }
+        }
+        function validate(props, propName, componentName, location, propFullName) {
+          for (var i2 = 0; i2 < arrayOfTypeCheckers.length; i2++) {
+            var checker2 = arrayOfTypeCheckers[i2];
+            if (checker2(props, propName, componentName, location, propFullName, ReactPropTypesSecret) == null) {
+              return null;
+            }
+          }
+          return new PropTypeError("Invalid " + location + " `" + propFullName + "` supplied to " + ("`" + componentName + "`."));
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createNodeChecker() {
+        function validate(props, propName, componentName, location, propFullName) {
+          if (!isNode(props[propName])) {
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` supplied to " + ("`" + componentName + "`, expected a ReactNode."));
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createShapeTypeChecker(shapeTypes) {
+        function validate(props, propName, componentName, location, propFullName) {
+          var propValue = props[propName];
+          var propType = getPropType(propValue);
+          if (propType !== "object") {
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type `" + propType + "` " + ("supplied to `" + componentName + "`, expected `object`."));
+          }
+          for (var key in shapeTypes) {
+            var checker = shapeTypes[key];
+            if (!checker) {
+              continue;
+            }
+            var error = checker(propValue, key, componentName, location, propFullName + "." + key, ReactPropTypesSecret);
+            if (error) {
+              return error;
+            }
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function createStrictShapeTypeChecker(shapeTypes) {
+        function validate(props, propName, componentName, location, propFullName) {
+          var propValue = props[propName];
+          var propType = getPropType(propValue);
+          if (propType !== "object") {
+            return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type `" + propType + "` " + ("supplied to `" + componentName + "`, expected `object`."));
+          }
+          var allKeys = assign({}, props[propName], shapeTypes);
+          for (var key in allKeys) {
+            var checker = shapeTypes[key];
+            if (!checker) {
+              return new PropTypeError("Invalid " + location + " `" + propFullName + "` key `" + key + "` supplied to `" + componentName + "`.\nBad object: " + JSON.stringify(props[propName], null, "  ") + "\nValid keys: " + JSON.stringify(Object.keys(shapeTypes), null, "  "));
+            }
+            var error = checker(propValue, key, componentName, location, propFullName + "." + key, ReactPropTypesSecret);
+            if (error) {
+              return error;
+            }
+          }
+          return null;
+        }
+        return createChainableTypeChecker(validate);
+      }
+      function isNode(propValue) {
+        switch (typeof propValue) {
+          case "number":
+          case "string":
+          case "undefined":
+            return true;
+          case "boolean":
+            return !propValue;
+          case "object":
+            if (Array.isArray(propValue)) {
+              return propValue.every(isNode);
+            }
+            if (propValue === null || isValidElement(propValue)) {
+              return true;
+            }
+            var iteratorFn = getIteratorFn(propValue);
+            if (iteratorFn) {
+              var iterator = iteratorFn.call(propValue);
+              var step;
+              if (iteratorFn !== propValue.entries) {
+                while (!(step = iterator.next()).done) {
+                  if (!isNode(step.value)) {
+                    return false;
+                  }
+                }
+              } else {
+                while (!(step = iterator.next()).done) {
+                  var entry = step.value;
+                  if (entry) {
+                    if (!isNode(entry[1])) {
+                      return false;
+                    }
+                  }
+                }
+              }
+            } else {
+              return false;
+            }
+            return true;
+          default:
+            return false;
+        }
+      }
+      function isSymbol(propType, propValue) {
+        if (propType === "symbol") {
+          return true;
+        }
+        if (!propValue) {
+          return false;
+        }
+        if (propValue["@@toStringTag"] === "Symbol") {
+          return true;
+        }
+        if (typeof Symbol === "function" && propValue instanceof Symbol) {
+          return true;
+        }
+        return false;
+      }
+      function getPropType(propValue) {
+        var propType = typeof propValue;
+        if (Array.isArray(propValue)) {
+          return "array";
+        }
+        if (propValue instanceof RegExp) {
+          return "object";
+        }
+        if (isSymbol(propType, propValue)) {
+          return "symbol";
+        }
+        return propType;
+      }
+      function getPreciseType(propValue) {
+        if (typeof propValue === "undefined" || propValue === null) {
+          return "" + propValue;
+        }
+        var propType = getPropType(propValue);
+        if (propType === "object") {
+          if (propValue instanceof Date) {
+            return "date";
+          } else if (propValue instanceof RegExp) {
+            return "regexp";
+          }
+        }
+        return propType;
+      }
+      function getPostfixForTypeWarning(value) {
+        var type = getPreciseType(value);
+        switch (type) {
+          case "array":
+          case "object":
+            return "an " + type;
+          case "boolean":
+          case "date":
+          case "regexp":
+            return "a " + type;
+          default:
+            return type;
+        }
+      }
+      function getClassName(propValue) {
+        if (!propValue.constructor || !propValue.constructor.name) {
+          return ANONYMOUS;
+        }
+        return propValue.constructor.name;
+      }
+      ReactPropTypes.checkPropTypes = checkPropTypes;
+      ReactPropTypes.resetWarningCache = checkPropTypes.resetWarningCache;
+      ReactPropTypes.PropTypes = ReactPropTypes;
+      return ReactPropTypes;
+    };
+  }
+});
+
+// node_modules/reactex/node_modules/prop-types/index.js
+var require_prop_types = __commonJS({
+  "node_modules/reactex/node_modules/prop-types/index.js"(exports, module) {
+    if (true) {
+      ReactIs = require_react_is();
+      throwOnDirectAccess = true;
+      module.exports = require_factoryWithTypeCheckers()(ReactIs.isElement, throwOnDirectAccess);
+    } else {
+      module.exports = null();
+    }
+    var ReactIs;
+    var throwOnDirectAccess;
+  }
+});
+
+// node_modules/reactex/node_modules/classnames/index.js
+var require_classnames = __commonJS({
+  "node_modules/reactex/node_modules/classnames/index.js"(exports, module) {
+    (function() {
+      "use strict";
+      var hasOwn2 = {}.hasOwnProperty;
+      function classNames6() {
+        var classes = [];
+        for (var i = 0; i < arguments.length; i++) {
+          var arg = arguments[i];
+          if (!arg)
+            continue;
+          var argType = typeof arg;
+          if (argType === "string" || argType === "number") {
+            classes.push(arg);
+          } else if (Array.isArray(arg)) {
+            if (arg.length) {
+              var inner = classNames6.apply(null, arg);
+              if (inner) {
+                classes.push(inner);
+              }
+            }
+          } else if (argType === "object") {
+            if (arg.toString === Object.prototype.toString) {
+              for (var key in arg) {
+                if (hasOwn2.call(arg, key) && arg[key]) {
+                  classes.push(key);
+                }
+              }
+            } else {
+              classes.push(arg.toString());
+            }
+          }
+        }
+        return classes.join(" ");
+      }
+      if (typeof module !== "undefined" && module.exports) {
+        classNames6.default = classNames6;
+        module.exports = classNames6;
+      } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
+        define("classnames", [], function() {
+          return classNames6;
+        });
+      } else {
+        window.classNames = classNames6;
+      }
+    })();
+  }
+});
+
+// node_modules/reactex/node_modules/regenerator-runtime/runtime.js
+var require_runtime = __commonJS({
+  "node_modules/reactex/node_modules/regenerator-runtime/runtime.js"(exports, module) {
+    var runtime = function(exports2) {
+      "use strict";
+      var Op = Object.prototype;
+      var hasOwn2 = Op.hasOwnProperty;
+      var undefined2;
+      var $Symbol = typeof Symbol === "function" ? Symbol : {};
+      var iteratorSymbol = $Symbol.iterator || "@@iterator";
+      var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+      var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+      function define2(obj, key, value) {
+        Object.defineProperty(obj, key, {
+          value,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
+        return obj[key];
+      }
+      try {
+        define2({}, "");
+      } catch (err) {
+        define2 = function(obj, key, value) {
+          return obj[key] = value;
+        };
+      }
+      function wrap(innerFn, outerFn, self2, tryLocsList) {
+        var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+        var generator = Object.create(protoGenerator.prototype);
+        var context = new Context(tryLocsList || []);
+        generator._invoke = makeInvokeMethod(innerFn, self2, context);
+        return generator;
+      }
+      exports2.wrap = wrap;
+      function tryCatch(fn, obj, arg) {
+        try {
+          return { type: "normal", arg: fn.call(obj, arg) };
+        } catch (err) {
+          return { type: "throw", arg: err };
+        }
+      }
+      var GenStateSuspendedStart = "suspendedStart";
+      var GenStateSuspendedYield = "suspendedYield";
+      var GenStateExecuting = "executing";
+      var GenStateCompleted = "completed";
+      var ContinueSentinel = {};
+      function Generator() {
+      }
+      function GeneratorFunction() {
+      }
+      function GeneratorFunctionPrototype() {
+      }
+      var IteratorPrototype = {};
+      define2(IteratorPrototype, iteratorSymbol, function() {
+        return this;
+      });
+      var getProto = Object.getPrototypeOf;
+      var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+      if (NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn2.call(NativeIteratorPrototype, iteratorSymbol)) {
+        IteratorPrototype = NativeIteratorPrototype;
+      }
+      var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
+      GeneratorFunction.prototype = GeneratorFunctionPrototype;
+      define2(Gp, "constructor", GeneratorFunctionPrototype);
+      define2(GeneratorFunctionPrototype, "constructor", GeneratorFunction);
+      GeneratorFunction.displayName = define2(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction");
+      function defineIteratorMethods(prototype) {
+        ["next", "throw", "return"].forEach(function(method) {
+          define2(prototype, method, function(arg) {
+            return this._invoke(method, arg);
+          });
+        });
+      }
+      exports2.isGeneratorFunction = function(genFun) {
+        var ctor = typeof genFun === "function" && genFun.constructor;
+        return ctor ? ctor === GeneratorFunction || (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
+      };
+      exports2.mark = function(genFun) {
+        if (Object.setPrototypeOf) {
+          Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+        } else {
+          genFun.__proto__ = GeneratorFunctionPrototype;
+          define2(genFun, toStringTagSymbol, "GeneratorFunction");
+        }
+        genFun.prototype = Object.create(Gp);
+        return genFun;
+      };
+      exports2.awrap = function(arg) {
+        return { __await: arg };
+      };
+      function AsyncIterator(generator, PromiseImpl) {
+        function invoke(method, arg, resolve, reject) {
+          var record = tryCatch(generator[method], generator, arg);
+          if (record.type === "throw") {
+            reject(record.arg);
+          } else {
+            var result = record.arg;
+            var value = result.value;
+            if (value && typeof value === "object" && hasOwn2.call(value, "__await")) {
+              return PromiseImpl.resolve(value.__await).then(function(value2) {
+                invoke("next", value2, resolve, reject);
+              }, function(err) {
+                invoke("throw", err, resolve, reject);
+              });
+            }
+            return PromiseImpl.resolve(value).then(function(unwrapped) {
+              result.value = unwrapped;
+              resolve(result);
+            }, function(error) {
+              return invoke("throw", error, resolve, reject);
+            });
+          }
+        }
+        var previousPromise;
+        function enqueue(method, arg) {
+          function callInvokeWithMethodAndArg() {
+            return new PromiseImpl(function(resolve, reject) {
+              invoke(method, arg, resolve, reject);
+            });
+          }
+          return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
+        }
+        this._invoke = enqueue;
+      }
+      defineIteratorMethods(AsyncIterator.prototype);
+      define2(AsyncIterator.prototype, asyncIteratorSymbol, function() {
+        return this;
+      });
+      exports2.AsyncIterator = AsyncIterator;
+      exports2.async = function(innerFn, outerFn, self2, tryLocsList, PromiseImpl) {
+        if (PromiseImpl === void 0)
+          PromiseImpl = Promise;
+        var iter = new AsyncIterator(wrap(innerFn, outerFn, self2, tryLocsList), PromiseImpl);
+        return exports2.isGeneratorFunction(outerFn) ? iter : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+      };
+      function makeInvokeMethod(innerFn, self2, context) {
+        var state = GenStateSuspendedStart;
+        return function invoke(method, arg) {
+          if (state === GenStateExecuting) {
+            throw new Error("Generator is already running");
+          }
+          if (state === GenStateCompleted) {
+            if (method === "throw") {
+              throw arg;
+            }
+            return doneResult();
+          }
+          context.method = method;
+          context.arg = arg;
+          while (true) {
+            var delegate = context.delegate;
+            if (delegate) {
+              var delegateResult = maybeInvokeDelegate(delegate, context);
+              if (delegateResult) {
+                if (delegateResult === ContinueSentinel)
+                  continue;
+                return delegateResult;
+              }
+            }
+            if (context.method === "next") {
+              context.sent = context._sent = context.arg;
+            } else if (context.method === "throw") {
+              if (state === GenStateSuspendedStart) {
+                state = GenStateCompleted;
+                throw context.arg;
+              }
+              context.dispatchException(context.arg);
+            } else if (context.method === "return") {
+              context.abrupt("return", context.arg);
+            }
+            state = GenStateExecuting;
+            var record = tryCatch(innerFn, self2, context);
+            if (record.type === "normal") {
+              state = context.done ? GenStateCompleted : GenStateSuspendedYield;
+              if (record.arg === ContinueSentinel) {
+                continue;
+              }
+              return {
+                value: record.arg,
+                done: context.done
+              };
+            } else if (record.type === "throw") {
+              state = GenStateCompleted;
+              context.method = "throw";
+              context.arg = record.arg;
+            }
+          }
+        };
+      }
+      function maybeInvokeDelegate(delegate, context) {
+        var method = delegate.iterator[context.method];
+        if (method === undefined2) {
+          context.delegate = null;
+          if (context.method === "throw") {
+            if (delegate.iterator["return"]) {
+              context.method = "return";
+              context.arg = undefined2;
+              maybeInvokeDelegate(delegate, context);
+              if (context.method === "throw") {
+                return ContinueSentinel;
+              }
+            }
+            context.method = "throw";
+            context.arg = new TypeError("The iterator does not provide a 'throw' method");
+          }
+          return ContinueSentinel;
+        }
+        var record = tryCatch(method, delegate.iterator, context.arg);
+        if (record.type === "throw") {
+          context.method = "throw";
+          context.arg = record.arg;
+          context.delegate = null;
+          return ContinueSentinel;
+        }
+        var info = record.arg;
+        if (!info) {
+          context.method = "throw";
+          context.arg = new TypeError("iterator result is not an object");
+          context.delegate = null;
+          return ContinueSentinel;
+        }
+        if (info.done) {
+          context[delegate.resultName] = info.value;
+          context.next = delegate.nextLoc;
+          if (context.method !== "return") {
+            context.method = "next";
+            context.arg = undefined2;
+          }
+        } else {
+          return info;
+        }
+        context.delegate = null;
+        return ContinueSentinel;
+      }
+      defineIteratorMethods(Gp);
+      define2(Gp, toStringTagSymbol, "Generator");
+      define2(Gp, iteratorSymbol, function() {
+        return this;
+      });
+      define2(Gp, "toString", function() {
+        return "[object Generator]";
+      });
+      function pushTryEntry(locs) {
+        var entry = { tryLoc: locs[0] };
+        if (1 in locs) {
+          entry.catchLoc = locs[1];
+        }
+        if (2 in locs) {
+          entry.finallyLoc = locs[2];
+          entry.afterLoc = locs[3];
+        }
+        this.tryEntries.push(entry);
+      }
+      function resetTryEntry(entry) {
+        var record = entry.completion || {};
+        record.type = "normal";
+        delete record.arg;
+        entry.completion = record;
+      }
+      function Context(tryLocsList) {
+        this.tryEntries = [{ tryLoc: "root" }];
+        tryLocsList.forEach(pushTryEntry, this);
+        this.reset(true);
+      }
+      exports2.keys = function(object) {
+        var keys3 = [];
+        for (var key in object) {
+          keys3.push(key);
+        }
+        keys3.reverse();
+        return function next() {
+          while (keys3.length) {
+            var key2 = keys3.pop();
+            if (key2 in object) {
+              next.value = key2;
+              next.done = false;
+              return next;
+            }
+          }
+          next.done = true;
+          return next;
+        };
+      };
+      function values(iterable) {
+        if (iterable) {
+          var iteratorMethod = iterable[iteratorSymbol];
+          if (iteratorMethod) {
+            return iteratorMethod.call(iterable);
+          }
+          if (typeof iterable.next === "function") {
+            return iterable;
+          }
+          if (!isNaN(iterable.length)) {
+            var i = -1, next = function next2() {
+              while (++i < iterable.length) {
+                if (hasOwn2.call(iterable, i)) {
+                  next2.value = iterable[i];
+                  next2.done = false;
+                  return next2;
+                }
+              }
+              next2.value = undefined2;
+              next2.done = true;
+              return next2;
+            };
+            return next.next = next;
+          }
+        }
+        return { next: doneResult };
+      }
+      exports2.values = values;
+      function doneResult() {
+        return { value: undefined2, done: true };
+      }
+      Context.prototype = {
+        constructor: Context,
+        reset: function(skipTempReset) {
+          this.prev = 0;
+          this.next = 0;
+          this.sent = this._sent = undefined2;
+          this.done = false;
+          this.delegate = null;
+          this.method = "next";
+          this.arg = undefined2;
+          this.tryEntries.forEach(resetTryEntry);
+          if (!skipTempReset) {
+            for (var name2 in this) {
+              if (name2.charAt(0) === "t" && hasOwn2.call(this, name2) && !isNaN(+name2.slice(1))) {
+                this[name2] = undefined2;
+              }
+            }
+          }
+        },
+        stop: function() {
+          this.done = true;
+          var rootEntry = this.tryEntries[0];
+          var rootRecord = rootEntry.completion;
+          if (rootRecord.type === "throw") {
+            throw rootRecord.arg;
+          }
+          return this.rval;
+        },
+        dispatchException: function(exception) {
+          if (this.done) {
+            throw exception;
+          }
+          var context = this;
+          function handle(loc, caught) {
+            record.type = "throw";
+            record.arg = exception;
+            context.next = loc;
+            if (caught) {
+              context.method = "next";
+              context.arg = undefined2;
+            }
+            return !!caught;
+          }
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            var record = entry.completion;
+            if (entry.tryLoc === "root") {
+              return handle("end");
+            }
+            if (entry.tryLoc <= this.prev) {
+              var hasCatch = hasOwn2.call(entry, "catchLoc");
+              var hasFinally = hasOwn2.call(entry, "finallyLoc");
+              if (hasCatch && hasFinally) {
+                if (this.prev < entry.catchLoc) {
+                  return handle(entry.catchLoc, true);
+                } else if (this.prev < entry.finallyLoc) {
+                  return handle(entry.finallyLoc);
+                }
+              } else if (hasCatch) {
+                if (this.prev < entry.catchLoc) {
+                  return handle(entry.catchLoc, true);
+                }
+              } else if (hasFinally) {
+                if (this.prev < entry.finallyLoc) {
+                  return handle(entry.finallyLoc);
+                }
+              } else {
+                throw new Error("try statement without catch or finally");
+              }
+            }
+          }
+        },
+        abrupt: function(type, arg) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.tryLoc <= this.prev && hasOwn2.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
+              var finallyEntry = entry;
+              break;
+            }
+          }
+          if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
+            finallyEntry = null;
+          }
+          var record = finallyEntry ? finallyEntry.completion : {};
+          record.type = type;
+          record.arg = arg;
+          if (finallyEntry) {
+            this.method = "next";
+            this.next = finallyEntry.finallyLoc;
+            return ContinueSentinel;
+          }
+          return this.complete(record);
+        },
+        complete: function(record, afterLoc) {
+          if (record.type === "throw") {
+            throw record.arg;
+          }
+          if (record.type === "break" || record.type === "continue") {
+            this.next = record.arg;
+          } else if (record.type === "return") {
+            this.rval = this.arg = record.arg;
+            this.method = "return";
+            this.next = "end";
+          } else if (record.type === "normal" && afterLoc) {
+            this.next = afterLoc;
+          }
+          return ContinueSentinel;
+        },
+        finish: function(finallyLoc) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.finallyLoc === finallyLoc) {
+              this.complete(entry.completion, entry.afterLoc);
+              resetTryEntry(entry);
+              return ContinueSentinel;
+            }
+          }
+        },
+        "catch": function(tryLoc) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.tryLoc === tryLoc) {
+              var record = entry.completion;
+              if (record.type === "throw") {
+                var thrown = record.arg;
+                resetTryEntry(entry);
+              }
+              return thrown;
+            }
+          }
+          throw new Error("illegal catch attempt");
+        },
+        delegateYield: function(iterable, resultName, nextLoc) {
+          this.delegate = {
+            iterator: values(iterable),
+            resultName,
+            nextLoc
+          };
+          if (this.method === "next") {
+            this.arg = undefined2;
+          }
+          return ContinueSentinel;
+        }
+      };
+      return exports2;
+    }(typeof module === "object" ? module.exports : {});
+    try {
+      regeneratorRuntime = runtime;
+    } catch (accidentalStrictMode) {
+      if (typeof globalThis === "object") {
+        globalThis.regeneratorRuntime = runtime;
+      } else {
+        Function("r", "regeneratorRuntime = r")(runtime);
+      }
+    }
+  }
+});
+
+// node_modules/reactex/node_modules/@babel/runtime/regenerator/index.js
+var require_regenerator = __commonJS({
+  "node_modules/reactex/node_modules/@babel/runtime/regenerator/index.js"(exports, module) {
+    module.exports = require_runtime();
+  }
+});
+
 // node_modules/axios/lib/helpers/bind.js
 var require_bind = __commonJS({
   "node_modules/axios/lib/helpers/bind.js"(exports, module) {
@@ -39262,9 +40528,9 @@ var require_utils = __commonJS({
   "node_modules/axios/lib/utils.js"(exports, module) {
     "use strict";
     var bind = require_bind();
-    var toString = Object.prototype.toString;
-    function isArray(val) {
-      return toString.call(val) === "[object Array]";
+    var toString2 = Object.prototype.toString;
+    function isArray3(val) {
+      return toString2.call(val) === "[object Array]";
     }
     function isUndefined(val) {
       return typeof val === "undefined";
@@ -39273,7 +40539,7 @@ var require_utils = __commonJS({
       return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor) && typeof val.constructor.isBuffer === "function" && val.constructor.isBuffer(val);
     }
     function isArrayBuffer(val) {
-      return toString.call(val) === "[object ArrayBuffer]";
+      return toString2.call(val) === "[object ArrayBuffer]";
     }
     function isFormData(val) {
       return typeof FormData !== "undefined" && val instanceof FormData;
@@ -39293,30 +40559,30 @@ var require_utils = __commonJS({
     function isNumber(val) {
       return typeof val === "number";
     }
-    function isObject(val) {
+    function isObject2(val) {
       return val !== null && typeof val === "object";
     }
     function isPlainObject(val) {
-      if (toString.call(val) !== "[object Object]") {
+      if (toString2.call(val) !== "[object Object]") {
         return false;
       }
       var prototype = Object.getPrototypeOf(val);
       return prototype === null || prototype === Object.prototype;
     }
     function isDate(val) {
-      return toString.call(val) === "[object Date]";
+      return toString2.call(val) === "[object Date]";
     }
     function isFile(val) {
-      return toString.call(val) === "[object File]";
+      return toString2.call(val) === "[object File]";
     }
     function isBlob(val) {
-      return toString.call(val) === "[object Blob]";
+      return toString2.call(val) === "[object Blob]";
     }
     function isFunction(val) {
-      return toString.call(val) === "[object Function]";
+      return toString2.call(val) === "[object Function]";
     }
     function isStream(val) {
-      return isObject(val) && isFunction(val.pipe);
+      return isObject2(val) && isFunction(val.pipe);
     }
     function isURLSearchParams(val) {
       return typeof URLSearchParams !== "undefined" && val instanceof URLSearchParams;
@@ -39337,7 +40603,7 @@ var require_utils = __commonJS({
       if (typeof obj !== "object") {
         obj = [obj];
       }
-      if (isArray(obj)) {
+      if (isArray3(obj)) {
         for (var i = 0, l = obj.length; i < l; i++) {
           fn.call(null, obj[i], i, obj);
         }
@@ -39349,14 +40615,14 @@ var require_utils = __commonJS({
         }
       }
     }
-    function merge() {
+    function merge2() {
       var result = {};
       function assignValue(val, key) {
         if (isPlainObject(result[key]) && isPlainObject(val)) {
-          result[key] = merge(result[key], val);
+          result[key] = merge2(result[key], val);
         } else if (isPlainObject(val)) {
-          result[key] = merge({}, val);
-        } else if (isArray(val)) {
+          result[key] = merge2({}, val);
+        } else if (isArray3(val)) {
           result[key] = val.slice();
         } else {
           result[key] = val;
@@ -39384,14 +40650,14 @@ var require_utils = __commonJS({
       return content2;
     }
     module.exports = {
-      isArray,
+      isArray: isArray3,
       isArrayBuffer,
       isBuffer,
       isFormData,
       isArrayBufferView,
       isString: isString2,
       isNumber,
-      isObject,
+      isObject: isObject2,
       isPlainObject,
       isUndefined,
       isDate,
@@ -39402,7 +40668,7 @@ var require_utils = __commonJS({
       isURLSearchParams,
       isStandardBrowserEnv,
       forEach,
-      merge,
+      merge: merge2,
       extend: extend2,
       trim,
       stripBOM
@@ -39414,7 +40680,7 @@ var require_utils = __commonJS({
 var require_buildURL = __commonJS({
   "node_modules/axios/lib/helpers/buildURL.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     function encode(val) {
       return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+").replace(/%5B/gi, "[").replace(/%5D/gi, "]");
     }
@@ -39425,23 +40691,23 @@ var require_buildURL = __commonJS({
       var serializedParams;
       if (paramsSerializer) {
         serializedParams = paramsSerializer(params);
-      } else if (utils.isURLSearchParams(params)) {
+      } else if (utils2.isURLSearchParams(params)) {
         serializedParams = params.toString();
       } else {
         var parts = [];
-        utils.forEach(params, function serialize(val, key) {
+        utils2.forEach(params, function serialize(val, key) {
           if (val === null || typeof val === "undefined") {
             return;
           }
-          if (utils.isArray(val)) {
+          if (utils2.isArray(val)) {
             key = key + "[]";
           } else {
             val = [val];
           }
-          utils.forEach(val, function parseValue(v) {
-            if (utils.isDate(v)) {
+          utils2.forEach(val, function parseValue(v) {
+            if (utils2.isDate(v)) {
               v = v.toISOString();
-            } else if (utils.isObject(v)) {
+            } else if (utils2.isObject(v)) {
               v = JSON.stringify(v);
             }
             parts.push(encode(key) + "=" + encode(v));
@@ -39465,7 +40731,7 @@ var require_buildURL = __commonJS({
 var require_InterceptorManager = __commonJS({
   "node_modules/axios/lib/core/InterceptorManager.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     function InterceptorManager() {
       this.handlers = [];
     }
@@ -39476,13 +40742,13 @@ var require_InterceptorManager = __commonJS({
       });
       return this.handlers.length - 1;
     };
-    InterceptorManager.prototype.eject = function eject(id) {
-      if (this.handlers[id]) {
-        this.handlers[id] = null;
+    InterceptorManager.prototype.eject = function eject(id2) {
+      if (this.handlers[id2]) {
+        this.handlers[id2] = null;
       }
     };
     InterceptorManager.prototype.forEach = function forEach(fn) {
-      utils.forEach(this.handlers, function forEachHandler(h) {
+      utils2.forEach(this.handlers, function forEachHandler(h) {
         if (h !== null) {
           fn(h);
         }
@@ -39496,12 +40762,12 @@ var require_InterceptorManager = __commonJS({
 var require_transformData = __commonJS({
   "node_modules/axios/lib/core/transformData.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
-    module.exports = function transformData(data, headers, fns) {
-      utils.forEach(fns, function transform(fn) {
-        data = fn(data, headers);
+    var utils2 = require_utils();
+    module.exports = function transformData(data2, headers, fns) {
+      utils2.forEach(fns, function transform(fn) {
+        data2 = fn(data2, headers);
       });
-      return data;
+      return data2;
     };
   }
 });
@@ -39520,9 +40786,9 @@ var require_isCancel = __commonJS({
 var require_normalizeHeaderName = __commonJS({
   "node_modules/axios/lib/helpers/normalizeHeaderName.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     module.exports = function normalizeHeaderName(headers, normalizedName) {
-      utils.forEach(headers, function processHeader(value, name2) {
+      utils2.forEach(headers, function processHeader(value, name2) {
         if (name2 !== normalizedName && name2.toUpperCase() === normalizedName.toUpperCase()) {
           headers[normalizedName] = value;
           delete headers[name2];
@@ -39595,19 +40861,19 @@ var require_settle = __commonJS({
 var require_cookies = __commonJS({
   "node_modules/axios/lib/helpers/cookies.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
-    module.exports = utils.isStandardBrowserEnv() ? function standardBrowserEnv() {
+    var utils2 = require_utils();
+    module.exports = utils2.isStandardBrowserEnv() ? function standardBrowserEnv() {
       return {
-        write: function write(name2, value, expires, path, domain, secure) {
+        write: function write(name2, value, expires, path2, domain, secure) {
           var cookie = [];
           cookie.push(name2 + "=" + encodeURIComponent(value));
-          if (utils.isNumber(expires)) {
+          if (utils2.isNumber(expires)) {
             cookie.push("expires=" + new Date(expires).toGMTString());
           }
-          if (utils.isString(path)) {
-            cookie.push("path=" + path);
+          if (utils2.isString(path2)) {
+            cookie.push("path=" + path2);
           }
-          if (utils.isString(domain)) {
+          if (utils2.isString(domain)) {
             cookie.push("domain=" + domain);
           }
           if (secure === true) {
@@ -39616,8 +40882,8 @@ var require_cookies = __commonJS({
           document.cookie = cookie.join("; ");
         },
         read: function read(name2) {
-          var match = document.cookie.match(new RegExp("(^|;\\s*)(" + name2 + ")=([^;]*)"));
-          return match ? decodeURIComponent(match[3]) : null;
+          var match2 = document.cookie.match(new RegExp("(^|;\\s*)(" + name2 + ")=([^;]*)"));
+          return match2 ? decodeURIComponent(match2[3]) : null;
         },
         remove: function remove2(name2) {
           this.write(name2, "", Date.now() - 864e5);
@@ -39676,7 +40942,7 @@ var require_buildFullPath = __commonJS({
 var require_parseHeaders = __commonJS({
   "node_modules/axios/lib/helpers/parseHeaders.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var ignoreDuplicateOf = [
       "age",
       "authorization",
@@ -39704,10 +40970,10 @@ var require_parseHeaders = __commonJS({
       if (!headers) {
         return parsed;
       }
-      utils.forEach(headers.split("\n"), function parser2(line) {
+      utils2.forEach(headers.split("\n"), function parser2(line) {
         i = line.indexOf(":");
-        key = utils.trim(line.substr(0, i)).toLowerCase();
-        val = utils.trim(line.substr(i + 1));
+        key = utils2.trim(line.substr(0, i)).toLowerCase();
+        val = utils2.trim(line.substr(i + 1));
         if (key) {
           if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
             return;
@@ -39728,8 +40994,8 @@ var require_parseHeaders = __commonJS({
 var require_isURLSameOrigin = __commonJS({
   "node_modules/axios/lib/helpers/isURLSameOrigin.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
-    module.exports = utils.isStandardBrowserEnv() ? function standardBrowserEnv() {
+    var utils2 = require_utils();
+    module.exports = utils2.isStandardBrowserEnv() ? function standardBrowserEnv() {
       var msie = /(msie|trident)/i.test(navigator.userAgent);
       var urlParsingNode = document.createElement("a");
       var originURL;
@@ -39753,7 +41019,7 @@ var require_isURLSameOrigin = __commonJS({
       }
       originURL = resolveURL(window.location.href);
       return function isURLSameOrigin(requestURL) {
-        var parsed = utils.isString(requestURL) ? resolveURL(requestURL) : requestURL;
+        var parsed = utils2.isString(requestURL) ? resolveURL(requestURL) : requestURL;
         return parsed.protocol === originURL.protocol && parsed.host === originURL.host;
       };
     }() : function nonStandardBrowserEnv() {
@@ -39768,7 +41034,7 @@ var require_isURLSameOrigin = __commonJS({
 var require_xhr = __commonJS({
   "node_modules/axios/lib/adapters/xhr.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var settle = require_settle();
     var cookies = require_cookies();
     var buildURL = require_buildURL();
@@ -39780,7 +41046,7 @@ var require_xhr = __commonJS({
       return new Promise(function dispatchXhrRequest(resolve, reject) {
         var requestData = config.data;
         var requestHeaders = config.headers;
-        if (utils.isFormData(requestData)) {
+        if (utils2.isFormData(requestData)) {
           delete requestHeaders["Content-Type"];
         }
         var request = new XMLHttpRequest();
@@ -39831,14 +41097,14 @@ var require_xhr = __commonJS({
           reject(createError(timeoutErrorMessage, config, "ECONNABORTED", request));
           request = null;
         };
-        if (utils.isStandardBrowserEnv()) {
+        if (utils2.isStandardBrowserEnv()) {
           var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ? cookies.read(config.xsrfCookieName) : void 0;
           if (xsrfValue) {
             requestHeaders[config.xsrfHeaderName] = xsrfValue;
           }
         }
         if ("setRequestHeader" in request) {
-          utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+          utils2.forEach(requestHeaders, function setRequestHeader(val, key) {
             if (typeof requestData === "undefined" && key.toLowerCase() === "content-type") {
               delete requestHeaders[key];
             } else {
@@ -39846,7 +41112,7 @@ var require_xhr = __commonJS({
             }
           });
         }
-        if (!utils.isUndefined(config.withCredentials)) {
+        if (!utils2.isUndefined(config.withCredentials)) {
           request.withCredentials = !!config.withCredentials;
         }
         if (config.responseType) {
@@ -39887,13 +41153,13 @@ var require_xhr = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/axios/lib/defaults.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var normalizeHeaderName = require_normalizeHeaderName();
     var DEFAULT_CONTENT_TYPE = {
       "Content-Type": "application/x-www-form-urlencoded"
     };
     function setContentTypeIfUnset(headers, value) {
-      if (!utils.isUndefined(headers) && utils.isUndefined(headers["Content-Type"])) {
+      if (!utils2.isUndefined(headers) && utils2.isUndefined(headers["Content-Type"])) {
         headers["Content-Type"] = value;
       }
     }
@@ -39908,33 +41174,33 @@ var require_defaults = __commonJS({
     }
     var defaults2 = {
       adapter: getDefaultAdapter(),
-      transformRequest: [function transformRequest(data, headers) {
+      transformRequest: [function transformRequest(data2, headers) {
         normalizeHeaderName(headers, "Accept");
         normalizeHeaderName(headers, "Content-Type");
-        if (utils.isFormData(data) || utils.isArrayBuffer(data) || utils.isBuffer(data) || utils.isStream(data) || utils.isFile(data) || utils.isBlob(data)) {
-          return data;
+        if (utils2.isFormData(data2) || utils2.isArrayBuffer(data2) || utils2.isBuffer(data2) || utils2.isStream(data2) || utils2.isFile(data2) || utils2.isBlob(data2)) {
+          return data2;
         }
-        if (utils.isArrayBufferView(data)) {
-          return data.buffer;
+        if (utils2.isArrayBufferView(data2)) {
+          return data2.buffer;
         }
-        if (utils.isURLSearchParams(data)) {
+        if (utils2.isURLSearchParams(data2)) {
           setContentTypeIfUnset(headers, "application/x-www-form-urlencoded;charset=utf-8");
-          return data.toString();
+          return data2.toString();
         }
-        if (utils.isObject(data)) {
+        if (utils2.isObject(data2)) {
           setContentTypeIfUnset(headers, "application/json;charset=utf-8");
-          return JSON.stringify(data);
+          return JSON.stringify(data2);
         }
-        return data;
+        return data2;
       }],
-      transformResponse: [function transformResponse(data) {
-        if (typeof data === "string") {
+      transformResponse: [function transformResponse(data2) {
+        if (typeof data2 === "string") {
           try {
-            data = JSON.parse(data);
+            data2 = JSON.parse(data2);
           } catch (e) {
           }
         }
-        return data;
+        return data2;
       }],
       timeout: 0,
       xsrfCookieName: "XSRF-TOKEN",
@@ -39950,11 +41216,11 @@ var require_defaults = __commonJS({
         "Accept": "application/json, text/plain, */*"
       }
     };
-    utils.forEach(["delete", "get", "head"], function forEachMethodNoData(method) {
+    utils2.forEach(["delete", "get", "head"], function forEachMethodNoData(method) {
       defaults2.headers[method] = {};
     });
-    utils.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
-      defaults2.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+    utils2.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
+      defaults2.headers[method] = utils2.merge(DEFAULT_CONTENT_TYPE);
     });
     module.exports = defaults2;
   }
@@ -39964,7 +41230,7 @@ var require_defaults = __commonJS({
 var require_dispatchRequest = __commonJS({
   "node_modules/axios/lib/core/dispatchRequest.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var transformData = require_transformData();
     var isCancel = require_isCancel();
     var defaults2 = require_defaults();
@@ -39977,8 +41243,8 @@ var require_dispatchRequest = __commonJS({
       throwIfCancellationRequested(config);
       config.headers = config.headers || {};
       config.data = transformData(config.data, config.headers, config.transformRequest);
-      config.headers = utils.merge(config.headers.common || {}, config.headers[config.method] || {}, config.headers);
-      utils.forEach(["delete", "get", "head", "post", "put", "patch", "common"], function cleanHeaderConfig(method) {
+      config.headers = utils2.merge(config.headers.common || {}, config.headers[config.method] || {}, config.headers);
+      utils2.forEach(["delete", "get", "head", "post", "put", "patch", "common"], function cleanHeaderConfig(method) {
         delete config.headers[method];
       });
       var adapter = config.adapter || defaults2.adapter;
@@ -40003,7 +41269,7 @@ var require_dispatchRequest = __commonJS({
 var require_mergeConfig = __commonJS({
   "node_modules/axios/lib/core/mergeConfig.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     module.exports = function mergeConfig(config1, config2) {
       config2 = config2 || {};
       var config = {};
@@ -40036,36 +41302,36 @@ var require_mergeConfig = __commonJS({
       ];
       var directMergeKeys = ["validateStatus"];
       function getMergedValue(target, source) {
-        if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
-          return utils.merge(target, source);
-        } else if (utils.isPlainObject(source)) {
-          return utils.merge({}, source);
-        } else if (utils.isArray(source)) {
+        if (utils2.isPlainObject(target) && utils2.isPlainObject(source)) {
+          return utils2.merge(target, source);
+        } else if (utils2.isPlainObject(source)) {
+          return utils2.merge({}, source);
+        } else if (utils2.isArray(source)) {
           return source.slice();
         }
         return source;
       }
       function mergeDeepProperties(prop) {
-        if (!utils.isUndefined(config2[prop])) {
+        if (!utils2.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(config1[prop], config2[prop]);
-        } else if (!utils.isUndefined(config1[prop])) {
+        } else if (!utils2.isUndefined(config1[prop])) {
           config[prop] = getMergedValue(void 0, config1[prop]);
         }
       }
-      utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
-        if (!utils.isUndefined(config2[prop])) {
+      utils2.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
+        if (!utils2.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(void 0, config2[prop]);
         }
       });
-      utils.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
-      utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
-        if (!utils.isUndefined(config2[prop])) {
+      utils2.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
+      utils2.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+        if (!utils2.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(void 0, config2[prop]);
-        } else if (!utils.isUndefined(config1[prop])) {
+        } else if (!utils2.isUndefined(config1[prop])) {
           config[prop] = getMergedValue(void 0, config1[prop]);
         }
       });
-      utils.forEach(directMergeKeys, function merge(prop) {
+      utils2.forEach(directMergeKeys, function merge2(prop) {
         if (prop in config2) {
           config[prop] = getMergedValue(config1[prop], config2[prop]);
         } else if (prop in config1) {
@@ -40076,7 +41342,7 @@ var require_mergeConfig = __commonJS({
       var otherKeys = Object.keys(config1).concat(Object.keys(config2)).filter(function filterAxiosKeys(key) {
         return axiosKeys.indexOf(key) === -1;
       });
-      utils.forEach(otherKeys, mergeDeepProperties);
+      utils2.forEach(otherKeys, mergeDeepProperties);
       return config;
     };
   }
@@ -40086,7 +41352,7 @@ var require_mergeConfig = __commonJS({
 var require_Axios = __commonJS({
   "node_modules/axios/lib/core/Axios.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var buildURL = require_buildURL();
     var InterceptorManager = require_InterceptorManager();
     var dispatchRequest = require_dispatchRequest();
@@ -40130,7 +41396,7 @@ var require_Axios = __commonJS({
       config = mergeConfig(this.defaults, config);
       return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, "");
     };
-    utils.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
+    utils2.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
       Axios.prototype[method] = function(url, config) {
         return this.request(mergeConfig(config || {}, {
           method,
@@ -40139,12 +41405,12 @@ var require_Axios = __commonJS({
         }));
       };
     });
-    utils.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
-      Axios.prototype[method] = function(url, data, config) {
+    utils2.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
+      Axios.prototype[method] = function(url, data2, config) {
         return this.request(mergeConfig(config || {}, {
           method,
           url,
-          data
+          data: data2
         }));
       };
     });
@@ -40159,7 +41425,7 @@ var require_Cancel = __commonJS({
     function Cancel(message) {
       this.message = message;
     }
-    Cancel.prototype.toString = function toString() {
+    Cancel.prototype.toString = function toString2() {
       return "Cancel" + (this.message ? ": " + this.message : "");
     };
     Cancel.prototype.__CANCEL__ = true;
@@ -40234,7 +41500,7 @@ var require_isAxiosError = __commonJS({
 var require_axios = __commonJS({
   "node_modules/axios/lib/axios.js"(exports, module) {
     "use strict";
-    var utils = require_utils();
+    var utils2 = require_utils();
     var bind = require_bind();
     var Axios = require_Axios();
     var mergeConfig = require_mergeConfig();
@@ -40242,13 +41508,13 @@ var require_axios = __commonJS({
     function createInstance(defaultConfig) {
       var context = new Axios(defaultConfig);
       var instance = bind(Axios.prototype.request, context);
-      utils.extend(instance, Axios.prototype, context);
-      utils.extend(instance, context);
+      utils2.extend(instance, Axios.prototype, context);
+      utils2.extend(instance, context);
       return instance;
     }
     var axios2 = createInstance(defaults2);
     axios2.Axios = Axios;
-    axios2.create = function create(instanceConfig) {
+    axios2.create = function create2(instanceConfig) {
       return createInstance(mergeConfig(axios2.defaults, instanceConfig));
     };
     axios2.Cancel = require_Cancel();
@@ -40272,16 +41538,16 @@ var require_axios2 = __commonJS({
 });
 
 // src/index.tsx
-var import_react8 = __toModule(require_react());
-var import_react_dom = __toModule(require_react_dom());
+var import_react21 = __toModule(require_react());
+var import_react_dom5 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/bibliography.js
-var import_react4 = __toModule(require_react());
+var import_react17 = __toModule(require_react());
 var import_bibtex_parse_js = __toModule(require_bibtexParse());
 var import_lodash3 = __toModule(require_lodash());
 
 // node_modules/reactex/dist/document.js
-var import_react3 = __toModule(require_react());
+var import_react4 = __toModule(require_react());
 
 // node_modules/reactex/dist/tex.js
 var import_react = __toModule(require_react());
@@ -40290,19 +41556,68 @@ var TexContext = class {
   constructor() {
     this.macros = {};
   }
-  render(contents) {
-    let html = import_katex.default.renderToString(contents, { macros: this.macros });
-    return /* @__PURE__ */ import_react.default.createElement("span", {
-      dangerouslySetInnerHTML: { __html: html }
+  render(contents, block) {
+    let html2 = import_katex.default.renderToString(contents, {
+      macros: this.macros,
+      globalGroup: true,
+      trust: true,
+      strict: false,
+      displayMode: block
     });
+    if (block) {
+      return /* @__PURE__ */ import_react.default.createElement("div", {
+        dangerouslySetInnerHTML: { __html: html2 }
+      });
+    } else {
+      return /* @__PURE__ */ import_react.default.createElement("span", {
+        dangerouslySetInnerHTML: { __html: html2 }
+      });
+    }
   }
 };
 var ReactTexContext = import_react.default.createContext(null);
 var Tex = ({ children }) => {
   let ctx = (0, import_react.useContext)(ReactTexContext);
-  return ctx.render(children);
+  let ref = (0, import_react.useRef)(null);
+  (0, import_react.useEffect)(() => {
+    let container = ref.current;
+    let elems = container.querySelectorAll("[data-def]");
+    let cbs = Array.from(elems).map((elem) => {
+      if (!(elem instanceof HTMLElement)) {
+        throw `Elem with [data-def] not HTMLElement`;
+      }
+      let on_click = () => {
+        let anchor_id = `def-${elem.dataset.def}`;
+        let anchor_elem = document.getElementById(anchor_id);
+        if (!anchor_elem) {
+          throw `Missing anchor with id ${anchor_id}`;
+        }
+        window.history.pushState(null, "", "#" + anchor_id);
+        window.history.pushState(null, "", "#" + anchor_id);
+        window.history.back();
+        setTimeout(() => anchor_elem.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "center"
+        }), 100);
+      };
+      elem.addEventListener("click", on_click);
+      return () => elem.removeEventListener("click", on_click);
+    });
+    return () => {
+      cbs.forEach((cb) => cb());
+    };
+  }, [children]);
+  return /* @__PURE__ */ import_react.default.createElement("span", {
+    ref
+  }, ctx.render(children, false));
+};
+var TexBlock = ({ children }) => {
+  let ctx = (0, import_react.useContext)(ReactTexContext);
+  return ctx.render(children, true);
 };
 var $ = Tex;
+var $$ = TexBlock;
 
 // node_modules/reactex/dist/code.js
 var import_react2 = __toModule(require_react());
@@ -40475,12 +41790,12 @@ var TextLeaf = class extends Text {
   get children() {
     return null;
   }
-  lineInner(target, isLine, line, offset) {
+  lineInner(target, isLine, line, offset2) {
     for (let i = 0; ; i++) {
-      let string2 = this.text[i], end = offset + string2.length;
+      let string2 = this.text[i], end = offset2 + string2.length;
       if ((isLine ? line : end) >= target)
-        return new Line(offset, end, line, string2);
-      offset = end + 1;
+        return new Line(offset2, end, line, string2);
+      offset2 = end + 1;
       line++;
     }
   }
@@ -40549,12 +41864,12 @@ var TextNode = class extends Text {
     for (let child of children)
       this.lines += child.lines;
   }
-  lineInner(target, isLine, line, offset) {
+  lineInner(target, isLine, line, offset2) {
     for (let i = 0; ; i++) {
-      let child = this.children[i], end = offset + child.length, endLine = line + child.lines - 1;
+      let child = this.children[i], end = offset2 + child.length, endLine = line + child.lines - 1;
       if ((isLine ? endLine : end) >= target)
-        return child.lineInner(target, isLine, line, offset);
-      offset = end + 1;
+        return child.lineInner(target, isLine, line, offset2);
+      offset2 = end + 1;
       line = endLine + 1;
     }
   }
@@ -40691,9 +42006,9 @@ var RawTextCursor = class {
     this.done = this.lineBreak = false;
     for (; ; ) {
       let last = this.nodes.length - 1;
-      let top2 = this.nodes[last], offsetValue = this.offsets[last], offset = offsetValue >> 1;
+      let top2 = this.nodes[last], offsetValue = this.offsets[last], offset2 = offsetValue >> 1;
       let size = top2 instanceof TextLeaf ? top2.text.length : top2.children.length;
-      if (offset == (dir > 0 ? size : 0)) {
+      if (offset2 == (dir > 0 ? size : 0)) {
         if (last == 0) {
           this.done = true;
           this.value = "";
@@ -40712,7 +42027,7 @@ var RawTextCursor = class {
         }
         skip--;
       } else if (top2 instanceof TextLeaf) {
-        let next = top2.text[offset + (dir < 0 ? -1 : 0)];
+        let next = top2.text[offset2 + (dir < 0 ? -1 : 0)];
         this.offsets[last] += dir;
         if (next.length > Math.max(0, skip)) {
           this.value = skip == 0 ? next : dir > 0 ? next.slice(skip) : next.slice(0, next.length - skip);
@@ -40720,7 +42035,7 @@ var RawTextCursor = class {
         }
         skip -= next.length;
       } else {
-        let next = top2.children[offset + (dir < 0 ? -1 : 0)];
+        let next = top2.children[offset2 + (dir < 0 ? -1 : 0)];
         if (skip > next.length) {
           skip -= next.length;
           this.offsets[last] += dir;
@@ -40820,11 +42135,11 @@ var ChangeDesc = class {
   get empty() {
     return this.sections.length == 0 || this.sections.length == 2 && this.sections[1] < 0;
   }
-  iterGaps(f) {
+  iterGaps(f2) {
     for (let i = 0, posA = 0, posB = 0; i < this.sections.length; ) {
       let len = this.sections[i++], ins = this.sections[i++];
       if (ins < 0) {
-        f(posA, posB, len);
+        f2(posA, posB, len);
         posB += len;
       } else {
         posB += ins;
@@ -40832,8 +42147,8 @@ var ChangeDesc = class {
       posA += len;
     }
   }
-  iterChangedRanges(f, individual = false) {
-    iterChanges(this, f, individual);
+  iterChangedRanges(f2, individual = false) {
+    iterChanges(this, f2, individual);
   }
   get invertedDesc() {
     let sections = [];
@@ -40920,8 +42235,8 @@ var ChangeSet = class extends ChangeDesc {
       if (ins >= 0) {
         sections[i] = ins;
         sections[i + 1] = len;
-        let index = i >> 1;
-        while (inserted.length < index)
+        let index2 = i >> 1;
+        while (inserted.length < index2)
           inserted.push(Text.empty);
         inserted.push(len ? doc2.slice(pos, pos + len) : Text.empty);
       }
@@ -40935,8 +42250,8 @@ var ChangeSet = class extends ChangeDesc {
   map(other, before = false) {
     return other.empty ? this : mapSet(this, other, before, true);
   }
-  iterChanges(f, individual = false) {
-    iterChanges(this, f, individual);
+  iterChanges(f2, individual = false) {
+    iterChanges(this, f2, individual);
   }
   get desc() {
     return new ChangeDesc(this.sections);
@@ -40996,16 +42311,16 @@ var ChangeSet = class extends ChangeDesc {
         return;
       if (pos < length)
         addSection(sections, length - pos, -1);
-      let set = new ChangeSet(sections, inserted);
-      total = total ? total.compose(set.map(total)) : set;
+      let set3 = new ChangeSet(sections, inserted);
+      total = total ? total.compose(set3.map(total)) : set3;
       sections = [];
       inserted = [];
       pos = 0;
     }
-    function process2(spec) {
+    function process3(spec) {
       if (Array.isArray(spec)) {
         for (let sub of spec)
-          process2(sub);
+          process3(sub);
       } else if (spec instanceof ChangeSet) {
         if (spec.length != length)
           throw new RangeError(`Mismatched change set length (got ${spec.length}, expected ${length})`);
@@ -41028,7 +42343,7 @@ var ChangeSet = class extends ChangeDesc {
         pos = to;
       }
     }
-    process2(changes);
+    process3(changes);
     flush(!total);
     return total;
   }
@@ -41074,16 +42389,16 @@ function addSection(sections, len, ins, forceJoin = false) {
 function addInsert(values, sections, value) {
   if (value.length == 0)
     return;
-  let index = sections.length - 2 >> 1;
-  if (index < values.length) {
+  let index2 = sections.length - 2 >> 1;
+  if (index2 < values.length) {
     values[values.length - 1] = values[values.length - 1].append(value);
   } else {
-    while (values.length < index)
+    while (values.length < index2)
       values.push(Text.empty);
     values.push(value);
   }
 }
-function iterChanges(desc, f, individual) {
+function iterChanges(desc, f2, individual) {
   let inserted = desc.inserted;
   for (let posA = 0, posB = 0, i = 0; i < desc.sections.length; ) {
     let len = desc.sections[i++], ins = desc.sections[i++];
@@ -41102,7 +42417,7 @@ function iterChanges(desc, f, individual) {
         len = desc.sections[i++];
         ins = desc.sections[i++];
       }
-      f(posA, endA, posB, endB, text);
+      f2(posA, endA, posB, endB, text);
       posA = endA;
       posB = endB;
     }
@@ -41196,8 +42511,8 @@ function composeSets(setA, setB, mkSet = false) {
   }
 }
 var SectionIter = class {
-  constructor(set) {
-    this.set = set;
+  constructor(set3) {
+    this.set = set3;
     this.i = 0;
     this.next();
   }
@@ -41219,12 +42534,12 @@ var SectionIter = class {
     return this.ins < 0 ? this.len : this.ins;
   }
   get text() {
-    let { inserted } = this.set, index = this.i - 2 >> 1;
-    return index >= inserted.length ? Text.empty : inserted[index];
+    let { inserted } = this.set, index2 = this.i - 2 >> 1;
+    return index2 >= inserted.length ? Text.empty : inserted[index2];
   }
   textBit(len) {
-    let { inserted } = this.set, index = this.i - 2 >> 1;
-    return index >= inserted.length && !len ? Text.empty : inserted[index].slice(this.off, len == null ? void 0 : this.off + len);
+    let { inserted } = this.set, index2 = this.i - 2 >> 1;
+    return index2 >= inserted.length && !len ? Text.empty : inserted[index2].slice(this.off, len == null ? void 0 : this.off + len);
   }
   forward(len) {
     if (len == this.len)
@@ -41392,20 +42707,20 @@ var Facet = class {
   of(value) {
     return new FacetProvider([], this, 0, value);
   }
-  compute(deps, get) {
+  compute(deps, get3) {
     if (this.isStatic)
       throw new Error("Can't compute a static facet");
-    return new FacetProvider(deps, this, 1, get);
+    return new FacetProvider(deps, this, 1, get3);
   }
-  computeN(deps, get) {
+  computeN(deps, get3) {
     if (this.isStatic)
       throw new Error("Can't compute a static facet");
-    return new FacetProvider(deps, this, 2, get);
+    return new FacetProvider(deps, this, 2, get3);
   }
-  from(field, get) {
-    if (!get)
-      get = (x) => x;
-    return this.compute([field], (state) => get(state.field(field)));
+  from(field, get3) {
+    if (!get3)
+      get3 = (x) => x;
+    return this.compute([field], (state) => get3(state.field(field)));
   }
 };
 function sameArray(a, b) {
@@ -41488,14 +42803,14 @@ function dynamicFacetSlot(addresses, facet, providers) {
     return 1;
   };
 }
-function maybeIndex(state, id) {
-  let found = state.config.address[id];
+function maybeIndex(state, id2) {
+  let found = state.config.address[id2];
   return found == null ? null : found >> 1;
 }
 var initField = /* @__PURE__ */ Facet.define({ static: true });
 var StateField = class {
-  constructor(id, createF, updateF, compareF, spec) {
-    this.id = id;
+  constructor(id2, createF, updateF, compareF, spec) {
+    this.id = id2;
     this.createF = createF;
     this.updateF = updateF;
     this.compareF = compareF;
@@ -41534,8 +42849,8 @@ var StateField = class {
       return changed;
     };
   }
-  init(create) {
-    return [this, initField.of({ field: this, create })];
+  init(create2) {
+    return [this, initField.of({ field: this, create: create2 })];
   }
   get extension() {
     return this;
@@ -41606,8 +42921,8 @@ var Configuration = class {
       address[field.id] = dynamicSlots.length << 1;
       dynamicSlots.push((a) => field.slot(a));
     }
-    for (let id in facets) {
-      let providers = facets[id], facet = providers[0].facet;
+    for (let id2 in facets) {
+      let providers = facets[id2], facet = providers[0].facet;
       if (providers.every((p) => p.type == 0)) {
         address[facet.id] = staticValues.length << 1 | 1;
         let value = facet.combine(providers.map((p) => p.value));
@@ -41632,7 +42947,7 @@ var Configuration = class {
         dynamicSlots.push((a) => dynamicFacetSlot(a, facet, providers));
       }
     }
-    return new Configuration(base2, newCompartments, dynamicSlots.map((f) => f(address)), address, staticValues);
+    return new Configuration(base2, newCompartments, dynamicSlots.map((f2) => f2(address)), address, staticValues);
   }
 };
 function flatten(extension, compartments, newCompartments) {
@@ -41957,8 +43272,8 @@ var EditorState = class {
     } else {
       this.values = config.dynamicSlots.map((_4) => null);
       if (tr)
-        for (let id in config.address) {
-          let cur = config.address[id], prev = tr.startState.config.address[id];
+        for (let id2 in config.address) {
+          let cur = config.address[id2], prev = tr.startState.config.address[id2];
           if (prev != null && (cur & 1) == 0)
             this.values[cur >> 1] = getAddr(tr.startState, prev);
         }
@@ -42011,13 +43326,13 @@ var EditorState = class {
       range: EditorSelection.cursor(range.from + text.length)
     }));
   }
-  changeByRange(f) {
+  changeByRange(f2) {
     let sel = this.selection;
-    let result1 = f(sel.ranges[0]);
+    let result1 = f2(sel.ranges[0]);
     let changes = this.changes(result1.changes), ranges = [result1.range];
     let effects = asArray(result1.effects);
     for (let i = 1; i < sel.ranges.length; i++) {
-      let result = f(sel.ranges[i]);
+      let result = f2(sel.ranges[i]);
       let newChanges = this.changes(result.changes), newMapped = newChanges.map(changes);
       for (let j = 0; j < i; j++)
         ranges[j] = ranges[j].map(newMapped);
@@ -42201,9 +43516,9 @@ var StyleModule = class {
     return this.rules.join("\n");
   }
   static newName() {
-    let id = top[COUNT] || 1;
-    top[COUNT] = id + 1;
-    return C + id.toString(36);
+    let id2 = top[COUNT] || 1;
+    top[COUNT] = id2 + 1;
+    return C + id2.toString(36);
   }
   static mount(root, modules) {
     (root[SET] || new StyleSet(root)).mount(Array.isArray(modules) ? modules : [modules]);
@@ -42232,19 +43547,19 @@ var StyleSet = class {
     let sheet = this.sheet;
     let pos = 0, j = 0;
     for (let i = 0; i < modules.length; i++) {
-      let mod = modules[i], index = this.modules.indexOf(mod);
-      if (index < j && index > -1) {
-        this.modules.splice(index, 1);
+      let mod = modules[i], index2 = this.modules.indexOf(mod);
+      if (index2 < j && index2 > -1) {
+        this.modules.splice(index2, 1);
         j--;
-        index = -1;
+        index2 = -1;
       }
-      if (index == -1) {
+      if (index2 == -1) {
         this.modules.splice(j++, 0, mod);
         if (sheet)
           for (let k = 0; k < mod.rules.length; k++)
             sheet.insertRule(mod.rules[k], pos++);
       } else {
-        while (j < index)
+        while (j < index2)
           pos += this.modules[j++].rules.length;
         pos += mod.rules.length;
         j++;
@@ -42306,15 +43621,15 @@ var Chunk = class {
         lo = mid + 1;
     }
   }
-  between(offset, from, to, f) {
+  between(offset2, from, to, f2) {
     for (let i = this.findIndex(from, -1e9, true), e = this.findIndex(to, 1e9, false, i); i < e; i++)
-      if (f(this.from[i] + offset, this.to[i] + offset, this.value[i]) === false)
+      if (f2(this.from[i] + offset2, this.to[i] + offset2, this.value[i]) === false)
         return false;
   }
-  map(offset, changes) {
+  map(offset2, changes) {
     let value = [], from = [], to = [], newPos = -1, maxPoint = -1;
     for (let i = 0; i < this.value.length; i++) {
-      let val = this.value[i], curFrom = this.from[i] + offset, curTo = this.to[i] + offset, newFrom, newTo;
+      let val = this.value[i], curFrom = this.from[i] + offset2, curTo = this.to[i] + offset2, newFrom, newTo;
       if (curFrom == curTo) {
         let mapped = changes.mapPos(curFrom, val.startSide, val.mapMode);
         if (mapped == null)
@@ -42358,8 +43673,8 @@ var RangeSet = class {
       size += chunk.value.length;
     return size;
   }
-  chunkEnd(index) {
-    return this.chunkPos[index] + this.chunk[index].length;
+  chunkEnd(index2) {
+    return this.chunkPos[index2] + this.chunk[index2].length;
   }
   update(updateSpec) {
     let { add = [], sort = false, filterFrom = 0, filterTo = this.length } = updateSpec;
@@ -42412,15 +43727,15 @@ var RangeSet = class {
     let next = this.nextLayer.map(changes);
     return chunks.length == 0 ? next : new RangeSet(chunkPos, chunks, next, maxPoint);
   }
-  between(from, to, f) {
+  between(from, to, f2) {
     if (this.isEmpty)
       return;
     for (let i = 0; i < this.chunk.length; i++) {
       let start2 = this.chunkPos[i], chunk = this.chunk[i];
-      if (to >= start2 && from <= start2 + chunk.length && chunk.between(start2, from - start2, to - start2, f) === false)
+      if (to >= start2 && from <= start2 + chunk.length && chunk.between(start2, from - start2, to - start2, f2) === false)
         return;
     }
-    this.nextLayer.between(from, to, f);
+    this.nextLayer.between(from, to, f2);
   }
   iter(from = 0) {
     return HeapCursor.from([this]).goto(from);
@@ -42432,8 +43747,8 @@ var RangeSet = class {
     return HeapCursor.from(sets).goto(from);
   }
   static compare(oldSets, newSets, textDiff, comparator, minPointSize = -1) {
-    let a = oldSets.filter((set) => set.maxPoint >= 500 || !set.isEmpty && newSets.indexOf(set) < 0 && set.maxPoint >= minPointSize);
-    let b = newSets.filter((set) => set.maxPoint >= 500 || !set.isEmpty && oldSets.indexOf(set) < 0 && set.maxPoint >= minPointSize);
+    let a = oldSets.filter((set3) => set3.maxPoint >= 500 || !set3.isEmpty && newSets.indexOf(set3) < 0 && set3.maxPoint >= minPointSize);
+    let b = newSets.filter((set3) => set3.maxPoint >= 500 || !set3.isEmpty && oldSets.indexOf(set3) < 0 && set3.maxPoint >= minPointSize);
     let sharedChunks = findSharedChunks(a, b);
     let sideA = new SpanCursor(a, sharedChunks, minPointSize);
     let sideB = new SpanCursor(b, sharedChunks, minPointSize);
@@ -42444,8 +43759,8 @@ var RangeSet = class {
   static eq(oldSets, newSets, from = 0, to) {
     if (to == null)
       to = 1e9;
-    let a = oldSets.filter((set) => !set.isEmpty && newSets.indexOf(set) < 0);
-    let b = newSets.filter((set) => !set.isEmpty && oldSets.indexOf(set) < 0);
+    let a = oldSets.filter((set3) => !set3.isEmpty && newSets.indexOf(set3) < 0);
+    let b = newSets.filter((set3) => !set3.isEmpty && oldSets.indexOf(set3) < 0);
     if (a.length != b.length)
       return false;
     if (!a.length)
@@ -42579,16 +43894,16 @@ var RangeSetBuilder = class {
 };
 function findSharedChunks(a, b) {
   let inA = new Map();
-  for (let set of a)
-    for (let i = 0; i < set.chunk.length; i++)
-      if (set.chunk[i].maxPoint < 500)
-        inA.set(set.chunk[i], set.chunkPos[i]);
-  let shared = new Set();
-  for (let set of b)
-    for (let i = 0; i < set.chunk.length; i++)
-      if (inA.get(set.chunk[i]) == set.chunkPos[i])
-        shared.add(set.chunk[i]);
-  return shared;
+  for (let set3 of a)
+    for (let i = 0; i < set3.chunk.length; i++)
+      if (set3.chunk[i].maxPoint < 500)
+        inA.set(set3.chunk[i], set3.chunkPos[i]);
+  let shared2 = new Set();
+  for (let set3 of b)
+    for (let i = 0; i < set3.chunk.length; i++)
+      if (inA.get(set3.chunk[i]) == set3.chunkPos[i])
+        shared2.add(set3.chunk[i]);
+  return shared2;
 }
 var LayerCursor = class {
   constructor(layer, skip, minPoint, rank = 0) {
@@ -42709,9 +44024,9 @@ var HeapCursor = class {
     }
   }
 };
-function heapBubble(heap, index) {
-  for (let cur = heap[index]; ; ) {
-    let childIndex = (index << 1) + 1;
+function heapBubble(heap, index2) {
+  for (let cur = heap[index2]; ; ) {
+    let childIndex = (index2 << 1) + 1;
     if (childIndex >= heap.length)
       break;
     let child = heap[childIndex];
@@ -42722,8 +44037,8 @@ function heapBubble(heap, index) {
     if (cur.compare(child) < 0)
       break;
     heap[childIndex] = cur;
-    heap[index] = child;
-    index = childIndex;
+    heap[index2] = child;
+    index2 = childIndex;
   }
 }
 var SpanCursor = class {
@@ -42756,10 +44071,10 @@ var SpanCursor = class {
       this.removeActive(this.minActive);
     this.cursor.forward(pos, side);
   }
-  removeActive(index) {
-    remove(this.active, index);
-    remove(this.activeTo, index);
-    remove(this.activeRank, index);
+  removeActive(index2) {
+    remove(this.active, index2);
+    remove(this.activeTo, index2);
+    remove(this.activeRank, index2);
     this.minActive = findMinIndex(this.active, this.activeTo);
   }
   addActive(trackOpen) {
@@ -42875,15 +44190,15 @@ function sameValues(a, b) {
       return false;
   return true;
 }
-function remove(array, index) {
-  for (let i = index, e = array.length - 1; i < e; i++)
+function remove(array, index2) {
+  for (let i = index2, e = array.length - 1; i < e; i++)
     array[i] = array[i + 1];
   array.pop();
 }
-function insert(array, index, value) {
-  for (let i = array.length - 1; i >= index; i--)
+function insert(array, index2, value) {
+  for (let i = array.length - 1; i >= index2; i--)
     array[i + 1] = array[i];
-  array[index] = value;
+  array[index2] = value;
 }
 function findMinIndex(value, array) {
   let found = -1, foundPos = 1e9;
@@ -43030,10 +44345,10 @@ function isEquivalentPosition(node, off, targetNode, targetOff) {
   return targetNode ? scanFor(node, off, targetNode, targetOff, -1) || scanFor(node, off, targetNode, targetOff, 1) : false;
 }
 function domIndex(node) {
-  for (var index = 0; ; index++) {
+  for (var index2 = 0; ; index2++) {
     node = node.previousSibling;
     if (!node)
-      return index;
+      return index2;
   }
 }
 function scanFor(node, off, targetNode, targetOff, dir) {
@@ -43213,9 +44528,9 @@ function contentEditablePlainTextSupported() {
   return _plainTextSupported;
 }
 var DOMPos = class {
-  constructor(node, offset, precise = true) {
+  constructor(node, offset2, precise = true) {
     this.node = node;
-    this.offset = offset;
+    this.offset = offset2;
     this.precise = precise;
   }
   static before(dom, precise) {
@@ -43294,12 +44609,12 @@ var ContentView = class {
   reuseDOM(_dom) {
     return false;
   }
-  localPosFromDOM(node, offset) {
+  localPosFromDOM(node, offset2) {
     let after;
     if (node == this.dom) {
-      after = this.dom.childNodes[offset];
+      after = this.dom.childNodes[offset2];
     } else {
-      let bias = maxOffset(node) == 0 ? 0 : offset == 0 ? -1 : 1;
+      let bias = maxOffset(node) == 0 ? 0 : offset2 == 0 ? -1 : 1;
       for (; ; ) {
         let parent = node.parentNode;
         if (parent == this.dom)
@@ -43330,9 +44645,9 @@ var ContentView = class {
       pos += child.length + child.breakAfter;
     }
   }
-  domBoundsAround(from, to, offset = 0) {
+  domBoundsAround(from, to, offset2 = 0) {
     let fromI = -1, fromStart = -1, toI = -1, toEnd = -1;
-    for (let i = 0, pos = offset, prevEnd = offset; i < this.children.length; i++) {
+    for (let i = 0, pos = offset2, prevEnd = offset2; i < this.children.length; i++) {
       let child = this.children[i], end = pos + child.length;
       if (pos < from && end > to)
         return child.domBoundsAround(from, to, pos);
@@ -43350,7 +44665,7 @@ var ContentView = class {
     }
     return {
       from: fromStart,
-      to: toEnd < 0 ? offset + this.length : toEnd,
+      to: toEnd < 0 ? offset2 + this.length : toEnd,
       startDOM: (fromI ? this.children[fromI - 1].dom.nextSibling : null) || this.dom.firstChild,
       endDOM: toI < this.children.length && toI >= 0 ? this.children[toI].dom : null
     };
@@ -43524,14 +44839,14 @@ var TextView = class extends InlineView {
   slice(from) {
     return new TextView(this.text.slice(from));
   }
-  localPosFromDOM(node, offset) {
-    return node == this.dom ? offset : offset ? this.text.length : 0;
+  localPosFromDOM(node, offset2) {
+    return node == this.dom ? offset2 : offset2 ? this.text.length : 0;
   }
   domAtPos(pos) {
     return new DOMPos(this.dom, pos);
   }
-  domBoundsAround(_from, _to, offset) {
-    return { from: offset, to: offset + this.length, startDOM: this.dom, endDOM: this.dom.nextSibling };
+  domBoundsAround(_from, _to, offset2) {
+    return { from: offset2, to: offset2 + this.length, startDOM: this.dom, endDOM: this.dom.nextSibling };
   }
   coordsAt(pos, side) {
     return textCoords(this.dom, pos, side);
@@ -43686,8 +45001,8 @@ var CompositionView = class extends WidgetView {
     if (!this.dom)
       this.setDOM(this.widget.toDOM());
   }
-  localPosFromDOM(node, offset) {
-    return !offset ? 0 : node.nodeType == 3 ? Math.min(offset, this.length) : this.length;
+  localPosFromDOM(node, offset2) {
+    return !offset2 ? 0 : node.nodeType == 3 ? Math.min(offset2, this.length) : this.length;
   }
   ignoreMutation() {
     return false;
@@ -44330,14 +45645,14 @@ function logException(state, exception, context) {
 }
 var editable = /* @__PURE__ */ Facet.define({ combine: (values) => values.length ? values[0] : true });
 var PluginFieldProvider = class {
-  constructor(field, get) {
+  constructor(field, get3) {
     this.field = field;
-    this.get = get;
+    this.get = get3;
   }
 };
 var PluginField = class {
-  from(get) {
-    return new PluginFieldProvider(this, get);
+  from(get3) {
+    return new PluginFieldProvider(this, get3);
   }
   static define() {
     return new PluginField();
@@ -44349,13 +45664,13 @@ PluginField.scrollMargins = /* @__PURE__ */ PluginField.define();
 var nextPluginID = 0;
 var viewPlugin = /* @__PURE__ */ Facet.define();
 var ViewPlugin = class {
-  constructor(id, create, fields) {
-    this.id = id;
-    this.create = create;
+  constructor(id2, create2, fields) {
+    this.id = id2;
+    this.create = create2;
     this.fields = fields;
     this.extension = viewPlugin.of(this);
   }
-  static define(create, spec) {
+  static define(create2, spec) {
     let { eventHandlers, provide, decorations: decorations2 } = spec || {};
     let fields = [];
     if (provide)
@@ -44365,7 +45680,7 @@ var ViewPlugin = class {
       fields.push(domEventHandlers.from((value) => ({ plugin: value, handlers: eventHandlers })));
     if (decorations2)
       fields.push(PluginField.decorations.from(decorations2));
-    return new ViewPlugin(nextPluginID++, create, fields);
+    return new ViewPlugin(nextPluginID++, create2, fields);
   }
   static fromClass(cls, spec) {
     return ViewPlugin.define((view) => new cls(view), spec);
@@ -44379,9 +45694,9 @@ var PluginInstance = class {
     this.value = null;
   }
   takeField(type, target) {
-    for (let { field, get } of this.spec.fields)
+    for (let { field, get: get3 } of this.spec.fields)
       if (field == type)
-        target.push(get(this.value));
+        target.push(get3(this.value));
   }
   update(view) {
     if (!this.value) {
@@ -44440,19 +45755,19 @@ var ChangedRange = class {
   join(other) {
     return new ChangedRange(Math.min(this.fromA, other.fromA), Math.max(this.toA, other.toA), Math.min(this.fromB, other.fromB), Math.max(this.toB, other.toB));
   }
-  addToSet(set) {
-    let i = set.length, me = this;
+  addToSet(set3) {
+    let i = set3.length, me = this;
     for (; i > 0; i--) {
-      let range = set[i - 1];
+      let range = set3[i - 1];
       if (range.fromA > me.toA)
         continue;
       if (range.toA < me.fromA)
         break;
       me = me.join(range);
-      set.splice(i - 1, 1);
+      set3.splice(i - 1, 1);
     }
-    set.splice(i, 0, me);
-    return set;
+    set3.splice(i, 0, me);
+    return set3;
   }
   static extendWithRanges(diff, ranges) {
     if (ranges.length == 0)
@@ -44725,11 +46040,11 @@ var DocView = class extends ContentView {
     }
     return null;
   }
-  posFromDOM(node, offset) {
+  posFromDOM(node, offset2) {
     let view = this.nearest(node);
     if (!view)
       throw new RangeError("Trying to find position for a DOM position outside of the document");
-    return view.localPosFromDOM(node, offset) + view.posAtStart;
+    return view.localPosFromDOM(node, offset2) + view.posAtStart;
   }
   domAtPos(pos) {
     let { i, off } = this.childCursor().findPos(pos, -1);
@@ -44925,25 +46240,25 @@ var CompositionWidget = class extends WidgetType {
     return CompositionView;
   }
 };
-function nearbyTextNode(node, offset, side) {
+function nearbyTextNode(node, offset2, side) {
   for (; ; ) {
     if (node.nodeType == 3)
       return node;
-    if (node.nodeType == 1 && offset > 0 && side <= 0) {
-      node = node.childNodes[offset - 1];
-      offset = maxOffset(node);
-    } else if (node.nodeType == 1 && offset < node.childNodes.length && side >= 0) {
-      node = node.childNodes[offset];
-      offset = 0;
+    if (node.nodeType == 1 && offset2 > 0 && side <= 0) {
+      node = node.childNodes[offset2 - 1];
+      offset2 = maxOffset(node);
+    } else if (node.nodeType == 1 && offset2 < node.childNodes.length && side >= 0) {
+      node = node.childNodes[offset2];
+      offset2 = 0;
     } else {
       return null;
     }
   }
 }
-function nextToUneditable(node, offset) {
+function nextToUneditable(node, offset2) {
   if (node.nodeType != 1)
     return 0;
-  return (offset && node.childNodes[offset - 1].contentEditable == "false" ? 1 : 0) | (offset < node.childNodes.length && node.childNodes[offset].contentEditable == "false" ? 2 : 0);
+  return (offset2 && node.childNodes[offset2 - 1].contentEditable == "false" ? 1 : 0) | (offset2 < node.childNodes.length && node.childNodes[offset2].contentEditable == "false" ? 2 : 0);
 }
 var DecorationComparator$1 = class {
   constructor() {
@@ -44999,14 +46314,14 @@ var BidiSpan = class {
   side(end, dir) {
     return this.dir == dir == end ? this.to : this.from;
   }
-  static find(order, index, level, assoc) {
+  static find(order, index2, level, assoc) {
     let maybe = -1;
     for (let i = 0; i < order.length; i++) {
       let span = order[i];
-      if (span.from <= index && span.to >= index) {
+      if (span.from <= index2 && span.to >= index2) {
         if (span.level == level)
           return i;
-        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index : span.to > index : order[maybe].level > span.level))
+        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index2 : span.to > index2 : order[maybe].level > span.level))
           maybe = i;
       }
     }
@@ -45263,8 +46578,8 @@ function domPosAtCoords(parent, x, y) {
     return domPosInText(closest, clipX, y);
   if (!closestX && closest.contentEditable == "true")
     return domPosAtCoords(closest, clipX, y);
-  let offset = Array.prototype.indexOf.call(parent.childNodes, closest) + (x >= (closestRect.left + closestRect.right) / 2 ? 1 : 0);
-  return { node: parent, offset };
+  let offset2 = Array.prototype.indexOf.call(parent.childNodes, closest) + (x >= (closestRect.left + closestRect.right) / 2 ? 1 : 0);
+  return { node: parent, offset: offset2 };
 }
 function domPosInText(node, x, y) {
   let len = node.nodeValue.length;
@@ -45318,26 +46633,26 @@ function posAtCoords(view, { x, y }, precise, bias = -1) {
   if (lineStart > view.viewport.to)
     return view.viewport.to == view.state.doc.length ? view.state.doc.length : posAtCoordsImprecise(view, content2, block, x, y);
   let root = view.root, element = root.elementFromPoint(x, y);
-  let node, offset = -1;
+  let node, offset2 = -1;
   if (element && view.contentDOM.contains(element) && !(view.docView.nearest(element) instanceof WidgetView)) {
     if (root.caretPositionFromPoint) {
       let pos = root.caretPositionFromPoint(x, y);
       if (pos)
-        ({ offsetNode: node, offset } = pos);
+        ({ offsetNode: node, offset: offset2 } = pos);
     } else if (root.caretRangeFromPoint) {
       let range = root.caretRangeFromPoint(x, y);
       if (range) {
-        ({ startContainer: node, startOffset: offset } = range);
-        if (browser.safari && isSuspiciousCaretResult(node, offset, x))
+        ({ startContainer: node, startOffset: offset2 } = range);
+        if (browser.safari && isSuspiciousCaretResult(node, offset2, x))
           node = void 0;
       }
     }
   }
   if (!node || !view.docView.dom.contains(node)) {
     let line = LineView.find(view.docView, lineStart);
-    ({ node, offset } = domPosAtCoords(line.dom, x, y));
+    ({ node, offset: offset2 } = domPosAtCoords(line.dom, x, y));
   }
-  return view.docView.posFromDOM(node, offset);
+  return view.docView.posFromDOM(node, offset2);
 }
 function posAtCoordsImprecise(view, contentRect, block, x, y) {
   let into = Math.round((x - contentRect.left) * view.defaultCharacterWidth);
@@ -45348,9 +46663,9 @@ function posAtCoordsImprecise(view, contentRect, block, x, y) {
   let content2 = view.state.sliceDoc(block.from, block.to);
   return block.from + findColumn(content2, into, view.state.tabSize);
 }
-function isSuspiciousCaretResult(node, offset, x) {
+function isSuspiciousCaretResult(node, offset2, x) {
   let len;
-  if (node.nodeType != 3 || offset != (len = node.nodeValue.length))
+  if (node.nodeType != 3 || offset2 != (len = node.nodeValue.length))
     return false;
   for (let next = node.nextSibling; next; next = next.nextSibling)
     if (next.nodeType != 1 || next.nodeName != "BR")
@@ -45375,7 +46690,7 @@ function moveToLineBoundary(view, start2, forward, includeWrap) {
 }
 function moveByChar(view, start2, forward, by) {
   let line = view.state.doc.lineAt(start2.head), spans = view.bidiSpans(line);
-  for (let cur = start2, check = null; ; ) {
+  for (let cur = start2, check2 = null; ; ) {
     let next = moveVisually(line, spans, view.textDirection, cur, forward), char = movedOver;
     if (!next) {
       if (line.number == (forward ? view.state.doc.lines : 1))
@@ -45385,11 +46700,11 @@ function moveByChar(view, start2, forward, by) {
       spans = view.bidiSpans(line);
       next = EditorSelection.cursor(forward ? line.from : line.to);
     }
-    if (!check) {
+    if (!check2) {
       if (!by)
         return next;
-      check = by(char);
-    } else if (!check(char)) {
+      check2 = by(char);
+    } else if (!check2(char)) {
       return cur;
     }
     cur = next;
@@ -45435,8 +46750,8 @@ function skipAtoms(view, oldPos, pos) {
   let atoms = view.pluginField(PluginField.atomicRanges);
   for (; ; ) {
     let moved = false;
-    for (let set of atoms) {
-      set.between(pos.from - 1, pos.from + 1, (from, to, value) => {
+    for (let set3 of atoms) {
+      set3.between(pos.from - 1, pos.from + 1, (from, to, value) => {
         if (pos.from > from && pos.from < to) {
           pos = oldPos.from > pos.from ? EditorSelection.cursor(from, 1) : EditorSelection.cursor(to, -1);
           moved = true;
@@ -45490,8 +46805,8 @@ var InputState = class {
   }
   ensureHandlers(view) {
     let handlers2 = this.customHandlers = view.pluginField(domEventHandlers);
-    for (let set of handlers2) {
-      for (let type in set.handlers)
+    for (let set3 of handlers2) {
+      for (let type in set3.handlers)
         if (this.registeredEvents.indexOf(type) < 0 && type != "scroll") {
           this.registeredEvents.push(type);
           view.contentDOM.addEventListener(type, (event) => {
@@ -45504,11 +46819,11 @@ var InputState = class {
     }
   }
   runCustomHandlers(type, view, event) {
-    for (let set of this.customHandlers) {
-      let handler = set.handlers[type], handled = false;
+    for (let set3 of this.customHandlers) {
+      let handler = set3.handlers[type], handled = false;
       if (handler) {
         try {
-          handled = handler.call(set.plugin, event, view);
+          handled = handler.call(set3.plugin, event, view);
         } catch (e) {
           logException(view.state, e);
         }
@@ -45522,11 +46837,11 @@ var InputState = class {
     return false;
   }
   runScrollHandlers(view, event) {
-    for (let set of this.customHandlers) {
-      let handler = set.handlers.scroll;
+    for (let set3 of this.customHandlers) {
+      let handler = set3.handlers.scroll;
       if (handler) {
         try {
-          handler.call(set.plugin, event, view);
+          handler.call(set3.plugin, event, view);
         } catch (e) {
           logException(view.state, e);
         }
@@ -45574,10 +46889,10 @@ var InputState = class {
   mustFlushObserver(event) {
     return event.type == "keydown" && event.keyCode != 229 || event.type == "compositionend" && !browser.ios;
   }
-  startMouseSelection(view, event, style) {
+  startMouseSelection(view, event, style2) {
     if (this.mouseSelection)
       this.mouseSelection.destroy();
-    this.mouseSelection = new MouseSelection(this, view, event, style);
+    this.mouseSelection = new MouseSelection(this, view, event, style2);
   }
   update(update) {
     if (this.mouseSelection)
@@ -45592,10 +46907,10 @@ var InputState = class {
 };
 var modifierCodes = [16, 17, 18, 20, 91, 92, 224, 225];
 var MouseSelection = class {
-  constructor(inputState, view, startEvent, style) {
+  constructor(inputState, view, startEvent, style2) {
     this.inputState = inputState;
     this.view = view;
-    this.style = style;
+    this.style = style2;
     this.lastEvent = startEvent;
     let doc2 = view.contentDOM.ownerDocument;
     doc2.addEventListener("mousemove", this.move = this.move.bind(this));
@@ -45741,18 +47056,18 @@ handlers.mousedown = (view, event) => {
   view.observer.flush();
   if (lastTouch > Date.now() - 2e3)
     return;
-  let style = null;
+  let style2 = null;
   for (let makeStyle of view.state.facet(mouseSelectionStyle)) {
-    style = makeStyle(view, event);
-    if (style)
+    style2 = makeStyle(view, event);
+    if (style2)
       break;
   }
-  if (!style && event.button == 0)
-    style = basicMouseSelection(view, event);
-  if (style) {
+  if (!style2 && event.button == 0)
+    style2 = basicMouseSelection(view, event);
+  if (style2) {
     if (view.root.activeElement != view.contentDOM)
       view.observer.ignore(() => focusPreventScroll(view.contentDOM));
-    view.inputState.startMouseSelection(view, event, style);
+    view.inputState.startMouseSelection(view, event, style2);
   }
 };
 function rangeForClick(view, pos, bias, type) {
@@ -45896,8 +47211,8 @@ handlers.paste = (view, event) => {
   if (!view.state.facet(editable))
     return;
   view.observer.flush();
-  let data = brokenClipboardAPI ? null : event.clipboardData;
-  let text = data && data.getData("text/plain");
+  let data2 = brokenClipboardAPI ? null : event.clipboardData;
+  let text = data2 && data2.getData("text/plain");
   if (text) {
     doPaste(view, text);
     event.preventDefault();
@@ -45947,11 +47262,11 @@ handlers.copy = handlers.cut = (view, event) => {
   if (!text)
     return;
   lastLinewiseCopy = linewise ? text : null;
-  let data = brokenClipboardAPI ? null : event.clipboardData;
-  if (data) {
+  let data2 = brokenClipboardAPI ? null : event.clipboardData;
+  if (data2) {
     event.preventDefault();
-    data.clearData();
-    data.setData("text/plain", text);
+    data2.clearData();
+    data2.setData("text/plain", text);
   } else {
     captureCopy(view, text);
   }
@@ -46164,21 +47479,21 @@ var HeightMap = class {
     for (; ; ) {
       if (i == j) {
         if (before > after * 2) {
-          let split = nodes[i - 1];
-          if (split.break)
-            nodes.splice(--i, 1, split.left, null, split.right);
+          let split2 = nodes[i - 1];
+          if (split2.break)
+            nodes.splice(--i, 1, split2.left, null, split2.right);
           else
-            nodes.splice(--i, 1, split.left, split.right);
-          j += 1 + split.break;
-          before -= split.size;
+            nodes.splice(--i, 1, split2.left, split2.right);
+          j += 1 + split2.break;
+          before -= split2.size;
         } else if (after > before * 2) {
-          let split = nodes[j];
-          if (split.break)
-            nodes.splice(j, 1, split.left, null, split.right);
+          let split2 = nodes[j];
+          if (split2.break)
+            nodes.splice(j, 1, split2.left, null, split2.right);
           else
-            nodes.splice(j, 1, split.left, split.right);
-          j += 2 + split.break;
-          after -= split.size;
+            nodes.splice(j, 1, split2.left, split2.right);
+          j += 2 + split2.break;
+          after -= split2.size;
         } else {
           break;
         }
@@ -46209,17 +47524,17 @@ var HeightMapBlock = class extends HeightMap {
     super(length, height);
     this.type = type;
   }
-  blockAt(_height, _doc, top2, offset) {
-    return new BlockInfo(offset, this.length, top2, this.height, this.type);
+  blockAt(_height, _doc, top2, offset2) {
+    return new BlockInfo(offset2, this.length, top2, this.height, this.type);
   }
-  lineAt(_value, _type, doc2, top2, offset) {
-    return this.blockAt(0, doc2, top2, offset);
+  lineAt(_value, _type, doc2, top2, offset2) {
+    return this.blockAt(0, doc2, top2, offset2);
   }
-  forEachLine(_from, _to, doc2, top2, offset, f) {
-    f(this.blockAt(0, doc2, top2, offset));
+  forEachLine(_from, _to, doc2, top2, offset2, f2) {
+    f2(this.blockAt(0, doc2, top2, offset2));
   }
-  updateHeight(oracle, offset = 0, _force = false, measured) {
-    if (measured && measured.from <= offset && measured.more)
+  updateHeight(oracle, offset2 = 0, _force = false, measured) {
+    if (measured && measured.from <= offset2 && measured.more)
       this.setHeight(oracle, measured.heights[measured.index++]);
     this.outdated = false;
     return this;
@@ -46248,8 +47563,8 @@ var HeightMapText = class extends HeightMapBlock {
       return HeightMap.of(nodes);
     }
   }
-  updateHeight(oracle, offset = 0, force = false, measured) {
-    if (measured && measured.from <= offset && measured.more)
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    if (measured && measured.from <= offset2 && measured.more)
       this.setHeight(oracle, measured.heights[measured.index++]);
     else if (force || this.outdated)
       this.setHeight(oracle, Math.max(this.widgetHeight, oracle.heightForLine(this.length - this.collapsed)));
@@ -46264,34 +47579,34 @@ var HeightMapGap = class extends HeightMap {
   constructor(length) {
     super(length, 0);
   }
-  lines(doc2, offset) {
-    let firstLine = doc2.lineAt(offset).number, lastLine = doc2.lineAt(offset + this.length).number;
+  lines(doc2, offset2) {
+    let firstLine = doc2.lineAt(offset2).number, lastLine = doc2.lineAt(offset2 + this.length).number;
     return { firstLine, lastLine, lineHeight: this.height / (lastLine - firstLine + 1) };
   }
-  blockAt(height, doc2, top2, offset) {
-    let { firstLine, lastLine, lineHeight } = this.lines(doc2, offset);
+  blockAt(height, doc2, top2, offset2) {
+    let { firstLine, lastLine, lineHeight } = this.lines(doc2, offset2);
     let line = Math.max(0, Math.min(lastLine - firstLine, Math.floor((height - top2) / lineHeight)));
     let { from, length } = doc2.line(firstLine + line);
     return new BlockInfo(from, length, top2 + lineHeight * line, lineHeight, BlockType.Text);
   }
-  lineAt(value, type, doc2, top2, offset) {
+  lineAt(value, type, doc2, top2, offset2) {
     if (type == QueryType.ByHeight)
-      return this.blockAt(value, doc2, top2, offset);
+      return this.blockAt(value, doc2, top2, offset2);
     if (type == QueryType.ByPosNoHeight) {
       let { from: from2, to } = doc2.lineAt(value);
       return new BlockInfo(from2, to - from2, 0, 0, BlockType.Text);
     }
-    let { firstLine, lineHeight } = this.lines(doc2, offset);
+    let { firstLine, lineHeight } = this.lines(doc2, offset2);
     let { from, length, number: number2 } = doc2.lineAt(value);
     return new BlockInfo(from, length, top2 + lineHeight * (number2 - firstLine), lineHeight, BlockType.Text);
   }
-  forEachLine(from, to, doc2, top2, offset, f) {
-    let { firstLine, lineHeight } = this.lines(doc2, offset);
-    for (let pos = Math.max(from, offset), end = Math.min(offset + this.length, to); pos <= end; ) {
+  forEachLine(from, to, doc2, top2, offset2, f2) {
+    let { firstLine, lineHeight } = this.lines(doc2, offset2);
+    for (let pos = Math.max(from, offset2), end = Math.min(offset2 + this.length, to); pos <= end; ) {
       let line = doc2.lineAt(pos);
       if (pos == from)
         top2 += lineHeight * (line.number - firstLine);
-      f(new BlockInfo(line.from, line.length, top2, lineHeight, BlockType.Text));
+      f2(new BlockInfo(line.from, line.length, top2, lineHeight, BlockType.Text));
       top2 += lineHeight;
       pos = line.to + 1;
     }
@@ -46320,12 +47635,12 @@ var HeightMapGap = class extends HeightMap {
   decomposeRight(from, result) {
     result.push(null, new HeightMapGap(this.length - from - 1));
   }
-  updateHeight(oracle, offset = 0, force = false, measured) {
-    let end = offset + this.length;
-    if (measured && measured.from <= offset + this.length && measured.more) {
-      let nodes = [], pos = Math.max(offset, measured.from);
-      if (measured.from > offset)
-        nodes.push(new HeightMapGap(measured.from - offset - 1).updateHeight(oracle, offset));
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    let end = offset2 + this.length;
+    if (measured && measured.from <= offset2 + this.length && measured.more) {
+      let nodes = [], pos = Math.max(offset2, measured.from);
+      if (measured.from > offset2)
+        nodes.push(new HeightMapGap(measured.from - offset2 - 1).updateHeight(oracle, offset2));
       while (pos <= end && measured.more) {
         let len = oracle.doc.lineAt(pos).length;
         if (nodes.length)
@@ -46340,7 +47655,7 @@ var HeightMapGap = class extends HeightMap {
       oracle.heightChanged = true;
       return HeightMap.of(nodes);
     } else if (force || this.outdated) {
-      this.setHeight(oracle, oracle.heightForGap(offset, offset + this.length));
+      this.setHeight(oracle, oracle.heightForGap(offset2, offset2 + this.length));
       this.outdated = false;
     }
     return this;
@@ -46359,37 +47674,37 @@ var HeightMapBranch = class extends HeightMap {
   get break() {
     return this.flags & 1;
   }
-  blockAt(height, doc2, top2, offset) {
+  blockAt(height, doc2, top2, offset2) {
     let mid = top2 + this.left.height;
-    return height < mid || this.right.height == 0 ? this.left.blockAt(height, doc2, top2, offset) : this.right.blockAt(height, doc2, mid, offset + this.left.length + this.break);
+    return height < mid || this.right.height == 0 ? this.left.blockAt(height, doc2, top2, offset2) : this.right.blockAt(height, doc2, mid, offset2 + this.left.length + this.break);
   }
-  lineAt(value, type, doc2, top2, offset) {
-    let rightTop = top2 + this.left.height, rightOffset = offset + this.left.length + this.break;
+  lineAt(value, type, doc2, top2, offset2) {
+    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
     let left = type == QueryType.ByHeight ? value < rightTop || this.right.height == 0 : value < rightOffset;
-    let base2 = left ? this.left.lineAt(value, type, doc2, top2, offset) : this.right.lineAt(value, type, doc2, rightTop, rightOffset);
+    let base2 = left ? this.left.lineAt(value, type, doc2, top2, offset2) : this.right.lineAt(value, type, doc2, rightTop, rightOffset);
     if (this.break || (left ? base2.to < rightOffset : base2.from > rightOffset))
       return base2;
     let subQuery = type == QueryType.ByPosNoHeight ? QueryType.ByPosNoHeight : QueryType.ByPos;
     if (left)
       return base2.join(this.right.lineAt(rightOffset, subQuery, doc2, rightTop, rightOffset));
     else
-      return this.left.lineAt(rightOffset, subQuery, doc2, top2, offset).join(base2);
+      return this.left.lineAt(rightOffset, subQuery, doc2, top2, offset2).join(base2);
   }
-  forEachLine(from, to, doc2, top2, offset, f) {
-    let rightTop = top2 + this.left.height, rightOffset = offset + this.left.length + this.break;
+  forEachLine(from, to, doc2, top2, offset2, f2) {
+    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
     if (this.break) {
       if (from < rightOffset)
-        this.left.forEachLine(from, to, doc2, top2, offset, f);
+        this.left.forEachLine(from, to, doc2, top2, offset2, f2);
       if (to >= rightOffset)
-        this.right.forEachLine(from, to, doc2, rightTop, rightOffset, f);
+        this.right.forEachLine(from, to, doc2, rightTop, rightOffset, f2);
     } else {
-      let mid = this.lineAt(rightOffset, QueryType.ByPos, doc2, top2, offset);
+      let mid = this.lineAt(rightOffset, QueryType.ByPos, doc2, top2, offset2);
       if (from < mid.from)
-        this.left.forEachLine(from, mid.from - 1, doc2, top2, offset, f);
+        this.left.forEachLine(from, mid.from - 1, doc2, top2, offset2, f2);
       if (mid.to >= from && mid.from <= to)
-        f(mid);
+        f2(mid);
       if (to > mid.to)
-        this.right.forEachLine(mid.to + 1, to, doc2, rightTop, rightOffset, f);
+        this.right.forEachLine(mid.to + 1, to, doc2, rightTop, rightOffset, f2);
     }
   }
   replace(from, to, nodes) {
@@ -46447,12 +47762,12 @@ var HeightMapBranch = class extends HeightMap {
     this.length = left.length + this.break + right.length;
     return this;
   }
-  updateHeight(oracle, offset = 0, force = false, measured) {
-    let { left, right } = this, rightStart = offset + left.length + this.break, rebalance = null;
-    if (measured && measured.from <= offset + left.length && measured.more)
-      rebalance = left = left.updateHeight(oracle, offset, force, measured);
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    let { left, right } = this, rightStart = offset2 + left.length + this.break, rebalance = null;
+    if (measured && measured.from <= offset2 + left.length && measured.more)
+      rebalance = left = left.updateHeight(oracle, offset2, force, measured);
     else
-      left.updateHeight(oracle, offset, force);
+      left.updateHeight(oracle, offset2, force);
     if (measured && measured.from <= rightStart + right.length && measured.more)
       rebalance = right = right.updateHeight(oracle, rightStart, force, measured);
     else
@@ -46605,15 +47920,15 @@ function visiblePixelRange(dom, paddingTop) {
   let top2 = Math.max(0, rect.top), bottom = Math.min(innerHeight, rect.bottom);
   for (let parent = dom.parentNode; parent; ) {
     if (parent.nodeType == 1) {
-      let style = window.getComputedStyle(parent);
-      if ((parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) && style.overflow != "visible") {
+      let style2 = window.getComputedStyle(parent);
+      if ((parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) && style2.overflow != "visible") {
         let parentRect = parent.getBoundingClientRect();
         left = Math.max(left, parentRect.left);
         right = Math.min(right, parentRect.right);
         top2 = Math.max(top2, parentRect.top);
         bottom = Math.min(bottom, parentRect.bottom);
       }
-      parent = style.position == "absolute" || style.position == "fixed" ? parent.offsetParent : parent.parentNode;
+      parent = style2.position == "absolute" || style2.position == "fixed" ? parent.offsetParent : parent.parentNode;
     } else if (parent.nodeType == 11) {
       parent = parent.host;
     } else {
@@ -46733,10 +48048,10 @@ var ViewState = class {
   measure(docView, repeated) {
     let dom = docView.dom, whiteSpace = "", direction = Direction.LTR;
     if (!repeated) {
-      let style = window.getComputedStyle(dom);
-      whiteSpace = style.whiteSpace, direction = style.direction == "rtl" ? Direction.RTL : Direction.LTR;
-      this.paddingTop = parseInt(style.paddingTop) || 0;
-      this.paddingBottom = parseInt(style.paddingBottom) || 0;
+      let style2 = window.getComputedStyle(dom);
+      whiteSpace = style2.whiteSpace, direction = style2.direction == "rtl" ? Direction.RTL : Direction.LTR;
+      this.paddingTop = parseInt(style2.paddingTop) || 0;
+      this.paddingBottom = parseInt(style2.paddingBottom) || 0;
     }
     let pixelViewport = this.printing ? { top: -1e8, bottom: 1e8, left: -1e8, right: 1e8 } : visiblePixelRange(dom, this.paddingTop);
     let dTop = pixelViewport.top - this.pixelViewport.top, dBottom = pixelViewport.bottom - this.pixelViewport.bottom;
@@ -46907,9 +48222,9 @@ var ViewState = class {
     editorTop += this.paddingTop;
     return scaleBlock(this.heightMap.blockAt(this.scaler.fromDOM(height, editorTop), this.state.doc, editorTop, 0), this.scaler, editorTop);
   }
-  forEachLine(from, to, f, editorTop) {
+  forEachLine(from, to, f2, editorTop) {
     editorTop += this.paddingTop;
-    return this.heightMap.forEachLine(from, to, this.state.doc, editorTop, 0, this.scaler.scale == 1 ? f : (b) => f(scaleBlock(b, this.scaler, editorTop)));
+    return this.heightMap.forEachLine(from, to, this.state.doc, editorTop, 0, this.scaler.scale == 1 ? f2 : (b) => f2(scaleBlock(b, this.scaler, editorTop)));
   }
   get contentHeight() {
     return this.domHeight + this.paddingTop + this.paddingBottom;
@@ -46970,9 +48285,9 @@ function findFraction(structure, pos) {
   }
   return counted / structure.total;
 }
-function find(array, f) {
+function find(array, f2) {
   for (let val of array)
-    if (f(val))
+    if (f2(val))
       return val;
   return void 0;
 }
@@ -47308,12 +48623,12 @@ var DOMObserver = class {
         dom.addEventListener("scroll", this.onScroll);
     }
   }
-  ignore(f) {
+  ignore(f2) {
     if (!this.active)
-      return f();
+      return f2();
     try {
       this.stop();
-      return f();
+      return f2();
     } finally {
       this.start();
       this.clear();
@@ -47616,9 +48931,9 @@ function isBlockElement(node) {
   return node.nodeType == 1 && /^(DIV|P|LI|UL|OL|BLOCKQUOTE|DD|DT|H\d|SECTION|PRE)$/.test(node.nodeName);
 }
 var DOMPoint = class {
-  constructor(node, offset) {
+  constructor(node, offset2) {
     this.node = node;
-    this.offset = offset;
+    this.offset = offset2;
     this.pos = -1;
   }
 };
@@ -47924,9 +49239,9 @@ var EditorView = class {
     this.readMeasured();
     return this.viewState.lineAtHeight(height, ensureTop(docTop, this.contentDOM));
   }
-  viewportLines(f, docTop) {
+  viewportLines(f2, docTop) {
     let { from, to } = this.viewport;
-    this.viewState.forEachLine(from, to, f, ensureTop(docTop, this.contentDOM));
+    this.viewState.forEachLine(from, to, f2, ensureTop(docTop, this.contentDOM));
   }
   visualLineAt(pos, docTop = 0) {
     return this.viewState.lineAt(pos, docTop);
@@ -47953,8 +49268,8 @@ var EditorView = class {
   domAtPos(pos) {
     return this.docView.domAtPos(pos);
   }
-  posAtDOM(node, offset = 0) {
-    return this.docView.posFromDOM(node, offset);
+  posAtDOM(node, offset2 = 0) {
+    return this.docView.posFromDOM(node, offset2);
   }
   posAtCoords(coords, precise = true) {
     this.readMeasured();
@@ -48425,8 +49740,8 @@ var lineNumberGutter = /* @__PURE__ */ gutter({
     return new NumberMarker(formatNumber(view, maxLineNumber(view.state.doc.lines)));
   },
   updateSpacer(spacer, update) {
-    let max = formatNumber(update.view, maxLineNumber(update.view.state.doc.lines));
-    return max == spacer.number ? spacer : new NumberMarker(max);
+    let max2 = formatNumber(update.view, maxLineNumber(update.view.state.doc.lines));
+    return max2 == spacer.number ? spacer : new NumberMarker(max2);
   }
 });
 function lineNumbers(config = {}) {
@@ -48466,11 +49781,11 @@ var NodeProp = class {
     propObj[this.id] = value;
     return propObj;
   }
-  add(match) {
-    if (typeof match != "function")
-      match = NodeType.match(match);
+  add(match2) {
+    if (typeof match2 != "function")
+      match2 = NodeType.match(match2);
     return (type) => {
-      let result = match(type);
+      let result = match2(type);
       return result === void 0 ? null : [this, result];
     };
   }
@@ -48480,10 +49795,10 @@ NodeProp.openedBy = new NodeProp({ deserialize: (str) => str.split(" ") });
 NodeProp.group = new NodeProp({ deserialize: (str) => str.split(" ") });
 var noProps = Object.create(null);
 var NodeType = class {
-  constructor(name2, props, id, flags = 0) {
+  constructor(name2, props, id2, flags = 0) {
     this.name = name2;
     this.props = props;
-    this.id = id;
+    this.id = id2;
     this.flags = flags;
   }
   static define(spec) {
@@ -48616,8 +49931,8 @@ var Tree = class {
   balance(maxBufferLength = DefaultBufferLength) {
     return this.children.length <= BalanceBranchFactor ? this : balanceRange(this.type, NodeType.none, this.children, this.positions, 0, this.children.length, 0, maxBufferLength, this.length, 0);
   }
-  static build(data) {
-    return buildTree(data);
+  static build(data2) {
+    return buildTree(data2);
   }
 };
 Tree.empty = new Tree(NodeType.none, [], [], 0);
@@ -48627,32 +49942,32 @@ function withHash(tree, hash) {
   return tree;
 }
 var TreeBuffer = class {
-  constructor(buffer, length, set, type = NodeType.none) {
+  constructor(buffer, length, set3, type = NodeType.none) {
     this.buffer = buffer;
     this.length = length;
-    this.set = set;
+    this.set = set3;
     this.type = type;
   }
   toString() {
     let result = [];
-    for (let index = 0; index < this.buffer.length; ) {
-      result.push(this.childString(index));
-      index = this.buffer[index + 3];
+    for (let index2 = 0; index2 < this.buffer.length; ) {
+      result.push(this.childString(index2));
+      index2 = this.buffer[index2 + 3];
     }
     return result.join(",");
   }
-  childString(index) {
-    let id = this.buffer[index], endIndex = this.buffer[index + 3];
-    let type = this.set.types[id], result = type.name;
+  childString(index2) {
+    let id2 = this.buffer[index2], endIndex = this.buffer[index2 + 3];
+    let type = this.set.types[id2], result = type.name;
     if (/\W/.test(result) && !type.isError)
       result = JSON.stringify(result);
-    index += 4;
-    if (endIndex == index)
+    index2 += 4;
+    if (endIndex == index2)
       return result;
     let children = [];
-    while (index < endIndex) {
-      children.push(this.childString(index));
-      index = this.buffer[index + 3];
+    while (index2 < endIndex) {
+      children.push(this.childString(index2));
+      index2 = this.buffer[index2 + 3];
     }
     return result + "(" + children.join(",") + ")";
   }
@@ -48682,10 +49997,10 @@ var TreeBuffer = class {
   }
 };
 var TreeNode = class {
-  constructor(node, from, index, _parent) {
+  constructor(node, from, index2, _parent) {
     this.node = node;
     this.from = from;
-    this.index = index;
+    this.index = index2;
     this._parent = _parent;
   }
   get type() {
@@ -48704,9 +50019,9 @@ var TreeNode = class {
         if (after != -1e8 && (dir < 0 ? start2 >= after : start2 + next.length <= after))
           continue;
         if (next instanceof TreeBuffer) {
-          let index = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start2);
-          if (index > -1)
-            return new BufferNode(new BufferContext(parent, next, i, start2), null, index);
+          let index2 = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start2);
+          if (index2 > -1)
+            return new BufferNode(new BufferContext(parent, next, i, start2), null, index2);
         } else if (full || (!next.type.isAnonymous || hasChild(next))) {
           let inner = new TreeNode(next, start2, i, parent);
           return full || !inner.type.isAnonymous ? inner : inner.nextChild(dir < 0 ? next.children.length - 1 : 0, dir, after);
@@ -48783,19 +50098,19 @@ function getChildren(node, type, before, after) {
   }
 }
 var BufferContext = class {
-  constructor(parent, buffer, index, start2) {
+  constructor(parent, buffer, index2, start2) {
     this.parent = parent;
     this.buffer = buffer;
-    this.index = index;
+    this.index = index2;
     this.start = start2;
   }
 };
 var BufferNode = class {
-  constructor(context, _parent, index) {
+  constructor(context, _parent, index2) {
     this.context = context;
     this._parent = _parent;
-    this.index = index;
-    this.type = context.buffer.set.types[context.buffer.buffer[index]];
+    this.index = index2;
+    this.type = context.buffer.set.types[context.buffer.buffer[index2]];
   }
   get name() {
     return this.type.name;
@@ -48808,8 +50123,8 @@ var BufferNode = class {
   }
   child(dir, after) {
     let { buffer } = this.context;
-    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.context.start);
-    return index < 0 ? null : new BufferNode(this.context, this, index);
+    let index2 = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.context.start);
+    return index2 < 0 ? null : new BufferNode(this.context, this, index2);
   }
   get firstChild() {
     return this.child(1, -1e8);
@@ -48890,12 +50205,12 @@ var TreeCursor = class {
     this.to = node.to;
     return true;
   }
-  yieldBuf(index, type) {
-    this.index = index;
+  yieldBuf(index2, type) {
+    this.index = index2;
     let { start: start2, buffer } = this.buffer;
-    this.type = type || buffer.set.types[buffer.buffer[index]];
-    this.from = start2 + buffer.buffer[index + 1];
-    this.to = start2 + buffer.buffer[index + 2];
+    this.type = type || buffer.set.types[buffer.buffer[index2]];
+    this.from = start2 + buffer.buffer[index2 + 1];
+    this.to = start2 + buffer.buffer[index2 + 2];
     return true;
   }
   yield(node) {
@@ -48915,11 +50230,11 @@ var TreeCursor = class {
     if (!this.buffer)
       return this.yield(this._tree.nextChild(dir < 0 ? this._tree.node.children.length - 1 : 0, dir, after, this.full));
     let { buffer } = this.buffer;
-    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.buffer.start);
-    if (index < 0)
+    let index2 = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.buffer.start);
+    if (index2 < 0)
       return false;
     this.stack.push(this.index);
-    return this.yieldBuf(index);
+    return this.yieldBuf(index2);
   }
   firstChild() {
     return this.enter(1, -1e8);
@@ -48964,7 +50279,7 @@ var TreeCursor = class {
     return this.sibling(-1);
   }
   atLastNode(dir) {
-    let index, parent, { buffer } = this;
+    let index2, parent, { buffer } = this;
     if (buffer) {
       if (dir > 0) {
         if (this.index < buffer.buffer.buffer.length)
@@ -48974,12 +50289,12 @@ var TreeCursor = class {
           if (buffer.buffer.buffer[i + 3] < this.index)
             return false;
       }
-      ({ index, parent } = buffer);
+      ({ index: index2, parent } = buffer);
     } else {
-      ({ index, _parent: parent } = this._tree);
+      ({ index: index2, _parent: parent } = this._tree);
     }
-    for (; parent; { index, _parent: parent } = parent) {
-      for (let i = index + dir, e = dir < 0 ? -1 : parent.node.children.length; i != e; i += dir) {
+    for (; parent; { index: index2, _parent: parent } = parent) {
+      for (let i = index2 + dir, e = dir < 0 ? -1 : parent.node.children.length; i != e; i += dir) {
         let child = parent.node.children[i];
         if (this.full || !child.type.isAnonymous || child instanceof TreeBuffer || hasChild(child))
           return false;
@@ -49023,16 +50338,16 @@ var TreeCursor = class {
     let cache = this.bufferNode, result = null, depth = 0;
     if (cache && cache.context == this.buffer) {
       scan:
-        for (let index = this.index, d = this.stack.length; d >= 0; ) {
+        for (let index2 = this.index, d = this.stack.length; d >= 0; ) {
           for (let c = cache; c; c = c._parent)
-            if (c.index == index) {
-              if (index == this.index)
+            if (c.index == index2) {
+              if (index2 == this.index)
                 return c;
               result = c;
               depth = d + 1;
               break scan;
             }
-          index = this.stack[--d];
+          index2 = this.stack[--d];
         }
     }
     for (let i = depth; i < this.stack.length; i++)
@@ -49047,9 +50362,9 @@ function hasChild(tree) {
   return tree.children.some((ch) => !ch.type.isAnonymous || ch instanceof TreeBuffer || hasChild(ch));
 }
 var FlatBufferCursor = class {
-  constructor(buffer, index) {
+  constructor(buffer, index2) {
     this.buffer = buffer;
-    this.index = index;
+    this.index = index2;
   }
   get id() {
     return this.buffer[this.index - 4];
@@ -49074,38 +50389,38 @@ var FlatBufferCursor = class {
   }
 };
 var BalanceBranchFactor = 8;
-function buildTree(data) {
+function buildTree(data2) {
   var _a;
-  let { buffer, nodeSet, topID = 0, maxBufferLength = DefaultBufferLength, reused = [], minRepeatType = nodeSet.types.length } = data;
+  let { buffer, nodeSet, topID = 0, maxBufferLength = DefaultBufferLength, reused = [], minRepeatType = nodeSet.types.length } = data2;
   let cursor = Array.isArray(buffer) ? new FlatBufferCursor(buffer, buffer.length) : buffer;
   let types2 = nodeSet.types;
   let contextHash = 0;
   function takeNode(parentStart, minPos, children2, positions2, inRepeat) {
-    let { id, start: start2, end, size } = cursor;
+    let { id: id2, start: start2, end, size } = cursor;
     let startPos = start2 - parentStart;
     if (size < 0) {
       if (size == -1) {
-        children2.push(reused[id]);
+        children2.push(reused[id2]);
         positions2.push(startPos);
       } else {
-        contextHash = id;
+        contextHash = id2;
       }
       cursor.next();
       return;
     }
-    let type = types2[id], node, buffer2;
+    let type = types2[id2], node, buffer2;
     if (end - start2 <= maxBufferLength && (buffer2 = findBufferSize(cursor.pos - minPos, inRepeat))) {
-      let data2 = new Uint16Array(buffer2.size - buffer2.skip);
-      let endPos = cursor.pos - buffer2.size, index = data2.length;
+      let data3 = new Uint16Array(buffer2.size - buffer2.skip);
+      let endPos = cursor.pos - buffer2.size, index2 = data3.length;
       while (cursor.pos > endPos)
-        index = copyToBuffer(buffer2.start, data2, index, inRepeat);
-      node = new TreeBuffer(data2, end - buffer2.start, nodeSet, inRepeat < 0 ? NodeType.none : types2[inRepeat]);
+        index2 = copyToBuffer(buffer2.start, data3, index2, inRepeat);
+      node = new TreeBuffer(data3, end - buffer2.start, nodeSet, inRepeat < 0 ? NodeType.none : types2[inRepeat]);
       startPos = buffer2.start - parentStart;
     } else {
       let endPos = cursor.pos - size;
       cursor.next();
       let localChildren = [], localPositions = [];
-      let localInRepeat = id >= minRepeatType ? id : -1;
+      let localInRepeat = id2 >= minRepeatType ? id2 : -1;
       while (cursor.pos > endPos) {
         if (cursor.id == localInRepeat)
           cursor.next();
@@ -49161,29 +50476,29 @@ function buildTree(data) {
     }
     return result.size > 4 ? result : void 0;
   }
-  function copyToBuffer(bufferStart, buffer2, index, inRepeat) {
-    let { id, start: start2, end, size } = cursor;
+  function copyToBuffer(bufferStart, buffer2, index2, inRepeat) {
+    let { id: id2, start: start2, end, size } = cursor;
     cursor.next();
-    if (id == inRepeat)
-      return index;
-    let startIndex = index;
+    if (id2 == inRepeat)
+      return index2;
+    let startIndex = index2;
     if (size > 4) {
       let endPos = cursor.pos - (size - 4);
       while (cursor.pos > endPos)
-        index = copyToBuffer(bufferStart, buffer2, index, inRepeat);
+        index2 = copyToBuffer(bufferStart, buffer2, index2, inRepeat);
     }
-    if (id < minRepeatType) {
-      buffer2[--index] = startIndex;
-      buffer2[--index] = end - bufferStart;
-      buffer2[--index] = start2 - bufferStart;
-      buffer2[--index] = id;
+    if (id2 < minRepeatType) {
+      buffer2[--index2] = startIndex;
+      buffer2[--index2] = end - bufferStart;
+      buffer2[--index2] = start2 - bufferStart;
+      buffer2[--index2] = id2;
     }
-    return index;
+    return index2;
   }
   let children = [], positions = [];
   while (cursor.pos > 0)
-    takeNode(data.start || 0, 0, children, positions, -1);
-  let length = (_a = data.length) !== null && _a !== void 0 ? _a : children.length ? positions[0] + children[0].length : 0;
+    takeNode(data2.start || 0, 0, children, positions, -1);
+  let length = (_a = data2.length) !== null && _a !== void 0 ? _a : children.length ? positions[0] + children[0].length : 0;
   return new Tree(types2[topID], children.reverse(), positions.reverse(), length);
 }
 function balanceRange(outerType, innerType, children, positions, from, to, start2, maxBufferLength, length, contextHash) {
@@ -49233,11 +50548,11 @@ function containsType(nodes, type) {
   return false;
 }
 var TreeFragment = class {
-  constructor(from, to, tree, offset, open) {
+  constructor(from, to, tree, offset2, open) {
     this.from = from;
     this.to = to;
     this.tree = tree;
-    this.offset = offset;
+    this.offset = offset2;
     this.open = open;
   }
   get openStart() {
@@ -49277,9 +50592,9 @@ var TreeFragment = class {
   }
   static addTree(tree, fragments = [], partial = false) {
     let result = [new TreeFragment(0, tree.length, tree, 0, partial ? 2 : 0)];
-    for (let f of fragments)
-      if (f.to > tree.length)
-        result.push(f);
+    for (let f2 of fragments)
+      if (f2.to > tree.length)
+        result.push(f2);
     return result;
   }
 };
@@ -49316,8 +50631,8 @@ function defineLanguageFacet(baseData) {
   });
 }
 var Language = class {
-  constructor(data, parser2, topNode, extraExtensions = []) {
-    this.data = data;
+  constructor(data2, parser2, topNode, extraExtensions = []) {
+    this.data = data2;
     this.topNode = topNode;
     if (!EditorState.prototype.hasOwnProperty("tree"))
       Object.defineProperty(EditorState.prototype, "tree", { get() {
@@ -49380,14 +50695,14 @@ function languageDataFacetAt(state, pos) {
   return topLang.data;
 }
 var LezerLanguage = class extends Language {
-  constructor(data, parser2) {
-    super(data, parser2, parser2.topNode);
+  constructor(data2, parser2) {
+    super(data2, parser2, parser2.topNode);
     this.parser = parser2;
   }
   static define(spec) {
-    let data = defineLanguageFacet(spec.languageData);
-    return new LezerLanguage(data, spec.parser.configure({
-      props: [languageDataProp.add((type) => type.isTop ? data : void 0)]
+    let data2 = defineLanguageFacet(spec.languageData);
+    return new LezerLanguage(data2, spec.parser.configure({
+      props: [languageDataProp.add((type) => type.isTop ? data2 : void 0)]
     }));
   }
   configure(options) {
@@ -49698,8 +51013,8 @@ function foldInside(node) {
 // node_modules/@codemirror/highlight/dist/index.js
 var nextTagID = 0;
 var Tag = class {
-  constructor(set, base2, modified) {
-    this.set = set;
+  constructor(set3, base2, modified) {
+    this.set = set3;
     this.base = base2;
     this.modified = modified;
     this.id = nextTagID++;
@@ -49735,13 +51050,13 @@ var Modifier = class {
     let exists = mods[0].instances.find((t2) => t2.base == base2 && sameArray2(mods, t2.modified));
     if (exists)
       return exists;
-    let set = [], tag = new Tag(set, base2, mods);
+    let set3 = [], tag = new Tag(set3, base2, mods);
     for (let m of mods)
       m.instances.push(tag);
     let configs = permute(mods);
     for (let parent of base2.set)
       for (let config of configs)
-        set.push(Modifier.get(parent, config));
+        set3.push(Modifier.get(parent, config));
     return tag;
   }
 };
@@ -49838,9 +51153,9 @@ var HighlightStyle = class {
       return cls;
     }
     this.all = typeof options.all == "string" ? options.all : options.all ? def(options.all) : null;
-    for (let style of spec) {
-      let cls = (style.class || def(Object.assign({}, style, { tag: null }))) + (this.all ? " " + this.all : "");
-      let tags2 = style.tag;
+    for (let style2 of spec) {
+      let cls = (style2.class || def(Object.assign({}, style2, { tag: null }))) + (this.all ? " " + this.all : "");
+      let tags2 = style2.tag;
       if (!Array.isArray(tags2))
         this.map[tags2.id] = cls;
       else
@@ -49860,11 +51175,11 @@ var HighlightStyle = class {
     if (this.scope && scope != this.scope)
       return null;
     for (let t2 of tag.set) {
-      let match = this.map[t2.id];
-      if (match !== void 0) {
+      let match2 = this.map[t2.id];
+      if (match2 !== void 0) {
         if (t2 != tag)
-          this.map[tag.id] = match;
-        return match;
+          this.map[tag.id] = match2;
+        return match2;
       }
     }
     return this.map[tag.id] = this.all;
@@ -49878,8 +51193,8 @@ var HighlightStyle = class {
       if (cached !== void 0)
         return cached;
       let result = null;
-      for (let style of styles) {
-        let value = style.match(tag, scope);
+      for (let style2 of styles) {
+        let value = style2.match(tag, scope);
         if (value)
           result = result ? result + " " + value : value;
       }
@@ -49892,8 +51207,8 @@ var HighlightStyle = class {
     return new HighlightStyle(specs, options || {});
   }
   static get(state, tag, scope) {
-    let style = getHighlightStyle(state);
-    return style && style(tag, scope || NodeType.none);
+    let style2 = getHighlightStyle(state);
+    return style2 && style2(tag, scope || NodeType.none);
   }
 };
 var TreeHighlighter = class {
@@ -49903,22 +51218,22 @@ var TreeHighlighter = class {
     this.decorations = this.buildDeco(view, getHighlightStyle(view.state));
   }
   update(update) {
-    let tree = syntaxTree(update.state), style = getHighlightStyle(update.state);
-    let styleChange = style != update.startState.facet(highlightStyle);
+    let tree = syntaxTree(update.state), style2 = getHighlightStyle(update.state);
+    let styleChange = style2 != update.startState.facet(highlightStyle);
     if (tree.length < update.view.viewport.to && !styleChange) {
       this.decorations = this.decorations.map(update.changes);
     } else if (tree != this.tree || update.viewportChanged || styleChange) {
       this.tree = tree;
-      this.decorations = this.buildDeco(update.view, style);
+      this.decorations = this.buildDeco(update.view, style2);
     }
   }
-  buildDeco(view, match) {
-    if (!match || !this.tree.length)
+  buildDeco(view, match2) {
+    if (!match2 || !this.tree.length)
       return Decoration.none;
     let builder = new RangeSetBuilder();
     for (let { from, to } of view.visibleRanges) {
-      highlightTreeRange(this.tree, from, to, match, (from2, to2, style) => {
-        builder.add(from2, to2, this.markCache[style] || (this.markCache[style] = Decoration.mark({ class: style })));
+      highlightTreeRange(this.tree, from, to, match2, (from2, to2, style2) => {
+        builder.add(from2, to2, this.markCache[style2] || (this.markCache[style2] = Decoration.mark({ class: style2 })));
       });
     }
     return builder.finish();
@@ -49928,7 +51243,7 @@ var treeHighlighter = /* @__PURE__ */ Prec.fallback(/* @__PURE__ */ ViewPlugin.f
   decorations: (v) => v.decorations
 }));
 var nodeStack = [""];
-function highlightTreeRange(tree, from, to, style, span) {
+function highlightTreeRange(tree, from, to, style2, span) {
   let spanStart = from, spanClass = "";
   let cursor = tree.topNode.cursor;
   function flush(at, newClass) {
@@ -49949,7 +51264,7 @@ function highlightTreeRange(tree, from, to, style, span) {
     while (rule) {
       if (!rule.context || matchContext(rule.context, nodeStack, depth)) {
         for (let tag of rule.tags) {
-          let st = style(tag, scope);
+          let st = style2(tag, scope);
           if (st) {
             if (cls)
               cls += " ";
@@ -49984,8 +51299,8 @@ function matchContext(context, stack, depth) {
   if (context.length > depth - 1)
     return false;
   for (let d = depth - 1, i = context.length - 1; i >= 0; i--, d--) {
-    let check = context[i];
-    if (check && check != stack[d])
+    let check2 = context[i];
+    if (check2 && check2 != stack[d])
       return false;
   }
   return true;
@@ -50222,7 +51537,7 @@ var highlight_field = StateField.define({
     }
     return highlights;
   },
-  provide: (f) => EditorView.decorations.from(f)
+  provide: (f2) => EditorView.decorations.from(f2)
 });
 var theme2 = EditorView.theme({
   ".cm-scroller": {
@@ -50239,8 +51554,8 @@ var theme2 = EditorView.theme({
     minWidth: "10px"
   },
   ".cm-highlight": {
-    padding: "0 3px",
-    margin: "-1px -3px",
+    padding: "0 2px",
+    margin: "-1px -2px",
     borderRadius: "2px"
   }
 });
@@ -50270,12 +51585,12 @@ var parse_with_delimiters = (code, delimiters) => {
   let make_check = (arr) => {
     let r2 = new RegExp(`^${arr.join("|")}`);
     return (s) => {
-      let match = s.match(r2);
-      return match ? match[0].length : null;
+      let match2 = s.match(r2);
+      return match2 ? match2[0].length : null;
     };
   };
   let [open_check, close_check] = [make_check(open), make_check(close)];
-  let index = 0;
+  let index2 = 0;
   let in_seq = null;
   let ranges = [];
   let output_code = [];
@@ -50285,19 +51600,19 @@ var parse_with_delimiters = (code, delimiters) => {
       let n = open_check(code.substring(i));
       if (n) {
         i += n;
-        in_seq = index;
+        in_seq = index2;
         continue;
       }
     } else {
       let n = close_check(code.substring(i));
       if (n) {
         i += n;
-        ranges.push([in_seq, index]);
+        ranges.push([in_seq, index2]);
         in_seq = null;
         continue;
       }
     }
-    index += 1;
+    index2 += 1;
     output_code.push(code[i]);
     i += 1;
   }
@@ -50351,6 +51666,2016 @@ var Listing = (props) => {
 
 // node_modules/reactex/dist/document.js
 var import_lodash2 = __toModule(require_lodash());
+
+// node_modules/reactex/node_modules/react-tooltip/dist/index.es.js
+var import_react3 = __toModule(require_react());
+var import_prop_types = __toModule(require_prop_types());
+
+// node_modules/reactex/node_modules/uuid/dist/esm-browser/rng.js
+var getRandomValues = typeof crypto != "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto != "undefined" && typeof msCrypto.getRandomValues == "function" && msCrypto.getRandomValues.bind(msCrypto);
+var rnds8 = new Uint8Array(16);
+function rng() {
+  if (!getRandomValues) {
+    throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
+  }
+  return getRandomValues(rnds8);
+}
+
+// node_modules/reactex/node_modules/uuid/dist/esm-browser/bytesToUuid.js
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 256).toString(16).substr(1);
+}
+function bytesToUuid(buf, offset2) {
+  var i = offset2 || 0;
+  var bth = byteToHex;
+  return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], "-", bth[buf[i++]], bth[buf[i++]], "-", bth[buf[i++]], bth[buf[i++]], "-", bth[buf[i++]], bth[buf[i++]], "-", bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join("");
+}
+var bytesToUuid_default = bytesToUuid;
+
+// node_modules/reactex/node_modules/uuid/dist/esm-browser/v4.js
+function v4(options, buf, offset2) {
+  var i = buf && offset2 || 0;
+  if (typeof options == "string") {
+    buf = options === "binary" ? new Array(16) : null;
+    options = null;
+  }
+  options = options || {};
+  var rnds = options.random || (options.rng || rng)();
+  rnds[6] = rnds[6] & 15 | 64;
+  rnds[8] = rnds[8] & 63 | 128;
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+  return buf || bytesToUuid_default(rnds);
+}
+var v4_default = v4;
+
+// node_modules/reactex/node_modules/react-tooltip/dist/index.es.js
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor)
+      descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps)
+    _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps)
+    _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+function _extends() {
+  _extends = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends.apply(this, arguments);
+}
+function ownKeys(object, enumerableOnly) {
+  var keys3 = Object.keys(object);
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly)
+      symbols = symbols.filter(function(sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    keys3.push.apply(keys3, symbols);
+  }
+  return keys3;
+}
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function(key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function(key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+  return target;
+}
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass)
+    _setPrototypeOf(subClass, superClass);
+}
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf3(o2) {
+    return o2.__proto__ || Object.getPrototypeOf(o2);
+  };
+  return _getPrototypeOf(o);
+}
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf3(o2, p2) {
+    o2.__proto__ = p2;
+    return o2;
+  };
+  return _setPrototypeOf(o, p);
+}
+function _assertThisInitialized(self2) {
+  if (self2 === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+  return self2;
+}
+function _possibleConstructorReturn(self2, call) {
+  if (call && (typeof call === "object" || typeof call === "function")) {
+    return call;
+  }
+  return _assertThisInitialized(self2);
+}
+var CONSTANT = {
+  GLOBAL: {
+    HIDE: "__react_tooltip_hide_event",
+    REBUILD: "__react_tooltip_rebuild_event",
+    SHOW: "__react_tooltip_show_event"
+  }
+};
+var dispatchGlobalEvent = function dispatchGlobalEvent2(eventName, opts) {
+  var event;
+  if (typeof window.CustomEvent === "function") {
+    event = new window.CustomEvent(eventName, {
+      detail: opts
+    });
+  } else {
+    event = document.createEvent("Event");
+    event.initEvent(eventName, false, true, opts);
+  }
+  window.dispatchEvent(event);
+};
+function staticMethods(target) {
+  target.hide = function(target2) {
+    dispatchGlobalEvent(CONSTANT.GLOBAL.HIDE, {
+      target: target2
+    });
+  };
+  target.rebuild = function() {
+    dispatchGlobalEvent(CONSTANT.GLOBAL.REBUILD);
+  };
+  target.show = function(target2) {
+    dispatchGlobalEvent(CONSTANT.GLOBAL.SHOW, {
+      target: target2
+    });
+  };
+  target.prototype.globalRebuild = function() {
+    if (this.mount) {
+      this.unbindListener();
+      this.bindListener();
+    }
+  };
+  target.prototype.globalShow = function(event) {
+    if (this.mount) {
+      var hasTarget = event && event.detail && event.detail.target && true || false;
+      this.showTooltip({
+        currentTarget: hasTarget && event.detail.target
+      }, true);
+    }
+  };
+  target.prototype.globalHide = function(event) {
+    if (this.mount) {
+      var hasTarget = event && event.detail && event.detail.target && true || false;
+      this.hideTooltip({
+        currentTarget: hasTarget && event.detail.target
+      }, hasTarget);
+    }
+  };
+}
+function windowListener(target) {
+  target.prototype.bindWindowEvents = function(resizeHide) {
+    window.removeEventListener(CONSTANT.GLOBAL.HIDE, this.globalHide);
+    window.addEventListener(CONSTANT.GLOBAL.HIDE, this.globalHide, false);
+    window.removeEventListener(CONSTANT.GLOBAL.REBUILD, this.globalRebuild);
+    window.addEventListener(CONSTANT.GLOBAL.REBUILD, this.globalRebuild, false);
+    window.removeEventListener(CONSTANT.GLOBAL.SHOW, this.globalShow);
+    window.addEventListener(CONSTANT.GLOBAL.SHOW, this.globalShow, false);
+    if (resizeHide) {
+      window.removeEventListener("resize", this.onWindowResize);
+      window.addEventListener("resize", this.onWindowResize, false);
+    }
+  };
+  target.prototype.unbindWindowEvents = function() {
+    window.removeEventListener(CONSTANT.GLOBAL.HIDE, this.globalHide);
+    window.removeEventListener(CONSTANT.GLOBAL.REBUILD, this.globalRebuild);
+    window.removeEventListener(CONSTANT.GLOBAL.SHOW, this.globalShow);
+    window.removeEventListener("resize", this.onWindowResize);
+  };
+  target.prototype.onWindowResize = function() {
+    if (!this.mount)
+      return;
+    this.hideTooltip();
+  };
+}
+var checkStatus = function checkStatus2(dataEventOff, e) {
+  var show = this.state.show;
+  var id2 = this.props.id;
+  var isCapture2 = this.isCapture(e.currentTarget);
+  var currentItem = e.currentTarget.getAttribute("currentItem");
+  if (!isCapture2)
+    e.stopPropagation();
+  if (show && currentItem === "true") {
+    if (!dataEventOff)
+      this.hideTooltip(e);
+  } else {
+    e.currentTarget.setAttribute("currentItem", "true");
+    setUntargetItems(e.currentTarget, this.getTargetArray(id2));
+    this.showTooltip(e);
+  }
+};
+var setUntargetItems = function setUntargetItems2(currentTarget, targetArray) {
+  for (var i = 0; i < targetArray.length; i++) {
+    if (currentTarget !== targetArray[i]) {
+      targetArray[i].setAttribute("currentItem", "false");
+    } else {
+      targetArray[i].setAttribute("currentItem", "true");
+    }
+  }
+};
+var customListeners = {
+  id: "9b69f92e-d3fe-498b-b1b4-c5e63a51b0cf",
+  set: function set(target, event, listener) {
+    if (this.id in target) {
+      var map = target[this.id];
+      map[event] = listener;
+    } else {
+      Object.defineProperty(target, this.id, {
+        configurable: true,
+        value: _defineProperty({}, event, listener)
+      });
+    }
+  },
+  get: function get(target, event) {
+    var map = target[this.id];
+    if (map !== void 0) {
+      return map[event];
+    }
+  }
+};
+function customEvent(target) {
+  target.prototype.isCustomEvent = function(ele) {
+    var event = this.state.event;
+    return event || !!ele.getAttribute("data-event");
+  };
+  target.prototype.customBindListener = function(ele) {
+    var _this = this;
+    var _this$state = this.state, event = _this$state.event, eventOff = _this$state.eventOff;
+    var dataEvent = ele.getAttribute("data-event") || event;
+    var dataEventOff = ele.getAttribute("data-event-off") || eventOff;
+    dataEvent.split(" ").forEach(function(event2) {
+      ele.removeEventListener(event2, customListeners.get(ele, event2));
+      var customListener = checkStatus.bind(_this, dataEventOff);
+      customListeners.set(ele, event2, customListener);
+      ele.addEventListener(event2, customListener, false);
+    });
+    if (dataEventOff) {
+      dataEventOff.split(" ").forEach(function(event2) {
+        ele.removeEventListener(event2, _this.hideTooltip);
+        ele.addEventListener(event2, _this.hideTooltip, false);
+      });
+    }
+  };
+  target.prototype.customUnbindListener = function(ele) {
+    var _this$state2 = this.state, event = _this$state2.event, eventOff = _this$state2.eventOff;
+    var dataEvent = event || ele.getAttribute("data-event");
+    var dataEventOff = eventOff || ele.getAttribute("data-event-off");
+    ele.removeEventListener(dataEvent, customListeners.get(ele, event));
+    if (dataEventOff)
+      ele.removeEventListener(dataEventOff, this.hideTooltip);
+  };
+}
+function isCapture(target) {
+  target.prototype.isCapture = function(currentTarget) {
+    return currentTarget && currentTarget.getAttribute("data-iscapture") === "true" || this.props.isCapture || false;
+  };
+}
+function getEffect(target) {
+  target.prototype.getEffect = function(currentTarget) {
+    var dataEffect = currentTarget.getAttribute("data-effect");
+    return dataEffect || this.props.effect || "float";
+  };
+}
+var makeProxy = function makeProxy2(e) {
+  var proxy = {};
+  for (var key in e) {
+    if (typeof e[key] === "function") {
+      proxy[key] = e[key].bind(e);
+    } else {
+      proxy[key] = e[key];
+    }
+  }
+  return proxy;
+};
+var bodyListener = function bodyListener2(callback, options, e) {
+  var _options$respectEffec = options.respectEffect, respectEffect = _options$respectEffec === void 0 ? false : _options$respectEffec, _options$customEvent = options.customEvent, customEvent2 = _options$customEvent === void 0 ? false : _options$customEvent;
+  var id2 = this.props.id;
+  var tip = e.target.getAttribute("data-tip") || null;
+  var forId = e.target.getAttribute("data-for") || null;
+  var target = e.target;
+  if (this.isCustomEvent(target) && !customEvent2) {
+    return;
+  }
+  var isTargetBelongsToTooltip = id2 == null && forId == null || forId === id2;
+  if (tip != null && (!respectEffect || this.getEffect(target) === "float") && isTargetBelongsToTooltip) {
+    var proxy = makeProxy(e);
+    proxy.currentTarget = target;
+    callback(proxy);
+  }
+};
+var findCustomEvents = function findCustomEvents2(targetArray, dataAttribute) {
+  var events = {};
+  targetArray.forEach(function(target) {
+    var event = target.getAttribute(dataAttribute);
+    if (event)
+      event.split(" ").forEach(function(event2) {
+        return events[event2] = true;
+      });
+  });
+  return events;
+};
+var getBody = function getBody2() {
+  return document.getElementsByTagName("body")[0];
+};
+function bodyMode(target) {
+  target.prototype.isBodyMode = function() {
+    return !!this.props.bodyMode;
+  };
+  target.prototype.bindBodyListener = function(targetArray) {
+    var _this = this;
+    var _this$state = this.state, event = _this$state.event, eventOff = _this$state.eventOff, possibleCustomEvents = _this$state.possibleCustomEvents, possibleCustomEventsOff = _this$state.possibleCustomEventsOff;
+    var body = getBody();
+    var customEvents = findCustomEvents(targetArray, "data-event");
+    var customEventsOff = findCustomEvents(targetArray, "data-event-off");
+    if (event != null)
+      customEvents[event] = true;
+    if (eventOff != null)
+      customEventsOff[eventOff] = true;
+    possibleCustomEvents.split(" ").forEach(function(event2) {
+      return customEvents[event2] = true;
+    });
+    possibleCustomEventsOff.split(" ").forEach(function(event2) {
+      return customEventsOff[event2] = true;
+    });
+    this.unbindBodyListener(body);
+    var listeners = this.bodyModeListeners = {};
+    if (event == null) {
+      listeners.mouseover = bodyListener.bind(this, this.showTooltip, {});
+      listeners.mousemove = bodyListener.bind(this, this.updateTooltip, {
+        respectEffect: true
+      });
+      listeners.mouseout = bodyListener.bind(this, this.hideTooltip, {});
+    }
+    for (var _event in customEvents) {
+      listeners[_event] = bodyListener.bind(this, function(e) {
+        var targetEventOff = e.currentTarget.getAttribute("data-event-off") || eventOff;
+        checkStatus.call(_this, targetEventOff, e);
+      }, {
+        customEvent: true
+      });
+    }
+    for (var _event2 in customEventsOff) {
+      listeners[_event2] = bodyListener.bind(this, this.hideTooltip, {
+        customEvent: true
+      });
+    }
+    for (var _event3 in listeners) {
+      body.addEventListener(_event3, listeners[_event3]);
+    }
+  };
+  target.prototype.unbindBodyListener = function(body) {
+    body = body || getBody();
+    var listeners = this.bodyModeListeners;
+    for (var event in listeners) {
+      body.removeEventListener(event, listeners[event]);
+    }
+  };
+}
+var getMutationObserverClass = function getMutationObserverClass2() {
+  return window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+};
+function trackRemoval(target) {
+  target.prototype.bindRemovalTracker = function() {
+    var _this = this;
+    var MutationObserver2 = getMutationObserverClass();
+    if (MutationObserver2 == null)
+      return;
+    var observer = new MutationObserver2(function(mutations) {
+      for (var m1 = 0; m1 < mutations.length; m1++) {
+        var mutation = mutations[m1];
+        for (var m2 = 0; m2 < mutation.removedNodes.length; m2++) {
+          var element = mutation.removedNodes[m2];
+          if (element === _this.state.currentTarget) {
+            _this.hideTooltip();
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(window.document, {
+      childList: true,
+      subtree: true
+    });
+    this.removalTracker = observer;
+  };
+  target.prototype.unbindRemovalTracker = function() {
+    if (this.removalTracker) {
+      this.removalTracker.disconnect();
+      this.removalTracker = null;
+    }
+  };
+}
+function getPosition(e, target, node, place, desiredPlace, effect, offset2) {
+  var _getDimensions = getDimensions(node), tipWidth = _getDimensions.width, tipHeight = _getDimensions.height;
+  var _getDimensions2 = getDimensions(target), targetWidth = _getDimensions2.width, targetHeight = _getDimensions2.height;
+  var _getCurrentOffset = getCurrentOffset(e, target, effect), mouseX = _getCurrentOffset.mouseX, mouseY = _getCurrentOffset.mouseY;
+  var defaultOffset = getDefaultPosition(effect, targetWidth, targetHeight, tipWidth, tipHeight);
+  var _calculateOffset = calculateOffset(offset2), extraOffsetX = _calculateOffset.extraOffsetX, extraOffsetY = _calculateOffset.extraOffsetY;
+  var windowWidth = window.innerWidth;
+  var windowHeight = window.innerHeight;
+  var _getParent = getParent(node), parentTop = _getParent.parentTop, parentLeft = _getParent.parentLeft;
+  var getTipOffsetLeft = function getTipOffsetLeft2(place2) {
+    var offsetX = defaultOffset[place2].l;
+    return mouseX + offsetX + extraOffsetX;
+  };
+  var getTipOffsetRight = function getTipOffsetRight2(place2) {
+    var offsetX = defaultOffset[place2].r;
+    return mouseX + offsetX + extraOffsetX;
+  };
+  var getTipOffsetTop = function getTipOffsetTop2(place2) {
+    var offsetY = defaultOffset[place2].t;
+    return mouseY + offsetY + extraOffsetY;
+  };
+  var getTipOffsetBottom = function getTipOffsetBottom2(place2) {
+    var offsetY = defaultOffset[place2].b;
+    return mouseY + offsetY + extraOffsetY;
+  };
+  var outsideLeft = function outsideLeft2(p2) {
+    return getTipOffsetLeft(p2) < 0;
+  };
+  var outsideRight = function outsideRight2(p2) {
+    return getTipOffsetRight(p2) > windowWidth;
+  };
+  var outsideTop = function outsideTop2(p2) {
+    return getTipOffsetTop(p2) < 0;
+  };
+  var outsideBottom = function outsideBottom2(p2) {
+    return getTipOffsetBottom(p2) > windowHeight;
+  };
+  var outside = function outside2(p2) {
+    return outsideLeft(p2) || outsideRight(p2) || outsideTop(p2) || outsideBottom(p2);
+  };
+  var inside2 = function inside3(p2) {
+    return !outside(p2);
+  };
+  var placesList = ["top", "bottom", "left", "right"];
+  var insideList = [];
+  for (var i = 0; i < 4; i++) {
+    var p = placesList[i];
+    if (inside2(p)) {
+      insideList.push(p);
+    }
+  }
+  var isNewState = false;
+  var newPlace;
+  var shouldUpdatePlace = desiredPlace !== place;
+  if (inside2(desiredPlace) && shouldUpdatePlace) {
+    isNewState = true;
+    newPlace = desiredPlace;
+  } else if (insideList.length > 0 && outside(desiredPlace) && outside(place)) {
+    isNewState = true;
+    newPlace = insideList[0];
+  }
+  if (isNewState) {
+    return {
+      isNewState: true,
+      newState: {
+        place: newPlace
+      }
+    };
+  }
+  return {
+    isNewState: false,
+    position: {
+      left: parseInt(getTipOffsetLeft(place) - parentLeft, 10),
+      top: parseInt(getTipOffsetTop(place) - parentTop, 10)
+    }
+  };
+}
+var getDimensions = function getDimensions2(node) {
+  var _node$getBoundingClie = node.getBoundingClientRect(), height = _node$getBoundingClie.height, width = _node$getBoundingClie.width;
+  return {
+    height: parseInt(height, 10),
+    width: parseInt(width, 10)
+  };
+};
+var getCurrentOffset = function getCurrentOffset2(e, currentTarget, effect) {
+  var boundingClientRect = currentTarget.getBoundingClientRect();
+  var targetTop = boundingClientRect.top;
+  var targetLeft = boundingClientRect.left;
+  var _getDimensions3 = getDimensions(currentTarget), targetWidth = _getDimensions3.width, targetHeight = _getDimensions3.height;
+  if (effect === "float") {
+    return {
+      mouseX: e.clientX,
+      mouseY: e.clientY
+    };
+  }
+  return {
+    mouseX: targetLeft + targetWidth / 2,
+    mouseY: targetTop + targetHeight / 2
+  };
+};
+var getDefaultPosition = function getDefaultPosition2(effect, targetWidth, targetHeight, tipWidth, tipHeight) {
+  var top2;
+  var right;
+  var bottom;
+  var left;
+  var disToMouse = 3;
+  var triangleHeight = 2;
+  var cursorHeight = 12;
+  if (effect === "float") {
+    top2 = {
+      l: -(tipWidth / 2),
+      r: tipWidth / 2,
+      t: -(tipHeight + disToMouse + triangleHeight),
+      b: -disToMouse
+    };
+    bottom = {
+      l: -(tipWidth / 2),
+      r: tipWidth / 2,
+      t: disToMouse + cursorHeight,
+      b: tipHeight + disToMouse + triangleHeight + cursorHeight
+    };
+    left = {
+      l: -(tipWidth + disToMouse + triangleHeight),
+      r: -disToMouse,
+      t: -(tipHeight / 2),
+      b: tipHeight / 2
+    };
+    right = {
+      l: disToMouse,
+      r: tipWidth + disToMouse + triangleHeight,
+      t: -(tipHeight / 2),
+      b: tipHeight / 2
+    };
+  } else if (effect === "solid") {
+    top2 = {
+      l: -(tipWidth / 2),
+      r: tipWidth / 2,
+      t: -(targetHeight / 2 + tipHeight + triangleHeight),
+      b: -(targetHeight / 2)
+    };
+    bottom = {
+      l: -(tipWidth / 2),
+      r: tipWidth / 2,
+      t: targetHeight / 2,
+      b: targetHeight / 2 + tipHeight + triangleHeight
+    };
+    left = {
+      l: -(tipWidth + targetWidth / 2 + triangleHeight),
+      r: -(targetWidth / 2),
+      t: -(tipHeight / 2),
+      b: tipHeight / 2
+    };
+    right = {
+      l: targetWidth / 2,
+      r: tipWidth + targetWidth / 2 + triangleHeight,
+      t: -(tipHeight / 2),
+      b: tipHeight / 2
+    };
+  }
+  return {
+    top: top2,
+    bottom,
+    left,
+    right
+  };
+};
+var calculateOffset = function calculateOffset2(offset2) {
+  var extraOffsetX = 0;
+  var extraOffsetY = 0;
+  if (Object.prototype.toString.apply(offset2) === "[object String]") {
+    offset2 = JSON.parse(offset2.toString().replace(/'/g, '"'));
+  }
+  for (var key in offset2) {
+    if (key === "top") {
+      extraOffsetY -= parseInt(offset2[key], 10);
+    } else if (key === "bottom") {
+      extraOffsetY += parseInt(offset2[key], 10);
+    } else if (key === "left") {
+      extraOffsetX -= parseInt(offset2[key], 10);
+    } else if (key === "right") {
+      extraOffsetX += parseInt(offset2[key], 10);
+    }
+  }
+  return {
+    extraOffsetX,
+    extraOffsetY
+  };
+};
+var getParent = function getParent2(currentTarget) {
+  var currentParent = currentTarget;
+  while (currentParent) {
+    var computedStyle = window.getComputedStyle(currentParent);
+    if (computedStyle.getPropertyValue("transform") !== "none" || computedStyle.getPropertyValue("will-change") === "transform")
+      break;
+    currentParent = currentParent.parentElement;
+  }
+  var parentTop = currentParent && currentParent.getBoundingClientRect().top || 0;
+  var parentLeft = currentParent && currentParent.getBoundingClientRect().left || 0;
+  return {
+    parentTop,
+    parentLeft
+  };
+};
+function getTipContent(tip, children, getContent, multiline) {
+  if (children)
+    return children;
+  if (getContent !== void 0 && getContent !== null)
+    return getContent;
+  if (getContent === null)
+    return null;
+  var regexp = /<br\s*\/?>/;
+  if (!multiline || multiline === "false" || !regexp.test(tip)) {
+    return tip;
+  }
+  return tip.split(regexp).map(function(d, i) {
+    return import_react3.default.createElement("span", {
+      key: i,
+      className: "multi-line"
+    }, d);
+  });
+}
+function parseAria(props) {
+  var ariaObj = {};
+  Object.keys(props).filter(function(prop) {
+    return /(^aria-\w+$|^role$)/.test(prop);
+  }).forEach(function(prop) {
+    ariaObj[prop] = props[prop];
+  });
+  return ariaObj;
+}
+function nodeListToArray(nodeList) {
+  var length = nodeList.length;
+  if (nodeList.hasOwnProperty) {
+    return Array.prototype.slice.call(nodeList);
+  }
+  return new Array(length).fill().map(function(index2) {
+    return nodeList[index2];
+  });
+}
+function generateUUID() {
+  return "t" + v4_default();
+}
+var baseCss = '.__react_component_tooltip {\n  border-radius: 3px;\n  display: inline-block;\n  font-size: 13px;\n  left: -999em;\n  opacity: 0;\n  padding: 8px 21px;\n  position: fixed;\n  pointer-events: none;\n  transition: opacity 0.3s ease-out;\n  top: -999em;\n  visibility: hidden;\n  z-index: 999;\n}\n.__react_component_tooltip.allow_hover, .__react_component_tooltip.allow_click {\n  pointer-events: auto;\n}\n.__react_component_tooltip::before, .__react_component_tooltip::after {\n  content: "";\n  width: 0;\n  height: 0;\n  position: absolute;\n}\n.__react_component_tooltip.show {\n  opacity: 0.9;\n  margin-top: 0;\n  margin-left: 0;\n  visibility: visible;\n}\n.__react_component_tooltip.place-top::before {\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  bottom: -8px;\n  left: 50%;\n  margin-left: -10px;\n}\n.__react_component_tooltip.place-bottom::before {\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  top: -8px;\n  left: 50%;\n  margin-left: -10px;\n}\n.__react_component_tooltip.place-left::before {\n  border-top: 6px solid transparent;\n  border-bottom: 6px solid transparent;\n  right: -8px;\n  top: 50%;\n  margin-top: -5px;\n}\n.__react_component_tooltip.place-right::before {\n  border-top: 6px solid transparent;\n  border-bottom: 6px solid transparent;\n  left: -8px;\n  top: 50%;\n  margin-top: -5px;\n}\n.__react_component_tooltip .multi-line {\n  display: block;\n  padding: 2px 0;\n  text-align: center;\n}';
+var defaultColors = {
+  dark: {
+    text: "#fff",
+    background: "#222",
+    border: "transparent",
+    arrow: "#222"
+  },
+  success: {
+    text: "#fff",
+    background: "#8DC572",
+    border: "transparent",
+    arrow: "#8DC572"
+  },
+  warning: {
+    text: "#fff",
+    background: "#F0AD4E",
+    border: "transparent",
+    arrow: "#F0AD4E"
+  },
+  error: {
+    text: "#fff",
+    background: "#BE6464",
+    border: "transparent",
+    arrow: "#BE6464"
+  },
+  info: {
+    text: "#fff",
+    background: "#337AB7",
+    border: "transparent",
+    arrow: "#337AB7"
+  },
+  light: {
+    text: "#222",
+    background: "#fff",
+    border: "transparent",
+    arrow: "#fff"
+  }
+};
+function getDefaultPopupColors(type) {
+  return defaultColors[type] ? _objectSpread2({}, defaultColors[type]) : void 0;
+}
+function generateTooltipStyle(uuid, customColors, type, hasBorder) {
+  return generateStyle(uuid, getPopupColors(customColors, type, hasBorder));
+}
+function generateStyle(uuid, colors) {
+  var textColor = colors.text;
+  var backgroundColor = colors.background;
+  var borderColor = colors.border;
+  var arrowColor = colors.arrow;
+  return "\n  	.".concat(uuid, " {\n	    color: ").concat(textColor, ";\n	    background: ").concat(backgroundColor, ";\n	    border: 1px solid ").concat(borderColor, ";\n  	}\n\n  	.").concat(uuid, ".place-top {\n        margin-top: -10px;\n    }\n    .").concat(uuid, ".place-top::before {\n        border-top: 8px solid ").concat(borderColor, ";\n    }\n    .").concat(uuid, ".place-top::after {\n        border-left: 8px solid transparent;\n        border-right: 8px solid transparent;\n        bottom: -6px;\n        left: 50%;\n        margin-left: -8px;\n        border-top-color: ").concat(arrowColor, ";\n        border-top-style: solid;\n        border-top-width: 6px;\n    }\n\n    .").concat(uuid, ".place-bottom {\n        margin-top: 10px;\n    }\n    .").concat(uuid, ".place-bottom::before {\n        border-bottom: 8px solid ").concat(borderColor, ";\n    }\n    .").concat(uuid, ".place-bottom::after {\n        border-left: 8px solid transparent;\n        border-right: 8px solid transparent;\n        top: -6px;\n        left: 50%;\n        margin-left: -8px;\n        border-bottom-color: ").concat(arrowColor, ";\n        border-bottom-style: solid;\n        border-bottom-width: 6px;\n    }\n\n    .").concat(uuid, ".place-left {\n        margin-left: -10px;\n    }\n    .").concat(uuid, ".place-left::before {\n        border-left: 8px solid ").concat(borderColor, ";\n    }\n    .").concat(uuid, ".place-left::after {\n        border-top: 5px solid transparent;\n        border-bottom: 5px solid transparent;\n        right: -6px;\n        top: 50%;\n        margin-top: -4px;\n        border-left-color: ").concat(arrowColor, ";\n        border-left-style: solid;\n        border-left-width: 6px;\n    }\n\n    .").concat(uuid, ".place-right {\n        margin-left: 10px;\n    }\n    .").concat(uuid, ".place-right::before {\n        border-right: 8px solid ").concat(borderColor, ";\n    }\n    .").concat(uuid, ".place-right::after {\n        border-top: 5px solid transparent;\n        border-bottom: 5px solid transparent;\n        left: -6px;\n        top: 50%;\n        margin-top: -4px;\n        border-right-color: ").concat(arrowColor, ";\n        border-right-style: solid;\n        border-right-width: 6px;\n    }\n  ");
+}
+function getPopupColors(customColors, type, hasBorder) {
+  var textColor = customColors.text;
+  var backgroundColor = customColors.background;
+  var borderColor = customColors.border;
+  var arrowColor = customColors.arrow ? customColors.arrow : customColors.background;
+  var colors = getDefaultPopupColors(type);
+  if (textColor) {
+    colors.text = textColor;
+  }
+  if (backgroundColor) {
+    colors.background = backgroundColor;
+  }
+  if (hasBorder) {
+    if (borderColor) {
+      colors.border = borderColor;
+    } else {
+      colors.border = type === "light" ? "black" : "white";
+    }
+  }
+  if (arrowColor) {
+    colors.arrow = arrowColor;
+  }
+  return colors;
+}
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+function createCommonjsModule(fn, module) {
+  return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+var check = function(it) {
+  return it && it.Math == Math && it;
+};
+var global_1 = check(typeof globalThis == "object" && globalThis) || check(typeof window == "object" && window) || check(typeof self == "object" && self) || check(typeof commonjsGlobal == "object" && commonjsGlobal) || function() {
+  return this;
+}() || Function("return this")();
+var fails = function(exec) {
+  try {
+    return !!exec();
+  } catch (error) {
+    return true;
+  }
+};
+var descriptors = !fails(function() {
+  return Object.defineProperty({}, 1, { get: function() {
+    return 7;
+  } })[1] != 7;
+});
+var $propertyIsEnumerable = {}.propertyIsEnumerable;
+var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+var NASHORN_BUG = getOwnPropertyDescriptor && !$propertyIsEnumerable.call({ 1: 2 }, 1);
+var f = NASHORN_BUG ? function propertyIsEnumerable(V) {
+  var descriptor = getOwnPropertyDescriptor(this, V);
+  return !!descriptor && descriptor.enumerable;
+} : $propertyIsEnumerable;
+var objectPropertyIsEnumerable = {
+  f
+};
+var createPropertyDescriptor = function(bitmap, value) {
+  return {
+    enumerable: !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable: !(bitmap & 4),
+    value
+  };
+};
+var toString = {}.toString;
+var classofRaw = function(it) {
+  return toString.call(it).slice(8, -1);
+};
+var split = "".split;
+var indexedObject = fails(function() {
+  return !Object("z").propertyIsEnumerable(0);
+}) ? function(it) {
+  return classofRaw(it) == "String" ? split.call(it, "") : Object(it);
+} : Object;
+var requireObjectCoercible = function(it) {
+  if (it == void 0)
+    throw TypeError("Can't call method on " + it);
+  return it;
+};
+var toIndexedObject = function(it) {
+  return indexedObject(requireObjectCoercible(it));
+};
+var isObject = function(it) {
+  return typeof it === "object" ? it !== null : typeof it === "function";
+};
+var toPrimitive = function(input, PREFERRED_STRING) {
+  if (!isObject(input))
+    return input;
+  var fn, val;
+  if (PREFERRED_STRING && typeof (fn = input.toString) == "function" && !isObject(val = fn.call(input)))
+    return val;
+  if (typeof (fn = input.valueOf) == "function" && !isObject(val = fn.call(input)))
+    return val;
+  if (!PREFERRED_STRING && typeof (fn = input.toString) == "function" && !isObject(val = fn.call(input)))
+    return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+var toObject = function(argument) {
+  return Object(requireObjectCoercible(argument));
+};
+var hasOwnProperty = {}.hasOwnProperty;
+var has = function hasOwn(it, key) {
+  return hasOwnProperty.call(toObject(it), key);
+};
+var document$1 = global_1.document;
+var EXISTS = isObject(document$1) && isObject(document$1.createElement);
+var documentCreateElement = function(it) {
+  return EXISTS ? document$1.createElement(it) : {};
+};
+var ie8DomDefine = !descriptors && !fails(function() {
+  return Object.defineProperty(documentCreateElement("div"), "a", {
+    get: function() {
+      return 7;
+    }
+  }).a != 7;
+});
+var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+var f$1 = descriptors ? $getOwnPropertyDescriptor : function getOwnPropertyDescriptor2(O, P) {
+  O = toIndexedObject(O);
+  P = toPrimitive(P, true);
+  if (ie8DomDefine)
+    try {
+      return $getOwnPropertyDescriptor(O, P);
+    } catch (error) {
+    }
+  if (has(O, P))
+    return createPropertyDescriptor(!objectPropertyIsEnumerable.f.call(O, P), O[P]);
+};
+var objectGetOwnPropertyDescriptor = {
+  f: f$1
+};
+var anObject = function(it) {
+  if (!isObject(it)) {
+    throw TypeError(String(it) + " is not an object");
+  }
+  return it;
+};
+var $defineProperty = Object.defineProperty;
+var f$2 = descriptors ? $defineProperty : function defineProperty(O, P, Attributes) {
+  anObject(O);
+  P = toPrimitive(P, true);
+  anObject(Attributes);
+  if (ie8DomDefine)
+    try {
+      return $defineProperty(O, P, Attributes);
+    } catch (error) {
+    }
+  if ("get" in Attributes || "set" in Attributes)
+    throw TypeError("Accessors not supported");
+  if ("value" in Attributes)
+    O[P] = Attributes.value;
+  return O;
+};
+var objectDefineProperty = {
+  f: f$2
+};
+var createNonEnumerableProperty = descriptors ? function(object, key, value) {
+  return objectDefineProperty.f(object, key, createPropertyDescriptor(1, value));
+} : function(object, key, value) {
+  object[key] = value;
+  return object;
+};
+var setGlobal = function(key, value) {
+  try {
+    createNonEnumerableProperty(global_1, key, value);
+  } catch (error) {
+    global_1[key] = value;
+  }
+  return value;
+};
+var SHARED = "__core-js_shared__";
+var store = global_1[SHARED] || setGlobal(SHARED, {});
+var sharedStore = store;
+var functionToString = Function.toString;
+if (typeof sharedStore.inspectSource != "function") {
+  sharedStore.inspectSource = function(it) {
+    return functionToString.call(it);
+  };
+}
+var inspectSource = sharedStore.inspectSource;
+var WeakMap2 = global_1.WeakMap;
+var nativeWeakMap = typeof WeakMap2 === "function" && /native code/.test(inspectSource(WeakMap2));
+var shared = createCommonjsModule(function(module) {
+  (module.exports = function(key, value) {
+    return sharedStore[key] || (sharedStore[key] = value !== void 0 ? value : {});
+  })("versions", []).push({
+    version: "3.12.1",
+    mode: "global",
+    copyright: "\xA9 2021 Denis Pushkarev (zloirock.ru)"
+  });
+});
+var id = 0;
+var postfix = Math.random();
+var uid = function(key) {
+  return "Symbol(" + String(key === void 0 ? "" : key) + ")_" + (++id + postfix).toString(36);
+};
+var keys = shared("keys");
+var sharedKey = function(key) {
+  return keys[key] || (keys[key] = uid(key));
+};
+var hiddenKeys = {};
+var OBJECT_ALREADY_INITIALIZED = "Object already initialized";
+var WeakMap$1 = global_1.WeakMap;
+var set2;
+var get2;
+var has$1;
+var enforce = function(it) {
+  return has$1(it) ? get2(it) : set2(it, {});
+};
+var getterFor = function(TYPE) {
+  return function(it) {
+    var state;
+    if (!isObject(it) || (state = get2(it)).type !== TYPE) {
+      throw TypeError("Incompatible receiver, " + TYPE + " required");
+    }
+    return state;
+  };
+};
+if (nativeWeakMap || sharedStore.state) {
+  store$1 = sharedStore.state || (sharedStore.state = new WeakMap$1());
+  wmget = store$1.get;
+  wmhas = store$1.has;
+  wmset = store$1.set;
+  set2 = function(it, metadata) {
+    if (wmhas.call(store$1, it))
+      throw new TypeError(OBJECT_ALREADY_INITIALIZED);
+    metadata.facade = it;
+    wmset.call(store$1, it, metadata);
+    return metadata;
+  };
+  get2 = function(it) {
+    return wmget.call(store$1, it) || {};
+  };
+  has$1 = function(it) {
+    return wmhas.call(store$1, it);
+  };
+} else {
+  STATE = sharedKey("state");
+  hiddenKeys[STATE] = true;
+  set2 = function(it, metadata) {
+    if (has(it, STATE))
+      throw new TypeError(OBJECT_ALREADY_INITIALIZED);
+    metadata.facade = it;
+    createNonEnumerableProperty(it, STATE, metadata);
+    return metadata;
+  };
+  get2 = function(it) {
+    return has(it, STATE) ? it[STATE] : {};
+  };
+  has$1 = function(it) {
+    return has(it, STATE);
+  };
+}
+var store$1;
+var wmget;
+var wmhas;
+var wmset;
+var STATE;
+var internalState = {
+  set: set2,
+  get: get2,
+  has: has$1,
+  enforce,
+  getterFor
+};
+var redefine = createCommonjsModule(function(module) {
+  var getInternalState = internalState.get;
+  var enforceInternalState = internalState.enforce;
+  var TEMPLATE = String(String).split("String");
+  (module.exports = function(O, key, value, options) {
+    var unsafe = options ? !!options.unsafe : false;
+    var simple = options ? !!options.enumerable : false;
+    var noTargetGet = options ? !!options.noTargetGet : false;
+    var state;
+    if (typeof value == "function") {
+      if (typeof key == "string" && !has(value, "name")) {
+        createNonEnumerableProperty(value, "name", key);
+      }
+      state = enforceInternalState(value);
+      if (!state.source) {
+        state.source = TEMPLATE.join(typeof key == "string" ? key : "");
+      }
+    }
+    if (O === global_1) {
+      if (simple)
+        O[key] = value;
+      else
+        setGlobal(key, value);
+      return;
+    } else if (!unsafe) {
+      delete O[key];
+    } else if (!noTargetGet && O[key]) {
+      simple = true;
+    }
+    if (simple)
+      O[key] = value;
+    else
+      createNonEnumerableProperty(O, key, value);
+  })(Function.prototype, "toString", function toString2() {
+    return typeof this == "function" && getInternalState(this).source || inspectSource(this);
+  });
+});
+var path = global_1;
+var aFunction = function(variable) {
+  return typeof variable == "function" ? variable : void 0;
+};
+var getBuiltIn = function(namespace, method) {
+  return arguments.length < 2 ? aFunction(path[namespace]) || aFunction(global_1[namespace]) : path[namespace] && path[namespace][method] || global_1[namespace] && global_1[namespace][method];
+};
+var ceil = Math.ceil;
+var floor = Math.floor;
+var toInteger = function(argument) {
+  return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor : ceil)(argument);
+};
+var min = Math.min;
+var toLength = function(argument) {
+  return argument > 0 ? min(toInteger(argument), 9007199254740991) : 0;
+};
+var max = Math.max;
+var min$1 = Math.min;
+var toAbsoluteIndex = function(index2, length) {
+  var integer = toInteger(index2);
+  return integer < 0 ? max(integer + length, 0) : min$1(integer, length);
+};
+var createMethod = function(IS_INCLUDES) {
+  return function($this, el, fromIndex) {
+    var O = toIndexedObject($this);
+    var length = toLength(O.length);
+    var index2 = toAbsoluteIndex(fromIndex, length);
+    var value;
+    if (IS_INCLUDES && el != el)
+      while (length > index2) {
+        value = O[index2++];
+        if (value != value)
+          return true;
+      }
+    else
+      for (; length > index2; index2++) {
+        if ((IS_INCLUDES || index2 in O) && O[index2] === el)
+          return IS_INCLUDES || index2 || 0;
+      }
+    return !IS_INCLUDES && -1;
+  };
+};
+var arrayIncludes = {
+  includes: createMethod(true),
+  indexOf: createMethod(false)
+};
+var indexOf = arrayIncludes.indexOf;
+var objectKeysInternal = function(object, names) {
+  var O = toIndexedObject(object);
+  var i = 0;
+  var result = [];
+  var key;
+  for (key in O)
+    !has(hiddenKeys, key) && has(O, key) && result.push(key);
+  while (names.length > i)
+    if (has(O, key = names[i++])) {
+      ~indexOf(result, key) || result.push(key);
+    }
+  return result;
+};
+var enumBugKeys = [
+  "constructor",
+  "hasOwnProperty",
+  "isPrototypeOf",
+  "propertyIsEnumerable",
+  "toLocaleString",
+  "toString",
+  "valueOf"
+];
+var hiddenKeys$1 = enumBugKeys.concat("length", "prototype");
+var f$3 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
+  return objectKeysInternal(O, hiddenKeys$1);
+};
+var objectGetOwnPropertyNames = {
+  f: f$3
+};
+var f$4 = Object.getOwnPropertySymbols;
+var objectGetOwnPropertySymbols = {
+  f: f$4
+};
+var ownKeys$1 = getBuiltIn("Reflect", "ownKeys") || function ownKeys2(it) {
+  var keys3 = objectGetOwnPropertyNames.f(anObject(it));
+  var getOwnPropertySymbols = objectGetOwnPropertySymbols.f;
+  return getOwnPropertySymbols ? keys3.concat(getOwnPropertySymbols(it)) : keys3;
+};
+var copyConstructorProperties = function(target, source) {
+  var keys3 = ownKeys$1(source);
+  var defineProperty2 = objectDefineProperty.f;
+  var getOwnPropertyDescriptor3 = objectGetOwnPropertyDescriptor.f;
+  for (var i = 0; i < keys3.length; i++) {
+    var key = keys3[i];
+    if (!has(target, key))
+      defineProperty2(target, key, getOwnPropertyDescriptor3(source, key));
+  }
+};
+var replacement = /#|\.prototype\./;
+var isForced = function(feature, detection) {
+  var value = data[normalize(feature)];
+  return value == POLYFILL ? true : value == NATIVE ? false : typeof detection == "function" ? fails(detection) : !!detection;
+};
+var normalize = isForced.normalize = function(string2) {
+  return String(string2).replace(replacement, ".").toLowerCase();
+};
+var data = isForced.data = {};
+var NATIVE = isForced.NATIVE = "N";
+var POLYFILL = isForced.POLYFILL = "P";
+var isForced_1 = isForced;
+var getOwnPropertyDescriptor$1 = objectGetOwnPropertyDescriptor.f;
+var _export = function(options, source) {
+  var TARGET = options.target;
+  var GLOBAL = options.global;
+  var STATIC = options.stat;
+  var FORCED, target, key, targetProperty, sourceProperty, descriptor;
+  if (GLOBAL) {
+    target = global_1;
+  } else if (STATIC) {
+    target = global_1[TARGET] || setGlobal(TARGET, {});
+  } else {
+    target = (global_1[TARGET] || {}).prototype;
+  }
+  if (target)
+    for (key in source) {
+      sourceProperty = source[key];
+      if (options.noTargetGet) {
+        descriptor = getOwnPropertyDescriptor$1(target, key);
+        targetProperty = descriptor && descriptor.value;
+      } else
+        targetProperty = target[key];
+      FORCED = isForced_1(GLOBAL ? key : TARGET + (STATIC ? "." : "#") + key, options.forced);
+      if (!FORCED && targetProperty !== void 0) {
+        if (typeof sourceProperty === typeof targetProperty)
+          continue;
+        copyConstructorProperties(sourceProperty, targetProperty);
+      }
+      if (options.sham || targetProperty && targetProperty.sham) {
+        createNonEnumerableProperty(sourceProperty, "sham", true);
+      }
+      redefine(target, key, sourceProperty, options);
+    }
+};
+var aFunction$1 = function(it) {
+  if (typeof it != "function") {
+    throw TypeError(String(it) + " is not a function");
+  }
+  return it;
+};
+var functionBindContext = function(fn, that, length) {
+  aFunction$1(fn);
+  if (that === void 0)
+    return fn;
+  switch (length) {
+    case 0:
+      return function() {
+        return fn.call(that);
+      };
+    case 1:
+      return function(a) {
+        return fn.call(that, a);
+      };
+    case 2:
+      return function(a, b) {
+        return fn.call(that, a, b);
+      };
+    case 3:
+      return function(a, b, c) {
+        return fn.call(that, a, b, c);
+      };
+  }
+  return function() {
+    return fn.apply(that, arguments);
+  };
+};
+var isArray = Array.isArray || function isArray2(arg) {
+  return classofRaw(arg) == "Array";
+};
+var engineUserAgent = getBuiltIn("navigator", "userAgent") || "";
+var process2 = global_1.process;
+var versions = process2 && process2.versions;
+var v8 = versions && versions.v8;
+var match;
+var version;
+if (v8) {
+  match = v8.split(".");
+  version = match[0] < 4 ? 1 : match[0] + match[1];
+} else if (engineUserAgent) {
+  match = engineUserAgent.match(/Edge\/(\d+)/);
+  if (!match || match[1] >= 74) {
+    match = engineUserAgent.match(/Chrome\/(\d+)/);
+    if (match)
+      version = match[1];
+  }
+}
+var engineV8Version = version && +version;
+var nativeSymbol = !!Object.getOwnPropertySymbols && !fails(function() {
+  return !String(Symbol()) || !Symbol.sham && engineV8Version && engineV8Version < 41;
+});
+var useSymbolAsUid = nativeSymbol && !Symbol.sham && typeof Symbol.iterator == "symbol";
+var WellKnownSymbolsStore = shared("wks");
+var Symbol$1 = global_1.Symbol;
+var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid;
+var wellKnownSymbol = function(name2) {
+  if (!has(WellKnownSymbolsStore, name2) || !(nativeSymbol || typeof WellKnownSymbolsStore[name2] == "string")) {
+    if (nativeSymbol && has(Symbol$1, name2)) {
+      WellKnownSymbolsStore[name2] = Symbol$1[name2];
+    } else {
+      WellKnownSymbolsStore[name2] = createWellKnownSymbol("Symbol." + name2);
+    }
+  }
+  return WellKnownSymbolsStore[name2];
+};
+var SPECIES = wellKnownSymbol("species");
+var arraySpeciesCreate = function(originalArray, length) {
+  var C3;
+  if (isArray(originalArray)) {
+    C3 = originalArray.constructor;
+    if (typeof C3 == "function" && (C3 === Array || isArray(C3.prototype)))
+      C3 = void 0;
+    else if (isObject(C3)) {
+      C3 = C3[SPECIES];
+      if (C3 === null)
+        C3 = void 0;
+    }
+  }
+  return new (C3 === void 0 ? Array : C3)(length === 0 ? 0 : length);
+};
+var push = [].push;
+var createMethod$1 = function(TYPE) {
+  var IS_MAP = TYPE == 1;
+  var IS_FILTER = TYPE == 2;
+  var IS_SOME = TYPE == 3;
+  var IS_EVERY = TYPE == 4;
+  var IS_FIND_INDEX = TYPE == 6;
+  var IS_FILTER_OUT = TYPE == 7;
+  var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
+  return function($this, callbackfn, that, specificCreate) {
+    var O = toObject($this);
+    var self2 = indexedObject(O);
+    var boundFunction = functionBindContext(callbackfn, that, 3);
+    var length = toLength(self2.length);
+    var index2 = 0;
+    var create2 = specificCreate || arraySpeciesCreate;
+    var target = IS_MAP ? create2($this, length) : IS_FILTER || IS_FILTER_OUT ? create2($this, 0) : void 0;
+    var value, result;
+    for (; length > index2; index2++)
+      if (NO_HOLES || index2 in self2) {
+        value = self2[index2];
+        result = boundFunction(value, index2, O);
+        if (TYPE) {
+          if (IS_MAP)
+            target[index2] = result;
+          else if (result)
+            switch (TYPE) {
+              case 3:
+                return true;
+              case 5:
+                return value;
+              case 6:
+                return index2;
+              case 2:
+                push.call(target, value);
+            }
+          else
+            switch (TYPE) {
+              case 4:
+                return false;
+              case 7:
+                push.call(target, value);
+            }
+        }
+      }
+    return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : target;
+  };
+};
+var arrayIteration = {
+  forEach: createMethod$1(0),
+  map: createMethod$1(1),
+  filter: createMethod$1(2),
+  some: createMethod$1(3),
+  every: createMethod$1(4),
+  find: createMethod$1(5),
+  findIndex: createMethod$1(6),
+  filterOut: createMethod$1(7)
+};
+var objectKeys = Object.keys || function keys2(O) {
+  return objectKeysInternal(O, enumBugKeys);
+};
+var objectDefineProperties = descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
+  anObject(O);
+  var keys3 = objectKeys(Properties);
+  var length = keys3.length;
+  var index2 = 0;
+  var key;
+  while (length > index2)
+    objectDefineProperty.f(O, key = keys3[index2++], Properties[key]);
+  return O;
+};
+var html = getBuiltIn("document", "documentElement");
+var GT = ">";
+var LT = "<";
+var PROTOTYPE = "prototype";
+var SCRIPT = "script";
+var IE_PROTO = sharedKey("IE_PROTO");
+var EmptyConstructor = function() {
+};
+var scriptTag = function(content2) {
+  return LT + SCRIPT + GT + content2 + LT + "/" + SCRIPT + GT;
+};
+var NullProtoObjectViaActiveX = function(activeXDocument2) {
+  activeXDocument2.write(scriptTag(""));
+  activeXDocument2.close();
+  var temp = activeXDocument2.parentWindow.Object;
+  activeXDocument2 = null;
+  return temp;
+};
+var NullProtoObjectViaIFrame = function() {
+  var iframe = documentCreateElement("iframe");
+  var JS = "java" + SCRIPT + ":";
+  var iframeDocument;
+  iframe.style.display = "none";
+  html.appendChild(iframe);
+  iframe.src = String(JS);
+  iframeDocument = iframe.contentWindow.document;
+  iframeDocument.open();
+  iframeDocument.write(scriptTag("document.F=Object"));
+  iframeDocument.close();
+  return iframeDocument.F;
+};
+var activeXDocument;
+var NullProtoObject = function() {
+  try {
+    activeXDocument = document.domain && new ActiveXObject("htmlfile");
+  } catch (error) {
+  }
+  NullProtoObject = activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) : NullProtoObjectViaIFrame();
+  var length = enumBugKeys.length;
+  while (length--)
+    delete NullProtoObject[PROTOTYPE][enumBugKeys[length]];
+  return NullProtoObject();
+};
+hiddenKeys[IE_PROTO] = true;
+var objectCreate = Object.create || function create(O, Properties) {
+  var result;
+  if (O !== null) {
+    EmptyConstructor[PROTOTYPE] = anObject(O);
+    result = new EmptyConstructor();
+    EmptyConstructor[PROTOTYPE] = null;
+    result[IE_PROTO] = O;
+  } else
+    result = NullProtoObject();
+  return Properties === void 0 ? result : objectDefineProperties(result, Properties);
+};
+var UNSCOPABLES = wellKnownSymbol("unscopables");
+var ArrayPrototype = Array.prototype;
+if (ArrayPrototype[UNSCOPABLES] == void 0) {
+  objectDefineProperty.f(ArrayPrototype, UNSCOPABLES, {
+    configurable: true,
+    value: objectCreate(null)
+  });
+}
+var addToUnscopables = function(key) {
+  ArrayPrototype[UNSCOPABLES][key] = true;
+};
+var $find = arrayIteration.find;
+var FIND = "find";
+var SKIPS_HOLES = true;
+if (FIND in [])
+  Array(1)[FIND](function() {
+    SKIPS_HOLES = false;
+  });
+_export({ target: "Array", proto: true, forced: SKIPS_HOLES }, {
+  find: function find2(callbackfn) {
+    return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : void 0);
+  }
+});
+addToUnscopables(FIND);
+var _class;
+var _class2;
+var _temp;
+var ReactTooltip = staticMethods(_class = windowListener(_class = customEvent(_class = isCapture(_class = getEffect(_class = bodyMode(_class = trackRemoval(_class = (_temp = _class2 = /* @__PURE__ */ function(_React$Component) {
+  _inherits(ReactTooltip2, _React$Component);
+  _createClass(ReactTooltip2, null, [{
+    key: "propTypes",
+    get: function get3() {
+      return {
+        uuid: import_prop_types.default.string,
+        children: import_prop_types.default.any,
+        place: import_prop_types.default.string,
+        type: import_prop_types.default.string,
+        effect: import_prop_types.default.string,
+        offset: import_prop_types.default.object,
+        multiline: import_prop_types.default.bool,
+        border: import_prop_types.default.bool,
+        textColor: import_prop_types.default.string,
+        backgroundColor: import_prop_types.default.string,
+        borderColor: import_prop_types.default.string,
+        arrowColor: import_prop_types.default.string,
+        insecure: import_prop_types.default.bool,
+        "class": import_prop_types.default.string,
+        className: import_prop_types.default.string,
+        id: import_prop_types.default.string,
+        html: import_prop_types.default.bool,
+        delayHide: import_prop_types.default.number,
+        delayUpdate: import_prop_types.default.number,
+        delayShow: import_prop_types.default.number,
+        event: import_prop_types.default.string,
+        eventOff: import_prop_types.default.string,
+        isCapture: import_prop_types.default.bool,
+        globalEventOff: import_prop_types.default.string,
+        getContent: import_prop_types.default.any,
+        afterShow: import_prop_types.default.func,
+        afterHide: import_prop_types.default.func,
+        overridePosition: import_prop_types.default.func,
+        disable: import_prop_types.default.bool,
+        scrollHide: import_prop_types.default.bool,
+        resizeHide: import_prop_types.default.bool,
+        wrapper: import_prop_types.default.string,
+        bodyMode: import_prop_types.default.bool,
+        possibleCustomEvents: import_prop_types.default.string,
+        possibleCustomEventsOff: import_prop_types.default.string,
+        clickable: import_prop_types.default.bool
+      };
+    }
+  }]);
+  function ReactTooltip2(props) {
+    var _this;
+    _classCallCheck(this, ReactTooltip2);
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ReactTooltip2).call(this, props));
+    _this.state = {
+      uuid: props.uuid || generateUUID(),
+      place: props.place || "top",
+      desiredPlace: props.place || "top",
+      type: "dark",
+      effect: "float",
+      show: false,
+      border: false,
+      customColors: {},
+      offset: {},
+      extraClass: "",
+      html: false,
+      delayHide: 0,
+      delayShow: 0,
+      event: props.event || null,
+      eventOff: props.eventOff || null,
+      currentEvent: null,
+      currentTarget: null,
+      ariaProps: parseAria(props),
+      isEmptyTip: false,
+      disable: false,
+      possibleCustomEvents: props.possibleCustomEvents || "",
+      possibleCustomEventsOff: props.possibleCustomEventsOff || "",
+      originTooltip: null,
+      isMultiline: false
+    };
+    _this.bind(["showTooltip", "updateTooltip", "hideTooltip", "hideTooltipOnScroll", "getTooltipContent", "globalRebuild", "globalShow", "globalHide", "onWindowResize", "mouseOnToolTip"]);
+    _this.mount = true;
+    _this.delayShowLoop = null;
+    _this.delayHideLoop = null;
+    _this.delayReshow = null;
+    _this.intervalUpdateContent = null;
+    return _this;
+  }
+  _createClass(ReactTooltip2, [{
+    key: "bind",
+    value: function bind(methodArray) {
+      var _this2 = this;
+      methodArray.forEach(function(method) {
+        _this2[method] = _this2[method].bind(_this2);
+      });
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this$props = this.props, insecure = _this$props.insecure, resizeHide = _this$props.resizeHide;
+      this.bindListener();
+      this.bindWindowEvents(resizeHide);
+      this.injectStyles();
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.mount = false;
+      this.clearTimer();
+      this.unbindListener();
+      this.removeScrollListener(this.state.currentTarget);
+      this.unbindWindowEvents();
+    }
+  }, {
+    key: "injectStyles",
+    value: function injectStyles() {
+      var tooltipRef = this.tooltipRef;
+      if (!tooltipRef) {
+        return;
+      }
+      var parentNode = tooltipRef.parentNode;
+      while (parentNode.parentNode) {
+        parentNode = parentNode.parentNode;
+      }
+      var domRoot;
+      switch (parentNode.constructor.name) {
+        case "Document":
+        case "HTMLDocument":
+        case void 0:
+          domRoot = parentNode.head;
+          break;
+        case "ShadowRoot":
+        default:
+          domRoot = parentNode;
+          break;
+      }
+      if (!domRoot.querySelector("style[data-react-tooltip]")) {
+        var style2 = document.createElement("style");
+        style2.textContent = baseCss;
+        style2.setAttribute("data-react-tooltip", "true");
+        domRoot.appendChild(style2);
+      }
+    }
+  }, {
+    key: "mouseOnToolTip",
+    value: function mouseOnToolTip() {
+      var show = this.state.show;
+      if (show && this.tooltipRef) {
+        if (!this.tooltipRef.matches) {
+          if (this.tooltipRef.msMatchesSelector) {
+            this.tooltipRef.matches = this.tooltipRef.msMatchesSelector;
+          } else {
+            this.tooltipRef.matches = this.tooltipRef.mozMatchesSelector;
+          }
+        }
+        return this.tooltipRef.matches(":hover");
+      }
+      return false;
+    }
+  }, {
+    key: "getTargetArray",
+    value: function getTargetArray(id2) {
+      var targetArray = [];
+      var selector;
+      if (!id2) {
+        selector = "[data-tip]:not([data-for])";
+      } else {
+        var escaped = id2.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        selector = '[data-tip][data-for="'.concat(escaped, '"]');
+      }
+      nodeListToArray(document.getElementsByTagName("*")).filter(function(element) {
+        return element.shadowRoot;
+      }).forEach(function(element) {
+        targetArray = targetArray.concat(nodeListToArray(element.shadowRoot.querySelectorAll(selector)));
+      });
+      return targetArray.concat(nodeListToArray(document.querySelectorAll(selector)));
+    }
+  }, {
+    key: "bindListener",
+    value: function bindListener() {
+      var _this3 = this;
+      var _this$props2 = this.props, id2 = _this$props2.id, globalEventOff = _this$props2.globalEventOff, isCapture2 = _this$props2.isCapture;
+      var targetArray = this.getTargetArray(id2);
+      targetArray.forEach(function(target) {
+        if (target.getAttribute("currentItem") === null) {
+          target.setAttribute("currentItem", "false");
+        }
+        _this3.unbindBasicListener(target);
+        if (_this3.isCustomEvent(target)) {
+          _this3.customUnbindListener(target);
+        }
+      });
+      if (this.isBodyMode()) {
+        this.bindBodyListener(targetArray);
+      } else {
+        targetArray.forEach(function(target) {
+          var isCaptureMode = _this3.isCapture(target);
+          var effect = _this3.getEffect(target);
+          if (_this3.isCustomEvent(target)) {
+            _this3.customBindListener(target);
+            return;
+          }
+          target.addEventListener("mouseenter", _this3.showTooltip, isCaptureMode);
+          target.addEventListener("focus", _this3.showTooltip, isCaptureMode);
+          if (effect === "float") {
+            target.addEventListener("mousemove", _this3.updateTooltip, isCaptureMode);
+          }
+          target.addEventListener("mouseleave", _this3.hideTooltip, isCaptureMode);
+          target.addEventListener("blur", _this3.hideTooltip, isCaptureMode);
+        });
+      }
+      if (globalEventOff) {
+        window.removeEventListener(globalEventOff, this.hideTooltip);
+        window.addEventListener(globalEventOff, this.hideTooltip, isCapture2);
+      }
+      this.bindRemovalTracker();
+    }
+  }, {
+    key: "unbindListener",
+    value: function unbindListener() {
+      var _this4 = this;
+      var _this$props3 = this.props, id2 = _this$props3.id, globalEventOff = _this$props3.globalEventOff;
+      if (this.isBodyMode()) {
+        this.unbindBodyListener();
+      } else {
+        var targetArray = this.getTargetArray(id2);
+        targetArray.forEach(function(target) {
+          _this4.unbindBasicListener(target);
+          if (_this4.isCustomEvent(target))
+            _this4.customUnbindListener(target);
+        });
+      }
+      if (globalEventOff)
+        window.removeEventListener(globalEventOff, this.hideTooltip);
+      this.unbindRemovalTracker();
+    }
+  }, {
+    key: "unbindBasicListener",
+    value: function unbindBasicListener(target) {
+      var isCaptureMode = this.isCapture(target);
+      target.removeEventListener("mouseenter", this.showTooltip, isCaptureMode);
+      target.removeEventListener("mousemove", this.updateTooltip, isCaptureMode);
+      target.removeEventListener("mouseleave", this.hideTooltip, isCaptureMode);
+    }
+  }, {
+    key: "getTooltipContent",
+    value: function getTooltipContent() {
+      var _this$props4 = this.props, getContent = _this$props4.getContent, children = _this$props4.children;
+      var content2;
+      if (getContent) {
+        if (Array.isArray(getContent)) {
+          content2 = getContent[0] && getContent[0](this.state.originTooltip);
+        } else {
+          content2 = getContent(this.state.originTooltip);
+        }
+      }
+      return getTipContent(this.state.originTooltip, children, content2, this.state.isMultiline);
+    }
+  }, {
+    key: "isEmptyTip",
+    value: function isEmptyTip(placeholder) {
+      return typeof placeholder === "string" && placeholder === "" || placeholder === null;
+    }
+  }, {
+    key: "showTooltip",
+    value: function showTooltip(e, isGlobalCall) {
+      if (!this.tooltipRef) {
+        return;
+      }
+      if (isGlobalCall) {
+        var targetArray = this.getTargetArray(this.props.id);
+        var isMyElement = targetArray.some(function(ele) {
+          return ele === e.currentTarget;
+        });
+        if (!isMyElement)
+          return;
+      }
+      var _this$props5 = this.props, multiline = _this$props5.multiline, getContent = _this$props5.getContent;
+      var originTooltip = e.currentTarget.getAttribute("data-tip");
+      var isMultiline = e.currentTarget.getAttribute("data-multiline") || multiline || false;
+      var switchToSolid = e instanceof window.FocusEvent || isGlobalCall;
+      var scrollHide = true;
+      if (e.currentTarget.getAttribute("data-scroll-hide")) {
+        scrollHide = e.currentTarget.getAttribute("data-scroll-hide") === "true";
+      } else if (this.props.scrollHide != null) {
+        scrollHide = this.props.scrollHide;
+      }
+      if (e && e.currentTarget && e.currentTarget.setAttribute) {
+        e.currentTarget.setAttribute("aria-describedby", this.state.uuid);
+      }
+      var desiredPlace = e.currentTarget.getAttribute("data-place") || this.props.place || "top";
+      var effect = switchToSolid && "solid" || this.getEffect(e.currentTarget);
+      var offset2 = e.currentTarget.getAttribute("data-offset") || this.props.offset || {};
+      var result = getPosition(e, e.currentTarget, this.tooltipRef, desiredPlace, desiredPlace, effect, offset2);
+      if (result.position && this.props.overridePosition) {
+        result.position = this.props.overridePosition(result.position, e, e.currentTarget, this.tooltipRef, desiredPlace, desiredPlace, effect, offset2);
+      }
+      var place = result.isNewState ? result.newState.place : desiredPlace;
+      this.clearTimer();
+      var target = e.currentTarget;
+      var reshowDelay = this.state.show ? target.getAttribute("data-delay-update") || this.props.delayUpdate : 0;
+      var self2 = this;
+      var updateState = function updateState2() {
+        self2.setState({
+          originTooltip,
+          isMultiline,
+          desiredPlace,
+          place,
+          type: target.getAttribute("data-type") || self2.props.type || "dark",
+          customColors: {
+            text: target.getAttribute("data-text-color") || self2.props.textColor || null,
+            background: target.getAttribute("data-background-color") || self2.props.backgroundColor || null,
+            border: target.getAttribute("data-border-color") || self2.props.borderColor || null,
+            arrow: target.getAttribute("data-arrow-color") || self2.props.arrowColor || null
+          },
+          effect,
+          offset: offset2,
+          html: (target.getAttribute("data-html") ? target.getAttribute("data-html") === "true" : self2.props.html) || false,
+          delayShow: target.getAttribute("data-delay-show") || self2.props.delayShow || 0,
+          delayHide: target.getAttribute("data-delay-hide") || self2.props.delayHide || 0,
+          delayUpdate: target.getAttribute("data-delay-update") || self2.props.delayUpdate || 0,
+          border: (target.getAttribute("data-border") ? target.getAttribute("data-border") === "true" : self2.props.border) || false,
+          extraClass: target.getAttribute("data-class") || self2.props["class"] || self2.props.className || "",
+          disable: (target.getAttribute("data-tip-disable") ? target.getAttribute("data-tip-disable") === "true" : self2.props.disable) || false,
+          currentTarget: target
+        }, function() {
+          if (scrollHide) {
+            self2.addScrollListener(self2.state.currentTarget);
+          }
+          self2.updateTooltip(e);
+          if (getContent && Array.isArray(getContent)) {
+            self2.intervalUpdateContent = setInterval(function() {
+              if (self2.mount) {
+                var _getContent = self2.props.getContent;
+                var placeholder = getTipContent(originTooltip, "", _getContent[0](), isMultiline);
+                var isEmptyTip = self2.isEmptyTip(placeholder);
+                self2.setState({
+                  isEmptyTip
+                });
+                self2.updatePosition();
+              }
+            }, getContent[1]);
+          }
+        });
+      };
+      if (reshowDelay) {
+        this.delayReshow = setTimeout(updateState, reshowDelay);
+      } else {
+        updateState();
+      }
+    }
+  }, {
+    key: "updateTooltip",
+    value: function updateTooltip(e) {
+      var _this5 = this;
+      var _this$state = this.state, delayShow = _this$state.delayShow, disable = _this$state.disable;
+      var afterShow = this.props.afterShow;
+      var placeholder = this.getTooltipContent();
+      var eventTarget = e.currentTarget || e.target;
+      if (this.mouseOnToolTip()) {
+        return;
+      }
+      if (this.isEmptyTip(placeholder) || disable) {
+        return;
+      }
+      var delayTime = !this.state.show ? parseInt(delayShow, 10) : 0;
+      var updateState = function updateState2() {
+        if (Array.isArray(placeholder) && placeholder.length > 0 || placeholder) {
+          var isInvisible = !_this5.state.show;
+          _this5.setState({
+            currentEvent: e,
+            currentTarget: eventTarget,
+            show: true
+          }, function() {
+            _this5.updatePosition();
+            if (isInvisible && afterShow) {
+              afterShow(e);
+            }
+          });
+        }
+      };
+      clearTimeout(this.delayShowLoop);
+      if (delayTime) {
+        this.delayShowLoop = setTimeout(updateState, delayTime);
+      } else {
+        updateState();
+      }
+    }
+  }, {
+    key: "listenForTooltipExit",
+    value: function listenForTooltipExit() {
+      var show = this.state.show;
+      if (show && this.tooltipRef) {
+        this.tooltipRef.addEventListener("mouseleave", this.hideTooltip);
+      }
+    }
+  }, {
+    key: "removeListenerForTooltipExit",
+    value: function removeListenerForTooltipExit() {
+      var show = this.state.show;
+      if (show && this.tooltipRef) {
+        this.tooltipRef.removeEventListener("mouseleave", this.hideTooltip);
+      }
+    }
+  }, {
+    key: "hideTooltip",
+    value: function hideTooltip(e, hasTarget) {
+      var _this6 = this;
+      var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {
+        isScroll: false
+      };
+      var disable = this.state.disable;
+      var isScroll = options.isScroll;
+      var delayHide = isScroll ? 0 : this.state.delayHide;
+      var afterHide = this.props.afterHide;
+      var placeholder = this.getTooltipContent();
+      if (!this.mount)
+        return;
+      if (this.isEmptyTip(placeholder) || disable)
+        return;
+      if (hasTarget) {
+        var targetArray = this.getTargetArray(this.props.id);
+        var isMyElement = targetArray.some(function(ele) {
+          return ele === e.currentTarget;
+        });
+        if (!isMyElement || !this.state.show)
+          return;
+      }
+      if (e && e.currentTarget && e.currentTarget.removeAttribute) {
+        e.currentTarget.removeAttribute("aria-describedby");
+      }
+      var resetState = function resetState2() {
+        var isVisible = _this6.state.show;
+        if (_this6.mouseOnToolTip()) {
+          _this6.listenForTooltipExit();
+          return;
+        }
+        _this6.removeListenerForTooltipExit();
+        _this6.setState({
+          show: false
+        }, function() {
+          _this6.removeScrollListener(_this6.state.currentTarget);
+          if (isVisible && afterHide) {
+            afterHide(e);
+          }
+        });
+      };
+      this.clearTimer();
+      if (delayHide) {
+        this.delayHideLoop = setTimeout(resetState, parseInt(delayHide, 10));
+      } else {
+        resetState();
+      }
+    }
+  }, {
+    key: "hideTooltipOnScroll",
+    value: function hideTooltipOnScroll(event, hasTarget) {
+      this.hideTooltip(event, hasTarget, {
+        isScroll: true
+      });
+    }
+  }, {
+    key: "addScrollListener",
+    value: function addScrollListener(currentTarget) {
+      var isCaptureMode = this.isCapture(currentTarget);
+      window.addEventListener("scroll", this.hideTooltipOnScroll, isCaptureMode);
+    }
+  }, {
+    key: "removeScrollListener",
+    value: function removeScrollListener(currentTarget) {
+      var isCaptureMode = this.isCapture(currentTarget);
+      window.removeEventListener("scroll", this.hideTooltipOnScroll, isCaptureMode);
+    }
+  }, {
+    key: "updatePosition",
+    value: function updatePosition() {
+      var _this7 = this;
+      var _this$state2 = this.state, currentEvent = _this$state2.currentEvent, currentTarget = _this$state2.currentTarget, place = _this$state2.place, desiredPlace = _this$state2.desiredPlace, effect = _this$state2.effect, offset2 = _this$state2.offset;
+      var node = this.tooltipRef;
+      var result = getPosition(currentEvent, currentTarget, node, place, desiredPlace, effect, offset2);
+      if (result.position && this.props.overridePosition) {
+        result.position = this.props.overridePosition(result.position, currentEvent, currentTarget, node, place, desiredPlace, effect, offset2);
+      }
+      if (result.isNewState) {
+        return this.setState(result.newState, function() {
+          _this7.updatePosition();
+        });
+      }
+      node.style.left = result.position.left + "px";
+      node.style.top = result.position.top + "px";
+    }
+  }, {
+    key: "clearTimer",
+    value: function clearTimer() {
+      clearTimeout(this.delayShowLoop);
+      clearTimeout(this.delayHideLoop);
+      clearTimeout(this.delayReshow);
+      clearInterval(this.intervalUpdateContent);
+    }
+  }, {
+    key: "hasCustomColors",
+    value: function hasCustomColors() {
+      var _this8 = this;
+      return Boolean(Object.keys(this.state.customColors).find(function(color) {
+        return color !== "border" && _this8.state.customColors[color];
+      }) || this.state.border && this.state.customColors["border"]);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this9 = this;
+      var _this$state3 = this.state, extraClass = _this$state3.extraClass, html2 = _this$state3.html, ariaProps = _this$state3.ariaProps, disable = _this$state3.disable, uuid = _this$state3.uuid;
+      var content2 = this.getTooltipContent();
+      var isEmptyTip = this.isEmptyTip(content2);
+      var style2 = generateTooltipStyle(this.state.uuid, this.state.customColors, this.state.type, this.state.border);
+      var tooltipClass = "__react_component_tooltip" + " ".concat(this.state.uuid) + (this.state.show && !disable && !isEmptyTip ? " show" : "") + (this.state.border ? " border" : "") + " place-".concat(this.state.place) + " type-".concat(this.hasCustomColors() ? "custom" : this.state.type) + (this.props.delayUpdate ? " allow_hover" : "") + (this.props.clickable ? " allow_click" : "");
+      var Wrapper = this.props.wrapper;
+      if (ReactTooltip2.supportedWrappers.indexOf(Wrapper) < 0) {
+        Wrapper = ReactTooltip2.defaultProps.wrapper;
+      }
+      var wrapperClassName = [tooltipClass, extraClass].filter(Boolean).join(" ");
+      if (html2) {
+        var htmlContent = "".concat(content2, '\n<style aria-hidden="true">').concat(style2, "</style>");
+        return import_react3.default.createElement(Wrapper, _extends({
+          className: "".concat(wrapperClassName),
+          id: this.props.id || uuid,
+          ref: function ref(_ref) {
+            return _this9.tooltipRef = _ref;
+          }
+        }, ariaProps, {
+          "data-id": "tooltip",
+          dangerouslySetInnerHTML: {
+            __html: htmlContent
+          }
+        }));
+      } else {
+        return import_react3.default.createElement(Wrapper, _extends({
+          className: "".concat(wrapperClassName),
+          id: this.props.id || uuid
+        }, ariaProps, {
+          ref: function ref(_ref2) {
+            return _this9.tooltipRef = _ref2;
+          },
+          "data-id": "tooltip"
+        }), import_react3.default.createElement("style", {
+          dangerouslySetInnerHTML: {
+            __html: style2
+          },
+          "aria-hidden": "true"
+        }), content2);
+      }
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      var ariaProps = prevState.ariaProps;
+      var newAriaProps = parseAria(nextProps);
+      var isChanged = Object.keys(newAriaProps).some(function(props) {
+        return newAriaProps[props] !== ariaProps[props];
+      });
+      if (!isChanged) {
+        return null;
+      }
+      return _objectSpread2({}, prevState, {
+        ariaProps: newAriaProps
+      });
+    }
+  }]);
+  return ReactTooltip2;
+}(import_react3.default.Component), _defineProperty(_class2, "defaultProps", {
+  insecure: true,
+  resizeHide: true,
+  wrapper: "div",
+  clickable: false
+}), _defineProperty(_class2, "supportedWrappers", ["div", "span"]), _defineProperty(_class2, "displayName", "ReactTooltip"), _temp)) || _class) || _class) || _class) || _class) || _class) || _class) || _class;
+var index_es_default = ReactTooltip;
+
+// node_modules/reactex/dist/document.js
 var SectionData = class {
   constructor() {
     this.subsections = 0;
@@ -50369,26 +53694,26 @@ var DocumentData = class {
     }
   }
 };
-var DocumentContext = import_react3.default.createContext(new DocumentData());
+var DocumentContext = import_react4.default.createContext(new DocumentData());
 var SectionTitle = ({
   level,
   children
 }) => {
   let Header;
   if (!level || level == 0) {
-    Header = (props) => /* @__PURE__ */ import_react3.default.createElement("h2", {
+    Header = (props) => /* @__PURE__ */ import_react4.default.createElement("h2", {
       ...props
     });
   } else if (level == 1) {
-    Header = (props) => /* @__PURE__ */ import_react3.default.createElement("h3", {
+    Header = (props) => /* @__PURE__ */ import_react4.default.createElement("h3", {
       ...props
     });
   } else {
-    Header = (props) => /* @__PURE__ */ import_react3.default.createElement("h4", {
+    Header = (props) => /* @__PURE__ */ import_react4.default.createElement("h4", {
       ...props
     });
   }
-  return /* @__PURE__ */ import_react3.default.createElement(Header, {
+  return /* @__PURE__ */ import_react4.default.createElement(Header, {
     className: "section-title"
   }, children);
 };
@@ -50397,7 +53722,7 @@ var Section = ({
   title,
   children
 }) => {
-  let doc_ctx = (0, import_react3.useContext)(DocumentContext);
+  let doc_ctx = (0, import_react4.useContext)(DocumentContext);
   if (doc_ctx.section_contexts.length == 0) {
     doc_ctx.sections += 1;
   } else {
@@ -50417,90 +53742,3986 @@ var Section = ({
     doc_ctx.section_contexts.pop();
     return null;
   };
-  return /* @__PURE__ */ import_react3.default.createElement("section", {
+  return /* @__PURE__ */ import_react4.default.createElement("section", {
     id: label
-  }, /* @__PURE__ */ import_react3.default.createElement(SectionTitle, {
+  }, /* @__PURE__ */ import_react4.default.createElement(SectionTitle, {
     level
-  }, /* @__PURE__ */ import_react3.default.createElement("span", {
+  }, /* @__PURE__ */ import_react4.default.createElement("span", {
     className: "section-number"
-  }, sec_num), " ", title), children, /* @__PURE__ */ import_react3.default.createElement(Cleanup, null));
+  }, sec_num), " ", title), children, /* @__PURE__ */ import_react4.default.createElement(Cleanup, null));
 };
 var Ref = ({ label }) => {
-  let ctx = (0, import_react3.useContext)(DocumentContext);
-  return /* @__PURE__ */ import_react3.default.createElement("a", {
+  let ctx = (0, import_react4.useContext)(DocumentContext);
+  return /* @__PURE__ */ import_react4.default.createElement("a", {
     href: `#${label}`
   }, ctx.labels[label] || label);
 };
 var Footnote = ({ children }) => {
-  let ctx = (0, import_react3.useContext)(DocumentContext);
+  let ctx = (0, import_react4.useContext)(DocumentContext);
   ctx.footnotes.push(children);
   let i = ctx.footnotes.length;
-  return /* @__PURE__ */ import_react3.default.createElement("a", {
+  return /* @__PURE__ */ import_react4.default.createElement("a", {
     href: `#footnote-${i}`,
     id: `footnote-ref-${i}`
-  }, /* @__PURE__ */ import_react3.default.createElement("sup", null, i));
+  }, /* @__PURE__ */ import_react4.default.createElement("sup", {
+    className: "footnote-marker"
+  }, i));
 };
 var Wrap = ({
   align,
   children
 }) => {
   let margin = "1rem";
-  let style;
+  let style2;
   if (align == "left") {
-    style = { marginRight: margin };
+    style2 = { marginRight: margin };
   } else if (align == "right") {
-    style = { marginLeft: margin };
+    style2 = { marginLeft: margin };
   } else {
-    style = {};
+    style2 = {};
   }
-  return /* @__PURE__ */ import_react3.default.createElement("div", {
-    style: { float: align, ...style }
+  return /* @__PURE__ */ import_react4.default.createElement("div", {
+    style: { float: align, ...style2 }
+  }, children);
+};
+var Row = ({ children }) => {
+  return /* @__PURE__ */ import_react4.default.createElement("div", {
+    className: "row"
   }, children);
 };
 var Document = ({ children, bibtex }) => {
-  let [second_pass, set_second_pass] = (0, import_react3.useState)(false);
-  (0, import_react3.useEffect)(() => {
+  let [second_pass, set_second_pass] = (0, import_react4.useState)(false);
+  (0, import_react4.useEffect)(() => {
     set_second_pass(true);
   });
-  let [ctx, set_ctx] = (0, import_react3.useState)(new DocumentData());
-  (0, import_react3.useEffect)(() => {
+  let [ctx, set_ctx] = (0, import_react4.useState)(new DocumentData());
+  (0, import_react4.useEffect)(() => {
     if (second_pass) {
       let new_ctx = new DocumentData();
       new_ctx.labels = ctx.labels;
       set_ctx(new_ctx);
     }
   }, [second_pass]);
-  let Footnotes = (_22) => /* @__PURE__ */ import_react3.default.createElement("div", {
+  let Footnotes = (_22) => /* @__PURE__ */ import_react4.default.createElement("div", {
     className: "footnotes"
   }, ctx.footnotes.map((footnote, i) => {
     let top2 = {};
     i += 1;
-    return /* @__PURE__ */ import_react3.default.createElement("div", {
+    return /* @__PURE__ */ import_react4.default.createElement("div", {
       className: "footnote",
       id: `footnote-${i}`,
       key: i
-    }, /* @__PURE__ */ import_react3.default.createElement("a", {
+    }, /* @__PURE__ */ import_react4.default.createElement("a", {
       className: "backlink",
       href: `#footnote-ref-${i}`
-    }, "\u2B05"), /* @__PURE__ */ import_react3.default.createElement("span", {
+    }, "\u2B05"), /* @__PURE__ */ import_react4.default.createElement("span", {
       className: "footnote-number"
     }, i), footnote);
   }));
-  return /* @__PURE__ */ import_react3.default.createElement(DocumentContext.Provider, {
+  return /* @__PURE__ */ import_react4.default.createElement(DocumentContext.Provider, {
     value: ctx
-  }, /* @__PURE__ */ import_react3.default.createElement(ReactTexContext.Provider, {
+  }, /* @__PURE__ */ import_react4.default.createElement(ReactTexContext.Provider, {
     value: new TexContext()
-  }, /* @__PURE__ */ import_react3.default.createElement(ReactBibliographyContext.Provider, {
+  }, /* @__PURE__ */ import_react4.default.createElement(ReactBibliographyContext.Provider, {
     value: new BibliographyContext(bibtex || "")
-  }, /* @__PURE__ */ import_react3.default.createElement(ListingContext.Provider, {
+  }, /* @__PURE__ */ import_react4.default.createElement(ListingContext.Provider, {
     value: new ListingData()
-  }, /* @__PURE__ */ import_react3.default.createElement("div", {
+  }, /* @__PURE__ */ import_react4.default.createElement("div", {
     className: "document-wrapper",
     key: second_pass.toString()
-  }, /* @__PURE__ */ import_react3.default.createElement("div", {
+  }, /* @__PURE__ */ import_react4.default.createElement(index_es_default, {
+    effect: "solid",
+    type: "light",
+    className: "tooltip"
+  }), /* @__PURE__ */ import_react4.default.createElement("div", {
     className: "document"
-  }, children), /* @__PURE__ */ import_react3.default.createElement(References, null), /* @__PURE__ */ import_react3.default.createElement(Footnotes, null))))));
+  }, children), /* @__PURE__ */ import_react4.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react4.default.createElement(Footnotes, null))))));
 };
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/extends.js
+function _extends2() {
+  _extends2 = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends2.apply(this, arguments);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/typeof.js
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function _typeof3(obj2) {
+      return typeof obj2;
+    };
+  } else {
+    _typeof = function _typeof3(obj2) {
+      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+    };
+  }
+  return _typeof(obj);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/defineProperty.js
+function _defineProperty2(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectSpread2.js
+function ownKeys3(object, enumerableOnly) {
+  var keys3 = Object.keys(object);
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) {
+      symbols = symbols.filter(function(sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+    keys3.push.apply(keys3, symbols);
+  }
+  return keys3;
+}
+function _objectSpread22(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    if (i % 2) {
+      ownKeys3(Object(source), true).forEach(function(key) {
+        _defineProperty2(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys3(Object(source)).forEach(function(key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+  return target;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null)
+    return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0)
+      continue;
+    target[key] = source[key];
+  }
+  return target;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
+function _objectWithoutProperties(source, excluded) {
+  if (source == null)
+    return {};
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+  var key, i;
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0)
+        continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key))
+        continue;
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
+
+// node_modules/reactex/node_modules/rc-tooltip/es/Tooltip.js
+var React22 = __toModule(require_react());
+var import_react16 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/classCallCheck.js
+function _classCallCheck2(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/createClass.js
+function _defineProperties2(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor)
+      descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+function _createClass2(Constructor, protoProps, staticProps) {
+  if (protoProps)
+    _defineProperties2(Constructor.prototype, protoProps);
+  if (staticProps)
+    _defineProperties2(Constructor, staticProps);
+  return Constructor;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js
+function _assertThisInitialized2(self2) {
+  if (self2 === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+  return self2;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
+function _setPrototypeOf2(o, p) {
+  _setPrototypeOf2 = Object.setPrototypeOf || function _setPrototypeOf3(o2, p2) {
+    o2.__proto__ = p2;
+    return o2;
+  };
+  return _setPrototypeOf2(o, p);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/inherits.js
+function _inherits2(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass)
+    _setPrototypeOf2(subClass, superClass);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
+function _getPrototypeOf2(o) {
+  _getPrototypeOf2 = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf3(o2) {
+    return o2.__proto__ || Object.getPrototypeOf(o2);
+  };
+  return _getPrototypeOf2(o);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/isNativeReflectConstruct.js
+function _isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct)
+    return false;
+  if (Reflect.construct.sham)
+    return false;
+  if (typeof Proxy === "function")
+    return true;
+  try {
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    }));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js
+function _possibleConstructorReturn2(self2, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+  return _assertThisInitialized2(self2);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/createSuper.js
+function _createSuper(Derived) {
+  var hasNativeReflectConstruct = _isNativeReflectConstruct();
+  return function _createSuperInternal() {
+    var Super = _getPrototypeOf2(Derived), result;
+    if (hasNativeReflectConstruct) {
+      var NewTarget = _getPrototypeOf2(this).constructor;
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+    return _possibleConstructorReturn2(this, result);
+  };
+}
+
+// node_modules/reactex/node_modules/rc-trigger/es/index.js
+var React20 = __toModule(require_react());
+var import_react_dom4 = __toModule(require_react_dom());
+
+// node_modules/reactex/node_modules/rc-util/es/raf.js
+var raf = function raf2(callback) {
+  return +setTimeout(callback, 16);
+};
+var caf = function caf2(num) {
+  return clearTimeout(num);
+};
+if (typeof window !== "undefined" && "requestAnimationFrame" in window) {
+  raf = function raf3(callback) {
+    return window.requestAnimationFrame(callback);
+  };
+  caf = function caf3(handle) {
+    return window.cancelAnimationFrame(handle);
+  };
+}
+var rafUUID = 0;
+var rafIds = new Map();
+function cleanup(id2) {
+  rafIds.delete(id2);
+}
+function wrapperRaf(callback) {
+  var times = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1;
+  rafUUID += 1;
+  var id2 = rafUUID;
+  function callRef(leftTimes) {
+    if (leftTimes === 0) {
+      cleanup(id2);
+      callback();
+    } else {
+      var realId = raf(function() {
+        callRef(leftTimes - 1);
+      });
+      rafIds.set(id2, realId);
+    }
+  }
+  callRef(times);
+  return id2;
+}
+wrapperRaf.cancel = function(id2) {
+  var realId = rafIds.get(id2);
+  cleanup(realId);
+  return caf(realId);
+};
+
+// node_modules/reactex/node_modules/rc-util/es/Dom/contains.js
+function contains2(root, n) {
+  if (!root) {
+    return false;
+  }
+  return root.contains(n);
+}
+
+// node_modules/reactex/node_modules/rc-util/es/Dom/findDOMNode.js
+var import_react_dom = __toModule(require_react_dom());
+function findDOMNode(node) {
+  if (node instanceof HTMLElement) {
+    return node;
+  }
+  return import_react_dom.default.findDOMNode(node);
+}
+
+// node_modules/reactex/node_modules/rc-util/es/ref.js
+var import_react_is = __toModule(require_react_is());
+function fillRef(ref, node) {
+  if (typeof ref === "function") {
+    ref(node);
+  } else if (_typeof(ref) === "object" && ref && "current" in ref) {
+    ref.current = node;
+  }
+}
+function composeRef() {
+  for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
+    refs[_key] = arguments[_key];
+  }
+  return function(node) {
+    refs.forEach(function(ref) {
+      fillRef(ref, node);
+    });
+  };
+}
+function supportRef(nodeOrComponent) {
+  var _type$prototype, _nodeOrComponent$prot;
+  var type = (0, import_react_is.isMemo)(nodeOrComponent) ? nodeOrComponent.type.type : nodeOrComponent.type;
+  if (typeof type === "function" && !((_type$prototype = type.prototype) === null || _type$prototype === void 0 ? void 0 : _type$prototype.render)) {
+    return false;
+  }
+  if (typeof nodeOrComponent === "function" && !((_nodeOrComponent$prot = nodeOrComponent.prototype) === null || _nodeOrComponent$prot === void 0 ? void 0 : _nodeOrComponent$prot.render)) {
+    return false;
+  }
+  return true;
+}
+
+// node_modules/reactex/node_modules/rc-util/es/Dom/addEventListener.js
+var import_react_dom2 = __toModule(require_react_dom());
+function addEventListenerWrap(target, eventType, cb, option) {
+  var callback = import_react_dom2.default.unstable_batchedUpdates ? function run(e) {
+    import_react_dom2.default.unstable_batchedUpdates(cb, e);
+  } : cb;
+  if (target.addEventListener) {
+    target.addEventListener(eventType, callback, option);
+  }
+  return {
+    remove: function remove2() {
+      if (target.removeEventListener) {
+        target.removeEventListener(eventType, callback);
+      }
+    }
+  };
+}
+
+// node_modules/reactex/node_modules/rc-util/es/Portal.js
+var import_react5 = __toModule(require_react());
+var import_react_dom3 = __toModule(require_react_dom());
+
+// node_modules/reactex/node_modules/rc-util/es/Dom/canUseDom.js
+function canUseDom() {
+  return !!(typeof window !== "undefined" && window.document && window.document.createElement);
+}
+
+// node_modules/reactex/node_modules/rc-util/es/Portal.js
+var Portal = /* @__PURE__ */ (0, import_react5.forwardRef)(function(props, ref) {
+  var didUpdate = props.didUpdate, getContainer = props.getContainer, children = props.children;
+  var containerRef = (0, import_react5.useRef)();
+  (0, import_react5.useImperativeHandle)(ref, function() {
+    return {};
+  });
+  var initRef = (0, import_react5.useRef)(false);
+  if (!initRef.current && canUseDom()) {
+    containerRef.current = getContainer();
+    initRef.current = true;
+  }
+  (0, import_react5.useEffect)(function() {
+    didUpdate === null || didUpdate === void 0 ? void 0 : didUpdate(props);
+  });
+  (0, import_react5.useEffect)(function() {
+    return function() {
+      var _containerRef$current, _containerRef$current2;
+      (_containerRef$current = containerRef.current) === null || _containerRef$current === void 0 ? void 0 : (_containerRef$current2 = _containerRef$current.parentNode) === null || _containerRef$current2 === void 0 ? void 0 : _containerRef$current2.removeChild(containerRef.current);
+    };
+  }, []);
+  return containerRef.current ? /* @__PURE__ */ import_react_dom3.default.createPortal(children, containerRef.current) : null;
+});
+var Portal_default = Portal;
+
+// node_modules/reactex/node_modules/rc-trigger/es/index.js
+var import_classnames5 = __toModule(require_classnames());
+
+// node_modules/reactex/node_modules/rc-trigger/es/utils/alignUtil.js
+function isPointsEq(a1, a2, isAlignPoint) {
+  if (isAlignPoint) {
+    return a1[0] === a2[0];
+  }
+  return a1[0] === a2[0] && a1[1] === a2[1];
+}
+function getAlignFromPlacement(builtinPlacements, placementStr, align) {
+  var baseAlign = builtinPlacements[placementStr] || {};
+  return _objectSpread22(_objectSpread22({}, baseAlign), align);
+}
+function getAlignPopupClassName(builtinPlacements, prefixCls, align, isAlignPoint) {
+  var points = align.points;
+  var placements2 = Object.keys(builtinPlacements);
+  for (var i = 0; i < placements2.length; i += 1) {
+    var placement = placements2[i];
+    if (isPointsEq(builtinPlacements[placement].points, points, isAlignPoint)) {
+      return "".concat(prefixCls, "-placement-").concat(placement);
+    }
+  }
+  return "";
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr))
+    return arr;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
+function _iterableToArrayLimit(arr, i) {
+  var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+  if (_i == null)
+    return;
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _s, _e2;
+  try {
+    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+      if (i && _arr.length === i)
+        break;
+    }
+  } catch (err) {
+    _d = true;
+    _e2 = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null)
+        _i["return"]();
+    } finally {
+      if (_d)
+        throw _e2;
+    }
+  }
+  return _arr;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length)
+    len = arr.length;
+  for (var i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i];
+  }
+  return arr2;
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o)
+    return;
+  if (typeof o === "string")
+    return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor)
+    n = o.constructor.name;
+  if (n === "Map" || n === "Set")
+    return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
+    return _arrayLikeToArray(o, minLen);
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/slicedToArray.js
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+}
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/index.js
+var React18 = __toModule(require_react());
+var import_react15 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-util/es/isMobile.js
+var isMobile_default = function() {
+  if (typeof navigator === "undefined" || typeof window === "undefined") {
+    return false;
+  }
+  var agent = navigator.userAgent || navigator.vendor || window.opera;
+  if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw-(n|u)|c55\/|capi|ccwa|cdm-|cell|chtm|cldc|cmd-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc-s|devi|dica|dmob|do(c|p)o|ds(12|-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(-|_)|g1 u|g560|gene|gf-5|g-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd-(m|p|t)|hei-|hi(pt|ta)|hp( i|ip)|hs-c|ht(c(-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i-(20|go|ma)|i230|iac( |-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|-[a-w])|libw|lynx|m1-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|-([1-8]|c))|phil|pire|pl(ay|uc)|pn-2|po(ck|rt|se)|prox|psio|pt-g|qa-a|qc(07|12|21|32|60|-[2-7]|i-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h-|oo|p-)|sdk\/|se(c(-|0|1)|47|mc|nd|ri)|sgh-|shar|sie(-|m)|sk-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h-|v-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl-|tdg-|tel(i|m)|tim-|t-mo|to(pl|sh)|ts(70|m-|m3|m5)|tx-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas-|your|zeto|zte-/i.test(agent === null || agent === void 0 ? void 0 : agent.substr(0, 4))) {
+    return true;
+  }
+  return false;
+};
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/Mask.js
+var React12 = __toModule(require_react());
+var import_classnames2 = __toModule(require_classnames());
+
+// node_modules/reactex/node_modules/rc-motion/es/CSSMotion.js
+var React10 = __toModule(require_react());
+var import_react10 = __toModule(require_react());
+var import_classnames = __toModule(require_classnames());
+
+// node_modules/reactex/node_modules/rc-motion/es/util/motion.js
+function makePrefixMap(styleProp, eventName) {
+  var prefixes = {};
+  prefixes[styleProp.toLowerCase()] = eventName.toLowerCase();
+  prefixes["Webkit".concat(styleProp)] = "webkit".concat(eventName);
+  prefixes["Moz".concat(styleProp)] = "moz".concat(eventName);
+  prefixes["ms".concat(styleProp)] = "MS".concat(eventName);
+  prefixes["O".concat(styleProp)] = "o".concat(eventName.toLowerCase());
+  return prefixes;
+}
+function getVendorPrefixes(domSupport, win) {
+  var prefixes = {
+    animationend: makePrefixMap("Animation", "AnimationEnd"),
+    transitionend: makePrefixMap("Transition", "TransitionEnd")
+  };
+  if (domSupport) {
+    if (!("AnimationEvent" in win)) {
+      delete prefixes.animationend.animation;
+    }
+    if (!("TransitionEvent" in win)) {
+      delete prefixes.transitionend.transition;
+    }
+  }
+  return prefixes;
+}
+var vendorPrefixes = getVendorPrefixes(canUseDom(), typeof window !== "undefined" ? window : {});
+var style = {};
+if (canUseDom()) {
+  _document$createEleme = document.createElement("div");
+  style = _document$createEleme.style;
+}
+var _document$createEleme;
+var prefixedEventNames = {};
+function getVendorPrefixedEventName(eventName) {
+  if (prefixedEventNames[eventName]) {
+    return prefixedEventNames[eventName];
+  }
+  var prefixMap = vendorPrefixes[eventName];
+  if (prefixMap) {
+    var stylePropList = Object.keys(prefixMap);
+    var len = stylePropList.length;
+    for (var i = 0; i < len; i += 1) {
+      var styleProp = stylePropList[i];
+      if (Object.prototype.hasOwnProperty.call(prefixMap, styleProp) && styleProp in style) {
+        prefixedEventNames[eventName] = prefixMap[styleProp];
+        return prefixedEventNames[eventName];
+      }
+    }
+  }
+  return "";
+}
+var internalAnimationEndName = getVendorPrefixedEventName("animationend");
+var internalTransitionEndName = getVendorPrefixedEventName("transitionend");
+var supportTransition = !!(internalAnimationEndName && internalTransitionEndName);
+var animationEndName = internalAnimationEndName || "animationend";
+var transitionEndName = internalTransitionEndName || "transitionend";
+function getTransitionName(transitionName, transitionType) {
+  if (!transitionName)
+    return null;
+  if (_typeof(transitionName) === "object") {
+    var type = transitionType.replace(/-\w/g, function(match2) {
+      return match2[1].toUpperCase();
+    });
+    return transitionName[type];
+  }
+  return "".concat(transitionName, "-").concat(transitionType);
+}
+
+// node_modules/reactex/node_modules/rc-motion/es/interface.js
+var STATUS_NONE = "none";
+var STATUS_APPEAR = "appear";
+var STATUS_ENTER = "enter";
+var STATUS_LEAVE = "leave";
+var STEP_NONE = "none";
+var STEP_PREPARE = "prepare";
+var STEP_START = "start";
+var STEP_ACTIVE = "active";
+var STEP_ACTIVATED = "end";
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useStatus.js
+var React8 = __toModule(require_react());
+var import_react9 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useState.js
+var import_react6 = __toModule(require_react());
+function useMountStatus(defaultValue) {
+  var destroyRef = (0, import_react6.useRef)(false);
+  var _useState = (0, import_react6.useState)(defaultValue), _useState2 = _slicedToArray(_useState, 2), val = _useState2[0], setVal = _useState2[1];
+  function setValue(next) {
+    if (!destroyRef.current) {
+      setVal(next);
+    }
+  }
+  (0, import_react6.useEffect)(function() {
+    return function() {
+      destroyRef.current = true;
+    };
+  }, []);
+  return [val, setValue];
+}
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useIsomorphicLayoutEffect.js
+var import_react7 = __toModule(require_react());
+var useIsomorphicLayoutEffect = canUseDom() ? import_react7.useLayoutEffect : import_react7.useEffect;
+var useIsomorphicLayoutEffect_default = useIsomorphicLayoutEffect;
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useStepQueue.js
+var React6 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useNextFrame.js
+var React5 = __toModule(require_react());
+var useNextFrame_default = function() {
+  var nextFrameRef = React5.useRef(null);
+  function cancelNextFrame() {
+    wrapperRaf.cancel(nextFrameRef.current);
+  }
+  function nextFrame(callback) {
+    var delay = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 2;
+    cancelNextFrame();
+    var nextFrameId = wrapperRaf(function() {
+      if (delay <= 1) {
+        callback({
+          isCanceled: function isCanceled() {
+            return nextFrameId !== nextFrameRef.current;
+          }
+        });
+      } else {
+        nextFrame(callback, delay - 1);
+      }
+    });
+    nextFrameRef.current = nextFrameId;
+  }
+  React5.useEffect(function() {
+    return function() {
+      cancelNextFrame();
+    };
+  }, []);
+  return [nextFrame, cancelNextFrame];
+};
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useStepQueue.js
+var STEP_QUEUE = [STEP_PREPARE, STEP_START, STEP_ACTIVE, STEP_ACTIVATED];
+var SkipStep = false;
+var DoStep = true;
+function isActive(step) {
+  return step === STEP_ACTIVE || step === STEP_ACTIVATED;
+}
+var useStepQueue_default = function(status, callback) {
+  var _React$useState = React6.useState(STEP_NONE), _React$useState2 = _slicedToArray(_React$useState, 2), step = _React$useState2[0], setStep = _React$useState2[1];
+  var _useNextFrame = useNextFrame_default(), _useNextFrame2 = _slicedToArray(_useNextFrame, 2), nextFrame = _useNextFrame2[0], cancelNextFrame = _useNextFrame2[1];
+  function startQueue() {
+    setStep(STEP_PREPARE);
+  }
+  useIsomorphicLayoutEffect_default(function() {
+    if (step !== STEP_NONE && step !== STEP_ACTIVATED) {
+      var index2 = STEP_QUEUE.indexOf(step);
+      var nextStep = STEP_QUEUE[index2 + 1];
+      var result = callback(step);
+      if (result === SkipStep) {
+        setStep(nextStep);
+      } else {
+        nextFrame(function(info) {
+          function doNext() {
+            if (info.isCanceled())
+              return;
+            setStep(nextStep);
+          }
+          if (result === true) {
+            doNext();
+          } else {
+            Promise.resolve(result).then(doNext);
+          }
+        });
+      }
+    }
+  }, [status, step]);
+  React6.useEffect(function() {
+    return function() {
+      cancelNextFrame();
+    };
+  }, []);
+  return [startQueue, step];
+};
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useDomMotionEvents.js
+var React7 = __toModule(require_react());
+var import_react8 = __toModule(require_react());
+var useDomMotionEvents_default = function(callback) {
+  var cacheElementRef = (0, import_react8.useRef)();
+  var callbackRef = (0, import_react8.useRef)(callback);
+  callbackRef.current = callback;
+  var onInternalMotionEnd = React7.useCallback(function(event) {
+    callbackRef.current(event);
+  }, []);
+  function removeMotionEvents(element) {
+    if (element) {
+      element.removeEventListener(transitionEndName, onInternalMotionEnd);
+      element.removeEventListener(animationEndName, onInternalMotionEnd);
+    }
+  }
+  function patchMotionEvents(element) {
+    if (cacheElementRef.current && cacheElementRef.current !== element) {
+      removeMotionEvents(cacheElementRef.current);
+    }
+    if (element && element !== cacheElementRef.current) {
+      element.addEventListener(transitionEndName, onInternalMotionEnd);
+      element.addEventListener(animationEndName, onInternalMotionEnd);
+      cacheElementRef.current = element;
+    }
+  }
+  React7.useEffect(function() {
+    return function() {
+      removeMotionEvents(cacheElementRef.current);
+    };
+  }, []);
+  return [patchMotionEvents, removeMotionEvents];
+};
+
+// node_modules/reactex/node_modules/rc-motion/es/hooks/useStatus.js
+function useStatus(supportMotion, visible, getElement2, _ref) {
+  var _ref$motionEnter = _ref.motionEnter, motionEnter = _ref$motionEnter === void 0 ? true : _ref$motionEnter, _ref$motionAppear = _ref.motionAppear, motionAppear = _ref$motionAppear === void 0 ? true : _ref$motionAppear, _ref$motionLeave = _ref.motionLeave, motionLeave = _ref$motionLeave === void 0 ? true : _ref$motionLeave, motionDeadline = _ref.motionDeadline, motionLeaveImmediately = _ref.motionLeaveImmediately, onAppearPrepare = _ref.onAppearPrepare, onEnterPrepare = _ref.onEnterPrepare, onLeavePrepare = _ref.onLeavePrepare, onAppearStart = _ref.onAppearStart, onEnterStart = _ref.onEnterStart, onLeaveStart = _ref.onLeaveStart, onAppearActive = _ref.onAppearActive, onEnterActive = _ref.onEnterActive, onLeaveActive = _ref.onLeaveActive, onAppearEnd = _ref.onAppearEnd, onEnterEnd = _ref.onEnterEnd, onLeaveEnd = _ref.onLeaveEnd, onVisibleChanged = _ref.onVisibleChanged;
+  var _useState = useMountStatus(), _useState2 = _slicedToArray(_useState, 2), asyncVisible = _useState2[0], setAsyncVisible = _useState2[1];
+  var _useState3 = useMountStatus(STATUS_NONE), _useState4 = _slicedToArray(_useState3, 2), status = _useState4[0], setStatus = _useState4[1];
+  var _useState5 = useMountStatus(null), _useState6 = _slicedToArray(_useState5, 2), style2 = _useState6[0], setStyle = _useState6[1];
+  var mountedRef = (0, import_react9.useRef)(false);
+  var deadlineRef = (0, import_react9.useRef)(null);
+  var destroyedRef = (0, import_react9.useRef)(false);
+  var cacheElementRef = (0, import_react9.useRef)(null);
+  function getDomElement() {
+    var element = getElement2();
+    return element || cacheElementRef.current;
+  }
+  var activeRef = (0, import_react9.useRef)(false);
+  function onInternalMotionEnd(event) {
+    var element = getDomElement();
+    if (event && !event.deadline && event.target !== element) {
+      return;
+    }
+    var canEnd;
+    if (status === STATUS_APPEAR && activeRef.current) {
+      canEnd = onAppearEnd === null || onAppearEnd === void 0 ? void 0 : onAppearEnd(element, event);
+    } else if (status === STATUS_ENTER && activeRef.current) {
+      canEnd = onEnterEnd === null || onEnterEnd === void 0 ? void 0 : onEnterEnd(element, event);
+    } else if (status === STATUS_LEAVE && activeRef.current) {
+      canEnd = onLeaveEnd === null || onLeaveEnd === void 0 ? void 0 : onLeaveEnd(element, event);
+    }
+    if (canEnd !== false && !destroyedRef.current) {
+      setStatus(STATUS_NONE);
+      setStyle(null);
+    }
+  }
+  var _useDomMotionEvents = useDomMotionEvents_default(onInternalMotionEnd), _useDomMotionEvents2 = _slicedToArray(_useDomMotionEvents, 1), patchMotionEvents = _useDomMotionEvents2[0];
+  var eventHandlers = React8.useMemo(function() {
+    var _ref2, _ref3, _ref4;
+    switch (status) {
+      case "appear":
+        return _ref2 = {}, _defineProperty2(_ref2, STEP_PREPARE, onAppearPrepare), _defineProperty2(_ref2, STEP_START, onAppearStart), _defineProperty2(_ref2, STEP_ACTIVE, onAppearActive), _ref2;
+      case "enter":
+        return _ref3 = {}, _defineProperty2(_ref3, STEP_PREPARE, onEnterPrepare), _defineProperty2(_ref3, STEP_START, onEnterStart), _defineProperty2(_ref3, STEP_ACTIVE, onEnterActive), _ref3;
+      case "leave":
+        return _ref4 = {}, _defineProperty2(_ref4, STEP_PREPARE, onLeavePrepare), _defineProperty2(_ref4, STEP_START, onLeaveStart), _defineProperty2(_ref4, STEP_ACTIVE, onLeaveActive), _ref4;
+      default:
+        return {};
+    }
+  }, [status]);
+  var _useStepQueue = useStepQueue_default(status, function(newStep) {
+    if (newStep === STEP_PREPARE) {
+      var onPrepare = eventHandlers[STEP_PREPARE];
+      if (!onPrepare) {
+        return SkipStep;
+      }
+      return onPrepare(getDomElement());
+    }
+    if (step in eventHandlers) {
+      var _eventHandlers$step;
+      setStyle(((_eventHandlers$step = eventHandlers[step]) === null || _eventHandlers$step === void 0 ? void 0 : _eventHandlers$step.call(eventHandlers, getDomElement(), null)) || null);
+    }
+    if (step === STEP_ACTIVE) {
+      patchMotionEvents(getDomElement());
+      if (motionDeadline > 0) {
+        clearTimeout(deadlineRef.current);
+        deadlineRef.current = setTimeout(function() {
+          onInternalMotionEnd({
+            deadline: true
+          });
+        }, motionDeadline);
+      }
+    }
+    return DoStep;
+  }), _useStepQueue2 = _slicedToArray(_useStepQueue, 2), startStep = _useStepQueue2[0], step = _useStepQueue2[1];
+  var active = isActive(step);
+  activeRef.current = active;
+  useIsomorphicLayoutEffect_default(function() {
+    setAsyncVisible(visible);
+    var isMounted = mountedRef.current;
+    mountedRef.current = true;
+    if (!supportMotion) {
+      return;
+    }
+    var nextStatus;
+    if (!isMounted && visible && motionAppear) {
+      nextStatus = STATUS_APPEAR;
+    }
+    if (isMounted && visible && motionEnter) {
+      nextStatus = STATUS_ENTER;
+    }
+    if (isMounted && !visible && motionLeave || !isMounted && motionLeaveImmediately && !visible && motionLeave) {
+      nextStatus = STATUS_LEAVE;
+    }
+    if (nextStatus) {
+      setStatus(nextStatus);
+      startStep();
+    }
+  }, [visible]);
+  (0, import_react9.useEffect)(function() {
+    if (status === STATUS_APPEAR && !motionAppear || status === STATUS_ENTER && !motionEnter || status === STATUS_LEAVE && !motionLeave) {
+      setStatus(STATUS_NONE);
+    }
+  }, [motionAppear, motionEnter, motionLeave]);
+  (0, import_react9.useEffect)(function() {
+    return function() {
+      clearTimeout(deadlineRef.current);
+      destroyedRef.current = true;
+    };
+  }, []);
+  (0, import_react9.useEffect)(function() {
+    if (asyncVisible !== void 0 && status === STATUS_NONE) {
+      onVisibleChanged === null || onVisibleChanged === void 0 ? void 0 : onVisibleChanged(asyncVisible);
+    }
+  }, [asyncVisible, status]);
+  var mergedStyle = style2;
+  if (eventHandlers[STEP_PREPARE] && step === STEP_START) {
+    mergedStyle = _objectSpread22({
+      transition: "none"
+    }, mergedStyle);
+  }
+  return [status, step, mergedStyle, asyncVisible !== null && asyncVisible !== void 0 ? asyncVisible : visible];
+}
+
+// node_modules/reactex/node_modules/rc-motion/es/DomWrapper.js
+var React9 = __toModule(require_react());
+var DomWrapper = /* @__PURE__ */ function(_React$Component) {
+  _inherits2(DomWrapper2, _React$Component);
+  var _super = _createSuper(DomWrapper2);
+  function DomWrapper2() {
+    _classCallCheck2(this, DomWrapper2);
+    return _super.apply(this, arguments);
+  }
+  _createClass2(DomWrapper2, [{
+    key: "render",
+    value: function render() {
+      return this.props.children;
+    }
+  }]);
+  return DomWrapper2;
+}(React9.Component);
+var DomWrapper_default = DomWrapper;
+
+// node_modules/reactex/node_modules/rc-motion/es/CSSMotion.js
+function genCSSMotion(config) {
+  var transitionSupport = config;
+  if (_typeof(config) === "object") {
+    transitionSupport = config.transitionSupport;
+  }
+  function isSupportTransition(props) {
+    return !!(props.motionName && transitionSupport);
+  }
+  var CSSMotion = /* @__PURE__ */ React10.forwardRef(function(props, ref) {
+    var _props$visible = props.visible, visible = _props$visible === void 0 ? true : _props$visible, _props$removeOnLeave = props.removeOnLeave, removeOnLeave = _props$removeOnLeave === void 0 ? true : _props$removeOnLeave, forceRender = props.forceRender, children = props.children, motionName = props.motionName, leavedClassName = props.leavedClassName, eventProps = props.eventProps;
+    var supportMotion = isSupportTransition(props);
+    var nodeRef = (0, import_react10.useRef)();
+    var wrapperNodeRef = (0, import_react10.useRef)();
+    function getDomElement() {
+      try {
+        return findDOMNode(nodeRef.current || wrapperNodeRef.current);
+      } catch (e) {
+        return null;
+      }
+    }
+    var _useStatus = useStatus(supportMotion, visible, getDomElement, props), _useStatus2 = _slicedToArray(_useStatus, 4), status = _useStatus2[0], statusStep = _useStatus2[1], statusStyle = _useStatus2[2], mergedVisible = _useStatus2[3];
+    var renderedRef = React10.useRef(mergedVisible);
+    if (mergedVisible) {
+      renderedRef.current = true;
+    }
+    var originRef = (0, import_react10.useRef)(ref);
+    originRef.current = ref;
+    var setNodeRef = React10.useCallback(function(node) {
+      nodeRef.current = node;
+      fillRef(originRef.current, node);
+    }, []);
+    var motionChildren;
+    var mergedProps = _objectSpread22(_objectSpread22({}, eventProps), {}, {
+      visible
+    });
+    if (!children) {
+      motionChildren = null;
+    } else if (status === STATUS_NONE || !isSupportTransition(props)) {
+      if (mergedVisible) {
+        motionChildren = children(_objectSpread22({}, mergedProps), setNodeRef);
+      } else if (!removeOnLeave && renderedRef.current) {
+        motionChildren = children(_objectSpread22(_objectSpread22({}, mergedProps), {}, {
+          className: leavedClassName
+        }), setNodeRef);
+      } else if (forceRender) {
+        motionChildren = children(_objectSpread22(_objectSpread22({}, mergedProps), {}, {
+          style: {
+            display: "none"
+          }
+        }), setNodeRef);
+      } else {
+        motionChildren = null;
+      }
+    } else {
+      var _classNames;
+      var statusSuffix;
+      if (statusStep === STEP_PREPARE) {
+        statusSuffix = "prepare";
+      } else if (isActive(statusStep)) {
+        statusSuffix = "active";
+      } else if (statusStep === STEP_START) {
+        statusSuffix = "start";
+      }
+      motionChildren = children(_objectSpread22(_objectSpread22({}, mergedProps), {}, {
+        className: (0, import_classnames.default)(getTransitionName(motionName, status), (_classNames = {}, _defineProperty2(_classNames, getTransitionName(motionName, "".concat(status, "-").concat(statusSuffix)), statusSuffix), _defineProperty2(_classNames, motionName, typeof motionName === "string"), _classNames)),
+        style: statusStyle
+      }), setNodeRef);
+    }
+    return /* @__PURE__ */ React10.createElement(DomWrapper_default, {
+      ref: wrapperNodeRef
+    }, motionChildren);
+  });
+  CSSMotion.displayName = "CSSMotion";
+  return CSSMotion;
+}
+var CSSMotion_default = genCSSMotion(supportTransition);
+
+// node_modules/reactex/node_modules/rc-motion/es/CSSMotionList.js
+var React11 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-motion/es/util/diff.js
+var STATUS_ADD = "add";
+var STATUS_KEEP = "keep";
+var STATUS_REMOVE = "remove";
+var STATUS_REMOVED = "removed";
+function wrapKeyToObject(key) {
+  var keyObj;
+  if (key && _typeof(key) === "object" && "key" in key) {
+    keyObj = key;
+  } else {
+    keyObj = {
+      key
+    };
+  }
+  return _objectSpread22(_objectSpread22({}, keyObj), {}, {
+    key: String(keyObj.key)
+  });
+}
+function parseKeys() {
+  var keys3 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : [];
+  return keys3.map(wrapKeyToObject);
+}
+function diffKeys() {
+  var prevKeys = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : [];
+  var currentKeys = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : [];
+  var list = [];
+  var currentIndex = 0;
+  var currentLen = currentKeys.length;
+  var prevKeyObjects = parseKeys(prevKeys);
+  var currentKeyObjects = parseKeys(currentKeys);
+  prevKeyObjects.forEach(function(keyObj) {
+    var hit = false;
+    for (var i = currentIndex; i < currentLen; i += 1) {
+      var currentKeyObj = currentKeyObjects[i];
+      if (currentKeyObj.key === keyObj.key) {
+        if (currentIndex < i) {
+          list = list.concat(currentKeyObjects.slice(currentIndex, i).map(function(obj) {
+            return _objectSpread22(_objectSpread22({}, obj), {}, {
+              status: STATUS_ADD
+            });
+          }));
+          currentIndex = i;
+        }
+        list.push(_objectSpread22(_objectSpread22({}, currentKeyObj), {}, {
+          status: STATUS_KEEP
+        }));
+        currentIndex += 1;
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) {
+      list.push(_objectSpread22(_objectSpread22({}, keyObj), {}, {
+        status: STATUS_REMOVE
+      }));
+    }
+  });
+  if (currentIndex < currentLen) {
+    list = list.concat(currentKeyObjects.slice(currentIndex).map(function(obj) {
+      return _objectSpread22(_objectSpread22({}, obj), {}, {
+        status: STATUS_ADD
+      });
+    }));
+  }
+  var keys3 = {};
+  list.forEach(function(_ref) {
+    var key = _ref.key;
+    keys3[key] = (keys3[key] || 0) + 1;
+  });
+  var duplicatedKeys = Object.keys(keys3).filter(function(key) {
+    return keys3[key] > 1;
+  });
+  duplicatedKeys.forEach(function(matchKey) {
+    list = list.filter(function(_ref2) {
+      var key = _ref2.key, status = _ref2.status;
+      return key !== matchKey || status !== STATUS_REMOVE;
+    });
+    list.forEach(function(node) {
+      if (node.key === matchKey) {
+        node.status = STATUS_KEEP;
+      }
+    });
+  });
+  return list;
+}
+
+// node_modules/reactex/node_modules/rc-motion/es/CSSMotionList.js
+var MOTION_PROP_NAMES = ["eventProps", "visible", "children", "motionName", "motionAppear", "motionEnter", "motionLeave", "motionLeaveImmediately", "motionDeadline", "removeOnLeave", "leavedClassName", "onAppearStart", "onAppearActive", "onAppearEnd", "onEnterStart", "onEnterActive", "onEnterEnd", "onLeaveStart", "onLeaveActive", "onLeaveEnd"];
+function genCSSMotionList(transitionSupport) {
+  var CSSMotion = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : CSSMotion_default;
+  var CSSMotionList = /* @__PURE__ */ function(_React$Component) {
+    _inherits2(CSSMotionList2, _React$Component);
+    var _super = _createSuper(CSSMotionList2);
+    function CSSMotionList2() {
+      var _this;
+      _classCallCheck2(this, CSSMotionList2);
+      _this = _super.apply(this, arguments);
+      _this.state = {
+        keyEntities: []
+      };
+      _this.removeKey = function(removeKey) {
+        _this.setState(function(_ref) {
+          var keyEntities = _ref.keyEntities;
+          return {
+            keyEntities: keyEntities.map(function(entity) {
+              if (entity.key !== removeKey)
+                return entity;
+              return _objectSpread22(_objectSpread22({}, entity), {}, {
+                status: STATUS_REMOVED
+              });
+            })
+          };
+        });
+      };
+      return _this;
+    }
+    _createClass2(CSSMotionList2, [{
+      key: "render",
+      value: function render() {
+        var _this2 = this;
+        var keyEntities = this.state.keyEntities;
+        var _this$props = this.props, component = _this$props.component, children = _this$props.children, _onVisibleChanged = _this$props.onVisibleChanged, restProps = _objectWithoutProperties(_this$props, ["component", "children", "onVisibleChanged"]);
+        var Component4 = component || React11.Fragment;
+        var motionProps = {};
+        MOTION_PROP_NAMES.forEach(function(prop) {
+          motionProps[prop] = restProps[prop];
+          delete restProps[prop];
+        });
+        delete restProps.keys;
+        return /* @__PURE__ */ React11.createElement(Component4, restProps, keyEntities.map(function(_ref2) {
+          var status = _ref2.status, eventProps = _objectWithoutProperties(_ref2, ["status"]);
+          var visible = status === STATUS_ADD || status === STATUS_KEEP;
+          return /* @__PURE__ */ React11.createElement(CSSMotion, _extends2({}, motionProps, {
+            key: eventProps.key,
+            visible,
+            eventProps,
+            onVisibleChanged: function onVisibleChanged(changedVisible) {
+              _onVisibleChanged === null || _onVisibleChanged === void 0 ? void 0 : _onVisibleChanged(changedVisible, {
+                key: eventProps.key
+              });
+              if (!changedVisible) {
+                _this2.removeKey(eventProps.key);
+              }
+            }
+          }), children);
+        }));
+      }
+    }], [{
+      key: "getDerivedStateFromProps",
+      value: function getDerivedStateFromProps(_ref3, _ref4) {
+        var keys3 = _ref3.keys;
+        var keyEntities = _ref4.keyEntities;
+        var parsedKeyObjects = parseKeys(keys3);
+        var mixedKeyEntities = diffKeys(keyEntities, parsedKeyObjects);
+        return {
+          keyEntities: mixedKeyEntities.filter(function(entity) {
+            var prevEntity = keyEntities.find(function(_ref5) {
+              var key = _ref5.key;
+              return entity.key === key;
+            });
+            if (prevEntity && prevEntity.status === STATUS_REMOVED && entity.status === STATUS_REMOVE) {
+              return false;
+            }
+            return true;
+          })
+        };
+      }
+    }]);
+    return CSSMotionList2;
+  }(React11.Component);
+  CSSMotionList.defaultProps = {
+    component: "div"
+  };
+  return CSSMotionList;
+}
+var CSSMotionList_default = genCSSMotionList(supportTransition);
+
+// node_modules/reactex/node_modules/rc-motion/es/index.js
+var es_default = CSSMotion_default;
+
+// node_modules/reactex/node_modules/rc-trigger/es/utils/legacyUtil.js
+function getMotion(_ref) {
+  var prefixCls = _ref.prefixCls, motion = _ref.motion, animation = _ref.animation, transitionName = _ref.transitionName;
+  if (motion) {
+    return motion;
+  }
+  if (animation) {
+    return {
+      motionName: "".concat(prefixCls, "-").concat(animation)
+    };
+  }
+  if (transitionName) {
+    return {
+      motionName: transitionName
+    };
+  }
+  return null;
+}
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/Mask.js
+function Mask(props) {
+  var prefixCls = props.prefixCls, visible = props.visible, zIndex = props.zIndex, mask = props.mask, maskMotion = props.maskMotion, maskAnimation = props.maskAnimation, maskTransitionName = props.maskTransitionName;
+  if (!mask) {
+    return null;
+  }
+  var motion = {};
+  if (maskMotion || maskTransitionName || maskAnimation) {
+    motion = _objectSpread22({
+      motionAppear: true
+    }, getMotion({
+      motion: maskMotion,
+      prefixCls,
+      transitionName: maskTransitionName,
+      animation: maskAnimation
+    }));
+  }
+  return /* @__PURE__ */ React12.createElement(es_default, _extends2({}, motion, {
+    visible,
+    removeOnLeave: true
+  }), function(_ref) {
+    var className = _ref.className;
+    return /* @__PURE__ */ React12.createElement("div", {
+      style: {
+        zIndex
+      },
+      className: (0, import_classnames2.default)("".concat(prefixCls, "-mask"), className)
+    });
+  });
+}
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
+var React16 = __toModule(require_react());
+var import_react14 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-align/es/Align.js
+var import_react12 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/rc-util/es/Dom/isVisible.js
+var isVisible_default = function(element) {
+  if (!element) {
+    return false;
+  }
+  if (element.offsetParent) {
+    return true;
+  }
+  if (element.getBBox) {
+    var box = element.getBBox();
+    if (box.width || box.height) {
+      return true;
+    }
+  }
+  if (element.getBoundingClientRect) {
+    var _box = element.getBoundingClientRect();
+    if (_box.width || _box.height) {
+      return true;
+    }
+  }
+  return false;
+};
+
+// node_modules/reactex/node_modules/dom-align/dist-web/index.js
+function ownKeys4(object, enumerableOnly) {
+  var keys3 = Object.keys(object);
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) {
+      symbols = symbols.filter(function(sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+    keys3.push.apply(keys3, symbols);
+  }
+  return keys3;
+}
+function _objectSpread23(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    if (i % 2) {
+      ownKeys4(Object(source), true).forEach(function(key) {
+        _defineProperty3(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys4(Object(source)).forEach(function(key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+  return target;
+}
+function _typeof2(obj) {
+  "@babel/helpers - typeof";
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof2 = function(obj2) {
+      return typeof obj2;
+    };
+  } else {
+    _typeof2 = function(obj2) {
+      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+    };
+  }
+  return _typeof2(obj);
+}
+function _defineProperty3(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+var vendorPrefix;
+var jsCssMap = {
+  Webkit: "-webkit-",
+  Moz: "-moz-",
+  ms: "-ms-",
+  O: "-o-"
+};
+function getVendorPrefix() {
+  if (vendorPrefix !== void 0) {
+    return vendorPrefix;
+  }
+  vendorPrefix = "";
+  var style2 = document.createElement("p").style;
+  var testProp = "Transform";
+  for (var key in jsCssMap) {
+    if (key + testProp in style2) {
+      vendorPrefix = key;
+    }
+  }
+  return vendorPrefix;
+}
+function getTransitionName2() {
+  return getVendorPrefix() ? "".concat(getVendorPrefix(), "TransitionProperty") : "transitionProperty";
+}
+function getTransformName() {
+  return getVendorPrefix() ? "".concat(getVendorPrefix(), "Transform") : "transform";
+}
+function setTransitionProperty(node, value) {
+  var name2 = getTransitionName2();
+  if (name2) {
+    node.style[name2] = value;
+    if (name2 !== "transitionProperty") {
+      node.style.transitionProperty = value;
+    }
+  }
+}
+function setTransform(node, value) {
+  var name2 = getTransformName();
+  if (name2) {
+    node.style[name2] = value;
+    if (name2 !== "transform") {
+      node.style.transform = value;
+    }
+  }
+}
+function getTransitionProperty(node) {
+  return node.style.transitionProperty || node.style[getTransitionName2()];
+}
+function getTransformXY(node) {
+  var style2 = window.getComputedStyle(node, null);
+  var transform = style2.getPropertyValue("transform") || style2.getPropertyValue(getTransformName());
+  if (transform && transform !== "none") {
+    var matrix = transform.replace(/[^0-9\-.,]/g, "").split(",");
+    return {
+      x: parseFloat(matrix[12] || matrix[4], 0),
+      y: parseFloat(matrix[13] || matrix[5], 0)
+    };
+  }
+  return {
+    x: 0,
+    y: 0
+  };
+}
+var matrix2d = /matrix\((.*)\)/;
+var matrix3d = /matrix3d\((.*)\)/;
+function setTransformXY(node, xy) {
+  var style2 = window.getComputedStyle(node, null);
+  var transform = style2.getPropertyValue("transform") || style2.getPropertyValue(getTransformName());
+  if (transform && transform !== "none") {
+    var arr;
+    var match2d = transform.match(matrix2d);
+    if (match2d) {
+      match2d = match2d[1];
+      arr = match2d.split(",").map(function(item) {
+        return parseFloat(item, 10);
+      });
+      arr[4] = xy.x;
+      arr[5] = xy.y;
+      setTransform(node, "matrix(".concat(arr.join(","), ")"));
+    } else {
+      var match3d = transform.match(matrix3d)[1];
+      arr = match3d.split(",").map(function(item) {
+        return parseFloat(item, 10);
+      });
+      arr[12] = xy.x;
+      arr[13] = xy.y;
+      setTransform(node, "matrix3d(".concat(arr.join(","), ")"));
+    }
+  } else {
+    setTransform(node, "translateX(".concat(xy.x, "px) translateY(").concat(xy.y, "px) translateZ(0)"));
+  }
+}
+var RE_NUM = /[\-+]?(?:\d*\.|)\d+(?:[eE][\-+]?\d+|)/.source;
+var getComputedStyleX;
+function forceRelayout(elem) {
+  var originalStyle = elem.style.display;
+  elem.style.display = "none";
+  elem.offsetHeight;
+  elem.style.display = originalStyle;
+}
+function css(el, name2, v) {
+  var value = v;
+  if (_typeof2(name2) === "object") {
+    for (var i in name2) {
+      if (name2.hasOwnProperty(i)) {
+        css(el, i, name2[i]);
+      }
+    }
+    return void 0;
+  }
+  if (typeof value !== "undefined") {
+    if (typeof value === "number") {
+      value = "".concat(value, "px");
+    }
+    el.style[name2] = value;
+    return void 0;
+  }
+  return getComputedStyleX(el, name2);
+}
+function getClientPosition(elem) {
+  var box;
+  var x;
+  var y;
+  var doc2 = elem.ownerDocument;
+  var body = doc2.body;
+  var docElem = doc2 && doc2.documentElement;
+  box = elem.getBoundingClientRect();
+  x = box.left;
+  y = box.top;
+  x -= docElem.clientLeft || body.clientLeft || 0;
+  y -= docElem.clientTop || body.clientTop || 0;
+  return {
+    left: x,
+    top: y
+  };
+}
+function getScroll(w, top2) {
+  var ret = w["page".concat(top2 ? "Y" : "X", "Offset")];
+  var method = "scroll".concat(top2 ? "Top" : "Left");
+  if (typeof ret !== "number") {
+    var d = w.document;
+    ret = d.documentElement[method];
+    if (typeof ret !== "number") {
+      ret = d.body[method];
+    }
+  }
+  return ret;
+}
+function getScrollLeft(w) {
+  return getScroll(w);
+}
+function getScrollTop(w) {
+  return getScroll(w, true);
+}
+function getOffset(el) {
+  var pos = getClientPosition(el);
+  var doc2 = el.ownerDocument;
+  var w = doc2.defaultView || doc2.parentWindow;
+  pos.left += getScrollLeft(w);
+  pos.top += getScrollTop(w);
+  return pos;
+}
+function isWindow(obj) {
+  return obj !== null && obj !== void 0 && obj == obj.window;
+}
+function getDocument(node) {
+  if (isWindow(node)) {
+    return node.document;
+  }
+  if (node.nodeType === 9) {
+    return node;
+  }
+  return node.ownerDocument;
+}
+function _getComputedStyle(elem, name2, cs) {
+  var computedStyle = cs;
+  var val = "";
+  var d = getDocument(elem);
+  computedStyle = computedStyle || d.defaultView.getComputedStyle(elem, null);
+  if (computedStyle) {
+    val = computedStyle.getPropertyValue(name2) || computedStyle[name2];
+  }
+  return val;
+}
+var _RE_NUM_NO_PX = new RegExp("^(".concat(RE_NUM, ")(?!px)[a-z%]+$"), "i");
+var RE_POS = /^(top|right|bottom|left)$/;
+var CURRENT_STYLE = "currentStyle";
+var RUNTIME_STYLE = "runtimeStyle";
+var LEFT = "left";
+var PX = "px";
+function _getComputedStyleIE(elem, name2) {
+  var ret = elem[CURRENT_STYLE] && elem[CURRENT_STYLE][name2];
+  if (_RE_NUM_NO_PX.test(ret) && !RE_POS.test(name2)) {
+    var style2 = elem.style;
+    var left = style2[LEFT];
+    var rsLeft = elem[RUNTIME_STYLE][LEFT];
+    elem[RUNTIME_STYLE][LEFT] = elem[CURRENT_STYLE][LEFT];
+    style2[LEFT] = name2 === "fontSize" ? "1em" : ret || 0;
+    ret = style2.pixelLeft + PX;
+    style2[LEFT] = left;
+    elem[RUNTIME_STYLE][LEFT] = rsLeft;
+  }
+  return ret === "" ? "auto" : ret;
+}
+if (typeof window !== "undefined") {
+  getComputedStyleX = window.getComputedStyle ? _getComputedStyle : _getComputedStyleIE;
+}
+function getOffsetDirection(dir, option) {
+  if (dir === "left") {
+    return option.useCssRight ? "right" : dir;
+  }
+  return option.useCssBottom ? "bottom" : dir;
+}
+function oppositeOffsetDirection(dir) {
+  if (dir === "left") {
+    return "right";
+  } else if (dir === "right") {
+    return "left";
+  } else if (dir === "top") {
+    return "bottom";
+  } else if (dir === "bottom") {
+    return "top";
+  }
+}
+function setLeftTop(elem, offset2, option) {
+  if (css(elem, "position") === "static") {
+    elem.style.position = "relative";
+  }
+  var presetH = -999;
+  var presetV = -999;
+  var horizontalProperty = getOffsetDirection("left", option);
+  var verticalProperty = getOffsetDirection("top", option);
+  var oppositeHorizontalProperty = oppositeOffsetDirection(horizontalProperty);
+  var oppositeVerticalProperty = oppositeOffsetDirection(verticalProperty);
+  if (horizontalProperty !== "left") {
+    presetH = 999;
+  }
+  if (verticalProperty !== "top") {
+    presetV = 999;
+  }
+  var originalTransition = "";
+  var originalOffset = getOffset(elem);
+  if ("left" in offset2 || "top" in offset2) {
+    originalTransition = getTransitionProperty(elem) || "";
+    setTransitionProperty(elem, "none");
+  }
+  if ("left" in offset2) {
+    elem.style[oppositeHorizontalProperty] = "";
+    elem.style[horizontalProperty] = "".concat(presetH, "px");
+  }
+  if ("top" in offset2) {
+    elem.style[oppositeVerticalProperty] = "";
+    elem.style[verticalProperty] = "".concat(presetV, "px");
+  }
+  forceRelayout(elem);
+  var old = getOffset(elem);
+  var originalStyle = {};
+  for (var key in offset2) {
+    if (offset2.hasOwnProperty(key)) {
+      var dir = getOffsetDirection(key, option);
+      var preset = key === "left" ? presetH : presetV;
+      var off = originalOffset[key] - old[key];
+      if (dir === key) {
+        originalStyle[dir] = preset + off;
+      } else {
+        originalStyle[dir] = preset - off;
+      }
+    }
+  }
+  css(elem, originalStyle);
+  forceRelayout(elem);
+  if ("left" in offset2 || "top" in offset2) {
+    setTransitionProperty(elem, originalTransition);
+  }
+  var ret = {};
+  for (var _key in offset2) {
+    if (offset2.hasOwnProperty(_key)) {
+      var _dir = getOffsetDirection(_key, option);
+      var _off = offset2[_key] - originalOffset[_key];
+      if (_key === _dir) {
+        ret[_dir] = originalStyle[_dir] + _off;
+      } else {
+        ret[_dir] = originalStyle[_dir] - _off;
+      }
+    }
+  }
+  css(elem, ret);
+}
+function setTransform$1(elem, offset2) {
+  var originalOffset = getOffset(elem);
+  var originalXY = getTransformXY(elem);
+  var resultXY = {
+    x: originalXY.x,
+    y: originalXY.y
+  };
+  if ("left" in offset2) {
+    resultXY.x = originalXY.x + offset2.left - originalOffset.left;
+  }
+  if ("top" in offset2) {
+    resultXY.y = originalXY.y + offset2.top - originalOffset.top;
+  }
+  setTransformXY(elem, resultXY);
+}
+function setOffset(elem, offset2, option) {
+  if (option.ignoreShake) {
+    var oriOffset = getOffset(elem);
+    var oLeft = oriOffset.left.toFixed(0);
+    var oTop = oriOffset.top.toFixed(0);
+    var tLeft = offset2.left.toFixed(0);
+    var tTop = offset2.top.toFixed(0);
+    if (oLeft === tLeft && oTop === tTop) {
+      return;
+    }
+  }
+  if (option.useCssRight || option.useCssBottom) {
+    setLeftTop(elem, offset2, option);
+  } else if (option.useCssTransform && getTransformName() in document.body.style) {
+    setTransform$1(elem, offset2);
+  } else {
+    setLeftTop(elem, offset2, option);
+  }
+}
+function each(arr, fn) {
+  for (var i = 0; i < arr.length; i++) {
+    fn(arr[i]);
+  }
+}
+function isBorderBoxFn(elem) {
+  return getComputedStyleX(elem, "boxSizing") === "border-box";
+}
+var BOX_MODELS = ["margin", "border", "padding"];
+var CONTENT_INDEX = -1;
+var PADDING_INDEX = 2;
+var BORDER_INDEX = 1;
+var MARGIN_INDEX = 0;
+function swap(elem, options, callback) {
+  var old = {};
+  var style2 = elem.style;
+  var name2;
+  for (name2 in options) {
+    if (options.hasOwnProperty(name2)) {
+      old[name2] = style2[name2];
+      style2[name2] = options[name2];
+    }
+  }
+  callback.call(elem);
+  for (name2 in options) {
+    if (options.hasOwnProperty(name2)) {
+      style2[name2] = old[name2];
+    }
+  }
+}
+function getPBMWidth(elem, props, which) {
+  var value = 0;
+  var prop;
+  var j;
+  var i;
+  for (j = 0; j < props.length; j++) {
+    prop = props[j];
+    if (prop) {
+      for (i = 0; i < which.length; i++) {
+        var cssProp = void 0;
+        if (prop === "border") {
+          cssProp = "".concat(prop).concat(which[i], "Width");
+        } else {
+          cssProp = prop + which[i];
+        }
+        value += parseFloat(getComputedStyleX(elem, cssProp)) || 0;
+      }
+    }
+  }
+  return value;
+}
+var domUtils = {
+  getParent: function getParent3(element) {
+    var parent = element;
+    do {
+      if (parent.nodeType === 11 && parent.host) {
+        parent = parent.host;
+      } else {
+        parent = parent.parentNode;
+      }
+    } while (parent && parent.nodeType !== 1 && parent.nodeType !== 9);
+    return parent;
+  }
+};
+each(["Width", "Height"], function(name2) {
+  domUtils["doc".concat(name2)] = function(refWin) {
+    var d = refWin.document;
+    return Math.max(d.documentElement["scroll".concat(name2)], d.body["scroll".concat(name2)], domUtils["viewport".concat(name2)](d));
+  };
+  domUtils["viewport".concat(name2)] = function(win) {
+    var prop = "client".concat(name2);
+    var doc2 = win.document;
+    var body = doc2.body;
+    var documentElement = doc2.documentElement;
+    var documentElementProp = documentElement[prop];
+    return doc2.compatMode === "CSS1Compat" && documentElementProp || body && body[prop] || documentElementProp;
+  };
+});
+function getWH(elem, name2, ex) {
+  var extra = ex;
+  if (isWindow(elem)) {
+    return name2 === "width" ? domUtils.viewportWidth(elem) : domUtils.viewportHeight(elem);
+  } else if (elem.nodeType === 9) {
+    return name2 === "width" ? domUtils.docWidth(elem) : domUtils.docHeight(elem);
+  }
+  var which = name2 === "width" ? ["Left", "Right"] : ["Top", "Bottom"];
+  var borderBoxValue = name2 === "width" ? elem.getBoundingClientRect().width : elem.getBoundingClientRect().height;
+  var isBorderBox = isBorderBoxFn(elem);
+  var cssBoxValue = 0;
+  if (borderBoxValue === null || borderBoxValue === void 0 || borderBoxValue <= 0) {
+    borderBoxValue = void 0;
+    cssBoxValue = getComputedStyleX(elem, name2);
+    if (cssBoxValue === null || cssBoxValue === void 0 || Number(cssBoxValue) < 0) {
+      cssBoxValue = elem.style[name2] || 0;
+    }
+    cssBoxValue = parseFloat(cssBoxValue) || 0;
+  }
+  if (extra === void 0) {
+    extra = isBorderBox ? BORDER_INDEX : CONTENT_INDEX;
+  }
+  var borderBoxValueOrIsBorderBox = borderBoxValue !== void 0 || isBorderBox;
+  var val = borderBoxValue || cssBoxValue;
+  if (extra === CONTENT_INDEX) {
+    if (borderBoxValueOrIsBorderBox) {
+      return val - getPBMWidth(elem, ["border", "padding"], which);
+    }
+    return cssBoxValue;
+  } else if (borderBoxValueOrIsBorderBox) {
+    if (extra === BORDER_INDEX) {
+      return val;
+    }
+    return val + (extra === PADDING_INDEX ? -getPBMWidth(elem, ["border"], which) : getPBMWidth(elem, ["margin"], which));
+  }
+  return cssBoxValue + getPBMWidth(elem, BOX_MODELS.slice(extra), which);
+}
+var cssShow = {
+  position: "absolute",
+  visibility: "hidden",
+  display: "block"
+};
+function getWHIgnoreDisplay() {
+  for (var _len = arguments.length, args = new Array(_len), _key2 = 0; _key2 < _len; _key2++) {
+    args[_key2] = arguments[_key2];
+  }
+  var val;
+  var elem = args[0];
+  if (elem.offsetWidth !== 0) {
+    val = getWH.apply(void 0, args);
+  } else {
+    swap(elem, cssShow, function() {
+      val = getWH.apply(void 0, args);
+    });
+  }
+  return val;
+}
+each(["width", "height"], function(name2) {
+  var first = name2.charAt(0).toUpperCase() + name2.slice(1);
+  domUtils["outer".concat(first)] = function(el, includeMargin) {
+    return el && getWHIgnoreDisplay(el, name2, includeMargin ? MARGIN_INDEX : BORDER_INDEX);
+  };
+  var which = name2 === "width" ? ["Left", "Right"] : ["Top", "Bottom"];
+  domUtils[name2] = function(elem, v) {
+    var val = v;
+    if (val !== void 0) {
+      if (elem) {
+        var isBorderBox = isBorderBoxFn(elem);
+        if (isBorderBox) {
+          val += getPBMWidth(elem, ["padding", "border"], which);
+        }
+        return css(elem, name2, val);
+      }
+      return void 0;
+    }
+    return elem && getWHIgnoreDisplay(elem, name2, CONTENT_INDEX);
+  };
+});
+function mix(to, from) {
+  for (var i in from) {
+    if (from.hasOwnProperty(i)) {
+      to[i] = from[i];
+    }
+  }
+  return to;
+}
+var utils = {
+  getWindow: function getWindow(node) {
+    if (node && node.document && node.setTimeout) {
+      return node;
+    }
+    var doc2 = node.ownerDocument || node;
+    return doc2.defaultView || doc2.parentWindow;
+  },
+  getDocument,
+  offset: function offset(el, value, option) {
+    if (typeof value !== "undefined") {
+      setOffset(el, value, option || {});
+    } else {
+      return getOffset(el);
+    }
+  },
+  isWindow,
+  each,
+  css,
+  clone: function clone(obj) {
+    var i;
+    var ret = {};
+    for (i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        ret[i] = obj[i];
+      }
+    }
+    var overflow = obj.overflow;
+    if (overflow) {
+      for (i in obj) {
+        if (obj.hasOwnProperty(i)) {
+          ret.overflow[i] = obj.overflow[i];
+        }
+      }
+    }
+    return ret;
+  },
+  mix,
+  getWindowScrollLeft: function getWindowScrollLeft(w) {
+    return getScrollLeft(w);
+  },
+  getWindowScrollTop: function getWindowScrollTop(w) {
+    return getScrollTop(w);
+  },
+  merge: function merge() {
+    var ret = {};
+    for (var i = 0; i < arguments.length; i++) {
+      utils.mix(ret, i < 0 || arguments.length <= i ? void 0 : arguments[i]);
+    }
+    return ret;
+  },
+  viewportWidth: 0,
+  viewportHeight: 0
+};
+mix(utils, domUtils);
+var getParent4 = utils.getParent;
+function getOffsetParent(element) {
+  if (utils.isWindow(element) || element.nodeType === 9) {
+    return null;
+  }
+  var doc2 = utils.getDocument(element);
+  var body = doc2.body;
+  var parent;
+  var positionStyle = utils.css(element, "position");
+  var skipStatic = positionStyle === "fixed" || positionStyle === "absolute";
+  if (!skipStatic) {
+    return element.nodeName.toLowerCase() === "html" ? null : getParent4(element);
+  }
+  for (parent = getParent4(element); parent && parent !== body && parent.nodeType !== 9; parent = getParent4(parent)) {
+    positionStyle = utils.css(parent, "position");
+    if (positionStyle !== "static") {
+      return parent;
+    }
+  }
+  return null;
+}
+var getParent$1 = utils.getParent;
+function isAncestorFixed(element) {
+  if (utils.isWindow(element) || element.nodeType === 9) {
+    return false;
+  }
+  var doc2 = utils.getDocument(element);
+  var body = doc2.body;
+  var parent = null;
+  for (parent = getParent$1(element); parent && parent !== body && parent !== doc2; parent = getParent$1(parent)) {
+    var positionStyle = utils.css(parent, "position");
+    if (positionStyle === "fixed") {
+      return true;
+    }
+  }
+  return false;
+}
+function getVisibleRectForElement(element, alwaysByViewport) {
+  var visibleRect = {
+    left: 0,
+    right: Infinity,
+    top: 0,
+    bottom: Infinity
+  };
+  var el = getOffsetParent(element);
+  var doc2 = utils.getDocument(element);
+  var win = doc2.defaultView || doc2.parentWindow;
+  var body = doc2.body;
+  var documentElement = doc2.documentElement;
+  while (el) {
+    if ((navigator.userAgent.indexOf("MSIE") === -1 || el.clientWidth !== 0) && el !== body && el !== documentElement && utils.css(el, "overflow") !== "visible") {
+      var pos = utils.offset(el);
+      pos.left += el.clientLeft;
+      pos.top += el.clientTop;
+      visibleRect.top = Math.max(visibleRect.top, pos.top);
+      visibleRect.right = Math.min(visibleRect.right, pos.left + el.clientWidth);
+      visibleRect.bottom = Math.min(visibleRect.bottom, pos.top + el.clientHeight);
+      visibleRect.left = Math.max(visibleRect.left, pos.left);
+    } else if (el === body || el === documentElement) {
+      break;
+    }
+    el = getOffsetParent(el);
+  }
+  var originalPosition = null;
+  if (!utils.isWindow(element) && element.nodeType !== 9) {
+    originalPosition = element.style.position;
+    var position = utils.css(element, "position");
+    if (position === "absolute") {
+      element.style.position = "fixed";
+    }
+  }
+  var scrollX = utils.getWindowScrollLeft(win);
+  var scrollY = utils.getWindowScrollTop(win);
+  var viewportWidth = utils.viewportWidth(win);
+  var viewportHeight = utils.viewportHeight(win);
+  var documentWidth = documentElement.scrollWidth;
+  var documentHeight = documentElement.scrollHeight;
+  var bodyStyle = window.getComputedStyle(body);
+  if (bodyStyle.overflowX === "hidden") {
+    documentWidth = win.innerWidth;
+  }
+  if (bodyStyle.overflowY === "hidden") {
+    documentHeight = win.innerHeight;
+  }
+  if (element.style) {
+    element.style.position = originalPosition;
+  }
+  if (alwaysByViewport || isAncestorFixed(element)) {
+    visibleRect.left = Math.max(visibleRect.left, scrollX);
+    visibleRect.top = Math.max(visibleRect.top, scrollY);
+    visibleRect.right = Math.min(visibleRect.right, scrollX + viewportWidth);
+    visibleRect.bottom = Math.min(visibleRect.bottom, scrollY + viewportHeight);
+  } else {
+    var maxVisibleWidth = Math.max(documentWidth, scrollX + viewportWidth);
+    visibleRect.right = Math.min(visibleRect.right, maxVisibleWidth);
+    var maxVisibleHeight = Math.max(documentHeight, scrollY + viewportHeight);
+    visibleRect.bottom = Math.min(visibleRect.bottom, maxVisibleHeight);
+  }
+  return visibleRect.top >= 0 && visibleRect.left >= 0 && visibleRect.bottom > visibleRect.top && visibleRect.right > visibleRect.left ? visibleRect : null;
+}
+function adjustForViewport(elFuturePos, elRegion, visibleRect, overflow) {
+  var pos = utils.clone(elFuturePos);
+  var size = {
+    width: elRegion.width,
+    height: elRegion.height
+  };
+  if (overflow.adjustX && pos.left < visibleRect.left) {
+    pos.left = visibleRect.left;
+  }
+  if (overflow.resizeWidth && pos.left >= visibleRect.left && pos.left + size.width > visibleRect.right) {
+    size.width -= pos.left + size.width - visibleRect.right;
+  }
+  if (overflow.adjustX && pos.left + size.width > visibleRect.right) {
+    pos.left = Math.max(visibleRect.right - size.width, visibleRect.left);
+  }
+  if (overflow.adjustY && pos.top < visibleRect.top) {
+    pos.top = visibleRect.top;
+  }
+  if (overflow.resizeHeight && pos.top >= visibleRect.top && pos.top + size.height > visibleRect.bottom) {
+    size.height -= pos.top + size.height - visibleRect.bottom;
+  }
+  if (overflow.adjustY && pos.top + size.height > visibleRect.bottom) {
+    pos.top = Math.max(visibleRect.bottom - size.height, visibleRect.top);
+  }
+  return utils.mix(pos, size);
+}
+function getRegion(node) {
+  var offset2;
+  var w;
+  var h;
+  if (!utils.isWindow(node) && node.nodeType !== 9) {
+    offset2 = utils.offset(node);
+    w = utils.outerWidth(node);
+    h = utils.outerHeight(node);
+  } else {
+    var win = utils.getWindow(node);
+    offset2 = {
+      left: utils.getWindowScrollLeft(win),
+      top: utils.getWindowScrollTop(win)
+    };
+    w = utils.viewportWidth(win);
+    h = utils.viewportHeight(win);
+  }
+  offset2.width = w;
+  offset2.height = h;
+  return offset2;
+}
+function getAlignOffset(region, align) {
+  var V = align.charAt(0);
+  var H = align.charAt(1);
+  var w = region.width;
+  var h = region.height;
+  var x = region.left;
+  var y = region.top;
+  if (V === "c") {
+    y += h / 2;
+  } else if (V === "b") {
+    y += h;
+  }
+  if (H === "c") {
+    x += w / 2;
+  } else if (H === "r") {
+    x += w;
+  }
+  return {
+    left: x,
+    top: y
+  };
+}
+function getElFuturePos(elRegion, refNodeRegion, points, offset2, targetOffset2) {
+  var p1 = getAlignOffset(refNodeRegion, points[1]);
+  var p2 = getAlignOffset(elRegion, points[0]);
+  var diff = [p2.left - p1.left, p2.top - p1.top];
+  return {
+    left: Math.round(elRegion.left - diff[0] + offset2[0] - targetOffset2[0]),
+    top: Math.round(elRegion.top - diff[1] + offset2[1] - targetOffset2[1])
+  };
+}
+function isFailX(elFuturePos, elRegion, visibleRect) {
+  return elFuturePos.left < visibleRect.left || elFuturePos.left + elRegion.width > visibleRect.right;
+}
+function isFailY(elFuturePos, elRegion, visibleRect) {
+  return elFuturePos.top < visibleRect.top || elFuturePos.top + elRegion.height > visibleRect.bottom;
+}
+function isCompleteFailX(elFuturePos, elRegion, visibleRect) {
+  return elFuturePos.left > visibleRect.right || elFuturePos.left + elRegion.width < visibleRect.left;
+}
+function isCompleteFailY(elFuturePos, elRegion, visibleRect) {
+  return elFuturePos.top > visibleRect.bottom || elFuturePos.top + elRegion.height < visibleRect.top;
+}
+function flip(points, reg, map) {
+  var ret = [];
+  utils.each(points, function(p) {
+    ret.push(p.replace(reg, function(m) {
+      return map[m];
+    }));
+  });
+  return ret;
+}
+function flipOffset(offset2, index2) {
+  offset2[index2] = -offset2[index2];
+  return offset2;
+}
+function convertOffset(str, offsetLen) {
+  var n;
+  if (/%$/.test(str)) {
+    n = parseInt(str.substring(0, str.length - 1), 10) / 100 * offsetLen;
+  } else {
+    n = parseInt(str, 10);
+  }
+  return n || 0;
+}
+function normalizeOffset(offset2, el) {
+  offset2[0] = convertOffset(offset2[0], el.width);
+  offset2[1] = convertOffset(offset2[1], el.height);
+}
+function doAlign(el, tgtRegion, align, isTgtRegionVisible) {
+  var points = align.points;
+  var offset2 = align.offset || [0, 0];
+  var targetOffset2 = align.targetOffset || [0, 0];
+  var overflow = align.overflow;
+  var source = align.source || el;
+  offset2 = [].concat(offset2);
+  targetOffset2 = [].concat(targetOffset2);
+  overflow = overflow || {};
+  var newOverflowCfg = {};
+  var fail = 0;
+  var alwaysByViewport = !!(overflow && overflow.alwaysByViewport);
+  var visibleRect = getVisibleRectForElement(source, alwaysByViewport);
+  var elRegion = getRegion(source);
+  normalizeOffset(offset2, elRegion);
+  normalizeOffset(targetOffset2, tgtRegion);
+  var elFuturePos = getElFuturePos(elRegion, tgtRegion, points, offset2, targetOffset2);
+  var newElRegion = utils.merge(elRegion, elFuturePos);
+  if (visibleRect && (overflow.adjustX || overflow.adjustY) && isTgtRegionVisible) {
+    if (overflow.adjustX) {
+      if (isFailX(elFuturePos, elRegion, visibleRect)) {
+        var newPoints = flip(points, /[lr]/gi, {
+          l: "r",
+          r: "l"
+        });
+        var newOffset = flipOffset(offset2, 0);
+        var newTargetOffset = flipOffset(targetOffset2, 0);
+        var newElFuturePos = getElFuturePos(elRegion, tgtRegion, newPoints, newOffset, newTargetOffset);
+        if (!isCompleteFailX(newElFuturePos, elRegion, visibleRect)) {
+          fail = 1;
+          points = newPoints;
+          offset2 = newOffset;
+          targetOffset2 = newTargetOffset;
+        }
+      }
+    }
+    if (overflow.adjustY) {
+      if (isFailY(elFuturePos, elRegion, visibleRect)) {
+        var _newPoints = flip(points, /[tb]/gi, {
+          t: "b",
+          b: "t"
+        });
+        var _newOffset = flipOffset(offset2, 1);
+        var _newTargetOffset = flipOffset(targetOffset2, 1);
+        var _newElFuturePos = getElFuturePos(elRegion, tgtRegion, _newPoints, _newOffset, _newTargetOffset);
+        if (!isCompleteFailY(_newElFuturePos, elRegion, visibleRect)) {
+          fail = 1;
+          points = _newPoints;
+          offset2 = _newOffset;
+          targetOffset2 = _newTargetOffset;
+        }
+      }
+    }
+    if (fail) {
+      elFuturePos = getElFuturePos(elRegion, tgtRegion, points, offset2, targetOffset2);
+      utils.mix(newElRegion, elFuturePos);
+    }
+    var isStillFailX = isFailX(elFuturePos, elRegion, visibleRect);
+    var isStillFailY = isFailY(elFuturePos, elRegion, visibleRect);
+    if (isStillFailX || isStillFailY) {
+      var _newPoints2 = points;
+      if (isStillFailX) {
+        _newPoints2 = flip(points, /[lr]/gi, {
+          l: "r",
+          r: "l"
+        });
+      }
+      if (isStillFailY) {
+        _newPoints2 = flip(points, /[tb]/gi, {
+          t: "b",
+          b: "t"
+        });
+      }
+      points = _newPoints2;
+      offset2 = align.offset || [0, 0];
+      targetOffset2 = align.targetOffset || [0, 0];
+    }
+    newOverflowCfg.adjustX = overflow.adjustX && isStillFailX;
+    newOverflowCfg.adjustY = overflow.adjustY && isStillFailY;
+    if (newOverflowCfg.adjustX || newOverflowCfg.adjustY) {
+      newElRegion = adjustForViewport(elFuturePos, elRegion, visibleRect, newOverflowCfg);
+    }
+  }
+  if (newElRegion.width !== elRegion.width) {
+    utils.css(source, "width", utils.width(source) + newElRegion.width - elRegion.width);
+  }
+  if (newElRegion.height !== elRegion.height) {
+    utils.css(source, "height", utils.height(source) + newElRegion.height - elRegion.height);
+  }
+  utils.offset(source, {
+    left: newElRegion.left,
+    top: newElRegion.top
+  }, {
+    useCssRight: align.useCssRight,
+    useCssBottom: align.useCssBottom,
+    useCssTransform: align.useCssTransform,
+    ignoreShake: align.ignoreShake
+  });
+  return {
+    points,
+    offset: offset2,
+    targetOffset: targetOffset2,
+    overflow: newOverflowCfg
+  };
+}
+function isOutOfVisibleRect(target, alwaysByViewport) {
+  var visibleRect = getVisibleRectForElement(target, alwaysByViewport);
+  var targetRegion = getRegion(target);
+  return !visibleRect || targetRegion.left + targetRegion.width <= visibleRect.left || targetRegion.top + targetRegion.height <= visibleRect.top || targetRegion.left >= visibleRect.right || targetRegion.top >= visibleRect.bottom;
+}
+function alignElement(el, refNode, align) {
+  var target = align.target || refNode;
+  var refNodeRegion = getRegion(target);
+  var isTargetNotOutOfVisible = !isOutOfVisibleRect(target, align.overflow && align.overflow.alwaysByViewport);
+  return doAlign(el, refNodeRegion, align, isTargetNotOutOfVisible);
+}
+alignElement.__getOffsetParent = getOffsetParent;
+alignElement.__getVisibleRectForElement = getVisibleRectForElement;
+function alignPoint(el, tgtPoint, align) {
+  var pageX;
+  var pageY;
+  var doc2 = utils.getDocument(el);
+  var win = doc2.defaultView || doc2.parentWindow;
+  var scrollX = utils.getWindowScrollLeft(win);
+  var scrollY = utils.getWindowScrollTop(win);
+  var viewportWidth = utils.viewportWidth(win);
+  var viewportHeight = utils.viewportHeight(win);
+  if ("pageX" in tgtPoint) {
+    pageX = tgtPoint.pageX;
+  } else {
+    pageX = scrollX + tgtPoint.clientX;
+  }
+  if ("pageY" in tgtPoint) {
+    pageY = tgtPoint.pageY;
+  } else {
+    pageY = scrollY + tgtPoint.clientY;
+  }
+  var tgtRegion = {
+    left: pageX,
+    top: pageY,
+    width: 0,
+    height: 0
+  };
+  var pointInView = pageX >= 0 && pageX <= scrollX + viewportWidth && pageY >= 0 && pageY <= scrollY + viewportHeight;
+  var points = [align.points[0], "cc"];
+  return doAlign(el, tgtRegion, _objectSpread23(_objectSpread23({}, align), {}, {
+    points
+  }), pointInView);
+}
+
+// node_modules/reactex/node_modules/resize-observer-polyfill/dist/ResizeObserver.es.js
+var MapShim = function() {
+  if (typeof Map !== "undefined") {
+    return Map;
+  }
+  function getIndex(arr, key) {
+    var result = -1;
+    arr.some(function(entry, index2) {
+      if (entry[0] === key) {
+        result = index2;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+  return function() {
+    function class_1() {
+      this.__entries__ = [];
+    }
+    Object.defineProperty(class_1.prototype, "size", {
+      get: function() {
+        return this.__entries__.length;
+      },
+      enumerable: true,
+      configurable: true
+    });
+    class_1.prototype.get = function(key) {
+      var index2 = getIndex(this.__entries__, key);
+      var entry = this.__entries__[index2];
+      return entry && entry[1];
+    };
+    class_1.prototype.set = function(key, value) {
+      var index2 = getIndex(this.__entries__, key);
+      if (~index2) {
+        this.__entries__[index2][1] = value;
+      } else {
+        this.__entries__.push([key, value]);
+      }
+    };
+    class_1.prototype.delete = function(key) {
+      var entries = this.__entries__;
+      var index2 = getIndex(entries, key);
+      if (~index2) {
+        entries.splice(index2, 1);
+      }
+    };
+    class_1.prototype.has = function(key) {
+      return !!~getIndex(this.__entries__, key);
+    };
+    class_1.prototype.clear = function() {
+      this.__entries__.splice(0);
+    };
+    class_1.prototype.forEach = function(callback, ctx) {
+      if (ctx === void 0) {
+        ctx = null;
+      }
+      for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
+        var entry = _a[_i];
+        callback.call(ctx, entry[1], entry[0]);
+      }
+    };
+    return class_1;
+  }();
+}();
+var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && window.document === document;
+var global$1 = function() {
+  if (typeof global !== "undefined" && global.Math === Math) {
+    return global;
+  }
+  if (typeof self !== "undefined" && self.Math === Math) {
+    return self;
+  }
+  if (typeof window !== "undefined" && window.Math === Math) {
+    return window;
+  }
+  return Function("return this")();
+}();
+var requestAnimationFrame$1 = function() {
+  if (typeof requestAnimationFrame === "function") {
+    return requestAnimationFrame.bind(global$1);
+  }
+  return function(callback) {
+    return setTimeout(function() {
+      return callback(Date.now());
+    }, 1e3 / 60);
+  };
+}();
+var trailingTimeout = 2;
+function throttle(callback, delay) {
+  var leadingCall = false, trailingCall = false, lastCallTime = 0;
+  function resolvePending() {
+    if (leadingCall) {
+      leadingCall = false;
+      callback();
+    }
+    if (trailingCall) {
+      proxy();
+    }
+  }
+  function timeoutCallback() {
+    requestAnimationFrame$1(resolvePending);
+  }
+  function proxy() {
+    var timeStamp = Date.now();
+    if (leadingCall) {
+      if (timeStamp - lastCallTime < trailingTimeout) {
+        return;
+      }
+      trailingCall = true;
+    } else {
+      leadingCall = true;
+      trailingCall = false;
+      setTimeout(timeoutCallback, delay);
+    }
+    lastCallTime = timeStamp;
+  }
+  return proxy;
+}
+var REFRESH_DELAY = 20;
+var transitionKeys = ["top", "right", "bottom", "left", "width", "height", "size", "weight"];
+var mutationObserverSupported = typeof MutationObserver !== "undefined";
+var ResizeObserverController = function() {
+  function ResizeObserverController2() {
+    this.connected_ = false;
+    this.mutationEventsAdded_ = false;
+    this.mutationsObserver_ = null;
+    this.observers_ = [];
+    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+  }
+  ResizeObserverController2.prototype.addObserver = function(observer) {
+    if (!~this.observers_.indexOf(observer)) {
+      this.observers_.push(observer);
+    }
+    if (!this.connected_) {
+      this.connect_();
+    }
+  };
+  ResizeObserverController2.prototype.removeObserver = function(observer) {
+    var observers2 = this.observers_;
+    var index2 = observers2.indexOf(observer);
+    if (~index2) {
+      observers2.splice(index2, 1);
+    }
+    if (!observers2.length && this.connected_) {
+      this.disconnect_();
+    }
+  };
+  ResizeObserverController2.prototype.refresh = function() {
+    var changesDetected = this.updateObservers_();
+    if (changesDetected) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController2.prototype.updateObservers_ = function() {
+    var activeObservers = this.observers_.filter(function(observer) {
+      return observer.gatherActive(), observer.hasActive();
+    });
+    activeObservers.forEach(function(observer) {
+      return observer.broadcastActive();
+    });
+    return activeObservers.length > 0;
+  };
+  ResizeObserverController2.prototype.connect_ = function() {
+    if (!isBrowser || this.connected_) {
+      return;
+    }
+    document.addEventListener("transitionend", this.onTransitionEnd_);
+    window.addEventListener("resize", this.refresh);
+    if (mutationObserverSupported) {
+      this.mutationsObserver_ = new MutationObserver(this.refresh);
+      this.mutationsObserver_.observe(document, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    } else {
+      document.addEventListener("DOMSubtreeModified", this.refresh);
+      this.mutationEventsAdded_ = true;
+    }
+    this.connected_ = true;
+  };
+  ResizeObserverController2.prototype.disconnect_ = function() {
+    if (!isBrowser || !this.connected_) {
+      return;
+    }
+    document.removeEventListener("transitionend", this.onTransitionEnd_);
+    window.removeEventListener("resize", this.refresh);
+    if (this.mutationsObserver_) {
+      this.mutationsObserver_.disconnect();
+    }
+    if (this.mutationEventsAdded_) {
+      document.removeEventListener("DOMSubtreeModified", this.refresh);
+    }
+    this.mutationsObserver_ = null;
+    this.mutationEventsAdded_ = false;
+    this.connected_ = false;
+  };
+  ResizeObserverController2.prototype.onTransitionEnd_ = function(_a) {
+    var _b2 = _a.propertyName, propertyName = _b2 === void 0 ? "" : _b2;
+    var isReflowProperty = transitionKeys.some(function(key) {
+      return !!~propertyName.indexOf(key);
+    });
+    if (isReflowProperty) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController2.getInstance = function() {
+    if (!this.instance_) {
+      this.instance_ = new ResizeObserverController2();
+    }
+    return this.instance_;
+  };
+  ResizeObserverController2.instance_ = null;
+  return ResizeObserverController2;
+}();
+var defineConfigurable = function(target, props) {
+  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+    var key = _a[_i];
+    Object.defineProperty(target, key, {
+      value: props[key],
+      enumerable: false,
+      writable: false,
+      configurable: true
+    });
+  }
+  return target;
+};
+var getWindowOf = function(target) {
+  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+  return ownerGlobal || global$1;
+};
+var emptyRect = createRectInit(0, 0, 0, 0);
+function toFloat(value) {
+  return parseFloat(value) || 0;
+}
+function getBordersSize(styles) {
+  var positions = [];
+  for (var _i = 1; _i < arguments.length; _i++) {
+    positions[_i - 1] = arguments[_i];
+  }
+  return positions.reduce(function(size, position) {
+    var value = styles["border-" + position + "-width"];
+    return size + toFloat(value);
+  }, 0);
+}
+function getPaddings(styles) {
+  var positions = ["top", "right", "bottom", "left"];
+  var paddings = {};
+  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
+    var position = positions_1[_i];
+    var value = styles["padding-" + position];
+    paddings[position] = toFloat(value);
+  }
+  return paddings;
+}
+function getSVGContentRect(target) {
+  var bbox = target.getBBox();
+  return createRectInit(0, 0, bbox.width, bbox.height);
+}
+function getHTMLElementContentRect(target) {
+  var clientWidth = target.clientWidth, clientHeight = target.clientHeight;
+  if (!clientWidth && !clientHeight) {
+    return emptyRect;
+  }
+  var styles = getWindowOf(target).getComputedStyle(target);
+  var paddings = getPaddings(styles);
+  var horizPad = paddings.left + paddings.right;
+  var vertPad = paddings.top + paddings.bottom;
+  var width = toFloat(styles.width), height = toFloat(styles.height);
+  if (styles.boxSizing === "border-box") {
+    if (Math.round(width + horizPad) !== clientWidth) {
+      width -= getBordersSize(styles, "left", "right") + horizPad;
+    }
+    if (Math.round(height + vertPad) !== clientHeight) {
+      height -= getBordersSize(styles, "top", "bottom") + vertPad;
+    }
+  }
+  if (!isDocumentElement(target)) {
+    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+    if (Math.abs(vertScrollbar) !== 1) {
+      width -= vertScrollbar;
+    }
+    if (Math.abs(horizScrollbar) !== 1) {
+      height -= horizScrollbar;
+    }
+  }
+  return createRectInit(paddings.left, paddings.top, width, height);
+}
+var isSVGGraphicsElement = function() {
+  if (typeof SVGGraphicsElement !== "undefined") {
+    return function(target) {
+      return target instanceof getWindowOf(target).SVGGraphicsElement;
+    };
+  }
+  return function(target) {
+    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === "function";
+  };
+}();
+function isDocumentElement(target) {
+  return target === getWindowOf(target).document.documentElement;
+}
+function getContentRect(target) {
+  if (!isBrowser) {
+    return emptyRect;
+  }
+  if (isSVGGraphicsElement(target)) {
+    return getSVGContentRect(target);
+  }
+  return getHTMLElementContentRect(target);
+}
+function createReadOnlyRect(_a) {
+  var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+  var Constr = typeof DOMRectReadOnly !== "undefined" ? DOMRectReadOnly : Object;
+  var rect = Object.create(Constr.prototype);
+  defineConfigurable(rect, {
+    x,
+    y,
+    width,
+    height,
+    top: y,
+    right: x + width,
+    bottom: height + y,
+    left: x
+  });
+  return rect;
+}
+function createRectInit(x, y, width, height) {
+  return { x, y, width, height };
+}
+var ResizeObservation = function() {
+  function ResizeObservation2(target) {
+    this.broadcastWidth = 0;
+    this.broadcastHeight = 0;
+    this.contentRect_ = createRectInit(0, 0, 0, 0);
+    this.target = target;
+  }
+  ResizeObservation2.prototype.isActive = function() {
+    var rect = getContentRect(this.target);
+    this.contentRect_ = rect;
+    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
+  };
+  ResizeObservation2.prototype.broadcastRect = function() {
+    var rect = this.contentRect_;
+    this.broadcastWidth = rect.width;
+    this.broadcastHeight = rect.height;
+    return rect;
+  };
+  return ResizeObservation2;
+}();
+var ResizeObserverEntry = function() {
+  function ResizeObserverEntry2(target, rectInit) {
+    var contentRect = createReadOnlyRect(rectInit);
+    defineConfigurable(this, { target, contentRect });
+  }
+  return ResizeObserverEntry2;
+}();
+var ResizeObserverSPI = function() {
+  function ResizeObserverSPI2(callback, controller, callbackCtx) {
+    this.activeObservations_ = [];
+    this.observations_ = new MapShim();
+    if (typeof callback !== "function") {
+      throw new TypeError("The callback provided as parameter 1 is not a function.");
+    }
+    this.callback_ = callback;
+    this.controller_ = controller;
+    this.callbackCtx_ = callbackCtx;
+  }
+  ResizeObserverSPI2.prototype.observe = function(target) {
+    if (!arguments.length) {
+      throw new TypeError("1 argument required, but only 0 present.");
+    }
+    if (typeof Element === "undefined" || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (observations.has(target)) {
+      return;
+    }
+    observations.set(target, new ResizeObservation(target));
+    this.controller_.addObserver(this);
+    this.controller_.refresh();
+  };
+  ResizeObserverSPI2.prototype.unobserve = function(target) {
+    if (!arguments.length) {
+      throw new TypeError("1 argument required, but only 0 present.");
+    }
+    if (typeof Element === "undefined" || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (!observations.has(target)) {
+      return;
+    }
+    observations.delete(target);
+    if (!observations.size) {
+      this.controller_.removeObserver(this);
+    }
+  };
+  ResizeObserverSPI2.prototype.disconnect = function() {
+    this.clearActive();
+    this.observations_.clear();
+    this.controller_.removeObserver(this);
+  };
+  ResizeObserverSPI2.prototype.gatherActive = function() {
+    var _this = this;
+    this.clearActive();
+    this.observations_.forEach(function(observation) {
+      if (observation.isActive()) {
+        _this.activeObservations_.push(observation);
+      }
+    });
+  };
+  ResizeObserverSPI2.prototype.broadcastActive = function() {
+    if (!this.hasActive()) {
+      return;
+    }
+    var ctx = this.callbackCtx_;
+    var entries = this.activeObservations_.map(function(observation) {
+      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+    });
+    this.callback_.call(ctx, entries, ctx);
+    this.clearActive();
+  };
+  ResizeObserverSPI2.prototype.clearActive = function() {
+    this.activeObservations_.splice(0);
+  };
+  ResizeObserverSPI2.prototype.hasActive = function() {
+    return this.activeObservations_.length > 0;
+  };
+  return ResizeObserverSPI2;
+}();
+var observers = typeof WeakMap !== "undefined" ? new WeakMap() : new MapShim();
+var ResizeObserver = function() {
+  function ResizeObserver2(callback) {
+    if (!(this instanceof ResizeObserver2)) {
+      throw new TypeError("Cannot call a class as a function.");
+    }
+    if (!arguments.length) {
+      throw new TypeError("1 argument required, but only 0 present.");
+    }
+    var controller = ResizeObserverController.getInstance();
+    var observer = new ResizeObserverSPI(callback, controller, this);
+    observers.set(this, observer);
+  }
+  return ResizeObserver2;
+}();
+[
+  "observe",
+  "unobserve",
+  "disconnect"
+].forEach(function(method) {
+  ResizeObserver.prototype[method] = function() {
+    var _a;
+    return (_a = observers.get(this))[method].apply(_a, arguments);
+  };
+});
+var index = function() {
+  if (typeof global$1.ResizeObserver !== "undefined") {
+    return global$1.ResizeObserver;
+  }
+  return ResizeObserver;
+}();
+var ResizeObserver_es_default = index;
+
+// node_modules/reactex/node_modules/rc-align/es/util.js
+function isSamePoint(prev, next) {
+  if (prev === next)
+    return true;
+  if (!prev || !next)
+    return false;
+  if ("pageX" in next && "pageY" in next) {
+    return prev.pageX === next.pageX && prev.pageY === next.pageY;
+  }
+  if ("clientX" in next && "clientY" in next) {
+    return prev.clientX === next.clientX && prev.clientY === next.clientY;
+  }
+  return false;
+}
+function restoreFocus(activeElement, container) {
+  if (activeElement !== document.activeElement && contains2(container, activeElement) && typeof activeElement.focus === "function") {
+    activeElement.focus();
+  }
+}
+function monitorResize(element, callback) {
+  var prevWidth = null;
+  var prevHeight = null;
+  function onResize(_ref) {
+    var _ref2 = _slicedToArray(_ref, 1), target = _ref2[0].target;
+    if (!document.documentElement.contains(target))
+      return;
+    var _target$getBoundingCl = target.getBoundingClientRect(), width = _target$getBoundingCl.width, height = _target$getBoundingCl.height;
+    var fixedWidth = Math.floor(width);
+    var fixedHeight = Math.floor(height);
+    if (prevWidth !== fixedWidth || prevHeight !== fixedHeight) {
+      Promise.resolve().then(function() {
+        callback({
+          width: fixedWidth,
+          height: fixedHeight
+        });
+      });
+    }
+    prevWidth = fixedWidth;
+    prevHeight = fixedHeight;
+  }
+  var resizeObserver = new ResizeObserver_es_default(onResize);
+  if (element) {
+    resizeObserver.observe(element);
+  }
+  return function() {
+    resizeObserver.disconnect();
+  };
+}
+
+// node_modules/reactex/node_modules/rc-align/es/hooks/useBuffer.js
+var import_react11 = __toModule(require_react());
+var useBuffer_default = function(callback, buffer) {
+  var calledRef = import_react11.default.useRef(false);
+  var timeoutRef = import_react11.default.useRef(null);
+  function cancelTrigger() {
+    window.clearTimeout(timeoutRef.current);
+  }
+  function trigger(force) {
+    if (!calledRef.current || force === true) {
+      if (callback() === false) {
+        return;
+      }
+      calledRef.current = true;
+      cancelTrigger();
+      timeoutRef.current = window.setTimeout(function() {
+        calledRef.current = false;
+      }, buffer);
+    } else {
+      cancelTrigger();
+      timeoutRef.current = window.setTimeout(function() {
+        calledRef.current = false;
+        trigger();
+      }, buffer);
+    }
+  }
+  return [trigger, function() {
+    calledRef.current = false;
+    cancelTrigger();
+  }];
+};
+
+// node_modules/reactex/node_modules/rc-align/es/Align.js
+function getElement(func) {
+  if (typeof func !== "function")
+    return null;
+  return func();
+}
+function getPoint(point) {
+  if (_typeof(point) !== "object" || !point)
+    return null;
+  return point;
+}
+var Align = function Align2(_ref, ref) {
+  var children = _ref.children, disabled = _ref.disabled, target = _ref.target, align = _ref.align, onAlign = _ref.onAlign, monitorWindowResize = _ref.monitorWindowResize, _ref$monitorBufferTim = _ref.monitorBufferTime, monitorBufferTime = _ref$monitorBufferTim === void 0 ? 0 : _ref$monitorBufferTim;
+  var cacheRef = import_react12.default.useRef({});
+  var nodeRef = import_react12.default.useRef();
+  var childNode = import_react12.default.Children.only(children);
+  var forceAlignPropsRef = import_react12.default.useRef({});
+  forceAlignPropsRef.current.disabled = disabled;
+  forceAlignPropsRef.current.target = target;
+  forceAlignPropsRef.current.onAlign = onAlign;
+  var _useBuffer = useBuffer_default(function() {
+    var _forceAlignPropsRef$c = forceAlignPropsRef.current, latestDisabled = _forceAlignPropsRef$c.disabled, latestTarget = _forceAlignPropsRef$c.target, latestOnAlign = _forceAlignPropsRef$c.onAlign;
+    if (!latestDisabled && latestTarget) {
+      var source = nodeRef.current;
+      var result;
+      var element = getElement(latestTarget);
+      var point = getPoint(latestTarget);
+      cacheRef.current.element = element;
+      cacheRef.current.point = point;
+      var _document = document, activeElement = _document.activeElement;
+      if (element && isVisible_default(element)) {
+        result = alignElement(source, element, align);
+      } else if (point) {
+        result = alignPoint(source, point, align);
+      }
+      restoreFocus(activeElement, source);
+      if (latestOnAlign && result) {
+        latestOnAlign(source, result);
+      }
+      return true;
+    }
+    return false;
+  }, monitorBufferTime), _useBuffer2 = _slicedToArray(_useBuffer, 2), _forceAlign = _useBuffer2[0], cancelForceAlign = _useBuffer2[1];
+  var resizeMonitor = import_react12.default.useRef({
+    cancel: function cancel() {
+    }
+  });
+  var sourceResizeMonitor = import_react12.default.useRef({
+    cancel: function cancel() {
+    }
+  });
+  import_react12.default.useEffect(function() {
+    var element = getElement(target);
+    var point = getPoint(target);
+    if (nodeRef.current !== sourceResizeMonitor.current.element) {
+      sourceResizeMonitor.current.cancel();
+      sourceResizeMonitor.current.element = nodeRef.current;
+      sourceResizeMonitor.current.cancel = monitorResize(nodeRef.current, _forceAlign);
+    }
+    if (cacheRef.current.element !== element || !isSamePoint(cacheRef.current.point, point)) {
+      _forceAlign();
+      if (resizeMonitor.current.element !== element) {
+        resizeMonitor.current.cancel();
+        resizeMonitor.current.element = element;
+        resizeMonitor.current.cancel = monitorResize(element, _forceAlign);
+      }
+    }
+  });
+  import_react12.default.useEffect(function() {
+    if (!disabled) {
+      _forceAlign();
+    } else {
+      cancelForceAlign();
+    }
+  }, [disabled]);
+  var winResizeRef = import_react12.default.useRef(null);
+  import_react12.default.useEffect(function() {
+    if (monitorWindowResize) {
+      if (!winResizeRef.current) {
+        winResizeRef.current = addEventListenerWrap(window, "resize", _forceAlign);
+      }
+    } else if (winResizeRef.current) {
+      winResizeRef.current.remove();
+      winResizeRef.current = null;
+    }
+  }, [monitorWindowResize]);
+  import_react12.default.useEffect(function() {
+    return function() {
+      resizeMonitor.current.cancel();
+      sourceResizeMonitor.current.cancel();
+      if (winResizeRef.current)
+        winResizeRef.current.remove();
+      cancelForceAlign();
+    };
+  }, []);
+  import_react12.default.useImperativeHandle(ref, function() {
+    return {
+      forceAlign: function forceAlign() {
+        return _forceAlign(true);
+      }
+    };
+  });
+  if (import_react12.default.isValidElement(childNode)) {
+    childNode = import_react12.default.cloneElement(childNode, {
+      ref: composeRef(childNode.ref, nodeRef)
+    });
+  }
+  return childNode;
+};
+var RefAlign = import_react12.default.forwardRef(Align);
+RefAlign.displayName = "Align";
+var Align_default = RefAlign;
+
+// node_modules/reactex/node_modules/rc-align/es/index.js
+var es_default2 = Align_default;
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
+var import_classnames3 = __toModule(require_classnames());
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/useVisibleStatus.js
+var import_regenerator = __toModule(require_regenerator());
+
+// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+function _asyncToGenerator(fn) {
+  return function() {
+    var self2 = this, args = arguments;
+    return new Promise(function(resolve, reject) {
+      var gen = fn.apply(self2, args);
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+      _next(void 0);
+    });
+  };
+}
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/useVisibleStatus.js
+var import_react13 = __toModule(require_react());
+var StatusQueue = ["measure", "align", null, "motion"];
+var useVisibleStatus_default = function(visible, doMeasure) {
+  var _useState = (0, import_react13.useState)(null), _useState2 = _slicedToArray(_useState, 2), status = _useState2[0], setInternalStatus = _useState2[1];
+  var rafRef = (0, import_react13.useRef)();
+  var destroyRef = (0, import_react13.useRef)(false);
+  function setStatus(nextStatus) {
+    if (!destroyRef.current) {
+      setInternalStatus(nextStatus);
+    }
+  }
+  function cancelRaf() {
+    wrapperRaf.cancel(rafRef.current);
+  }
+  function goNextStatus(callback) {
+    cancelRaf();
+    rafRef.current = wrapperRaf(function() {
+      setStatus(function(prev) {
+        switch (status) {
+          case "align":
+            return "motion";
+          case "motion":
+            return "stable";
+          default:
+        }
+        return prev;
+      });
+      callback === null || callback === void 0 ? void 0 : callback();
+    });
+  }
+  (0, import_react13.useEffect)(function() {
+    setStatus("measure");
+  }, [visible]);
+  (0, import_react13.useEffect)(function() {
+    switch (status) {
+      case "measure":
+        doMeasure();
+        break;
+      default:
+    }
+    if (status) {
+      rafRef.current = wrapperRaf(/* @__PURE__ */ _asyncToGenerator(/* @__PURE__ */ import_regenerator.default.mark(function _callee() {
+        var index2, nextStatus;
+        return import_regenerator.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                index2 = StatusQueue.indexOf(status);
+                nextStatus = StatusQueue[index2 + 1];
+                if (nextStatus && index2 !== -1) {
+                  setStatus(nextStatus);
+                }
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      })));
+    }
+  }, [status]);
+  (0, import_react13.useEffect)(function() {
+    return function() {
+      destroyRef.current = true;
+      cancelRaf();
+    };
+  }, []);
+  return [status, goNextStatus];
+};
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/useStretchStyle.js
+var React15 = __toModule(require_react());
+var useStretchStyle_default = function(stretch) {
+  var _React$useState = React15.useState({
+    width: 0,
+    height: 0
+  }), _React$useState2 = _slicedToArray(_React$useState, 2), targetSize = _React$useState2[0], setTargetSize = _React$useState2[1];
+  function measureStretch(element) {
+    setTargetSize({
+      width: element.offsetWidth,
+      height: element.offsetHeight
+    });
+  }
+  var style2 = React15.useMemo(function() {
+    var sizeStyle = {};
+    if (stretch) {
+      var width = targetSize.width, height = targetSize.height;
+      if (stretch.indexOf("height") !== -1 && height) {
+        sizeStyle.height = height;
+      } else if (stretch.indexOf("minHeight") !== -1 && height) {
+        sizeStyle.minHeight = height;
+      }
+      if (stretch.indexOf("width") !== -1 && width) {
+        sizeStyle.width = width;
+      } else if (stretch.indexOf("minWidth") !== -1 && width) {
+        sizeStyle.minWidth = width;
+      }
+    }
+    return sizeStyle;
+  }, [stretch, targetSize]);
+  return [style2, measureStretch];
+};
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
+var PopupInner = /* @__PURE__ */ React16.forwardRef(function(props, ref) {
+  var visible = props.visible, prefixCls = props.prefixCls, className = props.className, style2 = props.style, children = props.children, zIndex = props.zIndex, stretch = props.stretch, destroyPopupOnHide = props.destroyPopupOnHide, forceRender = props.forceRender, align = props.align, point = props.point, getRootDomNode = props.getRootDomNode, getClassNameFromAlign = props.getClassNameFromAlign, onAlign = props.onAlign, onMouseEnter = props.onMouseEnter, onMouseLeave = props.onMouseLeave, onMouseDown = props.onMouseDown, onTouchStart = props.onTouchStart;
+  var alignRef = (0, import_react14.useRef)();
+  var elementRef = (0, import_react14.useRef)();
+  var _useState = (0, import_react14.useState)(), _useState2 = _slicedToArray(_useState, 2), alignedClassName = _useState2[0], setAlignedClassName = _useState2[1];
+  var _useStretchStyle = useStretchStyle_default(stretch), _useStretchStyle2 = _slicedToArray(_useStretchStyle, 2), stretchStyle = _useStretchStyle2[0], measureStretchStyle = _useStretchStyle2[1];
+  function doMeasure() {
+    if (stretch) {
+      measureStretchStyle(getRootDomNode());
+    }
+  }
+  var _useVisibleStatus = useVisibleStatus_default(visible, doMeasure), _useVisibleStatus2 = _slicedToArray(_useVisibleStatus, 2), status = _useVisibleStatus2[0], goNextStatus = _useVisibleStatus2[1];
+  var prepareResolveRef = (0, import_react14.useRef)();
+  function getAlignTarget() {
+    if (point) {
+      return point;
+    }
+    return getRootDomNode;
+  }
+  function forceAlign() {
+    var _alignRef$current;
+    (_alignRef$current = alignRef.current) === null || _alignRef$current === void 0 ? void 0 : _alignRef$current.forceAlign();
+  }
+  function onInternalAlign(popupDomNode, matchAlign) {
+    if (status === "align") {
+      var nextAlignedClassName = getClassNameFromAlign(matchAlign);
+      setAlignedClassName(nextAlignedClassName);
+      if (alignedClassName !== nextAlignedClassName) {
+        Promise.resolve().then(function() {
+          forceAlign();
+        });
+      } else {
+        goNextStatus(function() {
+          var _prepareResolveRef$cu;
+          (_prepareResolveRef$cu = prepareResolveRef.current) === null || _prepareResolveRef$cu === void 0 ? void 0 : _prepareResolveRef$cu.call(prepareResolveRef);
+        });
+      }
+      onAlign === null || onAlign === void 0 ? void 0 : onAlign(popupDomNode, matchAlign);
+    }
+  }
+  var motion = _objectSpread22({}, getMotion(props));
+  ["onAppearEnd", "onEnterEnd", "onLeaveEnd"].forEach(function(eventName) {
+    var originHandler = motion[eventName];
+    motion[eventName] = function(element, event) {
+      goNextStatus();
+      return originHandler === null || originHandler === void 0 ? void 0 : originHandler(element, event);
+    };
+  });
+  function onShowPrepare() {
+    return new Promise(function(resolve) {
+      prepareResolveRef.current = resolve;
+    });
+  }
+  React16.useEffect(function() {
+    if (!motion.motionName && status === "motion") {
+      goNextStatus();
+    }
+  }, [motion.motionName, status]);
+  React16.useImperativeHandle(ref, function() {
+    return {
+      forceAlign,
+      getElement: function getElement2() {
+        return elementRef.current;
+      }
+    };
+  });
+  var mergedStyle = _objectSpread22(_objectSpread22({}, stretchStyle), {}, {
+    zIndex,
+    opacity: status === "motion" || status === "stable" || !visible ? void 0 : 0,
+    pointerEvents: status === "stable" ? void 0 : "none"
+  }, style2);
+  var alignDisabled = true;
+  if ((align === null || align === void 0 ? void 0 : align.points) && (status === "align" || status === "stable")) {
+    alignDisabled = false;
+  }
+  var childNode = children;
+  if (React16.Children.count(children) > 1) {
+    childNode = /* @__PURE__ */ React16.createElement("div", {
+      className: "".concat(prefixCls, "-content")
+    }, children);
+  }
+  return /* @__PURE__ */ React16.createElement(es_default, _extends2({
+    visible,
+    ref: elementRef,
+    leavedClassName: "".concat(prefixCls, "-hidden")
+  }, motion, {
+    onAppearPrepare: onShowPrepare,
+    onEnterPrepare: onShowPrepare,
+    removeOnLeave: destroyPopupOnHide,
+    forceRender
+  }), function(_ref, motionRef) {
+    var motionClassName = _ref.className, motionStyle = _ref.style;
+    var mergedClassName = (0, import_classnames3.default)(prefixCls, className, alignedClassName, motionClassName);
+    return /* @__PURE__ */ React16.createElement(es_default2, {
+      target: getAlignTarget(),
+      key: "popup",
+      ref: alignRef,
+      monitorWindowResize: true,
+      disabled: alignDisabled,
+      align,
+      onAlign: onInternalAlign
+    }, /* @__PURE__ */ React16.createElement("div", {
+      ref: motionRef,
+      className: mergedClassName,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseDownCapture: onMouseDown,
+      onTouchStartCapture: onTouchStart,
+      style: _objectSpread22(_objectSpread22({}, motionStyle), mergedStyle)
+    }, childNode));
+  });
+});
+PopupInner.displayName = "PopupInner";
+var PopupInner_default = PopupInner;
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/MobilePopupInner.js
+var React17 = __toModule(require_react());
+var import_classnames4 = __toModule(require_classnames());
+var MobilePopupInner = /* @__PURE__ */ React17.forwardRef(function(props, ref) {
+  var prefixCls = props.prefixCls, visible = props.visible, zIndex = props.zIndex, children = props.children, _props$mobile = props.mobile;
+  _props$mobile = _props$mobile === void 0 ? {} : _props$mobile;
+  var popupClassName = _props$mobile.popupClassName, popupStyle = _props$mobile.popupStyle, _props$mobile$popupMo = _props$mobile.popupMotion, popupMotion = _props$mobile$popupMo === void 0 ? {} : _props$mobile$popupMo, popupRender = _props$mobile.popupRender;
+  var elementRef = React17.useRef();
+  React17.useImperativeHandle(ref, function() {
+    return {
+      forceAlign: function forceAlign() {
+      },
+      getElement: function getElement2() {
+        return elementRef.current;
+      }
+    };
+  });
+  var mergedStyle = _objectSpread22({
+    zIndex
+  }, popupStyle);
+  var childNode = children;
+  if (React17.Children.count(children) > 1) {
+    childNode = /* @__PURE__ */ React17.createElement("div", {
+      className: "".concat(prefixCls, "-content")
+    }, children);
+  }
+  if (popupRender) {
+    childNode = popupRender(childNode);
+  }
+  return /* @__PURE__ */ React17.createElement(es_default, _extends2({
+    visible,
+    ref: elementRef,
+    removeOnLeave: true
+  }, popupMotion), function(_ref, motionRef) {
+    var motionClassName = _ref.className, motionStyle = _ref.style;
+    var mergedClassName = (0, import_classnames4.default)(prefixCls, popupClassName, motionClassName);
+    return /* @__PURE__ */ React17.createElement("div", {
+      ref: motionRef,
+      className: mergedClassName,
+      style: _objectSpread22(_objectSpread22({}, motionStyle), mergedStyle)
+    }, childNode);
+  });
+});
+MobilePopupInner.displayName = "MobilePopupInner";
+var MobilePopupInner_default = MobilePopupInner;
+
+// node_modules/reactex/node_modules/rc-trigger/es/Popup/index.js
+var Popup = /* @__PURE__ */ React18.forwardRef(function(_ref, ref) {
+  var visible = _ref.visible, mobile = _ref.mobile, props = _objectWithoutProperties(_ref, ["visible", "mobile"]);
+  var _useState = (0, import_react15.useState)(visible), _useState2 = _slicedToArray(_useState, 2), innerVisible = _useState2[0], serInnerVisible = _useState2[1];
+  var _useState3 = (0, import_react15.useState)(false), _useState4 = _slicedToArray(_useState3, 2), inMobile = _useState4[0], setInMobile = _useState4[1];
+  var cloneProps = _objectSpread22(_objectSpread22({}, props), {}, {
+    visible: innerVisible
+  });
+  (0, import_react15.useEffect)(function() {
+    serInnerVisible(visible);
+    if (visible && mobile) {
+      setInMobile(isMobile_default());
+    }
+  }, [visible, mobile]);
+  var popupNode = inMobile ? /* @__PURE__ */ React18.createElement(MobilePopupInner_default, _extends2({}, cloneProps, {
+    mobile,
+    ref
+  })) : /* @__PURE__ */ React18.createElement(PopupInner_default, _extends2({}, cloneProps, {
+    ref
+  }));
+  return /* @__PURE__ */ React18.createElement("div", null, /* @__PURE__ */ React18.createElement(Mask, cloneProps), popupNode);
+});
+Popup.displayName = "Popup";
+var Popup_default = Popup;
+
+// node_modules/reactex/node_modules/rc-trigger/es/context.js
+var React19 = __toModule(require_react());
+var TriggerContext = /* @__PURE__ */ React19.createContext(null);
+var context_default = TriggerContext;
+
+// node_modules/reactex/node_modules/rc-trigger/es/index.js
+function noop() {
+}
+function returnEmptyString() {
+  return "";
+}
+function returnDocument(element) {
+  if (element) {
+    return element.ownerDocument;
+  }
+  return window.document;
+}
+var ALL_HANDLERS = ["onClick", "onMouseDown", "onTouchStart", "onMouseEnter", "onMouseLeave", "onFocus", "onBlur", "onContextMenu"];
+function generateTrigger(PortalComponent) {
+  var Trigger = /* @__PURE__ */ function(_React$Component) {
+    _inherits2(Trigger2, _React$Component);
+    var _super = _createSuper(Trigger2);
+    function Trigger2(props) {
+      var _this;
+      _classCallCheck2(this, Trigger2);
+      _this = _super.call(this, props);
+      _this.popupRef = /* @__PURE__ */ React20.createRef();
+      _this.triggerRef = /* @__PURE__ */ React20.createRef();
+      _this.onMouseEnter = function(e) {
+        var mouseEnterDelay = _this.props.mouseEnterDelay;
+        _this.fireEvents("onMouseEnter", e);
+        _this.delaySetPopupVisible(true, mouseEnterDelay, mouseEnterDelay ? null : e);
+      };
+      _this.onMouseMove = function(e) {
+        _this.fireEvents("onMouseMove", e);
+        _this.setPoint(e);
+      };
+      _this.onMouseLeave = function(e) {
+        _this.fireEvents("onMouseLeave", e);
+        _this.delaySetPopupVisible(false, _this.props.mouseLeaveDelay);
+      };
+      _this.onPopupMouseEnter = function() {
+        _this.clearDelayTimer();
+      };
+      _this.onPopupMouseLeave = function(e) {
+        var _this$popupRef$curren;
+        if (e.relatedTarget && !e.relatedTarget.setTimeout && contains2((_this$popupRef$curren = _this.popupRef.current) === null || _this$popupRef$curren === void 0 ? void 0 : _this$popupRef$curren.getElement(), e.relatedTarget)) {
+          return;
+        }
+        _this.delaySetPopupVisible(false, _this.props.mouseLeaveDelay);
+      };
+      _this.onFocus = function(e) {
+        _this.fireEvents("onFocus", e);
+        _this.clearDelayTimer();
+        if (_this.isFocusToShow()) {
+          _this.focusTime = Date.now();
+          _this.delaySetPopupVisible(true, _this.props.focusDelay);
+        }
+      };
+      _this.onMouseDown = function(e) {
+        _this.fireEvents("onMouseDown", e);
+        _this.preClickTime = Date.now();
+      };
+      _this.onTouchStart = function(e) {
+        _this.fireEvents("onTouchStart", e);
+        _this.preTouchTime = Date.now();
+      };
+      _this.onBlur = function(e) {
+        _this.fireEvents("onBlur", e);
+        _this.clearDelayTimer();
+        if (_this.isBlurToHide()) {
+          _this.delaySetPopupVisible(false, _this.props.blurDelay);
+        }
+      };
+      _this.onContextMenu = function(e) {
+        e.preventDefault();
+        _this.fireEvents("onContextMenu", e);
+        _this.setPopupVisible(true, e);
+      };
+      _this.onContextMenuClose = function() {
+        if (_this.isContextMenuToShow()) {
+          _this.close();
+        }
+      };
+      _this.onClick = function(event) {
+        _this.fireEvents("onClick", event);
+        if (_this.focusTime) {
+          var preTime;
+          if (_this.preClickTime && _this.preTouchTime) {
+            preTime = Math.min(_this.preClickTime, _this.preTouchTime);
+          } else if (_this.preClickTime) {
+            preTime = _this.preClickTime;
+          } else if (_this.preTouchTime) {
+            preTime = _this.preTouchTime;
+          }
+          if (Math.abs(preTime - _this.focusTime) < 20) {
+            return;
+          }
+          _this.focusTime = 0;
+        }
+        _this.preClickTime = 0;
+        _this.preTouchTime = 0;
+        if (_this.isClickToShow() && (_this.isClickToHide() || _this.isBlurToHide()) && event && event.preventDefault) {
+          event.preventDefault();
+        }
+        var nextVisible = !_this.state.popupVisible;
+        if (_this.isClickToHide() && !nextVisible || nextVisible && _this.isClickToShow()) {
+          _this.setPopupVisible(!_this.state.popupVisible, event);
+        }
+      };
+      _this.onPopupMouseDown = function() {
+        _this.hasPopupMouseDown = true;
+        clearTimeout(_this.mouseDownTimeout);
+        _this.mouseDownTimeout = window.setTimeout(function() {
+          _this.hasPopupMouseDown = false;
+        }, 0);
+        if (_this.context) {
+          var _this$context;
+          (_this$context = _this.context).onPopupMouseDown.apply(_this$context, arguments);
+        }
+      };
+      _this.onDocumentClick = function(event) {
+        if (_this.props.mask && !_this.props.maskClosable) {
+          return;
+        }
+        var target = event.target;
+        var root = _this.getRootDomNode();
+        var popupNode = _this.getPopupDomNode();
+        if ((!contains2(root, target) || _this.isContextMenuOnly()) && !contains2(popupNode, target) && !_this.hasPopupMouseDown) {
+          _this.close();
+        }
+      };
+      _this.getRootDomNode = function() {
+        var getTriggerDOMNode = _this.props.getTriggerDOMNode;
+        if (getTriggerDOMNode) {
+          return getTriggerDOMNode(_this.triggerRef.current);
+        }
+        try {
+          var domNode = findDOMNode(_this.triggerRef.current);
+          if (domNode) {
+            return domNode;
+          }
+        } catch (err) {
+        }
+        return import_react_dom4.default.findDOMNode(_assertThisInitialized2(_this));
+      };
+      _this.getPopupClassNameFromAlign = function(align) {
+        var className = [];
+        var _this$props = _this.props, popupPlacement = _this$props.popupPlacement, builtinPlacements = _this$props.builtinPlacements, prefixCls = _this$props.prefixCls, alignPoint2 = _this$props.alignPoint, getPopupClassNameFromAlign = _this$props.getPopupClassNameFromAlign;
+        if (popupPlacement && builtinPlacements) {
+          className.push(getAlignPopupClassName(builtinPlacements, prefixCls, align, alignPoint2));
+        }
+        if (getPopupClassNameFromAlign) {
+          className.push(getPopupClassNameFromAlign(align));
+        }
+        return className.join(" ");
+      };
+      _this.getComponent = function() {
+        var _this$props2 = _this.props, prefixCls = _this$props2.prefixCls, destroyPopupOnHide = _this$props2.destroyPopupOnHide, popupClassName = _this$props2.popupClassName, onPopupAlign = _this$props2.onPopupAlign, popupMotion = _this$props2.popupMotion, popupAnimation = _this$props2.popupAnimation, popupTransitionName = _this$props2.popupTransitionName, popupStyle = _this$props2.popupStyle, mask = _this$props2.mask, maskAnimation = _this$props2.maskAnimation, maskTransitionName = _this$props2.maskTransitionName, maskMotion = _this$props2.maskMotion, zIndex = _this$props2.zIndex, popup = _this$props2.popup, stretch = _this$props2.stretch, alignPoint2 = _this$props2.alignPoint, mobile = _this$props2.mobile, forceRender = _this$props2.forceRender;
+        var _this$state = _this.state, popupVisible2 = _this$state.popupVisible, point = _this$state.point;
+        var align = _this.getPopupAlign();
+        var mouseProps = {};
+        if (_this.isMouseEnterToShow()) {
+          mouseProps.onMouseEnter = _this.onPopupMouseEnter;
+        }
+        if (_this.isMouseLeaveToHide()) {
+          mouseProps.onMouseLeave = _this.onPopupMouseLeave;
+        }
+        mouseProps.onMouseDown = _this.onPopupMouseDown;
+        mouseProps.onTouchStart = _this.onPopupMouseDown;
+        return /* @__PURE__ */ React20.createElement(Popup_default, _extends2({
+          prefixCls,
+          destroyPopupOnHide,
+          visible: popupVisible2,
+          point: alignPoint2 && point,
+          className: popupClassName,
+          align,
+          onAlign: onPopupAlign,
+          animation: popupAnimation,
+          getClassNameFromAlign: _this.getPopupClassNameFromAlign
+        }, mouseProps, {
+          stretch,
+          getRootDomNode: _this.getRootDomNode,
+          style: popupStyle,
+          mask,
+          zIndex,
+          transitionName: popupTransitionName,
+          maskAnimation,
+          maskTransitionName,
+          maskMotion,
+          ref: _this.popupRef,
+          motion: popupMotion,
+          mobile,
+          forceRender
+        }), typeof popup === "function" ? popup() : popup);
+      };
+      _this.attachParent = function(popupContainer) {
+        wrapperRaf.cancel(_this.attachId);
+        var _this$props3 = _this.props, getPopupContainer = _this$props3.getPopupContainer, getDocument2 = _this$props3.getDocument;
+        var domNode = _this.getRootDomNode();
+        var mountNode;
+        if (!getPopupContainer) {
+          mountNode = getDocument2(_this.getRootDomNode()).body;
+        } else if (domNode || getPopupContainer.length === 0) {
+          mountNode = getPopupContainer(domNode);
+        }
+        if (mountNode) {
+          mountNode.appendChild(popupContainer);
+        } else {
+          _this.attachId = wrapperRaf(function() {
+            _this.attachParent(popupContainer);
+          });
+        }
+      };
+      _this.getContainer = function() {
+        var getDocument2 = _this.props.getDocument;
+        var popupContainer = getDocument2(_this.getRootDomNode()).createElement("div");
+        popupContainer.style.position = "absolute";
+        popupContainer.style.top = "0";
+        popupContainer.style.left = "0";
+        popupContainer.style.width = "100%";
+        _this.attachParent(popupContainer);
+        return popupContainer;
+      };
+      _this.setPoint = function(point) {
+        var alignPoint2 = _this.props.alignPoint;
+        if (!alignPoint2 || !point)
+          return;
+        _this.setState({
+          point: {
+            pageX: point.pageX,
+            pageY: point.pageY
+          }
+        });
+      };
+      _this.handlePortalUpdate = function() {
+        if (_this.state.prevPopupVisible !== _this.state.popupVisible) {
+          _this.props.afterPopupVisibleChange(_this.state.popupVisible);
+        }
+      };
+      _this.triggerContextValue = {
+        onPopupMouseDown: _this.onPopupMouseDown
+      };
+      var popupVisible;
+      if ("popupVisible" in props) {
+        popupVisible = !!props.popupVisible;
+      } else {
+        popupVisible = !!props.defaultPopupVisible;
+      }
+      _this.state = {
+        prevPopupVisible: popupVisible,
+        popupVisible
+      };
+      ALL_HANDLERS.forEach(function(h) {
+        _this["fire".concat(h)] = function(e) {
+          _this.fireEvents(h, e);
+        };
+      });
+      return _this;
+    }
+    _createClass2(Trigger2, [{
+      key: "componentDidMount",
+      value: function componentDidMount() {
+        this.componentDidUpdate();
+      }
+    }, {
+      key: "componentDidUpdate",
+      value: function componentDidUpdate() {
+        var props = this.props;
+        var state = this.state;
+        if (state.popupVisible) {
+          var currentDocument;
+          if (!this.clickOutsideHandler && (this.isClickToHide() || this.isContextMenuToShow())) {
+            currentDocument = props.getDocument(this.getRootDomNode());
+            this.clickOutsideHandler = addEventListenerWrap(currentDocument, "mousedown", this.onDocumentClick);
+          }
+          if (!this.touchOutsideHandler) {
+            currentDocument = currentDocument || props.getDocument(this.getRootDomNode());
+            this.touchOutsideHandler = addEventListenerWrap(currentDocument, "touchstart", this.onDocumentClick);
+          }
+          if (!this.contextMenuOutsideHandler1 && this.isContextMenuToShow()) {
+            currentDocument = currentDocument || props.getDocument(this.getRootDomNode());
+            this.contextMenuOutsideHandler1 = addEventListenerWrap(currentDocument, "scroll", this.onContextMenuClose);
+          }
+          if (!this.contextMenuOutsideHandler2 && this.isContextMenuToShow()) {
+            this.contextMenuOutsideHandler2 = addEventListenerWrap(window, "blur", this.onContextMenuClose);
+          }
+          return;
+        }
+        this.clearOutsideHandler();
+      }
+    }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        this.clearDelayTimer();
+        this.clearOutsideHandler();
+        clearTimeout(this.mouseDownTimeout);
+        wrapperRaf.cancel(this.attachId);
+      }
+    }, {
+      key: "getPopupDomNode",
+      value: function getPopupDomNode() {
+        var _this$popupRef$curren2;
+        return ((_this$popupRef$curren2 = this.popupRef.current) === null || _this$popupRef$curren2 === void 0 ? void 0 : _this$popupRef$curren2.getElement()) || null;
+      }
+    }, {
+      key: "getPopupAlign",
+      value: function getPopupAlign() {
+        var props = this.props;
+        var popupPlacement = props.popupPlacement, popupAlign = props.popupAlign, builtinPlacements = props.builtinPlacements;
+        if (popupPlacement && builtinPlacements) {
+          return getAlignFromPlacement(builtinPlacements, popupPlacement, popupAlign);
+        }
+        return popupAlign;
+      }
+    }, {
+      key: "setPopupVisible",
+      value: function setPopupVisible(popupVisible, event) {
+        var alignPoint2 = this.props.alignPoint;
+        var prevPopupVisible = this.state.popupVisible;
+        this.clearDelayTimer();
+        if (prevPopupVisible !== popupVisible) {
+          if (!("popupVisible" in this.props)) {
+            this.setState({
+              popupVisible,
+              prevPopupVisible
+            });
+          }
+          this.props.onPopupVisibleChange(popupVisible);
+        }
+        if (alignPoint2 && event && popupVisible) {
+          this.setPoint(event);
+        }
+      }
+    }, {
+      key: "delaySetPopupVisible",
+      value: function delaySetPopupVisible(visible, delayS, event) {
+        var _this2 = this;
+        var delay = delayS * 1e3;
+        this.clearDelayTimer();
+        if (delay) {
+          var point = event ? {
+            pageX: event.pageX,
+            pageY: event.pageY
+          } : null;
+          this.delayTimer = window.setTimeout(function() {
+            _this2.setPopupVisible(visible, point);
+            _this2.clearDelayTimer();
+          }, delay);
+        } else {
+          this.setPopupVisible(visible, event);
+        }
+      }
+    }, {
+      key: "clearDelayTimer",
+      value: function clearDelayTimer() {
+        if (this.delayTimer) {
+          clearTimeout(this.delayTimer);
+          this.delayTimer = null;
+        }
+      }
+    }, {
+      key: "clearOutsideHandler",
+      value: function clearOutsideHandler() {
+        if (this.clickOutsideHandler) {
+          this.clickOutsideHandler.remove();
+          this.clickOutsideHandler = null;
+        }
+        if (this.contextMenuOutsideHandler1) {
+          this.contextMenuOutsideHandler1.remove();
+          this.contextMenuOutsideHandler1 = null;
+        }
+        if (this.contextMenuOutsideHandler2) {
+          this.contextMenuOutsideHandler2.remove();
+          this.contextMenuOutsideHandler2 = null;
+        }
+        if (this.touchOutsideHandler) {
+          this.touchOutsideHandler.remove();
+          this.touchOutsideHandler = null;
+        }
+      }
+    }, {
+      key: "createTwoChains",
+      value: function createTwoChains(event) {
+        var childPros = this.props.children.props;
+        var props = this.props;
+        if (childPros[event] && props[event]) {
+          return this["fire".concat(event)];
+        }
+        return childPros[event] || props[event];
+      }
+    }, {
+      key: "isClickToShow",
+      value: function isClickToShow() {
+        var _this$props4 = this.props, action = _this$props4.action, showAction = _this$props4.showAction;
+        return action.indexOf("click") !== -1 || showAction.indexOf("click") !== -1;
+      }
+    }, {
+      key: "isContextMenuOnly",
+      value: function isContextMenuOnly() {
+        var action = this.props.action;
+        return action === "contextMenu" || action.length === 1 && action[0] === "contextMenu";
+      }
+    }, {
+      key: "isContextMenuToShow",
+      value: function isContextMenuToShow() {
+        var _this$props5 = this.props, action = _this$props5.action, showAction = _this$props5.showAction;
+        return action.indexOf("contextMenu") !== -1 || showAction.indexOf("contextMenu") !== -1;
+      }
+    }, {
+      key: "isClickToHide",
+      value: function isClickToHide() {
+        var _this$props6 = this.props, action = _this$props6.action, hideAction = _this$props6.hideAction;
+        return action.indexOf("click") !== -1 || hideAction.indexOf("click") !== -1;
+      }
+    }, {
+      key: "isMouseEnterToShow",
+      value: function isMouseEnterToShow() {
+        var _this$props7 = this.props, action = _this$props7.action, showAction = _this$props7.showAction;
+        return action.indexOf("hover") !== -1 || showAction.indexOf("mouseEnter") !== -1;
+      }
+    }, {
+      key: "isMouseLeaveToHide",
+      value: function isMouseLeaveToHide() {
+        var _this$props8 = this.props, action = _this$props8.action, hideAction = _this$props8.hideAction;
+        return action.indexOf("hover") !== -1 || hideAction.indexOf("mouseLeave") !== -1;
+      }
+    }, {
+      key: "isFocusToShow",
+      value: function isFocusToShow() {
+        var _this$props9 = this.props, action = _this$props9.action, showAction = _this$props9.showAction;
+        return action.indexOf("focus") !== -1 || showAction.indexOf("focus") !== -1;
+      }
+    }, {
+      key: "isBlurToHide",
+      value: function isBlurToHide() {
+        var _this$props10 = this.props, action = _this$props10.action, hideAction = _this$props10.hideAction;
+        return action.indexOf("focus") !== -1 || hideAction.indexOf("blur") !== -1;
+      }
+    }, {
+      key: "forcePopupAlign",
+      value: function forcePopupAlign() {
+        if (this.state.popupVisible) {
+          var _this$popupRef$curren3;
+          (_this$popupRef$curren3 = this.popupRef.current) === null || _this$popupRef$curren3 === void 0 ? void 0 : _this$popupRef$curren3.forceAlign();
+        }
+      }
+    }, {
+      key: "fireEvents",
+      value: function fireEvents(type, e) {
+        var childCallback = this.props.children.props[type];
+        if (childCallback) {
+          childCallback(e);
+        }
+        var callback = this.props[type];
+        if (callback) {
+          callback(e);
+        }
+      }
+    }, {
+      key: "close",
+      value: function close() {
+        this.setPopupVisible(false);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var popupVisible = this.state.popupVisible;
+        var _this$props11 = this.props, children = _this$props11.children, forceRender = _this$props11.forceRender, alignPoint2 = _this$props11.alignPoint, className = _this$props11.className, autoDestroy = _this$props11.autoDestroy;
+        var child = React20.Children.only(children);
+        var newChildProps = {
+          key: "trigger"
+        };
+        if (this.isContextMenuToShow()) {
+          newChildProps.onContextMenu = this.onContextMenu;
+        } else {
+          newChildProps.onContextMenu = this.createTwoChains("onContextMenu");
+        }
+        if (this.isClickToHide() || this.isClickToShow()) {
+          newChildProps.onClick = this.onClick;
+          newChildProps.onMouseDown = this.onMouseDown;
+          newChildProps.onTouchStart = this.onTouchStart;
+        } else {
+          newChildProps.onClick = this.createTwoChains("onClick");
+          newChildProps.onMouseDown = this.createTwoChains("onMouseDown");
+          newChildProps.onTouchStart = this.createTwoChains("onTouchStart");
+        }
+        if (this.isMouseEnterToShow()) {
+          newChildProps.onMouseEnter = this.onMouseEnter;
+          if (alignPoint2) {
+            newChildProps.onMouseMove = this.onMouseMove;
+          }
+        } else {
+          newChildProps.onMouseEnter = this.createTwoChains("onMouseEnter");
+        }
+        if (this.isMouseLeaveToHide()) {
+          newChildProps.onMouseLeave = this.onMouseLeave;
+        } else {
+          newChildProps.onMouseLeave = this.createTwoChains("onMouseLeave");
+        }
+        if (this.isFocusToShow() || this.isBlurToHide()) {
+          newChildProps.onFocus = this.onFocus;
+          newChildProps.onBlur = this.onBlur;
+        } else {
+          newChildProps.onFocus = this.createTwoChains("onFocus");
+          newChildProps.onBlur = this.createTwoChains("onBlur");
+        }
+        var childrenClassName = (0, import_classnames5.default)(child && child.props && child.props.className, className);
+        if (childrenClassName) {
+          newChildProps.className = childrenClassName;
+        }
+        var cloneProps = _objectSpread22({}, newChildProps);
+        if (supportRef(child)) {
+          cloneProps.ref = composeRef(this.triggerRef, child.ref);
+        }
+        var trigger = /* @__PURE__ */ React20.cloneElement(child, cloneProps);
+        var portal;
+        if (popupVisible || this.popupRef.current || forceRender) {
+          portal = /* @__PURE__ */ React20.createElement(PortalComponent, {
+            key: "portal",
+            getContainer: this.getContainer,
+            didUpdate: this.handlePortalUpdate
+          }, this.getComponent());
+        }
+        if (!popupVisible && autoDestroy) {
+          portal = null;
+        }
+        return /* @__PURE__ */ React20.createElement(context_default.Provider, {
+          value: this.triggerContextValue
+        }, trigger, portal);
+      }
+    }], [{
+      key: "getDerivedStateFromProps",
+      value: function getDerivedStateFromProps(_ref, prevState) {
+        var popupVisible = _ref.popupVisible;
+        var newState = {};
+        if (popupVisible !== void 0 && prevState.popupVisible !== popupVisible) {
+          newState.popupVisible = popupVisible;
+          newState.prevPopupVisible = prevState.popupVisible;
+        }
+        return newState;
+      }
+    }]);
+    return Trigger2;
+  }(React20.Component);
+  Trigger.contextType = context_default;
+  Trigger.defaultProps = {
+    prefixCls: "rc-trigger-popup",
+    getPopupClassNameFromAlign: returnEmptyString,
+    getDocument: returnDocument,
+    onPopupVisibleChange: noop,
+    afterPopupVisibleChange: noop,
+    onPopupAlign: noop,
+    popupClassName: "",
+    mouseEnterDelay: 0,
+    mouseLeaveDelay: 0.1,
+    focusDelay: 0,
+    blurDelay: 0.15,
+    popupStyle: {},
+    destroyPopupOnHide: false,
+    popupAlign: {},
+    defaultPopupVisible: false,
+    mask: false,
+    maskClosable: true,
+    action: [],
+    showAction: [],
+    hideAction: [],
+    autoDestroy: false
+  };
+  return Trigger;
+}
+var es_default3 = generateTrigger(Portal_default);
+
+// node_modules/reactex/node_modules/rc-tooltip/es/placements.js
+var autoAdjustOverflow = {
+  adjustX: 1,
+  adjustY: 1
+};
+var targetOffset = [0, 0];
+var placements = {
+  left: {
+    points: ["cr", "cl"],
+    overflow: autoAdjustOverflow,
+    offset: [-4, 0],
+    targetOffset
+  },
+  right: {
+    points: ["cl", "cr"],
+    overflow: autoAdjustOverflow,
+    offset: [4, 0],
+    targetOffset
+  },
+  top: {
+    points: ["bc", "tc"],
+    overflow: autoAdjustOverflow,
+    offset: [0, -4],
+    targetOffset
+  },
+  bottom: {
+    points: ["tc", "bc"],
+    overflow: autoAdjustOverflow,
+    offset: [0, 4],
+    targetOffset
+  },
+  topLeft: {
+    points: ["bl", "tl"],
+    overflow: autoAdjustOverflow,
+    offset: [0, -4],
+    targetOffset
+  },
+  leftTop: {
+    points: ["tr", "tl"],
+    overflow: autoAdjustOverflow,
+    offset: [-4, 0],
+    targetOffset
+  },
+  topRight: {
+    points: ["br", "tr"],
+    overflow: autoAdjustOverflow,
+    offset: [0, -4],
+    targetOffset
+  },
+  rightTop: {
+    points: ["tl", "tr"],
+    overflow: autoAdjustOverflow,
+    offset: [4, 0],
+    targetOffset
+  },
+  bottomRight: {
+    points: ["tr", "br"],
+    overflow: autoAdjustOverflow,
+    offset: [0, 4],
+    targetOffset
+  },
+  rightBottom: {
+    points: ["bl", "br"],
+    overflow: autoAdjustOverflow,
+    offset: [4, 0],
+    targetOffset
+  },
+  bottomLeft: {
+    points: ["tl", "bl"],
+    overflow: autoAdjustOverflow,
+    offset: [0, 4],
+    targetOffset
+  },
+  leftBottom: {
+    points: ["br", "bl"],
+    overflow: autoAdjustOverflow,
+    offset: [-4, 0],
+    targetOffset
+  }
+};
+
+// node_modules/reactex/node_modules/rc-tooltip/es/Content.js
+var React21 = __toModule(require_react());
+var Content = function Content2(props) {
+  var overlay = props.overlay, prefixCls = props.prefixCls, id2 = props.id, overlayInnerStyle = props.overlayInnerStyle;
+  return /* @__PURE__ */ React21.createElement("div", {
+    className: "".concat(prefixCls, "-inner"),
+    id: id2,
+    role: "tooltip",
+    style: overlayInnerStyle
+  }, typeof overlay === "function" ? overlay() : overlay);
+};
+var Content_default = Content;
+
+// node_modules/reactex/node_modules/rc-tooltip/es/Tooltip.js
+var Tooltip = function Tooltip2(props, ref) {
+  var overlayClassName = props.overlayClassName, _props$trigger = props.trigger, trigger = _props$trigger === void 0 ? ["hover"] : _props$trigger, _props$mouseEnterDela = props.mouseEnterDelay, mouseEnterDelay = _props$mouseEnterDela === void 0 ? 0 : _props$mouseEnterDela, _props$mouseLeaveDela = props.mouseLeaveDelay, mouseLeaveDelay = _props$mouseLeaveDela === void 0 ? 0.1 : _props$mouseLeaveDela, overlayStyle = props.overlayStyle, _props$prefixCls = props.prefixCls, prefixCls = _props$prefixCls === void 0 ? "rc-tooltip" : _props$prefixCls, children = props.children, onVisibleChange = props.onVisibleChange, afterVisibleChange = props.afterVisibleChange, transitionName = props.transitionName, animation = props.animation, motion = props.motion, _props$placement = props.placement, placement = _props$placement === void 0 ? "right" : _props$placement, _props$align = props.align, align = _props$align === void 0 ? {} : _props$align, _props$destroyTooltip = props.destroyTooltipOnHide, destroyTooltipOnHide = _props$destroyTooltip === void 0 ? false : _props$destroyTooltip, defaultVisible = props.defaultVisible, getTooltipContainer = props.getTooltipContainer, overlayInnerStyle = props.overlayInnerStyle, restProps = _objectWithoutProperties(props, ["overlayClassName", "trigger", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "prefixCls", "children", "onVisibleChange", "afterVisibleChange", "transitionName", "animation", "motion", "placement", "align", "destroyTooltipOnHide", "defaultVisible", "getTooltipContainer", "overlayInnerStyle"]);
+  var domRef = (0, import_react16.useRef)(null);
+  (0, import_react16.useImperativeHandle)(ref, function() {
+    return domRef.current;
+  });
+  var extraProps = _objectSpread22({}, restProps);
+  if ("visible" in props) {
+    extraProps.popupVisible = props.visible;
+  }
+  var getPopupElement = function getPopupElement2() {
+    var _props$arrowContent = props.arrowContent, arrowContent = _props$arrowContent === void 0 ? null : _props$arrowContent, overlay = props.overlay, id2 = props.id;
+    return [/* @__PURE__ */ React22.createElement("div", {
+      className: "".concat(prefixCls, "-arrow"),
+      key: "arrow"
+    }, arrowContent), /* @__PURE__ */ React22.createElement(Content_default, {
+      key: "content",
+      prefixCls,
+      id: id2,
+      overlay,
+      overlayInnerStyle
+    })];
+  };
+  var destroyTooltip = false;
+  var autoDestroy = false;
+  if (typeof destroyTooltipOnHide === "boolean") {
+    destroyTooltip = destroyTooltipOnHide;
+  } else if (destroyTooltipOnHide && _typeof(destroyTooltipOnHide) === "object") {
+    var keepParent = destroyTooltipOnHide.keepParent;
+    destroyTooltip = keepParent === true;
+    autoDestroy = keepParent === false;
+  }
+  return /* @__PURE__ */ React22.createElement(es_default3, _extends2({
+    popupClassName: overlayClassName,
+    prefixCls,
+    popup: getPopupElement,
+    action: trigger,
+    builtinPlacements: placements,
+    popupPlacement: placement,
+    ref: domRef,
+    popupAlign: align,
+    getPopupContainer: getTooltipContainer,
+    onPopupVisibleChange: onVisibleChange,
+    afterPopupVisibleChange: afterVisibleChange,
+    popupTransitionName: transitionName,
+    popupAnimation: animation,
+    popupMotion: motion,
+    defaultPopupVisible: defaultVisible,
+    destroyPopupOnHide: destroyTooltip,
+    autoDestroy,
+    mouseLeaveDelay,
+    popupStyle: overlayStyle,
+    mouseEnterDelay
+  }, extraProps), children);
+};
+var Tooltip_default = /* @__PURE__ */ (0, import_react16.forwardRef)(Tooltip);
+
+// node_modules/reactex/node_modules/rc-tooltip/es/index.js
+var es_default4 = Tooltip_default;
 
 // node_modules/reactex/dist/bibliography.js
 function isString(x) {
@@ -50538,11 +57759,11 @@ var BibliographyEntry = class {
   }
   bib_cite() {
     let names = this.authors?.map((author) => [...author.slice(1), author[0]].join(" "));
-    return /* @__PURE__ */ import_react4.default.createElement("div", {
+    return /* @__PURE__ */ import_react17.default.createElement("div", {
       className: "reference"
-    }, /* @__PURE__ */ import_react4.default.createElement("a", {
+    }, /* @__PURE__ */ import_react17.default.createElement("a", {
       id: `ref-${this.key}`
-    }), names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react4.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
+    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react17.default.createElement("i", null, this.tags.journal || this.tags.booktitle, ".")));
   }
 };
 function intersperse(arr, sep) {
@@ -50559,101 +57780,114 @@ var BibliographyContext = class {
     this.citations = import_lodash3.default.chain(entries).map((entry) => [entry.citationKey, new BibliographyEntry(entry)]).fromPairs().value();
     this.used_citations = {};
   }
-  cite(key, full, yearonly) {
-    let keys = typeof key === "string" ? [key] : key;
-    keys.forEach((key2) => {
-      this.used_citations[key2] = true;
+  cite(keys3, full, yearonly) {
+    keys3.forEach((key) => {
+      this.used_citations[key] = true;
     });
-    return full ? /* @__PURE__ */ import_react4.default.createElement("a", {
-      href: `#ref-${key}`
-    }, intersperse(keys.map((key2) => {
-      let entry = this.citations[key2];
+    return full ? intersperse(keys3.map((key) => {
+      let entry = this.citations[key];
       let author = entry.display_author();
-      return `${author} [${entry.year}]`;
-    }), "; ")) : /* @__PURE__ */ import_react4.default.createElement("span", null, "[", intersperse(keys.map((key2) => {
-      let entry = this.citations[key2];
+      return /* @__PURE__ */ import_react17.default.createElement("a", {
+        href: `#ref-${key}`,
+        key
+      }, `${author} [${entry.year}]`);
+    }), /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, "; ")) : /* @__PURE__ */ import_react17.default.createElement("span", null, "[", intersperse(keys3.map((key) => {
+      let entry = this.citations[key];
       if (yearonly) {
         return entry.year;
       } else {
         let author = entry.display_author();
-        return /* @__PURE__ */ import_react4.default.createElement("a", {
-          key: key2,
-          href: `#ref-${key2}`
+        return /* @__PURE__ */ import_react17.default.createElement("a", {
+          key,
+          href: `#ref-${key}`
         }, `${author} ${entry.year}`);
       }
     }), ", "), "]");
   }
 };
-var ReactBibliographyContext = import_react4.default.createContext(null);
-var References = (_22) => {
-  let ctx = (0, import_react4.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react4.default.createElement("div", {
+var ReactBibliographyContext = import_react17.default.createContext(null);
+var ReferencesSection = (_22) => {
+  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react17.default.createElement("section", null, /* @__PURE__ */ import_react17.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react17.default.createElement(References, {
+    keys: Object.keys(ctx.used_citations)
+  }));
+};
+var References = ({ keys: keys3 }) => {
+  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react17.default.createElement("div", {
     className: "references"
-  }, /* @__PURE__ */ import_react4.default.createElement(SectionTitle, null, "References"), Object.keys(ctx.used_citations).map((key) => /* @__PURE__ */ import_react4.default.createElement("div", {
+  }, keys3.map((key) => /* @__PURE__ */ import_react17.default.createElement("div", {
     key
   }, ctx.citations[key].bib_cite())));
 };
-var Cite = ({ v, f, y }) => {
-  let ctx = (0, import_react4.useContext)(ReactBibliographyContext);
-  return ctx.cite(v, f || false, y || false);
+var Cite = ({ v, f: f2, y }) => {
+  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
+  let keys3 = typeof v === "string" ? [v] : v;
+  let overlay = () => /* @__PURE__ */ import_react17.default.createElement(References, {
+    keys: keys3
+  });
+  return /* @__PURE__ */ import_react17.default.createElement(es_default4, {
+    placement: "top",
+    overlay
+  }, /* @__PURE__ */ import_react17.default.createElement("span", null, ctx.cite(keys3, f2 || false, y || false)));
 };
 
 // node_modules/reactex/dist/header.js
-var import_react5 = __toModule(require_react());
-var import_react6 = __toModule(require_react());
-var AffiliationContext = (0, import_react6.createContext)({});
-var InlineError = ({ children }) => /* @__PURE__ */ import_react5.default.createElement("span", {
+var import_react18 = __toModule(require_react());
+var import_react19 = __toModule(require_react());
+var AffiliationContext = (0, import_react19.createContext)({});
+var InlineError = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("span", {
   className: "inline-error"
 }, children);
-var AuthorContext = (0, import_react6.createContext)({});
+var AuthorContext = (0, import_react19.createContext)({});
 var Institution = ({ value }) => {
-  let ctx = (0, import_react6.useContext)(AffiliationContext);
+  let ctx = (0, import_react19.useContext)(AffiliationContext);
   ctx.institution = value;
-  return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null);
+  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
 };
 var Affiliation = ({ children }) => {
-  let auth_ctx = (0, import_react6.useContext)(AuthorContext);
+  let auth_ctx = (0, import_react19.useContext)(AuthorContext);
   let aff_ctx = {};
   let Inner = () => {
     if (!auth_ctx.affiliations) {
       auth_ctx.affiliations = [];
     }
     auth_ctx.affiliations.push(aff_ctx);
-    return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null);
+    return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
   };
-  return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, /* @__PURE__ */ import_react5.default.createElement(AffiliationContext.Provider, {
+  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(AffiliationContext.Provider, {
     value: aff_ctx
-  }, children), /* @__PURE__ */ import_react5.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react18.default.createElement(Inner, null));
 };
 var Name = ({ value }) => {
-  let ctx = (0, import_react6.useContext)(AuthorContext);
+  let ctx = (0, import_react19.useContext)(AuthorContext);
   ctx.name = value;
-  return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null);
+  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
 };
 var Author = ({ children }) => {
   let ctx = {};
-  let Inner = () => /* @__PURE__ */ import_react5.default.createElement("div", {
+  let Inner = () => /* @__PURE__ */ import_react18.default.createElement("div", {
     className: "author"
-  }, ctx.name ? /* @__PURE__ */ import_react5.default.createElement("span", {
+  }, ctx.name ? /* @__PURE__ */ import_react18.default.createElement("span", {
     className: "author-name"
-  }, ctx.name) : /* @__PURE__ */ import_react5.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react5.default.createElement("span", {
+  }, ctx.name) : /* @__PURE__ */ import_react18.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react18.default.createElement("span", {
     className: "author-affiliation"
-  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react5.default.createElement("span", {
+  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react18.default.createElement("span", {
     key: i
-  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, ", ", affiliation.country) : null))) : null);
-  return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, /* @__PURE__ */ import_react5.default.createElement(AuthorContext.Provider, {
+  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, ", ", affiliation.country) : null))) : null);
+  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(AuthorContext.Provider, {
     value: ctx
-  }, children), /* @__PURE__ */ import_react5.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react18.default.createElement(Inner, null));
 };
 var Authors = ({ children }) => {
-  return /* @__PURE__ */ import_react5.default.createElement("div", {
+  return /* @__PURE__ */ import_react18.default.createElement("div", {
     className: "authors"
   }, children);
 };
-var Title = ({ children }) => /* @__PURE__ */ import_react5.default.createElement("h1", {
+var Title = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("h1", {
   className: "document-title"
 }, children);
-var Abstract = ({ children }) => /* @__PURE__ */ import_react5.default.createElement("div", {
+var Abstract = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("div", {
   className: "abstract"
 }, children);
 
@@ -50734,21 +57968,21 @@ var Stack = class {
     if (!isReduce || this.pos == end) {
       this.buffer.push(term, start2, end, size);
     } else {
-      let index = this.buffer.length;
-      if (index > 0 && this.buffer[index - 4] != 0)
-        while (index > 0 && this.buffer[index - 2] > end) {
-          this.buffer[index] = this.buffer[index - 4];
-          this.buffer[index + 1] = this.buffer[index - 3];
-          this.buffer[index + 2] = this.buffer[index - 2];
-          this.buffer[index + 3] = this.buffer[index - 1];
-          index -= 4;
+      let index2 = this.buffer.length;
+      if (index2 > 0 && this.buffer[index2 - 4] != 0)
+        while (index2 > 0 && this.buffer[index2 - 2] > end) {
+          this.buffer[index2] = this.buffer[index2 - 4];
+          this.buffer[index2 + 1] = this.buffer[index2 - 3];
+          this.buffer[index2 + 2] = this.buffer[index2 - 2];
+          this.buffer[index2 + 3] = this.buffer[index2 - 1];
+          index2 -= 4;
           if (size > 4)
             size -= 4;
         }
-      this.buffer[index] = term;
-      this.buffer[index + 1] = start2;
-      this.buffer[index + 2] = end;
-      this.buffer[index + 3] = size;
+      this.buffer[index2] = term;
+      this.buffer[index2 + 1] = start2;
+      this.buffer[index2 + 2] = end;
+      this.buffer[index2 + 3] = size;
     }
   }
   shift(action, next, nextEnd) {
@@ -50778,15 +58012,15 @@ var Stack = class {
       this.shift(action, next, nextEnd);
   }
   useNode(value, next) {
-    let index = this.p.reused.length - 1;
-    if (index < 0 || this.p.reused[index] != value) {
+    let index2 = this.p.reused.length - 1;
+    if (index2 < 0 || this.p.reused[index2] != value) {
       this.p.reused.push(value);
-      index++;
+      index2++;
     }
     let start2 = this.pos;
     this.reducePos = this.pos = start2 + value.length;
     this.pushState(next, start2);
-    this.buffer.push(index, start2, this.reducePos, -1);
+    this.buffer.push(index2, start2, this.reducePos, -1);
     if (this.curContext)
       this.updateContext(this.curContext.tracker.reuse(this.curContext.context, value, this.p.input, this));
   }
@@ -50984,10 +58218,10 @@ var SimulatedStack = class {
   }
 };
 var StackBufferCursor = class {
-  constructor(stack, pos, index) {
+  constructor(stack, pos, index2) {
     this.stack = stack;
     this.pos = pos;
-    this.index = index;
+    this.index = index2;
     this.buffer = stack.buffer;
     if (this.index == 0)
       this.maybeNext();
@@ -51037,9 +58271,9 @@ var Token = class {
   }
 };
 var TokenGroup = class {
-  constructor(data, id) {
-    this.data = data;
-    this.id = id;
+  constructor(data2, id2) {
+    this.data = data2;
+    this.id = id2;
   }
   token(input, token, stack) {
     readToken(this.data, input, token, stack, this.id);
@@ -51054,32 +58288,32 @@ var ExternalTokenizer = class {
     this.extend = !!options.extend;
   }
 };
-function readToken(data, input, token, stack, group) {
+function readToken(data2, input, token, stack, group) {
   let state = 0, groupMask = 1 << group, dialect = stack.p.parser.dialect;
   scan:
     for (let pos = token.start; ; ) {
-      if ((groupMask & data[state]) == 0)
+      if ((groupMask & data2[state]) == 0)
         break;
-      let accEnd = data[state + 1];
+      let accEnd = data2[state + 1];
       for (let i = state + 3; i < accEnd; i += 2)
-        if ((data[i + 1] & groupMask) > 0) {
-          let term = data[i];
+        if ((data2[i + 1] & groupMask) > 0) {
+          let term = data2[i];
           if (dialect.allows(term) && (token.value == -1 || token.value == term || stack.p.parser.overrides(term, token.value))) {
             token.accept(term, pos);
             break;
           }
         }
       let next = input.get(pos++);
-      for (let low = 0, high = data[state + 2]; low < high; ) {
+      for (let low = 0, high = data2[state + 2]; low < high; ) {
         let mid = low + high >> 1;
-        let index = accEnd + mid + (mid << 1);
-        let from = data[index], to = data[index + 1];
+        let index2 = accEnd + mid + (mid << 1);
+        let from = data2[index2], to = data2[index2 + 1];
         if (next < from)
           high = mid;
         else if (next >= to)
           low = mid + 1;
         else {
-          state = data[index + 2];
+          state = data2[index2 + 2];
           continue scan;
         }
       }
@@ -51178,15 +58412,15 @@ var FragmentCursor = class {
         this.nextFragment();
         return null;
       }
-      let top2 = this.trees[last], index = this.index[last];
-      if (index == top2.children.length) {
+      let top2 = this.trees[last], index2 = this.index[last];
+      if (index2 == top2.children.length) {
         this.trees.pop();
         this.start.pop();
         this.index.pop();
         continue;
       }
-      let next = top2.children[index];
-      let start2 = this.start[last] + top2.positions[index];
+      let next = top2.children[index2];
+      let start2 = this.start[last] + top2.positions[index2];
       if (start2 > pos) {
         this.nextStart = start2;
         return null;
@@ -51291,33 +58525,33 @@ var TokenCache = class {
       token.accept(0, stack.pos + 1);
     }
   }
-  putAction(action, token, end, index) {
-    for (let i = 0; i < index; i += 3)
+  putAction(action, token, end, index2) {
+    for (let i = 0; i < index2; i += 3)
       if (this.actions[i] == action)
-        return index;
-    this.actions[index++] = action;
-    this.actions[index++] = token;
-    this.actions[index++] = end;
-    return index;
+        return index2;
+    this.actions[index2++] = action;
+    this.actions[index2++] = token;
+    this.actions[index2++] = end;
+    return index2;
   }
-  addActions(stack, token, end, index) {
-    let { state } = stack, { parser: parser2 } = stack.p, { data } = parser2;
-    for (let set = 0; set < 2; set++) {
-      for (let i = parser2.stateSlot(state, set ? 2 : 1); ; i += 3) {
-        if (data[i] == 65535) {
-          if (data[i + 1] == 1) {
-            i = pair(data, i + 2);
+  addActions(stack, token, end, index2) {
+    let { state } = stack, { parser: parser2 } = stack.p, { data: data2 } = parser2;
+    for (let set3 = 0; set3 < 2; set3++) {
+      for (let i = parser2.stateSlot(state, set3 ? 2 : 1); ; i += 3) {
+        if (data2[i] == 65535) {
+          if (data2[i + 1] == 1) {
+            i = pair(data2, i + 2);
           } else {
-            if (index == 0 && data[i + 1] == 2)
-              index = this.putAction(pair(data, i + 1), token, end, index);
+            if (index2 == 0 && data2[i + 1] == 2)
+              index2 = this.putAction(pair(data2, i + 1), token, end, index2);
             break;
           }
         }
-        if (data[i] == token)
-          index = this.putAction(pair(data, i + 1), token, end, index);
+        if (data2[i] == token)
+          index2 = this.putAction(pair(data2, i + 1), token, end, index2);
       }
     }
-    return index;
+    return index2;
   }
 };
 var Rec;
@@ -51435,15 +58669,15 @@ var Parse = class {
         this.pos = newStacks[i].pos;
     return null;
   }
-  advanceStack(stack, stacks, split) {
+  advanceStack(stack, stacks, split2) {
     let start2 = stack.pos, { input, parser: parser2 } = this;
     let base2 = verbose ? this.stackID(stack) + " -> " : "";
     if (this.fragments) {
       let strictCx = stack.curContext && stack.curContext.tracker.strict, cxHash = strictCx ? stack.curContext.hash : 0;
       for (let cached = this.fragments.nodeAt(start2); cached; ) {
-        let match = this.parser.nodeSet.types[cached.type.id] == cached.type ? parser2.getGoto(stack.state, cached.type.id) : -1;
-        if (match > -1 && cached.length && (!strictCx || (cached.contextHash || 0) == cxHash)) {
-          stack.useNode(cached, match);
+        let match2 = this.parser.nodeSet.types[cached.type.id] == cached.type ? parser2.getGoto(stack.state, cached.type.id) : -1;
+        if (match2 > -1 && cached.length && (!strictCx || (cached.contextHash || 0) == cxHash)) {
+          stack.useNode(cached, match2);
           if (verbose)
             console.log(base2 + this.stackID(stack) + ` (via reuse of ${parser2.getName(cached.type.id)})`);
           return true;
@@ -51467,7 +58701,7 @@ var Parse = class {
     let actions = this.tokens.getActions(stack, input);
     for (let i = 0; i < actions.length; ) {
       let action = actions[i++], term = actions[i++], end = actions[i++];
-      let last = i == actions.length || !split;
+      let last = i == actions.length || !split2;
       let localStack = last ? stack : stack.split();
       localStack.apply(action, term, end);
       if (verbose)
@@ -51477,7 +58711,7 @@ var Parse = class {
       else if (localStack.pos > start2)
         stacks.push(localStack);
       else
-        split.push(localStack);
+        split2.push(localStack);
     }
     return false;
   }
@@ -51620,10 +58854,10 @@ var Parse = class {
       console.log(this.stackID(stack) + ` (via unnest)`);
   }
   stackID(stack) {
-    let id = (stackIDs || (stackIDs = new WeakMap())).get(stack);
-    if (!id)
-      stackIDs.set(stack, id = String.fromCodePoint(this.nextStackID++));
-    return id + stack;
+    let id2 = (stackIDs || (stackIDs = new WeakMap())).get(stack);
+    if (!id2)
+      stackIDs.set(stack, id2 = String.fromCodePoint(this.nextStackID++));
+    return id2 + stack;
   }
 };
 function pushStackDedup(stack, newStacks) {
@@ -51746,19 +58980,19 @@ var Parser = class {
     }
   }
   hasAction(state, terminal) {
-    let data = this.data;
-    for (let set = 0; set < 2; set++) {
-      for (let i = this.stateSlot(state, set ? 2 : 1), next; ; i += 3) {
-        if ((next = data[i]) == 65535) {
-          if (data[i + 1] == 1)
-            next = data[i = pair(data, i + 2)];
-          else if (data[i + 1] == 2)
-            return pair(data, i + 2);
+    let data2 = this.data;
+    for (let set3 = 0; set3 < 2; set3++) {
+      for (let i = this.stateSlot(state, set3 ? 2 : 1), next; ; i += 3) {
+        if ((next = data2[i]) == 65535) {
+          if (data2[i + 1] == 1)
+            next = data2[i = pair(data2, i + 2)];
+          else if (data2[i + 1] == 2)
+            return pair(data2, i + 2);
           else
             break;
         }
         if (next == terminal || next == 0)
-          return pair(data, i + 1);
+          return pair(data2, i + 1);
       }
     }
     return 0;
@@ -51859,15 +59093,15 @@ var Parser = class {
     let values = Object.keys(this.dialects), flags = values.map(() => false);
     if (dialect)
       for (let part of dialect.split(" ")) {
-        let id = values.indexOf(part);
-        if (id >= 0)
-          flags[id] = true;
+        let id2 = values.indexOf(part);
+        if (id2 >= 0)
+          flags[id2] = true;
       }
     let disabled = null;
     for (let i = 0; i < values.length; i++)
       if (!flags[i]) {
-        for (let j = this.dialects[values[i]], id; (id = this.data[j++]) != 65535; )
-          (disabled || (disabled = new Uint8Array(this.maxTerm + 1)))[id] = 1;
+        for (let j = this.dialects[values[i]], id2; (id2 = this.data[j++]) != 65535; )
+          (disabled || (disabled = new Uint8Array(this.maxTerm + 1)))[id2] = 1;
       }
     return this.cachedDialect = new Dialect(dialect, flags, disabled);
   }
@@ -51875,11 +59109,11 @@ var Parser = class {
     return new Parser(spec);
   }
 };
-function pair(data, off) {
-  return data[off] | data[off + 1] << 16;
+function pair(data2, off) {
+  return data2[off] | data2[off + 1] << 16;
 }
-function findOffset(data, start2, term) {
-  for (let i = start2, next; (next = data[i]) != 65535; i++)
+function findOffset(data2, start2, term) {
+  for (let i = start2, next; (next = data2[i]) != 65535; i++)
     if (next == term)
       return i - start2;
   return -1;
@@ -52088,29 +59322,38 @@ function rust() {
 }
 
 // src/slicer.tsx
-var import_react7 = __toModule(require_react());
+var import_react20 = __toModule(require_react());
 var import_axios = __toModule(require_axios2());
-var SliceListing = ({ code }) => {
-  let [editor, set_editor] = (0, import_react7.useState)(null);
+var SliceListing = ({
+  code,
+  prelude
+}) => {
+  let [editor, set_editor] = (0, import_react20.useState)(null);
   let get_slice = async (range) => {
     editor.dispatch({ effects: clear_highlights.of(null) });
-    let program = editor.state.doc.toJSON().join("\n");
+    let program = [prelude || ""].concat(editor.state.doc.toJSON()).join("\n");
     let start2 = pos_to_linecol(editor, range[0]);
     let end = pos_to_linecol(editor, range[1]);
+    start2.line += 1;
+    end.line += 1;
     if (start2.line != end.line) {
       throw "Start line different from end line";
     }
     let request = { program, line: start2.line, start: start2.col, end: end.col };
     let response = await import_axios.default.post("http://charlotte.stanford.edu:8889", request);
+    if (response.data.error) {
+      console.error(response.data.error);
+      return;
+    }
     let ranges = response.data.ranges;
     editor.dispatch({
-      effects: ranges.filter((range2) => range2.filename.includes("main.rs")).filter((range2) => !(range2.start_line == request.line && range2.start_col == request.start)).map((range2) => {
+      effects: ranges.filter((range2) => range2.filename.includes("main.rs")).filter((range2) => !(range2.start_line == request.line && range2.start_col == request.start || range2.start_line == 1)).map((range2) => {
         let from = linecol_to_pos(editor, {
-          line: range2.start_line,
+          line: range2.start_line - 1,
           col: range2.start_col
         });
         let to = linecol_to_pos(editor, {
-          line: range2.end_line,
+          line: range2.end_line - 1,
           col: range2.end_col
         });
         return add_highlight.of({ from, to, color: "peach" });
@@ -52126,7 +59369,7 @@ var SliceListing = ({ code }) => {
       ]
     });
   };
-  return /* @__PURE__ */ import_react7.default.createElement("div", null, /* @__PURE__ */ import_react7.default.createElement(Listing, {
+  return /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement(Listing, {
     editable: true,
     code,
     extensions: [
@@ -52146,15 +59389,7 @@ var SliceListing = ({ code }) => {
         get_slice(range);
       }
     }
-  }), /* @__PURE__ */ import_react7.default.createElement("button", {
-    onClick: () => {
-      let selection = editor.state.selection;
-      let range = selection.main;
-      if (!range.empty) {
-        get_slice([range.from, range.to]);
-      }
-    }
-  }, "Slice"));
+  }));
 };
 
 // src/example.bib
@@ -52560,108 +59795,336 @@ var example_default = `@inproceedings{horwitz1988interprocedural,
 
 // src/index.tsx
 var r = String.raw;
-var C2 = (props) => /* @__PURE__ */ import_react8.default.createElement("code", {
+var C2 = (props) => /* @__PURE__ */ import_react21.default.createElement("code", {
   ...props
 });
-var App = (_4) => /* @__PURE__ */ import_react8.default.createElement(Document, {
+var Principle = ({ type, text }) => /* @__PURE__ */ import_react21.default.createElement("p", {
+  style: { margin: "1rem" }
+}, /* @__PURE__ */ import_react21.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react21.default.createElement("em", null, text));
+var App = (_4) => /* @__PURE__ */ import_react21.default.createElement(Document, {
   bibtex: example_default
-}, /* @__PURE__ */ import_react8.default.createElement(ListingConfigure, {
+}, /* @__PURE__ */ import_react21.default.createElement(ListingConfigure, {
   language: rust()
-}), /* @__PURE__ */ import_react8.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react8.default.createElement(Authors, null, /* @__PURE__ */ import_react8.default.createElement(Author, null, /* @__PURE__ */ import_react8.default.createElement(Name, {
+}), /* @__PURE__ */ import_react21.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react21.default.createElement(Authors, null, /* @__PURE__ */ import_react21.default.createElement(Author, null, /* @__PURE__ */ import_react21.default.createElement(Name, {
   value: "Will Crichton"
-}), /* @__PURE__ */ import_react8.default.createElement(Affiliation, null, /* @__PURE__ */ import_react8.default.createElement(Institution, {
+}), /* @__PURE__ */ import_react21.default.createElement(Affiliation, null, /* @__PURE__ */ import_react21.default.createElement(Institution, {
   value: "Stanford University"
-})))), /* @__PURE__ */ import_react8.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react8.default.createElement(Section, {
-  title: "Introduction"
-}, /* @__PURE__ */ import_react8.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+})))), /* @__PURE__ */ import_react21.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react21.default.createElement($$, null, r`
+    \newcommand{\textsc}[1]{\text{\tiny #1}}
+    `), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "Introduction",
+  label: "sec:intro"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   f: true,
   v: ["xu2005brief", "silva2012vocabulary"]
-}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "parnin2011automated"
-}), /* @__PURE__ */ import_react8.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), /* @__PURE__ */ import_react21.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "cuoq2012frama"
-}), " and dg ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " and dg ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "llvmslicer"
-}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "jayaraman2005kaveri"
-}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "balakrishnan2005codesurfer"
-}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react8.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react8.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react8.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react8.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react8.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react8.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react8.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react8.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react8.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react8.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react8.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react8.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react8.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react8.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react8.default.createElement("ul", null, /* @__PURE__ */ import_react8.default.createElement("li", null, /* @__PURE__ */ import_react8.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react21.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react21.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react21.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react21.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react21.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react21.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react21.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react21.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react21.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react21.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react21.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react21.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react21.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react21.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react21.default.createElement("ul", null, /* @__PURE__ */ import_react21.default.createElement("li", null, /* @__PURE__ */ import_react21.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "might2010resolving"
-}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "zhao2018parallel"
-}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react8.default.createElement("li", null, /* @__PURE__ */ import_react8.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react8.default.createElement("li", null, /* @__PURE__ */ import_react8.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal.")), /* @__PURE__ */ import_react8.default.createElement("p", null, "Calling-context-sensitive analysis determine whether two pointers alias", " ", /* @__PURE__ */ import_react8.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module."), /* @__PURE__ */ import_react8.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react21.default.createElement("li", null, /* @__PURE__ */ import_react21.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react21.default.createElement("li", null, /* @__PURE__ */ import_react21.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react21.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react21.default.createElement("p", null), /* @__PURE__ */ import_react21.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "rountev1999data",
   f: true
-}), " and", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "cousot2002modular",
   f: true
-}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react8.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react21.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), "."), /* @__PURE__ */ import_react8.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react8.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react8.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react8.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), "."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react21.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react21.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "girard1987linear"
-}), ", class-based alias management", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ", class-based alias management", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "clarke1998ownership"
-}), ", and region-based memory management", " ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ", and region-based memory management", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "grossman2002region"
-}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react8.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react8.default.createElement("ol", null, /* @__PURE__ */ import_react8.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react21.default.createElement("ol", null, /* @__PURE__ */ import_react21.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:background"
-}), ")."), /* @__PURE__ */ import_react8.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react21.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "weiss2019oxide"
-}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:model"
-}), " and ", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:algorithm"
-}), ")."), /* @__PURE__ */ import_react8.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react8.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react21.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
   v: "abadi1999core",
   f: true
-}), " (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), " (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:soundness"
-}), " and ", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:appendix"
-}), ")."), /* @__PURE__ */ import_react8.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), ")."), /* @__PURE__ */ import_react21.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:implementation"
-}), ")"), /* @__PURE__ */ import_react8.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), ")"), /* @__PURE__ */ import_react21.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:evaluation"
-}), ")."))), /* @__PURE__ */ import_react8.default.createElement(Section, {
+}), ")."))), /* @__PURE__ */ import_react21.default.createElement(Section, {
   title: "Principles",
   label: "sec:background"
-}, /* @__PURE__ */ import_react8.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:places"
-}), "), references (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), "), references (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:pointers"
-}), "), function calls (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), "), function calls (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:funcalls"
-}), "), and interior mutability (", /* @__PURE__ */ import_react8.default.createElement(Ref, {
+}), "), and interior mutability (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
   label: "sec:intmut"
-}), ").", " "), /* @__PURE__ */ import_react8.default.createElement(Section, {
+}), ").", " "), /* @__PURE__ */ import_react21.default.createElement(Section, {
   title: "Places",
   label: "sec:places"
-}, /* @__PURE__ */ import_react8.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react21.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react8.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let y = 2;
 let z = 3;
 x = y;
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react8.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react8.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react8.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react21.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react8.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let mut y = 2;
 if y > 0 { x = 3; } 
 else     { y = 4; }
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react8.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react8.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react8.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react8.default.createElement(C2, null, "t"), "):"))));
-import_react_dom.default.render(/* @__PURE__ */ import_react8.default.createElement(App, null), document.getElementById("container"));
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react21.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react21.default.createElement(Row, null, /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  code: r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{:?}", @t@);`
+}), /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  code: r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{}", @t.0@);`
+}), /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  code: r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{}", @t.2@);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react21.default.createElement(Principle, {
+  type: "places",
+  text: "A mutation to a place is a mutation to all conflicting places."
+}), /* @__PURE__ */ import_react21.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "References",
+  label: "sec:pointers"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
+  align: "right"
+}, /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  code: r`let mut x = 1;
+let y = &mut x;
+*y = 2;
+let z = &x;
+println!("{}", @*z@);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:intmut"
+}), "). For a given type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react21.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react21.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  v: "smaragdakis2015pointer"
+}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react21.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react21.default.createElement(Row, null, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`// Dangling reference
+let p = {
+  let x = 1; &x
+};
+let y = *p;`
+}), /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`// Use-after-free
+let d = tempdir();
+let d2 = &d;
+d.close();
+let p = d2.path();`
+}), /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`// Iterator invalidation
+let mut v = vec![1,2];
+for x in v.iter() {
+  v.push(*x);
+}`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react21.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
+  align: "left"
+}, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`let mut x: i32 = 1;
+let y: &'1 i32 = &'0 mut x;
+*y = 2;
+let z: &'3 i32 = &'2 x;
+println!("{}", *z);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "tofte1997region"
+}), " and", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "grossman2002region"
+}), " use this model."), /* @__PURE__ */ import_react21.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "polonius"
+}), " and", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "weiss2019oxide"
+}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
+  align: "left"
+}, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`let mut x = 1;
+let mut y = 2;
+let z: &'2 mut i32 = if true {
+  &'0 mut x
+} else {
+  &'1 mut y
+};
+let w: &'4 mut i32 = &'3 mut *z;
+*w = 1;`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react21.default.createElement(Principle, {
+  type: "references",
+  text: "The lifetime of a reference contains all potential aliases of what the reference points-to."
+}), /* @__PURE__ */ import_react21.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "Function calls",
+  label: "sec:funcalls"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react21.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react21.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
+  align: "left"
+}, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{} {} {}", y, z, w);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "weiser1982programmers"
+}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:intro"
+}), ".", " "), /* @__PURE__ */ import_react21.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react21.default.createElement("ul", null, /* @__PURE__ */ import_react21.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react21.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react21.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react21.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react21.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react21.default.createElement(Row, null, /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
+  code: r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @y@);`
+}), /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
+  code: r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @z@);`
+}), /* @__PURE__ */ import_react21.default.createElement(SliceListing, {
+  prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
+  code: r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @w@);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react21.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react21.default.createElement(Principle, {
+  type: "function calls",
+  text: "When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
+}), /* @__PURE__ */ import_react21.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react21.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "prin:slice-procs"
+}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "prin:slice-procs"
+}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react21.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react21.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react21.default.createElement("center", {
+  style: { margin: "1rem 0" }
+}, /* @__PURE__ */ import_react21.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react21.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "Interior mutability",
+  label: "sec:intmut"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react21.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react21.default.createElement(Wrap, {
+  align: "left"
+}, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  code: r`let value = Arc::new(Mutex::new(0));
+let value_ref = value.clone();
+thread::spawn(move || { 
+  *value_ref.lock().unwrap() += 1; 
+}).join().unwrap();
+assert!(*value.lock().unwrap() == 1);`
+})), /* @__PURE__ */ import_react21.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react21.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react21.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react21.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react21.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react21.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "astrauskas2020programmers"
+}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react21.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:whole-vs-mod"
+}), "."))), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "Formal Model",
+  label: "sec:model"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react21.default.createElement(Cite, {
+  f: true,
+  v: "weiss2019oxide"
+}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react21.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:syn"
+}), "), static semantics (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:statsem"
+}), ") and dynamic semantics (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:dynsem"
+}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "sec:formal_principles"
+}), ")."), /* @__PURE__ */ import_react21.default.createElement(Section, {
+  title: "Syntax",
+  label: "sec:syn"
+}, /* @__PURE__ */ import_react21.default.createElement("p", null, /* @__PURE__ */ import_react21.default.createElement(Ref, {
+  label: "fig:oxide_syntax"
+}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react21.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react21.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), Oxide.commands(), Oxide.bnf(), /* @__PURE__ */ import_react21.default.createElement("p", null, "Test. ", /* @__PURE__ */ import_react21.default.createElement($, null, "\\pexp ~ \\tybase")))));
+var Language2 = class {
+  constructor(rules) {
+    this.rules = rules;
+  }
+  commands() {
+    let commands = this.rules.map(([kind, cmd, metavar, _22]) => r`\newcommand{${"\\" + cmd}}{\htmlData{def=${cmd}, tip=${kind}}{${metavar}}}`).join("\n");
+    return /* @__PURE__ */ import_react21.default.createElement($$, null, commands);
+  }
+  bnf() {
+    let tex = this.rules.map(([kind, cmd, metavar, branches]) => {
+      let rhs = branches.join(r` \mid `);
+      kind = kind.replace(` `, r`\ `);
+      return r`&\htmlId{def-${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&::= ~ ${rhs}`;
+    }).join(r`\\`);
+    return /* @__PURE__ */ import_react21.default.createElement($$, null, r`
+    \begin{align*}      
+      ${tex}
+    \end{align*}
+    `);
+  }
+};
+var Oxide = new Language2([
+  ["Variable", "var", "x", []],
+  ["Path", "path", "q", [r`\varepsilon`, r`n.q`]],
+  ["Place", "plc", r`\pi`, ["x.q"]],
+  ["Place Expression", "pexp", `p`, [`x`, `p.n`, r`\ast p`]],
+  ["Constant", "const", "c", ["()", "n", r`\mathsf{true}`, r`\mathsf{false}`]],
+  ["Provenance", "prov", r`\rho`, ["r", r`\varrho`]],
+  [
+    "Ownership Qualifier",
+    "ownq",
+    r`\omega`,
+    [r`\mathsf{shrd}`, r`\mathsf{uniq}`]
+  ],
+  [
+    "Base Type",
+    "tybase",
+    r`\tau^\textsc{B}`,
+    [r`\mathsf{unit}`, r`\mathsf{u32}`, r`\mathsf{bool}`]
+  ],
+  [
+    "Sized Type",
+    "tysize",
+    r`\tau^\textsc{SI}`,
+    [
+      r`\tau^\textsc{B}`,
+      r`\& \rho ~ \omega ~ \tau^\textsc{XI}`,
+      r`(\tau^\textsc{SI}_1, \ldots, \tau^\textsc{SI}_n)`
+    ]
+  ]
+]);
+import_react_dom5.default.render(/* @__PURE__ */ import_react21.default.createElement(App, null), document.getElementById("container"));
 export {
   App
 };
@@ -52669,6 +60132,11 @@ export {
 object-assign
 (c) Sindre Sorhus
 @license MIT
+*/
+/*!
+  Copyright (c) 2018 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
 */
 /**
  * @license
@@ -52701,6 +60169,14 @@ object-assign
  */
 /** @license React v0.20.2
  * scheduler.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/** @license React v16.13.1
+ * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
