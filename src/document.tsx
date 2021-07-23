@@ -2,12 +2,13 @@ import React, { useState, useContext, useEffect } from "react";
 import { ReactTexContext, TexContext } from "./tex";
 import {
   ReactBibliographyContext,
-  References,
+  ReferencesSection,
   BibliographyContext,
 } from "./bibliography";
 import { ListingContext, ListingData } from "./code";
 import _ from "lodash";
 import CSS from "csstype";
+import ReactTooltip from "react-tooltip";
 
 class SectionData {
   subsections: number = 0;
@@ -100,7 +101,7 @@ export let Footnote: React.FC = ({ children }) => {
   let i = ctx.footnotes.length;
   return (
     <a href={`#footnote-${i}`} id={`footnote-ref-${i}`}>
-      <sup>{i}</sup>
+      <sup className="footnote-marker">{i}</sup>
     </a>
   );
 };
@@ -171,8 +172,9 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
         >
           <ListingContext.Provider value={new ListingData()}>
             <div className="document-wrapper" key={second_pass.toString()}>
+              <ReactTooltip effect="solid" type="light" className="tooltip" />
               <div className="document">{children}</div>
-              <References />
+              <ReferencesSection />
               <Footnotes />
             </div>
           </ListingContext.Provider>

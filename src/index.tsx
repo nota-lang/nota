@@ -1,5 +1,5 @@
 export { Cite } from "./bibliography";
-export { Tex, $ } from "./tex";
+export { Tex, $, $$ } from "./tex";
 export {
   Abstract,
   Authors,
@@ -16,6 +16,6 @@ export {
   Ref,
   Footnote,
   Wrap,
+  Row,
   Document,
 } from "./document";
-

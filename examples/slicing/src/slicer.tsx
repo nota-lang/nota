@@ -9,15 +9,20 @@ import {
 import { EditorView } from "@codemirror/view";
 import axios from "axios";
 
-export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
+export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
+  code,
+  prelude,
+}) => {
   let [editor, set_editor] = useState<EditorView | null>(null);
 
   let get_slice = async (range: number[]) => {
     editor!.dispatch({ effects: clear_highlights.of(null) });
 
-    let program = editor!.state.doc.toJSON().join("\n");
+    let program = [prelude || ''].concat(editor!.state.doc.toJSON()).join("\n");
     let start = pos_to_linecol(editor!, range[0]);
     let end = pos_to_linecol(editor!, range[1]);
+    start.line += 1;
+    end.line += 1;
 
     if (start.line != end.line) {
       throw "Start line different from end line";
@@ -28,6 +33,11 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
       "http://charlotte.stanford.edu:8889",
       request
     );
+
+    if (response.data.error) {
+      console.error(response.data.error);
+      return;
+    }
 
     interface Range {
       start_line: number;
@@ -44,17 +54,20 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
         .filter(
           (range) =>
             !(
-              range.start_line == request.line &&
-              range.start_col == request.start
+              // Exclude sliced variable
+              (range.start_line == request.line &&
+              range.start_col == request.start) ||
+              // Exclude slices in prelude
+              (range.start_line == 1)
             )
         )
         .map((range) => {
           let from = linecol_to_pos(editor!, {
-            line: range.start_line,
+            line: range.start_line - 1,
             col: range.start_col,
           });
           let to = linecol_to_pos(editor!, {
-            line: range.end_line,
+            line: range.end_line - 1,
             col: range.end_col,
           });
           return add_highlight.of({ from, to, color: "peach" });
@@ -72,7 +85,7 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
     });
   };
 
-  // TODO: 
+  // TODO:
   //   1. loading animation
   //   2. error messages for compile fail
   //   3. error messages for no selected range
@@ -100,7 +113,7 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
           },
         }}
       />
-      <button
+      {/* <button
         onClick={() => {
           let selection = editor!.state.selection!;
           let range = selection.main;
@@ -110,7 +123,7 @@ export let SliceListing: React.FC<{ code: string }> = ({ code }) => {
         }}
       >
         Slice
-      </button>
+      </button> */}
     </div>
   );
 };

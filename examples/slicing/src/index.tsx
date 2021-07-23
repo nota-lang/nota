@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
   $,
+  $$,
   Cite,
   Ref,
   Footnote,
@@ -15,6 +16,8 @@ import {
   Abstract,
   Document,
   Wrap,
+  Row,
+  Listing,
   ListingConfigure,
 } from "reactex";
 import { rust } from "@codemirror/lang-rust";
@@ -27,6 +30,13 @@ import "../node_modules/reactex/dist/assets.css";
 
 const r = String.raw;
 const C: React.FC = (props) => <code {...props} />;
+
+// TODO: abstract out a "counter" context
+let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => (
+  <p style={{ margin: "1rem" }}>
+    <strong>Principle 1</strong> (Slicing principle for {type}). <em>{text}</em>
+  </p>
+);
 
 export let App: React.FC = (_) => (
   <Document bibtex={bibtex}>
@@ -56,7 +66,10 @@ export let App: React.FC = (_) => (
       are the same as whole-program slices in 95.4% of slices drawn from large
       Rust codebases.
     </Abstract>
-    <Section title="Introduction">
+    <$$>{r`
+    \newcommand{\textsc}[1]{\text{\tiny #1}}
+    `}</$$>
+    <Section title="Introduction" label="sec:intro">
       <p>
         Program slicing is the task of identifying the subset of a program
         relevant to computing a value of interest. The concept of slicing was
@@ -127,15 +140,14 @@ export let App: React.FC = (_) => (
           <em>Analysis results are anti-modular:</em> when analyzing a
           particular function, relying on calling contexts to analyze the
           function's inputs means that any results are not universal.
+          Calling-context-sensitive analysis determine whether two pointers
+          alias <em>in the context of the broader codebase</em>, so alias
+          analysis results can change due to modifications in code far away from
+          the current module.
         </li>
       </ul>
 
-      <p>
-        Calling-context-sensitive analysis determine whether two pointers alias{" "}
-        <em>in the context of the broader codebase</em>, so alias analysis
-        results can change due to modifications in code far away from the
-        current module.
-      </p>
+      <p></p>
 
       <p>
         These issues are not new --- <Cite v="rountev1999data" f /> and{" "}
@@ -293,9 +305,580 @@ println!("{}", @x@);`}
           consider slicing on a tuple as in the three snippets below (note that{" "}
           <C>t.n</C> gets the <$>n</$>-th field of the tuple <C>t</C>):
         </p>
+
+        <Row>
+          <SliceListing
+            code={r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{:?}", @t@);`}
+          />
+          <SliceListing
+            code={r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{}", @t.0@);`}
+          />
+          <SliceListing
+            code={r`let mut t = (0, 1, 2);
+t = (3, 4, 5);
+t.0 = 6;
+t.1 = 7;
+println!("{}", @t.2@);`}
+          />
+        </Row>
+
+        <p>
+          In this program, when slicing on <C>t</C>, changing the value of a
+          field of a structure changes the value of the whole structure, so{" "}
+          <C>t.1 = 7</C> is part of the slice on <C>t</C>. However, when slicing
+          on <C>t.0</C>, the path <C>t.0</C> is disjoint from the path{" "}
+          <C>t.1</C>, so <C>t.1 = 7</C> is not part of the slice on <C>t.0</C>.
+          Similarly, when slicing on <C>t.2</C>, the only relevant assignment is{" "}
+          <C>t = (3, 4, 5)</C>. More generally, a place conflicts with another
+          place if either's path is a prefix of the other's. For instance,{" "}
+          <C>t.0</C> conflicts with both <C>t</C> (parent) and <C>t.0.1</C>{" "}
+          (child) but not <C>t.1</C> (sibling). This leads to the first slicing
+          principle:
+        </p>
+
+        <Principle
+          type={"places"}
+          text={
+            "A mutation to a place is a mutation to all conflicting places."
+          }
+        />
+
+        <p>
+          This principle provides an intuition for making an algorithm that
+          constructs slices. For instance, take the last example above on the
+          left. On line 4, when <C>t.1</C> is mutated, that mutation is
+          registered as part of the slice on every conflicting place,
+          specifically <C>t</C> and <C>t.1</C>.
+        </p>
+      </Section>
+
+      <Section title="References" label="sec:pointers">
+        <p>
+          Pointers are the first major challenge for slicing. A mutation to a
+          dereferenced pointer is a mutation to any place that is possibly
+          pointed-to, so such places must be known to the slicer. For example:
+        </p>
+
+        <Wrap align="right">
+          <SliceListing
+            code={r`let mut x = 1;
+let y = &mut x;
+*y = 2;
+let z = &x;
+println!("{}", @*z@);`}
+          />
+        </Wrap>
+
+        <p>
+          Rust has two distinct types of pointers, which are called "references"
+          to distinguish them from "raw pointers" with C-like behavior
+          (discussed in <Ref label="sec:intmut" />
+          ). For a given type <C>T</C>, there are immutable references of type{" "}
+          <C>&T</C>, and mutable references of type <C>&mut T</C> which
+          correspond respectively to the expressions <C>&x</C> and <C>&mut x</C>
+          . Because <C>y</C> points to <C>x</C>, then the mutation through{" "}
+          <C>y</C> is relevant to the read of <C>*z</C>. We refer to the
+          left-hand side of assignment statements like <C>*y</C> as "place
+          expressions", since they could include dereferences.
+        </p>
+
+        <p>
+          The task of determining what a reference can point-to is called{" "}
+          <em>pointer analysis</em> . While many methods exist for pointer
+          analysis <Cite v="smaragdakis2015pointer" />, our first key insight is
+          that Rust's ownership types implicitly perform a kind of modular
+          pointer analysis that we can leverage for slicing. To understand why,
+          we first need to describe two ingredients: the goal, i.e. what
+          ownership is trying to accomplish, and the mechanism, i.e. how
+          ownership-checking is implemented in the type system.
+        </p>
+
+        <p>
+          The core goal of ownership is eliminating simultaneous aliasing and
+          mutation. In Rust, achieving this goal enables the use of references
+          without garbage collection while retaining memory safety. For
+          instance, these three classes of errors are all caught at
+          compile-time:
+        </p>
+
+        <Row>
+          <Listing
+            code={r`// Dangling reference
+let p = {
+  let x = 1; &x
+};
+let y = *p;`}
+          />
+          <Listing
+            code={r`// Use-after-free
+let d = tempdir();
+let d2 = &d;
+d.close();
+let p = d2.path();`}
+          />
+          <Listing
+            code={r`// Iterator invalidation
+let mut v = vec![1,2];
+for x in v.iter() {
+  v.push(*x);
+}`}
+          />
+        </Row>
+
+        <p>
+          From left-to-right: the dangling references is caught because <C>x</C>{" "}
+          is deallocated at the end of scope on line 4, which is a mutation,
+          conflicting with the alias <C>&x</C>. The use-after-free is caught
+          because <C>d.close()</C> requires ownership of <C>d</C>, which
+          prevents an alias <C>d2</C> from being live. The iterator invalidation
+          case is subtler: <C>x</C> is a pointer to data within <C>v</C>.
+          However, <C>v.push(*x)</C> could resize <C>v</C> which would
+          copy/deallocate all vector elements to a new heap location,
+          invalidating all pointers to <C>v</C>. Hence <C>v.push(*x)</C> is a
+          simultaneous mutation and alias of the vector.
+        </p>
+
+        <p>
+          Catching these errors requires understanding which places are pointed
+          by which references. For instance, knowing that <C>x</C> points to an
+          element of <C>v</C> and not just any arbitrary <C>i32</C>. The key
+          mechanism behind these ownership checks is <em>lifetimes</em>.
+        </p>
+
+        <Wrap align="left">
+          <Listing
+            code={r`let mut x: i32 = 1;
+let y: &'1 i32 = &'0 mut x;
+*y = 2;
+let z: &'3 i32 = &'2 x;
+println!("{}", *z);`}
+          />
+        </Wrap>
+
+        <p>
+          Each reference expression and type has a corresponding lifetime,
+          written explicitly in the syntax <C>'n</C> on the left, where <C>n</C>{" "}
+          is an arbitrary and unique number. The name "lifetime" implies a model
+          of lifetimes as the live range of the reference. Prior work on
+          region-based memory management like <Cite f v="tofte1997region" /> and{" "}
+          <Cite f v="grossman2002region" /> use this model.
+        </p>
+
+        <p>
+          However, recent work from <Cite f v="polonius" /> and{" "}
+          <Cite f v="weiss2019oxide" /> have devised an alternative model of
+          lifetimes as "provenances" or "origins" that more directly correspond
+          to a pointer analysis. In essence, a lifetime is the set of places
+          that a reference could point-to. For the above example, that would be{" "}
+          <C>'n = x </C> for all <C>n</C>, because each reference points to{" "}
+          <C>x</C>. As a more interesting example, consider the code on the
+          left.
+        </p>
+
+        <Wrap align="left">
+          <Listing
+            code={r`let mut x = 1;
+let mut y = 2;
+let z: &'2 mut i32 = if true {
+  &'0 mut x
+} else {
+  &'1 mut y
+};
+let w: &'4 mut i32 = &'3 mut *z;
+*w = 1;`}
+          />
+        </Wrap>
+
+        <p>
+          There, lifetimes for borrow expressions are assigned to the place
+          being borrowed, so <C>'0 = x </C> and <C>'1 = y </C>. Because <C>z</C>{" "}
+          could be assigned to either reference, then{" "}
+          <C>{`'2 = '0 ∪ '1 = {x, y}`}</C>. An expression of the form{" "}
+          <C>& *p</C> is called a "reborrow", as the underlying address is being
+          passed from one reference to another. To register that a reference is
+          reborrowed, the reborrowed place is also added to the lifetime, so{" "}
+          <C>{`'3 = '4 = {x, y, *z}`}</C>. More generally:
+        </p>
+
+        <Principle
+          type={"references"}
+          text={
+            "The lifetime of a reference contains all potential aliases of what the reference points-to."
+          }
+        />
+
+        <p>
+          In the context of slicing, then to determine which places could be
+          modified by a particular assignment, one only needs to look up the
+          aliases in the lifetime of references. For instance, <C>*w = 1</C>{" "}
+          would be part of a slice on <C>*z</C>, because <C>*z</C> is in the
+          lifetime <C>'4</C> of <C>w</C>.
+        </p>
+      </Section>
+
+      <Section title="Function calls" label="sec:funcalls">
+        <p>
+          The other major challenge for slicing is function calls. For instance,
+          consider slicing a call to an arbitrary function <C>f</C> with various
+          kinds of inputs:
+          <Footnote>
+            Why is <C>String::from</C> needed? The literal <C>"Hello world"</C>{" "}
+            has type <C>&'static str</C>, meaning an immutable reference to the
+            binary's string pool which lives forever. The function{" "}
+            <C>String::from</C> converts the immutable reference into a value of
+            type <C>String</C>, which stores its contents on the heap and allows
+            the string to be mutated.
+          </Footnote>
+        </p>
+
+        <Wrap align="left">
+          <Listing
+            code={r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{} {} {}", y, z, w);`}
+          />
+        </Wrap>
+
+        <p>
+          The standard approach to slicing <C>f</C> would be to inspect the
+          definition of <C>f</C>, and recursively slice it by translating the
+          slicing criteria from caller to callee (e.g. see{" "}
+          <Cite f v="weiser1982programmers" /> for an example). However, our
+          goal is to avoid using the definition of <C>f</C> (i.e. a
+          whole-program analysis) for the reasons described in{" "}
+          <Ref label="sec:intro" />.{" "}
+        </p>
+
+        <p>
+          To modularly slice through function calls, we need to approximate the
+          effects of <C>f</C> in a manner that is sound, but also as precise as
+          possible. Put another way, what mutations could possibly occur as a
+          result of calling <C>f</C>? Consider the three cases that arise in the
+          code above.
+        </p>
+
+        <ul>
+          <li>
+            Passing a value <C>x</C> of type <C>String</C> (or generally of type{" "}
+            <C>T</C>) moves the value into <C>f</C>. Therefore it is an
+            ownership error to refer to <C>x</C> after calling <C>f</C> and we
+            do not need to consider slices on <C>x</C> after <C>f</C>.
+          </li>
+          <li>
+            Passing a value <C>y</C> of type <C>&String</C> (or <C>&T</C>)
+            passes an immutable reference. Immutable references cannot be
+            mutated, therefore <C>y</C> cannot change in <C>f</C>.
+            <Footnote>
+              A notable detail to the safety of immutable references is that
+              immutability is transitive. For instance, if <C>b = &mut a</C> and{" "}
+              <C>c = &b</C>, then <C>a</C> is guaranteed not to be mutated
+              through <C>c</C>. This stands in contrast to other languages with
+              pointers like C and C++ where the <C>const</C> keyword only
+              protects values from mutation at the top-level, and not into the
+              interior fields.
+            </Footnote>
+          </li>
+          <li>
+            Passing a value <C>z</C> of type <C>&mut String</C> (or{" "}
+            <C>&mut T</C>) passes a mutable reference, which could possibly be
+            mutated. This case is therefore the only observable of effect{" "}
+            <C>f</C> apart from its return value.
+          </li>
+        </ul>
+
+        <p>
+          Without inspecting <C>f</C>, we cannot know how a mutable reference is
+          modified, so we have to conservatively assume that every argument was
+          used as input to a mutation. Therefore the modular slice of each
+          variable looks as in the snippets below:
+        </p>
+
+        <Row>
+          <SliceListing
+            prelude={
+              "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };"
+            }
+            code={r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @y@);`}
+          />
+          <SliceListing
+            prelude={
+              "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };"
+            }
+            code={r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @z@);`}
+          />
+          <SliceListing
+            prelude={
+              "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };"
+            }
+            code={r`let x = String::from("x");
+let y = String::from("y");
+let mut z = String::from("z");
+let w = f(x, &y, &mut z);
+println!("{}", @w@);`}
+          />
+        </Row>
+
+        <p>
+          Note that like <C>z</C> (middle), the return value <C>w</C> (right) is
+          also assumed to be influenced by every input to <C>f</C>. Implicit in
+          these slices are additional assumptions about the limitations of{" "}
+          <C>f</C>. For example, in C, a function could manufacture a pointer to
+          the stack frame above it and mutate the values, meaning <C>f</C> could
+          mutate <C>y</C> (even if <C>y</C> was not an input!). Similarly,
+          functions could potentially read arbitrary data (e.g. global
+          variables) that would influence mutations apart from just the
+          arguments.{" "}
+        </p>
+
+        <p>
+          However, allowing such pointer manipulation would easily break
+          ownership safety, since fundamentally it permits unchecked aliasing.
+          Hence, our principle:
+        </p>
+
+        <Principle
+          type="function calls"
+          text="When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
+        />
+
+        <p>
+          This principle is essentially a worst-case approximation to the
+          function's effects. It is the core of how we can modularly slice
+          programs, because a function's definition does not have to be
+          inspected to analyze what it can mutate.{" "}
+        </p>
+
+        <p>
+          A caveat to this principle is global variables: (
+          <Ref label="prin:slice-procs" />
+          -a) is not true with mutable globals, and (
+          <Ref label="prin:slice-procs" />
+          -b) is not true with read-only globals. Mutable globals are disallowed
+          by the rules of ownership, as they are implicitly aliased and hence
+          disallowed from being mutable. However, read-only globals are
+          ownership-safe (and hence permitted in Rust). For simplicity we do not
+          consider read-only globals in this work.
+        </p>
+
+        <p>
+          Another notable detail is the interaction of function calls and
+          lifetimes. Pointer analysis, like slicing, has historically been done
+          via whole-program analysis for maximum precision. However, Rust can
+          analyze lifetimes (and subsequently what references point-to)
+          modularly just by looking at the type signature of a called function
+          using <em>lifetime parameters</em> . Consider the function{" "}
+          <C>Vec::get_mut</C> that returns a mutable reference to an element of
+          a vector. For instance, <C>vec![5, 6].get_mut(0)</C> returns a mutable
+          reference to the value 5. This function has the type signature:
+        </p>
+
+        <center style={{ margin: "1rem 0" }}>
+          <C>{`Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`}</C>
+        </center>
+
+        <p>
+          Because this type signature is parametric in the lifetime <C>'a</C>,
+          it can express the constraint that the output reference{" "}
+          <C>&'a mut T</C> must have the same lifetime as the input reference{" "}
+          <C>{`&'a mut Vec<T>`}</C>. Therefore the returned pointer is known to
+          point to the same data as the input pointer, but without inspecting
+          the definition of <C>get_mut</C>.
+        </p>
+      </Section>
+
+      <Section title="Interior mutability" label="sec:intmut">
+        <p>
+          The previous sections describe a slicing strategy for the subset of
+          Rust known as "safe Rust", that is programs which strictly adhere to
+          the rules of ownership. Importantly, Rust also has the <C>unsafe</C>{" "}
+          feature that gives users access to raw pointers, or pointers with
+          similar unchecked behavior to C. Most commonly, <C>unsafe</C> code is
+          used to implement APIs that satisfy ownership, but not in a manner
+          that is deducible by the type system. For example, shared mutable
+          state between threads:
+        </p>
+
+        <Wrap align="left">
+          <Listing
+            code={r`let value = Arc::new(Mutex::new(0));
+let value_ref = value.clone();
+thread::spawn(move || { 
+  *value_ref.lock().unwrap() += 1; 
+}).join().unwrap();
+assert!(*value.lock().unwrap() == 1);`}
+          />
+        </Wrap>
+
+        <p>
+          In this snippet, two threads have ownership over two values of type{" "}
+          <C>{`Arc<Mutex<i32>>`}</C> which internally point to the same number.
+          Both threads can call <C>Mutex::lock</C> which takes an immutable
+          reference to an <C>{`&Mutex<i32>`}</C> and returns a mutable reference{" "}
+          <C>&mut i32</C> to the data inside.
+          <Footnote>
+            Technically the returned type is a{" "}
+            <C>{`LockResult<MutexGuard<'a, i32>>`}</C> but the distinction isn't
+            relevant here.
+          </Footnote>{" "}
+          This nominally violates ownership, as the data is aliased (shared by
+          two threads) and mutable (both can mutate).
+        </p>
+
+        <p>
+          The mutex is ownership-safe only because its implementation ensures
+          that both threads cannot <em>simultaneously</em> access the underlying
+          value in accordance with the system mutex's semantics. For our
+          purposes, the aliasing between <C>value</C> and <C>value_ref</C> is
+          not possible to observe using the type system alone. For example, in
+          our algorithm, slicing on <C>value</C> would <em>not</em> include
+          mutations to <C>value_ref</C>. This is because the data inside the
+          mutex has type <C>*mut i32</C> (a raw pointer), and without a lifetime
+          attached, our algorithm has no way to determine whether <C>value</C>{" "}
+          and <C>value_ref</C> are aliases just by inspecting their types.
+        </p>
+
+        <p>
+          More broadly, modular slicing is only sound for safe Rust. The point
+          of this work is to say: when a program can be statically determined to
+          satisfy the rules of ownership, then modular slicing is sound. The
+          principles above help clarify the specific assumptions made possible
+          by ownership, which are otherwise impossible to make in languages like
+          C or Java. <Cite f v="astrauskas2020programmers" /> found that 76.4%
+          of published Rust projects contain no unsafe code, suggesting that
+          safe Rust is more common than not. However, their study does not
+          account for safe Rust built on internally-unsafe abstractions like{" "}
+          <C>Mutex</C>, so it is difficult to estimate the true likelihood of
+          soundness in practice. We discuss the issue of slicing with unsafe
+          code further in <Ref label="sec:whole-vs-mod" />.
+        </p>
+      </Section>
+    </Section>
+    <Section title="Formal Model" label="sec:model">
+      <p>
+        To build an algorithm from these principles, we first need a formal
+        model to describe and reason about the underlying language. Rather than
+        devise our own, we build on the work of <Cite f v="weiss2019oxide" /> :
+        Oxide is a model of (safe) Rust's surface language with a formal static
+        and dynamic semantics, along with a proof of syntactic type soundness.
+        Importantly, Oxide uses a provenance model of lifetimes which we
+        leverage for our slicing algorithm.{" "}
+      </p>
+
+      <p>
+        We will incrementally introduce the aspects of Oxide's syntax and
+        semantics as necessary to understand our principles and algorithm. We
+        describe Oxide's syntax (<Ref label="sec:syn" />
+        ), static semantics (<Ref label="sec:statsem" />) and dynamic semantics
+        (<Ref label="sec:dynsem" />
+        ), and then apply these concepts to formalize the slicing principles of
+        the previous section (<Ref label="sec:formal_principles" />
+        ).
+      </p>
+
+      <Section title="Syntax" label="sec:syn">
+        <p>
+          <Ref label="fig:oxide_syntax" /> shows a subset of Oxide's syntax
+          along with a labeled example. An Oxide program consists of a set of
+          functions <$>\Sigma</$> (the "global environment"), where each
+          function body is an expression <$>[]</$> . The syntax is largely the
+          same as Rust's with a few exceptions:
+        </p>
+
+        {Oxide.commands()}
+        {Oxide.bnf()}
+
+        <p>
+          Test. <$>\pexp ~ \tybase</$>
+        </p>
       </Section>
     </Section>
   </Document>
 );
+
+class Language {
+  rules: any;
+
+  constructor(rules: any) {
+    this.rules = rules;
+  }
+
+  commands() {
+    let commands = this.rules
+      .map(
+        ([kind, cmd, metavar, _2]) =>
+          r`\newcommand{${
+            "\\" + cmd
+          }}{\htmlData{def=${cmd}, tip=${kind}}{${metavar}}}`
+      )
+      .join("\n");
+    return <$$>{commands}</$$>;
+  }
+
+  bnf() {
+    let tex = this.rules
+      .map(([kind, cmd, metavar, branches]) => {
+        let rhs = branches.join(r` \mid `);
+        kind = kind.replace(` `, r`\ `);
+        return r`&\htmlId{def-${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&::= ~ ${rhs}`;
+      })
+      .join(r`\\`);
+    return (
+      <$$>{r`
+    \begin{align*}      
+      ${tex}
+    \end{align*}
+    `}</$$>
+    );
+  }
+}
+
+let Oxide = new Language([
+  ["Variable", "var", "x", []],
+  ["Path", "path", "q", [r`\varepsilon`, r`n.q`]],
+  ["Place", "plc", r`\pi`, ["x.q"]],
+  ["Place Expression", "pexp", `p`, [`x`, `p.n`, r`\ast p`]],
+  ["Constant", "const", "c", ["()", "n", r`\mathsf{true}`, r`\mathsf{false}`]],
+  ["Provenance", "prov", r`\rho`, ["r", r`\varrho`]],
+  [
+    "Ownership Qualifier",
+    "ownq",
+    r`\omega`,
+    [r`\mathsf{shrd}`, r`\mathsf{uniq}`],
+  ],
+  [
+    "Base Type",
+    "tybase",
+    r`\tau^\textsc{B}`,
+    [r`\mathsf{unit}`, r`\mathsf{u32}`, r`\mathsf{bool}`],
+  ],
+  [
+    "Sized Type",
+    "tysize",
+    r`\tau^\textsc{SI}`,
+    [
+      r`\tau^\textsc{B}`,
+      r`\& \rho ~ \omega ~ \tau^\textsc{XI}`,
+      r`(\tau^\textsc{SI}_1, \ldots, \tau^\textsc{SI}_n)`,
+    ],
+  ],
+]);
 
 ReactDOM.render(<App />, document.getElementById("container"));

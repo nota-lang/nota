@@ -18,7 +18,9 @@
     "jison": "^0.4.18",
     "katex": "0.13.11",
     "lodash": "^4.17.21",
-    "nearley": "^2.20.1"
+    "nearley": "^2.20.1",
+    "rc-tooltip": "^5.1.1",
+    "react-tooltip": "^4.2.21"
   },
   "devDependencies": {
     "@codemirror/gutter": "^0.18.0",

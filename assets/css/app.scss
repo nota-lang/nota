@@ -8,13 +8,29 @@
   src: url("../fonts/LinBiolinum_#{$suffix}.otf");
 }
 
-@font-face { @include loadserif("R"); }
-@font-face { @include loadserif("RB"); font-weight: bold; }
-@font-face { @include loadserif("RI"); font-style: italic; }
+@font-face {
+  @include loadserif("R");
+}
+@font-face {
+  @include loadserif("RB");
+  font-weight: bold;
+}
+@font-face {
+  @include loadserif("RI");
+  font-style: italic;
+}
 
-@font-face { @include loadsans("R"); }
-@font-face { @include loadsans("RB"); font-weight: bold; }
-@font-face { @include loadsans("RI"); font-style: italic; }
+@font-face {
+  @include loadsans("R");
+}
+@font-face {
+  @include loadsans("RB");
+  font-weight: bold;
+}
+@font-face {
+  @include loadsans("RI");
+  font-style: italic;
+}
 
 $serif: "Linux Libertine O", serif;
 $sans-serif: "Linux Biolinum O", serif;
@@ -29,9 +45,9 @@ $size-huge: 32px;
 $size-Huge: 36px;
 
 $colors: (
-  acm-purple: #6200D9,
-  peach: rgb(250,223,203),
-  forest-green: rgb(186,220,199)
+  acm-purple: rgb(101, 43, 126),
+  peach: rgb(250, 223, 203),
+  forest-green: rgb(186, 220, 199),
 );
 
 @each $name, $color in $colors {
@@ -45,7 +61,7 @@ $colors: (
 }
 
 @function color($key) {
-  @return map-get($colors, $key)
+  @return map-get($colors, $key);
 }
 
 body {
@@ -55,7 +71,7 @@ body {
 }
 
 .document-wrapper {
-  width: 800px; 
+  width: 800px;
   margin: 0 auto;
   padding-top: 20px;
 }
@@ -65,7 +81,7 @@ body {
   line-height: 1.25em;
 }
 
-.footnotes {  
+.footnotes {
   font-size: $size-footnote;
   line-height: 1.2em;
   border-top: 1px solid #ccc;
@@ -83,21 +99,41 @@ body {
   }
 }
 
-
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: $sans-serif;
   margin: 0;
   text-align: left;
   line-height: 1em;
 }
 
-a {
+a[href] {
   color: color("acm-purple");
   text-decoration: none;
 }
 
+*:target {
+  animation: fadeout 1s;
+  padding: 4px;
+  margin: -4px;
+  border-radius: 2px;
+}
+
+@keyframes fadeout {
+  from {
+    background: #FFDC00;
+  }
+  to {
+    background: transparent;
+  }
+}
+
 p {
-  text-indent: 1em;     
+  text-indent: 1em;
   margin: 0;
 
   .section-title + & {
@@ -115,7 +151,7 @@ p {
       text-transform: uppercase;
       font-family: $sans-serif;
       font-size: $size-large;
-    }    
+    }
   }
 }
 
@@ -130,10 +166,12 @@ p {
 
   .section-number {
     margin-right: 20px;
-  }  
+  }
 
-  h2#{&} {
-    text-transform: uppercase;  
+  @at-root {
+    h2#{&} {
+      text-transform: uppercase;
+    }
   }
 
   // h3#{&} {
@@ -141,9 +179,10 @@ p {
   // }
 }
 
-pre, code {
+pre,
+code {
   font-family: Inconsolata, monospace;
-} 
+}
 
 code {
   border: 1px solid #eee;
@@ -166,13 +205,50 @@ span.katex {
 
 .references {
   text-align: justify;
-
   font-size: $size-small;
   line-height: 1.3em;
-  margin-top: 2rem;
 
   .reference {
     text-indent: -1em;
     padding-left: 1em;
   }
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+
+  > * {
+    margin-right: 2rem;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+sup.footnote-marker {
+  vertical-align: top;
+  position: relative;
+  bottom: 0.25em;
+}
+
+.tooltip {
+  border: 1px solid #ccc !important;
+  font-family: $serif;
+
+  &::after {
+    border: none !important;
+  }
+}
+
+.rc-tooltip {
+  opacity: 1;
+  background-color: white;  
+}
+
+.rc-tooltip-inner {
+  min-height: auto;  
+  max-width: 800px;
 }

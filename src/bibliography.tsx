@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
 import _ from "lodash";
 import { Section, SectionTitle } from "./document";
+import Tooltip from "rc-tooltip";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -56,20 +57,20 @@ class BibliographyEntry {
     let names = this.authors?.map((author) =>
       [...author.slice(1), author[0]].join(" ")
     );
-    // console.log(this.tags);
     return (
       <div className="reference">
-        <a id={`ref-${this.key}`} />
-        {names
-          ? (names.length > 1
-              ? names.slice(0, -1).join(", ") +
-                ", and " +
-                names[names.length - 1]
-              : names[0]) + ". "
-          : null}
-        {this.year ? this.year + ". " : null}
-        {this.title ? this.title + ". " : null}
-        <i>{this.tags.journal || this.tags.booktitle}.</i>
+        <a id={`ref-${this.key}`}>
+          {names
+            ? (names.length > 1
+                ? names.slice(0, -1).join(", ") +
+                  ", and " +
+                  names[names.length - 1]
+                : names[0]) + ". "
+            : null}
+          {this.year ? this.year + ". " : null}
+          {this.title ? this.title + ". " : null}
+          <i>{this.tags.journal || this.tags.booktitle}.</i>
+        </a>
       </div>
     );
   }
@@ -107,24 +108,22 @@ export class BibliographyContext {
     this.used_citations = {};
   }
 
-  cite(key: string | string[], full: boolean, yearonly: boolean) {
-    let keys = typeof key === "string" ? [key] : key;
-
+  cite(keys: string[], full: boolean, yearonly: boolean) {
     keys.forEach((key) => {
       this.used_citations[key] = true;
     });
 
     return full ? (
-      <a href={`#ref-${key}`}>
-        {intersperse(
-          keys.map((key) => {
-            let entry = this.citations[key];
-            let author = entry.display_author();
-            return `${author} [${entry.year}]`;
-          }),
-          "; "
-        )}
-      </a>
+      intersperse(
+        keys.map((key) => {
+          let entry = this.citations[key];
+          let author = entry.display_author();
+          return (
+            <a href={`#ref-${key}`} key={key}>{`${author} [${entry.year}]`}</a>
+          );
+        }),
+        "; "
+      )
     ) : (
       <span>
         [
@@ -154,12 +153,21 @@ export class BibliographyContext {
 export let ReactBibliographyContext =
   React.createContext<BibliographyContext | null>(null);
 
-export let References: React.FC = (_) => {
+export let ReferencesSection: React.FC = (_) => {
+  let ctx = useContext(ReactBibliographyContext)!;
+  return (
+    <section>
+      <SectionTitle>References</SectionTitle>
+      <References keys={Object.keys(ctx.used_citations)} />
+    </section>
+  );
+};
+
+export let References: React.FC<{ keys: string[] }> = ({ keys }) => {
   let ctx = useContext(ReactBibliographyContext)!;
   return (
     <div className="references">
-      <SectionTitle>References</SectionTitle>
-      {Object.keys(ctx.used_citations).map((key) => (
+      {keys.map((key) => (
         <div key={key}>{ctx.citations[key].bib_cite()}</div>
       ))}
     </div>
@@ -169,5 +177,11 @@ export let References: React.FC = (_) => {
 export let Cite: React.FC<{ v: string | string[]; f?: boolean; y?: boolean }> =
   ({ v, f, y }) => {
     let ctx = useContext(ReactBibliographyContext)!;
-    return ctx.cite(v, f || false, y || false);
+    let keys = typeof v === "string" ? [v] : v;
+    let overlay = () => <References keys={keys} />;
+    return (
+      <Tooltip placement="top" overlay={overlay}>
+        <span>{ctx.cite(keys, f || false, y || false)}</span>
+      </Tooltip>
+    );
   };

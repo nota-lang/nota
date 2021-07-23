@@ -60,8 +60,8 @@ let theme = EditorView.theme({
     minWidth: "10px",
   },
   ".cm-highlight": {
-    padding: "0 3px",
-    margin: "-1px -3px",
+    padding: "0 2px",
+    margin: "-1px -2px",
     borderRadius: "2px",
   },
 });
