@@ -5,10 +5,10 @@ import {
   ReferencesSection,
   BibliographyContext,
 } from "./bibliography";
+import { DefinitionContext, DefinitionData, Definition } from "./definitions";
 import { ListingContext, ListingData } from "./code";
 import _ from "lodash";
 import CSS from "csstype";
-import ReactTooltip from "react-tooltip";
 
 class SectionData {
   subsections: number = 0;
@@ -49,12 +49,13 @@ export let SectionTitle: React.FC<{ level?: number }> = ({
   return <Header className="section-title">{children}</Header>;
 };
 
-export let Section: React.FC<{ title: string; label?: string }> = ({
-  label,
+export let Section: React.FC<{ title: string; name?: string }> = ({
+  name,
   title,
   children,
 }) => {
   let doc_ctx = useContext(DocumentContext);
+  let def_ctx = useContext(DefinitionContext);
   if (doc_ctx.section_contexts.length == 0) {
     doc_ctx.sections += 1;
   } else {
@@ -67,9 +68,6 @@ export let Section: React.FC<{ title: string; label?: string }> = ({
     doc_ctx.sections,
     ...doc_ctx.section_contexts.map((ctx) => ctx.subsections),
   ].join(".");
-  if (label) {
-    doc_ctx.add_label(label, `Section ${sec_num}`);
-  }
 
   let sec_ctx = new SectionData();
   doc_ctx.section_contexts.push(sec_ctx);
@@ -80,19 +78,16 @@ export let Section: React.FC<{ title: string; label?: string }> = ({
   };
 
   return (
-    <section id={label}>
-      <SectionTitle level={level}>
-        <span className="section-number">{sec_num}</span> {title}
-      </SectionTitle>
-      {children}
-      <Cleanup />
-    </section>
+    <Definition name={name} label={<>Section {sec_num}</>} tooltip={null} block>
+      <section>
+        <SectionTitle level={level}>
+          <span className="section-number">{sec_num}</span> {title}
+        </SectionTitle>
+        {children}
+        <Cleanup />
+      </section>
+    </Definition>
   );
-};
-
-export let Ref: React.FC<{ label: string }> = ({ label }) => {
-  let ctx = useContext(DocumentContext);
-  return <a href={`#${label}`}>{ctx.labels[label] || label}</a>;
 };
 
 export let Footnote: React.FC = ({ children }) => {
@@ -137,49 +132,54 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
     set_second_pass(true);
   });
 
-  let [ctx, set_ctx] = useState(new DocumentData());
-  useEffect(() => {
-    if (second_pass) {
-      let new_ctx = new DocumentData();
-      new_ctx.labels = ctx.labels;
-      set_ctx(new_ctx);
-    }
-  }, [second_pass]);
+  let [def_ctx, set_def_ctx] = useState(new DefinitionData());
+  // useEffect(() => {
+  //   if (second_pass) {
 
-  let Footnotes: React.FC = (_) => (
-    <div className="footnotes">
-      {ctx.footnotes.map((footnote, i) => {
-        let top = {};
-        i += 1;
-        return (
-          <div className="footnote" id={`footnote-${i}`} key={i}>
-            <a className="backlink" href={`#footnote-ref-${i}`}>
-              ⬅
-            </a>
-            <span className="footnote-number">{i}</span>
-            {footnote}
-          </div>
-        );
-      })}
-    </div>
-  );
+  //     let new_ctx = new DocumentData();
+  //     new_ctx.labels = ctx.labels;
+  //     set_ctx(new_ctx);
+  //   }
+  // }, [second_pass]);
+
+  let Footnotes: React.FC = (_) => {
+    let ctx = useContext(DocumentContext);
+    return (
+      <div className="footnotes">
+        {ctx.footnotes.map((footnote, i) => {
+          let top = {};
+          i += 1;
+          return (
+            <div className="footnote" id={`footnote-${i}`} key={i}>
+              <a className="backlink" href={`#footnote-ref-${i}`}>
+                ⬅
+              </a>
+              <span className="footnote-number">{i}</span>
+              {footnote}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
-    <DocumentContext.Provider value={ctx}>
-      <ReactTexContext.Provider value={new TexContext()}>
-        <ReactBibliographyContext.Provider
-          value={new BibliographyContext(bibtex || "")}
-        >
-          <ListingContext.Provider value={new ListingData()}>
-            <div className="document-wrapper" key={second_pass.toString()}>
-              <ReactTooltip effect="solid" type="light" className="tooltip" />
-              <div className="document">{children}</div>
-              <ReferencesSection />
-              <Footnotes />
-            </div>
-          </ListingContext.Provider>
-        </ReactBibliographyContext.Provider>
-      </ReactTexContext.Provider>
-    </DocumentContext.Provider>
+    <DefinitionContext.Provider value={def_ctx}>
+      <DocumentContext.Provider value={new DocumentData()}>
+        <ReactTexContext.Provider value={new TexContext()}>
+          <ReactBibliographyContext.Provider
+            value={new BibliographyContext(bibtex || "")}
+          >
+            <ListingContext.Provider value={new ListingData()}>
+              <div className="document-wrapper" key={second_pass.toString()}>
+                <div className="document">{children}</div>
+                <ReferencesSection />
+                <Footnotes />
+              </div>
+            </ListingContext.Provider>
+          </ReactBibliographyContext.Provider>
+        </ReactTexContext.Provider>
+      </DocumentContext.Provider>
+    </DefinitionContext.Provider>
   );
 };

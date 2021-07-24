@@ -48,6 +48,7 @@ $colors: (
   acm-purple: rgb(101, 43, 126),
   peach: rgb(250, 223, 203),
   forest-green: rgb(186, 220, 199),
+  error: rgb(190, 34, 34),
 );
 
 @each $name, $color in $colors {
@@ -99,6 +100,13 @@ body {
   }
 }
 
+.error {
+  color: color("error");
+  padding: 2px;
+  border: 1px solid color("error");
+  border-radius: 2px;
+}
+
 h1,
 h2,
 h3,
@@ -111,9 +119,14 @@ h6 {
   line-height: 1em;
 }
 
-a[href] {
+a[href], .ref {
+  cursor: pointer;
   color: color("acm-purple");
   text-decoration: none;
+
+  &.nolink {
+    color: inherit;
+  }
 }
 
 *:target {
@@ -125,7 +138,7 @@ a[href] {
 
 @keyframes fadeout {
   from {
-    background: #FFDC00;
+    background: #ffdc00;
   }
   to {
     background: transparent;
@@ -203,15 +216,21 @@ span.katex {
   line-height: 1;
 }
 
-.references {
+// Fix overlapping span elements in align environments
+// See: https://github.com/KaTeX/KaTeX/issues/2815
+.katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
+  pointer-events: none;
+}
+
+.bib-references {
   text-align: justify;
   font-size: $size-small;
   line-height: 1.3em;
+}
 
-  .reference {
-    text-indent: -1em;
-    padding-left: 1em;
-  }
+.bib-reference {
+  text-indent: -1em;
+  padding-left: 1em;
 }
 
 .row {
@@ -245,10 +264,11 @@ sup.footnote-marker {
 
 .rc-tooltip {
   opacity: 1;
-  background-color: white;  
+  background-color: white;
+  font-size: $size-small;
 }
 
 .rc-tooltip-inner {
-  min-height: auto;  
-  max-width: 800px;
+  min-height: auto;
+  max-width: 760px;
 }

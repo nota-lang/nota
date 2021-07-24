@@ -20,6 +20,7 @@ import {
   Listing,
   ListingConfigure,
 } from "reactex";
+import { Language } from "reactex/dist/language";
 import { rust } from "@codemirror/lang-rust";
 import { SliceListing } from "./slicer";
 
@@ -37,6 +38,42 @@ let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => (
     <strong>Principle 1</strong> (Slicing principle for {type}). <em>{text}</em>
   </p>
 );
+
+// prettier-ignore
+let Oxide = new Language([
+  ["Variable", "vr", "x", []],
+  ["Number", "num", "n", []],
+  ["Path", "path", "q", [
+    [r`empty`, 0, r`\varepsilon`, []], 
+    [r`elem`, 2, r`{#1}.{#2}`, [r`\num`, r`\path`]]]],
+  ["Place", "plc", r`\pi`, [
+    [r`form`, 2, r`{#1}.{#2}`, [r`\vr`, r`\path`]]]],
+  ["Place Expression", "pexp", `p`, [
+    [`var`, 1, r`#1`, [r`\vr`]], 
+    [`elem`, 2, r`{#1}.{#2}`, [r`\pexp`, r`\num`]], 
+    [`deref`, 1, r`\ast {#1}`, [r`\pexp`]]]],
+  ["Constant", "const", "c", [
+    [`unit`, 0, "()", []],
+    [`num`, 1, "#1", [r`\num`]], 
+    [`true`, 0, r`\mathsf{true}`, []],
+    [`false`, 0, r`\mathsf{false}`, []]]],
+  ["Concrete Provenance", "concrprov", "r", []],
+  ["Abstract Provenance", "abstrprov", r`\varrho`, []],
+  ["Provenance", "prov", r`\rho`, [
+    ["concr", 1, "#1", [r`\concrprov`]],
+    ["abstr", 1, "#1", [r`\abstrprov`]]]],
+  ["Ownership Qualifier", "ownq", r`\omega`, [
+    ["shrd", 0, r`\mathsf{shrd}`, []],
+    ["uniq", 0, r`\mathsf{uniq}`, []]]],  
+  ["Base Type", "tyb", r`\tau^\textsc{B}`, [
+    ["unit", 0, r`\mathsf{unit}`, []],
+    ["num", 0, r`\mathsf{u32}`, []],
+    ["bool", 0, r`\mathsf{bool}`, []]]],  
+  ["Sized Type", "tys", r`\tau^\textsc{SI}`, [
+    ["base", 1, "{#1}", [r`\tyb`]],
+    ["ref", 3, r`\&{#1}~{#2}~{#3}`, [r`\prov`, r`\ownq`, r`\tau^\textsc{XI}`]],
+    ["tup", 1, r`({#1})`, [r`\tys{}_1, \ldots, \tys{}_n`]]]],
+]);
 
 export let App: React.FC = (_) => (
   <Document bibtex={bibtex}>
@@ -66,10 +103,13 @@ export let App: React.FC = (_) => (
       are the same as whole-program slices in 95.4% of slices drawn from large
       Rust codebases.
     </Abstract>
+
     <$$>{r`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     `}</$$>
-    <Section title="Introduction" label="sec:intro">
+    <Oxide.Commands />
+
+    <Section title="Introduction" name="sec:intro">
       <p>
         Program slicing is the task of identifying the subset of a program
         relevant to computing a value of interest. The concept of slicing was
@@ -208,54 +248,54 @@ export let App: React.FC = (_) => (
           We provide an intuition for the relationship between ownership and
           slicing by describing how ownership works in Rust, the only
           industrial-grade ownership-based programming language today (
-          <Ref label="sec:background" />
+          <Ref name="sec:background" />
           ).
         </li>
         <li>
           We formalize an algorithm for modular static slicing as an extension
           to the type system of Oxide <Cite v="weiss2019oxide" />, a formal
           model of Rust's static and dynamic semantics (
-          <Ref label="sec:model" /> and <Ref label="sec:algorithm" />
+          <Ref name="sec:model" /> and <Ref name="sec:algorithm" />
           ).
         </li>
         <li>
           We prove the soundness of this algorithm as a form of noninterference,
           building on the connection between slicing and information flow
           established by <Cite v="abadi1999core" f /> (
-          <Ref label="sec:soundness" /> and <Ref label="sec:appendix" />
+          <Ref name="sec:soundness" /> and <Ref name="sec:appendix" />
           ).
         </li>
         <li>
           We describe an implementation of the slicing algorithm for Rust,
           translating the core insights of the algorithm to work on a
-          lower-level control-flow graph (<Ref label="sec:implementation" />)
+          lower-level control-flow graph (<Ref name="sec:implementation" />)
         </li>
         <li>
           We evaluate the precision of the modular Rust slicer against a
           whole-program slicer on a dataset of 10 codebases with a total of 280k
           LOC. We find that modular slices are the same size as whole-program
           slices 95.4% of the time, and are on average 7.6% larger in the
-          remaining 4.6% of cases (<Ref label="sec:evaluation" />
+          remaining 4.6% of cases (<Ref name="sec:evaluation" />
           ).
         </li>
       </ol>
     </Section>
 
-    <Section title="Principles" label="sec:background">
+    <Section title="Principles" name="sec:background">
       <p>
         A backwards static slice is the subset of a program that could influence
         a particular value (backwards) under any possible execution (static). A
         slice is defined with respect to a slicing criterion, which is a
         variable at a particular point in a program. In this section, we provide
         an intuition for how slices interact with different features of the Rust
-        programming language, namely: places (<Ref label="sec:places" />
-        ), references (<Ref label="sec:pointers" />
-        ), function calls (<Ref label="sec:funcalls" />
-        ), and interior mutability (<Ref label="sec:intmut" />
+        programming language, namely: places (<Ref name="sec:places" />
+        ), references (<Ref name="sec:pointers" />
+        ), function calls (<Ref name="sec:funcalls" />
+        ), and interior mutability (<Ref name="sec:intmut" />
         ).{" "}
       </p>
 
-      <Section title="Places" label="sec:places">
+      <Section title="Places" name="sec:places">
         <Wrap align="right">
           <SliceListing
             code={`let mut x = 1;
@@ -360,7 +400,7 @@ println!("{}", @t.2@);`}
         </p>
       </Section>
 
-      <Section title="References" label="sec:pointers">
+      <Section title="References" name="sec:pointers">
         <p>
           Pointers are the first major challenge for slicing. A mutation to a
           dereferenced pointer is a mutation to any place that is possibly
@@ -380,7 +420,7 @@ println!("{}", @*z@);`}
         <p>
           Rust has two distinct types of pointers, which are called "references"
           to distinguish them from "raw pointers" with C-like behavior
-          (discussed in <Ref label="sec:intmut" />
+          (discussed in <Ref name="sec:intmut" />
           ). For a given type <C>T</C>, there are immutable references of type{" "}
           <C>&T</C>, and mutable references of type <C>&mut T</C> which
           correspond respectively to the expressions <C>&x</C> and <C>&mut x</C>
@@ -524,7 +564,7 @@ let w: &'4 mut i32 = &'3 mut *z;
         </p>
       </Section>
 
-      <Section title="Function calls" label="sec:funcalls">
+      <Section title="Function calls" name="sec:funcalls">
         <p>
           The other major challenge for slicing is function calls. For instance,
           consider slicing a call to an arbitrary function <C>f</C> with various
@@ -556,7 +596,7 @@ println!("{} {} {}", y, z, w);`}
           <Cite f v="weiser1982programmers" /> for an example). However, our
           goal is to avoid using the definition of <C>f</C> (i.e. a
           whole-program analysis) for the reasons described in{" "}
-          <Ref label="sec:intro" />.{" "}
+          <Ref name="sec:intro" />.{" "}
         </p>
 
         <p>
@@ -668,9 +708,9 @@ println!("{}", @w@);`}
 
         <p>
           A caveat to this principle is global variables: (
-          <Ref label="prin:slice-procs" />
+          <Ref name="prin:slice-procs" />
           -a) is not true with mutable globals, and (
-          <Ref label="prin:slice-procs" />
+          <Ref name="prin:slice-procs" />
           -b) is not true with read-only globals. Mutable globals are disallowed
           by the rules of ownership, as they are implicitly aliased and hence
           disallowed from being mutable. However, read-only globals are
@@ -704,7 +744,7 @@ println!("{}", @w@);`}
         </p>
       </Section>
 
-      <Section title="Interior mutability" label="sec:intmut">
+      <Section title="Interior mutability" name="sec:intmut">
         <p>
           The previous sections describe a slicing strategy for the subset of
           Rust known as "safe Rust", that is programs which strictly adhere to
@@ -767,11 +807,11 @@ assert!(*value.lock().unwrap() == 1);`}
           account for safe Rust built on internally-unsafe abstractions like{" "}
           <C>Mutex</C>, so it is difficult to estimate the true likelihood of
           soundness in practice. We discuss the issue of slicing with unsafe
-          code further in <Ref label="sec:whole-vs-mod" />.
+          code further in <Ref name="sec:whole-vs-mod" />.
         </p>
       </Section>
     </Section>
-    <Section title="Formal Model" label="sec:model">
+    <Section title="Formal Model" name="sec:model">
       <p>
         To build an algorithm from these principles, we first need a formal
         model to describe and reason about the underlying language. Rather than
@@ -785,100 +825,31 @@ assert!(*value.lock().unwrap() == 1);`}
       <p>
         We will incrementally introduce the aspects of Oxide's syntax and
         semantics as necessary to understand our principles and algorithm. We
-        describe Oxide's syntax (<Ref label="sec:syn" />
-        ), static semantics (<Ref label="sec:statsem" />) and dynamic semantics
-        (<Ref label="sec:dynsem" />
+        describe Oxide's syntax (<Ref name="sec:syn" />
+        ), static semantics (<Ref name="sec:statsem" />) and dynamic semantics (
+        <Ref name="sec:dynsem" />
         ), and then apply these concepts to formalize the slicing principles of
-        the previous section (<Ref label="sec:formal_principles" />
+        the previous section (<Ref name="sec:formal_principles" />
         ).
       </p>
 
-      <Section title="Syntax" label="sec:syn">
+      <Section title="Syntax" name="sec:syn">
         <p>
-          <Ref label="fig:oxide_syntax" /> shows a subset of Oxide's syntax
-          along with a labeled example. An Oxide program consists of a set of
+          <Ref name="fig:oxide_syntax" /> shows a subset of Oxide's syntax along
+          with a labeled example. An Oxide program consists of a set of
           functions <$>\Sigma</$> (the "global environment"), where each
           function body is an expression <$>[]</$> . The syntax is largely the
           same as Rust's with a few exceptions:
         </p>
 
-        {Oxide.commands()}
-        {Oxide.bnf()}
+        <Oxide.Bnf />
 
         <p>
-          Test. <$>\pexp ~ \tybase</$>
+          Test. <$>\pexp</$>
         </p>
       </Section>
     </Section>
   </Document>
 );
-
-class Language {
-  rules: any;
-
-  constructor(rules: any) {
-    this.rules = rules;
-  }
-
-  commands() {
-    let commands = this.rules
-      .map(
-        ([kind, cmd, metavar, _2]) =>
-          r`\newcommand{${
-            "\\" + cmd
-          }}{\htmlData{def=${cmd}, tip=${kind}}{${metavar}}}`
-      )
-      .join("\n");
-    return <$$>{commands}</$$>;
-  }
-
-  bnf() {
-    let tex = this.rules
-      .map(([kind, cmd, metavar, branches]) => {
-        let rhs = branches.join(r` \mid `);
-        kind = kind.replace(` `, r`\ `);
-        return r`&\htmlId{def-${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&::= ~ ${rhs}`;
-      })
-      .join(r`\\`);
-    return (
-      <$$>{r`
-    \begin{align*}      
-      ${tex}
-    \end{align*}
-    `}</$$>
-    );
-  }
-}
-
-let Oxide = new Language([
-  ["Variable", "var", "x", []],
-  ["Path", "path", "q", [r`\varepsilon`, r`n.q`]],
-  ["Place", "plc", r`\pi`, ["x.q"]],
-  ["Place Expression", "pexp", `p`, [`x`, `p.n`, r`\ast p`]],
-  ["Constant", "const", "c", ["()", "n", r`\mathsf{true}`, r`\mathsf{false}`]],
-  ["Provenance", "prov", r`\rho`, ["r", r`\varrho`]],
-  [
-    "Ownership Qualifier",
-    "ownq",
-    r`\omega`,
-    [r`\mathsf{shrd}`, r`\mathsf{uniq}`],
-  ],
-  [
-    "Base Type",
-    "tybase",
-    r`\tau^\textsc{B}`,
-    [r`\mathsf{unit}`, r`\mathsf{u32}`, r`\mathsf{bool}`],
-  ],
-  [
-    "Sized Type",
-    "tysize",
-    r`\tau^\textsc{SI}`,
-    [
-      r`\tau^\textsc{B}`,
-      r`\& \rho ~ \omega ~ \tau^\textsc{XI}`,
-      r`(\tau^\textsc{SI}_1, \ldots, \tau^\textsc{SI}_n)`,
-    ],
-  ],
-]);
 
 ReactDOM.render(<App />, document.getElementById("container"));

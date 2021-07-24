@@ -13,9 +13,9 @@ export { Listing, ListingConfigure } from "./code";
 export {
   Section,
   SectionTitle,
-  Ref,
   Footnote,
   Wrap,
   Row,
   Document,
 } from "./document";
+export { Definition, Ref } from "./definitions";

@@ -9,21 +9,33 @@ program.option("-p, --prod");
 program.parse(process.argv);
 const options = program.opts();
 
-esbuild.build({
-  entryPoints: glob.sync("src/*.tsx"),
+let esbuild_opts = {
   sourcemap: !options.prod,
   minify: options.prod,
   watch: options.watch,
-  format: "esm",
   outdir: "dist",
+}
+
+let build_js = esbuild.build({
+  entryPoints: glob.sync("src/*.tsx"),  
+  format: "esm",
+  ...esbuild_opts
 });
 
-esbuild.build({
+let build_assets = esbuild.build({
   entryPoints: ["assets.js"],
   bundle: true,
-  outdir: "dist",
   plugins: [sassPlugin()],
   loader: {
     ".otf": "file",
+    ".woff": "file",
+    ".woff2": "file",
+    ".ttf": "file",
+    ".otf": "file",
   },
+  ...esbuild_opts
 });
+
+Promise.all([build_js, build_assets])
+  .then(() => console.log("Build complete."))
+  .catch(() => process.exit(1))

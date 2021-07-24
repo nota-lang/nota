@@ -113,7 +113,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
           },
         }}
       />
-      {/* <button
+      <button
         onClick={() => {
           let selection = editor!.state.selection!;
           let range = selection.main;
@@ -123,7 +123,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
         }}
       >
         Slice
-      </button> */}
+      </button>
     </div>
   );
 };
