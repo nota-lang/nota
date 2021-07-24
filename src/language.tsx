@@ -44,8 +44,16 @@ export class Language {
         } else {
           rhs = ``;
         }
-        
+
         kind = kind.replace(` `, r`\ `);
+
+        branches.forEach(([subcmd]) => {
+          ctx.add_definition(`tex:${cmd}${subcmd}`, {
+            tooltip: <$>{r`\mathsf{${kind}} ~ ${metavar} ${rhs}`}</$>,
+            label: null
+          })
+        });
+        
         ctx.add_definition(`tex:${cmd}`, {
           tooltip: <$>{r`\mathsf{${kind}} ~ ${metavar} ${rhs}`}</$>,
           label: null,

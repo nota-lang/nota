@@ -842,11 +842,13 @@ assert!(*value.lock().unwrap() == 1);`}
           same as Rust's with a few exceptions:
         </p>
 
-        <Oxide.Bnf />
-
-        <p>
-          Test. <$>\pexp</$>
-        </p>
+        <Row>
+          <Oxide.Bnf />
+          <p>
+            Here's an example expression in this custom syntax:<br />
+            <center><$>{r`\tysref{\abstrprov}{\ownqshrd}{\tybnum}`}</$></center>
+          </p>
+        </Row>
       </Section>
     </Section>
   </Document>
