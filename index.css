@@ -1,183 +1,372 @@
-/* node_modules/reactex/node_modules/katex/dist/katex.min.css */
+/* node_modules/reactex/dist/assets.css */
+.rc-tooltip.rc-tooltip-zoom-appear,
+.rc-tooltip.rc-tooltip-zoom-enter {
+  opacity: 0;
+}
+.rc-tooltip.rc-tooltip-zoom-enter,
+.rc-tooltip.rc-tooltip-zoom-leave {
+  display: block;
+}
+.rc-tooltip-zoom-enter,
+.rc-tooltip-zoom-appear {
+  opacity: 0;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  animation-play-state: paused;
+}
+.rc-tooltip-zoom-leave {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.6, -0.3, 0.74, 0.05);
+  animation-play-state: paused;
+}
+.rc-tooltip-zoom-enter.rc-tooltip-zoom-enter-active,
+.rc-tooltip-zoom-appear.rc-tooltip-zoom-appear-active {
+  animation-name: rcToolTipZoomIn;
+  animation-play-state: running;
+}
+.rc-tooltip-zoom-leave.rc-tooltip-zoom-leave-active {
+  animation-name: rcToolTipZoomOut;
+  animation-play-state: running;
+}
+@keyframes rcToolTipZoomIn {
+  0% {
+    opacity: 0;
+    transform-origin: 50% 50%;
+    transform: scale(0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform-origin: 50% 50%;
+    transform: scale(1, 1);
+  }
+}
+@keyframes rcToolTipZoomOut {
+  0% {
+    opacity: 1;
+    transform-origin: 50% 50%;
+    transform: scale(1, 1);
+  }
+  100% {
+    opacity: 0;
+    transform-origin: 50% 50%;
+    transform: scale(0, 0);
+  }
+}
+.rc-tooltip {
+  position: absolute;
+  z-index: 1070;
+  display: block;
+  visibility: visible;
+  line-height: 1.5;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 1px;
+  opacity: 0.9;
+}
+.rc-tooltip-hidden {
+  display: none;
+}
+.rc-tooltip-inner {
+  padding: 8px 10px;
+  color: #333333;
+  text-align: left;
+  text-decoration: none;
+  background-color: #ffffff;
+  border-radius: 3px;
+  min-height: 34px;
+  border: 1px solid #b1b1b1;
+}
+.rc-tooltip-arrow,
+.rc-tooltip-arrow-inner {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+}
+.rc-tooltip-placement-top .rc-tooltip-arrow,
+.rc-tooltip-placement-topLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-topRight .rc-tooltip-arrow {
+  bottom: -5px;
+  margin-left: -6px;
+  border-width: 6px 6px 0;
+  border-top-color: #b1b1b1;
+}
+.rc-tooltip-placement-top .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-topLeft .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-topRight .rc-tooltip-arrow-inner {
+  bottom: 1px;
+  margin-left: -6px;
+  border-width: 6px 6px 0;
+  border-top-color: #ffffff;
+}
+.rc-tooltip-placement-top .rc-tooltip-arrow {
+  left: 50%;
+}
+.rc-tooltip-placement-topLeft .rc-tooltip-arrow {
+  left: 15%;
+}
+.rc-tooltip-placement-topRight .rc-tooltip-arrow {
+  right: 15%;
+}
+.rc-tooltip-placement-right .rc-tooltip-arrow,
+.rc-tooltip-placement-rightTop .rc-tooltip-arrow,
+.rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
+  left: -5px;
+  margin-top: -6px;
+  border-width: 6px 6px 6px 0;
+  border-right-color: #b1b1b1;
+}
+.rc-tooltip-placement-right .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-rightTop .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-rightBottom .rc-tooltip-arrow-inner {
+  left: 1px;
+  margin-top: -6px;
+  border-width: 6px 6px 6px 0;
+  border-right-color: #ffffff;
+}
+.rc-tooltip-placement-right .rc-tooltip-arrow {
+  top: 50%;
+}
+.rc-tooltip-placement-rightTop .rc-tooltip-arrow {
+  top: 15%;
+  margin-top: 0;
+}
+.rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
+  bottom: 15%;
+}
+.rc-tooltip-placement-left .rc-tooltip-arrow,
+.rc-tooltip-placement-leftTop .rc-tooltip-arrow,
+.rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
+  right: -5px;
+  margin-top: -6px;
+  border-width: 6px 0 6px 6px;
+  border-left-color: #b1b1b1;
+}
+.rc-tooltip-placement-left .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-leftTop .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-leftBottom .rc-tooltip-arrow-inner {
+  right: 1px;
+  margin-top: -6px;
+  border-width: 6px 0 6px 6px;
+  border-left-color: #ffffff;
+}
+.rc-tooltip-placement-left .rc-tooltip-arrow {
+  top: 50%;
+}
+.rc-tooltip-placement-leftTop .rc-tooltip-arrow {
+  top: 15%;
+  margin-top: 0;
+}
+.rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
+  bottom: 15%;
+}
+.rc-tooltip-placement-bottom .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+  top: -5px;
+  margin-left: -6px;
+  border-width: 0 6px 6px;
+  border-bottom-color: #b1b1b1;
+}
+.rc-tooltip-placement-bottom .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow-inner,
+.rc-tooltip-placement-bottomRight .rc-tooltip-arrow-inner {
+  top: 1px;
+  margin-left: -6px;
+  border-width: 0 6px 6px;
+  border-bottom-color: #ffffff;
+}
+.rc-tooltip-placement-bottom .rc-tooltip-arrow {
+  left: 50%;
+}
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow {
+  left: 15%;
+}
+.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+  right: 15%;
+}
 @font-face {
   font-family: KaTeX_AMS;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_AMS-Regular-PIAEV3F5.woff2) format("woff2"),
-    url(./KaTeX_AMS-Regular-BB5GHRSD.woff) format("woff"),
-    url(./KaTeX_AMS-Regular-6VNXORRO.ttf) format("truetype");
+    url(./KaTeX_AMS-Regular-PIAEV3F5-PIAEV3F5.woff2) format("woff2"),
+    url(./KaTeX_AMS-Regular-BB5GHRSD-BB5GHRSD.woff) format("woff"),
+    url(./KaTeX_AMS-Regular-6VNXORRO-6VNXORRO.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Caligraphic;
   font-style: normal;
   font-weight: 700;
   src:
-    url(./KaTeX_Caligraphic-Bold-HEW4JN6M.woff2) format("woff2"),
-    url(./KaTeX_Caligraphic-Bold-3TES7JVR.woff) format("woff"),
-    url(./KaTeX_Caligraphic-Bold-KHBWAMZ4.ttf) format("truetype");
+    url(./KaTeX_Caligraphic-Bold-HEW4JN6M-HEW4JN6M.woff2) format("woff2"),
+    url(./KaTeX_Caligraphic-Bold-3TES7JVR-3TES7JVR.woff) format("woff"),
+    url(./KaTeX_Caligraphic-Bold-KHBWAMZ4-KHBWAMZ4.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Caligraphic;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Caligraphic-Regular-34UJU26J.woff2) format("woff2"),
-    url(./KaTeX_Caligraphic-Regular-2X6XPYRV.woff) format("woff"),
-    url(./KaTeX_Caligraphic-Regular-HJQZTIXM.ttf) format("truetype");
+    url(./KaTeX_Caligraphic-Regular-34UJU26J-34UJU26J.woff2) format("woff2"),
+    url(./KaTeX_Caligraphic-Regular-2X6XPYRV-2X6XPYRV.woff) format("woff"),
+    url(./KaTeX_Caligraphic-Regular-HJQZTIXM-HJQZTIXM.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Fraktur;
   font-style: normal;
   font-weight: 700;
   src:
-    url(./KaTeX_Fraktur-Bold-KXLGP7GB.woff2) format("woff2"),
-    url(./KaTeX_Fraktur-Bold-HDIT6PCL.woff) format("woff"),
-    url(./KaTeX_Fraktur-Bold-EIJMYD5I.ttf) format("truetype");
+    url(./KaTeX_Fraktur-Bold-KXLGP7GB-KXLGP7GB.woff2) format("woff2"),
+    url(./KaTeX_Fraktur-Bold-HDIT6PCL-HDIT6PCL.woff) format("woff"),
+    url(./KaTeX_Fraktur-Bold-EIJMYD5I-EIJMYD5I.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Fraktur;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Fraktur-Regular-2ZW7DWCG.woff2) format("woff2"),
-    url(./KaTeX_Fraktur-Regular-7AXD7LTH.woff) format("woff"),
-    url(./KaTeX_Fraktur-Regular-FCH33CFW.ttf) format("truetype");
+    url(./KaTeX_Fraktur-Regular-2ZW7DWCG-2ZW7DWCG.woff2) format("woff2"),
+    url(./KaTeX_Fraktur-Regular-7AXD7LTH-7AXD7LTH.woff) format("woff"),
+    url(./KaTeX_Fraktur-Regular-FCH33CFW-FCH33CFW.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Main;
   font-style: normal;
   font-weight: 700;
   src:
-    url(./KaTeX_Main-Bold-NNQYSMLR.woff2) format("woff2"),
-    url(./KaTeX_Main-Bold-IHWGBX4P.woff) format("woff"),
-    url(./KaTeX_Main-Bold-TS5EXEC7.ttf) format("truetype");
+    url(./KaTeX_Main-Bold-NNQYSMLR-NNQYSMLR.woff2) format("woff2"),
+    url(./KaTeX_Main-Bold-IHWGBX4P-IHWGBX4P.woff) format("woff"),
+    url(./KaTeX_Main-Bold-TS5EXEC7-TS5EXEC7.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Main;
   font-style: italic;
   font-weight: 700;
   src:
-    url(./KaTeX_Main-BoldItalic-UF4KPLDN.woff2) format("woff2"),
-    url(./KaTeX_Main-BoldItalic-3DQEQHCN.woff) format("woff"),
-    url(./KaTeX_Main-BoldItalic-L3XEJPZM.ttf) format("truetype");
+    url(./KaTeX_Main-BoldItalic-UF4KPLDN-UF4KPLDN.woff2) format("woff2"),
+    url(./KaTeX_Main-BoldItalic-3DQEQHCN-3DQEQHCN.woff) format("woff"),
+    url(./KaTeX_Main-BoldItalic-L3XEJPZM-L3XEJPZM.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Main;
   font-style: italic;
   font-weight: 400;
   src:
-    url(./KaTeX_Main-Italic-4QXESUYC.woff2) format("woff2"),
-    url(./KaTeX_Main-Italic-NJRDR2W7.woff) format("woff"),
-    url(./KaTeX_Main-Italic-GFLNNOAW.ttf) format("truetype");
+    url(./KaTeX_Main-Italic-4QXESUYC-4QXESUYC.woff2) format("woff2"),
+    url(./KaTeX_Main-Italic-NJRDR2W7-NJRDR2W7.woff) format("woff"),
+    url(./KaTeX_Main-Italic-GFLNNOAW-GFLNNOAW.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Main;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Main-Regular-NBH4QJ4U.woff2) format("woff2"),
-    url(./KaTeX_Main-Regular-TJSXUL7Y.woff) format("woff"),
-    url(./KaTeX_Main-Regular-S2DR3MZD.ttf) format("truetype");
+    url(./KaTeX_Main-Regular-NBH4QJ4U-NBH4QJ4U.woff2) format("woff2"),
+    url(./KaTeX_Main-Regular-TJSXUL7Y-TJSXUL7Y.woff) format("woff"),
+    url(./KaTeX_Main-Regular-S2DR3MZD-S2DR3MZD.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Math;
   font-style: italic;
   font-weight: 700;
   src:
-    url(./KaTeX_Math-BoldItalic-YZL7NE7S.woff2) format("woff2"),
-    url(./KaTeX_Math-BoldItalic-5DIGLLM6.woff) format("woff"),
-    url(./KaTeX_Math-BoldItalic-JORX26FL.ttf) format("truetype");
+    url(./KaTeX_Math-BoldItalic-YZL7NE7S-YZL7NE7S.woff2) format("woff2"),
+    url(./KaTeX_Math-BoldItalic-5DIGLLM6-5DIGLLM6.woff) format("woff"),
+    url(./KaTeX_Math-BoldItalic-JORX26FL-JORX26FL.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Math;
   font-style: italic;
   font-weight: 400;
   src:
-    url(./KaTeX_Math-Italic-CWDJUVBY.woff2) format("woff2"),
-    url(./KaTeX_Math-Italic-5XIC2RGE.woff) format("woff"),
-    url(./KaTeX_Math-Italic-EORT2OTB.ttf) format("truetype");
+    url(./KaTeX_Math-Italic-CWDJUVBY-CWDJUVBY.woff2) format("woff2"),
+    url(./KaTeX_Math-Italic-5XIC2RGE-5XIC2RGE.woff) format("woff"),
+    url(./KaTeX_Math-Italic-EORT2OTB-EORT2OTB.ttf) format("truetype");
 }
 @font-face {
   font-family: "KaTeX_SansSerif";
   font-style: normal;
   font-weight: 700;
   src:
-    url(./KaTeX_SansSerif-Bold-2OUYEED3.woff2) format("woff2"),
-    url(./KaTeX_SansSerif-Bold-52RGGAP4.woff) format("woff"),
-    url(./KaTeX_SansSerif-Bold-RAWMOHSJ.ttf) format("truetype");
+    url(./KaTeX_SansSerif-Bold-2OUYEED3-2OUYEED3.woff2) format("woff2"),
+    url(./KaTeX_SansSerif-Bold-52RGGAP4-52RGGAP4.woff) format("woff"),
+    url(./KaTeX_SansSerif-Bold-RAWMOHSJ-RAWMOHSJ.ttf) format("truetype");
 }
 @font-face {
   font-family: "KaTeX_SansSerif";
   font-style: italic;
   font-weight: 400;
   src:
-    url(./KaTeX_SansSerif-Italic-IDXLA42J.woff2) format("woff2"),
-    url(./KaTeX_SansSerif-Italic-745IRC4Z.woff) format("woff"),
-    url(./KaTeX_SansSerif-Italic-TPS25SLX.ttf) format("truetype");
+    url(./KaTeX_SansSerif-Italic-IDXLA42J-IDXLA42J.woff2) format("woff2"),
+    url(./KaTeX_SansSerif-Italic-745IRC4Z-745IRC4Z.woff) format("woff"),
+    url(./KaTeX_SansSerif-Italic-TPS25SLX-TPS25SLX.ttf) format("truetype");
 }
 @font-face {
   font-family: "KaTeX_SansSerif";
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_SansSerif-Regular-4BSVYOTE.woff2) format("woff2"),
-    url(./KaTeX_SansSerif-Regular-ZD6FCCNP.woff) format("woff"),
-    url(./KaTeX_SansSerif-Regular-XCAEUEFI.ttf) format("truetype");
+    url(./KaTeX_SansSerif-Regular-4BSVYOTE-4BSVYOTE.woff2) format("woff2"),
+    url(./KaTeX_SansSerif-Regular-ZD6FCCNP-ZD6FCCNP.woff) format("woff"),
+    url(./KaTeX_SansSerif-Regular-XCAEUEFI-XCAEUEFI.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Script;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Script-Regular-A3AR3NQT.woff2) format("woff2"),
-    url(./KaTeX_Script-Regular-PM4WCDM2.woff) format("woff"),
-    url(./KaTeX_Script-Regular-IKWK5OGT.ttf) format("truetype");
+    url(./KaTeX_Script-Regular-A3AR3NQT-A3AR3NQT.woff2) format("woff2"),
+    url(./KaTeX_Script-Regular-PM4WCDM2-PM4WCDM2.woff) format("woff"),
+    url(./KaTeX_Script-Regular-IKWK5OGT-IKWK5OGT.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Size1;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Size1-Regular-WPJSL4KG.woff2) format("woff2"),
-    url(./KaTeX_Size1-Regular-YWASGOUV.woff) format("woff"),
-    url(./KaTeX_Size1-Regular-DI7ZXFJI.ttf) format("truetype");
+    url(./KaTeX_Size1-Regular-WPJSL4KG-WPJSL4KG.woff2) format("woff2"),
+    url(./KaTeX_Size1-Regular-YWASGOUV-YWASGOUV.woff) format("woff"),
+    url(./KaTeX_Size1-Regular-DI7ZXFJI-DI7ZXFJI.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Size2;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Size2-Regular-BOQI4CJ5.woff2) format("woff2"),
-    url(./KaTeX_Size2-Regular-LI3XUQOU.woff) format("woff"),
-    url(./KaTeX_Size2-Regular-7FW5ER75.ttf) format("truetype");
+    url(./KaTeX_Size2-Regular-BOQI4CJ5-BOQI4CJ5.woff2) format("woff2"),
+    url(./KaTeX_Size2-Regular-LI3XUQOU-LI3XUQOU.woff) format("woff"),
+    url(./KaTeX_Size2-Regular-7FW5ER75-7FW5ER75.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Size3;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Size3-Regular-B5UDINY7.woff2) format("woff2"),
-    url(./KaTeX_Size3-Regular-EVZTIC4B.woff) format("woff"),
-    url(./KaTeX_Size3-Regular-6ED5PKEM.ttf) format("truetype");
+    url(./KaTeX_Size3-Regular-B5UDINY7-B5UDINY7.woff2) format("woff2"),
+    url(./KaTeX_Size3-Regular-EVZTIC4B-EVZTIC4B.woff) format("woff"),
+    url(./KaTeX_Size3-Regular-6ED5PKEM-6ED5PKEM.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Size4;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Size4-Regular-OCEMQJBN.woff2) format("woff2"),
-    url(./KaTeX_Size4-Regular-5PW57HT3.woff) format("woff"),
-    url(./KaTeX_Size4-Regular-6DQGXVSX.ttf) format("truetype");
+    url(./KaTeX_Size4-Regular-OCEMQJBN-OCEMQJBN.woff2) format("woff2"),
+    url(./KaTeX_Size4-Regular-5PW57HT3-5PW57HT3.woff) format("woff"),
+    url(./KaTeX_Size4-Regular-6DQGXVSX-6DQGXVSX.ttf) format("truetype");
 }
 @font-face {
   font-family: KaTeX_Typewriter;
   font-style: normal;
   font-weight: 400;
   src:
-    url(./KaTeX_Typewriter-Regular-BUI4XIFT.woff2) format("woff2"),
-    url(./KaTeX_Typewriter-Regular-NYAF4J2I.woff) format("woff"),
-    url(./KaTeX_Typewriter-Regular-KVXBEVTK.ttf) format("truetype");
+    url(./KaTeX_Typewriter-Regular-BUI4XIFT-BUI4XIFT.woff2) format("woff2"),
+    url(./KaTeX_Typewriter-Regular-NYAF4J2I-NYAF4J2I.woff) format("woff"),
+    url(./KaTeX_Typewriter-Regular-KVXBEVTK-KVXBEVTK.ttf) format("truetype");
 }
 .katex {
   font:
@@ -1136,197 +1325,6 @@
 body {
   counter-reset: katexEqnNo mmlEqnNo;
 }
-
-/* node_modules/reactex/dist/assets.css */
-.rc-tooltip.rc-tooltip-zoom-appear,
-.rc-tooltip.rc-tooltip-zoom-enter {
-  opacity: 0;
-}
-.rc-tooltip.rc-tooltip-zoom-enter,
-.rc-tooltip.rc-tooltip-zoom-leave {
-  display: block;
-}
-.rc-tooltip-zoom-enter,
-.rc-tooltip-zoom-appear {
-  opacity: 0;
-  animation-duration: 0.3s;
-  animation-fill-mode: both;
-  animation-timing-function: cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  animation-play-state: paused;
-}
-.rc-tooltip-zoom-leave {
-  animation-duration: 0.3s;
-  animation-fill-mode: both;
-  animation-timing-function: cubic-bezier(0.6, -0.3, 0.74, 0.05);
-  animation-play-state: paused;
-}
-.rc-tooltip-zoom-enter.rc-tooltip-zoom-enter-active,
-.rc-tooltip-zoom-appear.rc-tooltip-zoom-appear-active {
-  animation-name: rcToolTipZoomIn;
-  animation-play-state: running;
-}
-.rc-tooltip-zoom-leave.rc-tooltip-zoom-leave-active {
-  animation-name: rcToolTipZoomOut;
-  animation-play-state: running;
-}
-@keyframes rcToolTipZoomIn {
-  0% {
-    opacity: 0;
-    transform-origin: 50% 50%;
-    transform: scale(0, 0);
-  }
-  100% {
-    opacity: 1;
-    transform-origin: 50% 50%;
-    transform: scale(1, 1);
-  }
-}
-@keyframes rcToolTipZoomOut {
-  0% {
-    opacity: 1;
-    transform-origin: 50% 50%;
-    transform: scale(1, 1);
-  }
-  100% {
-    opacity: 0;
-    transform-origin: 50% 50%;
-    transform: scale(0, 0);
-  }
-}
-.rc-tooltip {
-  position: absolute;
-  z-index: 1070;
-  display: block;
-  visibility: visible;
-  line-height: 1.5;
-  font-size: 12px;
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 1px;
-  opacity: 0.9;
-}
-.rc-tooltip-hidden {
-  display: none;
-}
-.rc-tooltip-inner {
-  padding: 8px 10px;
-  color: #333333;
-  text-align: left;
-  text-decoration: none;
-  background-color: #ffffff;
-  border-radius: 3px;
-  min-height: 34px;
-  border: 1px solid #b1b1b1;
-}
-.rc-tooltip-arrow,
-.rc-tooltip-arrow-inner {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-}
-.rc-tooltip-placement-top .rc-tooltip-arrow,
-.rc-tooltip-placement-topLeft .rc-tooltip-arrow,
-.rc-tooltip-placement-topRight .rc-tooltip-arrow {
-  bottom: -5px;
-  margin-left: -6px;
-  border-width: 6px 6px 0;
-  border-top-color: #b1b1b1;
-}
-.rc-tooltip-placement-top .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-topLeft .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-topRight .rc-tooltip-arrow-inner {
-  bottom: 1px;
-  margin-left: -6px;
-  border-width: 6px 6px 0;
-  border-top-color: #ffffff;
-}
-.rc-tooltip-placement-top .rc-tooltip-arrow {
-  left: 50%;
-}
-.rc-tooltip-placement-topLeft .rc-tooltip-arrow {
-  left: 15%;
-}
-.rc-tooltip-placement-topRight .rc-tooltip-arrow {
-  right: 15%;
-}
-.rc-tooltip-placement-right .rc-tooltip-arrow,
-.rc-tooltip-placement-rightTop .rc-tooltip-arrow,
-.rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
-  left: -5px;
-  margin-top: -6px;
-  border-width: 6px 6px 6px 0;
-  border-right-color: #b1b1b1;
-}
-.rc-tooltip-placement-right .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-rightTop .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-rightBottom .rc-tooltip-arrow-inner {
-  left: 1px;
-  margin-top: -6px;
-  border-width: 6px 6px 6px 0;
-  border-right-color: #ffffff;
-}
-.rc-tooltip-placement-right .rc-tooltip-arrow {
-  top: 50%;
-}
-.rc-tooltip-placement-rightTop .rc-tooltip-arrow {
-  top: 15%;
-  margin-top: 0;
-}
-.rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
-  bottom: 15%;
-}
-.rc-tooltip-placement-left .rc-tooltip-arrow,
-.rc-tooltip-placement-leftTop .rc-tooltip-arrow,
-.rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
-  right: -5px;
-  margin-top: -6px;
-  border-width: 6px 0 6px 6px;
-  border-left-color: #b1b1b1;
-}
-.rc-tooltip-placement-left .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-leftTop .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-leftBottom .rc-tooltip-arrow-inner {
-  right: 1px;
-  margin-top: -6px;
-  border-width: 6px 0 6px 6px;
-  border-left-color: #ffffff;
-}
-.rc-tooltip-placement-left .rc-tooltip-arrow {
-  top: 50%;
-}
-.rc-tooltip-placement-leftTop .rc-tooltip-arrow {
-  top: 15%;
-  margin-top: 0;
-}
-.rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
-  bottom: 15%;
-}
-.rc-tooltip-placement-bottom .rc-tooltip-arrow,
-.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
-.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
-  top: -5px;
-  margin-left: -6px;
-  border-width: 0 6px 6px;
-  border-bottom-color: #b1b1b1;
-}
-.rc-tooltip-placement-bottom .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow-inner,
-.rc-tooltip-placement-bottomRight .rc-tooltip-arrow-inner {
-  top: 1px;
-  margin-left: -6px;
-  border-width: 0 6px 6px;
-  border-bottom-color: #ffffff;
-}
-.rc-tooltip-placement-bottom .rc-tooltip-arrow {
-  left: 50%;
-}
-.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow {
-  left: 15%;
-}
-.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
-  right: 15%;
-}
 @font-face {
   font-family: "Linux Libertine O";
   src: url(./LinLibertine_R-J4ZACR57-J4ZACR57.otf);
@@ -1373,6 +1371,12 @@ body {
 .bgcolor-forest-green {
   background: #badcc7;
 }
+.textcolor-error {
+  color: #be2222;
+}
+.bgcolor-error {
+  background: #be2222;
+}
 body {
   font-family: "Linux Libertine O", serif;
   font-size: 18px;
@@ -1402,6 +1406,12 @@ body {
   font-size: 18px;
   margin-right: 5px;
 }
+.error {
+  color: #be2222;
+  padding: 2px;
+  border: 1px solid #be2222;
+  border-radius: 2px;
+}
 h1,
 h2,
 h3,
@@ -1413,9 +1423,15 @@ h6 {
   text-align: left;
   line-height: 1em;
 }
-a[href] {
+a[href],
+.ref {
+  cursor: pointer;
   color: #652b7e;
   text-decoration: none;
+}
+a[href].nolink,
+.ref.nolink {
+  color: inherit;
 }
 *:target {
   animation: fadeout 1s;
@@ -1425,7 +1441,7 @@ a[href] {
 }
 @keyframes fadeout {
   from {
-    background: #FFDC00;
+    background: #ffdc00;
   }
   to {
     background: transparent;
@@ -1479,12 +1495,15 @@ span.katex {
   font-size: 1em;
   line-height: 1;
 }
-.references {
+.katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
+  pointer-events: none;
+}
+.bib-references {
   text-align: justify;
   font-size: 16px;
   line-height: 1.3em;
 }
-.references .reference {
+.bib-reference {
   text-indent: -1em;
   padding-left: 1em;
 }
@@ -1514,8 +1533,9 @@ sup.footnote-marker {
 .rc-tooltip {
   opacity: 1;
   background-color: white;
+  font-size: 16px;
 }
 .rc-tooltip-inner {
   min-height: auto;
-  max-width: 800px;
+  max-width: 760px;
 }
