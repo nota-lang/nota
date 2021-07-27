@@ -18,7 +18,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
   let get_slice = async (range: number[]) => {
     editor!.dispatch({ effects: clear_highlights.of(null) });
 
-    let program = [prelude || ''].concat(editor!.state.doc.toJSON()).join("\n");
+    let program = [prelude || ""].concat(editor!.state.doc.toJSON()).join("\n");
     let start = pos_to_linecol(editor!, range[0]);
     let end = pos_to_linecol(editor!, range[1]);
     start.line += 1;
@@ -29,10 +29,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
     }
 
     let request = { program, line: start.line, start: start.col, end: end.col };
-    let response = await axios.post(
-      "http://charlotte.stanford.edu:8889",
-      request
-    );
+    let response = await axios.post("http://mindover.computer:8888", request);
 
     if (response.data.error) {
       console.error(response.data.error);
@@ -55,10 +52,12 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
           (range) =>
             !(
               // Exclude sliced variable
-              (range.start_line == request.line &&
-              range.start_col == request.start) ||
-              // Exclude slices in prelude
-              (range.start_line == 1)
+              (
+                (range.start_line == request.line &&
+                  range.start_col == request.start) ||
+                // Exclude slices in prelude
+                range.start_line == 1
+              )
             )
         )
         .map((range) => {

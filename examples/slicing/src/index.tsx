@@ -42,7 +42,8 @@ let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => (
 // prettier-ignore
 let Oxide = new Language([
   ["Variable", "vr", "x", []],
-  ["Number", "num", "n", []],
+  ["Function", "fname", "f", []],
+  ["Number", "num", "n", []],  
   ["Path", "path", "q", [
     [r`empty`, 0, r`\varepsilon`, []], 
     [r`elem`, 2, r`{#1}.{#2}`, [r`\num`, r`\path`]]]],
@@ -55,24 +56,45 @@ let Oxide = new Language([
   ["Constant", "const", "c", [
     [`unit`, 0, "()", []],
     [`num`, 1, "#1", [r`\num`]], 
-    [`true`, 0, r`\mathsf{true}`, []],
-    [`false`, 0, r`\mathsf{false}`, []]]],
+    [`true`, 0, r`\msf{true}`, []],
+    [`false`, 0, r`\msf{false}`, []]]],
   ["Concrete Provenance", "concrprov", "r", []],
   ["Abstract Provenance", "abstrprov", r`\varrho`, []],
   ["Provenance", "prov", r`\rho`, [
     ["concr", 1, "#1", [r`\concrprov`]],
     ["abstr", 1, "#1", [r`\abstrprov`]]]],
   ["Ownership Qualifier", "ownq", r`\omega`, [
-    ["shrd", 0, r`\mathsf{shrd}`, []],
-    ["uniq", 0, r`\mathsf{uniq}`, []]]],  
+    ["shrd", 0, r`\msf{shrd}`, []],
+    ["uniq", 0, r`\msf{uniq}`, []]]],  
   ["Base Type", "tyb", r`\tau^\textsc{B}`, [
-    ["unit", 0, r`\mathsf{unit}`, []],
-    ["num", 0, r`\mathsf{u32}`, []],
-    ["bool", 0, r`\mathsf{bool}`, []]]],  
+    ["unit", 0, r`\msf{unit}`, []],
+    ["num", 0, r`\msf{u32}`, []],
+    ["bool", 0, r`\msf{bool}`, []]]],  
   ["Sized Type", "tys", r`\tau^\textsc{SI}`, [
     ["base", 1, "{#1}", [r`\tyb`]],
     ["ref", 3, r`\&{#1}~{#2}~{#3}`, [r`\prov`, r`\ownq`, r`\tau^\textsc{XI}`]],
     ["tup", 1, r`({#1})`, [r`\tys{}_1, \ldots, \tys{}_n`]]]],
+  ["Expression", "expr", "e", [
+    ["const", 1, "{#1}", [r`\const`]],
+    ["pexp", 1, "{#1}", [r`\pexp`]],   
+    ["ref", 3, r`\&{#1}~{#2}~{#3}`, [r`\concrprov`, r`\ownq`, r`\pexp`]],
+    ["ite", 3, r`\msf{if}~{#1}~\{\,{#2}\,\}~\msf{else}~\{\,{#3}\,\}`, 
+      [r`\expr_1`, r`\expr_2`, r`\expr_3`]],
+    ["let", 4, r`\msf{let}~{#1} : {#2} = {#3}; ~ {#4}`, 
+      [r`\expr_1`, r`\tys`, r`\expr_2`, r`\expr_3`]],
+    ["plcasgn", 2, r`{#1} \mathrel{:=} {#2}`, [r`\plc`, r`\expr`]],
+    ["pexpagn", 2, r`{#1} \mathrel{:=} {#2}`, [r`\pexp`, r`\expr`]],
+    ["seq", 2, r`{#1};~{#2}`, [r`\expr_1`, r`\expr_2`]],
+    ["call", 5, r`{#1}\left\langle{#2}, {#3}, {#4}\right\rangle\left({#5}\right)`,
+      [r`\fname`, r`\overline{\Phi}`, r`\overline{\rho}`, r`\overline{\tau}`, r`\plc`]]
+    ]],
+  ["Global Entries", "fdef", r`\varepsilon`, [
+    ["form", 9, r`\msf{fn}~{#1}\left\langle {#2}, {#3}, {#4}, \right\rangle\left({#5} : {#6}\right) \rightarrow {#7} ~ \msf{where} ~ {#8} ~ \{\,{#9}\,\}`, 
+      [r`\fname`, r`\overline{\psi}`, r`\overline{\abstrprov}`, r`\overline{\alpha}`, 
+       r`\vr`, r`\tys_a`, r`\tys_r`, r`\overline{\abstrprov_1 : \abstrprov_2}`, r`\expr`]]]],
+  ["Global Environment", "fenv", r`\Sigma`, [
+    ["empty", 0, r`\bullet`, []],
+    ["with", 2, r`{#1}, {#2}`, [r`\fenv`, r`\fdef`]]]]
 ]);
 
 export let App: React.FC = (_) => (
@@ -106,6 +128,7 @@ export let App: React.FC = (_) => (
 
     <$$>{r`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
+    \newcommand{\msf}[1]{\mathsf{#1}}
     `}</$$>
     <Oxide.Commands />
 
@@ -844,10 +867,10 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <Row>
           <Oxide.Bnf />
-          <p>
-            Here's an example expression in this custom syntax:<br />
-            <center><$>{r`\tysref{\abstrprov}{\ownqshrd}{\tybnum}`}</$></center>
-          </p>
+          <div>
+            <p>Here's an example expression in this custom syntax:</p>
+            <$$>{r`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`}</$$>
+          </div>
         </Row>
       </Section>
     </Section>

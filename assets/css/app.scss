@@ -119,13 +119,30 @@ h6 {
   line-height: 1em;
 }
 
-a[href], .ref {
+a[href],
+.ref {
   cursor: pointer;
   color: color("acm-purple");
   text-decoration: none;
 
   &.nolink {
     color: inherit;
+
+    &:hover {
+      background: rgba(19, 92, 202, 0.2);
+    }
+  }
+}
+
+.def-mode {
+  .ref.nolink {
+    border: 1px solid rgba(19, 92, 202, 0.2);
+    padding: 3px;
+    display: inline-block;
+
+    .ref.nolink {      
+      padding: 3px;
+    }
   }
 }
 
@@ -211,9 +228,13 @@ section {
   margin-top: 2rem;
 }
 
-span.katex {
+.katex {
   font-size: 1em;
   line-height: 1;
+}
+
+.nomargin .katex-display {
+  margin: 0;
 }
 
 // Fix overlapping span elements in align environments

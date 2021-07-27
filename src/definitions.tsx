@@ -1,20 +1,55 @@
 import React, { useState, useContext, useEffect } from "react";
 import _ from "lodash";
-import Tooltip from "rc-tooltip";
+import RcTooltip from "rc-tooltip";
 import classNames from "classnames";
+import { makeObservable, when, observable, action } from "mobx";
+import { observer } from "mobx-react";
+
+import { AdaptiveDisplay } from "./utils";
 
 interface Definition {
-  tooltip: JSX.Element | null;
-  label: JSX.Element | null;
+  Tooltip: React.FC | null;
+  Label: React.FC | null;
 }
 
 export class DefinitionData {
-  defs: { [name: string]: Definition } = {};
+  @observable defs: { [name: string]: Definition } = {};
+  @observable def_mode: boolean = false;
+  // @observable second_pass: boolean = false;
+
+  constructor() {
+    makeObservable(this);
+  }
 
   add_definition(name: string, def: Definition) {
     if (!(name in this.defs)) {
-      this.defs[name] = def;
+      action(() => {
+        this.defs[name] = def;
+      })();
     }
+  }
+
+  add_mode_listeners() {
+    let on_keydown = action(({ key }: KeyboardEvent) => {
+      if (key === "Alt") {
+        this.def_mode = true;
+      }
+    });
+
+    let on_keyup = action(({ key }: KeyboardEvent) => {
+      if (key == "Alt") {
+        this.def_mode = false;
+      }
+    });
+
+    useEffect(() => {
+      window.addEventListener("keydown", on_keydown);
+      window.addEventListener("keyup", on_keyup);
+      return () => {
+        window.removeEventListener("keydown", on_keydown);
+        window.removeEventListener("keyup", on_keyup);
+      };
+    }, []);
   }
 }
 
@@ -25,33 +60,21 @@ export let DefinitionContext = React.createContext<DefinitionData>(
 interface DefinitionProps {
   name?: string;
   block?: boolean;
-  tooltip?: JSX.Element | null;
-  label?: JSX.Element;
+  Tooltip?: React.FC | null;
+  Label?: React.FC;
 }
-
-export let AdaptiveDisplay: React.FC<
-  { block?: boolean } & React.HTMLAttributes<HTMLElement>
-> = ({ block, ...props }) => {
-  if (block) {
-    return <div {...props} />;
-  } else {
-    return <span {...props} />;
-  }
-};
 
 export let Definition: React.FC<DefinitionProps> = (props) => {
   let ctx = useContext(DefinitionContext);
   let [name] = useState(props.name || _.uniqueId("def-"));
 
   useEffect(() => {
-    let tooltip =
-      typeof props.tooltip !== "undefined" ? (
-        props.tooltip
-      ) : (
-        <>{props.children}</>
-      );
-    let label = props.label || null;
-    ctx.add_definition(name, { tooltip, label });
+    let Tooltip =
+      typeof props.Tooltip !== "undefined"
+        ? props.Tooltip
+        : () => <>{props.children}</>;
+    let Label = props.Label || null;
+    ctx.add_definition(name, { Tooltip, Label });
   }, []);
 
   return (
@@ -77,7 +100,7 @@ function checkVisible(elm: any): boolean {
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
 
-export let Ref: React.FC<RefProps> = (props) => {
+export let Ref: React.FC<RefProps> = observer((props) => {
   let ctx = useContext(DefinitionContext);
   let def = ctx.defs[props.name];
   if (!def) {
@@ -124,8 +147,8 @@ export let Ref: React.FC<RefProps> = (props) => {
 
   let inner: JSX.Element = props.children ? (
     <>{props.children}</>
-  ) : def.label ? (
-    def.label
+  ) : def.Label ? (
+    <def.Label />
   ) : (
     <span className="error">No children or label for "{props.name}"</span>
   );
@@ -133,20 +156,27 @@ export let Ref: React.FC<RefProps> = (props) => {
   inner = (
     <AdaptiveDisplay
       block={props.block}
-      className={classNames("ref", { nolink: props.nolink })}
-      onClick={on_click}
+      className={classNames("ref", {
+        nolink: props.nolink,
+        "def-mode": ctx.def_mode,
+      })}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+      onDoubleClick={on_click}
     >
       {inner}
     </AdaptiveDisplay>
   );
 
-  if (def.tooltip) {
+  if (def.Tooltip) {
     return (
-      <Tooltip placement="top" overlay={def.tooltip}>
+      <RcTooltip placement="top" overlay={<def.Tooltip />} trigger={["click"]}>
         {inner}
-      </Tooltip>
+      </RcTooltip>
     );
   } else {
     return inner;
   }
-};
+});
