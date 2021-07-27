@@ -1,9 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, forwardRef } from "react";
 import _ from "lodash";
-import RcTooltip from "rc-tooltip";
+import Tippy from "@tippyjs/react";
 import classNames from "classnames";
-import { makeObservable, when, observable, action } from "mobx";
-import { observer } from "mobx-react";
+import { autorun, makeObservable, observable, action, runInAction } from "mobx";
+import { observer, useLocalObservable } from "mobx-react";
 
 import { AdaptiveDisplay } from "./utils";
 
@@ -21,7 +21,8 @@ export class AllDefinitionData {
     makeObservable(this);
   }
 
-  get_definition = (name: string): DefinitionData | undefined => this.defs[name];
+  get_definition = (name: string): DefinitionData | undefined =>
+    this.defs[name];
 
   add_definition = action((name: string, def: DefinitionData) => {
     if (!(name in this.defs)) {
@@ -64,6 +65,14 @@ interface DefinitionProps {
   Label?: React.FC;
 }
 
+export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = (
+  props
+) => (
+  <AdaptiveDisplay block={props.block} id={`def-${props.name}`}>
+    {props.children}
+  </AdaptiveDisplay>
+);
+
 export let Definition: React.FC<DefinitionProps> = (props) => {
   let ctx = useContext(DefinitionContext);
   let [name] = useState(props.name || _.uniqueId("def-"));
@@ -78,9 +87,9 @@ export let Definition: React.FC<DefinitionProps> = (props) => {
   }, []);
 
   return (
-    <AdaptiveDisplay block={props.block} id={`def-${name}`}>
+    <DefinitionAnchor block={props.block} name={name}>
       {props.children}
-    </AdaptiveDisplay>
+    </DefinitionAnchor>
   );
 };
 
@@ -153,13 +162,17 @@ export let Ref: React.FC<RefProps> = observer((props) => {
     <span className="error">No children or label for "{props.name}"</span>
   );
 
-  inner = (
+  let Inner = forwardRef<HTMLDivElement>(({}, ref) => (
     <AdaptiveDisplay
+      ref={ref}
       block={props.block}
       className={classNames("ref", {
         nolink: props.nolink,
-        "def-mode": ctx.def_mode,
       })}
+      onMouseEnter={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -168,15 +181,18 @@ export let Ref: React.FC<RefProps> = observer((props) => {
     >
       {inner}
     </AdaptiveDisplay>
-  );
+  ));
 
   if (def.Tooltip) {
     return (
-      <RcTooltip placement="top" overlay={<def.Tooltip />} trigger={["click"]}>
-        {inner}
-      </RcTooltip>
+      <Tippy
+        content={/* <def.Tooltip /> */ "Ok"}
+        trigger={ctx.def_mode ? "mouseenter" : "click"}
+      >
+        <Inner />
+      </Tippy>
     );
   } else {
-    return inner;
+    return <Inner />;
   }
 });

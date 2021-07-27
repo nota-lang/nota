@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
 import katex from "katex";
 import H2R from "html-to-react";
-import Tooltip from "rc-tooltip";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 
-import { Ref, Definition } from "./definitions";
+import { Ref, DefinitionAnchor } from "./definitions";
 import { AdaptiveDisplay, HTMLAttributes } from "./utils";
 
 const r = String.raw;
@@ -108,9 +107,9 @@ export class TexContext {
           let def = node.attribs["data-def"];
           let inner = defns.processDefaultNode(node, children, index);
           return (
-            <Definition name={`tex:${def}`} Tooltip={null}>
+            <DefinitionAnchor name={`tex:${def}`}>
               {inner}
-            </Definition>
+            </DefinitionAnchor>
           );
         },
       },

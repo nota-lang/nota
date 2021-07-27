@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import _ from "lodash";
 import CSS from "csstype";
 import classNames from "classnames";
+import {observer} from "mobx-react";
 
 import { ReactTexContext, TexContext } from "./tex";
 import {
@@ -133,7 +134,7 @@ interface DocumentProps {
   bibtex?: string;
 }
 
-export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
+export let Document: React.FC<DocumentProps> = observer(({ children, bibtex }) => {
   let [def_ctx] = useState(new AllDefinitionData());
   def_ctx.add_mode_listeners();
 
@@ -181,4 +182,4 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
       </DocumentContext.Provider>
     </DefinitionContext.Provider>
   );
-};
+});
