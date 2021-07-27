@@ -1,16 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
+import _ from "lodash";
+import CSS from "csstype";
+import classNames from "classnames";
+
 import { ReactTexContext, TexContext } from "./tex";
 import {
   ReactBibliographyContext,
   ReferencesSection,
   BibliographyContext,
 } from "./bibliography";
-import { DefinitionContext, DefinitionData, Definition } from "./definitions";
+import { DefinitionContext, AllDefinitionData, Definition } from "./definitions";
 import { ListingContext, ListingData } from "./code";
-import _ from "lodash";
-import CSS from "csstype";
-import classNames from "classnames";
-import { observer } from "mobx-react";
 
 class SectionData {
   subsections: number = 0;
@@ -80,7 +80,12 @@ export let Section: React.FC<{ title: string; name?: string }> = ({
   };
 
   return (
-    <Definition name={name} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
+    <Definition
+      name={name}
+      Label={() => <>Section {sec_num}</>}
+      Tooltip={null}
+      block
+    >
       <section>
         <SectionTitle level={level}>
           <span className="section-number">{sec_num}</span> {title}
@@ -128,58 +133,52 @@ interface DocumentProps {
   bibtex?: string;
 }
 
-export let Document: React.FC<DocumentProps> = observer(
-  ({ children, bibtex }) => {
-    let [def_ctx, set_def_ctx] = useState(new DefinitionData());
-    // useEffect(() => {
-    //   def_ctx.next_pass();
-    // }, []);
+export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
+  let [def_ctx] = useState(new AllDefinitionData());
+  def_ctx.add_mode_listeners();
 
-    def_ctx.add_mode_listeners();
-
-    let Footnotes: React.FC = (_) => {
-      let ctx = useContext(DocumentContext);
-      return (
-        <div className="footnotes">
-          {ctx.footnotes.map((footnote, i) => {
-            let top = {};
-            i += 1;
-            return (
-              <div className="footnote" id={`footnote-${i}`} key={i}>
-                <a className="backlink" href={`#footnote-ref-${i}`}>
-                  ⬅
-                </a>
-                <span className="footnote-number">{i}</span>
-                {footnote}
-              </div>
-            );
-          })}
-        </div>
-      );
-    };
-
+  let Footnotes: React.FC = (_) => {
+    let ctx = useContext(DocumentContext);
     return (
-      <DefinitionContext.Provider value={def_ctx}>
-        <DocumentContext.Provider value={new DocumentData()}>
-          <ReactTexContext.Provider value={new TexContext()}>
-            <ReactBibliographyContext.Provider
-              value={new BibliographyContext(bibtex || "")}
-            >
-              <ListingContext.Provider value={new ListingData()}>
-                <div
-                  className={classNames("document-wrapper", {
-                    "def-mode": def_ctx.def_mode,
-                  })}
-                >
-                  <div className="document">{children}</div>
-                  <ReferencesSection />
-                  <Footnotes />
-                </div>
-              </ListingContext.Provider>
-            </ReactBibliographyContext.Provider>
-          </ReactTexContext.Provider>
-        </DocumentContext.Provider>
-      </DefinitionContext.Provider>
+      <div className="footnotes">
+        {ctx.footnotes.map((footnote, i) => {
+          let top = {};
+          i += 1;
+          return (
+            <div className="footnote" id={`footnote-${i}`} key={i}>
+              <a className="backlink" href={`#footnote-ref-${i}`}>
+                ⬅
+              </a>
+              <span className="footnote-number">{i}</span>
+              {footnote}
+            </div>
+          );
+        })}
+      </div>
     );
-  }
-);
+  };
+
+  return (
+    <DefinitionContext.Provider value={def_ctx}>
+      <DocumentContext.Provider value={new DocumentData()}>
+        <ReactTexContext.Provider value={new TexContext()}>
+          <ReactBibliographyContext.Provider
+            value={new BibliographyContext(bibtex || "")}
+          >
+            <ListingContext.Provider value={new ListingData()}>
+              <div
+                className={classNames("document-wrapper", {
+                  "def-mode": def_ctx.def_mode,
+                })}
+              >
+                <div className="document">{children}</div>
+                <ReferencesSection />
+                <Footnotes />
+              </div>
+            </ListingContext.Provider>
+          </ReactBibliographyContext.Provider>
+        </ReactTexContext.Provider>
+      </DocumentContext.Provider>
+    </DefinitionContext.Provider>
+  );
+};

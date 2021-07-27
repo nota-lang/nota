@@ -80,14 +80,14 @@ class BibliographyEntry {
  * > _([1,2,3]).intersperse(0)
  * [1,0,2,0,3]
  */
-function intersperse<T>(arr: T[], sep: T): T[] {
+function intersperse<T>(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
   if (arr.length === 0) {
     return [];
   }
 
   return arr.slice(1).reduce(
     function (xs, x, i) {
-      return xs.concat([sep, x]);
+      return xs.concat([<Sep key={i} />, x]);
     },
     [arr[0]]
   );
@@ -116,9 +116,9 @@ export class BibliographyContext {
         keys.map((key) => {
           let entry = this.citations[key];
           let author = entry.display_author();
-          return <Ref name={key}>{`${author} [${entry.year}]`}</Ref>;
+          return <Ref key={key} name={key}>{`${author} [${entry.year}]`}</Ref>;
         }),
-        <>{"; "}</>
+        (props) => <span {...props}>{"; "}</span>
       )
     ) : (
       <span>
@@ -127,13 +127,17 @@ export class BibliographyContext {
           keys.map((key) => {
             let entry = this.citations[key];
             if (yearonly) {
-              return entry.year;
+              return <span key={key}>entry.year</span>;
             } else {
               let author = entry.display_author();
-              return <Ref name={key}>{`${author} ${entry.year}`}</Ref>;
+              return (
+                <Ref key={key} name={key}>{`${author} ${entry.year}`}</Ref>
+              );
             }
           }),
-          ", " as any
+          (props) => (
+            <span {...props}>{"; "}</span>
+          )
         )}
         ]
       </span>
@@ -159,9 +163,9 @@ export let References: React.FC<{ keys: string[] }> = ({ keys }) => {
   return (
     <div className="bib-references">
       {keys.map((key) => (
-        <div key={key}>
-          <Definition name={key} block>{ctx.citations[key].bib_cite()}</Definition>
-        </div>
+        <Definition key={key} name={key} block>
+          {ctx.citations[key].bib_cite()}
+        </Definition>
       ))}
     </div>
   );

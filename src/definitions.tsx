@@ -7,13 +7,13 @@ import { observer } from "mobx-react";
 
 import { AdaptiveDisplay } from "./utils";
 
-interface Definition {
+export interface DefinitionData {
   Tooltip: React.FC | null;
   Label: React.FC | null;
 }
 
-export class DefinitionData {
-  @observable defs: { [name: string]: Definition } = {};
+export class AllDefinitionData {
+  @observable defs: { [name: string]: DefinitionData } = {};
   @observable def_mode: boolean = false;
   // @observable second_pass: boolean = false;
 
@@ -21,13 +21,13 @@ export class DefinitionData {
     makeObservable(this);
   }
 
-  add_definition(name: string, def: Definition) {
+  get_definition = (name: string): DefinitionData | undefined => this.defs[name];
+
+  add_definition = action((name: string, def: DefinitionData) => {
     if (!(name in this.defs)) {
-      action(() => {
-        this.defs[name] = def;
-      })();
+      this.defs[name] = def;
     }
-  }
+  });
 
   add_mode_listeners() {
     let on_keydown = action(({ key }: KeyboardEvent) => {
@@ -53,8 +53,8 @@ export class DefinitionData {
   }
 }
 
-export let DefinitionContext = React.createContext<DefinitionData>(
-  new DefinitionData()
+export let DefinitionContext = React.createContext<AllDefinitionData>(
+  new AllDefinitionData()
 );
 
 interface DefinitionProps {
@@ -102,7 +102,7 @@ function checkVisible(elm: any): boolean {
 
 export let Ref: React.FC<RefProps> = observer((props) => {
   let ctx = useContext(DefinitionContext);
-  let def = ctx.defs[props.name];
+  let def = ctx.get_definition(props.name);
   if (!def) {
     return <span className="error">{props.name}</span>;
   }

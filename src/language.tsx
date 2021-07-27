@@ -1,7 +1,14 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import { useAsync } from "react-async";
 
 import { zipExn } from "./utils";
-import { DefinitionContext } from "./definitions";
+import { DefinitionContext, DefinitionData } from "./definitions";
 import { $, $$, newcommand, ReactTexContext, Dimensions } from "./tex";
 
 const r = String.raw;
@@ -65,11 +72,13 @@ export class Language {
         }${subcmd}${arg_str}}`;
       };
 
-    let [branch_dims, set_branch_dims] = useState<Dimensions[][] | null>(null);
-    useEffect(() => {
-      let cancel: () => void;
-      let promise: Promise<Dimensions[][]> = new Promise((resolve, reject) => {
-        Promise.all(
+    let {
+      data: branch_dims,
+      isPending,
+      error,
+    } = useAsync(
+      useCallback(async ({}, { signal }) => {
+        let branch_dims = await Promise.all(
           this.grammar.map(({ cmd, branches }) =>
             Promise.all(
               branches
@@ -77,19 +86,26 @@ export class Language {
                 .map((tex) => tex_ctx.dimensions(tex, false, container_ref))
             )
           )
-        ).then(resolve);
-        cancel = reject;
-      });
-      promise
-        .then((branch_dims) => {
-          set_branch_dims(branch_dims);
-        })
-        .catch((_) => {});
+        );
+        return branch_dims;
+      }, [])
+    );
 
-      return cancel!;
-    }, []);
+    // Have to pull out add_definition calls into an effect to avoid 
+    // "setState while rendering component" errors
+    let defs: [string, DefinitionData][] = [];
+    useEffect(() => {
+      if (branch_dims) {
+        defs.forEach(([name, def]) => def_ctx.add_definition(name, def));
+      }
+    }, [branch_dims]);
 
-    if (branch_dims === null) {
+    if (isPending) {
+      return null;
+    }
+
+    if (!branch_dims) {
+      console.error(error);
       return null;
     }
 
@@ -127,29 +143,35 @@ export class Language {
         kind = kind.replace(` `, r`\ `);
 
         branches.forEach(({ subcmd }) => {
-          def_ctx.add_definition(`tex:${cmd}${subcmd}`, {
+          defs.push([`tex:${cmd}${subcmd}`, {
             Tooltip: () => (
               <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
             ),
             Label: null,
-          });
+            }]);
         });
 
-        def_ctx.add_definition(`tex:${cmd}`, {
+        defs.push([`tex:${cmd}`, {
           Tooltip: () => (
             <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
           ),
           Label: null,
-        });
+        }]);
         return r`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
       })
-      .join(r`\\`);
+      .join(r`\\`); 
+
 
     return <$$>{r`\begin{aligned}${tex}\end{aligned}`}</$$>;
   };
 
   Bnf = () => {
     let ref = useRef<HTMLDivElement>(null);
+
+    // Needed for BnfInner to render once ref.current !== null
+    let [_, rerender] = useState(false);
+    useEffect(() => rerender(true), []);
+
     return (
       <div ref={ref}>
         {ref.current ? <this.BnfInner container_ref={ref.current} /> : null}
