@@ -30,7 +30,7 @@ var require_object_assign = __commonJS({
   "node_modules/object-assign/index.js"(exports, module) {
     "use strict";
     var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-    var hasOwnProperty2 = Object.prototype.hasOwnProperty;
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
     var propIsEnumerable = Object.prototype.propertyIsEnumerable;
     function toObject(val) {
       if (val === null || val === void 0) {
@@ -77,7 +77,7 @@ var require_object_assign = __commonJS({
       for (var s = 1; s < arguments.length; s++) {
         from = Object(arguments[s]);
         for (var key in from) {
-          if (hasOwnProperty2.call(from, key)) {
+          if (hasOwnProperty.call(from, key)) {
             to[key] = from[key];
           }
         }
@@ -392,7 +392,7 @@ var require_react_development = __commonJS({
           }
           return null;
         }
-        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
         var RESERVED_PROPS = {
           key: true,
           ref: true,
@@ -405,7 +405,7 @@ var require_react_development = __commonJS({
         }
         function hasValidRef(config) {
           {
-            if (hasOwnProperty2.call(config, "ref")) {
+            if (hasOwnProperty.call(config, "ref")) {
               var getter = Object.getOwnPropertyDescriptor(config, "ref").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -416,7 +416,7 @@ var require_react_development = __commonJS({
         }
         function hasValidKey(config) {
           {
-            if (hasOwnProperty2.call(config, "key")) {
+            if (hasOwnProperty.call(config, "key")) {
               var getter = Object.getOwnPropertyDescriptor(config, "key").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -522,7 +522,7 @@ var require_react_development = __commonJS({
             self2 = config.__self === void 0 ? null : config.__self;
             source = config.__source === void 0 ? null : config.__source;
             for (propName in config) {
-              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = config[propName];
               }
             }
@@ -543,10 +543,10 @@ var require_react_development = __commonJS({
             props.children = childArray;
           }
           if (type && type.defaultProps) {
-            var defaultProps2 = type.defaultProps;
-            for (propName in defaultProps2) {
+            var defaultProps = type.defaultProps;
+            for (propName in defaultProps) {
               if (props[propName] === void 0) {
-                props[propName] = defaultProps2[propName];
+                props[propName] = defaultProps[propName];
               }
             }
           }
@@ -567,7 +567,7 @@ var require_react_development = __commonJS({
           var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
           return newElement;
         }
-        function cloneElement2(element, config, children) {
+        function cloneElement(element, config, children) {
           if (!!(element === null || element === void 0)) {
             {
               throw Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + ".");
@@ -588,14 +588,14 @@ var require_react_development = __commonJS({
             if (hasValidKey(config)) {
               key = "" + config.key;
             }
-            var defaultProps2;
+            var defaultProps;
             if (element.type && element.type.defaultProps) {
-              defaultProps2 = element.type.defaultProps;
+              defaultProps = element.type.defaultProps;
             }
             for (propName in config) {
-              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
-                if (config[propName] === void 0 && defaultProps2 !== void 0) {
-                  props[propName] = defaultProps2[propName];
+              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+                if (config[propName] === void 0 && defaultProps !== void 0) {
+                  props[propName] = defaultProps[propName];
                 } else {
                   props[propName] = config[propName];
                 }
@@ -635,11 +635,11 @@ var require_react_development = __commonJS({
         function escapeUserProvidedKey(text) {
           return text.replace(userProvidedKeyEscapeRegex, "$&/");
         }
-        function getElementKey(element, index2) {
+        function getElementKey(element, index) {
           if (typeof element === "object" && element !== null && element.key != null) {
             return escape("" + element.key);
           }
-          return index2.toString(36);
+          return index.toString(36);
         }
         function mapIntoArray(children, array2, escapedPrefix, nameSoFar, callback) {
           var type = typeof children;
@@ -906,17 +906,17 @@ var require_react_development = __commonJS({
             _init: lazyInitializer
           };
           {
-            var defaultProps2;
+            var defaultProps;
             var propTypes2;
             Object.defineProperties(lazyType, {
               defaultProps: {
                 configurable: true,
                 get: function() {
-                  return defaultProps2;
+                  return defaultProps;
                 },
                 set: function(newDefaultProps) {
                   error("React.lazy(...): It is not supported to assign `defaultProps` to a lazy component import. Either specify them where the component is defined, or create a wrapping component around it.");
-                  defaultProps2 = newDefaultProps;
+                  defaultProps = newDefaultProps;
                   Object.defineProperty(lazyType, "defaultProps", {
                     enumerable: true
                   });
@@ -939,26 +939,26 @@ var require_react_development = __commonJS({
           }
           return lazyType;
         }
-        function forwardRef6(render2) {
+        function forwardRef5(render) {
           {
-            if (render2 != null && render2.$$typeof === REACT_MEMO_TYPE) {
+            if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
               error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
-            } else if (typeof render2 !== "function") {
-              error("forwardRef requires a render function but was given %s.", render2 === null ? "null" : typeof render2);
+            } else if (typeof render !== "function") {
+              error("forwardRef requires a render function but was given %s.", render === null ? "null" : typeof render);
             } else {
-              if (render2.length !== 0 && render2.length !== 2) {
-                error("forwardRef render functions accept exactly two parameters: props and ref. %s", render2.length === 1 ? "Did you forget to use the ref parameter?" : "Any additional parameter will be undefined.");
+              if (render.length !== 0 && render.length !== 2) {
+                error("forwardRef render functions accept exactly two parameters: props and ref. %s", render.length === 1 ? "Did you forget to use the ref parameter?" : "Any additional parameter will be undefined.");
               }
             }
-            if (render2 != null) {
-              if (render2.defaultProps != null || render2.propTypes != null) {
+            if (render != null) {
+              if (render.defaultProps != null || render.propTypes != null) {
                 error("forwardRef render functions do not support propTypes or defaultProps. Did you accidentally pass a React component?");
               }
             }
           }
           var elementType = {
             $$typeof: REACT_FORWARD_REF_TYPE,
-            render: render2
+            render
           };
           {
             var ownName;
@@ -970,8 +970,8 @@ var require_react_development = __commonJS({
               },
               set: function(name2) {
                 ownName = name2;
-                if (render2.displayName == null) {
-                  render2.displayName = name2;
+                if (render.displayName == null) {
+                  render.displayName = name2;
                 }
               }
             });
@@ -1068,7 +1068,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useLayoutEffect(create, deps);
         }
-        function useCallback4(callback, deps) {
+        function useCallback5(callback, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
@@ -1185,12 +1185,12 @@ var require_react_development = __commonJS({
           var PossiblyWeakMap = typeof WeakMap === "function" ? WeakMap : Map;
           componentFrameCache = new PossiblyWeakMap();
         }
-        function describeNativeComponentFrame(fn3, construct) {
-          if (!fn3 || reentry) {
+        function describeNativeComponentFrame(fn2, construct) {
+          if (!fn2 || reentry) {
             return "";
           }
           {
-            var frame = componentFrameCache.get(fn3);
+            var frame = componentFrameCache.get(fn2);
             if (frame !== void 0) {
               return frame;
             }
@@ -1221,14 +1221,14 @@ var require_react_development = __commonJS({
                 } catch (x) {
                   control = x;
                 }
-                Reflect.construct(fn3, [], Fake);
+                Reflect.construct(fn2, [], Fake);
               } else {
                 try {
                   Fake.call();
                 } catch (x) {
                   control = x;
                 }
-                fn3.call(Fake.prototype);
+                fn2.call(Fake.prototype);
               }
             } else {
               try {
@@ -1236,7 +1236,7 @@ var require_react_development = __commonJS({
               } catch (x) {
                 control = x;
               }
-              fn3();
+              fn2();
             }
           } catch (sample) {
             if (sample && control && typeof sample.stack === "string") {
@@ -1256,8 +1256,8 @@ var require_react_development = __commonJS({
                       if (c < 0 || sampleLines[s] !== controlLines[c]) {
                         var _frame = "\n" + sampleLines[s].replace(" at new ", " at ");
                         {
-                          if (typeof fn3 === "function") {
-                            componentFrameCache.set(fn3, _frame);
+                          if (typeof fn2 === "function") {
+                            componentFrameCache.set(fn2, _frame);
                           }
                         }
                         return _frame;
@@ -1276,18 +1276,18 @@ var require_react_development = __commonJS({
             }
             Error.prepareStackTrace = previousPrepareStackTrace;
           }
-          var name2 = fn3 ? fn3.displayName || fn3.name : "";
+          var name2 = fn2 ? fn2.displayName || fn2.name : "";
           var syntheticFrame = name2 ? describeBuiltInComponentFrame(name2) : "";
           {
-            if (typeof fn3 === "function") {
-              componentFrameCache.set(fn3, syntheticFrame);
+            if (typeof fn2 === "function") {
+              componentFrameCache.set(fn2, syntheticFrame);
             }
           }
           return syntheticFrame;
         }
-        function describeFunctionComponentFrame(fn3, source, ownerFn) {
+        function describeFunctionComponentFrame(fn2, source, ownerFn) {
           {
-            return describeNativeComponentFrame(fn3, false);
+            return describeNativeComponentFrame(fn2, false);
           }
         }
         function shouldConstruct(Component3) {
@@ -1589,7 +1589,7 @@ var require_react_development = __commonJS({
           return validatedFactory;
         }
         function cloneElementWithValidation(element, props, children) {
-          var newElement = cloneElement2.apply(this, arguments);
+          var newElement = cloneElement.apply(this, arguments);
           for (var i = 2; i < arguments.length; i++) {
             validateChildKeys(arguments[i], newElement.type);
           }
@@ -1623,11 +1623,11 @@ var require_react_development = __commonJS({
         exports.createElement = createElement$1;
         exports.createFactory = createFactory;
         exports.createRef = createRef;
-        exports.forwardRef = forwardRef6;
+        exports.forwardRef = forwardRef5;
         exports.isValidElement = isValidElement;
         exports.lazy = lazy;
         exports.memo = memo3;
-        exports.useCallback = useCallback4;
+        exports.useCallback = useCallback5;
         exports.useContext = useContext8;
         exports.useDebugValue = useDebugValue2;
         exports.useEffect = useEffect6;
@@ -1794,9 +1794,9 @@ var require_scheduler_development = __commonJS({
           };
         }
         function push2(heap, node) {
-          var index2 = heap.length;
+          var index = heap.length;
           heap.push(node);
-          siftUp(heap, node, index2);
+          siftUp(heap, node, index);
         }
         function peek(heap) {
           var first = heap[0];
@@ -1816,41 +1816,41 @@ var require_scheduler_development = __commonJS({
           }
         }
         function siftUp(heap, node, i) {
-          var index2 = i;
+          var index = i;
           while (true) {
-            var parentIndex = index2 - 1 >>> 1;
+            var parentIndex = index - 1 >>> 1;
             var parent = heap[parentIndex];
             if (parent !== void 0 && compare2(parent, node) > 0) {
               heap[parentIndex] = node;
-              heap[index2] = parent;
-              index2 = parentIndex;
+              heap[index] = parent;
+              index = parentIndex;
             } else {
               return;
             }
           }
         }
         function siftDown(heap, node, i) {
-          var index2 = i;
+          var index = i;
           var length = heap.length;
-          while (index2 < length) {
-            var leftIndex = (index2 + 1) * 2 - 1;
+          while (index < length) {
+            var leftIndex = (index + 1) * 2 - 1;
             var left2 = heap[leftIndex];
             var rightIndex = leftIndex + 1;
             var right2 = heap[rightIndex];
             if (left2 !== void 0 && compare2(left2, node) < 0) {
               if (right2 !== void 0 && compare2(right2, left2) < 0) {
-                heap[index2] = right2;
+                heap[index] = right2;
                 heap[rightIndex] = node;
-                index2 = rightIndex;
+                index = rightIndex;
               } else {
-                heap[index2] = left2;
+                heap[index] = left2;
                 heap[leftIndex] = node;
-                index2 = leftIndex;
+                index = leftIndex;
               }
             } else if (right2 !== void 0 && compare2(right2, node) < 0) {
-              heap[index2] = right2;
+              heap[index] = right2;
               heap[rightIndex] = node;
-              index2 = rightIndex;
+              index = rightIndex;
             } else {
               return;
             }
@@ -2444,11 +2444,11 @@ var require_react_dom_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var React14 = require_react();
+        var React15 = require_react();
         var _assign = require_object_assign();
         var Scheduler = require_scheduler();
         var tracing = require_tracing();
-        var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React15.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format2) {
           {
             for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2480,7 +2480,7 @@ var require_react_dom_development = __commonJS({
             Function.prototype.apply.call(console[level], console, argsWithFormat);
           }
         }
-        if (!React14) {
+        if (!React15) {
           {
             throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
           }
@@ -2551,14 +2551,14 @@ var require_react_dom_development = __commonJS({
         var ATTRIBUTE_NAME_CHAR = ATTRIBUTE_NAME_START_CHAR + "\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
         var ROOT_ATTRIBUTE_NAME = "data-reactroot";
         var VALID_ATTRIBUTE_NAME_REGEX = new RegExp("^[" + ATTRIBUTE_NAME_START_CHAR + "][" + ATTRIBUTE_NAME_CHAR + "]*$");
-        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
         var illegalAttributeNameCache = {};
         var validatedAttributeNameCache = {};
         function isAttributeNameSafe(attributeName) {
-          if (hasOwnProperty2.call(validatedAttributeNameCache, attributeName)) {
+          if (hasOwnProperty.call(validatedAttributeNameCache, attributeName)) {
             return true;
           }
-          if (hasOwnProperty2.call(illegalAttributeNameCache, attributeName)) {
+          if (hasOwnProperty.call(illegalAttributeNameCache, attributeName)) {
             return false;
           }
           if (VALID_ATTRIBUTE_NAME_REGEX.test(attributeName)) {
@@ -3107,12 +3107,12 @@ var require_react_dom_development = __commonJS({
           var PossiblyWeakMap = typeof WeakMap === "function" ? WeakMap : Map;
           componentFrameCache = new PossiblyWeakMap();
         }
-        function describeNativeComponentFrame(fn3, construct) {
-          if (!fn3 || reentry) {
+        function describeNativeComponentFrame(fn2, construct) {
+          if (!fn2 || reentry) {
             return "";
           }
           {
-            var frame = componentFrameCache.get(fn3);
+            var frame = componentFrameCache.get(fn2);
             if (frame !== void 0) {
               return frame;
             }
@@ -3143,14 +3143,14 @@ var require_react_dom_development = __commonJS({
                 } catch (x) {
                   control = x;
                 }
-                Reflect.construct(fn3, [], Fake);
+                Reflect.construct(fn2, [], Fake);
               } else {
                 try {
                   Fake.call();
                 } catch (x) {
                   control = x;
                 }
-                fn3.call(Fake.prototype);
+                fn2.call(Fake.prototype);
               }
             } else {
               try {
@@ -3158,7 +3158,7 @@ var require_react_dom_development = __commonJS({
               } catch (x) {
                 control = x;
               }
-              fn3();
+              fn2();
             }
           } catch (sample) {
             if (sample && control && typeof sample.stack === "string") {
@@ -3178,8 +3178,8 @@ var require_react_dom_development = __commonJS({
                       if (c < 0 || sampleLines[s] !== controlLines[c]) {
                         var _frame = "\n" + sampleLines[s].replace(" at new ", " at ");
                         {
-                          if (typeof fn3 === "function") {
-                            componentFrameCache.set(fn3, _frame);
+                          if (typeof fn2 === "function") {
+                            componentFrameCache.set(fn2, _frame);
                           }
                         }
                         return _frame;
@@ -3198,11 +3198,11 @@ var require_react_dom_development = __commonJS({
             }
             Error.prepareStackTrace = previousPrepareStackTrace;
           }
-          var name2 = fn3 ? fn3.displayName || fn3.name : "";
+          var name2 = fn2 ? fn2.displayName || fn2.name : "";
           var syntheticFrame = name2 ? describeBuiltInComponentFrame(name2) : "";
           {
-            if (typeof fn3 === "function") {
-              componentFrameCache.set(fn3, syntheticFrame);
+            if (typeof fn2 === "function") {
+              componentFrameCache.set(fn2, syntheticFrame);
             }
           }
           return syntheticFrame;
@@ -3212,9 +3212,9 @@ var require_react_dom_development = __commonJS({
             return describeNativeComponentFrame(ctor, true);
           }
         }
-        function describeFunctionComponentFrame(fn3, source, ownerFn) {
+        function describeFunctionComponentFrame(fn2, source, ownerFn) {
           {
-            return describeNativeComponentFrame(fn3, false);
+            return describeNativeComponentFrame(fn2, false);
           }
         }
         function shouldConstruct(Component2) {
@@ -3696,7 +3696,7 @@ var require_react_dom_development = __commonJS({
         var didWarnInvalidChild = false;
         function flattenChildren(children) {
           var content2 = "";
-          React14.Children.forEach(children, function(child) {
+          React15.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -3704,10 +3704,10 @@ var require_react_dom_development = __commonJS({
           });
           return content2;
         }
-        function validateProps2(element, props) {
+        function validateProps(element, props) {
           {
             if (typeof props.children === "object" && props.children !== null) {
-              React14.Children.forEach(props.children, function(child) {
+              React15.Children.forEach(props.children, function(child) {
                 if (child == null) {
                   return;
                 }
@@ -5161,11 +5161,11 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        var batchedUpdatesImpl = function(fn3, bookkeeping) {
-          return fn3(bookkeeping);
+        var batchedUpdatesImpl = function(fn2, bookkeeping) {
+          return fn2(bookkeeping);
         };
-        var discreteUpdatesImpl = function(fn3, a, b, c, d) {
-          return fn3(a, b, c, d);
+        var discreteUpdatesImpl = function(fn2, a, b, c, d) {
+          return fn2(a, b, c, d);
         };
         var flushDiscreteUpdatesImpl = function() {
         };
@@ -5179,35 +5179,35 @@ var require_react_dom_development = __commonJS({
             restoreStateIfNeeded();
           }
         }
-        function batchedUpdates(fn3, bookkeeping) {
+        function batchedUpdates(fn2, bookkeeping) {
           if (isInsideEventHandler) {
-            return fn3(bookkeeping);
+            return fn2(bookkeeping);
           }
           isInsideEventHandler = true;
           try {
-            return batchedUpdatesImpl(fn3, bookkeeping);
+            return batchedUpdatesImpl(fn2, bookkeeping);
           } finally {
             isInsideEventHandler = false;
             finishEventHandler();
           }
         }
-        function batchedEventUpdates(fn3, a, b) {
+        function batchedEventUpdates(fn2, a, b) {
           if (isBatchingEventUpdates) {
-            return fn3(a, b);
+            return fn2(a, b);
           }
           isBatchingEventUpdates = true;
           try {
-            return batchedEventUpdatesImpl(fn3, a, b);
+            return batchedEventUpdatesImpl(fn2, a, b);
           } finally {
             isBatchingEventUpdates = false;
             finishEventHandler();
           }
         }
-        function discreteUpdates(fn3, a, b, c, d) {
+        function discreteUpdates(fn2, a, b, c, d) {
           var prevIsInsideEventHandler = isInsideEventHandler;
           isInsideEventHandler = true;
           try {
-            return discreteUpdatesImpl(fn3, a, b, c, d);
+            return discreteUpdatesImpl(fn2, a, b, c, d);
           } finally {
             isInsideEventHandler = prevIsInsideEventHandler;
             if (!isInsideEventHandler) {
@@ -5689,20 +5689,20 @@ var require_react_dom_development = __commonJS({
           return false;
         }
         var attemptUserBlockingHydration;
-        function setAttemptUserBlockingHydration(fn3) {
-          attemptUserBlockingHydration = fn3;
+        function setAttemptUserBlockingHydration(fn2) {
+          attemptUserBlockingHydration = fn2;
         }
         var attemptContinuousHydration;
-        function setAttemptContinuousHydration(fn3) {
-          attemptContinuousHydration = fn3;
+        function setAttemptContinuousHydration(fn2) {
+          attemptContinuousHydration = fn2;
         }
         var attemptHydrationAtCurrentPriority;
-        function setAttemptHydrationAtCurrentPriority(fn3) {
-          attemptHydrationAtCurrentPriority = fn3;
+        function setAttemptHydrationAtCurrentPriority(fn2) {
+          attemptHydrationAtCurrentPriority = fn2;
         }
         var attemptHydrationAtPriority;
-        function setAttemptHydrationAtPriority(fn3) {
-          attemptHydrationAtPriority = fn3;
+        function setAttemptHydrationAtPriority(fn2) {
+          attemptHydrationAtPriority = fn2;
         }
         var hasScheduledReplayAttempt = false;
         var queuedDiscreteEvents = [];
@@ -6360,9 +6360,9 @@ var require_react_dom_development = __commonJS({
             var entanglements = root2.entanglements;
             var lanes = nextLanes & entangledLanes;
             while (lanes > 0) {
-              var index3 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index3;
-              nextLanes |= entanglements[index3];
+              var index2 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index2;
+              nextLanes |= entanglements[index2];
               lanes &= ~lane;
             }
           }
@@ -6372,9 +6372,9 @@ var require_react_dom_development = __commonJS({
           var eventTimes = root2.eventTimes;
           var mostRecentEventTime = NoTimestamp;
           while (lanes > 0) {
-            var index3 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index3;
-            var eventTime = eventTimes[index3];
+            var index2 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index2;
+            var eventTime = eventTimes[index2];
             if (eventTime > mostRecentEventTime) {
               mostRecentEventTime = eventTime;
             }
@@ -6400,12 +6400,12 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = pendingLanes;
           while (lanes > 0) {
-            var index3 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index3;
-            var expirationTime = expirationTimes[index3];
+            var index2 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index2;
+            var expirationTime = expirationTimes[index2];
             if (expirationTime === NoTimestamp) {
               if ((lane & suspendedLanes) === NoLanes || (lane & pingedLanes) !== NoLanes) {
-                expirationTimes[index3] = computeExpirationTime(lane, currentTime);
+                expirationTimes[index2] = computeExpirationTime(lane, currentTime);
               }
             } else if (expirationTime <= currentTime) {
               root2.expiredLanes |= lane;
@@ -6504,8 +6504,8 @@ var require_react_dom_development = __commonJS({
           return lanes & -lanes;
         }
         function getLowestPriorityLane(lanes) {
-          var index3 = 31 - clz32(lanes);
-          return index3 < 0 ? NoLanes : 1 << index3;
+          var index2 = 31 - clz32(lanes);
+          return index2 < 0 ? NoLanes : 1 << index2;
         }
         function getEqualOrHigherPriorityLanes(lanes) {
           return (getLowestPriorityLane(lanes) << 1) - 1;
@@ -6550,8 +6550,8 @@ var require_react_dom_development = __commonJS({
           root2.suspendedLanes &= higherPriorityLanes;
           root2.pingedLanes &= higherPriorityLanes;
           var eventTimes = root2.eventTimes;
-          var index3 = laneToIndex(updateLane);
-          eventTimes[index3] = eventTime;
+          var index2 = laneToIndex(updateLane);
+          eventTimes[index2] = eventTime;
         }
         function markRootSuspended(root2, suspendedLanes) {
           root2.suspendedLanes |= suspendedLanes;
@@ -6559,9 +6559,9 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = suspendedLanes;
           while (lanes > 0) {
-            var index3 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index3;
-            expirationTimes[index3] = NoTimestamp;
+            var index2 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index2;
+            expirationTimes[index2] = NoTimestamp;
             lanes &= ~lane;
           }
         }
@@ -6590,11 +6590,11 @@ var require_react_dom_development = __commonJS({
           var expirationTimes = root2.expirationTimes;
           var lanes = noLongerPendingLanes;
           while (lanes > 0) {
-            var index3 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index3;
-            entanglements[index3] = NoLanes;
-            eventTimes[index3] = NoTimestamp;
-            expirationTimes[index3] = NoTimestamp;
+            var index2 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index2;
+            entanglements[index2] = NoLanes;
+            eventTimes[index2] = NoTimestamp;
+            expirationTimes[index2] = NoTimestamp;
             lanes &= ~lane;
           }
         }
@@ -6603,9 +6603,9 @@ var require_react_dom_development = __commonJS({
           var entanglements = root2.entanglements;
           var lanes = entangledLanes;
           while (lanes > 0) {
-            var index3 = pickArbitraryLaneIndex(lanes);
-            var lane = 1 << index3;
-            entanglements[index3] |= entangledLanes;
+            var index2 = pickArbitraryLaneIndex(lanes);
+            var lane = 1 << index2;
+            entanglements[index2] |= entangledLanes;
             lanes &= ~lane;
           }
         }
@@ -8477,10 +8477,10 @@ var require_react_dom_development = __commonJS({
               }
             }
             if (type === "script") {
-              var div2 = ownerDocument.createElement("div");
-              div2.innerHTML = "<script><\/script>";
-              var firstChild = div2.firstChild;
-              domElement = div2.removeChild(firstChild);
+              var div = ownerDocument.createElement("div");
+              div.innerHTML = "<script><\/script>";
+              var firstChild = div.firstChild;
+              domElement = div.removeChild(firstChild);
             } else if (typeof props.is === "string") {
               domElement = ownerDocument.createElement(type, {
                 is: props.is
@@ -8558,7 +8558,7 @@ var require_react_dom_development = __commonJS({
               listenToNonDelegatedEvent("invalid", domElement);
               break;
             case "option":
-              validateProps2(domElement, rawProps);
+              validateProps(domElement, rawProps);
               props = getHostProps$1(domElement, rawProps);
               break;
             case "select":
@@ -8813,7 +8813,7 @@ var require_react_dom_development = __commonJS({
               listenToNonDelegatedEvent("invalid", domElement);
               break;
             case "option":
-              validateProps2(domElement, rawProps);
+              validateProps(domElement, rawProps);
               break;
             case "select":
               initWrapperState$1(domElement, rawProps);
@@ -9764,36 +9764,36 @@ var require_react_dom_development = __commonJS({
         {
           fiberStack = [];
         }
-        var index2 = -1;
+        var index = -1;
         function createCursor(defaultValue) {
           return {
             current: defaultValue
           };
         }
         function pop2(cursor, fiber) {
-          if (index2 < 0) {
+          if (index < 0) {
             {
               error("Unexpected pop.");
             }
             return;
           }
           {
-            if (fiber !== fiberStack[index2]) {
+            if (fiber !== fiberStack[index]) {
               error("Unexpected Fiber popped.");
             }
           }
-          cursor.current = valueStack[index2];
-          valueStack[index2] = null;
+          cursor.current = valueStack[index];
+          valueStack[index] = null;
           {
-            fiberStack[index2] = null;
+            fiberStack[index] = null;
           }
-          index2--;
+          index--;
         }
         function push2(cursor, value, fiber) {
-          index2++;
-          valueStack[index2] = cursor.current;
+          index++;
+          valueStack[index] = cursor.current;
           {
-            fiberStack[index2] = fiber;
+            fiberStack[index] = fiber;
           }
           cursor.current = value;
         }
@@ -10112,9 +10112,9 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function runWithPriority$1(reactPriorityLevel, fn3) {
+        function runWithPriority$1(reactPriorityLevel, fn2) {
           var priorityLevel = reactPriorityToSchedulerPriority(reactPriorityLevel);
-          return Scheduler_runWithPriority(priorityLevel, fn3);
+          return Scheduler_runWithPriority(priorityLevel, fn2);
         }
         function scheduleCallback(reactPriorityLevel, callback, options2) {
           var priorityLevel = reactPriorityToSchedulerPriority(reactPriorityLevel);
@@ -10371,10 +10371,10 @@ var require_react_dom_development = __commonJS({
         function resolveDefaultProps(Component2, baseProps) {
           if (Component2 && Component2.defaultProps) {
             var props = _assign({}, baseProps);
-            var defaultProps2 = Component2.defaultProps;
-            for (var propName in defaultProps2) {
+            var defaultProps = Component2.defaultProps;
+            for (var propName in defaultProps) {
               if (props[propName] === void 0) {
-                props[propName] = defaultProps2[propName];
+                props[propName] = defaultProps[propName];
               }
             }
             return props;
@@ -10889,10 +10889,10 @@ var require_react_dom_development = __commonJS({
           finishedQueue.effects = null;
           if (effects !== null) {
             for (var i = 0; i < effects.length; i++) {
-              var effect5 = effects[i];
-              var callback = effect5.callback;
+              var effect4 = effects[i];
+              var callback = effect4.callback;
               if (callback !== null) {
-                effect5.callback = null;
+                effect4.callback = null;
                 callCallback(callback, instance);
               }
             }
@@ -10900,7 +10900,7 @@ var require_react_dom_development = __commonJS({
         }
         var fakeInternalInstance = {};
         var isArray = Array.isArray;
-        var emptyRefsObject = new React14.Component().refs;
+        var emptyRefsObject = new React15.Component().refs;
         var didWarnAboutStateAssignmentForComponent;
         var didWarnAboutUninitializedState;
         var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -13141,7 +13141,7 @@ var require_react_dom_development = __commonJS({
           return rerenderReducer(basicStateReducer);
         }
         function pushEffect(tag, create, destroy, deps) {
-          var effect5 = {
+          var effect4 = {
             tag,
             create,
             destroy,
@@ -13152,19 +13152,19 @@ var require_react_dom_development = __commonJS({
           if (componentUpdateQueue === null) {
             componentUpdateQueue = createFunctionComponentUpdateQueue();
             currentlyRenderingFiber$1.updateQueue = componentUpdateQueue;
-            componentUpdateQueue.lastEffect = effect5.next = effect5;
+            componentUpdateQueue.lastEffect = effect4.next = effect4;
           } else {
             var lastEffect = componentUpdateQueue.lastEffect;
             if (lastEffect === null) {
-              componentUpdateQueue.lastEffect = effect5.next = effect5;
+              componentUpdateQueue.lastEffect = effect4.next = effect4;
             } else {
               var firstEffect = lastEffect.next;
-              lastEffect.next = effect5;
-              effect5.next = firstEffect;
-              componentUpdateQueue.lastEffect = effect5;
+              lastEffect.next = effect4;
+              effect4.next = firstEffect;
+              componentUpdateQueue.lastEffect = effect4;
             }
           }
-          return effect5;
+          return effect4;
         }
         function mountRef(initialValue) {
           var hook = mountWorkInProgressHook();
@@ -14324,18 +14324,18 @@ var require_react_dom_development = __commonJS({
               }
             }
           }
-          var render3 = Component2.render;
+          var render2 = Component2.render;
           var ref = workInProgress2.ref;
           var nextChildren;
           prepareToReadContext(workInProgress2, renderLanes2);
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            nextChildren = renderWithHooks(current2, workInProgress2, render3, nextProps, ref, renderLanes2);
+            nextChildren = renderWithHooks(current2, workInProgress2, render2, nextProps, ref, renderLanes2);
             if (workInProgress2.mode & StrictMode) {
               disableLogs();
               try {
-                nextChildren = renderWithHooks(current2, workInProgress2, render3, nextProps, ref, renderLanes2);
+                nextChildren = renderWithHooks(current2, workInProgress2, render2, nextProps, ref, renderLanes2);
               } finally {
                 reenableLogs();
               }
@@ -15233,13 +15233,13 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function validateSuspenseListNestedChild(childSlot, index3) {
+        function validateSuspenseListNestedChild(childSlot, index2) {
           {
             var isArray2 = Array.isArray(childSlot);
             var isIterable = !isArray2 && typeof getIteratorFn(childSlot) === "function";
             if (isArray2 || isIterable) {
               var type = isArray2 ? "array" : "iterable";
-              error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index3, type);
+              error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index2, type);
               return false;
             }
           }
@@ -15426,9 +15426,9 @@ var require_react_dom_development = __commonJS({
             }
           }
           var newProps = workInProgress2.pendingProps;
-          var render3 = newProps.children;
+          var render2 = newProps.children;
           {
-            if (typeof render3 !== "function") {
+            if (typeof render2 !== "function") {
               error("A context consumer was rendered with multiple children, or a child that isn't a function. A context consumer expects a single child that is a function. If you did pass a function, make sure there is no trailing or leading whitespace around it.");
             }
           }
@@ -15438,7 +15438,7 @@ var require_react_dom_development = __commonJS({
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            newChildren = render3(newValue);
+            newChildren = render2(newValue);
             setIsRendering(false);
           }
           workInProgress2.flags |= PerformedWork;
@@ -16519,17 +16519,17 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect5 = firstEffect;
+            var effect4 = firstEffect;
             do {
-              if ((effect5.tag & tag) === tag) {
-                var destroy = effect5.destroy;
-                effect5.destroy = void 0;
+              if ((effect4.tag & tag) === tag) {
+                var destroy = effect4.destroy;
+                effect4.destroy = void 0;
                 if (destroy !== void 0) {
                   destroy();
                 }
               }
-              effect5 = effect5.next;
-            } while (effect5 !== firstEffect);
+              effect4 = effect4.next;
+            } while (effect4 !== firstEffect);
           }
         }
         function commitHookEffectListMount(tag, finishedWork) {
@@ -16537,13 +16537,13 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect5 = firstEffect;
+            var effect4 = firstEffect;
             do {
-              if ((effect5.tag & tag) === tag) {
-                var create = effect5.create;
-                effect5.destroy = create();
+              if ((effect4.tag & tag) === tag) {
+                var create = effect4.create;
+                effect4.destroy = create();
                 {
-                  var destroy = effect5.destroy;
+                  var destroy = effect4.destroy;
                   if (destroy !== void 0 && typeof destroy !== "function") {
                     var addendum = void 0;
                     if (destroy === null) {
@@ -16557,8 +16557,8 @@ var require_react_dom_development = __commonJS({
                   }
                 }
               }
-              effect5 = effect5.next;
-            } while (effect5 !== firstEffect);
+              effect4 = effect4.next;
+            } while (effect4 !== firstEffect);
           }
         }
         function schedulePassiveEffects(finishedWork) {
@@ -16566,15 +16566,15 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect5 = firstEffect;
+            var effect4 = firstEffect;
             do {
-              var _effect = effect5, next = _effect.next, tag = _effect.tag;
+              var _effect = effect4, next = _effect.next, tag = _effect.tag;
               if ((tag & Passive$1) !== NoFlags$1 && (tag & HasEffect) !== NoFlags$1) {
-                enqueuePendingPassiveHookEffectUnmount(finishedWork, effect5);
-                enqueuePendingPassiveHookEffectMount(finishedWork, effect5);
+                enqueuePendingPassiveHookEffectUnmount(finishedWork, effect4);
+                enqueuePendingPassiveHookEffectMount(finishedWork, effect4);
               }
-              effect5 = next;
-            } while (effect5 !== firstEffect);
+              effect4 = next;
+            } while (effect4 !== firstEffect);
           }
         }
         function commitLifeCycles(finishedRoot, current2, finishedWork, committedLanes) {
@@ -16790,20 +16790,20 @@ var require_react_dom_development = __commonJS({
                 var lastEffect = updateQueue.lastEffect;
                 if (lastEffect !== null) {
                   var firstEffect = lastEffect.next;
-                  var effect5 = firstEffect;
+                  var effect4 = firstEffect;
                   do {
-                    var _effect2 = effect5, destroy = _effect2.destroy, tag = _effect2.tag;
+                    var _effect2 = effect4, destroy = _effect2.destroy, tag = _effect2.tag;
                     if (destroy !== void 0) {
                       if ((tag & Passive$1) !== NoFlags$1) {
-                        enqueuePendingPassiveHookEffectUnmount(current2, effect5);
+                        enqueuePendingPassiveHookEffectUnmount(current2, effect4);
                       } else {
                         {
                           safelyCallDestroy(current2, destroy);
                         }
                       }
                     }
-                    effect5 = effect5.next;
-                  } while (effect5 !== firstEffect);
+                    effect4 = effect4.next;
+                  } while (effect4 !== firstEffect);
                 }
               }
               return;
@@ -17670,11 +17670,11 @@ var require_react_dom_development = __commonJS({
           }
           flushSyncCallbackQueue();
         }
-        function batchedUpdates$1(fn3, a) {
+        function batchedUpdates$1(fn2, a) {
           var prevExecutionContext = executionContext;
           executionContext |= BatchedContext;
           try {
-            return fn3(a);
+            return fn2(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17683,11 +17683,11 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function batchedEventUpdates$1(fn3, a) {
+        function batchedEventUpdates$1(fn2, a) {
           var prevExecutionContext = executionContext;
           executionContext |= EventContext;
           try {
-            return fn3(a);
+            return fn2(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17696,12 +17696,12 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function discreteUpdates$1(fn3, a, b, c, d) {
+        function discreteUpdates$1(fn2, a, b, c, d) {
           var prevExecutionContext = executionContext;
           executionContext |= DiscreteEventContext;
           {
             try {
-              return runWithPriority$1(UserBlockingPriority$2, fn3.bind(null, a, b, c, d));
+              return runWithPriority$1(UserBlockingPriority$2, fn2.bind(null, a, b, c, d));
             } finally {
               executionContext = prevExecutionContext;
               if (executionContext === NoContext) {
@@ -17711,12 +17711,12 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function unbatchedUpdates(fn3, a) {
+        function unbatchedUpdates(fn2, a) {
           var prevExecutionContext = executionContext;
           executionContext &= ~BatchedContext;
           executionContext |= LegacyUnbatchedContext;
           try {
-            return fn3(a);
+            return fn2(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17725,19 +17725,19 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function flushSync(fn3, a) {
+        function flushSync(fn2, a) {
           var prevExecutionContext = executionContext;
           if ((prevExecutionContext & (RenderContext | CommitContext)) !== NoContext) {
             {
               error("flushSync was called from inside a lifecycle method. React cannot flush when React is already rendering. Consider moving this call to a scheduler task or micro task.");
             }
-            return fn3(a);
+            return fn2(a);
           }
           executionContext |= BatchedContext;
           {
             try {
-              if (fn3) {
-                return runWithPriority$1(ImmediatePriority$1, fn3.bind(null, a));
+              if (fn2) {
+                return runWithPriority$1(ImmediatePriority$1, fn2.bind(null, a));
               } else {
                 return void 0;
               }
@@ -18374,8 +18374,8 @@ var require_react_dom_development = __commonJS({
           }
           return false;
         }
-        function enqueuePendingPassiveHookEffectMount(fiber, effect5) {
-          pendingPassiveHookEffectsMount.push(effect5, fiber);
+        function enqueuePendingPassiveHookEffectMount(fiber, effect4) {
+          pendingPassiveHookEffectsMount.push(effect4, fiber);
           if (!rootDoesHavePassiveEffects) {
             rootDoesHavePassiveEffects = true;
             scheduleCallback(NormalPriority$1, function() {
@@ -18384,8 +18384,8 @@ var require_react_dom_development = __commonJS({
             });
           }
         }
-        function enqueuePendingPassiveHookEffectUnmount(fiber, effect5) {
-          pendingPassiveHookEffectsUnmount.push(effect5, fiber);
+        function enqueuePendingPassiveHookEffectUnmount(fiber, effect4) {
+          pendingPassiveHookEffectsUnmount.push(effect4, fiber);
           {
             fiber.flags |= PassiveUnmountPendingDev;
             var alternate = fiber.alternate;
@@ -18401,9 +18401,9 @@ var require_react_dom_development = __commonJS({
             });
           }
         }
-        function invokePassiveEffectCreate(effect5) {
-          var create = effect5.create;
-          effect5.destroy = create();
+        function invokePassiveEffectCreate(effect4) {
+          var create = effect4.create;
+          effect4.destroy = create();
         }
         function flushPassiveEffectsImpl() {
           if (rootWithPendingPassiveEffects === null) {
@@ -18479,14 +18479,14 @@ var require_react_dom_development = __commonJS({
               resetCurrentFiber();
             }
           }
-          var effect5 = root2.current.firstEffect;
-          while (effect5 !== null) {
-            var nextNextEffect = effect5.nextEffect;
-            effect5.nextEffect = null;
-            if (effect5.flags & Deletion) {
-              detachFiberAfterEffects(effect5);
+          var effect4 = root2.current.firstEffect;
+          while (effect4 !== null) {
+            var nextNextEffect = effect4.nextEffect;
+            effect4.nextEffect = null;
+            if (effect4.flags & Deletion) {
+              detachFiberAfterEffects(effect4);
             }
-            effect5 = nextNextEffect;
+            effect4 = nextNextEffect;
           }
           {
             popInteractions(prevInteractions);
@@ -19699,7 +19699,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             root2.mutableSourceEagerHydrationData.push(mutableSource, version);
           }
         }
-        function createPortal2(children, containerInfo, implementation) {
+        function createPortal(children, containerInfo, implementation) {
           var key = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : null;
           return {
             $$typeof: REACT_PORTAL_TYPE,
@@ -19872,10 +19872,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           scheduleUpdateOnFiber(fiber, lane, eventTime);
           markRetryLaneIfNotHydrated(fiber, lane);
         }
-        function runWithPriority$2(priority, fn3) {
+        function runWithPriority$2(priority, fn2) {
           try {
             setCurrentUpdateLanePriority(priority);
-            return fn3();
+            return fn2();
           } finally {
           }
         }
@@ -19904,10 +19904,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var scheduleUpdate = null;
         var setSuspenseHandler = null;
         {
-          var copyWithDeleteImpl = function(obj, path, index3) {
-            var key = path[index3];
+          var copyWithDeleteImpl = function(obj, path, index2) {
+            var key = path[index2];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            if (index3 + 1 === path.length) {
+            if (index2 + 1 === path.length) {
               if (Array.isArray(updated)) {
                 updated.splice(key, 1);
               } else {
@@ -19915,17 +19915,17 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               }
               return updated;
             }
-            updated[key] = copyWithDeleteImpl(obj[key], path, index3 + 1);
+            updated[key] = copyWithDeleteImpl(obj[key], path, index2 + 1);
             return updated;
           };
           var copyWithDelete = function(obj, path) {
             return copyWithDeleteImpl(obj, path, 0);
           };
-          var copyWithRenameImpl = function(obj, oldPath, newPath, index3) {
-            var oldKey = oldPath[index3];
+          var copyWithRenameImpl = function(obj, oldPath, newPath, index2) {
+            var oldKey = oldPath[index2];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            if (index3 + 1 === oldPath.length) {
-              var newKey = newPath[index3];
+            if (index2 + 1 === oldPath.length) {
+              var newKey = newPath[index2];
               updated[newKey] = updated[oldKey];
               if (Array.isArray(updated)) {
                 updated.splice(oldKey, 1);
@@ -19933,7 +19933,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
                 delete updated[oldKey];
               }
             } else {
-              updated[oldKey] = copyWithRenameImpl(obj[oldKey], oldPath, newPath, index3 + 1);
+              updated[oldKey] = copyWithRenameImpl(obj[oldKey], oldPath, newPath, index2 + 1);
             }
             return updated;
           };
@@ -19951,13 +19951,13 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             }
             return copyWithRenameImpl(obj, oldPath, newPath, 0);
           };
-          var copyWithSetImpl = function(obj, path, index3, value) {
-            if (index3 >= path.length) {
+          var copyWithSetImpl = function(obj, path, index2, value) {
+            if (index2 >= path.length) {
               return value;
             }
-            var key = path[index3];
+            var key = path[index2];
             var updated = Array.isArray(obj) ? obj.slice() : _assign({}, obj);
-            updated[key] = copyWithSetImpl(obj[key], path, index3 + 1, value);
+            updated[key] = copyWithSetImpl(obj[key], path, index2 + 1, value);
             return updated;
           };
           var copyWithSet = function(obj, path, value) {
@@ -20267,7 +20267,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           return legacyRenderSubtreeIntoContainer(null, element, container, true, callback);
         }
-        function render2(element, container, callback) {
+        function render(element, container, callback) {
           if (!isValidContainer(container)) {
             {
               throw Error("Target container is not a DOM element.");
@@ -20352,7 +20352,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               throw Error("Target container is not a DOM element.");
             }
           }
-          return createPortal2(children, container, null, key);
+          return createPortal(children, container, null, key);
         }
         function renderSubtreeIntoContainer(parentComponent, element, containerNode, callback) {
           return unstable_renderSubtreeIntoContainer(parentComponent, element, containerNode, callback);
@@ -20399,7 +20399,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         exports.findDOMNode = findDOMNode;
         exports.flushSync = flushSync;
         exports.hydrate = hydrate;
-        exports.render = render2;
+        exports.render = render;
         exports.unmountComponentAtNode = unmountComponentAtNode;
         exports.unstable_batchedUpdates = batchedUpdates$1;
         exports.unstable_createPortal = unstable_createPortal;
@@ -21097,17 +21097,17 @@ var require_lodash = __commonJS({
         return func.apply(thisArg, args);
       }
       function arrayAggregator(array2, setter, iteratee, accumulator) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
-        while (++index2 < length) {
-          var value = array2[index2];
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          var value = array2[index];
           setter(accumulator, value, iteratee(value), array2);
         }
         return accumulator;
       }
       function arrayEach(array2, iteratee) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
-        while (++index2 < length) {
-          if (iteratee(array2[index2], index2, array2) === false) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (iteratee(array2[index], index, array2) === false) {
             break;
           }
         }
@@ -21123,19 +21123,19 @@ var require_lodash = __commonJS({
         return array2;
       }
       function arrayEvery(array2, predicate) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
-        while (++index2 < length) {
-          if (!predicate(array2[index2], index2, array2)) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (!predicate(array2[index], index, array2)) {
             return false;
           }
         }
         return true;
       }
       function arrayFilter(array2, predicate) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result = [];
-        while (++index2 < length) {
-          var value = array2[index2];
-          if (predicate(value, index2, array2)) {
+        var index = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result = [];
+        while (++index < length) {
+          var value = array2[index];
+          if (predicate(value, index, array2)) {
             result[resIndex++] = value;
           }
         }
@@ -21146,35 +21146,35 @@ var require_lodash = __commonJS({
         return !!length && baseIndexOf(array2, value, 0) > -1;
       }
       function arrayIncludesWith(array2, value, comparator) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
-        while (++index2 < length) {
-          if (comparator(value, array2[index2])) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (comparator(value, array2[index])) {
             return true;
           }
         }
         return false;
       }
       function arrayMap(array2, iteratee) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
-        while (++index2 < length) {
-          result[index2] = iteratee(array2[index2], index2, array2);
+        var index = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
+        while (++index < length) {
+          result[index] = iteratee(array2[index], index, array2);
         }
         return result;
       }
       function arrayPush(array2, values) {
-        var index2 = -1, length = values.length, offset2 = array2.length;
-        while (++index2 < length) {
-          array2[offset2 + index2] = values[index2];
+        var index = -1, length = values.length, offset2 = array2.length;
+        while (++index < length) {
+          array2[offset2 + index] = values[index];
         }
         return array2;
       }
       function arrayReduce(array2, iteratee, accumulator, initAccum) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
+        var index = -1, length = array2 == null ? 0 : array2.length;
         if (initAccum && length) {
-          accumulator = array2[++index2];
+          accumulator = array2[++index];
         }
-        while (++index2 < length) {
-          accumulator = iteratee(accumulator, array2[index2], index2, array2);
+        while (++index < length) {
+          accumulator = iteratee(accumulator, array2[index], index, array2);
         }
         return accumulator;
       }
@@ -21189,9 +21189,9 @@ var require_lodash = __commonJS({
         return accumulator;
       }
       function arraySome(array2, predicate) {
-        var index2 = -1, length = array2 == null ? 0 : array2.length;
-        while (++index2 < length) {
-          if (predicate(array2[index2], index2, array2)) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (predicate(array2[index], index, array2)) {
             return true;
           }
         }
@@ -21215,10 +21215,10 @@ var require_lodash = __commonJS({
         return result;
       }
       function baseFindIndex(array2, predicate, fromIndex, fromRight) {
-        var length = array2.length, index2 = fromIndex + (fromRight ? 1 : -1);
-        while (fromRight ? index2-- : ++index2 < length) {
-          if (predicate(array2[index2], index2, array2)) {
-            return index2;
+        var length = array2.length, index = fromIndex + (fromRight ? 1 : -1);
+        while (fromRight ? index-- : ++index < length) {
+          if (predicate(array2[index], index, array2)) {
+            return index;
           }
         }
         return -1;
@@ -21227,10 +21227,10 @@ var require_lodash = __commonJS({
         return value === value ? strictIndexOf(array2, value, fromIndex) : baseFindIndex(array2, baseIsNaN, fromIndex);
       }
       function baseIndexOfWith(array2, value, fromIndex, comparator) {
-        var index2 = fromIndex - 1, length = array2.length;
-        while (++index2 < length) {
-          if (comparator(array2[index2], value)) {
-            return index2;
+        var index = fromIndex - 1, length = array2.length;
+        while (++index < length) {
+          if (comparator(array2[index], value)) {
+            return index;
           }
         }
         return -1;
@@ -21253,8 +21253,8 @@ var require_lodash = __commonJS({
         };
       }
       function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
-        eachFunc(collection, function(value, index2, collection2) {
-          accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index2, collection2);
+        eachFunc(collection, function(value, index, collection2) {
+          accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index, collection2);
         });
         return accumulator;
       }
@@ -21267,9 +21267,9 @@ var require_lodash = __commonJS({
         return array2;
       }
       function baseSum(array2, iteratee) {
-        var result, index2 = -1, length = array2.length;
-        while (++index2 < length) {
-          var current = iteratee(array2[index2]);
+        var result, index = -1, length = array2.length;
+        while (++index < length) {
+          var current = iteratee(array2[index]);
           if (current !== undefined2) {
             result = result === undefined2 ? current : result + current;
           }
@@ -21277,9 +21277,9 @@ var require_lodash = __commonJS({
         return result;
       }
       function baseTimes(n, iteratee) {
-        var index2 = -1, result = Array(n);
-        while (++index2 < n) {
-          result[index2] = iteratee(index2);
+        var index = -1, result = Array(n);
+        while (++index < n) {
+          result[index] = iteratee(index);
         }
         return result;
       }
@@ -21305,16 +21305,16 @@ var require_lodash = __commonJS({
         return cache.has(key);
       }
       function charsStartIndex(strSymbols, chrSymbols) {
-        var index2 = -1, length = strSymbols.length;
-        while (++index2 < length && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
+        var index = -1, length = strSymbols.length;
+        while (++index < length && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
         }
-        return index2;
+        return index;
       }
       function charsEndIndex(strSymbols, chrSymbols) {
-        var index2 = strSymbols.length;
-        while (index2-- && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
+        var index = strSymbols.length;
+        while (index-- && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
         }
-        return index2;
+        return index;
       }
       function countHolders(array2, placeholder) {
         var length = array2.length, result = 0;
@@ -21347,9 +21347,9 @@ var require_lodash = __commonJS({
         return result;
       }
       function mapToArray(map2) {
-        var index2 = -1, result = Array(map2.size);
+        var index = -1, result = Array(map2.size);
         map2.forEach(function(value, key) {
-          result[++index2] = [key, value];
+          result[++index] = [key, value];
         });
         return result;
       }
@@ -21359,47 +21359,47 @@ var require_lodash = __commonJS({
         };
       }
       function replaceHolders(array2, placeholder) {
-        var index2 = -1, length = array2.length, resIndex = 0, result = [];
-        while (++index2 < length) {
-          var value = array2[index2];
+        var index = -1, length = array2.length, resIndex = 0, result = [];
+        while (++index < length) {
+          var value = array2[index];
           if (value === placeholder || value === PLACEHOLDER) {
-            array2[index2] = PLACEHOLDER;
-            result[resIndex++] = index2;
+            array2[index] = PLACEHOLDER;
+            result[resIndex++] = index;
           }
         }
         return result;
       }
       function setToArray(set4) {
-        var index2 = -1, result = Array(set4.size);
+        var index = -1, result = Array(set4.size);
         set4.forEach(function(value) {
-          result[++index2] = value;
+          result[++index] = value;
         });
         return result;
       }
       function setToPairs(set4) {
-        var index2 = -1, result = Array(set4.size);
+        var index = -1, result = Array(set4.size);
         set4.forEach(function(value) {
-          result[++index2] = [value, value];
+          result[++index] = [value, value];
         });
         return result;
       }
       function strictIndexOf(array2, value, fromIndex) {
-        var index2 = fromIndex - 1, length = array2.length;
-        while (++index2 < length) {
-          if (array2[index2] === value) {
-            return index2;
+        var index = fromIndex - 1, length = array2.length;
+        while (++index < length) {
+          if (array2[index] === value) {
+            return index;
           }
         }
         return -1;
       }
       function strictLastIndexOf(array2, value, fromIndex) {
-        var index2 = fromIndex + 1;
-        while (index2--) {
-          if (array2[index2] === value) {
-            return index2;
+        var index = fromIndex + 1;
+        while (index--) {
+          if (array2[index] === value) {
+            return index;
           }
         }
-        return index2;
+        return index;
       }
       function stringSize(string2) {
         return hasUnicode(string2) ? unicodeSize(string2) : asciiSize(string2);
@@ -21408,10 +21408,10 @@ var require_lodash = __commonJS({
         return hasUnicode(string2) ? unicodeToArray(string2) : asciiToArray(string2);
       }
       function trimmedEndIndex(string2) {
-        var index2 = string2.length;
-        while (index2-- && reWhitespace.test(string2.charAt(index2))) {
+        var index = string2.length;
+        while (index-- && reWhitespace.test(string2.charAt(index))) {
         }
-        return index2;
+        return index;
       }
       var unescapeHtmlChar = basePropertyOf(htmlUnescapes);
       function unicodeSize(string2) {
@@ -21433,8 +21433,8 @@ var require_lodash = __commonJS({
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
         var funcToString = funcProto.toString;
-        var hasOwnProperty2 = objectProto.hasOwnProperty;
-        var idCounter2 = 0;
+        var hasOwnProperty = objectProto.hasOwnProperty;
+        var idCounter = 0;
         var maskSrcKey = function() {
           var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
           return uid ? "Symbol(src)_1." + uid : "";
@@ -21442,7 +21442,7 @@ var require_lodash = __commonJS({
         var nativeObjectToString = objectProto.toString;
         var objectCtorString = funcToString.call(Object2);
         var oldDash = root._;
-        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty2).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
+        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
         var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice2 = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
         var defineProperty3 = function() {
           try {
@@ -21464,7 +21464,7 @@ var require_lodash = __commonJS({
             if (value instanceof LodashWrapper) {
               return value;
             }
-            if (hasOwnProperty2.call(value, "__wrapped__")) {
+            if (hasOwnProperty.call(value, "__wrapped__")) {
               return wrapperClone(value);
             }
           }
@@ -21539,15 +21539,15 @@ var require_lodash = __commonJS({
           return result2;
         }
         function lazyValue() {
-          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start3 = view.start, end2 = view.end, length = end2 - start3, index2 = isRight ? end2 : start3 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start3 = view.start, end2 = view.end, length = end2 - start3, index = isRight ? end2 : start3 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
           if (!isArr || !isRight && arrLength == length && takeCount == length) {
             return baseWrapperValue(array2, this.__actions__);
           }
           var result2 = [];
           outer:
             while (length-- && resIndex < takeCount) {
-              index2 += dir;
-              var iterIndex = -1, value = array2[index2];
+              index += dir;
+              var iterIndex = -1, value = array2[index];
               while (++iterIndex < iterLength) {
                 var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed3 = iteratee2(value);
                 if (type == LAZY_MAP_FLAG) {
@@ -21567,10 +21567,10 @@ var require_lodash = __commonJS({
         LazyWrapper.prototype = baseCreate(baseLodash.prototype);
         LazyWrapper.prototype.constructor = LazyWrapper;
         function Hash2(entries) {
-          var index2 = -1, length = entries == null ? 0 : entries.length;
+          var index = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index2 < length) {
-            var entry = entries[index2];
+          while (++index < length) {
+            var entry = entries[index];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21589,11 +21589,11 @@ var require_lodash = __commonJS({
             var result2 = data[key];
             return result2 === HASH_UNDEFINED ? undefined2 : result2;
           }
-          return hasOwnProperty2.call(data, key) ? data[key] : undefined2;
+          return hasOwnProperty.call(data, key) ? data[key] : undefined2;
         }
         function hashHas(key) {
           var data = this.__data__;
-          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty2.call(data, key);
+          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty.call(data, key);
         }
         function hashSet(key, value) {
           var data = this.__data__;
@@ -21607,10 +21607,10 @@ var require_lodash = __commonJS({
         Hash2.prototype.has = hashHas;
         Hash2.prototype.set = hashSet;
         function ListCache(entries) {
-          var index2 = -1, length = entries == null ? 0 : entries.length;
+          var index = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index2 < length) {
-            var entry = entries[index2];
+          while (++index < length) {
+            var entry = entries[index];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21619,33 +21619,33 @@ var require_lodash = __commonJS({
           this.size = 0;
         }
         function listCacheDelete(key) {
-          var data = this.__data__, index2 = assocIndexOf(data, key);
-          if (index2 < 0) {
+          var data = this.__data__, index = assocIndexOf(data, key);
+          if (index < 0) {
             return false;
           }
           var lastIndex = data.length - 1;
-          if (index2 == lastIndex) {
+          if (index == lastIndex) {
             data.pop();
           } else {
-            splice2.call(data, index2, 1);
+            splice2.call(data, index, 1);
           }
           --this.size;
           return true;
         }
         function listCacheGet(key) {
-          var data = this.__data__, index2 = assocIndexOf(data, key);
-          return index2 < 0 ? undefined2 : data[index2][1];
+          var data = this.__data__, index = assocIndexOf(data, key);
+          return index < 0 ? undefined2 : data[index][1];
         }
         function listCacheHas(key) {
           return assocIndexOf(this.__data__, key) > -1;
         }
         function listCacheSet(key, value) {
-          var data = this.__data__, index2 = assocIndexOf(data, key);
-          if (index2 < 0) {
+          var data = this.__data__, index = assocIndexOf(data, key);
+          if (index < 0) {
             ++this.size;
             data.push([key, value]);
           } else {
-            data[index2][1] = value;
+            data[index][1] = value;
           }
           return this;
         }
@@ -21655,10 +21655,10 @@ var require_lodash = __commonJS({
         ListCache.prototype.has = listCacheHas;
         ListCache.prototype.set = listCacheSet;
         function MapCache(entries) {
-          var index2 = -1, length = entries == null ? 0 : entries.length;
+          var index = -1, length = entries == null ? 0 : entries.length;
           this.clear();
-          while (++index2 < length) {
-            var entry = entries[index2];
+          while (++index < length) {
+            var entry = entries[index];
             this.set(entry[0], entry[1]);
           }
         }
@@ -21693,10 +21693,10 @@ var require_lodash = __commonJS({
         MapCache.prototype.has = mapCacheHas;
         MapCache.prototype.set = mapCacheSet;
         function SetCache(values2) {
-          var index2 = -1, length = values2 == null ? 0 : values2.length;
+          var index = -1, length = values2 == null ? 0 : values2.length;
           this.__data__ = new MapCache();
-          while (++index2 < length) {
-            this.add(values2[index2]);
+          while (++index < length) {
+            this.add(values2[index]);
           }
         }
         function setCacheAdd(value) {
@@ -21748,9 +21748,9 @@ var require_lodash = __commonJS({
         Stack2.prototype.has = stackHas;
         Stack2.prototype.set = stackSet;
         function arrayLikeKeys(value, inherited) {
-          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType2 = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType2, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
+          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
           for (var key in value) {
-            if ((inherited || hasOwnProperty2.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType2 && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
+            if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
               result2.push(key);
             }
           }
@@ -21773,7 +21773,7 @@ var require_lodash = __commonJS({
         }
         function assignValue(object2, key, value) {
           var objValue = object2[key];
-          if (!(hasOwnProperty2.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
+          if (!(hasOwnProperty.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
             baseAssignValue(object2, key, value);
           }
         }
@@ -21811,9 +21811,9 @@ var require_lodash = __commonJS({
           }
         }
         function baseAt(object2, paths) {
-          var index2 = -1, length = paths.length, result2 = Array2(length), skip = object2 == null;
-          while (++index2 < length) {
-            result2[index2] = skip ? undefined2 : get3(object2, paths[index2]);
+          var index = -1, length = paths.length, result2 = Array2(length), skip = object2 == null;
+          while (++index < length) {
+            result2[index] = skip ? undefined2 : get3(object2, paths[index]);
           }
           return result2;
         }
@@ -21917,7 +21917,7 @@ var require_lodash = __commonJS({
           }, wait);
         }
         function baseDifference(array2, values2, iteratee2, comparator) {
-          var index2 = -1, includes2 = arrayIncludes, isCommon = true, length = array2.length, result2 = [], valuesLength = values2.length;
+          var index = -1, includes2 = arrayIncludes, isCommon = true, length = array2.length, result2 = [], valuesLength = values2.length;
           if (!length) {
             return result2;
           }
@@ -21933,8 +21933,8 @@ var require_lodash = __commonJS({
             values2 = new SetCache(values2);
           }
           outer:
-            while (++index2 < length) {
-              var value = array2[index2], computed3 = iteratee2 == null ? value : iteratee2(value);
+            while (++index < length) {
+              var value = array2[index], computed3 = iteratee2 == null ? value : iteratee2(value);
               value = comparator || value !== 0 ? value : 0;
               if (isCommon && computed3 === computed3) {
                 var valuesIndex = valuesLength;
@@ -21954,16 +21954,16 @@ var require_lodash = __commonJS({
         var baseEachRight = createBaseEach(baseForOwnRight, true);
         function baseEvery(collection, predicate) {
           var result2 = true;
-          baseEach(collection, function(value, index2, collection2) {
-            result2 = !!predicate(value, index2, collection2);
+          baseEach(collection, function(value, index, collection2) {
+            result2 = !!predicate(value, index, collection2);
             return result2;
           });
           return result2;
         }
         function baseExtremum(array2, iteratee2, comparator) {
-          var index2 = -1, length = array2.length;
-          while (++index2 < length) {
-            var value = array2[index2], current = iteratee2(value);
+          var index = -1, length = array2.length;
+          while (++index < length) {
+            var value = array2[index], current = iteratee2(value);
             if (current != null && (computed3 === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed3))) {
               var computed3 = current, result2 = value;
             }
@@ -21988,19 +21988,19 @@ var require_lodash = __commonJS({
         }
         function baseFilter(collection, predicate) {
           var result2 = [];
-          baseEach(collection, function(value, index2, collection2) {
-            if (predicate(value, index2, collection2)) {
+          baseEach(collection, function(value, index, collection2) {
+            if (predicate(value, index, collection2)) {
               result2.push(value);
             }
           });
           return result2;
         }
         function baseFlatten(array2, depth, predicate, isStrict, result2) {
-          var index2 = -1, length = array2.length;
+          var index = -1, length = array2.length;
           predicate || (predicate = isFlattenable);
           result2 || (result2 = []);
-          while (++index2 < length) {
-            var value = array2[index2];
+          while (++index < length) {
+            var value = array2[index];
             if (depth > 0 && predicate(value)) {
               if (depth > 1) {
                 baseFlatten(value, depth - 1, predicate, isStrict, result2);
@@ -22028,11 +22028,11 @@ var require_lodash = __commonJS({
         }
         function baseGet(object2, path) {
           path = castPath(path, object2);
-          var index2 = 0, length = path.length;
-          while (object2 != null && index2 < length) {
-            object2 = object2[toKey(path[index2++])];
+          var index = 0, length = path.length;
+          while (object2 != null && index < length) {
+            object2 = object2[toKey(path[index++])];
           }
-          return index2 && index2 == length ? object2 : undefined2;
+          return index && index == length ? object2 : undefined2;
         }
         function baseGetAllKeys(object2, keysFunc, symbolsFunc) {
           var result2 = keysFunc(object2);
@@ -22048,7 +22048,7 @@ var require_lodash = __commonJS({
           return value > other;
         }
         function baseHas(object2, key) {
-          return object2 != null && hasOwnProperty2.call(object2, key);
+          return object2 != null && hasOwnProperty.call(object2, key);
         }
         function baseHasIn(object2, key) {
           return object2 != null && key in Object2(object2);
@@ -22067,10 +22067,10 @@ var require_lodash = __commonJS({
             caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array2.length >= 120) ? new SetCache(othIndex && array2) : undefined2;
           }
           array2 = arrays[0];
-          var index2 = -1, seen = caches[0];
+          var index = -1, seen = caches[0];
           outer:
-            while (++index2 < length && result2.length < maxLength) {
-              var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
+            while (++index < length && result2.length < maxLength) {
+              var value = array2[index], computed3 = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
               if (!(seen ? cacheHas(seen, computed3) : includes2(result2, computed3, comparator))) {
                 othIndex = othLength;
@@ -22135,7 +22135,7 @@ var require_lodash = __commonJS({
             return objIsArr || isTypedArray(object2) ? equalArrays(object2, other, bitmask, customizer, equalFunc, stack) : equalByTag(object2, other, objTag, bitmask, customizer, equalFunc, stack);
           }
           if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
-            var objIsWrapped = objIsObj && hasOwnProperty2.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty2.call(other, "__wrapped__");
+            var objIsWrapped = objIsObj && hasOwnProperty.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
             if (objIsWrapped || othIsWrapped) {
               var objUnwrapped = objIsWrapped ? object2.value() : object2, othUnwrapped = othIsWrapped ? other.value() : other;
               stack || (stack = new Stack2());
@@ -22152,19 +22152,19 @@ var require_lodash = __commonJS({
           return isObjectLike(value) && getTag(value) == mapTag;
         }
         function baseIsMatch(object2, source, matchData, customizer) {
-          var index2 = matchData.length, length = index2, noCustomizer = !customizer;
+          var index = matchData.length, length = index, noCustomizer = !customizer;
           if (object2 == null) {
             return !length;
           }
           object2 = Object2(object2);
-          while (index2--) {
-            var data = matchData[index2];
+          while (index--) {
+            var data = matchData[index];
             if (noCustomizer && data[2] ? data[1] !== object2[data[0]] : !(data[0] in object2)) {
               return false;
             }
           }
-          while (++index2 < length) {
-            data = matchData[index2];
+          while (++index < length) {
+            data = matchData[index];
             var key = data[0], objValue = object2[key], srcValue = data[1];
             if (noCustomizer && data[2]) {
               if (objValue === undefined2 && !(key in object2)) {
@@ -22216,7 +22216,7 @@ var require_lodash = __commonJS({
           }
           var result2 = [];
           for (var key in Object2(object2)) {
-            if (hasOwnProperty2.call(object2, key) && key != "constructor") {
+            if (hasOwnProperty.call(object2, key) && key != "constructor") {
               result2.push(key);
             }
           }
@@ -22228,7 +22228,7 @@ var require_lodash = __commonJS({
           }
           var isProto = isPrototype(object2), result2 = [];
           for (var key in object2) {
-            if (!(key == "constructor" && (isProto || !hasOwnProperty2.call(object2, key)))) {
+            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object2, key)))) {
               result2.push(key);
             }
           }
@@ -22238,9 +22238,9 @@ var require_lodash = __commonJS({
           return value < other;
         }
         function baseMap(collection, iteratee2) {
-          var index2 = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+          var index = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
           baseEach(collection, function(value, key, collection2) {
-            result2[++index2] = iteratee2(value, key, collection2);
+            result2[++index] = iteratee2(value, key, collection2);
           });
           return result2;
         }
@@ -22343,13 +22343,13 @@ var require_lodash = __commonJS({
           } else {
             iteratees = [identity];
           }
-          var index2 = -1;
+          var index = -1;
           iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
           var result2 = baseMap(collection, function(value, key, collection2) {
             var criteria = arrayMap(iteratees, function(iteratee2) {
               return iteratee2(value);
             });
-            return { "criteria": criteria, "index": ++index2, "value": value };
+            return { "criteria": criteria, "index": ++index, "value": value };
           });
           return baseSortBy(result2, function(object2, other) {
             return compareMultiple(object2, other, orders);
@@ -22361,9 +22361,9 @@ var require_lodash = __commonJS({
           });
         }
         function basePickBy(object2, paths, predicate) {
-          var index2 = -1, length = paths.length, result2 = {};
-          while (++index2 < length) {
-            var path = paths[index2], value = baseGet(object2, path);
+          var index = -1, length = paths.length, result2 = {};
+          while (++index < length) {
+            var path = paths[index], value = baseGet(object2, path);
             if (predicate(value, path)) {
               baseSet(result2, castPath(path, object2), value);
             }
@@ -22376,15 +22376,15 @@ var require_lodash = __commonJS({
           };
         }
         function basePullAll(array2, values2, iteratee2, comparator) {
-          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length = values2.length, seen = array2;
+          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index = -1, length = values2.length, seen = array2;
           if (array2 === values2) {
             values2 = copyArray(values2);
           }
           if (iteratee2) {
             seen = arrayMap(array2, baseUnary(iteratee2));
           }
-          while (++index2 < length) {
-            var fromIndex = 0, value = values2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
+          while (++index < length) {
+            var fromIndex = 0, value = values2[index], computed3 = iteratee2 ? iteratee2(value) : value;
             while ((fromIndex = indexOf2(seen, computed3, fromIndex, comparator)) > -1) {
               if (seen !== array2) {
                 splice2.call(seen, fromIndex, 1);
@@ -22397,13 +22397,13 @@ var require_lodash = __commonJS({
         function basePullAt(array2, indexes) {
           var length = array2 ? indexes.length : 0, lastIndex = length - 1;
           while (length--) {
-            var index2 = indexes[length];
-            if (length == lastIndex || index2 !== previous) {
-              var previous = index2;
-              if (isIndex(index2)) {
-                splice2.call(array2, index2, 1);
+            var index = indexes[length];
+            if (length == lastIndex || index !== previous) {
+              var previous = index;
+              if (isIndex(index)) {
+                splice2.call(array2, index, 1);
               } else {
-                baseUnset(array2, index2);
+                baseUnset(array2, index);
               }
             }
           }
@@ -22413,9 +22413,9 @@ var require_lodash = __commonJS({
           return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
         }
         function baseRange(start3, end2, step, fromRight) {
-          var index2 = -1, length = nativeMax(nativeCeil((end2 - start3) / (step || 1)), 0), result2 = Array2(length);
+          var index = -1, length = nativeMax(nativeCeil((end2 - start3) / (step || 1)), 0), result2 = Array2(length);
           while (length--) {
-            result2[fromRight ? length : ++index2] = start3;
+            result2[fromRight ? length : ++index] = start3;
             start3 += step;
           }
           return result2;
@@ -22451,17 +22451,17 @@ var require_lodash = __commonJS({
             return object2;
           }
           path = castPath(path, object2);
-          var index2 = -1, length = path.length, lastIndex = length - 1, nested = object2;
-          while (nested != null && ++index2 < length) {
-            var key = toKey(path[index2]), newValue = value;
+          var index = -1, length = path.length, lastIndex = length - 1, nested = object2;
+          while (nested != null && ++index < length) {
+            var key = toKey(path[index]), newValue = value;
             if (key === "__proto__" || key === "constructor" || key === "prototype") {
               return object2;
             }
-            if (index2 != lastIndex) {
+            if (index != lastIndex) {
               var objValue = nested[key];
               newValue = customizer ? customizer(objValue, key, nested) : undefined2;
               if (newValue === undefined2) {
-                newValue = isObject2(objValue) ? objValue : isIndex(path[index2 + 1]) ? [] : {};
+                newValue = isObject2(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
               }
             }
             assignValue(nested, key, newValue);
@@ -22485,7 +22485,7 @@ var require_lodash = __commonJS({
           return shuffleSelf(values(collection));
         }
         function baseSlice(array2, start3, end2) {
-          var index2 = -1, length = array2.length;
+          var index = -1, length = array2.length;
           if (start3 < 0) {
             start3 = -start3 > length ? 0 : length + start3;
           }
@@ -22496,15 +22496,15 @@ var require_lodash = __commonJS({
           length = start3 > end2 ? 0 : end2 - start3 >>> 0;
           start3 >>>= 0;
           var result2 = Array2(length);
-          while (++index2 < length) {
-            result2[index2] = array2[index2 + start3];
+          while (++index < length) {
+            result2[index] = array2[index + start3];
           }
           return result2;
         }
         function baseSome(collection, predicate) {
           var result2;
-          baseEach(collection, function(value, index2, collection2) {
-            result2 = predicate(value, index2, collection2);
+          baseEach(collection, function(value, index, collection2) {
+            result2 = predicate(value, index, collection2);
             return !result2;
           });
           return !!result2;
@@ -22555,10 +22555,10 @@ var require_lodash = __commonJS({
           return nativeMin(high, MAX_ARRAY_INDEX);
         }
         function baseSortedUniq(array2, iteratee2) {
-          var index2 = -1, length = array2.length, resIndex = 0, result2 = [];
-          while (++index2 < length) {
-            var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
-            if (!index2 || !eq2(computed3, seen)) {
+          var index = -1, length = array2.length, resIndex = 0, result2 = [];
+          while (++index < length) {
+            var value = array2[index], computed3 = iteratee2 ? iteratee2(value) : value;
+            if (!index || !eq2(computed3, seen)) {
               var seen = computed3;
               result2[resIndex++] = value === 0 ? 0 : value;
             }
@@ -22588,7 +22588,7 @@ var require_lodash = __commonJS({
           return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
         }
         function baseUniq(array2, iteratee2, comparator) {
-          var index2 = -1, includes2 = arrayIncludes, length = array2.length, isCommon = true, result2 = [], seen = result2;
+          var index = -1, includes2 = arrayIncludes, length = array2.length, isCommon = true, result2 = [], seen = result2;
           if (comparator) {
             isCommon = false;
             includes2 = arrayIncludesWith;
@@ -22604,8 +22604,8 @@ var require_lodash = __commonJS({
             seen = iteratee2 ? [] : result2;
           }
           outer:
-            while (++index2 < length) {
-              var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
+            while (++index < length) {
+              var value = array2[index], computed3 = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
               if (isCommon && computed3 === computed3) {
                 var seenIndex = seen.length;
@@ -22636,10 +22636,10 @@ var require_lodash = __commonJS({
           return baseSet(object2, path, updater(baseGet(object2, path)), customizer);
         }
         function baseWhile(array2, predicate, isDrop, fromRight) {
-          var length = array2.length, index2 = fromRight ? length : -1;
-          while ((fromRight ? index2-- : ++index2 < length) && predicate(array2[index2], index2, array2)) {
+          var length = array2.length, index = fromRight ? length : -1;
+          while ((fromRight ? index-- : ++index < length) && predicate(array2[index], index, array2)) {
           }
-          return isDrop ? baseSlice(array2, fromRight ? 0 : index2, fromRight ? index2 + 1 : length) : baseSlice(array2, fromRight ? index2 + 1 : 0, fromRight ? length : index2);
+          return isDrop ? baseSlice(array2, fromRight ? 0 : index, fromRight ? index + 1 : length) : baseSlice(array2, fromRight ? index + 1 : 0, fromRight ? length : index);
         }
         function baseWrapperValue(value, actions) {
           var result2 = value;
@@ -22655,22 +22655,22 @@ var require_lodash = __commonJS({
           if (length < 2) {
             return length ? baseUniq(arrays[0]) : [];
           }
-          var index2 = -1, result2 = Array2(length);
-          while (++index2 < length) {
-            var array2 = arrays[index2], othIndex = -1;
+          var index = -1, result2 = Array2(length);
+          while (++index < length) {
+            var array2 = arrays[index], othIndex = -1;
             while (++othIndex < length) {
-              if (othIndex != index2) {
-                result2[index2] = baseDifference(result2[index2] || array2, arrays[othIndex], iteratee2, comparator);
+              if (othIndex != index) {
+                result2[index] = baseDifference(result2[index] || array2, arrays[othIndex], iteratee2, comparator);
               }
             }
           }
           return baseUniq(baseFlatten(result2, 1), iteratee2, comparator);
         }
         function baseZipObject(props, values2, assignFunc) {
-          var index2 = -1, length = props.length, valsLength = values2.length, result2 = {};
-          while (++index2 < length) {
-            var value = index2 < valsLength ? values2[index2] : undefined2;
-            assignFunc(result2, props[index2], value);
+          var index = -1, length = props.length, valsLength = values2.length, result2 = {};
+          while (++index < length) {
+            var value = index < valsLength ? values2[index] : undefined2;
+            assignFunc(result2, props[index], value);
           }
           return result2;
         }
@@ -22738,14 +22738,14 @@ var require_lodash = __commonJS({
           return 0;
         }
         function compareMultiple(object2, other, orders) {
-          var index2 = -1, objCriteria = object2.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
-          while (++index2 < length) {
-            var result2 = compareAscending(objCriteria[index2], othCriteria[index2]);
+          var index = -1, objCriteria = object2.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
+          while (++index < length) {
+            var result2 = compareAscending(objCriteria[index], othCriteria[index]);
             if (result2) {
-              if (index2 >= ordersLength) {
+              if (index >= ordersLength) {
                 return result2;
               }
-              var order2 = orders[index2];
+              var order2 = orders[index];
               return result2 * (order2 == "desc" ? -1 : 1);
             }
           }
@@ -22783,19 +22783,19 @@ var require_lodash = __commonJS({
           return result2;
         }
         function copyArray(source, array2) {
-          var index2 = -1, length = source.length;
+          var index = -1, length = source.length;
           array2 || (array2 = Array2(length));
-          while (++index2 < length) {
-            array2[index2] = source[index2];
+          while (++index < length) {
+            array2[index] = source[index];
           }
           return array2;
         }
         function copyObject(source, props, object2, customizer) {
           var isNew = !object2;
           object2 || (object2 = {});
-          var index2 = -1, length = props.length;
-          while (++index2 < length) {
-            var key = props[index2];
+          var index = -1, length = props.length;
+          while (++index < length) {
+            var key = props[index];
             var newValue = customizer ? customizer(object2[key], source[key], key, object2, source) : undefined2;
             if (newValue === undefined2) {
               newValue = source[key];
@@ -22822,17 +22822,17 @@ var require_lodash = __commonJS({
         }
         function createAssigner(assigner) {
           return baseRest(function(object2, sources) {
-            var index2 = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
+            var index = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
             customizer = assigner.length > 3 && typeof customizer == "function" ? (length--, customizer) : undefined2;
             if (guard && isIterateeCall(sources[0], sources[1], guard)) {
               customizer = length < 3 ? undefined2 : customizer;
               length = 1;
             }
             object2 = Object2(object2);
-            while (++index2 < length) {
-              var source = sources[index2];
+            while (++index < length) {
+              var source = sources[index];
               if (source) {
-                assigner(object2, source, index2, customizer);
+                assigner(object2, source, index, customizer);
               }
             }
             return object2;
@@ -22846,9 +22846,9 @@ var require_lodash = __commonJS({
             if (!isArrayLike(collection)) {
               return eachFunc(collection, iteratee2);
             }
-            var length = collection.length, index2 = fromRight ? length : -1, iterable = Object2(collection);
-            while (fromRight ? index2-- : ++index2 < length) {
-              if (iteratee2(iterable[index2], index2, iterable) === false) {
+            var length = collection.length, index = fromRight ? length : -1, iterable = Object2(collection);
+            while (fromRight ? index-- : ++index < length) {
+              if (iteratee2(iterable[index], index, iterable) === false) {
                 break;
               }
             }
@@ -22857,9 +22857,9 @@ var require_lodash = __commonJS({
         }
         function createBaseFor(fromRight) {
           return function(object2, iteratee2, keysFunc) {
-            var index2 = -1, iterable = Object2(object2), props = keysFunc(object2), length = props.length;
+            var index = -1, iterable = Object2(object2), props = keysFunc(object2), length = props.length;
             while (length--) {
-              var key = props[fromRight ? length : ++index2];
+              var key = props[fromRight ? length : ++index];
               if (iteratee2(iterable[key], key, iterable) === false) {
                 break;
               }
@@ -22870,8 +22870,8 @@ var require_lodash = __commonJS({
         function createBind(func, bitmask, thisArg) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper2() {
-            var fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
-            return fn3.apply(isBind ? thisArg : this, arguments);
+            var fn2 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            return fn2.apply(isBind ? thisArg : this, arguments);
           }
           return wrapper2;
         }
@@ -22917,17 +22917,17 @@ var require_lodash = __commonJS({
         function createCurry(func, bitmask, arity) {
           var Ctor = createCtor(func);
           function wrapper2() {
-            var length = arguments.length, args = Array2(length), index2 = length, placeholder = getHolder(wrapper2);
-            while (index2--) {
-              args[index2] = arguments[index2];
+            var length = arguments.length, args = Array2(length), index = length, placeholder = getHolder(wrapper2);
+            while (index--) {
+              args[index] = arguments[index];
             }
             var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
             length -= holders.length;
             if (length < arity) {
               return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, undefined2, args, holders, undefined2, undefined2, arity - length);
             }
-            var fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
-            return apply(fn3, this, args);
+            var fn2 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            return apply(fn2, this, args);
           }
           return wrapper2;
         }
@@ -22941,18 +22941,18 @@ var require_lodash = __commonJS({
                 return iteratee2(iterable[key], key, iterable);
               };
             }
-            var index2 = findIndexFunc(collection, predicate, fromIndex);
-            return index2 > -1 ? iterable[iteratee2 ? collection[index2] : index2] : undefined2;
+            var index = findIndexFunc(collection, predicate, fromIndex);
+            return index > -1 ? iterable[iteratee2 ? collection[index] : index] : undefined2;
           };
         }
         function createFlow(fromRight) {
           return flatRest(function(funcs) {
-            var length = funcs.length, index2 = length, prereq = LodashWrapper.prototype.thru;
+            var length = funcs.length, index = length, prereq = LodashWrapper.prototype.thru;
             if (fromRight) {
               funcs.reverse();
             }
-            while (index2--) {
-              var func = funcs[index2];
+            while (index--) {
+              var func = funcs[index];
               if (typeof func != "function") {
                 throw new TypeError2(FUNC_ERROR_TEXT);
               }
@@ -22960,9 +22960,9 @@ var require_lodash = __commonJS({
                 var wrapper2 = new LodashWrapper([], true);
               }
             }
-            index2 = wrapper2 ? index2 : length;
-            while (++index2 < length) {
-              func = funcs[index2];
+            index = wrapper2 ? index : length;
+            while (++index < length) {
+              func = funcs[index];
               var funcName = getFuncName(func), data = funcName == "wrapper" ? getData(func) : undefined2;
               if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) {
                 wrapper2 = wrapper2[getFuncName(data[0])].apply(wrapper2, data[3]);
@@ -22975,9 +22975,9 @@ var require_lodash = __commonJS({
               if (wrapper2 && args.length == 1 && isArray(value)) {
                 return wrapper2.plant(value).value();
               }
-              var index3 = 0, result2 = length ? funcs[index3].apply(this, args) : value;
-              while (++index3 < length) {
-                result2 = funcs[index3].call(this, result2);
+              var index2 = 0, result2 = length ? funcs[index2].apply(this, args) : value;
+              while (++index2 < length) {
+                result2 = funcs[index2].call(this, result2);
               }
               return result2;
             };
@@ -22986,9 +22986,9 @@ var require_lodash = __commonJS({
         function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary2, arity) {
           var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined2 : createCtor(func);
           function wrapper2() {
-            var length = arguments.length, args = Array2(length), index2 = length;
-            while (index2--) {
-              args[index2] = arguments[index2];
+            var length = arguments.length, args = Array2(length), index = length;
+            while (index--) {
+              args[index] = arguments[index];
             }
             if (isCurried) {
               var placeholder = getHolder(wrapper2), holdersCount = countHolders(args, placeholder);
@@ -23004,7 +23004,7 @@ var require_lodash = __commonJS({
               var newHolders = replaceHolders(args, placeholder);
               return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, thisArg, args, newHolders, argPos, ary2, arity - length);
             }
-            var thisBinding = isBind ? thisArg : this, fn3 = isBindKey ? thisBinding[func] : func;
+            var thisBinding = isBind ? thisArg : this, fn2 = isBindKey ? thisBinding[func] : func;
             length = args.length;
             if (argPos) {
               args = reorder(args, argPos);
@@ -23015,9 +23015,9 @@ var require_lodash = __commonJS({
               args.length = ary2;
             }
             if (this && this !== root && this instanceof wrapper2) {
-              fn3 = Ctor || createCtor(fn3);
+              fn2 = Ctor || createCtor(fn2);
             }
-            return fn3.apply(thisBinding, args);
+            return fn2.apply(thisBinding, args);
           }
           return wrapper2;
         }
@@ -23074,14 +23074,14 @@ var require_lodash = __commonJS({
         function createPartial(func, bitmask, thisArg, partials) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper2() {
-            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn2 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
             while (++leftIndex < leftLength) {
               args[leftIndex] = partials[leftIndex];
             }
             while (argsLength--) {
               args[leftIndex++] = arguments[++argsIndex];
             }
-            return apply(fn3, isBind ? thisArg : this, args);
+            return apply(fn2, isBind ? thisArg : this, args);
           }
           return wrapper2;
         }
@@ -23219,7 +23219,7 @@ var require_lodash = __commonJS({
           return setWrapToString(setter(result2, newData), func, bitmask);
         }
         function customDefaultsAssignIn(objValue, srcValue, key, object2) {
-          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty2.call(object2, key)) {
+          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
             return srcValue;
           }
           return objValue;
@@ -23245,13 +23245,13 @@ var require_lodash = __commonJS({
           if (arrStacked && othStacked) {
             return arrStacked == other && othStacked == array2;
           }
-          var index2 = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
+          var index = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
           stack.set(array2, other);
           stack.set(other, array2);
-          while (++index2 < arrLength) {
-            var arrValue = array2[index2], othValue = other[index2];
+          while (++index < arrLength) {
+            var arrValue = array2[index], othValue = other[index];
             if (customizer) {
-              var compared = isPartial ? customizer(othValue, arrValue, index2, other, array2, stack) : customizer(arrValue, othValue, index2, array2, other, stack);
+              var compared = isPartial ? customizer(othValue, arrValue, index, other, array2, stack) : customizer(arrValue, othValue, index, array2, other, stack);
             }
             if (compared !== undefined2) {
               if (compared) {
@@ -23329,10 +23329,10 @@ var require_lodash = __commonJS({
           if (objLength != othLength && !isPartial) {
             return false;
           }
-          var index2 = objLength;
-          while (index2--) {
-            var key = objProps[index2];
-            if (!(isPartial ? key in other : hasOwnProperty2.call(other, key))) {
+          var index = objLength;
+          while (index--) {
+            var key = objProps[index];
+            if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
               return false;
             }
           }
@@ -23345,8 +23345,8 @@ var require_lodash = __commonJS({
           stack.set(object2, other);
           stack.set(other, object2);
           var skipCtor = isPartial;
-          while (++index2 < objLength) {
-            key = objProps[index2];
+          while (++index < objLength) {
+            key = objProps[index];
             var objValue = object2[key], othValue = other[key];
             if (customizer) {
               var compared = isPartial ? customizer(othValue, objValue, key, other, object2, stack) : customizer(objValue, othValue, key, object2, other, stack);
@@ -23380,7 +23380,7 @@ var require_lodash = __commonJS({
           return metaMap.get(func);
         };
         function getFuncName(func) {
-          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty2.call(realNames, result2) ? array2.length : 0;
+          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array2.length : 0;
           while (length--) {
             var data = array2[length], otherFunc = data.func;
             if (otherFunc == null || otherFunc == func) {
@@ -23390,7 +23390,7 @@ var require_lodash = __commonJS({
           return result2;
         }
         function getHolder(func) {
-          var object2 = hasOwnProperty2.call(lodash, "placeholder") ? lodash : func;
+          var object2 = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
           return object2.placeholder;
         }
         function getIteratee() {
@@ -23415,7 +23415,7 @@ var require_lodash = __commonJS({
           return baseIsNative(value) ? value : undefined2;
         }
         function getRawTag(value) {
-          var isOwn = hasOwnProperty2.call(value, symToStringTag), tag = value[symToStringTag];
+          var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
           try {
             value[symToStringTag] = undefined2;
             var unmasked = true;
@@ -23470,9 +23470,9 @@ var require_lodash = __commonJS({
           };
         }
         function getView(start3, end2, transforms) {
-          var index2 = -1, length = transforms.length;
-          while (++index2 < length) {
-            var data = transforms[index2], size2 = data.size;
+          var index = -1, length = transforms.length;
+          while (++index < length) {
+            var data = transforms[index], size2 = data.size;
             switch (data.type) {
               case "drop":
                 start3 += size2;
@@ -23496,15 +23496,15 @@ var require_lodash = __commonJS({
         }
         function hasPath(object2, path, hasFunc) {
           path = castPath(path, object2);
-          var index2 = -1, length = path.length, result2 = false;
-          while (++index2 < length) {
-            var key = toKey(path[index2]);
+          var index = -1, length = path.length, result2 = false;
+          while (++index < length) {
+            var key = toKey(path[index]);
             if (!(result2 = object2 != null && hasFunc(object2, key))) {
               break;
             }
             object2 = object2[key];
           }
-          if (result2 || ++index2 != length) {
+          if (result2 || ++index != length) {
             return result2;
           }
           length = object2 == null ? 0 : object2.length;
@@ -23512,7 +23512,7 @@ var require_lodash = __commonJS({
         }
         function initCloneArray(array2) {
           var length = array2.length, result2 = new array2.constructor(length);
-          if (length && typeof array2[0] == "string" && hasOwnProperty2.call(array2, "index")) {
+          if (length && typeof array2[0] == "string" && hasOwnProperty.call(array2, "index")) {
             result2.index = array2.index;
             result2.input = array2.input;
           }
@@ -23572,13 +23572,13 @@ var require_lodash = __commonJS({
           length = length == null ? MAX_SAFE_INTEGER : length;
           return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
         }
-        function isIterateeCall(value, index2, object2) {
+        function isIterateeCall(value, index, object2) {
           if (!isObject2(object2)) {
             return false;
           }
-          var type = typeof index2;
-          if (type == "number" ? isArrayLike(object2) && isIndex(index2, object2.length) : type == "string" && index2 in object2) {
-            return eq2(object2[index2], value);
+          var type = typeof index;
+          if (type == "number" ? isArrayLike(object2) && isIndex(index, object2.length) : type == "string" && index in object2) {
+            return eq2(object2[index], value);
           }
           return false;
         }
@@ -23687,14 +23687,14 @@ var require_lodash = __commonJS({
         function overRest(func, start3, transform2) {
           start3 = nativeMax(start3 === undefined2 ? func.length - 1 : start3, 0);
           return function() {
-            var args = arguments, index2 = -1, length = nativeMax(args.length - start3, 0), array2 = Array2(length);
-            while (++index2 < length) {
-              array2[index2] = args[start3 + index2];
+            var args = arguments, index = -1, length = nativeMax(args.length - start3, 0), array2 = Array2(length);
+            while (++index < length) {
+              array2[index] = args[start3 + index];
             }
-            index2 = -1;
+            index = -1;
             var otherArgs = Array2(start3 + 1);
-            while (++index2 < start3) {
-              otherArgs[index2] = args[index2];
+            while (++index < start3) {
+              otherArgs[index] = args[index];
             }
             otherArgs[start3] = transform2(array2);
             return apply(func, this, otherArgs);
@@ -23706,8 +23706,8 @@ var require_lodash = __commonJS({
         function reorder(array2, indexes) {
           var arrLength = array2.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array2);
           while (length--) {
-            var index2 = indexes[length];
-            array2[length] = isIndex(index2, arrLength) ? oldArray[index2] : undefined2;
+            var index = indexes[length];
+            array2[length] = isIndex(index, arrLength) ? oldArray[index] : undefined2;
           }
           return array2;
         }
@@ -23745,12 +23745,12 @@ var require_lodash = __commonJS({
           };
         }
         function shuffleSelf(array2, size2) {
-          var index2 = -1, length = array2.length, lastIndex = length - 1;
+          var index = -1, length = array2.length, lastIndex = length - 1;
           size2 = size2 === undefined2 ? length : size2;
-          while (++index2 < size2) {
-            var rand = baseRandom(index2, lastIndex), value = array2[rand];
-            array2[rand] = array2[index2];
-            array2[index2] = value;
+          while (++index < size2) {
+            var rand = baseRandom(index, lastIndex), value = array2[rand];
+            array2[rand] = array2[index];
+            array2[index] = value;
           }
           array2.length = size2;
           return array2;
@@ -23814,16 +23814,16 @@ var require_lodash = __commonJS({
           if (!length || size2 < 1) {
             return [];
           }
-          var index2 = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
-          while (index2 < length) {
-            result2[resIndex++] = baseSlice(array2, index2, index2 += size2);
+          var index = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
+          while (index < length) {
+            result2[resIndex++] = baseSlice(array2, index, index += size2);
           }
           return result2;
         }
         function compact(array2) {
-          var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result2 = [];
-          while (++index2 < length) {
-            var value = array2[index2];
+          var index = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result2 = [];
+          while (++index < length) {
+            var value = array2[index];
             if (value) {
               result2[resIndex++] = value;
             }
@@ -23835,9 +23835,9 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          var args = Array2(length - 1), array2 = arguments[0], index2 = length;
-          while (index2--) {
-            args[index2 - 1] = arguments[index2];
+          var args = Array2(length - 1), array2 = arguments[0], index = length;
+          while (index--) {
+            args[index - 1] = arguments[index];
           }
           return arrayPush(isArray(array2) ? copyArray(array2) : [array2], baseFlatten(args, 1));
         }
@@ -23897,23 +23897,23 @@ var require_lodash = __commonJS({
           if (!length) {
             return -1;
           }
-          var index2 = fromIndex == null ? 0 : toInteger(fromIndex);
-          if (index2 < 0) {
-            index2 = nativeMax(length + index2, 0);
+          var index = fromIndex == null ? 0 : toInteger(fromIndex);
+          if (index < 0) {
+            index = nativeMax(length + index, 0);
           }
-          return baseFindIndex(array2, getIteratee(predicate, 3), index2);
+          return baseFindIndex(array2, getIteratee(predicate, 3), index);
         }
         function findLastIndex(array2, predicate, fromIndex) {
           var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return -1;
           }
-          var index2 = length - 1;
+          var index = length - 1;
           if (fromIndex !== undefined2) {
-            index2 = toInteger(fromIndex);
-            index2 = fromIndex < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
+            index = toInteger(fromIndex);
+            index = fromIndex < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
           }
-          return baseFindIndex(array2, getIteratee(predicate, 3), index2, true);
+          return baseFindIndex(array2, getIteratee(predicate, 3), index, true);
         }
         function flatten2(array2) {
           var length = array2 == null ? 0 : array2.length;
@@ -23932,9 +23932,9 @@ var require_lodash = __commonJS({
           return baseFlatten(array2, depth);
         }
         function fromPairs(pairs) {
-          var index2 = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
-          while (++index2 < length) {
-            var pair2 = pairs[index2];
+          var index = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
+          while (++index < length) {
+            var pair2 = pairs[index];
             result2[pair2[0]] = pair2[1];
           }
           return result2;
@@ -23947,11 +23947,11 @@ var require_lodash = __commonJS({
           if (!length) {
             return -1;
           }
-          var index2 = fromIndex == null ? 0 : toInteger(fromIndex);
-          if (index2 < 0) {
-            index2 = nativeMax(length + index2, 0);
+          var index = fromIndex == null ? 0 : toInteger(fromIndex);
+          if (index < 0) {
+            index = nativeMax(length + index, 0);
           }
-          return baseIndexOf(array2, value, index2);
+          return baseIndexOf(array2, value, index);
         }
         function initial(array2) {
           var length = array2 == null ? 0 : array2.length;
@@ -23990,12 +23990,12 @@ var require_lodash = __commonJS({
           if (!length) {
             return -1;
           }
-          var index2 = length;
+          var index = length;
           if (fromIndex !== undefined2) {
-            index2 = toInteger(fromIndex);
-            index2 = index2 < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
+            index = toInteger(fromIndex);
+            index = index < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
           }
-          return value === value ? strictLastIndexOf(array2, value, index2) : baseFindIndex(array2, baseIsNaN, index2, true);
+          return value === value ? strictLastIndexOf(array2, value, index) : baseFindIndex(array2, baseIsNaN, index, true);
         }
         function nth(array2, n) {
           return array2 && array2.length ? baseNth(array2, toInteger(n)) : undefined2;
@@ -24012,8 +24012,8 @@ var require_lodash = __commonJS({
         }
         var pullAt = flatRest(function(array2, indexes) {
           var length = array2 == null ? 0 : array2.length, result2 = baseAt(array2, indexes);
-          basePullAt(array2, arrayMap(indexes, function(index2) {
-            return isIndex(index2, length) ? +index2 : index2;
+          basePullAt(array2, arrayMap(indexes, function(index) {
+            return isIndex(index, length) ? +index : index;
           }).sort(compareAscending));
           return result2;
         });
@@ -24022,13 +24022,13 @@ var require_lodash = __commonJS({
           if (!(array2 && array2.length)) {
             return result2;
           }
-          var index2 = -1, indexes = [], length = array2.length;
+          var index = -1, indexes = [], length = array2.length;
           predicate = getIteratee(predicate, 3);
-          while (++index2 < length) {
-            var value = array2[index2];
-            if (predicate(value, index2, array2)) {
+          while (++index < length) {
+            var value = array2[index];
+            if (predicate(value, index, array2)) {
               result2.push(value);
-              indexes.push(index2);
+              indexes.push(index);
             }
           }
           basePullAt(array2, indexes);
@@ -24060,9 +24060,9 @@ var require_lodash = __commonJS({
         function sortedIndexOf(array2, value) {
           var length = array2 == null ? 0 : array2.length;
           if (length) {
-            var index2 = baseSortedIndex(array2, value);
-            if (index2 < length && eq2(array2[index2], value)) {
-              return index2;
+            var index = baseSortedIndex(array2, value);
+            if (index < length && eq2(array2[index], value)) {
+              return index;
             }
           }
           return -1;
@@ -24076,9 +24076,9 @@ var require_lodash = __commonJS({
         function sortedLastIndexOf(array2, value) {
           var length = array2 == null ? 0 : array2.length;
           if (length) {
-            var index2 = baseSortedIndex(array2, value, true) - 1;
-            if (eq2(array2[index2], value)) {
-              return index2;
+            var index = baseSortedIndex(array2, value, true) - 1;
+            if (eq2(array2[index], value)) {
+              return index;
             }
           }
           return -1;
@@ -24151,8 +24151,8 @@ var require_lodash = __commonJS({
               return true;
             }
           });
-          return baseTimes(length, function(index2) {
-            return arrayMap(array2, baseProperty(index2));
+          return baseTimes(length, function(index) {
+            return arrayMap(array2, baseProperty(index));
           });
         }
         function unzipWith(array2, iteratee2) {
@@ -24283,7 +24283,7 @@ var require_lodash = __commonJS({
           return baseWrapperValue(this.__wrapped__, this.__actions__);
         }
         var countBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty2.call(result2, key)) {
+          if (hasOwnProperty.call(result2, key)) {
             ++result2[key];
           } else {
             baseAssignValue(result2, key, 1);
@@ -24321,7 +24321,7 @@ var require_lodash = __commonJS({
           return func(collection, getIteratee(iteratee2, 3));
         }
         var groupBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty2.call(result2, key)) {
+          if (hasOwnProperty.call(result2, key)) {
             result2[key].push(value);
           } else {
             baseAssignValue(result2, key, [value]);
@@ -24337,9 +24337,9 @@ var require_lodash = __commonJS({
           return isString2(collection) ? fromIndex <= length && collection.indexOf(value, fromIndex) > -1 : !!length && baseIndexOf(collection, value, fromIndex) > -1;
         }
         var invokeMap = baseRest(function(collection, path, args) {
-          var index2 = -1, isFunc = typeof path == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+          var index = -1, isFunc = typeof path == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
           baseEach(collection, function(value) {
-            result2[++index2] = isFunc ? apply(path, value, args) : baseInvoke(value, path, args);
+            result2[++index] = isFunc ? apply(path, value, args) : baseInvoke(value, path, args);
           });
           return result2;
         });
@@ -24492,7 +24492,7 @@ var require_lodash = __commonJS({
           result2.placeholder = curryRight.placeholder;
           return result2;
         }
-        function debounce3(func, wait, options) {
+        function debounce2(func, wait, options) {
           var lastArgs, lastThis, maxWait, result2, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
@@ -24625,9 +24625,9 @@ var require_lodash = __commonJS({
           transforms = transforms.length == 1 && isArray(transforms[0]) ? arrayMap(transforms[0], baseUnary(getIteratee())) : arrayMap(baseFlatten(transforms, 1), baseUnary(getIteratee()));
           var funcsLength = transforms.length;
           return baseRest(function(args) {
-            var index2 = -1, length = nativeMin(args.length, funcsLength);
-            while (++index2 < length) {
-              args[index2] = transforms[index2].call(this, args[index2]);
+            var index = -1, length = nativeMin(args.length, funcsLength);
+            while (++index < length) {
+              args[index] = transforms[index].call(this, args[index]);
             }
             return apply(func, this, args);
           });
@@ -24672,7 +24672,7 @@ var require_lodash = __commonJS({
             leading = "leading" in options ? !!options.leading : leading;
             trailing = "trailing" in options ? !!options.trailing : trailing;
           }
-          return debounce3(func, wait, {
+          return debounce2(func, wait, {
             "leading": leading,
             "maxWait": wait,
             "trailing": trailing
@@ -24718,7 +24718,7 @@ var require_lodash = __commonJS({
         var isArguments = baseIsArguments(function() {
           return arguments;
         }()) ? baseIsArguments : function(value) {
-          return isObjectLike(value) && hasOwnProperty2.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+          return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
         };
         var isArray = Array2.isArray;
         var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
@@ -24733,7 +24733,7 @@ var require_lodash = __commonJS({
         }
         var isBuffer = nativeIsBuffer || stubFalse;
         var isDate = nodeIsDate ? baseUnary(nodeIsDate) : baseIsDate;
-        function isElement3(value) {
+        function isElement2(value) {
           return isObjectLike(value) && value.nodeType === 1 && !isPlainObject2(value);
         }
         function isEmpty(value) {
@@ -24751,13 +24751,13 @@ var require_lodash = __commonJS({
             return !baseKeys(value).length;
           }
           for (var key in value) {
-            if (hasOwnProperty2.call(value, key)) {
+            if (hasOwnProperty.call(value, key)) {
               return false;
             }
           }
           return true;
         }
-        function isEqual(value, other) {
+        function isEqual2(value, other) {
           return baseIsEqual(value, other);
         }
         function isEqualWith(value, other, customizer) {
@@ -24829,7 +24829,7 @@ var require_lodash = __commonJS({
           if (proto === null) {
             return true;
           }
-          var Ctor = hasOwnProperty2.call(proto, "constructor") && proto.constructor;
+          var Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
           return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
         }
         var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
@@ -24921,7 +24921,7 @@ var require_lodash = __commonJS({
             return;
           }
           for (var key in source) {
-            if (hasOwnProperty2.call(source, key)) {
+            if (hasOwnProperty.call(source, key)) {
               assignValue(object2, key, source[key]);
             }
           }
@@ -24942,21 +24942,21 @@ var require_lodash = __commonJS({
         }
         var defaults2 = baseRest(function(object2, sources) {
           object2 = Object2(object2);
-          var index2 = -1;
+          var index = -1;
           var length = sources.length;
           var guard = length > 2 ? sources[2] : undefined2;
           if (guard && isIterateeCall(sources[0], sources[1], guard)) {
             length = 1;
           }
-          while (++index2 < length) {
-            var source = sources[index2];
+          while (++index < length) {
+            var source = sources[index];
             var props = keysIn(source);
             var propsIndex = -1;
             var propsLength = props.length;
             while (++propsIndex < propsLength) {
               var key = props[propsIndex];
               var value = object2[key];
-              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty2.call(object2, key)) {
+              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
                 object2[key] = source[key];
               }
             }
@@ -25011,7 +25011,7 @@ var require_lodash = __commonJS({
           if (value != null && typeof value.toString != "function") {
             value = nativeObjectToString.call(value);
           }
-          if (hasOwnProperty2.call(result2, value)) {
+          if (hasOwnProperty.call(result2, value)) {
             result2[value].push(key);
           } else {
             result2[value] = [key];
@@ -25087,15 +25087,15 @@ var require_lodash = __commonJS({
         }
         function result(object2, path, defaultValue) {
           path = castPath(path, object2);
-          var index2 = -1, length = path.length;
+          var index = -1, length = path.length;
           if (!length) {
             length = 1;
             object2 = undefined2;
           }
-          while (++index2 < length) {
-            var value = object2 == null ? undefined2 : object2[toKey(path[index2])];
+          while (++index < length) {
+            var value = object2 == null ? undefined2 : object2[toKey(path[index])];
             if (value === undefined2) {
-              index2 = length;
+              index = length;
               value = defaultValue;
             }
             object2 = isFunction2(value) ? value.call(object2) : value;
@@ -25124,8 +25124,8 @@ var require_lodash = __commonJS({
               accumulator = {};
             }
           }
-          (isArrLike ? arrayEach : baseForOwn)(object2, function(value, index2, object3) {
-            return iteratee2(accumulator, value, index2, object3);
+          (isArrLike ? arrayEach : baseForOwn)(object2, function(value, index, object3) {
+            return iteratee2(accumulator, value, index, object3);
           });
           return accumulator;
         }
@@ -25207,9 +25207,9 @@ var require_lodash = __commonJS({
           }
           return baseRandom(lower, upper);
         }
-        var camelCase = createCompounder(function(result2, word, index2) {
+        var camelCase = createCompounder(function(result2, word, index) {
           word = word.toLowerCase();
-          return result2 + (index2 ? capitalize(word) : word);
+          return result2 + (index ? capitalize(word) : word);
         });
         function capitalize(string2) {
           return upperFirst(toString2(string2).toLowerCase());
@@ -25235,11 +25235,11 @@ var require_lodash = __commonJS({
           string2 = toString2(string2);
           return string2 && reHasRegExpChar.test(string2) ? string2.replace(reRegExpChar, "\\$&") : string2;
         }
-        var kebabCase = createCompounder(function(result2, word, index2) {
-          return result2 + (index2 ? "-" : "") + word.toLowerCase();
+        var kebabCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? "-" : "") + word.toLowerCase();
         });
-        var lowerCase = createCompounder(function(result2, word, index2) {
-          return result2 + (index2 ? " " : "") + word.toLowerCase();
+        var lowerCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + word.toLowerCase();
         });
         var lowerFirst = createCaseFirst("toLowerCase");
         function pad(string2, length, chars) {
@@ -25284,8 +25284,8 @@ var require_lodash = __commonJS({
           var args = arguments, string2 = toString2(args[0]);
           return args.length < 3 ? string2 : string2.replace(args[1], args[2]);
         }
-        var snakeCase = createCompounder(function(result2, word, index2) {
-          return result2 + (index2 ? "_" : "") + word.toLowerCase();
+        var snakeCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? "_" : "") + word.toLowerCase();
         });
         function split(string2, separator, limit) {
           if (limit && typeof limit != "number" && isIterateeCall(string2, separator, limit)) {
@@ -25304,8 +25304,8 @@ var require_lodash = __commonJS({
           }
           return string2.split(separator, limit);
         }
-        var startCase = createCompounder(function(result2, word, index2) {
-          return result2 + (index2 ? " " : "") + upperFirst(word);
+        var startCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + upperFirst(word);
         });
         function startsWith(string2, target, position) {
           string2 = toString2(string2);
@@ -25321,12 +25321,12 @@ var require_lodash = __commonJS({
           string2 = toString2(string2);
           options = assignInWith({}, options, settings, customDefaultsAssignIn);
           var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
-          var isEscaping, isEvaluating, index2 = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
+          var isEscaping, isEvaluating, index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
           var reDelimiters = RegExp2((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g");
-          var sourceURL = "//# sourceURL=" + (hasOwnProperty2.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+          var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
           string2.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset2) {
             interpolateValue || (interpolateValue = esTemplateValue);
-            source += string2.slice(index2, offset2).replace(reUnescapedString, escapeStringChar);
+            source += string2.slice(index, offset2).replace(reUnescapedString, escapeStringChar);
             if (escapeValue) {
               isEscaping = true;
               source += "' +\n__e(" + escapeValue + ") +\n'";
@@ -25338,11 +25338,11 @@ var require_lodash = __commonJS({
             if (interpolateValue) {
               source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
             }
-            index2 = offset2 + match.length;
+            index = offset2 + match.length;
             return match;
           });
           source += "';\n";
-          var variable = hasOwnProperty2.call(options, "variable") && options.variable;
+          var variable = hasOwnProperty.call(options, "variable") && options.variable;
           if (!variable) {
             source = "with (obj) {\n" + source + "\n}\n";
           } else if (reForbiddenIdentifierChars.test(variable)) {
@@ -25438,9 +25438,9 @@ var require_lodash = __commonJS({
               result2 = result2.slice(0, newEnd === undefined2 ? end2 : newEnd);
             }
           } else if (string2.indexOf(baseToString(separator), end2) != end2) {
-            var index2 = result2.lastIndexOf(separator);
-            if (index2 > -1) {
-              result2 = result2.slice(0, index2);
+            var index = result2.lastIndexOf(separator);
+            if (index > -1) {
+              result2 = result2.slice(0, index);
             }
           }
           return result2 + omission;
@@ -25449,8 +25449,8 @@ var require_lodash = __commonJS({
           string2 = toString2(string2);
           return string2 && reHasEscapedHtml.test(string2) ? string2.replace(reEscapedHtml, unescapeHtmlChar) : string2;
         }
-        var upperCase = createCompounder(function(result2, word, index2) {
-          return result2 + (index2 ? " " : "") + word.toUpperCase();
+        var upperCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + word.toUpperCase();
         });
         var upperFirst = createCaseFirst("toUpperCase");
         function words(string2, pattern, guard) {
@@ -25484,9 +25484,9 @@ var require_lodash = __commonJS({
             return [toIteratee(pair2[0]), pair2[1]];
           });
           return baseRest(function(args) {
-            var index2 = -1;
-            while (++index2 < length) {
-              var pair2 = pairs[index2];
+            var index = -1;
+            while (++index < length) {
+              var pair2 = pairs[index];
               if (apply(pair2[0], this, args)) {
                 return apply(pair2[1], this, args);
               }
@@ -25602,12 +25602,12 @@ var require_lodash = __commonJS({
           if (n < 1 || n > MAX_SAFE_INTEGER) {
             return [];
           }
-          var index2 = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
+          var index = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
           iteratee2 = getIteratee(iteratee2);
           n -= MAX_ARRAY_LENGTH;
           var result2 = baseTimes(length, iteratee2);
-          while (++index2 < n) {
-            iteratee2(index2);
+          while (++index < n) {
+            iteratee2(index);
           }
           return result2;
         }
@@ -25618,7 +25618,7 @@ var require_lodash = __commonJS({
           return isSymbol(value) ? [value] : copyArray(stringToPath(toString2(value)));
         }
         function uniqueId(prefix) {
-          var id = ++idCounter2;
+          var id = ++idCounter;
           return toString2(prefix) + id;
         }
         var add = createMathOperation(function(augend, addend) {
@@ -25683,7 +25683,7 @@ var require_lodash = __commonJS({
         lodash.create = create;
         lodash.curry = curry;
         lodash.curryRight = curryRight;
-        lodash.debounce = debounce3;
+        lodash.debounce = debounce2;
         lodash.defaults = defaults2;
         lodash.defaultsDeep = defaultsDeep;
         lodash.defer = defer;
@@ -25865,9 +25865,9 @@ var require_lodash = __commonJS({
         lodash.isBoolean = isBoolean;
         lodash.isBuffer = isBuffer;
         lodash.isDate = isDate;
-        lodash.isElement = isElement3;
+        lodash.isElement = isElement2;
         lodash.isEmpty = isEmpty;
-        lodash.isEqual = isEqual;
+        lodash.isEqual = isEqual2;
         lodash.isEqualWith = isEqualWith;
         lodash.isError = isError;
         lodash.isFinite = isFinite2;
@@ -25969,7 +25969,7 @@ var require_lodash = __commonJS({
         mixin(lodash, function() {
           var source = {};
           baseForOwn(lodash, function(func, methodName) {
-            if (!hasOwnProperty2.call(lodash.prototype, methodName)) {
+            if (!hasOwnProperty.call(lodash.prototype, methodName)) {
               source[methodName] = func;
             }
           });
@@ -25979,10 +25979,10 @@ var require_lodash = __commonJS({
         arrayEach(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(methodName) {
           lodash[methodName].placeholder = lodash;
         });
-        arrayEach(["drop", "take"], function(methodName, index2) {
+        arrayEach(["drop", "take"], function(methodName, index) {
           LazyWrapper.prototype[methodName] = function(n) {
             n = n === undefined2 ? 1 : nativeMax(toInteger(n), 0);
-            var result2 = this.__filtered__ && !index2 ? new LazyWrapper(this) : this.clone();
+            var result2 = this.__filtered__ && !index ? new LazyWrapper(this) : this.clone();
             if (result2.__filtered__) {
               result2.__takeCount__ = nativeMin(n, result2.__takeCount__);
             } else {
@@ -25997,8 +25997,8 @@ var require_lodash = __commonJS({
             return this.reverse()[methodName](n).reverse();
           };
         });
-        arrayEach(["filter", "map", "takeWhile"], function(methodName, index2) {
-          var type = index2 + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
+        arrayEach(["filter", "map", "takeWhile"], function(methodName, index) {
+          var type = index + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
           LazyWrapper.prototype[methodName] = function(iteratee2) {
             var result2 = this.clone();
             result2.__iteratees__.push({
@@ -26009,14 +26009,14 @@ var require_lodash = __commonJS({
             return result2;
           };
         });
-        arrayEach(["head", "last"], function(methodName, index2) {
-          var takeName = "take" + (index2 ? "Right" : "");
+        arrayEach(["head", "last"], function(methodName, index) {
+          var takeName = "take" + (index ? "Right" : "");
           LazyWrapper.prototype[methodName] = function() {
             return this[takeName](1).value()[0];
           };
         });
-        arrayEach(["initial", "tail"], function(methodName, index2) {
-          var dropName = "drop" + (index2 ? "" : "Right");
+        arrayEach(["initial", "tail"], function(methodName, index) {
+          var dropName = "drop" + (index ? "" : "Right");
           LazyWrapper.prototype[methodName] = function() {
             return this.__filtered__ ? new LazyWrapper(this) : this[dropName](1);
           };
@@ -26109,7 +26109,7 @@ var require_lodash = __commonJS({
           var lodashFunc = lodash[methodName];
           if (lodashFunc) {
             var key = lodashFunc.name + "";
-            if (!hasOwnProperty2.call(realNames, key)) {
+            if (!hasOwnProperty.call(realNames, key)) {
               realNames[key] = [];
             }
             realNames[key].push({ "name": methodName, "func": lodashFunc });
@@ -31020,9 +31020,9 @@ var require_katex = __commonJS({
             } else if (isRoot && node.hasClass("newline")) {
               prev.node = buildHTML_makeSpan(["leftmost"]);
             }
-            prev.insertAfter = function(index2) {
+            prev.insertAfter = function(index) {
               return function(n) {
-                nodes.splice(index2 + 1, 0, n);
+                nodes.splice(index + 1, 0, n);
                 i2++;
               };
             }(i2);
@@ -37142,13 +37142,13 @@ var require_katex = __commonJS({
           },
           handler: function handler(_ref, args, optArgs) {
             var parser2 = _ref.parser;
-            var index2 = optArgs[0];
+            var index = optArgs[0];
             var body = args[0];
             return {
               type: "sqrt",
               mode: parser2.mode,
               body,
-              index: index2
+              index
             };
           },
           htmlBuilder: function htmlBuilder2(group, options) {
@@ -37208,8 +37208,8 @@ var require_katex = __commonJS({
             }
           },
           mathmlBuilder: function mathmlBuilder2(group, options) {
-            var body = group.body, index2 = group.index;
-            return index2 ? new mathMLTree.MathNode("mroot", [buildMathML_buildGroup(body, options), buildMathML_buildGroup(index2, options)]) : new mathMLTree.MathNode("msqrt", [buildMathML_buildGroup(body, options)]);
+            var body = group.body, index = group.index;
+            return index ? new mathMLTree.MathNode("mroot", [buildMathML_buildGroup(body, options), buildMathML_buildGroup(index, options)]) : new mathMLTree.MathNode("msqrt", [buildMathML_buildGroup(body, options)]);
           }
         });
         ;
@@ -39219,7 +39219,7 @@ var require_katex = __commonJS({
         };
         var src_parseTree = parseTree;
         ;
-        var render2 = function render3(expression, baseNode, options) {
+        var render = function render2(expression, baseNode, options) {
           baseNode.textContent = "";
           var node = renderToDomTree(expression, options).toNode();
           baseNode.appendChild(node);
@@ -39227,7 +39227,7 @@ var require_katex = __commonJS({
         if (typeof document !== "undefined") {
           if (document.compatMode !== "CSS1Compat") {
             typeof console !== "undefined" && console.warn("Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.");
-            render2 = function render3() {
+            render = function render2() {
               throw new src_ParseError("KaTeX doesn't work in quirks mode.");
             };
           }
@@ -39269,7 +39269,7 @@ var require_katex = __commonJS({
         };
         var katex2 = {
           version: "0.13.11",
-          render: render2,
+          render,
           renderToString,
           ParseError: src_ParseError,
           __parse: generateParseTree,
@@ -39309,14 +39309,14 @@ var require_isArray = __commonJS({
 var require_checkForMethod = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_checkForMethod.js"(exports, module) {
     var _isArray = require_isArray();
-    function _checkForMethod(methodname, fn3) {
+    function _checkForMethod(methodname, fn2) {
       return function() {
         var length = arguments.length;
         if (length === 0) {
-          return fn3();
+          return fn2();
         }
         var obj = arguments[length - 1];
-        return _isArray(obj) || typeof obj[methodname] !== "function" ? fn3.apply(this, arguments) : obj[methodname].apply(obj, Array.prototype.slice.call(arguments, 0, length - 1));
+        return _isArray(obj) || typeof obj[methodname] !== "function" ? fn2.apply(this, arguments) : obj[methodname].apply(obj, Array.prototype.slice.call(arguments, 0, length - 1));
       };
     }
     module.exports = _checkForMethod;
@@ -39337,12 +39337,12 @@ var require_isPlaceholder = __commonJS({
 var require_curry1 = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curry1.js"(exports, module) {
     var _isPlaceholder = require_isPlaceholder();
-    function _curry1(fn3) {
+    function _curry1(fn2) {
       return function f1(a) {
         if (arguments.length === 0 || _isPlaceholder(a)) {
           return f1;
         } else {
-          return fn3.apply(this, arguments);
+          return fn2.apply(this, arguments);
         }
       };
     }
@@ -39355,21 +39355,21 @@ var require_curry2 = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curry2.js"(exports, module) {
     var _curry1 = require_curry1();
     var _isPlaceholder = require_isPlaceholder();
-    function _curry2(fn3) {
+    function _curry2(fn2) {
       return function f2(a, b) {
         switch (arguments.length) {
           case 0:
             return f2;
           case 1:
             return _isPlaceholder(a) ? f2 : _curry1(function(_b2) {
-              return fn3(a, _b2);
+              return fn2(a, _b2);
             });
           default:
             return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function(_a2) {
-              return fn3(_a2, b);
+              return fn2(_a2, b);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
-              return fn3(a, _b2);
-            }) : fn3(a, b);
+              return fn2(a, _b2);
+            }) : fn2(a, b);
         }
       };
     }
@@ -39382,11 +39382,11 @@ var require_forEach = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/forEach.js"(exports, module) {
     var _checkForMethod = require_checkForMethod();
     var _curry2 = require_curry2();
-    var forEach = /* @__PURE__ */ _curry2(/* @__PURE__ */ _checkForMethod("forEach", function forEach2(fn3, list) {
+    var forEach = /* @__PURE__ */ _curry2(/* @__PURE__ */ _checkForMethod("forEach", function forEach2(fn2, list) {
       var len = list.length;
       var idx = 0;
       while (idx < len) {
-        fn3(list[idx]);
+        fn2(list[idx]);
         idx += 1;
       }
       return list;
@@ -39410,10 +39410,10 @@ var require_dispatchable = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_dispatchable.js"(exports, module) {
     var _isArray = require_isArray();
     var _isTransformer = require_isTransformer();
-    function _dispatchable(methodNames, xf, fn3) {
+    function _dispatchable(methodNames, xf, fn2) {
       return function() {
         if (arguments.length === 0) {
-          return fn3();
+          return fn2();
         }
         var args = Array.prototype.slice.call(arguments, 0);
         var obj = args.pop();
@@ -39430,7 +39430,7 @@ var require_dispatchable = __commonJS({
             return transducer(obj);
           }
         }
-        return fn3.apply(this, arguments);
+        return fn2.apply(this, arguments);
       };
     }
     module.exports = _dispatchable;
@@ -39505,11 +39505,11 @@ var require_find = __commonJS({
     var _curry2 = require_curry2();
     var _dispatchable = require_dispatchable();
     var _xfind = require_xfind();
-    var find2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["find"], _xfind, function find3(fn3, list) {
+    var find2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["find"], _xfind, function find3(fn2, list) {
       var idx = 0;
       var len = list.length;
       while (idx < len) {
-        if (fn3(list[idx])) {
+        if (fn2(list[idx])) {
           return list[idx];
         }
         idx += 1;
@@ -39534,12 +39534,12 @@ var require_complement = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_filter.js
 var require_filter = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_filter.js"(exports, module) {
-    function _filter(fn3, list) {
+    function _filter(fn2, list) {
       var idx = 0;
       var len = list.length;
       var result = [];
       while (idx < len) {
-        if (fn3(list[idx])) {
+        if (fn2(list[idx])) {
           result[result.length] = list[idx];
         }
         idx += 1;
@@ -39608,8 +39608,8 @@ var require_isArrayLike = __commonJS({
 var require_xwrap = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_xwrap.js"(exports, module) {
     var XWrap = /* @__PURE__ */ function() {
-      function XWrap2(fn3) {
-        this.f = fn3;
+      function XWrap2(fn2) {
+        this.f = fn2;
       }
       XWrap2.prototype["@@transducer/init"] = function() {
         throw new Error("init not implemented on XWrap");
@@ -39622,8 +39622,8 @@ var require_xwrap = __commonJS({
       };
       return XWrap2;
     }();
-    function _xwrap(fn3) {
-      return new XWrap(fn3);
+    function _xwrap(fn2) {
+      return new XWrap(fn2);
     }
     module.exports = _xwrap;
   }
@@ -39632,51 +39632,51 @@ var require_xwrap = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_arity.js
 var require_arity = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_arity.js"(exports, module) {
-    function _arity(n, fn3) {
+    function _arity(n, fn2) {
       switch (n) {
         case 0:
           return function() {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 1:
           return function(a0) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 2:
           return function(a0, a1) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 3:
           return function(a0, a1, a2) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 4:
           return function(a0, a1, a2, a3) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 5:
           return function(a0, a1, a2, a3, a4) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 6:
           return function(a0, a1, a2, a3, a4, a5) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 7:
           return function(a0, a1, a2, a3, a4, a5, a6) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 8:
           return function(a0, a1, a2, a3, a4, a5, a6, a7) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 9:
           return function(a0, a1, a2, a3, a4, a5, a6, a7, a8) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         case 10:
           return function(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
-            return fn3.apply(this, arguments);
+            return fn2.apply(this, arguments);
           };
         default:
           throw new Error("First argument to _arity must be a non-negative integer no greater than ten");
@@ -39691,9 +39691,9 @@ var require_bind = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/bind.js"(exports, module) {
     var _arity = require_arity();
     var _curry2 = require_curry2();
-    var bind = /* @__PURE__ */ _curry2(function bind2(fn3, thisObj) {
-      return _arity(fn3.length, function() {
-        return fn3.apply(thisObj, arguments);
+    var bind = /* @__PURE__ */ _curry2(function bind2(fn2, thisObj) {
+      return _arity(fn2.length, function() {
+        return fn2.apply(thisObj, arguments);
       });
     });
     module.exports = bind;
@@ -39735,24 +39735,24 @@ var require_reduce = __commonJS({
       return xf["@@transducer/result"](obj[methodName](bind(xf["@@transducer/step"], xf), acc));
     }
     var symIterator = typeof Symbol !== "undefined" ? Symbol.iterator : "@@iterator";
-    function _reduce(fn3, acc, list) {
-      if (typeof fn3 === "function") {
-        fn3 = _xwrap(fn3);
+    function _reduce(fn2, acc, list) {
+      if (typeof fn2 === "function") {
+        fn2 = _xwrap(fn2);
       }
       if (_isArrayLike(list)) {
-        return _arrayReduce(fn3, acc, list);
+        return _arrayReduce(fn2, acc, list);
       }
       if (typeof list["fantasy-land/reduce"] === "function") {
-        return _methodReduce(fn3, acc, list, "fantasy-land/reduce");
+        return _methodReduce(fn2, acc, list, "fantasy-land/reduce");
       }
       if (list[symIterator] != null) {
-        return _iterableReduce(fn3, acc, list[symIterator]());
+        return _iterableReduce(fn2, acc, list[symIterator]());
       }
       if (typeof list.next === "function") {
-        return _iterableReduce(fn3, acc, list);
+        return _iterableReduce(fn2, acc, list);
       }
       if (typeof list.reduce === "function") {
-        return _methodReduce(fn3, acc, list, "reduce");
+        return _methodReduce(fn2, acc, list, "reduce");
       }
       throw new TypeError("reduce: list must be array or iterable");
     }
@@ -39930,7 +39930,7 @@ var require_curryN = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curryN.js"(exports, module) {
     var _arity = require_arity();
     var _isPlaceholder = require_isPlaceholder();
-    function _curryN(length, received, fn3) {
+    function _curryN(length, received, fn2) {
       return function() {
         var combined = [];
         var argsIdx = 0;
@@ -39950,7 +39950,7 @@ var require_curryN = __commonJS({
           }
           combinedIdx += 1;
         }
-        return left2 <= 0 ? fn3.apply(this, combined) : _arity(left2, _curryN(length, combined, fn3));
+        return left2 <= 0 ? fn2.apply(this, combined) : _arity(left2, _curryN(length, combined, fn2));
       };
     }
     module.exports = _curryN;
@@ -39964,11 +39964,11 @@ var require_curryN2 = __commonJS({
     var _curry1 = require_curry1();
     var _curry2 = require_curry2();
     var _curryN = require_curryN();
-    var curryN = /* @__PURE__ */ _curry2(function curryN2(length, fn3) {
+    var curryN = /* @__PURE__ */ _curry2(function curryN2(length, fn2) {
       if (length === 1) {
-        return _curry1(fn3);
+        return _curry1(fn2);
       }
-      return _arity(length, _curryN(length, [], fn3));
+      return _arity(length, _curryN(length, [], fn2));
     });
     module.exports = curryN;
   }
@@ -39980,8 +39980,8 @@ var require_addIndex = __commonJS({
     var _concat = require_concat();
     var _curry1 = require_curry1();
     var curryN = require_curryN2();
-    var addIndex = /* @__PURE__ */ _curry1(function addIndex2(fn3) {
-      return curryN(fn3.length, function() {
+    var addIndex = /* @__PURE__ */ _curry1(function addIndex2(fn2) {
+      return curryN(fn2.length, function() {
         var idx = 0;
         var origFn = arguments[0];
         var list = arguments[arguments.length - 1];
@@ -39991,7 +39991,7 @@ var require_addIndex = __commonJS({
           idx += 1;
           return result;
         };
-        return fn3.apply(this, args);
+        return fn2.apply(this, args);
       });
     });
     module.exports = addIndex;
@@ -40001,12 +40001,12 @@ var require_addIndex = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_map.js
 var require_map = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_map.js"(exports, module) {
-    function _map(fn3, functor) {
+    function _map(fn2, functor) {
       var idx = 0;
       var len = functor.length;
       var result = Array(len);
       while (idx < len) {
-        result[idx] = fn3(functor[idx]);
+        result[idx] = fn2(functor[idx]);
         idx += 1;
       }
       return result;
@@ -40049,19 +40049,19 @@ var require_map2 = __commonJS({
     var _xmap = require_xmap();
     var curryN = require_curryN2();
     var keys = require_keys();
-    var map2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map3(fn3, functor) {
+    var map2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map3(fn2, functor) {
       switch (Object.prototype.toString.call(functor)) {
         case "[object Function]":
           return curryN(functor.length, function() {
-            return fn3.call(this, functor.apply(this, arguments));
+            return fn2.call(this, functor.apply(this, arguments));
           });
         case "[object Object]":
           return _reduce(function(acc, key) {
-            acc[key] = fn3(functor[key]);
+            acc[key] = fn2(functor[key]);
             return acc;
           }, {}, keys(functor));
         default:
-          return _map(fn3, functor);
+          return _map(fn2, functor);
       }
     }));
     module.exports = map2;
@@ -42564,7 +42564,7 @@ var require_lib5 = __commonJS({
       "track",
       "wbr"
     ]);
-    function render2(node, options) {
+    function render(node, options) {
       if (options === void 0) {
         options = {};
       }
@@ -42575,11 +42575,11 @@ var require_lib5 = __commonJS({
       }
       return output;
     }
-    exports.default = render2;
+    exports.default = render;
     function renderNode(node, options) {
       switch (node.type) {
         case ElementType.Root:
-          return render2(node.children, options);
+          return render(node.children, options);
         case ElementType.Directive:
         case ElementType.Doctype:
           return renderDirective(node);
@@ -42630,7 +42630,7 @@ var require_lib5 = __commonJS({
       } else {
         tag += ">";
         if (elem.children.length > 0) {
-          tag += render2(elem.children, opts);
+          tag += render(elem.children, opts);
         }
         if (opts.xmlMode || !singleTag.has(elem.name)) {
           tag += "</" + elem.name + ">";
@@ -42727,11 +42727,11 @@ var require_traversal = __commonJS({
     exports.prevElementSibling = exports.nextElementSibling = exports.getName = exports.hasAttrib = exports.getAttributeValue = exports.getSiblings = exports.getParent = exports.getChildren = void 0;
     var domhandler_1 = require_lib3();
     var emptyArray = [];
-    function getChildren3(elem) {
+    function getChildren2(elem) {
       var _a2;
       return (_a2 = elem.children) !== null && _a2 !== void 0 ? _a2 : emptyArray;
     }
-    exports.getChildren = getChildren3;
+    exports.getChildren = getChildren2;
     function getParent(elem) {
       return elem.parent || null;
     }
@@ -42740,7 +42740,7 @@ var require_traversal = __commonJS({
       var _a2, _b2;
       var parent = getParent(elem);
       if (parent != null)
-        return getChildren3(parent);
+        return getChildren2(parent);
       var siblings = [elem];
       var prev = elem.prev, next = elem.next;
       while (prev != null) {
@@ -43802,12 +43802,12 @@ var require_lodash2 = __commonJS({
     var freeSelf = typeof self == "object" && self && self.Object === Object && self;
     var root = freeGlobal || freeSelf || Function("return this")();
     function arrayReduce(array2, iteratee, accumulator, initAccum) {
-      var index2 = -1, length = array2 ? array2.length : 0;
+      var index = -1, length = array2 ? array2.length : 0;
       if (initAccum && length) {
-        accumulator = array2[++index2];
+        accumulator = array2[++index];
       }
-      while (++index2 < length) {
-        accumulator = iteratee(accumulator, array2[index2], index2, array2);
+      while (++index < length) {
+        accumulator = iteratee(accumulator, array2[index], index, array2);
       }
       return accumulator;
     }
@@ -43844,7 +43844,7 @@ var require_lodash2 = __commonJS({
     var symbolProto = Symbol2 ? Symbol2.prototype : void 0;
     var symbolToString = symbolProto ? symbolProto.toString : void 0;
     function baseSlice(array2, start3, end2) {
-      var index2 = -1, length = array2.length;
+      var index = -1, length = array2.length;
       if (start3 < 0) {
         start3 = -start3 > length ? 0 : length + start3;
       }
@@ -43855,8 +43855,8 @@ var require_lodash2 = __commonJS({
       length = start3 > end2 ? 0 : end2 - start3 >>> 0;
       start3 >>>= 0;
       var result = Array(length);
-      while (++index2 < length) {
-        result[index2] = array2[index2 + start3];
+      while (++index < length) {
+        result[index] = array2[index + start3];
       }
       return result;
     }
@@ -43898,9 +43898,9 @@ var require_lodash2 = __commonJS({
     function toString2(value) {
       return value == null ? "" : baseToString(value);
     }
-    var camelCase = createCompounder(function(result, word, index2) {
+    var camelCase = createCompounder(function(result, word, index) {
       word = word.toLowerCase();
-      return result + (index2 ? capitalize(word) : word);
+      return result + (index ? capitalize(word) : word);
     });
     function capitalize(string2) {
       return upperFirst(toString2(string2).toLowerCase());
@@ -43946,37 +43946,37 @@ var require_curry3 = __commonJS({
     var _curry1 = require_curry1();
     var _curry2 = require_curry2();
     var _isPlaceholder = require_isPlaceholder();
-    function _curry3(fn3) {
+    function _curry3(fn2) {
       return function f3(a, b, c) {
         switch (arguments.length) {
           case 0:
             return f3;
           case 1:
             return _isPlaceholder(a) ? f3 : _curry2(function(_b2, _c) {
-              return fn3(a, _b2, _c);
+              return fn2(a, _b2, _c);
             });
           case 2:
             return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function(_a2, _c) {
-              return fn3(_a2, b, _c);
+              return fn2(_a2, b, _c);
             }) : _isPlaceholder(b) ? _curry2(function(_b2, _c) {
-              return fn3(a, _b2, _c);
+              return fn2(a, _b2, _c);
             }) : _curry1(function(_c) {
-              return fn3(a, b, _c);
+              return fn2(a, b, _c);
             });
           default:
             return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function(_a2, _b2) {
-              return fn3(_a2, _b2, c);
+              return fn2(_a2, _b2, c);
             }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function(_a2, _c) {
-              return fn3(_a2, b, _c);
+              return fn2(_a2, b, _c);
             }) : _isPlaceholder(b) && _isPlaceholder(c) ? _curry2(function(_b2, _c) {
-              return fn3(a, _b2, _c);
+              return fn2(a, _b2, _c);
             }) : _isPlaceholder(a) ? _curry1(function(_a2) {
-              return fn3(_a2, b, c);
+              return fn2(_a2, b, c);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
-              return fn3(a, _b2, c);
+              return fn2(a, _b2, c);
             }) : _isPlaceholder(c) ? _curry1(function(_c) {
-              return fn3(a, b, _c);
-            }) : fn3(a, b, c);
+              return fn2(a, b, _c);
+            }) : fn2(a, b, c);
         }
       };
     }
@@ -44678,7 +44678,7 @@ var require_utils = __commonJS({
     var camelCase = require_lodash2();
     var toPairs = require_toPairs();
     var reduce = require_reduce2();
-    var React14 = require_react();
+    var React15 = require_react();
     var includes = require_includes2();
     var camelCaseAttrMap = require_camel_case_attribute_names();
     function createStyleJsonFromString(styleString) {
@@ -44728,9 +44728,9 @@ var require_utils = __commonJS({
       "selected",
       "truespeed"
     ];
-    function createElement2(node, index2, data, children) {
+    function createElement2(node, index, data, children) {
       var elementProps = {
-        key: index2
+        key: index
       };
       if (node.attribs) {
         elementProps = reduce(function(result, keyAndValue) {
@@ -44753,7 +44753,7 @@ var require_utils = __commonJS({
       }
       children = children || [];
       var allChildren = data != null ? [data].concat(children) : children;
-      return React14.createElement.apply(null, [node.name, elementProps].concat(allChildren));
+      return React15.createElement.apply(null, [node.name, elementProps].concat(allChildren));
     }
     module.exports = {
       createElement: createElement2
@@ -44786,16 +44786,16 @@ var require_process_node_definitions = __commonJS({
       "textarea"
     ];
     function ProcessNodeDefinitions() {
-      function processDefaultNode(node, children, index2) {
+      function processDefaultNode(node, children, index) {
         if (node.type === "text") {
           return node.data;
         } else if (node.type === "comment") {
           return false;
         }
         if (voidElementTags.indexOf(node.name) > -1) {
-          return utils.createElement(node, index2);
+          return utils.createElement(node, index);
         } else {
-          return utils.createElement(node, index2, node.data, children);
+          return utils.createElement(node, index, node.data, children);
         }
       }
       return {
@@ -44864,11 +44864,11 @@ var require_parser = __commonJS({
         });
       }
       ;
-      function traverseDom(node, isValidNode, processingInstructions, preprocessingInstructions, index2) {
+      function traverseDom(node, isValidNode, processingInstructions, preprocessingInstructions, index) {
         if (isValidNode(node)) {
           forEach(function(preprocessingInstruction) {
             if (preprocessingInstruction.shouldPreprocessNode(node)) {
-              preprocessingInstruction.preprocessNode(node, index2);
+              preprocessingInstruction.preprocessNode(node, index);
             }
           }, preprocessingInstructions || []);
           var processingInstruction = find2(function(processingInstruction2) {
@@ -44881,11 +44881,11 @@ var require_parser = __commonJS({
               return traverseDom(child, isValidNode, processingInstructions, preprocessingInstructions, i);
             }, node.children || []));
             if (processingInstruction.replaceChildren) {
-              return utils.createElement(node, index2, node.data, [
-                processingInstruction.processNode(node, children, index2)
+              return utils.createElement(node, index, node.data, [
+                processingInstruction.processNode(node, children, index)
               ]);
             } else {
-              return processingInstruction.processNode(node, children, index2);
+              return processingInstruction.processNode(node, children, index);
             }
           } else {
             return false;
@@ -44897,8 +44897,8 @@ var require_parser = __commonJS({
       ;
       function parseWithInstructions(html, isValidNode, processingInstructions, preprocessingInstructions) {
         var domTree = parseHtmlToTree(html);
-        var list = domTree.map(function(domTreeItem, index2) {
-          return traverseDom(domTreeItem, isValidNode, processingInstructions, preprocessingInstructions, index2);
+        var list = domTree.map(function(domTreeItem, index) {
+          return traverseDom(domTreeItem, isValidNode, processingInstructions, preprocessingInstructions, index);
         });
         return list.length <= 1 ? list[0] : list;
       }
@@ -44934,17 +44934,112 @@ var require_html_to_react = __commonJS({
   }
 });
 
+// node_modules/reactex/node_modules/react-fast-compare/index.js
+var require_react_fast_compare = __commonJS({
+  "node_modules/reactex/node_modules/react-fast-compare/index.js"(exports, module) {
+    var hasElementType = typeof Element !== "undefined";
+    var hasMap = typeof Map === "function";
+    var hasSet = typeof Set === "function";
+    var hasArrayBuffer = typeof ArrayBuffer === "function" && !!ArrayBuffer.isView;
+    function equal(a, b) {
+      if (a === b)
+        return true;
+      if (a && b && typeof a == "object" && typeof b == "object") {
+        if (a.constructor !== b.constructor)
+          return false;
+        var length, i, keys;
+        if (Array.isArray(a)) {
+          length = a.length;
+          if (length != b.length)
+            return false;
+          for (i = length; i-- !== 0; )
+            if (!equal(a[i], b[i]))
+              return false;
+          return true;
+        }
+        var it;
+        if (hasMap && a instanceof Map && b instanceof Map) {
+          if (a.size !== b.size)
+            return false;
+          it = a.entries();
+          while (!(i = it.next()).done)
+            if (!b.has(i.value[0]))
+              return false;
+          it = a.entries();
+          while (!(i = it.next()).done)
+            if (!equal(i.value[1], b.get(i.value[0])))
+              return false;
+          return true;
+        }
+        if (hasSet && a instanceof Set && b instanceof Set) {
+          if (a.size !== b.size)
+            return false;
+          it = a.entries();
+          while (!(i = it.next()).done)
+            if (!b.has(i.value[0]))
+              return false;
+          return true;
+        }
+        if (hasArrayBuffer && ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
+          length = a.length;
+          if (length != b.length)
+            return false;
+          for (i = length; i-- !== 0; )
+            if (a[i] !== b[i])
+              return false;
+          return true;
+        }
+        if (a.constructor === RegExp)
+          return a.source === b.source && a.flags === b.flags;
+        if (a.valueOf !== Object.prototype.valueOf)
+          return a.valueOf() === b.valueOf();
+        if (a.toString !== Object.prototype.toString)
+          return a.toString() === b.toString();
+        keys = Object.keys(a);
+        length = keys.length;
+        if (length !== Object.keys(b).length)
+          return false;
+        for (i = length; i-- !== 0; )
+          if (!Object.prototype.hasOwnProperty.call(b, keys[i]))
+            return false;
+        if (hasElementType && a instanceof Element)
+          return false;
+        for (i = length; i-- !== 0; ) {
+          if ((keys[i] === "_owner" || keys[i] === "__v" || keys[i] === "__o") && a.$$typeof) {
+            continue;
+          }
+          if (!equal(a[keys[i]], b[keys[i]]))
+            return false;
+        }
+        return true;
+      }
+      return a !== a && b !== b;
+    }
+    module.exports = function isEqual2(a, b) {
+      try {
+        return equal(a, b);
+      } catch (error) {
+        if ((error.message || "").match(/stack|recursion/i)) {
+          console.warn("react-fast-compare cannot handle circular refs");
+          return false;
+        }
+        throw error;
+      }
+    };
+  }
+});
+
 // node_modules/axios/lib/helpers/bind.js
 var require_bind2 = __commonJS({
   "node_modules/axios/lib/helpers/bind.js"(exports, module) {
     "use strict";
-    module.exports = function bind(fn3, thisArg) {
+    module.exports = function bind(fn2, thisArg) {
       return function wrap() {
         var args = new Array(arguments.length);
         for (var i = 0; i < args.length; i++) {
           args[i] = arguments[i];
         }
-        return fn3.apply(thisArg, args);
+        return fn2.apply(thisArg, args);
       };
     };
   }
@@ -45023,7 +45118,7 @@ var require_utils2 = __commonJS({
       }
       return typeof window !== "undefined" && typeof document !== "undefined";
     }
-    function forEach(obj, fn3) {
+    function forEach(obj, fn2) {
       if (obj === null || typeof obj === "undefined") {
         return;
       }
@@ -45032,12 +45127,12 @@ var require_utils2 = __commonJS({
       }
       if (isArray(obj)) {
         for (var i = 0, l = obj.length; i < l; i++) {
-          fn3.call(null, obj[i], i, obj);
+          fn2.call(null, obj[i], i, obj);
         }
       } else {
         for (var key in obj) {
           if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            fn3.call(null, obj[key], key, obj);
+            fn2.call(null, obj[key], key, obj);
           }
         }
       }
@@ -45174,10 +45269,10 @@ var require_InterceptorManager = __commonJS({
         this.handlers[id] = null;
       }
     };
-    InterceptorManager.prototype.forEach = function forEach(fn3) {
+    InterceptorManager.prototype.forEach = function forEach(fn2) {
       utils.forEach(this.handlers, function forEachHandler(h) {
         if (h !== null) {
-          fn3(h);
+          fn2(h);
         }
       });
     };
@@ -45191,8 +45286,8 @@ var require_transformData = __commonJS({
     "use strict";
     var utils = require_utils2();
     module.exports = function transformData(data, headers, fns) {
-      utils.forEach(fns, function transform(fn3) {
-        data = fn3(data, headers);
+      utils.forEach(fns, function transform(fn2) {
+        data = fn2(data, headers);
       });
       return data;
     };
@@ -45965,16 +46060,17 @@ var require_axios2 = __commonJS({
 });
 
 // src/index.tsx
-var import_react22 = __toModule(require_react());
+var import_react20 = __toModule(require_react());
 var import_react_dom4 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/bibliography.js
-var import_react16 = __toModule(require_react());
+var import_react14 = __toModule(require_react());
 var import_bibtex_parse_js = __toModule(require_bibtexParse());
 var import_lodash5 = __toModule(require_lodash());
 
 // node_modules/reactex/dist/document.js
-var import_react15 = __toModule(require_react());
+var import_react13 = __toModule(require_react());
+var import_react_dom3 = __toModule(require_react_dom());
 var import_lodash4 = __toModule(require_lodash());
 var import_classnames2 = __toModule(require_classnames());
 
@@ -45996,8 +46092,8 @@ var niceErrors = {
   14: "Intercept handlers should return nothing or a change object",
   15: "Observable arrays cannot be frozen",
   16: "Modification exception: the internal structure of an observable array was changed.",
-  17: function _2(index2, length) {
-    return "[mobx.array] Index out of bounds, " + index2 + " is larger than " + length;
+  17: function _2(index, length) {
+    return "[mobx.array] Index out of bounds, " + index + " is larger than " + length;
   },
   18: "mobx.map requires Map polyfill for the current browser. Check babel-polyfill or core-js/es6/map.js",
   19: function _3(other) {
@@ -46107,8 +46203,8 @@ function once(func) {
 }
 var noop = function noop2() {
 };
-function isFunction(fn3) {
-  return typeof fn3 === "function";
+function isFunction(fn2) {
+  return typeof fn2 === "function";
 }
 function isStringish(value) {
   var t2 = typeof value;
@@ -46808,18 +46904,18 @@ var tmpNameDescriptor = {
   writable: false,
   enumerable: false
 };
-function createAction(actionName, fn3, autoAction2, ref) {
+function createAction(actionName, fn2, autoAction2, ref) {
   if (autoAction2 === void 0) {
     autoAction2 = false;
   }
   if (true) {
-    if (!isFunction(fn3))
+    if (!isFunction(fn2))
       die("`action` can only be invoked on functions");
     if (typeof actionName !== "string" || !actionName)
       die("actions should have valid names, got: '" + actionName + "'");
   }
   function res() {
-    return executeAction(actionName, autoAction2, fn3, ref || this, arguments);
+    return executeAction(actionName, autoAction2, fn2, ref || this, arguments);
   }
   res.isMobxAction = true;
   if (isFunctionNameConfigurable) {
@@ -46828,10 +46924,10 @@ function createAction(actionName, fn3, autoAction2, ref) {
   }
   return res;
 }
-function executeAction(actionName, canRunAsDerivation, fn3, scope, args) {
+function executeAction(actionName, canRunAsDerivation, fn2, scope, args) {
   var runInfo = _startAction(actionName, canRunAsDerivation, scope, args);
   try {
-    return fn3.apply(scope, args);
+    return fn2.apply(scope, args);
   } catch (err) {
     runInfo.error_ = err;
     throw err;
@@ -47665,7 +47761,7 @@ var Reaction = /* @__PURE__ */ function() {
       endBatch();
     }
   };
-  _proto.track = function track(fn3) {
+  _proto.track = function track(fn2) {
     if (this.isDisposed_) {
       return;
     }
@@ -47682,7 +47778,7 @@ var Reaction = /* @__PURE__ */ function() {
     this.isRunning_ = true;
     var prevReaction = globalState.trackingContext;
     globalState.trackingContext = this;
-    var result = trackDerivedFunction(this, fn3, void 0);
+    var result = trackDerivedFunction(this, fn2, void 0);
     globalState.trackingContext = prevReaction;
     this.isRunning_ = false;
     this.isTrackPending_ = false;
@@ -47775,10 +47871,10 @@ function runReactionsHelper() {
   globalState.isRunningReactions = false;
 }
 var isReaction = /* @__PURE__ */ createInstanceofPredicate("Reaction", Reaction);
-function setReactionScheduler(fn3) {
+function setReactionScheduler(fn2) {
   var baseScheduler = reactionScheduler;
   reactionScheduler = function reactionScheduler3(f) {
-    return fn3(function() {
+    return fn2(function() {
       return baseScheduler(f);
     });
   };
@@ -48102,8 +48198,8 @@ function cancelPromise(promise) {
   if (isFunction(promise.cancel))
     promise.cancel();
 }
-function isFlow(fn3) {
-  return (fn3 == null ? void 0 : fn3.isMobXFlow) === true;
+function isFlow(fn2) {
+  return (fn2 == null ? void 0 : fn2.isMobXFlow) === true;
 }
 function _isObservable(value, property) {
   if (!value)
@@ -48394,29 +48490,29 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
     if (this.legacyMode_ && delta > 0)
       reserveArrayBuffer(oldLength + delta + 1);
   };
-  _proto.spliceWithArray_ = function spliceWithArray_(index2, deleteCount, newItems) {
+  _proto.spliceWithArray_ = function spliceWithArray_(index, deleteCount, newItems) {
     var _this = this;
     checkIfStateModificationsAreAllowed(this.atom_);
     var length = this.values_.length;
-    if (index2 === void 0)
-      index2 = 0;
-    else if (index2 > length)
-      index2 = length;
-    else if (index2 < 0)
-      index2 = Math.max(0, length + index2);
+    if (index === void 0)
+      index = 0;
+    else if (index > length)
+      index = length;
+    else if (index < 0)
+      index = Math.max(0, length + index);
     if (arguments.length === 1)
-      deleteCount = length - index2;
+      deleteCount = length - index;
     else if (deleteCount === void 0 || deleteCount === null)
       deleteCount = 0;
     else
-      deleteCount = Math.max(0, Math.min(deleteCount, length - index2));
+      deleteCount = Math.max(0, Math.min(deleteCount, length - index));
     if (newItems === void 0)
       newItems = EMPTY_ARRAY;
     if (hasInterceptors(this)) {
       var change = interceptChange(this, {
         object: this.proxy_,
         type: SPLICE,
-        index: index2,
+        index,
         removedCount: deleteCount,
         added: newItems
       });
@@ -48432,29 +48528,29 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
       var lengthDelta = newItems.length - deleteCount;
       this.updateArrayLength_(length, lengthDelta);
     }
-    var res = this.spliceItemsIntoValues_(index2, deleteCount, newItems);
+    var res = this.spliceItemsIntoValues_(index, deleteCount, newItems);
     if (deleteCount !== 0 || newItems.length !== 0)
-      this.notifyArraySplice_(index2, newItems, res);
+      this.notifyArraySplice_(index, newItems, res);
     return this.dehanceValues_(res);
   };
-  _proto.spliceItemsIntoValues_ = function spliceItemsIntoValues_(index2, deleteCount, newItems) {
+  _proto.spliceItemsIntoValues_ = function spliceItemsIntoValues_(index, deleteCount, newItems) {
     if (newItems.length < MAX_SPLICE_SIZE) {
       var _this$values_;
-      return (_this$values_ = this.values_).splice.apply(_this$values_, [index2, deleteCount].concat(newItems));
+      return (_this$values_ = this.values_).splice.apply(_this$values_, [index, deleteCount].concat(newItems));
     } else {
-      var res = this.values_.slice(index2, index2 + deleteCount);
-      var oldItems = this.values_.slice(index2 + deleteCount);
-      this.values_.length = index2 + newItems.length - deleteCount;
+      var res = this.values_.slice(index, index + deleteCount);
+      var oldItems = this.values_.slice(index + deleteCount);
+      this.values_.length = index + newItems.length - deleteCount;
       for (var i = 0; i < newItems.length; i++) {
-        this.values_[index2 + i] = newItems[i];
+        this.values_[index + i] = newItems[i];
       }
       for (var _i = 0; _i < oldItems.length; _i++) {
-        this.values_[index2 + newItems.length + _i] = oldItems[_i];
+        this.values_[index + newItems.length + _i] = oldItems[_i];
       }
       return res;
     }
   };
-  _proto.notifyArrayChildUpdate_ = function notifyArrayChildUpdate_(index2, newValue, oldValue) {
+  _proto.notifyArrayChildUpdate_ = function notifyArrayChildUpdate_(index, newValue, oldValue) {
     var notifySpy = !this.owned_ && isSpyEnabled();
     var notify = hasListeners(this);
     var change = notify || notifySpy ? {
@@ -48462,7 +48558,7 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
       object: this.proxy_,
       type: UPDATE,
       debugObjectName: this.atom_.name_,
-      index: index2,
+      index,
       newValue,
       oldValue
     } : null;
@@ -48474,7 +48570,7 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
     if (notifySpy)
       spyReportEnd();
   };
-  _proto.notifyArraySplice_ = function notifyArraySplice_(index2, added, removed) {
+  _proto.notifyArraySplice_ = function notifyArraySplice_(index, added, removed) {
     var notifySpy = !this.owned_ && isSpyEnabled();
     var notify = hasListeners(this);
     var change = notify || notifySpy ? {
@@ -48482,7 +48578,7 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
       object: this.proxy_,
       debugObjectName: this.atom_.name_,
       type: SPLICE,
-      index: index2,
+      index,
       removed,
       added,
       removedCount: removed.length,
@@ -48496,23 +48592,23 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
     if (notifySpy)
       spyReportEnd();
   };
-  _proto.get_ = function get_(index2) {
-    if (index2 < this.values_.length) {
+  _proto.get_ = function get_(index) {
+    if (index < this.values_.length) {
       this.atom_.reportObserved();
-      return this.dehanceValue_(this.values_[index2]);
+      return this.dehanceValue_(this.values_[index]);
     }
-    console.warn(true ? "[mobx] Out of bounds read: " + index2 : "[mobx.array] Attempt to read an array index (" + index2 + ") that is out of bounds (" + this.values_.length + "). Please check length first. Out of bound indices will not be tracked by MobX");
+    console.warn(true ? "[mobx] Out of bounds read: " + index : "[mobx.array] Attempt to read an array index (" + index + ") that is out of bounds (" + this.values_.length + "). Please check length first. Out of bound indices will not be tracked by MobX");
   };
-  _proto.set_ = function set_(index2, newValue) {
+  _proto.set_ = function set_(index, newValue) {
     var values = this.values_;
-    if (index2 < values.length) {
+    if (index < values.length) {
       checkIfStateModificationsAreAllowed(this.atom_);
-      var oldValue = values[index2];
+      var oldValue = values[index];
       if (hasInterceptors(this)) {
         var change = interceptChange(this, {
           type: UPDATE,
           object: this.proxy_,
-          index: index2,
+          index,
           newValue
         });
         if (!change)
@@ -48522,13 +48618,13 @@ var ObservableArrayAdministration = /* @__PURE__ */ function() {
       newValue = this.enhancer_(newValue, oldValue);
       var changed = newValue !== oldValue;
       if (changed) {
-        values[index2] = newValue;
-        this.notifyArrayChildUpdate_(index2, newValue, oldValue);
+        values[index] = newValue;
+        this.notifyArrayChildUpdate_(index, newValue, oldValue);
       }
-    } else if (index2 === values.length) {
-      this.spliceWithArray_(index2, 0, [newValue]);
+    } else if (index === values.length) {
+      this.spliceWithArray_(index, 0, [newValue]);
     } else {
-      die(17, index2, values.length);
+      die(17, index, values.length);
     }
   };
   return ObservableArrayAdministration2;
@@ -48563,7 +48659,7 @@ var arrayExtensions = {
   toJSON: function toJSON() {
     return this.slice();
   },
-  splice: function splice(index2, deleteCount) {
+  splice: function splice(index, deleteCount) {
     for (var _len = arguments.length, newItems = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
       newItems[_key - 2] = arguments[_key];
     }
@@ -48572,14 +48668,14 @@ var arrayExtensions = {
       case 0:
         return [];
       case 1:
-        return adm.spliceWithArray_(index2);
+        return adm.spliceWithArray_(index);
       case 2:
-        return adm.spliceWithArray_(index2, deleteCount);
+        return adm.spliceWithArray_(index, deleteCount);
     }
-    return adm.spliceWithArray_(index2, deleteCount, newItems);
+    return adm.spliceWithArray_(index, deleteCount, newItems);
   },
-  spliceWithArray: function spliceWithArray(index2, deleteCount, newItems) {
-    return this[$mobx].spliceWithArray_(index2, deleteCount, newItems);
+  spliceWithArray: function spliceWithArray(index, deleteCount, newItems) {
+    return this[$mobx].spliceWithArray_(index, deleteCount, newItems);
   },
   push: function push() {
     var adm = this[$mobx];
@@ -48667,8 +48763,8 @@ function mapLikeFunc(funcName) {
     var adm = this[$mobx];
     adm.atom_.reportObserved();
     var dehancedValues = adm.dehanceValues_(adm.values_);
-    return dehancedValues[funcName](function(element, index2) {
-      return callback.call(thisArg, element, index2, _this2);
+    return dehancedValues[funcName](function(element, index) {
+      return callback.call(thisArg, element, index, _this2);
     });
   };
 }
@@ -48679,8 +48775,8 @@ function reduceLikeFunc(funcName) {
     adm.atom_.reportObserved();
     var dehancedValues = adm.dehanceValues_(adm.values_);
     var callback = arguments[0];
-    arguments[0] = function(accumulator, currentValue, index2) {
-      return callback(accumulator, currentValue, index2, _this3);
+    arguments[0] = function(accumulator, currentValue, index) {
+      return callback(accumulator, currentValue, index, _this3);
     };
     return dehancedValues[funcName].apply(dehancedValues, arguments);
   };
@@ -49178,10 +49274,10 @@ var ObservableSet = /* @__PURE__ */ function() {
     var values = Array.from(this.values());
     return makeIterable({
       next: function next() {
-        var index2 = nextIndex;
+        var index = nextIndex;
         nextIndex += 1;
-        return index2 < values.length ? {
-          value: [keys[index2], values[index2]],
+        return index < values.length ? {
+          value: [keys[index], values[index]],
           done: false
         } : {
           done: true
@@ -49789,29 +49885,29 @@ var LegacyObservableArray = /* @__PURE__ */ function(_StubArray) {
   return LegacyObservableArray2;
 }(StubArray);
 Object.entries(arrayExtensions).forEach(function(_ref) {
-  var prop = _ref[0], fn3 = _ref[1];
+  var prop = _ref[0], fn2 = _ref[1];
   if (prop !== "concat")
-    addHiddenProp(LegacyObservableArray.prototype, prop, fn3);
+    addHiddenProp(LegacyObservableArray.prototype, prop, fn2);
 });
-function createArrayEntryDescriptor(index2) {
+function createArrayEntryDescriptor(index) {
   return {
     enumerable: false,
     configurable: true,
     get: function get3() {
-      return this[$mobx].get_(index2);
+      return this[$mobx].get_(index);
     },
     set: function set4(value) {
-      this[$mobx].set_(index2, value);
+      this[$mobx].set_(index, value);
     }
   };
 }
-function createArrayBufferItem(index2) {
-  defineProperty(LegacyObservableArray.prototype, "" + index2, createArrayEntryDescriptor(index2));
+function createArrayBufferItem(index) {
+  defineProperty(LegacyObservableArray.prototype, "" + index, createArrayEntryDescriptor(index));
 }
 function reserveArrayBuffer(max2) {
   if (max2 > OBSERVABLE_ARRAY_BUFFER_SIZE) {
-    for (var index2 = OBSERVABLE_ARRAY_BUFFER_SIZE; index2 < max2 + 100; index2++) {
-      createArrayBufferItem(index2);
+    for (var index = OBSERVABLE_ARRAY_BUFFER_SIZE; index < max2 + 100; index++) {
+      createArrayBufferItem(index);
     }
     OBSERVABLE_ARRAY_BUFFER_SIZE = max2;
   }
@@ -50264,12 +50360,12 @@ var ObjectToBeRetainedByReact = function() {
   }
   return ObjectToBeRetainedByReact2;
 }();
-function useObserver(fn3, baseComponentName) {
+function useObserver(fn2, baseComponentName) {
   if (baseComponentName === void 0) {
     baseComponentName = "observed";
   }
   if (isUsingStaticRendering()) {
-    return fn3();
+    return fn2();
   }
   var _a2 = __read2(import_react3.default.useState(new ObjectToBeRetainedByReact()), 1), objectRetainedByReact = _a2[0];
   var forceUpdate = useForceUpdate();
@@ -50314,7 +50410,7 @@ function useObserver(fn3, baseComponentName) {
   var exception;
   reaction.track(function() {
     try {
-      rendering = fn3();
+      rendering = fn2();
     } catch (e) {
       exception = e;
     }
@@ -50377,8 +50473,8 @@ function copyStaticProperties(base2, target) {
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/ObserverComponent.js
 function ObserverComponent(_a2) {
-  var children = _a2.children, render2 = _a2.render;
-  var component = children || render2;
+  var children = _a2.children, render = _a2.render;
+  var component = children || render;
   if (typeof component !== "function") {
     return null;
   }
@@ -50500,13 +50596,13 @@ function wrapper(realMethod, mixins) {
   }
 }
 function wrapFunction(realMethod, mixins) {
-  var fn3 = function fn4() {
+  var fn2 = function fn3() {
     for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
     wrapper.call.apply(wrapper, [this, realMethod, mixins].concat(args));
   };
-  return fn3;
+  return fn2;
 }
 function patch(target, methodName, mixinMethod) {
   var mixins = getMixins(target, methodName);
@@ -50578,14 +50674,14 @@ function makeClassComponentObserver(componentClass) {
 function getDisplayName(comp) {
   return comp.displayName || comp.name || comp.constructor && (comp.constructor.displayName || comp.constructor.name) || "<component>";
 }
-function makeComponentReactive(render2) {
+function makeComponentReactive(render) {
   var _this = this;
   if (isUsingStaticRendering() === true)
-    return render2.call(this);
+    return render.call(this);
   setHiddenProp(this, skipRenderKey, false);
   setHiddenProp(this, isForcingUpdateKey, false);
   var initialName = getDisplayName(this);
-  var baseRender = render2.bind(this);
+  var baseRender = render.bind(this);
   var isRenderingPending = false;
   var reaction = new Reaction(initialName + ".render()", function() {
     if (!isRenderingPending) {
@@ -50751,14 +50847,28 @@ if (!observable)
   throw new Error("mobx-react requires mobx to be available");
 
 // node_modules/reactex/dist/tex.js
-var import_react13 = __toModule(require_react());
+var import_react11 = __toModule(require_react());
 var import_katex = __toModule(require_katex());
 var import_html_to_react = __toModule(require_html_to_react());
-var import_react_dom3 = __toModule(require_react_dom());
+var import_react_dom2 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/definitions.js
-var import_react11 = __toModule(require_react());
+var import_react10 = __toModule(require_react());
 var import_lodash2 = __toModule(require_lodash());
+
+// node_modules/reactex/node_modules/react-popper/lib/esm/utils.js
+var React2 = __toModule(require_react());
+var fromEntries = function fromEntries2(entries) {
+  return entries.reduce(function(acc, _ref) {
+    var key = _ref[0], value = _ref[1];
+    acc[key] = value;
+    return acc;
+  }, {});
+};
+var useIsomorphicLayoutEffect = typeof window !== "undefined" && window.document && window.document.createElement ? React2.useLayoutEffect : React2.useEffect;
+
+// node_modules/reactex/node_modules/react-popper/lib/esm/usePopper.js
+var React3 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/@popperjs/core/lib/enums.js
 var top = "top";
@@ -50980,8 +51090,8 @@ function getTrueOffsetParent(element) {
 }
 function getContainingBlock(element) {
   var isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") !== -1;
-  var isIE2 = navigator.userAgent.indexOf("Trident") !== -1;
-  if (isIE2 && isHTMLElement(element)) {
+  var isIE = navigator.userAgent.indexOf("Trident") !== -1;
+  if (isIE && isHTMLElement(element)) {
     var elementCss = getComputedStyle(element);
     if (elementCss.position === "fixed") {
       return null;
@@ -51956,14 +52066,14 @@ function orderModifiers(modifiers) {
 }
 
 // node_modules/reactex/node_modules/@popperjs/core/lib/utils/debounce.js
-function debounce(fn3) {
+function debounce(fn2) {
   var pending;
   return function() {
     if (!pending) {
       pending = new Promise(function(resolve) {
         Promise.resolve().then(function() {
           pending = void 0;
-          resolve(fn3());
+          resolve(fn2());
         });
       });
     }
@@ -52043,10 +52153,10 @@ function validateModifiers(modifiers) {
 }
 
 // node_modules/reactex/node_modules/@popperjs/core/lib/utils/uniqueBy.js
-function uniqueBy(arr, fn3) {
+function uniqueBy(arr, fn2) {
   var identifiers = new Set();
   return arr.filter(function(item) {
-    var identifier = fn3(item);
+    var identifier = fn2(item);
     if (!identifiers.has(identifier)) {
       identifiers.add(identifier);
       return true;
@@ -52167,7 +52277,7 @@ function popperGenerator(generatorOptions) {
           return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
         });
         var __debug_loops__ = 0;
-        for (var index2 = 0; index2 < state.orderedModifiers.length; index2++) {
+        for (var index = 0; index < state.orderedModifiers.length; index++) {
           if (true) {
             __debug_loops__ += 1;
             if (__debug_loops__ > 100) {
@@ -52177,12 +52287,12 @@ function popperGenerator(generatorOptions) {
           }
           if (state.reset === true) {
             state.reset = false;
-            index2 = -1;
+            index = -1;
             continue;
           }
-          var _state$orderedModifie = state.orderedModifiers[index2], fn3 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name2 = _state$orderedModifie.name;
-          if (typeof fn3 === "function") {
-            state = fn3({
+          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name2 = _state$orderedModifie.name;
+          if (typeof fn2 === "function") {
+            state = fn2({
               state,
               options: _options,
               name: name2,
@@ -52215,9 +52325,9 @@ function popperGenerator(generatorOptions) {
     });
     function runModifierEffects() {
       state.orderedModifiers.forEach(function(_ref3) {
-        var name2 = _ref3.name, _ref3$options = _ref3.options, options2 = _ref3$options === void 0 ? {} : _ref3$options, effect5 = _ref3.effect;
-        if (typeof effect5 === "function") {
-          var cleanupFn = effect5({
+        var name2 = _ref3.name, _ref3$options = _ref3.options, options2 = _ref3$options === void 0 ? {} : _ref3$options, effect4 = _ref3.effect;
+        if (typeof effect4 === "function") {
+          var cleanupFn = effect4({
             state,
             name: name2,
             instance,
@@ -52230,8 +52340,8 @@ function popperGenerator(generatorOptions) {
       });
     }
     function cleanupModifierEffects() {
-      effectCleanupFns.forEach(function(fn3) {
-        return fn3();
+      effectCleanupFns.forEach(function(fn2) {
+        return fn2();
       });
       effectCleanupFns = [];
     }
@@ -52245,1561 +52355,102 @@ var createPopper = /* @__PURE__ */ popperGenerator({
   defaultModifiers
 });
 
-// node_modules/reactex/node_modules/tippy.js/dist/tippy.esm.js
-var BOX_CLASS = "tippy-box";
-var CONTENT_CLASS = "tippy-content";
-var BACKDROP_CLASS = "tippy-backdrop";
-var ARROW_CLASS = "tippy-arrow";
-var SVG_ARROW_CLASS = "tippy-svg-arrow";
-var TOUCH_OPTIONS = {
-  passive: true,
-  capture: true
-};
-function hasOwnProperty(obj, key) {
-  return {}.hasOwnProperty.call(obj, key);
-}
-function getValueAtIndexOrReturn(value, index2, defaultValue) {
-  if (Array.isArray(value)) {
-    var v = value[index2];
-    return v == null ? Array.isArray(defaultValue) ? defaultValue[index2] : defaultValue : v;
+// node_modules/reactex/node_modules/react-popper/lib/esm/usePopper.js
+var import_react_fast_compare = __toModule(require_react_fast_compare());
+var EMPTY_MODIFIERS = [];
+var usePopper = function usePopper2(referenceElement, popperElement, options) {
+  if (options === void 0) {
+    options = {};
   }
-  return value;
-}
-function isType(value, type) {
-  var str = {}.toString.call(value);
-  return str.indexOf("[object") === 0 && str.indexOf(type + "]") > -1;
-}
-function invokeWithArgsOrReturn(value, args) {
-  return typeof value === "function" ? value.apply(void 0, args) : value;
-}
-function debounce2(fn3, ms) {
-  if (ms === 0) {
-    return fn3;
-  }
-  var timeout;
-  return function(arg) {
-    clearTimeout(timeout);
-    timeout = setTimeout(function() {
-      fn3(arg);
-    }, ms);
+  var prevOptions = React3.useRef(null);
+  var optionsWithDefaults = {
+    onFirstUpdate: options.onFirstUpdate,
+    placement: options.placement || "bottom",
+    strategy: options.strategy || "absolute",
+    modifiers: options.modifiers || EMPTY_MODIFIERS
   };
-}
-function removeProperties(obj, keys) {
-  var clone = Object.assign({}, obj);
-  keys.forEach(function(key) {
-    delete clone[key];
-  });
-  return clone;
-}
-function splitBySpaces(value) {
-  return value.split(/\s+/).filter(Boolean);
-}
-function normalizeToArray(value) {
-  return [].concat(value);
-}
-function pushIfUnique(arr, value) {
-  if (arr.indexOf(value) === -1) {
-    arr.push(value);
-  }
-}
-function unique2(arr) {
-  return arr.filter(function(item, index2) {
-    return arr.indexOf(item) === index2;
-  });
-}
-function getBasePlacement2(placement) {
-  return placement.split("-")[0];
-}
-function arrayFrom(value) {
-  return [].slice.call(value);
-}
-function removeUndefinedProps(obj) {
-  return Object.keys(obj).reduce(function(acc, key) {
-    if (obj[key] !== void 0) {
-      acc[key] = obj[key];
-    }
-    return acc;
-  }, {});
-}
-function div() {
-  return document.createElement("div");
-}
-function isElement2(value) {
-  return ["Element", "Fragment"].some(function(type) {
-    return isType(value, type);
-  });
-}
-function isNodeList(value) {
-  return isType(value, "NodeList");
-}
-function isMouseEvent(value) {
-  return isType(value, "MouseEvent");
-}
-function isReferenceElement(value) {
-  return !!(value && value._tippy && value._tippy.reference === value);
-}
-function getArrayOfElements(value) {
-  if (isElement2(value)) {
-    return [value];
-  }
-  if (isNodeList(value)) {
-    return arrayFrom(value);
-  }
-  if (Array.isArray(value)) {
-    return value;
-  }
-  return arrayFrom(document.querySelectorAll(value));
-}
-function setTransitionDuration(els, value) {
-  els.forEach(function(el) {
-    if (el) {
-      el.style.transitionDuration = value + "ms";
-    }
-  });
-}
-function setVisibilityState(els, state) {
-  els.forEach(function(el) {
-    if (el) {
-      el.setAttribute("data-state", state);
-    }
-  });
-}
-function getOwnerDocument(elementOrElements) {
-  var _element$ownerDocumen;
-  var _normalizeToArray = normalizeToArray(elementOrElements), element = _normalizeToArray[0];
-  return (element == null ? void 0 : (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body) ? element.ownerDocument : document;
-}
-function isCursorOutsideInteractiveBorder(popperTreeData, event) {
-  var clientX = event.clientX, clientY = event.clientY;
-  return popperTreeData.every(function(_ref) {
-    var popperRect = _ref.popperRect, popperState = _ref.popperState, props = _ref.props;
-    var interactiveBorder = props.interactiveBorder;
-    var basePlacement = getBasePlacement2(popperState.placement);
-    var offsetData = popperState.modifiersData.offset;
-    if (!offsetData) {
-      return true;
-    }
-    var topDistance = basePlacement === "bottom" ? offsetData.top.y : 0;
-    var bottomDistance = basePlacement === "top" ? offsetData.bottom.y : 0;
-    var leftDistance = basePlacement === "right" ? offsetData.left.x : 0;
-    var rightDistance = basePlacement === "left" ? offsetData.right.x : 0;
-    var exceedsTop = popperRect.top - clientY + topDistance > interactiveBorder;
-    var exceedsBottom = clientY - popperRect.bottom - bottomDistance > interactiveBorder;
-    var exceedsLeft = popperRect.left - clientX + leftDistance > interactiveBorder;
-    var exceedsRight = clientX - popperRect.right - rightDistance > interactiveBorder;
-    return exceedsTop || exceedsBottom || exceedsLeft || exceedsRight;
-  });
-}
-function updateTransitionEndListener(box2, action2, listener) {
-  var method = action2 + "EventListener";
-  ["transitionend", "webkitTransitionEnd"].forEach(function(event) {
-    box2[method](event, listener);
-  });
-}
-var currentInput = {
-  isTouch: false
-};
-var lastMouseMoveTime = 0;
-function onDocumentTouchStart() {
-  if (currentInput.isTouch) {
-    return;
-  }
-  currentInput.isTouch = true;
-  if (window.performance) {
-    document.addEventListener("mousemove", onDocumentMouseMove);
-  }
-}
-function onDocumentMouseMove() {
-  var now = performance.now();
-  if (now - lastMouseMoveTime < 20) {
-    currentInput.isTouch = false;
-    document.removeEventListener("mousemove", onDocumentMouseMove);
-  }
-  lastMouseMoveTime = now;
-}
-function onWindowBlur() {
-  var activeElement = document.activeElement;
-  if (isReferenceElement(activeElement)) {
-    var instance = activeElement._tippy;
-    if (activeElement.blur && !instance.state.isVisible) {
-      activeElement.blur();
-    }
-  }
-}
-function bindGlobalEventListeners() {
-  document.addEventListener("touchstart", onDocumentTouchStart, TOUCH_OPTIONS);
-  window.addEventListener("blur", onWindowBlur);
-}
-var isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
-var ua = isBrowser ? navigator.userAgent : "";
-var isIE = /MSIE |Trident\//.test(ua);
-function createMemoryLeakWarning(method) {
-  var txt = method === "destroy" ? "n already-" : " ";
-  return [method + "() was called on a" + txt + "destroyed instance. This is a no-op but", "indicates a potential memory leak."].join(" ");
-}
-function clean(value) {
-  var spacesAndTabs = /[ \t]{2,}/g;
-  var lineStartWithSpaces = /^[ \t]*/gm;
-  return value.replace(spacesAndTabs, " ").replace(lineStartWithSpaces, "").trim();
-}
-function getDevMessage(message) {
-  return clean("\n  %ctippy.js\n\n  %c" + clean(message) + "\n\n  %c\u{1F477}\u200D This is a development-only message. It will be removed in production.\n  ");
-}
-function getFormattedMessage(message) {
-  return [
-    getDevMessage(message),
-    "color: #00C584; font-size: 1.3em; font-weight: bold;",
-    "line-height: 1.5",
-    "color: #a6a095;"
-  ];
-}
-var visitedMessages;
-if (true) {
-  resetVisitedMessages();
-}
-function resetVisitedMessages() {
-  visitedMessages = new Set();
-}
-function warnWhen(condition, message) {
-  if (condition && !visitedMessages.has(message)) {
-    var _console;
-    visitedMessages.add(message);
-    (_console = console).warn.apply(_console, getFormattedMessage(message));
-  }
-}
-function errorWhen(condition, message) {
-  if (condition && !visitedMessages.has(message)) {
-    var _console2;
-    visitedMessages.add(message);
-    (_console2 = console).error.apply(_console2, getFormattedMessage(message));
-  }
-}
-function validateTargets(targets) {
-  var didPassFalsyValue = !targets;
-  var didPassPlainObject = Object.prototype.toString.call(targets) === "[object Object]" && !targets.addEventListener;
-  errorWhen(didPassFalsyValue, ["tippy() was passed", "`" + String(targets) + "`", "as its targets (first) argument. Valid types are: String, Element,", "Element[], or NodeList."].join(" "));
-  errorWhen(didPassPlainObject, ["tippy() was passed a plain object which is not supported as an argument", "for virtual positioning. Use props.getReferenceClientRect instead."].join(" "));
-}
-var pluginProps = {
-  animateFill: false,
-  followCursor: false,
-  inlinePositioning: false,
-  sticky: false
-};
-var renderProps = {
-  allowHTML: false,
-  animation: "fade",
-  arrow: true,
-  content: "",
-  inertia: false,
-  maxWidth: 350,
-  role: "tooltip",
-  theme: "",
-  zIndex: 9999
-};
-var defaultProps = Object.assign({
-  appendTo: function appendTo() {
-    return document.body;
-  },
-  aria: {
-    content: "auto",
-    expanded: "auto"
-  },
-  delay: 0,
-  duration: [300, 250],
-  getReferenceClientRect: null,
-  hideOnClick: true,
-  ignoreAttributes: false,
-  interactive: false,
-  interactiveBorder: 2,
-  interactiveDebounce: 0,
-  moveTransition: "",
-  offset: [0, 10],
-  onAfterUpdate: function onAfterUpdate() {
-  },
-  onBeforeUpdate: function onBeforeUpdate() {
-  },
-  onCreate: function onCreate() {
-  },
-  onDestroy: function onDestroy() {
-  },
-  onHidden: function onHidden() {
-  },
-  onHide: function onHide() {
-  },
-  onMount: function onMount() {
-  },
-  onShow: function onShow() {
-  },
-  onShown: function onShown() {
-  },
-  onTrigger: function onTrigger() {
-  },
-  onUntrigger: function onUntrigger() {
-  },
-  onClickOutside: function onClickOutside() {
-  },
-  placement: "top",
-  plugins: [],
-  popperOptions: {},
-  render: null,
-  showOnCreate: false,
-  touch: true,
-  trigger: "mouseenter focus",
-  triggerTarget: null
-}, pluginProps, {}, renderProps);
-var defaultKeys = Object.keys(defaultProps);
-var setDefaultProps = function setDefaultProps2(partialProps) {
-  if (true) {
-    validateProps(partialProps, []);
-  }
-  var keys = Object.keys(partialProps);
-  keys.forEach(function(key) {
-    defaultProps[key] = partialProps[key];
-  });
-};
-function getExtendedPassedProps(passedProps) {
-  var plugins = passedProps.plugins || [];
-  var pluginProps2 = plugins.reduce(function(acc, plugin) {
-    var name2 = plugin.name, defaultValue = plugin.defaultValue;
-    if (name2) {
-      acc[name2] = passedProps[name2] !== void 0 ? passedProps[name2] : defaultValue;
-    }
-    return acc;
-  }, {});
-  return Object.assign({}, passedProps, {}, pluginProps2);
-}
-function getDataAttributeProps(reference2, plugins) {
-  var propKeys = plugins ? Object.keys(getExtendedPassedProps(Object.assign({}, defaultProps, {
-    plugins
-  }))) : defaultKeys;
-  var props = propKeys.reduce(function(acc, key) {
-    var valueAsString = (reference2.getAttribute("data-tippy-" + key) || "").trim();
-    if (!valueAsString) {
-      return acc;
-    }
-    if (key === "content") {
-      acc[key] = valueAsString;
-    } else {
-      try {
-        acc[key] = JSON.parse(valueAsString);
-      } catch (e) {
-        acc[key] = valueAsString;
-      }
-    }
-    return acc;
-  }, {});
-  return props;
-}
-function evaluateProps(reference2, props) {
-  var out = Object.assign({}, props, {
-    content: invokeWithArgsOrReturn(props.content, [reference2])
-  }, props.ignoreAttributes ? {} : getDataAttributeProps(reference2, props.plugins));
-  out.aria = Object.assign({}, defaultProps.aria, {}, out.aria);
-  out.aria = {
-    expanded: out.aria.expanded === "auto" ? props.interactive : out.aria.expanded,
-    content: out.aria.content === "auto" ? props.interactive ? null : "describedby" : out.aria.content
-  };
-  return out;
-}
-function validateProps(partialProps, plugins) {
-  if (partialProps === void 0) {
-    partialProps = {};
-  }
-  if (plugins === void 0) {
-    plugins = [];
-  }
-  var keys = Object.keys(partialProps);
-  keys.forEach(function(prop) {
-    var nonPluginProps = removeProperties(defaultProps, Object.keys(pluginProps));
-    var didPassUnknownProp = !hasOwnProperty(nonPluginProps, prop);
-    if (didPassUnknownProp) {
-      didPassUnknownProp = plugins.filter(function(plugin) {
-        return plugin.name === prop;
-      }).length === 0;
-    }
-    warnWhen(didPassUnknownProp, ["`" + prop + "`", "is not a valid prop. You may have spelled it incorrectly, or if it's", "a plugin, forgot to pass it in an array as props.plugins.", "\n\n", "All props: https://atomiks.github.io/tippyjs/v6/all-props/\n", "Plugins: https://atomiks.github.io/tippyjs/v6/plugins/"].join(" "));
-  });
-}
-var innerHTML = function innerHTML2() {
-  return "innerHTML";
-};
-function dangerouslySetInnerHTML(element, html) {
-  element[innerHTML()] = html;
-}
-function createArrowElement(value) {
-  var arrow2 = div();
-  if (value === true) {
-    arrow2.className = ARROW_CLASS;
-  } else {
-    arrow2.className = SVG_ARROW_CLASS;
-    if (isElement2(value)) {
-      arrow2.appendChild(value);
-    } else {
-      dangerouslySetInnerHTML(arrow2, value);
-    }
-  }
-  return arrow2;
-}
-function setContent(content2, props) {
-  if (isElement2(props.content)) {
-    dangerouslySetInnerHTML(content2, "");
-    content2.appendChild(props.content);
-  } else if (typeof props.content !== "function") {
-    if (props.allowHTML) {
-      dangerouslySetInnerHTML(content2, props.content);
-    } else {
-      content2.textContent = props.content;
-    }
-  }
-}
-function getChildren(popper2) {
-  var box2 = popper2.firstElementChild;
-  var boxChildren = arrayFrom(box2.children);
-  return {
-    box: box2,
-    content: boxChildren.find(function(node) {
-      return node.classList.contains(CONTENT_CLASS);
-    }),
-    arrow: boxChildren.find(function(node) {
-      return node.classList.contains(ARROW_CLASS) || node.classList.contains(SVG_ARROW_CLASS);
-    }),
-    backdrop: boxChildren.find(function(node) {
-      return node.classList.contains(BACKDROP_CLASS);
-    })
-  };
-}
-function render(instance) {
-  var popper2 = div();
-  var box2 = div();
-  box2.className = BOX_CLASS;
-  box2.setAttribute("data-state", "hidden");
-  box2.setAttribute("tabindex", "-1");
-  var content2 = div();
-  content2.className = CONTENT_CLASS;
-  content2.setAttribute("data-state", "hidden");
-  setContent(content2, instance.props);
-  popper2.appendChild(box2);
-  box2.appendChild(content2);
-  onUpdate(instance.props, instance.props);
-  function onUpdate(prevProps, nextProps) {
-    var _getChildren = getChildren(popper2), box3 = _getChildren.box, content3 = _getChildren.content, arrow2 = _getChildren.arrow;
-    if (nextProps.theme) {
-      box3.setAttribute("data-theme", nextProps.theme);
-    } else {
-      box3.removeAttribute("data-theme");
-    }
-    if (typeof nextProps.animation === "string") {
-      box3.setAttribute("data-animation", nextProps.animation);
-    } else {
-      box3.removeAttribute("data-animation");
-    }
-    if (nextProps.inertia) {
-      box3.setAttribute("data-inertia", "");
-    } else {
-      box3.removeAttribute("data-inertia");
-    }
-    box3.style.maxWidth = typeof nextProps.maxWidth === "number" ? nextProps.maxWidth + "px" : nextProps.maxWidth;
-    if (nextProps.role) {
-      box3.setAttribute("role", nextProps.role);
-    } else {
-      box3.removeAttribute("role");
-    }
-    if (prevProps.content !== nextProps.content || prevProps.allowHTML !== nextProps.allowHTML) {
-      setContent(content3, instance.props);
-    }
-    if (nextProps.arrow) {
-      if (!arrow2) {
-        box3.appendChild(createArrowElement(nextProps.arrow));
-      } else if (prevProps.arrow !== nextProps.arrow) {
-        box3.removeChild(arrow2);
-        box3.appendChild(createArrowElement(nextProps.arrow));
-      }
-    } else if (arrow2) {
-      box3.removeChild(arrow2);
-    }
-  }
-  return {
-    popper: popper2,
-    onUpdate
-  };
-}
-render.$$tippy = true;
-var idCounter = 1;
-var mouseMoveListeners = [];
-var mountedInstances = [];
-function createTippy(reference2, passedProps) {
-  var props = evaluateProps(reference2, Object.assign({}, defaultProps, {}, getExtendedPassedProps(removeUndefinedProps(passedProps))));
-  var showTimeout;
-  var hideTimeout;
-  var scheduleHideAnimationFrame;
-  var isVisibleFromClick = false;
-  var didHideDueToDocumentMouseDown = false;
-  var didTouchMove = false;
-  var ignoreOnFirstUpdate = false;
-  var lastTriggerEvent;
-  var currentTransitionEndListener;
-  var onFirstUpdate;
-  var listeners = [];
-  var debouncedOnMouseMove = debounce2(onMouseMove, props.interactiveDebounce);
-  var currentTarget;
-  var id = idCounter++;
-  var popperInstance = null;
-  var plugins = unique2(props.plugins);
-  var state = {
-    isEnabled: true,
-    isVisible: false,
-    isDestroyed: false,
-    isMounted: false,
-    isShown: false
-  };
-  var instance = {
-    id,
-    reference: reference2,
-    popper: div(),
-    popperInstance,
-    props,
-    state,
-    plugins,
-    clearDelayTimeouts,
-    setProps,
-    setContent: setContent2,
-    show,
-    hide: hide2,
-    hideWithInteractivity,
-    enable,
-    disable,
-    unmount,
-    destroy
-  };
-  if (!props.render) {
-    if (true) {
-      errorWhen(true, "render() function has not been supplied.");
-    }
-    return instance;
-  }
-  var _props$render = props.render(instance), popper2 = _props$render.popper, onUpdate = _props$render.onUpdate;
-  popper2.setAttribute("data-tippy-root", "");
-  popper2.id = "tippy-" + instance.id;
-  instance.popper = popper2;
-  reference2._tippy = instance;
-  popper2._tippy = instance;
-  var pluginsHooks = plugins.map(function(plugin) {
-    return plugin.fn(instance);
-  });
-  var hasAriaExpanded = reference2.hasAttribute("aria-expanded");
-  addListeners();
-  handleAriaExpandedAttribute();
-  handleStyles();
-  invokeHook("onCreate", [instance]);
-  if (props.showOnCreate) {
-    scheduleShow();
-  }
-  popper2.addEventListener("mouseenter", function() {
-    if (instance.props.interactive && instance.state.isVisible) {
-      instance.clearDelayTimeouts();
-    }
-  });
-  popper2.addEventListener("mouseleave", function(event) {
-    if (instance.props.interactive && instance.props.trigger.indexOf("mouseenter") >= 0) {
-      getDocument().addEventListener("mousemove", debouncedOnMouseMove);
-      debouncedOnMouseMove(event);
-    }
-  });
-  return instance;
-  function getNormalizedTouchSettings() {
-    var touch = instance.props.touch;
-    return Array.isArray(touch) ? touch : [touch, 0];
-  }
-  function getIsCustomTouchBehavior() {
-    return getNormalizedTouchSettings()[0] === "hold";
-  }
-  function getIsDefaultRenderFn() {
-    var _instance$props$rende;
-    return !!((_instance$props$rende = instance.props.render) == null ? void 0 : _instance$props$rende.$$tippy);
-  }
-  function getCurrentTarget() {
-    return currentTarget || reference2;
-  }
-  function getDocument() {
-    var parent = getCurrentTarget().parentNode;
-    return parent ? getOwnerDocument(parent) : document;
-  }
-  function getDefaultTemplateChildren() {
-    return getChildren(popper2);
-  }
-  function getDelay(isShow) {
-    if (instance.state.isMounted && !instance.state.isVisible || currentInput.isTouch || lastTriggerEvent && lastTriggerEvent.type === "focus") {
-      return 0;
-    }
-    return getValueAtIndexOrReturn(instance.props.delay, isShow ? 0 : 1, defaultProps.delay);
-  }
-  function handleStyles() {
-    popper2.style.pointerEvents = instance.props.interactive && instance.state.isVisible ? "" : "none";
-    popper2.style.zIndex = "" + instance.props.zIndex;
-  }
-  function invokeHook(hook, args, shouldInvokePropsHook) {
-    if (shouldInvokePropsHook === void 0) {
-      shouldInvokePropsHook = true;
-    }
-    pluginsHooks.forEach(function(pluginHooks) {
-      if (pluginHooks[hook]) {
-        pluginHooks[hook].apply(void 0, args);
-      }
-    });
-    if (shouldInvokePropsHook) {
-      var _instance$props;
-      (_instance$props = instance.props)[hook].apply(_instance$props, args);
-    }
-  }
-  function handleAriaContentAttribute() {
-    var aria = instance.props.aria;
-    if (!aria.content) {
-      return;
-    }
-    var attr = "aria-" + aria.content;
-    var id2 = popper2.id;
-    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
-    nodes.forEach(function(node) {
-      var currentValue = node.getAttribute(attr);
-      if (instance.state.isVisible) {
-        node.setAttribute(attr, currentValue ? currentValue + " " + id2 : id2);
-      } else {
-        var nextValue = currentValue && currentValue.replace(id2, "").trim();
-        if (nextValue) {
-          node.setAttribute(attr, nextValue);
-        } else {
-          node.removeAttribute(attr);
-        }
-      }
-    });
-  }
-  function handleAriaExpandedAttribute() {
-    if (hasAriaExpanded || !instance.props.aria.expanded) {
-      return;
-    }
-    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
-    nodes.forEach(function(node) {
-      if (instance.props.interactive) {
-        node.setAttribute("aria-expanded", instance.state.isVisible && node === getCurrentTarget() ? "true" : "false");
-      } else {
-        node.removeAttribute("aria-expanded");
-      }
-    });
-  }
-  function cleanupInteractiveMouseListeners() {
-    getDocument().removeEventListener("mousemove", debouncedOnMouseMove);
-    mouseMoveListeners = mouseMoveListeners.filter(function(listener) {
-      return listener !== debouncedOnMouseMove;
-    });
-  }
-  function onDocumentPress(event) {
-    if (currentInput.isTouch) {
-      if (didTouchMove || event.type === "mousedown") {
-        return;
-      }
-    }
-    if (instance.props.interactive && popper2.contains(event.target)) {
-      return;
-    }
-    if (getCurrentTarget().contains(event.target)) {
-      if (currentInput.isTouch) {
-        return;
-      }
-      if (instance.state.isVisible && instance.props.trigger.indexOf("click") >= 0) {
-        return;
-      }
-    } else {
-      invokeHook("onClickOutside", [instance, event]);
-    }
-    if (instance.props.hideOnClick === true) {
-      instance.clearDelayTimeouts();
-      instance.hide();
-      didHideDueToDocumentMouseDown = true;
-      setTimeout(function() {
-        didHideDueToDocumentMouseDown = false;
-      });
-      if (!instance.state.isMounted) {
-        removeDocumentPress();
-      }
-    }
-  }
-  function onTouchMove() {
-    didTouchMove = true;
-  }
-  function onTouchStart() {
-    didTouchMove = false;
-  }
-  function addDocumentPress() {
-    var doc2 = getDocument();
-    doc2.addEventListener("mousedown", onDocumentPress, true);
-    doc2.addEventListener("touchend", onDocumentPress, TOUCH_OPTIONS);
-    doc2.addEventListener("touchstart", onTouchStart, TOUCH_OPTIONS);
-    doc2.addEventListener("touchmove", onTouchMove, TOUCH_OPTIONS);
-  }
-  function removeDocumentPress() {
-    var doc2 = getDocument();
-    doc2.removeEventListener("mousedown", onDocumentPress, true);
-    doc2.removeEventListener("touchend", onDocumentPress, TOUCH_OPTIONS);
-    doc2.removeEventListener("touchstart", onTouchStart, TOUCH_OPTIONS);
-    doc2.removeEventListener("touchmove", onTouchMove, TOUCH_OPTIONS);
-  }
-  function onTransitionedOut(duration, callback) {
-    onTransitionEnd(duration, function() {
-      if (!instance.state.isVisible && popper2.parentNode && popper2.parentNode.contains(popper2)) {
-        callback();
-      }
-    });
-  }
-  function onTransitionedIn(duration, callback) {
-    onTransitionEnd(duration, callback);
-  }
-  function onTransitionEnd(duration, callback) {
-    var box2 = getDefaultTemplateChildren().box;
-    function listener(event) {
-      if (event.target === box2) {
-        updateTransitionEndListener(box2, "remove", listener);
-        callback();
-      }
-    }
-    if (duration === 0) {
-      return callback();
-    }
-    updateTransitionEndListener(box2, "remove", currentTransitionEndListener);
-    updateTransitionEndListener(box2, "add", listener);
-    currentTransitionEndListener = listener;
-  }
-  function on(eventType, handler, options) {
-    if (options === void 0) {
-      options = false;
-    }
-    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
-    nodes.forEach(function(node) {
-      node.addEventListener(eventType, handler, options);
-      listeners.push({
-        node,
-        eventType,
-        handler,
-        options
-      });
-    });
-  }
-  function addListeners() {
-    if (getIsCustomTouchBehavior()) {
-      on("touchstart", onTrigger2, {
-        passive: true
-      });
-      on("touchend", onMouseLeave, {
-        passive: true
-      });
-    }
-    splitBySpaces(instance.props.trigger).forEach(function(eventType) {
-      if (eventType === "manual") {
-        return;
-      }
-      on(eventType, onTrigger2);
-      switch (eventType) {
-        case "mouseenter":
-          on("mouseleave", onMouseLeave);
-          break;
-        case "focus":
-          on(isIE ? "focusout" : "blur", onBlurOrFocusOut);
-          break;
-        case "focusin":
-          on("focusout", onBlurOrFocusOut);
-          break;
-      }
-    });
-  }
-  function removeListeners() {
-    listeners.forEach(function(_ref) {
-      var node = _ref.node, eventType = _ref.eventType, handler = _ref.handler, options = _ref.options;
-      node.removeEventListener(eventType, handler, options);
-    });
-    listeners = [];
-  }
-  function onTrigger2(event) {
-    var _lastTriggerEvent;
-    var shouldScheduleClickHide = false;
-    if (!instance.state.isEnabled || isEventListenerStopped(event) || didHideDueToDocumentMouseDown) {
-      return;
-    }
-    var wasFocused = ((_lastTriggerEvent = lastTriggerEvent) == null ? void 0 : _lastTriggerEvent.type) === "focus";
-    lastTriggerEvent = event;
-    currentTarget = event.currentTarget;
-    handleAriaExpandedAttribute();
-    if (!instance.state.isVisible && isMouseEvent(event)) {
-      mouseMoveListeners.forEach(function(listener) {
-        return listener(event);
-      });
-    }
-    if (event.type === "click" && (instance.props.trigger.indexOf("mouseenter") < 0 || isVisibleFromClick) && instance.props.hideOnClick !== false && instance.state.isVisible) {
-      shouldScheduleClickHide = true;
-    } else {
-      scheduleShow(event);
-    }
-    if (event.type === "click") {
-      isVisibleFromClick = !shouldScheduleClickHide;
-    }
-    if (shouldScheduleClickHide && !wasFocused) {
-      scheduleHide(event);
-    }
-  }
-  function onMouseMove(event) {
-    var target = event.target;
-    var isCursorOverReferenceOrPopper = getCurrentTarget().contains(target) || popper2.contains(target);
-    if (event.type === "mousemove" && isCursorOverReferenceOrPopper) {
-      return;
-    }
-    var popperTreeData = getNestedPopperTree().concat(popper2).map(function(popper3) {
-      var _instance$popperInsta;
-      var instance2 = popper3._tippy;
-      var state2 = (_instance$popperInsta = instance2.popperInstance) == null ? void 0 : _instance$popperInsta.state;
-      if (state2) {
-        return {
-          popperRect: popper3.getBoundingClientRect(),
-          popperState: state2,
-          props
-        };
-      }
-      return null;
-    }).filter(Boolean);
-    if (isCursorOutsideInteractiveBorder(popperTreeData, event)) {
-      cleanupInteractiveMouseListeners();
-      scheduleHide(event);
-    }
-  }
-  function onMouseLeave(event) {
-    var shouldBail = isEventListenerStopped(event) || instance.props.trigger.indexOf("click") >= 0 && isVisibleFromClick;
-    if (shouldBail) {
-      return;
-    }
-    if (instance.props.interactive) {
-      instance.hideWithInteractivity(event);
-      return;
-    }
-    scheduleHide(event);
-  }
-  function onBlurOrFocusOut(event) {
-    if (instance.props.trigger.indexOf("focusin") < 0 && event.target !== getCurrentTarget()) {
-      return;
-    }
-    if (instance.props.interactive && event.relatedTarget && popper2.contains(event.relatedTarget)) {
-      return;
-    }
-    scheduleHide(event);
-  }
-  function isEventListenerStopped(event) {
-    return currentInput.isTouch ? getIsCustomTouchBehavior() !== event.type.indexOf("touch") >= 0 : false;
-  }
-  function createPopperInstance() {
-    destroyPopperInstance();
-    var _instance$props2 = instance.props, popperOptions = _instance$props2.popperOptions, placement = _instance$props2.placement, offset2 = _instance$props2.offset, getReferenceClientRect = _instance$props2.getReferenceClientRect, moveTransition = _instance$props2.moveTransition;
-    var arrow2 = getIsDefaultRenderFn() ? getChildren(popper2).arrow : null;
-    var computedReference = getReferenceClientRect ? {
-      getBoundingClientRect: getReferenceClientRect,
-      contextElement: getReferenceClientRect.contextElement || getCurrentTarget()
-    } : reference2;
-    var tippyModifier = {
-      name: "$$tippy",
-      enabled: true,
-      phase: "beforeWrite",
-      requires: ["computeStyles"],
-      fn: function fn3(_ref2) {
-        var state2 = _ref2.state;
-        if (getIsDefaultRenderFn()) {
-          var _getDefaultTemplateCh = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh.box;
-          ["placement", "reference-hidden", "escaped"].forEach(function(attr) {
-            if (attr === "placement") {
-              box2.setAttribute("data-placement", state2.placement);
-            } else {
-              if (state2.attributes.popper["data-popper-" + attr]) {
-                box2.setAttribute("data-" + attr, "");
-              } else {
-                box2.removeAttribute("data-" + attr);
-              }
-            }
-          });
-          state2.attributes.popper = {};
-        }
-      }
-    };
-    var modifiers = [{
-      name: "offset",
-      options: {
-        offset: offset2
-      }
-    }, {
-      name: "preventOverflow",
-      options: {
-        padding: {
-          top: 2,
-          bottom: 2,
-          left: 5,
-          right: 5
-        }
-      }
-    }, {
-      name: "flip",
-      options: {
-        padding: 5
-      }
-    }, {
-      name: "computeStyles",
-      options: {
-        adaptive: !moveTransition
-      }
-    }, tippyModifier];
-    if (getIsDefaultRenderFn() && arrow2) {
-      modifiers.push({
-        name: "arrow",
-        options: {
-          element: arrow2,
-          padding: 3
-        }
-      });
-    }
-    modifiers.push.apply(modifiers, (popperOptions == null ? void 0 : popperOptions.modifiers) || []);
-    instance.popperInstance = createPopper(computedReference, popper2, Object.assign({}, popperOptions, {
-      placement,
-      onFirstUpdate,
-      modifiers
-    }));
-  }
-  function destroyPopperInstance() {
-    if (instance.popperInstance) {
-      instance.popperInstance.destroy();
-      instance.popperInstance = null;
-    }
-  }
-  function mount() {
-    var appendTo2 = instance.props.appendTo;
-    var parentNode;
-    var node = getCurrentTarget();
-    if (instance.props.interactive && appendTo2 === defaultProps.appendTo || appendTo2 === "parent") {
-      parentNode = node.parentNode;
-    } else {
-      parentNode = invokeWithArgsOrReturn(appendTo2, [node]);
-    }
-    if (!parentNode.contains(popper2)) {
-      parentNode.appendChild(popper2);
-    }
-    createPopperInstance();
-    if (true) {
-      warnWhen(instance.props.interactive && appendTo2 === defaultProps.appendTo && node.nextElementSibling !== popper2, ["Interactive tippy element may not be accessible via keyboard", "navigation because it is not directly after the reference element", "in the DOM source order.", "\n\n", "Using a wrapper <div> or <span> tag around the reference element", "solves this by creating a new parentNode context.", "\n\n", "Specifying `appendTo: document.body` silences this warning, but it", "assumes you are using a focus management solution to handle", "keyboard navigation.", "\n\n", "See: https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity"].join(" "));
-    }
-  }
-  function getNestedPopperTree() {
-    return arrayFrom(popper2.querySelectorAll("[data-tippy-root]"));
-  }
-  function scheduleShow(event) {
-    instance.clearDelayTimeouts();
-    if (event) {
-      invokeHook("onTrigger", [instance, event]);
-    }
-    addDocumentPress();
-    var delay = getDelay(true);
-    var _getNormalizedTouchSe = getNormalizedTouchSettings(), touchValue = _getNormalizedTouchSe[0], touchDelay = _getNormalizedTouchSe[1];
-    if (currentInput.isTouch && touchValue === "hold" && touchDelay) {
-      delay = touchDelay;
-    }
-    if (delay) {
-      showTimeout = setTimeout(function() {
-        instance.show();
-      }, delay);
-    } else {
-      instance.show();
-    }
-  }
-  function scheduleHide(event) {
-    instance.clearDelayTimeouts();
-    invokeHook("onUntrigger", [instance, event]);
-    if (!instance.state.isVisible) {
-      removeDocumentPress();
-      return;
-    }
-    if (instance.props.trigger.indexOf("mouseenter") >= 0 && instance.props.trigger.indexOf("click") >= 0 && ["mouseleave", "mousemove"].indexOf(event.type) >= 0 && isVisibleFromClick) {
-      return;
-    }
-    var delay = getDelay(false);
-    if (delay) {
-      hideTimeout = setTimeout(function() {
-        if (instance.state.isVisible) {
-          instance.hide();
-        }
-      }, delay);
-    } else {
-      scheduleHideAnimationFrame = requestAnimationFrame(function() {
-        instance.hide();
-      });
-    }
-  }
-  function enable() {
-    instance.state.isEnabled = true;
-  }
-  function disable() {
-    instance.hide();
-    instance.state.isEnabled = false;
-  }
-  function clearDelayTimeouts() {
-    clearTimeout(showTimeout);
-    clearTimeout(hideTimeout);
-    cancelAnimationFrame(scheduleHideAnimationFrame);
-  }
-  function setProps(partialProps) {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("setProps"));
-    }
-    if (instance.state.isDestroyed) {
-      return;
-    }
-    invokeHook("onBeforeUpdate", [instance, partialProps]);
-    removeListeners();
-    var prevProps = instance.props;
-    var nextProps = evaluateProps(reference2, Object.assign({}, instance.props, {}, partialProps, {
-      ignoreAttributes: true
-    }));
-    instance.props = nextProps;
-    addListeners();
-    if (prevProps.interactiveDebounce !== nextProps.interactiveDebounce) {
-      cleanupInteractiveMouseListeners();
-      debouncedOnMouseMove = debounce2(onMouseMove, nextProps.interactiveDebounce);
-    }
-    if (prevProps.triggerTarget && !nextProps.triggerTarget) {
-      normalizeToArray(prevProps.triggerTarget).forEach(function(node) {
-        node.removeAttribute("aria-expanded");
-      });
-    } else if (nextProps.triggerTarget) {
-      reference2.removeAttribute("aria-expanded");
-    }
-    handleAriaExpandedAttribute();
-    handleStyles();
-    if (onUpdate) {
-      onUpdate(prevProps, nextProps);
-    }
-    if (instance.popperInstance) {
-      createPopperInstance();
-      getNestedPopperTree().forEach(function(nestedPopper) {
-        requestAnimationFrame(nestedPopper._tippy.popperInstance.forceUpdate);
-      });
-    }
-    invokeHook("onAfterUpdate", [instance, partialProps]);
-  }
-  function setContent2(content2) {
-    instance.setProps({
-      content: content2
-    });
-  }
-  function show() {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("show"));
-    }
-    var isAlreadyVisible = instance.state.isVisible;
-    var isDestroyed = instance.state.isDestroyed;
-    var isDisabled = !instance.state.isEnabled;
-    var isTouchAndTouchDisabled = currentInput.isTouch && !instance.props.touch;
-    var duration = getValueAtIndexOrReturn(instance.props.duration, 0, defaultProps.duration);
-    if (isAlreadyVisible || isDestroyed || isDisabled || isTouchAndTouchDisabled) {
-      return;
-    }
-    if (getCurrentTarget().hasAttribute("disabled")) {
-      return;
-    }
-    invokeHook("onShow", [instance], false);
-    if (instance.props.onShow(instance) === false) {
-      return;
-    }
-    instance.state.isVisible = true;
-    if (getIsDefaultRenderFn()) {
-      popper2.style.visibility = "visible";
-    }
-    handleStyles();
-    addDocumentPress();
-    if (!instance.state.isMounted) {
-      popper2.style.transition = "none";
-    }
-    if (getIsDefaultRenderFn()) {
-      var _getDefaultTemplateCh2 = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh2.box, content2 = _getDefaultTemplateCh2.content;
-      setTransitionDuration([box2, content2], 0);
-    }
-    onFirstUpdate = function onFirstUpdate2() {
-      var _instance$popperInsta2;
-      if (!instance.state.isVisible || ignoreOnFirstUpdate) {
-        return;
-      }
-      ignoreOnFirstUpdate = true;
-      void popper2.offsetHeight;
-      popper2.style.transition = instance.props.moveTransition;
-      if (getIsDefaultRenderFn() && instance.props.animation) {
-        var _getDefaultTemplateCh3 = getDefaultTemplateChildren(), _box = _getDefaultTemplateCh3.box, _content = _getDefaultTemplateCh3.content;
-        setTransitionDuration([_box, _content], duration);
-        setVisibilityState([_box, _content], "visible");
-      }
-      handleAriaContentAttribute();
-      handleAriaExpandedAttribute();
-      pushIfUnique(mountedInstances, instance);
-      (_instance$popperInsta2 = instance.popperInstance) == null ? void 0 : _instance$popperInsta2.forceUpdate();
-      instance.state.isMounted = true;
-      invokeHook("onMount", [instance]);
-      if (instance.props.animation && getIsDefaultRenderFn()) {
-        onTransitionedIn(duration, function() {
-          instance.state.isShown = true;
-          invokeHook("onShown", [instance]);
-        });
-      }
-    };
-    mount();
-  }
-  function hide2() {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("hide"));
-    }
-    var isAlreadyHidden = !instance.state.isVisible;
-    var isDestroyed = instance.state.isDestroyed;
-    var isDisabled = !instance.state.isEnabled;
-    var duration = getValueAtIndexOrReturn(instance.props.duration, 1, defaultProps.duration);
-    if (isAlreadyHidden || isDestroyed || isDisabled) {
-      return;
-    }
-    invokeHook("onHide", [instance], false);
-    if (instance.props.onHide(instance) === false) {
-      return;
-    }
-    instance.state.isVisible = false;
-    instance.state.isShown = false;
-    ignoreOnFirstUpdate = false;
-    isVisibleFromClick = false;
-    if (getIsDefaultRenderFn()) {
-      popper2.style.visibility = "hidden";
-    }
-    cleanupInteractiveMouseListeners();
-    removeDocumentPress();
-    handleStyles();
-    if (getIsDefaultRenderFn()) {
-      var _getDefaultTemplateCh4 = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh4.box, content2 = _getDefaultTemplateCh4.content;
-      if (instance.props.animation) {
-        setTransitionDuration([box2, content2], duration);
-        setVisibilityState([box2, content2], "hidden");
-      }
-    }
-    handleAriaContentAttribute();
-    handleAriaExpandedAttribute();
-    if (instance.props.animation) {
-      if (getIsDefaultRenderFn()) {
-        onTransitionedOut(duration, instance.unmount);
-      }
-    } else {
-      instance.unmount();
-    }
-  }
-  function hideWithInteractivity(event) {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("hideWithInteractivity"));
-    }
-    getDocument().addEventListener("mousemove", debouncedOnMouseMove);
-    pushIfUnique(mouseMoveListeners, debouncedOnMouseMove);
-    debouncedOnMouseMove(event);
-  }
-  function unmount() {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("unmount"));
-    }
-    if (instance.state.isVisible) {
-      instance.hide();
-    }
-    if (!instance.state.isMounted) {
-      return;
-    }
-    destroyPopperInstance();
-    getNestedPopperTree().forEach(function(nestedPopper) {
-      nestedPopper._tippy.unmount();
-    });
-    if (popper2.parentNode) {
-      popper2.parentNode.removeChild(popper2);
-    }
-    mountedInstances = mountedInstances.filter(function(i) {
-      return i !== instance;
-    });
-    instance.state.isMounted = false;
-    invokeHook("onHidden", [instance]);
-  }
-  function destroy() {
-    if (true) {
-      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("destroy"));
-    }
-    if (instance.state.isDestroyed) {
-      return;
-    }
-    instance.clearDelayTimeouts();
-    instance.unmount();
-    removeListeners();
-    delete reference2._tippy;
-    instance.state.isDestroyed = true;
-    invokeHook("onDestroy", [instance]);
-  }
-}
-function tippy(targets, optionalProps) {
-  if (optionalProps === void 0) {
-    optionalProps = {};
-  }
-  var plugins = defaultProps.plugins.concat(optionalProps.plugins || []);
-  if (true) {
-    validateTargets(targets);
-    validateProps(optionalProps, plugins);
-  }
-  bindGlobalEventListeners();
-  var passedProps = Object.assign({}, optionalProps, {
-    plugins
-  });
-  var elements = getArrayOfElements(targets);
-  if (true) {
-    var isSingleContentElement = isElement2(passedProps.content);
-    var isMoreThanOneReferenceElement = elements.length > 1;
-    warnWhen(isSingleContentElement && isMoreThanOneReferenceElement, ["tippy() was passed an Element as the `content` prop, but more than", "one tippy instance was created by this invocation. This means the", "content element will only be appended to the last tippy instance.", "\n\n", "Instead, pass the .innerHTML of the element, or use a function that", "returns a cloned version of the element instead.", "\n\n", "1) content: element.innerHTML\n", "2) content: () => element.cloneNode(true)"].join(" "));
-  }
-  var instances = elements.reduce(function(acc, reference2) {
-    var instance = reference2 && createTippy(reference2, passedProps);
-    if (instance) {
-      acc.push(instance);
-    }
-    return acc;
-  }, []);
-  return isElement2(targets) ? instances[0] : instances;
-}
-tippy.defaultProps = defaultProps;
-tippy.setDefaultProps = setDefaultProps;
-tippy.currentInput = currentInput;
-var applyStylesModifier = Object.assign({}, applyStyles_default, {
-  effect: function effect4(_ref) {
-    var state = _ref.state;
-    var initialStyles = {
+  var _React$useState = React3.useState({
+    styles: {
       popper: {
-        position: state.options.strategy,
+        position: optionsWithDefaults.strategy,
         left: "0",
-        top: "0",
-        margin: "0"
+        top: "0"
       },
       arrow: {
         position: "absolute"
-      },
-      reference: {}
-    };
-    Object.assign(state.elements.popper.style, initialStyles.popper);
-    state.styles = initialStyles;
-    if (state.elements.arrow) {
-      Object.assign(state.elements.arrow.style, initialStyles.arrow);
-    }
-  }
-});
-tippy.setDefaultProps({
-  render
-});
-var tippy_esm_default = tippy;
-
-// node_modules/reactex/node_modules/@tippyjs/react/dist/tippy-react.esm.js
-var import_react9 = __toModule(require_react());
-var import_react_dom2 = __toModule(require_react_dom());
-function _objectWithoutPropertiesLoose2(source, excluded) {
-  if (source == null)
-    return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0)
-      continue;
-    target[key] = source[key];
-  }
-  return target;
-}
-var isBrowser2 = typeof window !== "undefined" && typeof document !== "undefined";
-function preserveRef(ref, node) {
-  if (ref) {
-    if (typeof ref === "function") {
-      ref(node);
-    }
-    if ({}.hasOwnProperty.call(ref, "current")) {
-      ref.current = node;
-    }
-  }
-}
-function ssrSafeCreateDiv() {
-  return isBrowser2 && document.createElement("div");
-}
-function toDataAttributes(attrs) {
-  var dataAttrs = {
-    "data-placement": attrs.placement
-  };
-  if (attrs.referenceHidden) {
-    dataAttrs["data-reference-hidden"] = "";
-  }
-  if (attrs.escaped) {
-    dataAttrs["data-escaped"] = "";
-  }
-  return dataAttrs;
-}
-function deepEqual2(x, y) {
-  if (x === y) {
-    return true;
-  } else if (typeof x === "object" && x != null && typeof y === "object" && y != null) {
-    if (Object.keys(x).length !== Object.keys(y).length) {
-      return false;
-    }
-    for (var prop in x) {
-      if (y.hasOwnProperty(prop)) {
-        if (!deepEqual2(x[prop], y[prop])) {
-          return false;
-        }
-      } else {
-        return false;
       }
-    }
-    return true;
-  } else {
-    return false;
-  }
-}
-function uniqueByShape(arr) {
-  var output = [];
-  arr.forEach(function(item) {
-    if (!output.find(function(outputItem) {
-      return deepEqual2(item, outputItem);
-    })) {
-      output.push(item);
-    }
-  });
-  return output;
-}
-function deepPreserveProps(instanceProps, componentProps) {
-  var _instanceProps$popper, _componentProps$poppe;
-  return Object.assign({}, componentProps, {
-    popperOptions: Object.assign({}, instanceProps.popperOptions, componentProps.popperOptions, {
-      modifiers: uniqueByShape([].concat(((_instanceProps$popper = instanceProps.popperOptions) == null ? void 0 : _instanceProps$popper.modifiers) || [], ((_componentProps$poppe = componentProps.popperOptions) == null ? void 0 : _componentProps$poppe.modifiers) || []))
-    })
-  });
-}
-var useIsomorphicLayoutEffect = isBrowser2 ? import_react9.useLayoutEffect : import_react9.useEffect;
-function useMutableBox(initialValue) {
-  var ref = (0, import_react9.useRef)();
-  if (!ref.current) {
-    ref.current = typeof initialValue === "function" ? initialValue() : initialValue;
-  }
-  return ref.current;
-}
-function updateClassName(box2, action2, classNames3) {
-  classNames3.split(/\s+/).forEach(function(name2) {
-    if (name2) {
-      box2.classList[action2](name2);
-    }
-  });
-}
-var classNamePlugin = {
-  name: "className",
-  defaultValue: "",
-  fn: function fn2(instance) {
-    var box2 = instance.popper.firstElementChild;
-    var isDefaultRenderFn = function isDefaultRenderFn2() {
-      var _instance$props$rende;
-      return !!((_instance$props$rende = instance.props.render) == null ? void 0 : _instance$props$rende.$$tippy);
-    };
-    function add() {
-      if (instance.props.className && !isDefaultRenderFn()) {
-        if (true) {
-          console.warn(["@tippyjs/react: Cannot use `className` prop in conjunction with", "`render` prop. Place the className on the element you are", "rendering."].join(" "));
-        }
-        return;
-      }
-      updateClassName(box2, "add", instance.props.className);
-    }
-    function remove3() {
-      if (isDefaultRenderFn()) {
-        updateClassName(box2, "remove", instance.props.className);
-      }
-    }
+    },
+    attributes: {}
+  }), state = _React$useState[0], setState = _React$useState[1];
+  var updateStateModifier = React3.useMemo(function() {
     return {
-      onCreate: add,
-      onBeforeUpdate: remove3,
-      onAfterUpdate: add
+      name: "updateState",
+      enabled: true,
+      phase: "write",
+      fn: function fn2(_ref) {
+        var state2 = _ref.state;
+        var elements = Object.keys(state2.elements);
+        setState({
+          styles: fromEntries(elements.map(function(element) {
+            return [element, state2.styles[element] || {}];
+          })),
+          attributes: fromEntries(elements.map(function(element) {
+            return [element, state2.attributes[element]];
+          }))
+        });
+      },
+      requires: ["computeStyles"]
     };
-  }
+  }, []);
+  var popperOptions = React3.useMemo(function() {
+    var newOptions = {
+      onFirstUpdate: optionsWithDefaults.onFirstUpdate,
+      placement: optionsWithDefaults.placement,
+      strategy: optionsWithDefaults.strategy,
+      modifiers: [].concat(optionsWithDefaults.modifiers, [updateStateModifier, {
+        name: "applyStyles",
+        enabled: false
+      }])
+    };
+    if ((0, import_react_fast_compare.default)(prevOptions.current, newOptions)) {
+      return prevOptions.current || newOptions;
+    } else {
+      prevOptions.current = newOptions;
+      return newOptions;
+    }
+  }, [optionsWithDefaults.onFirstUpdate, optionsWithDefaults.placement, optionsWithDefaults.strategy, optionsWithDefaults.modifiers, updateStateModifier]);
+  var popperInstanceRef = React3.useRef();
+  useIsomorphicLayoutEffect(function() {
+    if (popperInstanceRef.current) {
+      popperInstanceRef.current.setOptions(popperOptions);
+    }
+  }, [popperOptions]);
+  useIsomorphicLayoutEffect(function() {
+    if (referenceElement == null || popperElement == null) {
+      return;
+    }
+    var createPopper2 = options.createPopper || createPopper;
+    var popperInstance = createPopper2(referenceElement, popperElement, popperOptions);
+    popperInstanceRef.current = popperInstance;
+    return function() {
+      popperInstance.destroy();
+      popperInstanceRef.current = null;
+    };
+  }, [referenceElement, popperElement, options.createPopper]);
+  return {
+    state: popperInstanceRef.current ? popperInstanceRef.current.state : null,
+    styles: state.styles,
+    attributes: state.attributes,
+    update: popperInstanceRef.current ? popperInstanceRef.current.update : null,
+    forceUpdate: popperInstanceRef.current ? popperInstanceRef.current.forceUpdate : null
+  };
 };
-function TippyGenerator(tippy2) {
-  function Tippy(_ref) {
-    var children = _ref.children, content2 = _ref.content, visible = _ref.visible, singleton = _ref.singleton, render2 = _ref.render, reference2 = _ref.reference, _ref$disabled = _ref.disabled, disabled = _ref$disabled === void 0 ? false : _ref$disabled, _ref$ignoreAttributes = _ref.ignoreAttributes, ignoreAttributes = _ref$ignoreAttributes === void 0 ? true : _ref$ignoreAttributes, __source = _ref.__source, __self = _ref.__self, restOfNativeProps = _objectWithoutPropertiesLoose2(_ref, ["children", "content", "visible", "singleton", "render", "reference", "disabled", "ignoreAttributes", "__source", "__self"]);
-    var isControlledMode = visible !== void 0;
-    var isSingletonMode = singleton !== void 0;
-    var _useState = (0, import_react9.useState)(false), mounted = _useState[0], setMounted = _useState[1];
-    var _useState2 = (0, import_react9.useState)({}), attrs = _useState2[0], setAttrs = _useState2[1];
-    var _useState3 = (0, import_react9.useState)(), singletonContent = _useState3[0], setSingletonContent = _useState3[1];
-    var mutableBox = useMutableBox(function() {
-      return {
-        container: ssrSafeCreateDiv(),
-        renders: 1
-      };
-    });
-    var props = Object.assign({
-      ignoreAttributes
-    }, restOfNativeProps, {
-      content: mutableBox.container
-    });
-    if (isControlledMode) {
-      if (true) {
-        ["trigger", "hideOnClick", "showOnCreate"].forEach(function(nativeStateProp) {
-          if (props[nativeStateProp] !== void 0) {
-            console.warn(["@tippyjs/react: Cannot specify `" + nativeStateProp + "` prop in", "controlled mode (`visible` prop)"].join(" "));
-          }
-        });
-      }
-      props.trigger = "manual";
-      props.hideOnClick = false;
-    }
-    if (isSingletonMode) {
-      disabled = true;
-    }
-    var computedProps = props;
-    var plugins = props.plugins || [];
-    if (render2) {
-      computedProps = Object.assign({}, props, {
-        plugins: isSingletonMode ? [].concat(plugins, [{
-          fn: function fn3() {
-            return {
-              onTrigger: function onTrigger2(_19, event) {
-                var _singleton$data$child = singleton.data.children.find(function(_ref2) {
-                  var instance = _ref2.instance;
-                  return instance.reference === event.currentTarget;
-                }), content3 = _singleton$data$child.content;
-                setSingletonContent(content3);
-              }
-            };
-          }
-        }]) : plugins,
-        render: function render3() {
-          return {
-            popper: mutableBox.container
-          };
-        }
-      });
-    }
-    var deps = [reference2].concat(children ? [children.type] : []);
-    useIsomorphicLayoutEffect(function() {
-      var element = reference2;
-      if (reference2 && reference2.hasOwnProperty("current")) {
-        element = reference2.current;
-      }
-      var instance = tippy2(element || mutableBox.ref || ssrSafeCreateDiv(), Object.assign({}, computedProps, {
-        plugins: [classNamePlugin].concat(props.plugins || [])
-      }));
-      mutableBox.instance = instance;
-      if (disabled) {
-        instance.disable();
-      }
-      if (visible) {
-        instance.show();
-      }
-      if (isSingletonMode) {
-        singleton.hook({
-          instance,
-          content: content2,
-          props: computedProps
-        });
-      }
-      setMounted(true);
-      return function() {
-        instance.destroy();
-        singleton == null ? void 0 : singleton.cleanup(instance);
-      };
-    }, deps);
-    useIsomorphicLayoutEffect(function() {
-      var _instance$popperInsta;
-      if (mutableBox.renders === 1) {
-        mutableBox.renders++;
-        return;
-      }
-      var instance = mutableBox.instance;
-      instance.setProps(deepPreserveProps(instance.props, computedProps));
-      (_instance$popperInsta = instance.popperInstance) == null ? void 0 : _instance$popperInsta.forceUpdate();
-      if (disabled) {
-        instance.disable();
-      } else {
-        instance.enable();
-      }
-      if (isControlledMode) {
-        if (visible) {
-          instance.show();
-        } else {
-          instance.hide();
-        }
-      }
-      if (isSingletonMode) {
-        singleton.hook({
-          instance,
-          content: content2,
-          props: computedProps
-        });
-      }
-    });
-    useIsomorphicLayoutEffect(function() {
-      var _instance$props$poppe;
-      if (!render2) {
-        return;
-      }
-      var instance = mutableBox.instance;
-      instance.setProps({
-        popperOptions: Object.assign({}, instance.props.popperOptions, {
-          modifiers: [].concat((((_instance$props$poppe = instance.props.popperOptions) == null ? void 0 : _instance$props$poppe.modifiers) || []).filter(function(_ref3) {
-            var name2 = _ref3.name;
-            return name2 !== "$$tippyReact";
-          }), [{
-            name: "$$tippyReact",
-            enabled: true,
-            phase: "beforeWrite",
-            requires: ["computeStyles"],
-            fn: function fn3(_ref4) {
-              var _state$modifiersData;
-              var state = _ref4.state;
-              var hideData = (_state$modifiersData = state.modifiersData) == null ? void 0 : _state$modifiersData.hide;
-              if (attrs.placement !== state.placement || attrs.referenceHidden !== (hideData == null ? void 0 : hideData.isReferenceHidden) || attrs.escaped !== (hideData == null ? void 0 : hideData.hasPopperEscaped)) {
-                setAttrs({
-                  placement: state.placement,
-                  referenceHidden: hideData == null ? void 0 : hideData.isReferenceHidden,
-                  escaped: hideData == null ? void 0 : hideData.hasPopperEscaped
-                });
-              }
-              state.attributes.popper = {};
-            }
-          }])
-        })
-      });
-    }, [attrs.placement, attrs.referenceHidden, attrs.escaped].concat(deps));
-    return /* @__PURE__ */ import_react9.default.createElement(import_react9.default.Fragment, null, children ? /* @__PURE__ */ (0, import_react9.cloneElement)(children, {
-      ref: function ref(node) {
-        mutableBox.ref = node;
-        preserveRef(children.ref, node);
-      }
-    }) : null, mounted && /* @__PURE__ */ (0, import_react_dom2.createPortal)(render2 ? render2(toDataAttributes(attrs), singletonContent, mutableBox.instance) : content2, mutableBox.container));
-  }
-  return Tippy;
-}
-var forwardRef3 = function(Tippy, defaultProps2) {
-  return /* @__PURE__ */ (0, import_react9.forwardRef)(function TippyWrapper(_ref, _ref2) {
-    var children = _ref.children, props = _objectWithoutPropertiesLoose2(_ref, ["children"]);
-    return /* @__PURE__ */ import_react9.default.createElement(Tippy, Object.assign({}, defaultProps2, props), children ? /* @__PURE__ */ (0, import_react9.cloneElement)(children, {
-      ref: function ref(node) {
-        preserveRef(_ref2, node);
-        preserveRef(children.ref, node);
-      }
-    }) : null);
-  });
-};
-var index = /* @__PURE__ */ forwardRef3(/* @__PURE__ */ TippyGenerator(tippy_esm_default));
-var tippy_react_esm_default = index;
 
 // node_modules/reactex/dist/definitions.js
 var import_classnames = __toModule(require_classnames());
 
 // node_modules/reactex/dist/utils.js
-var import_react10 = __toModule(require_react());
+var import_react9 = __toModule(require_react());
 var import_lodash = __toModule(require_lodash());
 var zipExn = (l1, l2) => {
   if (l1.length != l2.length) {
@@ -53807,14 +52458,14 @@ var zipExn = (l1, l2) => {
   }
   return import_lodash.default.zip(l1, l2);
 };
-var AdaptiveDisplay = (0, import_react10.forwardRef)(({ block, ...props }, ref) => {
+var AdaptiveDisplay = (0, import_react9.forwardRef)(({ block, ...props }, ref) => {
   if (block) {
-    return /* @__PURE__ */ import_react10.default.createElement("div", {
+    return /* @__PURE__ */ import_react9.default.createElement("div", {
       ref,
       ...props
     });
   } else {
-    return /* @__PURE__ */ import_react10.default.createElement("span", {
+    return /* @__PURE__ */ import_react9.default.createElement("span", {
       ref,
       ...props
     });
@@ -53856,7 +52507,7 @@ var AllDefinitionData = class {
         this.def_mode = false;
       }
     });
-    (0, import_react11.useEffect)(() => {
+    (0, import_react10.useEffect)(() => {
       window.addEventListener("keydown", on_keydown);
       window.addEventListener("keyup", on_keyup);
       return () => {
@@ -53872,20 +52523,20 @@ __decorateClass([
 __decorateClass([
   observable
 ], AllDefinitionData.prototype, "def_mode", 2);
-var DefinitionContext = import_react11.default.createContext(new AllDefinitionData());
-var DefinitionAnchor = (props) => /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+var DefinitionContext = import_react10.default.createContext(new AllDefinitionData());
+var DefinitionAnchor = (props) => /* @__PURE__ */ import_react10.default.createElement(AdaptiveDisplay, {
   block: props.block,
   id: `def-${props.name}`
 }, props.children);
 var Definition = (props) => {
-  let ctx = (0, import_react11.useContext)(DefinitionContext);
-  let [name2] = (0, import_react11.useState)(props.name || import_lodash2.default.uniqueId("def-"));
-  (0, import_react11.useEffect)(() => {
-    let Tooltip = typeof props.Tooltip !== "undefined" ? props.Tooltip : () => /* @__PURE__ */ import_react11.default.createElement(import_react11.default.Fragment, null, props.children);
+  let ctx = (0, import_react10.useContext)(DefinitionContext);
+  let [name2] = (0, import_react10.useState)(props.name || import_lodash2.default.uniqueId("def-"));
+  (0, import_react10.useEffect)(() => {
+    let Tooltip2 = typeof props.Tooltip !== "undefined" ? props.Tooltip : () => /* @__PURE__ */ import_react10.default.createElement(import_react10.default.Fragment, null, props.children);
     let Label = props.Label || null;
-    ctx.add_definition(name2, { Tooltip, Label });
+    ctx.add_definition(name2, { Tooltip: Tooltip2, Label });
   }, []);
-  return /* @__PURE__ */ import_react11.default.createElement(DefinitionAnchor, {
+  return /* @__PURE__ */ import_react10.default.createElement(DefinitionAnchor, {
     block: props.block,
     name: name2
   }, props.children);
@@ -53895,11 +52546,36 @@ function checkVisible(elm) {
   var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
+var Tooltip = ({ Inner, Popup }) => {
+  const [referenceElement, setReferenceElement] = (0, import_react10.useState)(null);
+  const [popperElement, setPopperElement] = (0, import_react10.useState)(null);
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: "top",
+    modifiers: [{ name: "offset", options: { offset: [0, 10] } }]
+  });
+  let [init2, set_init] = (0, import_react10.useState)(false);
+  let [show, set_show] = (0, import_react10.useState)(false);
+  let on_click = () => {
+    if (!init2) {
+      set_init(true);
+    }
+    set_show(!show);
+  };
+  return /* @__PURE__ */ import_react10.default.createElement(import_react10.default.Fragment, null, /* @__PURE__ */ import_react10.default.createElement(Inner, {
+    ref: setReferenceElement,
+    onClick: on_click
+  }), init2 ? /* @__PURE__ */ import_react10.default.createElement(ToplevelElem, null, /* @__PURE__ */ import_react10.default.createElement("div", {
+    className: "tooltip",
+    ref: setPopperElement,
+    style: { ...styles.popper, display: show ? "block" : "none" },
+    ...attributes.popper
+  }, /* @__PURE__ */ import_react10.default.createElement(Popup, null))) : null);
+};
 var Ref = observer2((props) => {
-  let ctx = (0, import_react11.useContext)(DefinitionContext);
+  let ctx = (0, import_react10.useContext)(DefinitionContext);
   let def = ctx.get_definition(props.name);
   if (!def) {
-    return /* @__PURE__ */ import_react11.default.createElement("span", {
+    return /* @__PURE__ */ import_react10.default.createElement("span", {
       className: "error"
     }, props.name);
   }
@@ -53925,32 +52601,25 @@ var Ref = observer2((props) => {
       });
     }, 100);
   };
-  let inner = props.children ? /* @__PURE__ */ import_react11.default.createElement(import_react11.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react11.default.createElement(def.Label, null) : /* @__PURE__ */ import_react11.default.createElement("span", {
+  let inner = props.children ? /* @__PURE__ */ import_react10.default.createElement(import_react10.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react10.default.createElement(def.Label, null) : /* @__PURE__ */ import_react10.default.createElement("span", {
     className: "error"
   }, 'No children or label for "', props.name, '"');
-  let Inner = (0, import_react11.forwardRef)(({}, ref) => /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+  let Inner = (0, import_react10.forwardRef)((inner_props, ref) => /* @__PURE__ */ import_react10.default.createElement(AdaptiveDisplay, {
     ref,
     block: props.block,
     className: (0, import_classnames.default)("ref", {
       nolink: props.nolink
     }),
-    onMouseEnter: (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-    },
-    onClick: (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-    },
+    ...inner_props,
     onDoubleClick: on_click
   }, inner));
   if (def.Tooltip) {
-    return /* @__PURE__ */ import_react11.default.createElement(tippy_react_esm_default, {
-      content: "Ok",
-      trigger: ctx.def_mode ? "mouseenter" : "click"
-    }, /* @__PURE__ */ import_react11.default.createElement(Inner, null));
+    return /* @__PURE__ */ import_react10.default.createElement(Tooltip, {
+      Inner,
+      Popup: def.Tooltip
+    });
   } else {
-    return /* @__PURE__ */ import_react11.default.createElement(Inner, null);
+    return /* @__PURE__ */ import_react10.default.createElement(Inner, null);
   }
 });
 
@@ -53967,7 +52636,7 @@ var TexContext = class {
     el.style.display = "inline-block";
     el.style.position = "absolute";
     el.style.left = "-99999px";
-    import_react_dom3.default.render(node, el);
+    import_react_dom2.default.render(node, el);
     let promise = new Promise((resolve, _22) => {
       let observer3 = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -53997,21 +52666,21 @@ var TexContext = class {
       displayMode: block
     });
     if (raw) {
-      return /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
+      return /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
         block,
         dangerouslySetInnerHTML: { __html: html },
         ...props
       });
     }
-    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react13.default);
+    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react11.default);
     let instrs = [
       {
         replaceChildren: true,
         shouldProcessNode: (node2) => node2.attribs && "data-cmd" in node2.attribs,
-        processNode: (node2, children, index2) => {
+        processNode: (node2, children, index) => {
           let def = node2.attribs["data-cmd"];
-          let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react13.default.createElement(Ref, {
+          let inner = defns.processDefaultNode(node2, children, index);
+          return /* @__PURE__ */ import_react11.default.createElement(Ref, {
             name: `tex:${def}`,
             nolink: true
           }, inner);
@@ -54020,10 +52689,10 @@ var TexContext = class {
       {
         replaceChildren: true,
         shouldProcessNode: (node2) => node2.attribs && "data-def" in node2.attribs,
-        processNode: (node2, children, index2) => {
+        processNode: (node2, children, index) => {
           let def = node2.attribs["data-def"];
-          let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react13.default.createElement(DefinitionAnchor, {
+          let inner = defns.processDefaultNode(node2, children, index);
+          return /* @__PURE__ */ import_react11.default.createElement(DefinitionAnchor, {
             name: `tex:${def}`
           }, inner);
         }
@@ -54035,26 +52704,26 @@ var TexContext = class {
     ];
     let parser2 = new import_html_to_react.default.Parser();
     let node = parser2.parseWithInstructions(html, (_22) => true, instrs);
-    return /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
+    return /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
       block,
       ...props
     }, node);
   }
 };
-var ReactTexContext = import_react13.default.createContext(new TexContext());
+var ReactTexContext = import_react11.default.createContext(new TexContext());
 var Tex = ({ children, raw, ...props }) => {
-  let ctx = (0, import_react13.useContext)(ReactTexContext);
+  let ctx = (0, import_react11.useContext)(ReactTexContext);
   return ctx.render(children, false, raw, props);
 };
 var TexBlock = ({ children, raw, ...props }) => {
-  let ctx = (0, import_react13.useContext)(ReactTexContext);
+  let ctx = (0, import_react11.useContext)(ReactTexContext);
   return ctx.render(children, true, raw, props);
 };
 var $ = Tex;
 var $$ = TexBlock;
 
 // node_modules/reactex/dist/code.js
-var import_react14 = __toModule(require_react());
+var import_react12 = __toModule(require_react());
 
 // node_modules/@codemirror/text/dist/index.js
 var extend = /* @__PURE__ */ "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,3b,f,,w,1j,,,,4,8,4,,3,7,a,2,t,,1m,,,,2,4,8,,9,,a,2,q,,2,2,1l,,4,2,4,2,2,3,3,,u,2,3,,b,2,1l,,4,5,,2,4,,k,2,m,6,,,1m,,,2,,4,8,,7,3,a,2,u,,1n,,,,c,,9,,14,,3,,1l,3,5,3,,4,7,2,b,2,t,,1m,,2,,2,,3,,5,2,7,2,b,2,s,2,1l,2,,,2,4,8,,9,,a,2,t,,20,,4,,2,3,,,8,,29,,2,7,c,8,2q,,2,9,b,6,22,2,r,,,,,,1j,e,,5,,2,5,b,,10,9,,2u,4,,6,,2,2,2,p,2,4,3,g,4,d,,2,2,6,,f,,jj,3,qa,3,t,3,t,2,u,2,1s,2,,7,8,,2,b,9,,19,3,3b,2,y,,3a,3,4,2,9,,6,3,63,2,2,,1m,,,7,,,,,2,8,6,a,2,,1c,h,1r,4,1c,7,,,5,,14,9,c,2,w,4,2,2,,3,1k,,,2,3,,,3,1m,8,2,2,48,3,,d,,7,4,,6,,3,2,5i,1m,,5,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,p,2,5,,47,2,q,i,d,,12,8,p,b,1a,3,1c,,2,4,2,2,13,,1v,6,2,2,2,2,c,,8,,1b,,1f,,,3,2,2,5,2,,,16,2,8,,6m,,2,,4,,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,ar,2,49,b,4w,,1i,f,1k,3,1d,4,2,2,1x,3,10,5,,8,1q,,c,2,1g,9,a,4,2,,2n,3,2,,,2,6,,4g,,3,8,l,2,1l,2,,,,,m,,e,7,3,5,5f,8,2,3,,,n,,29,,2,6,,,2,,,2,,2,6j,,2,4,6,2,,2,r,2,2d,8,2,,,2,2y,,,,2,6,,,2t,3,2,4,,5,77,9,,2,6t,,a,2,,,4,,40,4,2,2,4,,w,a,14,6,2,4,8,,9,6,2,3,1a,d,,2,ba,7,,6,,,2a,m,2,7,,2,,2,3e,6,3,,,2,,7,,,20,2,3,,,,9n,2,f0b,5,1n,7,t4,,1r,4,29,,f5k,2,43q,,,3,4,5,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,79,7,c5,4,15s,7,31,7,240,5,gx7k,2o,3k,6o".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -54669,8 +53338,8 @@ var ChangeSet = class extends ChangeDesc {
       if (ins >= 0) {
         sections[i] = ins;
         sections[i + 1] = len;
-        let index2 = i >> 1;
-        while (inserted.length < index2)
+        let index = i >> 1;
+        while (inserted.length < index)
           inserted.push(Text.empty);
         inserted.push(len ? doc2.slice(pos, pos + len) : Text.empty);
       }
@@ -54823,11 +53492,11 @@ function addSection(sections, len, ins, forceJoin = false) {
 function addInsert(values, sections, value) {
   if (value.length == 0)
     return;
-  let index2 = sections.length - 2 >> 1;
-  if (index2 < values.length) {
+  let index = sections.length - 2 >> 1;
+  if (index < values.length) {
     values[values.length - 1] = values[values.length - 1].append(value);
   } else {
-    while (values.length < index2)
+    while (values.length < index)
       values.push(Text.empty);
     values.push(value);
   }
@@ -54968,12 +53637,12 @@ var SectionIter = class {
     return this.ins < 0 ? this.len : this.ins;
   }
   get text() {
-    let { inserted } = this.set, index2 = this.i - 2 >> 1;
-    return index2 >= inserted.length ? Text.empty : inserted[index2];
+    let { inserted } = this.set, index = this.i - 2 >> 1;
+    return index >= inserted.length ? Text.empty : inserted[index];
   }
   textBit(len) {
-    let { inserted } = this.set, index2 = this.i - 2 >> 1;
-    return index2 >= inserted.length && !len ? Text.empty : inserted[index2].slice(this.off, len == null ? void 0 : this.off + len);
+    let { inserted } = this.set, index = this.i - 2 >> 1;
+    return index >= inserted.length && !len ? Text.empty : inserted[index].slice(this.off, len == null ? void 0 : this.off + len);
   }
   forward(len) {
     if (len == this.len)
@@ -55497,8 +54166,8 @@ var StateEffect = class {
     if (!effects.length)
       return effects;
     let result = [];
-    for (let effect5 of effects) {
-      let mapped = effect5.map(mapping);
+    for (let effect4 of effects) {
+      let mapped = effect4.map(mapping);
       if (mapped)
         result.push(mapped);
     }
@@ -55734,20 +54403,20 @@ var EditorState = class {
   }
   applyTransaction(tr) {
     let conf = this.config, { base: base2, compartments } = conf;
-    for (let effect5 of tr.effects) {
-      if (effect5.is(Compartment.reconfigure)) {
+    for (let effect4 of tr.effects) {
+      if (effect4.is(Compartment.reconfigure)) {
         if (conf) {
           compartments = new Map();
           conf.compartments.forEach((val, key) => compartments.set(key, val));
           conf = null;
         }
-        compartments.set(effect5.value.compartment, effect5.value.extension);
-      } else if (effect5.is(StateEffect.reconfigure)) {
+        compartments.set(effect4.value.compartment, effect4.value.extension);
+      } else if (effect4.is(StateEffect.reconfigure)) {
         conf = null;
-        base2 = effect5.value;
-      } else if (effect5.is(StateEffect.appendConfig)) {
+        base2 = effect4.value;
+      } else if (effect4.is(StateEffect.appendConfig)) {
         conf = null;
-        base2 = asArray(base2).concat(effect5.value);
+        base2 = asArray(base2).concat(effect4.value);
       }
     }
     new EditorState(conf || Configuration.resolve(base2, compartments, this), tr.newDoc, tr.newSelection, tr);
@@ -55923,18 +54592,18 @@ var StyleModule = class {
     function splitSelector(selector) {
       return /^@/.test(selector) ? [selector] : selector.split(/,\s*/);
     }
-    function render2(selectors, spec2, target, isKeyframes) {
+    function render(selectors, spec2, target, isKeyframes) {
       let local = [], isAt = /^@(\w+)\b/.exec(selectors[0]), keyframes = isAt && isAt[1] == "keyframes";
       if (isAt && spec2 == null)
         return target.push(selectors[0] + ";");
       for (let prop in spec2) {
         let value = spec2[prop];
         if (/&/.test(prop)) {
-          render2(prop.split(/,\s*/).map((part) => selectors.map((sel) => part.replace(/&/, sel))).reduce((a, b) => a.concat(b)), value, target);
+          render(prop.split(/,\s*/).map((part) => selectors.map((sel) => part.replace(/&/, sel))).reduce((a, b) => a.concat(b)), value, target);
         } else if (value && typeof value == "object") {
           if (!isAt)
             throw new RangeError("The value of a property (" + prop + ") should be a primitive value.");
-          render2(splitSelector(prop), value, local, keyframes);
+          render(splitSelector(prop), value, local, keyframes);
         } else if (value != null) {
           local.push(prop.replace(/_.*/, "").replace(/[A-Z]/g, (l) => "-" + l.toLowerCase()) + ": " + value + ";");
         }
@@ -55944,7 +54613,7 @@ var StyleModule = class {
       }
     }
     for (let prop in spec)
-      render2(splitSelector(prop), spec[prop], this.rules);
+      render(splitSelector(prop), spec[prop], this.rules);
   }
   getRules() {
     return this.rules.join("\n");
@@ -55981,19 +54650,19 @@ var StyleSet = class {
     let sheet = this.sheet;
     let pos = 0, j = 0;
     for (let i = 0; i < modules.length; i++) {
-      let mod = modules[i], index2 = this.modules.indexOf(mod);
-      if (index2 < j && index2 > -1) {
-        this.modules.splice(index2, 1);
+      let mod = modules[i], index = this.modules.indexOf(mod);
+      if (index < j && index > -1) {
+        this.modules.splice(index, 1);
         j--;
-        index2 = -1;
+        index = -1;
       }
-      if (index2 == -1) {
+      if (index == -1) {
         this.modules.splice(j++, 0, mod);
         if (sheet)
           for (let k = 0; k < mod.rules.length; k++)
             sheet.insertRule(mod.rules[k], pos++);
       } else {
-        while (j < index2)
+        while (j < index)
           pos += this.modules[j++].rules.length;
         pos += mod.rules.length;
         j++;
@@ -56107,8 +54776,8 @@ var RangeSet = class {
       size += chunk.value.length;
     return size;
   }
-  chunkEnd(index2) {
-    return this.chunkPos[index2] + this.chunk[index2].length;
+  chunkEnd(index) {
+    return this.chunkPos[index] + this.chunk[index].length;
   }
   update(updateSpec) {
     let { add = [], sort: sort2 = false, filterFrom = 0, filterTo = this.length } = updateSpec;
@@ -56458,9 +55127,9 @@ var HeapCursor = class {
     }
   }
 };
-function heapBubble(heap, index2) {
-  for (let cur = heap[index2]; ; ) {
-    let childIndex = (index2 << 1) + 1;
+function heapBubble(heap, index) {
+  for (let cur = heap[index]; ; ) {
+    let childIndex = (index << 1) + 1;
     if (childIndex >= heap.length)
       break;
     let child = heap[childIndex];
@@ -56471,8 +55140,8 @@ function heapBubble(heap, index2) {
     if (cur.compare(child) < 0)
       break;
     heap[childIndex] = cur;
-    heap[index2] = child;
-    index2 = childIndex;
+    heap[index] = child;
+    index = childIndex;
   }
 }
 var SpanCursor = class {
@@ -56505,10 +55174,10 @@ var SpanCursor = class {
       this.removeActive(this.minActive);
     this.cursor.forward(pos, side);
   }
-  removeActive(index2) {
-    remove2(this.active, index2);
-    remove2(this.activeTo, index2);
-    remove2(this.activeRank, index2);
+  removeActive(index) {
+    remove2(this.active, index);
+    remove2(this.activeTo, index);
+    remove2(this.activeRank, index);
     this.minActive = findMinIndex(this.active, this.activeTo);
   }
   addActive(trackOpen) {
@@ -56624,15 +55293,15 @@ function sameValues(a, b) {
       return false;
   return true;
 }
-function remove2(array2, index2) {
-  for (let i = index2, e = array2.length - 1; i < e; i++)
+function remove2(array2, index) {
+  for (let i = index, e = array2.length - 1; i < e; i++)
     array2[i] = array2[i + 1];
   array2.pop();
 }
-function insert(array2, index2, value) {
-  for (let i = array2.length - 1; i >= index2; i--)
+function insert(array2, index, value) {
+  for (let i = array2.length - 1; i >= index; i--)
     array2[i + 1] = array2[i];
-  array2[index2] = value;
+  array2[index] = value;
 }
 function findMinIndex(value, array2) {
   let found = -1, foundPos = 1e9;
@@ -56779,10 +55448,10 @@ function isEquivalentPosition(node, off, targetNode, targetOff) {
   return targetNode ? scanFor(node, off, targetNode, targetOff, -1) || scanFor(node, off, targetNode, targetOff, 1) : false;
 }
 function domIndex(node) {
-  for (var index2 = 0; ; index2++) {
+  for (var index = 0; ; index++) {
     node = node.previousSibling;
     if (!node)
-      return index2;
+      return index;
   }
 }
 function scanFor(node, off, targetNode, targetOff, dir) {
@@ -58748,14 +57417,14 @@ var BidiSpan = class {
   side(end2, dir) {
     return this.dir == dir == end2 ? this.to : this.from;
   }
-  static find(order2, index2, level, assoc) {
+  static find(order2, index, level, assoc) {
     let maybe = -1;
     for (let i = 0; i < order2.length; i++) {
       let span = order2[i];
-      if (span.from <= index2 && span.to >= index2) {
+      if (span.from <= index && span.to >= index) {
         if (span.level == level)
           return i;
-        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index2 : span.to > index2 : order2[maybe].level > span.level))
+        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index : span.to > index : order2[maybe].level > span.level))
           maybe = i;
       }
     }
@@ -61620,13 +60289,13 @@ var EditorView = class {
   showAnnouncements(trs) {
     let first = true;
     for (let tr of trs)
-      for (let effect5 of tr.effects)
-        if (effect5.is(EditorView.announce)) {
+      for (let effect4 of tr.effects)
+        if (effect4.is(EditorView.announce)) {
           if (first)
             this.announceDOM.textContent = "";
           first = false;
-          let div2 = this.announceDOM.appendChild(document.createElement("div"));
-          div2.textContent = effect5.value;
+          let div = this.announceDOM.appendChild(document.createElement("div"));
+          div.textContent = effect4.value;
         }
   }
   mountStyles() {
@@ -62384,24 +61053,24 @@ var TreeBuffer = class {
   }
   toString() {
     let result = [];
-    for (let index2 = 0; index2 < this.buffer.length; ) {
-      result.push(this.childString(index2));
-      index2 = this.buffer[index2 + 3];
+    for (let index = 0; index < this.buffer.length; ) {
+      result.push(this.childString(index));
+      index = this.buffer[index + 3];
     }
     return result.join(",");
   }
-  childString(index2) {
-    let id = this.buffer[index2], endIndex = this.buffer[index2 + 3];
+  childString(index) {
+    let id = this.buffer[index], endIndex = this.buffer[index + 3];
     let type = this.set.types[id], result = type.name;
     if (/\W/.test(result) && !type.isError)
       result = JSON.stringify(result);
-    index2 += 4;
-    if (endIndex == index2)
+    index += 4;
+    if (endIndex == index)
       return result;
     let children = [];
-    while (index2 < endIndex) {
-      children.push(this.childString(index2));
-      index2 = this.buffer[index2 + 3];
+    while (index < endIndex) {
+      children.push(this.childString(index));
+      index = this.buffer[index + 3];
     }
     return result + "(" + children.join(",") + ")";
   }
@@ -62431,10 +61100,10 @@ var TreeBuffer = class {
   }
 };
 var TreeNode = class {
-  constructor(node, from, index2, _parent) {
+  constructor(node, from, index, _parent) {
     this.node = node;
     this.from = from;
-    this.index = index2;
+    this.index = index;
     this._parent = _parent;
   }
   get type() {
@@ -62453,9 +61122,9 @@ var TreeNode = class {
         if (after != -1e8 && (dir < 0 ? start3 >= after : start3 + next.length <= after))
           continue;
         if (next instanceof TreeBuffer) {
-          let index2 = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start3);
-          if (index2 > -1)
-            return new BufferNode(new BufferContext(parent, next, i, start3), null, index2);
+          let index = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start3);
+          if (index > -1)
+            return new BufferNode(new BufferContext(parent, next, i, start3), null, index);
         } else if (full || (!next.type.isAnonymous || hasChild(next))) {
           let inner = new TreeNode(next, start3, i, parent);
           return full || !inner.type.isAnonymous ? inner : inner.nextChild(dir < 0 ? next.children.length - 1 : 0, dir, after);
@@ -62503,17 +61172,17 @@ var TreeNode = class {
     return this.cursor.moveTo(pos, side).node;
   }
   getChild(type, before = null, after = null) {
-    let r4 = getChildren2(this, type, before, after);
+    let r4 = getChildren(this, type, before, after);
     return r4.length ? r4[0] : null;
   }
   getChildren(type, before = null, after = null) {
-    return getChildren2(this, type, before, after);
+    return getChildren(this, type, before, after);
   }
   toString() {
     return this.node.toString();
   }
 };
-function getChildren2(node, type, before, after) {
+function getChildren(node, type, before, after) {
   let cur = node.cursor, result = [];
   if (!cur.firstChild())
     return result;
@@ -62532,19 +61201,19 @@ function getChildren2(node, type, before, after) {
   }
 }
 var BufferContext = class {
-  constructor(parent, buffer, index2, start3) {
+  constructor(parent, buffer, index, start3) {
     this.parent = parent;
     this.buffer = buffer;
-    this.index = index2;
+    this.index = index;
     this.start = start3;
   }
 };
 var BufferNode = class {
-  constructor(context, _parent, index2) {
+  constructor(context, _parent, index) {
     this.context = context;
     this._parent = _parent;
-    this.index = index2;
-    this.type = context.buffer.set.types[context.buffer.buffer[index2]];
+    this.index = index;
+    this.type = context.buffer.set.types[context.buffer.buffer[index]];
   }
   get name() {
     return this.type.name;
@@ -62557,8 +61226,8 @@ var BufferNode = class {
   }
   child(dir, after) {
     let { buffer } = this.context;
-    let index2 = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.context.start);
-    return index2 < 0 ? null : new BufferNode(this.context, this, index2);
+    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.context.start);
+    return index < 0 ? null : new BufferNode(this.context, this, index);
   }
   get firstChild() {
     return this.child(1, -1e8);
@@ -62602,11 +61271,11 @@ var BufferNode = class {
     return this.context.buffer.childString(this.index);
   }
   getChild(type, before = null, after = null) {
-    let r4 = getChildren2(this, type, before, after);
+    let r4 = getChildren(this, type, before, after);
     return r4.length ? r4[0] : null;
   }
   getChildren(type, before = null, after = null) {
-    return getChildren2(this, type, before, after);
+    return getChildren(this, type, before, after);
   }
 };
 var TreeCursor = class {
@@ -62639,12 +61308,12 @@ var TreeCursor = class {
     this.to = node.to;
     return true;
   }
-  yieldBuf(index2, type) {
-    this.index = index2;
+  yieldBuf(index, type) {
+    this.index = index;
     let { start: start3, buffer } = this.buffer;
-    this.type = type || buffer.set.types[buffer.buffer[index2]];
-    this.from = start3 + buffer.buffer[index2 + 1];
-    this.to = start3 + buffer.buffer[index2 + 2];
+    this.type = type || buffer.set.types[buffer.buffer[index]];
+    this.from = start3 + buffer.buffer[index + 1];
+    this.to = start3 + buffer.buffer[index + 2];
     return true;
   }
   yield(node) {
@@ -62664,11 +61333,11 @@ var TreeCursor = class {
     if (!this.buffer)
       return this.yield(this._tree.nextChild(dir < 0 ? this._tree.node.children.length - 1 : 0, dir, after, this.full));
     let { buffer } = this.buffer;
-    let index2 = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.buffer.start);
-    if (index2 < 0)
+    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, after == -1e8 ? -1e8 : after - this.buffer.start);
+    if (index < 0)
       return false;
     this.stack.push(this.index);
-    return this.yieldBuf(index2);
+    return this.yieldBuf(index);
   }
   firstChild() {
     return this.enter(1, -1e8);
@@ -62713,7 +61382,7 @@ var TreeCursor = class {
     return this.sibling(-1);
   }
   atLastNode(dir) {
-    let index2, parent, { buffer } = this;
+    let index, parent, { buffer } = this;
     if (buffer) {
       if (dir > 0) {
         if (this.index < buffer.buffer.buffer.length)
@@ -62723,12 +61392,12 @@ var TreeCursor = class {
           if (buffer.buffer.buffer[i + 3] < this.index)
             return false;
       }
-      ({ index: index2, parent } = buffer);
+      ({ index, parent } = buffer);
     } else {
-      ({ index: index2, _parent: parent } = this._tree);
+      ({ index, _parent: parent } = this._tree);
     }
-    for (; parent; { index: index2, _parent: parent } = parent) {
-      for (let i = index2 + dir, e = dir < 0 ? -1 : parent.node.children.length; i != e; i += dir) {
+    for (; parent; { index, _parent: parent } = parent) {
+      for (let i = index + dir, e = dir < 0 ? -1 : parent.node.children.length; i != e; i += dir) {
         let child = parent.node.children[i];
         if (this.full || !child.type.isAnonymous || child instanceof TreeBuffer || hasChild(child))
           return false;
@@ -62772,16 +61441,16 @@ var TreeCursor = class {
     let cache = this.bufferNode, result = null, depth = 0;
     if (cache && cache.context == this.buffer) {
       scan:
-        for (let index2 = this.index, d = this.stack.length; d >= 0; ) {
+        for (let index = this.index, d = this.stack.length; d >= 0; ) {
           for (let c = cache; c; c = c._parent)
-            if (c.index == index2) {
-              if (index2 == this.index)
+            if (c.index == index) {
+              if (index == this.index)
                 return c;
               result = c;
               depth = d + 1;
               break scan;
             }
-          index2 = this.stack[--d];
+          index = this.stack[--d];
         }
     }
     for (let i = depth; i < this.stack.length; i++)
@@ -62796,9 +61465,9 @@ function hasChild(tree) {
   return tree.children.some((ch) => !ch.type.isAnonymous || ch instanceof TreeBuffer || hasChild(ch));
 }
 var FlatBufferCursor = class {
-  constructor(buffer, index2) {
+  constructor(buffer, index) {
     this.buffer = buffer;
-    this.index = index2;
+    this.index = index;
   }
   get id() {
     return this.buffer[this.index - 4];
@@ -62845,9 +61514,9 @@ function buildTree(data) {
     let type = types2[id], node, buffer2;
     if (end2 - start3 <= maxBufferLength && (buffer2 = findBufferSize(cursor.pos - minPos, inRepeat))) {
       let data2 = new Uint16Array(buffer2.size - buffer2.skip);
-      let endPos = cursor.pos - buffer2.size, index2 = data2.length;
+      let endPos = cursor.pos - buffer2.size, index = data2.length;
       while (cursor.pos > endPos)
-        index2 = copyToBuffer(buffer2.start, data2, index2, inRepeat);
+        index = copyToBuffer(buffer2.start, data2, index, inRepeat);
       node = new TreeBuffer(data2, end2 - buffer2.start, nodeSet, inRepeat < 0 ? NodeType.none : types2[inRepeat]);
       startPos = buffer2.start - parentStart;
     } else {
@@ -62910,24 +61579,24 @@ function buildTree(data) {
     }
     return result.size > 4 ? result : void 0;
   }
-  function copyToBuffer(bufferStart, buffer2, index2, inRepeat) {
+  function copyToBuffer(bufferStart, buffer2, index, inRepeat) {
     let { id, start: start3, end: end2, size } = cursor;
     cursor.next();
     if (id == inRepeat)
-      return index2;
-    let startIndex = index2;
+      return index;
+    let startIndex = index;
     if (size > 4) {
       let endPos = cursor.pos - (size - 4);
       while (cursor.pos > endPos)
-        index2 = copyToBuffer(bufferStart, buffer2, index2, inRepeat);
+        index = copyToBuffer(bufferStart, buffer2, index, inRepeat);
     }
     if (id < minRepeatType) {
-      buffer2[--index2] = startIndex;
-      buffer2[--index2] = end2 - bufferStart;
-      buffer2[--index2] = start3 - bufferStart;
-      buffer2[--index2] = id;
+      buffer2[--index] = startIndex;
+      buffer2[--index] = end2 - bufferStart;
+      buffer2[--index] = start3 - bufferStart;
+      buffer2[--index] = id;
     }
-    return index2;
+    return index;
   }
   let children = [], positions = [];
   while (cursor.pos > 0)
@@ -64006,11 +62675,11 @@ var pos_to_linecol = (editor, pos) => {
 };
 var ListingData = class {
 };
-var ListingContext = import_react14.default.createContext(new ListingData());
+var ListingContext = import_react12.default.createContext(new ListingData());
 var ListingConfigure = ({
   language: language2
 }) => {
-  let ctx = (0, import_react14.useContext)(ListingContext);
+  let ctx = (0, import_react12.useContext)(ListingContext);
   ctx.language = language2;
   return null;
 };
@@ -64024,7 +62693,7 @@ var parse_with_delimiters = (code, delimiters) => {
     };
   };
   let [open_check, close_check] = [make_check(open), make_check(close)];
-  let index2 = 0;
+  let index = 0;
   let in_seq = null;
   let ranges = [];
   let output_code = [];
@@ -64034,29 +62703,29 @@ var parse_with_delimiters = (code, delimiters) => {
       let n = open_check(code.substring(i));
       if (n) {
         i += n;
-        in_seq = index2;
+        in_seq = index;
         continue;
       }
     } else {
       let n = close_check(code.substring(i));
       if (n) {
         i += n;
-        ranges.push([in_seq, index2]);
+        ranges.push([in_seq, index]);
         in_seq = null;
         continue;
       }
     }
-    index2 += 1;
+    index += 1;
     output_code.push(code[i]);
     i += 1;
   }
   return { output_code: output_code.join(""), ranges };
 };
 var Listing = (props) => {
-  let [editor, set_editor] = (0, import_react14.useState)(null);
-  let ctx = (0, import_react14.useContext)(ListingContext);
-  let ref = (0, import_react14.useRef)(null);
-  (0, import_react14.useEffect)(() => {
+  let [editor, set_editor] = (0, import_react12.useState)(null);
+  let ctx = (0, import_react12.useContext)(ListingContext);
+  let ref = (0, import_react12.useRef)(null);
+  (0, import_react12.useEffect)(() => {
     let language2 = props.language || ctx.language;
     if (!language2) {
       throw "Language not specified";
@@ -64093,7 +62762,7 @@ var Listing = (props) => {
     }
     set_editor(editor2);
   }, []);
-  return /* @__PURE__ */ import_react14.default.createElement("div", {
+  return /* @__PURE__ */ import_react12.default.createElement("div", {
     ref
   });
 };
@@ -64105,38 +62774,33 @@ var SectionData = class {
   }
 };
 var DocumentData = class {
-  constructor() {
+  constructor(toplevel_portal) {
     this.sections = 0;
     this.footnotes = [];
-    this.labels = {};
     this.section_contexts = [];
-  }
-  add_label(key, value) {
-    if (!this.labels[key]) {
-      this.labels[key] = value;
-    }
+    this.toplevel_portal = toplevel_portal;
   }
 };
-var DocumentContext = import_react15.default.createContext(new DocumentData());
+var DocumentContext = import_react13.default.createContext(new DocumentData(null));
 var SectionTitle = ({
   level,
   children
 }) => {
   let Header;
   if (!level || level == 0) {
-    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h2", {
+    Header = (props) => /* @__PURE__ */ import_react13.default.createElement("h2", {
       ...props
     });
   } else if (level == 1) {
-    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h3", {
+    Header = (props) => /* @__PURE__ */ import_react13.default.createElement("h3", {
       ...props
     });
   } else {
-    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h4", {
+    Header = (props) => /* @__PURE__ */ import_react13.default.createElement("h4", {
       ...props
     });
   }
-  return /* @__PURE__ */ import_react15.default.createElement(Header, {
+  return /* @__PURE__ */ import_react13.default.createElement(Header, {
     className: "section-title"
   }, children);
 };
@@ -64145,8 +62809,8 @@ var Section = ({
   title,
   children
 }) => {
-  let doc_ctx = (0, import_react15.useContext)(DocumentContext);
-  let def_ctx = (0, import_react15.useContext)(DefinitionContext);
+  let doc_ctx = (0, import_react13.useContext)(DocumentContext);
+  let def_ctx = (0, import_react13.useContext)(DefinitionContext);
   if (doc_ctx.section_contexts.length == 0) {
     doc_ctx.sections += 1;
   } else {
@@ -64163,25 +62827,25 @@ var Section = ({
     doc_ctx.section_contexts.pop();
     return null;
   };
-  return /* @__PURE__ */ import_react15.default.createElement(Definition, {
+  return /* @__PURE__ */ import_react13.default.createElement(Definition, {
     name: name2,
-    Label: () => /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, "Section ", sec_num),
+    Label: () => /* @__PURE__ */ import_react13.default.createElement(import_react13.default.Fragment, null, "Section ", sec_num),
     Tooltip: null,
     block: true
-  }, /* @__PURE__ */ import_react15.default.createElement("section", null, /* @__PURE__ */ import_react15.default.createElement(SectionTitle, {
+  }, /* @__PURE__ */ import_react13.default.createElement("section", null, /* @__PURE__ */ import_react13.default.createElement(SectionTitle, {
     level
-  }, /* @__PURE__ */ import_react15.default.createElement("span", {
+  }, /* @__PURE__ */ import_react13.default.createElement("span", {
     className: "section-number"
-  }, sec_num), " ", title), children, /* @__PURE__ */ import_react15.default.createElement(Cleanup, null)));
+  }, sec_num), " ", title), children, /* @__PURE__ */ import_react13.default.createElement(Cleanup, null)));
 };
 var Footnote = ({ children }) => {
-  let ctx = (0, import_react15.useContext)(DocumentContext);
+  let ctx = (0, import_react13.useContext)(DocumentContext);
   ctx.footnotes.push(children);
   let i = ctx.footnotes.length;
-  return /* @__PURE__ */ import_react15.default.createElement("a", {
+  return /* @__PURE__ */ import_react13.default.createElement("a", {
     href: `#footnote-${i}`,
     id: `footnote-ref-${i}`
-  }, /* @__PURE__ */ import_react15.default.createElement("sup", {
+  }, /* @__PURE__ */ import_react13.default.createElement("sup", {
     className: "footnote-marker"
   }, i));
 };
@@ -64198,55 +62862,69 @@ var Wrap = ({
   } else {
     style = {};
   }
-  return /* @__PURE__ */ import_react15.default.createElement("div", {
+  return /* @__PURE__ */ import_react13.default.createElement("div", {
     style: { float: align, ...style }
   }, children);
 };
 var Row = ({ children }) => {
-  return /* @__PURE__ */ import_react15.default.createElement("div", {
+  return /* @__PURE__ */ import_react13.default.createElement("div", {
     className: "row"
   }, children);
 };
-var Document = observer2(({ children, bibtex }) => {
-  let [def_ctx] = (0, import_react15.useState)(new AllDefinitionData());
-  def_ctx.add_mode_listeners();
-  let Footnotes = (_22) => {
-    let ctx = (0, import_react15.useContext)(DocumentContext);
-    return /* @__PURE__ */ import_react15.default.createElement("div", {
-      className: "footnotes"
-    }, ctx.footnotes.map((footnote, i) => {
-      let top3 = {};
-      i += 1;
-      return /* @__PURE__ */ import_react15.default.createElement("div", {
-        className: "footnote",
-        id: `footnote-${i}`,
-        key: i
-      }, /* @__PURE__ */ import_react15.default.createElement("a", {
-        className: "backlink",
-        href: `#footnote-ref-${i}`
-      }, "\u2B05"), /* @__PURE__ */ import_react15.default.createElement("span", {
-        className: "footnote-number"
-      }, i), footnote);
-    }));
-  };
-  return /* @__PURE__ */ import_react15.default.createElement(DefinitionContext.Provider, {
-    value: def_ctx
-  }, /* @__PURE__ */ import_react15.default.createElement(DocumentContext.Provider, {
-    value: new DocumentData()
-  }, /* @__PURE__ */ import_react15.default.createElement(ReactTexContext.Provider, {
-    value: new TexContext()
-  }, /* @__PURE__ */ import_react15.default.createElement(ReactBibliographyContext.Provider, {
-    value: new BibliographyContext(bibtex || "")
-  }, /* @__PURE__ */ import_react15.default.createElement(ListingContext.Provider, {
-    value: new ListingData()
-  }, /* @__PURE__ */ import_react15.default.createElement("div", {
+var ToplevelElem = ({ children }) => {
+  let ctx = (0, import_react13.useContext)(DocumentContext);
+  return import_react_dom3.default.createPortal(children, ctx.toplevel_portal);
+};
+var Footnotes = (_22) => {
+  let ctx = (0, import_react13.useContext)(DocumentContext);
+  return /* @__PURE__ */ import_react13.default.createElement("div", {
+    className: "footnotes"
+  }, ctx.footnotes.map((footnote, i) => {
+    let top3 = {};
+    i += 1;
+    return /* @__PURE__ */ import_react13.default.createElement("div", {
+      className: "footnote",
+      id: `footnote-${i}`,
+      key: i
+    }, /* @__PURE__ */ import_react13.default.createElement("a", {
+      className: "backlink",
+      href: `#footnote-ref-${i}`
+    }, "\u2B05"), /* @__PURE__ */ import_react13.default.createElement("span", {
+      className: "footnote-number"
+    }, i), footnote);
+  }));
+};
+var DocumentInner = observer2(({ children }) => {
+  let def_ctx = (0, import_react13.useContext)(DefinitionContext);
+  return /* @__PURE__ */ import_react13.default.createElement("div", {
     className: (0, import_classnames2.default)("document-wrapper", {
       "def-mode": def_ctx.def_mode
     })
-  }, /* @__PURE__ */ import_react15.default.createElement("div", {
+  }, /* @__PURE__ */ import_react13.default.createElement("div", {
     className: "document"
-  }, children), /* @__PURE__ */ import_react15.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react15.default.createElement(Footnotes, null)))))));
+  }, children), /* @__PURE__ */ import_react13.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react13.default.createElement(Footnotes, null));
 });
+var Document = ({ children, bibtex }) => {
+  let [def_ctx] = (0, import_react13.useState)(new AllDefinitionData());
+  def_ctx.add_mode_listeners();
+  let [toplevel_portal, set_toplevel_portal] = (0, import_react13.useState)(null);
+  let on_portal_mount = (0, import_react13.useCallback)((node) => {
+    set_toplevel_portal(node);
+  }, []);
+  return /* @__PURE__ */ import_react13.default.createElement(DefinitionContext.Provider, {
+    value: def_ctx
+  }, /* @__PURE__ */ import_react13.default.createElement(DocumentContext.Provider, {
+    value: new DocumentData(toplevel_portal)
+  }, /* @__PURE__ */ import_react13.default.createElement(ReactTexContext.Provider, {
+    value: new TexContext()
+  }, /* @__PURE__ */ import_react13.default.createElement(ReactBibliographyContext.Provider, {
+    value: new BibliographyContext(bibtex || "")
+  }, /* @__PURE__ */ import_react13.default.createElement(ListingContext.Provider, {
+    value: new ListingData()
+  }, toplevel_portal != null ? /* @__PURE__ */ import_react13.default.createElement(DocumentInner, null, children) : null, /* @__PURE__ */ import_react13.default.createElement("div", {
+    ref: on_portal_mount
+  }))))));
+};
 
 // node_modules/reactex/dist/bibliography.js
 function isString(x) {
@@ -64284,9 +62962,9 @@ var BibliographyEntry = class {
   }
   bib_cite() {
     let names = this.authors?.map((author) => [...author.slice(1), author[0]].join(" "));
-    return /* @__PURE__ */ import_react16.default.createElement("div", {
+    return /* @__PURE__ */ import_react14.default.createElement("div", {
       className: "bib-reference"
-    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react16.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
+    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react14.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
   }
 };
 function intersperse(arr, Sep) {
@@ -64294,7 +62972,7 @@ function intersperse(arr, Sep) {
     return [];
   }
   return arr.slice(1).reduce(function(xs, x, i) {
-    return xs.concat([/* @__PURE__ */ import_react16.default.createElement(Sep, {
+    return xs.concat([/* @__PURE__ */ import_react14.default.createElement(Sep, {
       key: i
     }), x]);
   }, [arr[0]]);
@@ -64312,117 +62990,117 @@ var BibliographyContext = class {
     return full ? intersperse(keys.map((key) => {
       let entry = this.citations[key];
       let author = entry.display_author();
-      return /* @__PURE__ */ import_react16.default.createElement(Ref, {
+      return /* @__PURE__ */ import_react14.default.createElement(Ref, {
         key,
         name: key
       }, `${author} [${entry.year}]`);
-    }), (props) => /* @__PURE__ */ import_react16.default.createElement("span", {
+    }), (props) => /* @__PURE__ */ import_react14.default.createElement("span", {
       ...props
-    }, "; ")) : /* @__PURE__ */ import_react16.default.createElement("span", null, "[", intersperse(keys.map((key) => {
+    }, "; ")) : /* @__PURE__ */ import_react14.default.createElement("span", null, "[", intersperse(keys.map((key) => {
       let entry = this.citations[key];
       if (yearonly) {
-        return /* @__PURE__ */ import_react16.default.createElement("span", {
+        return /* @__PURE__ */ import_react14.default.createElement("span", {
           key
         }, "entry.year");
       } else {
         let author = entry.display_author();
-        return /* @__PURE__ */ import_react16.default.createElement(Ref, {
+        return /* @__PURE__ */ import_react14.default.createElement(Ref, {
           key,
           name: key
         }, `${author} ${entry.year}`);
       }
-    }), (props) => /* @__PURE__ */ import_react16.default.createElement("span", {
+    }), (props) => /* @__PURE__ */ import_react14.default.createElement("span", {
       ...props
     }, "; ")), "]");
   }
 };
-var ReactBibliographyContext = import_react16.default.createContext(null);
+var ReactBibliographyContext = import_react14.default.createContext(null);
 var ReferencesSection = (_22) => {
-  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react16.default.createElement("section", null, /* @__PURE__ */ import_react16.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react16.default.createElement(References, {
+  let ctx = (0, import_react14.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react14.default.createElement("section", null, /* @__PURE__ */ import_react14.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react14.default.createElement(References, {
     keys: Object.keys(ctx.used_citations)
   }));
 };
 var References = ({ keys }) => {
-  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react16.default.createElement("div", {
+  let ctx = (0, import_react14.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react14.default.createElement("div", {
     className: "bib-references"
-  }, keys.map((key) => /* @__PURE__ */ import_react16.default.createElement(Definition, {
+  }, keys.map((key) => /* @__PURE__ */ import_react14.default.createElement(Definition, {
     key,
     name: key,
     block: true
   }, ctx.citations[key].bib_cite())));
 };
 var Cite = ({ v, f, y }) => {
-  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
+  let ctx = (0, import_react14.useContext)(ReactBibliographyContext);
   let keys = typeof v === "string" ? [v] : v;
-  return /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, ctx.cite(keys, f || false, y || false));
+  return /* @__PURE__ */ import_react14.default.createElement(import_react14.default.Fragment, null, ctx.cite(keys, f || false, y || false));
 };
 
 // node_modules/reactex/dist/header.js
-var import_react17 = __toModule(require_react());
-var import_react18 = __toModule(require_react());
-var AffiliationContext = (0, import_react18.createContext)({});
-var InlineError = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("span", {
+var import_react15 = __toModule(require_react());
+var import_react16 = __toModule(require_react());
+var AffiliationContext = (0, import_react16.createContext)({});
+var InlineError = ({ children }) => /* @__PURE__ */ import_react15.default.createElement("span", {
   className: "inline-error"
 }, children);
-var AuthorContext = (0, import_react18.createContext)({});
+var AuthorContext = (0, import_react16.createContext)({});
 var Institution = ({ value }) => {
-  let ctx = (0, import_react18.useContext)(AffiliationContext);
+  let ctx = (0, import_react16.useContext)(AffiliationContext);
   ctx.institution = value;
-  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
+  return /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null);
 };
 var Affiliation = ({ children }) => {
-  let auth_ctx = (0, import_react18.useContext)(AuthorContext);
+  let auth_ctx = (0, import_react16.useContext)(AuthorContext);
   let aff_ctx = {};
   let Inner = () => {
     if (!auth_ctx.affiliations) {
       auth_ctx.affiliations = [];
     }
     auth_ctx.affiliations.push(aff_ctx);
-    return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
+    return /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null);
   };
-  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(AffiliationContext.Provider, {
+  return /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, /* @__PURE__ */ import_react15.default.createElement(AffiliationContext.Provider, {
     value: aff_ctx
-  }, children), /* @__PURE__ */ import_react17.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react15.default.createElement(Inner, null));
 };
 var Name = ({ value }) => {
-  let ctx = (0, import_react18.useContext)(AuthorContext);
+  let ctx = (0, import_react16.useContext)(AuthorContext);
   ctx.name = value;
-  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
+  return /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null);
 };
 var Author = ({ children }) => {
   let ctx = {};
-  let Inner = () => /* @__PURE__ */ import_react17.default.createElement("div", {
+  let Inner = () => /* @__PURE__ */ import_react15.default.createElement("div", {
     className: "author"
-  }, ctx.name ? /* @__PURE__ */ import_react17.default.createElement("span", {
+  }, ctx.name ? /* @__PURE__ */ import_react15.default.createElement("span", {
     className: "author-name"
-  }, ctx.name) : /* @__PURE__ */ import_react17.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react17.default.createElement("span", {
+  }, ctx.name) : /* @__PURE__ */ import_react15.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react15.default.createElement("span", {
     className: "author-affiliation"
-  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react17.default.createElement("span", {
+  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react15.default.createElement("span", {
     key: i
-  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, ", ", affiliation.country) : null))) : null);
-  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(AuthorContext.Provider, {
+  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, ", ", affiliation.country) : null))) : null);
+  return /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, /* @__PURE__ */ import_react15.default.createElement(AuthorContext.Provider, {
     value: ctx
-  }, children), /* @__PURE__ */ import_react17.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react15.default.createElement(Inner, null));
 };
 var Authors = ({ children }) => {
-  return /* @__PURE__ */ import_react17.default.createElement("div", {
+  return /* @__PURE__ */ import_react15.default.createElement("div", {
     className: "authors"
   }, children);
 };
-var Title = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("h1", {
+var Title = ({ children }) => /* @__PURE__ */ import_react15.default.createElement("h1", {
   className: "document-title"
 }, children);
-var Abstract = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("div", {
+var Abstract = ({ children }) => /* @__PURE__ */ import_react15.default.createElement("div", {
   className: "abstract"
 }, children);
 
 // node_modules/reactex/dist/language.js
-var import_react20 = __toModule(require_react());
+var import_react18 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/react-async/dist-web/index.js
-var import_react19 = __toModule(require_react());
+var import_react17 = __toModule(require_react());
 var globalScope = (() => {
   if (typeof self === "object" && self.self === self)
     return self;
@@ -64514,16 +63192,16 @@ var propTypes = PropTypes && {
 };
 var renderFn = (children, ...args) => {
   if (typeof children === "function") {
-    const render2 = children;
-    return render2(...args);
+    const render = children;
+    return render(...args);
   }
   return children;
 };
-var IfInitial = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isInitial || persist && !state.data ? renderFn(children, state) : null);
-var IfPending = ({ children, initial, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isPending && (!initial || !state.value) ? renderFn(children, state) : null);
-var IfFulfilled = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isFulfilled || persist && state.data ? renderFn(children, state.data, state) : null);
-var IfRejected = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isRejected || persist && state.error ? renderFn(children, state.error, state) : null);
-var IfSettled = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isSettled || persist && state.value ? renderFn(children, state) : null);
+var IfInitial = ({ children, persist, state = {} }) => import_react17.default.createElement(import_react17.default.Fragment, null, state.isInitial || persist && !state.data ? renderFn(children, state) : null);
+var IfPending = ({ children, initial, state = {} }) => import_react17.default.createElement(import_react17.default.Fragment, null, state.isPending && (!initial || !state.value) ? renderFn(children, state) : null);
+var IfFulfilled = ({ children, persist, state = {} }) => import_react17.default.createElement(import_react17.default.Fragment, null, state.isFulfilled || persist && state.data ? renderFn(children, state.data, state) : null);
+var IfRejected = ({ children, persist, state = {} }) => import_react17.default.createElement(import_react17.default.Fragment, null, state.isRejected || persist && state.error ? renderFn(children, state.error, state) : null);
+var IfSettled = ({ children, persist, state = {} }) => import_react17.default.createElement(import_react17.default.Fragment, null, state.isSettled || persist && state.value ? renderFn(children, state) : null);
 if (propTypes) {
   IfInitial.propTypes = propTypes.Initial;
   IfPending.propTypes = propTypes.Pending;
@@ -64650,19 +63328,19 @@ var dispatchMiddleware = (dispatch) => (action2, ...args) => {
     action2.payload();
   }
 };
-var Async = class extends import_react19.default.Component {
+var Async = class extends import_react17.default.Component {
 };
 function createInstance(defaultOptions = {}, displayName = "Async") {
-  const { Consumer: UnguardedConsumer, Provider: Provider2 } = import_react19.default.createContext(void 0);
+  const { Consumer: UnguardedConsumer, Provider: Provider2 } = import_react17.default.createContext(void 0);
   function Consumer({ children }) {
-    return import_react19.default.createElement(UnguardedConsumer, null, (value) => {
+    return import_react17.default.createElement(UnguardedConsumer, null, (value) => {
       if (!value) {
         throw new Error("this component should only be used within an associated <Async> component!");
       }
       return children(value);
     });
   }
-  class Async2 extends import_react19.default.Component {
+  class Async2 extends import_react17.default.Component {
     constructor(props) {
       super(props);
       this.mounted = false;
@@ -64815,22 +63493,22 @@ function createInstance(defaultOptions = {}, displayName = "Async") {
         throw this.promise;
       }
       if (typeof children === "function") {
-        const render2 = children;
-        return import_react19.default.createElement(Provider2, { value: this.state }, render2(this.state));
+        const render = children;
+        return import_react17.default.createElement(Provider2, { value: this.state }, render(this.state));
       }
       if (children !== void 0 && children !== null) {
-        return import_react19.default.createElement(Provider2, { value: this.state }, children);
+        return import_react17.default.createElement(Provider2, { value: this.state }, children);
       }
       return null;
     }
   }
   if (propTypes)
     Async2.propTypes = propTypes.Async;
-  const AsyncInitial = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfInitial, Object.assign({}, props, { state: st })));
-  const AsyncPending = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfPending, Object.assign({}, props, { state: st })));
-  const AsyncFulfilled = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfFulfilled, Object.assign({}, props, { state: st })));
-  const AsyncRejected = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfRejected, Object.assign({}, props, { state: st })));
-  const AsyncSettled = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfSettled, Object.assign({}, props, { state: st })));
+  const AsyncInitial = (props) => import_react17.default.createElement(Consumer, null, (st) => import_react17.default.createElement(IfInitial, Object.assign({}, props, { state: st })));
+  const AsyncPending = (props) => import_react17.default.createElement(Consumer, null, (st) => import_react17.default.createElement(IfPending, Object.assign({}, props, { state: st })));
+  const AsyncFulfilled = (props) => import_react17.default.createElement(Consumer, null, (st) => import_react17.default.createElement(IfFulfilled, Object.assign({}, props, { state: st })));
+  const AsyncRejected = (props) => import_react17.default.createElement(Consumer, null, (st) => import_react17.default.createElement(IfRejected, Object.assign({}, props, { state: st })));
+  const AsyncSettled = (props) => import_react17.default.createElement(Consumer, null, (st) => import_react17.default.createElement(IfSettled, Object.assign({}, props, { state: st })));
   AsyncInitial.displayName = `${displayName}.Initial`;
   AsyncPending.displayName = `${displayName}.Pending`;
   AsyncFulfilled.displayName = `${displayName}.Fulfilled`;
@@ -64853,24 +63531,24 @@ function useAsync(arg1, arg2) {
     ...arg2,
     promiseFn: arg1
   } : arg1;
-  const counter = (0, import_react19.useRef)(0);
-  const isMounted = (0, import_react19.useRef)(true);
-  const lastArgs = (0, import_react19.useRef)(void 0);
-  const lastOptions = (0, import_react19.useRef)(options);
-  const lastPromise = (0, import_react19.useRef)(neverSettle);
-  const abortController = (0, import_react19.useRef)(new MockAbortController());
+  const counter = (0, import_react17.useRef)(0);
+  const isMounted = (0, import_react17.useRef)(true);
+  const lastArgs = (0, import_react17.useRef)(void 0);
+  const lastOptions = (0, import_react17.useRef)(options);
+  const lastPromise = (0, import_react17.useRef)(neverSettle);
+  const abortController = (0, import_react17.useRef)(new MockAbortController());
   const { devToolsDispatcher } = globalScope.__REACT_ASYNC__;
   const { reducer: reducer$1, dispatcher = devToolsDispatcher } = options;
-  const [state, _dispatch] = (0, import_react19.useReducer)(reducer$1 ? (state2, action2) => reducer$1(state2, action2, reducer) : reducer, options, init);
-  const dispatch = (0, import_react19.useCallback)(dispatcher ? (action2) => dispatcher(action2, dispatchMiddleware(_dispatch), lastOptions.current) : dispatchMiddleware(_dispatch), [dispatcher]);
+  const [state, _dispatch] = (0, import_react17.useReducer)(reducer$1 ? (state2, action2) => reducer$1(state2, action2, reducer) : reducer, options, init);
+  const dispatch = (0, import_react17.useCallback)(dispatcher ? (action2) => dispatcher(action2, dispatchMiddleware(_dispatch), lastOptions.current) : dispatchMiddleware(_dispatch), [dispatcher]);
   const { debugLabel } = options;
-  const getMeta = (0, import_react19.useCallback)((meta2) => ({
+  const getMeta = (0, import_react17.useCallback)((meta2) => ({
     counter: counter.current,
     promise: lastPromise.current,
     debugLabel,
     ...meta2
   }), [debugLabel]);
-  const setData = (0, import_react19.useCallback)((data, callback = noop3) => {
+  const setData = (0, import_react17.useCallback)((data, callback = noop3) => {
     if (isMounted.current) {
       dispatch({
         type: ActionTypes.fulfill,
@@ -64881,7 +63559,7 @@ function useAsync(arg1, arg2) {
     }
     return data;
   }, [dispatch, getMeta]);
-  const setError = (0, import_react19.useCallback)((error, callback = noop3) => {
+  const setError = (0, import_react17.useCallback)((error, callback = noop3) => {
     if (isMounted.current) {
       dispatch({
         type: ActionTypes.reject,
@@ -64894,9 +63572,9 @@ function useAsync(arg1, arg2) {
     return error;
   }, [dispatch, getMeta]);
   const { onResolve, onReject } = options;
-  const handleResolve = (0, import_react19.useCallback)((count) => (data) => count === counter.current && setData(data, () => onResolve && onResolve(data)), [setData, onResolve]);
-  const handleReject = (0, import_react19.useCallback)((count) => (err) => count === counter.current && setError(err, () => onReject && onReject(err)), [setError, onReject]);
-  const start3 = (0, import_react19.useCallback)((promiseFn2) => {
+  const handleResolve = (0, import_react17.useCallback)((count) => (data) => count === counter.current && setData(data, () => onResolve && onResolve(data)), [setData, onResolve]);
+  const handleReject = (0, import_react17.useCallback)((count) => (err) => count === counter.current && setError(err, () => onReject && onReject(err)), [setError, onReject]);
+  const start3 = (0, import_react17.useCallback)((promiseFn2) => {
     if ("AbortController" in globalScope) {
       abortController.current.abort();
       abortController.current = new globalScope.AbortController();
@@ -64914,7 +63592,7 @@ function useAsync(arg1, arg2) {
     });
   }, [dispatch, getMeta]);
   const { promise, promiseFn, initialValue } = options;
-  const load = (0, import_react19.useCallback)(() => {
+  const load = (0, import_react17.useCallback)(() => {
     const isPreInitialized = initialValue && counter.current === 0;
     if (promise) {
       start3(() => promise).then(handleResolve(counter.current)).catch(handleReject(counter.current));
@@ -64923,17 +63601,17 @@ function useAsync(arg1, arg2) {
     }
   }, [start3, promise, promiseFn, initialValue, handleResolve, handleReject]);
   const { deferFn } = options;
-  const run3 = (0, import_react19.useCallback)((...args) => {
+  const run3 = (0, import_react17.useCallback)((...args) => {
     if (deferFn) {
       lastArgs.current = args;
       start3(() => deferFn(args, lastOptions.current, abortController.current)).then(handleResolve(counter.current)).catch(handleReject(counter.current));
     }
   }, [start3, deferFn, handleResolve, handleReject]);
-  const reload = (0, import_react19.useCallback)(() => {
+  const reload = (0, import_react17.useCallback)(() => {
     lastArgs.current ? run3(...lastArgs.current) : load();
   }, [run3, load]);
   const { onCancel } = options;
-  const cancel = (0, import_react19.useCallback)(() => {
+  const cancel = (0, import_react17.useCallback)(() => {
     onCancel && onCancel();
     counter.current++;
     abortController.current.abort();
@@ -64943,30 +63621,30 @@ function useAsync(arg1, arg2) {
     });
   }, [onCancel, dispatch, getMeta]);
   const { watch, watchFn } = options;
-  (0, import_react19.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (watchFn && lastOptions.current && watchFn(options, lastOptions.current)) {
       lastOptions.current = options;
       load();
     }
   });
-  (0, import_react19.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     lastOptions.current = options;
   }, [options]);
-  (0, import_react19.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (counter.current)
       cancel();
     if (promise || promiseFn)
       load();
   }, [promise, promiseFn, watch]);
-  (0, import_react19.useEffect)(() => () => {
+  (0, import_react17.useEffect)(() => () => {
     isMounted.current = false;
   }, []);
-  (0, import_react19.useEffect)(() => () => cancel(), []);
-  (0, import_react19.useDebugValue)(state, ({ status }) => `[${counter.current}] ${status}`);
+  (0, import_react17.useEffect)(() => () => cancel(), []);
+  (0, import_react17.useDebugValue)(state, ({ status }) => `[${counter.current}] ${status}`);
   if (options.suspense && state.isPending && lastPromise.current !== neverSettle) {
     throw lastPromise.current;
   }
-  return (0, import_react19.useMemo)(() => ({
+  return (0, import_react17.useMemo)(() => ({
     ...state,
     run: run3,
     reload,
@@ -64978,7 +63656,7 @@ function useAsync(arg1, arg2) {
 var unsupported = () => {
   throw new Error("useAsync requires React v16.8 or up. Upgrade your React version or use the <Async> component instead.");
 };
-var useAsync$1 = import_react19.useEffect ? useAsync : unsupported;
+var useAsync$1 = import_react17.useEffect ? useAsync : unsupported;
 
 // node_modules/reactex/dist/language.js
 var r2 = String.raw;
@@ -64990,11 +63668,11 @@ var Language2 = class {
         let branch_cmds = branches.map(({ subcmd, nargs, body }) => newcommand(cmd + subcmd, nargs, body));
         return [mv_cmd].concat(branch_cmds).join("\n");
       }).join("\n");
-      return /* @__PURE__ */ import_react20.default.createElement($$, null, commands);
+      return /* @__PURE__ */ import_react18.default.createElement($$, null, commands);
     };
     this.BnfInner = ({ container_ref }) => {
-      let def_ctx = (0, import_react20.useContext)(DefinitionContext);
-      let tex_ctx = (0, import_react20.useContext)(ReactTexContext);
+      let def_ctx = (0, import_react18.useContext)(DefinitionContext);
+      let tex_ctx = (0, import_react18.useContext)(ReactTexContext);
       let branch_to_tex = (cmd) => ({ subcmd, args }) => {
         let arg_str = args.map((arg) => `{${arg}}`).join("");
         return r2`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
@@ -65003,12 +63681,12 @@ var Language2 = class {
         data: branch_dims,
         isPending,
         error
-      } = useAsync$1((0, import_react20.useCallback)(async ({}, { signal }) => {
+      } = useAsync$1((0, import_react18.useCallback)(async ({}, { signal }) => {
         let branch_dims2 = await Promise.all(this.grammar.map(({ cmd, branches }) => Promise.all(branches.map(branch_to_tex(cmd)).map((tex2) => tex_ctx.dimensions(tex2, false, container_ref)))));
         return branch_dims2;
       }, []));
       let defs = [];
-      (0, import_react20.useEffect)(() => {
+      (0, import_react18.useEffect)(() => {
         if (branch_dims) {
           defs.forEach(([name2, def]) => def_ctx.add_definition(name2, def));
         }
@@ -65043,29 +63721,29 @@ var Language2 = class {
         kind = kind.replace(` `, r2`\ `);
         branches.forEach(({ subcmd }) => {
           defs.push([`tex:${cmd}${subcmd}`, {
-            Tooltip: () => /* @__PURE__ */ import_react20.default.createElement($$, {
+            Tooltip: () => /* @__PURE__ */ import_react18.default.createElement($$, {
               className: "nomargin"
             }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
             Label: null
           }]);
         });
         defs.push([`tex:${cmd}`, {
-          Tooltip: () => /* @__PURE__ */ import_react20.default.createElement($$, {
+          Tooltip: () => /* @__PURE__ */ import_react18.default.createElement($$, {
             className: "nomargin"
           }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
           Label: null
         }]);
         return r2`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
       }).join(r2`\\`);
-      return /* @__PURE__ */ import_react20.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
+      return /* @__PURE__ */ import_react18.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
     };
     this.Bnf = () => {
-      let ref = (0, import_react20.useRef)(null);
-      let [_19, rerender] = (0, import_react20.useState)(false);
-      (0, import_react20.useEffect)(() => rerender(true), []);
-      return /* @__PURE__ */ import_react20.default.createElement("div", {
+      let ref = (0, import_react18.useRef)(null);
+      let [_19, rerender] = (0, import_react18.useState)(false);
+      (0, import_react18.useEffect)(() => rerender(true), []);
+      return /* @__PURE__ */ import_react18.default.createElement("div", {
         ref
-      }, ref.current ? /* @__PURE__ */ import_react20.default.createElement(this.BnfInner, {
+      }, ref.current ? /* @__PURE__ */ import_react18.default.createElement(this.BnfInner, {
         container_ref: ref.current
       }) : null);
     };
@@ -65158,21 +63836,21 @@ var Stack = class {
     if (!isReduce || this.pos == end2) {
       this.buffer.push(term, start3, end2, size);
     } else {
-      let index2 = this.buffer.length;
-      if (index2 > 0 && this.buffer[index2 - 4] != 0)
-        while (index2 > 0 && this.buffer[index2 - 2] > end2) {
-          this.buffer[index2] = this.buffer[index2 - 4];
-          this.buffer[index2 + 1] = this.buffer[index2 - 3];
-          this.buffer[index2 + 2] = this.buffer[index2 - 2];
-          this.buffer[index2 + 3] = this.buffer[index2 - 1];
-          index2 -= 4;
+      let index = this.buffer.length;
+      if (index > 0 && this.buffer[index - 4] != 0)
+        while (index > 0 && this.buffer[index - 2] > end2) {
+          this.buffer[index] = this.buffer[index - 4];
+          this.buffer[index + 1] = this.buffer[index - 3];
+          this.buffer[index + 2] = this.buffer[index - 2];
+          this.buffer[index + 3] = this.buffer[index - 1];
+          index -= 4;
           if (size > 4)
             size -= 4;
         }
-      this.buffer[index2] = term;
-      this.buffer[index2 + 1] = start3;
-      this.buffer[index2 + 2] = end2;
-      this.buffer[index2 + 3] = size;
+      this.buffer[index] = term;
+      this.buffer[index + 1] = start3;
+      this.buffer[index + 2] = end2;
+      this.buffer[index + 3] = size;
     }
   }
   shift(action2, next, nextEnd) {
@@ -65202,15 +63880,15 @@ var Stack = class {
       this.shift(action2, next, nextEnd);
   }
   useNode(value, next) {
-    let index2 = this.p.reused.length - 1;
-    if (index2 < 0 || this.p.reused[index2] != value) {
+    let index = this.p.reused.length - 1;
+    if (index < 0 || this.p.reused[index] != value) {
       this.p.reused.push(value);
-      index2++;
+      index++;
     }
     let start3 = this.pos;
     this.reducePos = this.pos = start3 + value.length;
     this.pushState(next, start3);
-    this.buffer.push(index2, start3, this.reducePos, -1);
+    this.buffer.push(index, start3, this.reducePos, -1);
     if (this.curContext)
       this.updateContext(this.curContext.tracker.reuse(this.curContext.context, value, this.p.input, this));
   }
@@ -65408,10 +64086,10 @@ var SimulatedStack = class {
   }
 };
 var StackBufferCursor = class {
-  constructor(stack, pos, index2) {
+  constructor(stack, pos, index) {
     this.stack = stack;
     this.pos = pos;
-    this.index = index2;
+    this.index = index;
     this.buffer = stack.buffer;
     if (this.index == 0)
       this.maybeNext();
@@ -65496,14 +64174,14 @@ function readToken(data, input, token, stack, group) {
       let next = input.get(pos++);
       for (let low = 0, high = data[state + 2]; low < high; ) {
         let mid = low + high >> 1;
-        let index2 = accEnd + mid + (mid << 1);
-        let from = data[index2], to = data[index2 + 1];
+        let index = accEnd + mid + (mid << 1);
+        let from = data[index], to = data[index + 1];
         if (next < from)
           high = mid;
         else if (next >= to)
           low = mid + 1;
         else {
-          state = data[index2 + 2];
+          state = data[index + 2];
           continue scan;
         }
       }
@@ -65602,15 +64280,15 @@ var FragmentCursor = class {
         this.nextFragment();
         return null;
       }
-      let top3 = this.trees[last], index2 = this.index[last];
-      if (index2 == top3.children.length) {
+      let top3 = this.trees[last], index = this.index[last];
+      if (index == top3.children.length) {
         this.trees.pop();
         this.start.pop();
         this.index.pop();
         continue;
       }
-      let next = top3.children[index2];
-      let start3 = this.start[last] + top3.positions[index2];
+      let next = top3.children[index];
+      let start3 = this.start[last] + top3.positions[index];
       if (start3 > pos) {
         this.nextStart = start3;
         return null;
@@ -65715,16 +64393,16 @@ var TokenCache = class {
       token.accept(0, stack.pos + 1);
     }
   }
-  putAction(action2, token, end2, index2) {
-    for (let i = 0; i < index2; i += 3)
+  putAction(action2, token, end2, index) {
+    for (let i = 0; i < index; i += 3)
       if (this.actions[i] == action2)
-        return index2;
-    this.actions[index2++] = action2;
-    this.actions[index2++] = token;
-    this.actions[index2++] = end2;
-    return index2;
+        return index;
+    this.actions[index++] = action2;
+    this.actions[index++] = token;
+    this.actions[index++] = end2;
+    return index;
   }
-  addActions(stack, token, end2, index2) {
+  addActions(stack, token, end2, index) {
     let { state } = stack, { parser: parser2 } = stack.p, { data } = parser2;
     for (let set4 = 0; set4 < 2; set4++) {
       for (let i = parser2.stateSlot(state, set4 ? 2 : 1); ; i += 3) {
@@ -65732,16 +64410,16 @@ var TokenCache = class {
           if (data[i + 1] == 1) {
             i = pair(data, i + 2);
           } else {
-            if (index2 == 0 && data[i + 1] == 2)
-              index2 = this.putAction(pair(data, i + 1), token, end2, index2);
+            if (index == 0 && data[i + 1] == 2)
+              index = this.putAction(pair(data, i + 1), token, end2, index);
             break;
           }
         }
         if (data[i] == token)
-          index2 = this.putAction(pair(data, i + 1), token, end2, index2);
+          index = this.putAction(pair(data, i + 1), token, end2, index);
       }
     }
-    return index2;
+    return index;
   }
 };
 var Rec;
@@ -66512,13 +65190,13 @@ function rust() {
 }
 
 // src/slicer.tsx
-var import_react21 = __toModule(require_react());
+var import_react19 = __toModule(require_react());
 var import_axios = __toModule(require_axios2());
 var SliceListing = ({
   code,
   prelude
 }) => {
-  let [editor, set_editor] = (0, import_react21.useState)(null);
+  let [editor, set_editor] = (0, import_react19.useState)(null);
   let get_slice = async (range) => {
     editor.dispatch({ effects: clear_highlights.of(null) });
     let program = [prelude || ""].concat(editor.state.doc.toJSON()).join("\n");
@@ -66559,7 +65237,7 @@ var SliceListing = ({
       ]
     });
   };
-  return /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  return /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement(Listing, {
     editable: true,
     code,
     extensions: [
@@ -66579,7 +65257,7 @@ var SliceListing = ({
         get_slice(range);
       }
     }
-  }), /* @__PURE__ */ import_react21.default.createElement("button", {
+  }), /* @__PURE__ */ import_react19.default.createElement("button", {
     onClick: () => {
       let selection = editor.state.selection;
       let range = selection.main;
@@ -66993,12 +65671,12 @@ var example_default = `@inproceedings{horwitz1988interprocedural,
 
 // src/index.tsx
 var r3 = String.raw;
-var C2 = (props) => /* @__PURE__ */ import_react22.default.createElement("code", {
+var C2 = (props) => /* @__PURE__ */ import_react20.default.createElement("code", {
   ...props
 });
-var Principle = ({ type, text }) => /* @__PURE__ */ import_react22.default.createElement("p", {
+var Principle = ({ type, text }) => /* @__PURE__ */ import_react20.default.createElement("p", {
   style: { margin: "1rem" }
-}, /* @__PURE__ */ import_react22.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react22.default.createElement("em", null, text));
+}, /* @__PURE__ */ import_react20.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react20.default.createElement("em", null, text));
 var Oxide = new Language2([
   ["Variable", "vr", "x", []],
   ["Function", "fname", "f", []],
@@ -67090,184 +65768,184 @@ var Oxide = new Language2([
     ["with", 2, r3`{#1}, {#2}`, [r3`\fenv`, r3`\fdef`]]
   ]]
 ]);
-var App = (_19) => /* @__PURE__ */ import_react22.default.createElement(Document, {
+var App = (_19) => /* @__PURE__ */ import_react20.default.createElement(Document, {
   bibtex: example_default
-}, /* @__PURE__ */ import_react22.default.createElement(ListingConfigure, {
+}, /* @__PURE__ */ import_react20.default.createElement(ListingConfigure, {
   language: rust()
-}), /* @__PURE__ */ import_react22.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react22.default.createElement(Authors, null, /* @__PURE__ */ import_react22.default.createElement(Author, null, /* @__PURE__ */ import_react22.default.createElement(Name, {
+}), /* @__PURE__ */ import_react20.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react20.default.createElement(Authors, null, /* @__PURE__ */ import_react20.default.createElement(Author, null, /* @__PURE__ */ import_react20.default.createElement(Name, {
   value: "Will Crichton"
-}), /* @__PURE__ */ import_react22.default.createElement(Affiliation, null, /* @__PURE__ */ import_react22.default.createElement(Institution, {
+}), /* @__PURE__ */ import_react20.default.createElement(Affiliation, null, /* @__PURE__ */ import_react20.default.createElement(Institution, {
   value: "Stanford University"
-})))), /* @__PURE__ */ import_react22.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react22.default.createElement($$, null, r3`
+})))), /* @__PURE__ */ import_react20.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react20.default.createElement($$, null, r3`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
-    `), /* @__PURE__ */ import_react22.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react22.default.createElement(Section, {
+    `), /* @__PURE__ */ import_react20.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Introduction",
   name: "sec:intro"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: ["xu2005brief", "silva2012vocabulary"]
-}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "parnin2011automated"
-}), /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "cuoq2012frama"
-}), " and dg ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and dg ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "llvmslicer"
-}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "jayaraman2005kaveri"
-}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "balakrishnan2005codesurfer"
-}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react20.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "might2010resolving"
-}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "zhao2018parallel"
-}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react22.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react22.default.createElement("p", null), /* @__PURE__ */ import_react22.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react20.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react20.default.createElement("p", null), /* @__PURE__ */ import_react20.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "rountev1999data",
   f: true
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "cousot2002modular",
   f: true
-}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "girard1987linear"
-}), ", class-based alias management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ", class-based alias management", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "clarke1998ownership"
-}), ", and region-based memory management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ", and region-based memory management", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "grossman2002region"
-}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react22.default.createElement("ol", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react20.default.createElement("ol", null, /* @__PURE__ */ import_react20.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:background"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react20.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "weiss2019oxide"
-}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:model"
-}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:algorithm"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react20.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "abadi1999core",
   f: true
-}), " (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:soundness"
-}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:appendix"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ")."), /* @__PURE__ */ import_react20.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:implementation"
-}), ")"), /* @__PURE__ */ import_react22.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ")"), /* @__PURE__ */ import_react20.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:evaluation"
-}), ")."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ")."))), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Principles",
   name: "sec:background"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:places"
-}), "), references (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), references (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:pointers"
-}), "), function calls (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), function calls (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:funcalls"
-}), "), and interior mutability (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), and interior mutability (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:intmut"
-}), ").", " "), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ").", " "), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Places",
   name: "sec:places"
-}, /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let y = 2;
 let z = 3;
 x = y;
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react22.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react20.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let mut y = 2;
 if y > 0 { x = 3; } 
 else     { y = 4; }
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react22.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react20.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{:?}", @t@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.0@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.2@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "places",
   text: "A mutation to a place is a mutation to all conflicting places."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), /* @__PURE__ */ import_react20.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "References",
   name: "sec:pointers"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: r3`let mut x = 1;
 let y = &mut x;
 *y = 2;
 let z = &x;
 println!("{}", @*z@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react22.default.createElement(Ref, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:intmut"
-}), "). For a given type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react22.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), "). For a given type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react20.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "smaragdakis2015pointer"
-}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`// Dangling reference
 let p = {
   let x = 1; &x
 };
 let y = *p;`
-}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`// Use-after-free
 let d = tempdir();
 let d2 = &d;
 d.close();
 let p = d2.path();`
-}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`// Iterator invalidation
 let mut v = vec![1,2];
 for x in v.iter() {
   v.push(*x);
 }`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let mut x: i32 = 1;
 let y: &'1 i32 = &'0 mut x;
 *y = 2;
 let z: &'3 i32 = &'2 x;
 println!("{}", *z);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "tofte1997region"
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "grossman2002region"
-}), " use this model."), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " use this model."), /* @__PURE__ */ import_react20.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "polonius"
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let mut x = 1;
 let mut y = 2;
 let z: &'2 mut i32 = if true {
@@ -67277,93 +65955,93 @@ let z: &'2 mut i32 = if true {
 };
 let w: &'4 mut i32 = &'3 mut *z;
 *w = 1;`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "references",
   text: "The lifetime of a reference contains all potential aliases of what the reference points-to."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), /* @__PURE__ */ import_react20.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Function calls",
   name: "sec:funcalls"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react22.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react20.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{} {} {}", y, z, w);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:intro"
-}), ".", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react22.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), ".", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react20.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @y@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @z@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @w@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "function calls",
   text: "When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), /* @__PURE__ */ import_react20.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react22.default.createElement("center", {
+}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react20.default.createElement("center", {
   style: { margin: "1rem 0" }
-}, /* @__PURE__ */ import_react22.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react22.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}, /* @__PURE__ */ import_react20.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react20.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Interior mutability",
   name: "sec:intmut"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let value = Arc::new(Mutex::new(0));
 let value_ref = value.clone();
 thread::spawn(move || { 
   *value_ref.lock().unwrap() += 1; 
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react22.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react22.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react22.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react20.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react20.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react20.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "astrauskas2020programmers"
-}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:whole-vs-mod"
-}), "."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), "."))), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Formal Model",
   name: "sec:model"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:syn"
-}), "), static semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), static semantics (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:statsem"
-}), ") and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ") and dynamic semantics (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:dynsem"
-}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:formal_principles"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ")."), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Syntax",
   name: "sec:syn"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "fig:oxide_syntax"
-}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react22.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react22.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react22.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react22.default.createElement("p", null, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react22.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))));
-import_react_dom4.default.render(/* @__PURE__ */ import_react22.default.createElement(App, null), document.getElementById("container"));
+}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react20.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react20.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react20.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react20.default.createElement("p", null, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react20.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))));
+import_react_dom4.default.render(/* @__PURE__ */ import_react20.default.createElement(App, null), document.getElementById("container"));
 export {
   App
 };
