@@ -865,13 +865,9 @@ assert!(*value.lock().unwrap() == 1);`}
           same as Rust's with a few exceptions:
         </p>
 
-        <Row>
-          <Oxide.Bnf />
-          <div>
-            <p>Here's an example expression in this custom syntax:</p>
-            <$$>{r`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`}</$$>
-          </div>
-        </Row>
+        <Oxide.Bnf />
+        <p>Here's an example expression in this custom syntax:<br /><br /><br /></p>
+        <$$>{r`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`}</$$>
       </Section>
     </Section>
   </Document>

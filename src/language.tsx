@@ -52,7 +52,7 @@ export class Language {
     return <$$>{commands}</$$>;
   };
 
-  BnfInner = ({ container_ref }: {container_ref: HTMLDivElement}) => {
+  BnfInner = ({ container_ref }: { container_ref: HTMLDivElement }) => {
     let def_ctx = useContext(DefinitionContext);
     let tex_ctx = useContext(ReactTexContext);
 
@@ -74,9 +74,7 @@ export class Language {
             Promise.all(
               branches
                 .map(branch_to_tex(cmd))
-                .map((tex) =>
-                  tex_ctx.dimensions(tex, false, container_ref)
-                )
+                .map((tex) => tex_ctx.dimensions(tex, false, container_ref))
             )
           )
         ).then(resolve);
@@ -130,16 +128,16 @@ export class Language {
 
         branches.forEach(({ subcmd }) => {
           def_ctx.add_definition(`tex:${cmd}${subcmd}`, {
-            Tooltip: (
-              () => <$$ className='nomargin'>{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
+            Tooltip: () => (
+              <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
             ),
             Label: null,
           });
         });
 
         def_ctx.add_definition(`tex:${cmd}`, {
-          Tooltip: (
-            () => <$$ className='nomargin'>{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
+          Tooltip: () => (
+            <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
           ),
           Label: null,
         });
