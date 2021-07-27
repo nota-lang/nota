@@ -264,14 +264,14 @@ var require_react_development = __commonJS({
         {
           Object.freeze(emptyObject);
         }
-        function Component4(props, context, updater) {
+        function Component5(props, context, updater) {
           this.props = props;
           this.context = context;
           this.refs = emptyObject;
           this.updater = updater || ReactNoopUpdateQueue;
         }
-        Component4.prototype.isReactComponent = {};
-        Component4.prototype.setState = function(partialState, callback) {
+        Component5.prototype.isReactComponent = {};
+        Component5.prototype.setState = function(partialState, callback) {
           if (!(typeof partialState === "object" || typeof partialState === "function" || partialState == null)) {
             {
               throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");
@@ -279,7 +279,7 @@ var require_react_development = __commonJS({
           }
           this.updater.enqueueSetState(this, partialState, callback, "setState");
         };
-        Component4.prototype.forceUpdate = function(callback) {
+        Component5.prototype.forceUpdate = function(callback) {
           this.updater.enqueueForceUpdate(this, callback, "forceUpdate");
         };
         {
@@ -288,7 +288,7 @@ var require_react_development = __commonJS({
             replaceState: ["replaceState", "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."]
           };
           var defineDeprecationWarning = function(methodName, info) {
-            Object.defineProperty(Component4.prototype, methodName, {
+            Object.defineProperty(Component5.prototype, methodName, {
               get: function() {
                 warn("%s(...) is deprecated in plain JavaScript React classes. %s", info[0], info[1]);
                 return void 0;
@@ -303,16 +303,16 @@ var require_react_development = __commonJS({
         }
         function ComponentDummy() {
         }
-        ComponentDummy.prototype = Component4.prototype;
-        function PureComponent(props, context, updater) {
+        ComponentDummy.prototype = Component5.prototype;
+        function PureComponent2(props, context, updater) {
           this.props = props;
           this.context = context;
           this.refs = emptyObject;
           this.updater = updater || ReactNoopUpdateQueue;
         }
-        var pureComponentPrototype = PureComponent.prototype = new ComponentDummy();
-        pureComponentPrototype.constructor = PureComponent;
-        _assign(pureComponentPrototype, Component4.prototype);
+        var pureComponentPrototype = PureComponent2.prototype = new ComponentDummy();
+        pureComponentPrototype.constructor = PureComponent2;
+        _assign(pureComponentPrototype, Component5.prototype);
         pureComponentPrototype.isPureReactComponent = true;
         function createRef2() {
           var refObject = {
@@ -497,7 +497,7 @@ var require_react_development = __commonJS({
           }
           return element;
         };
-        function createElement10(type, config, children) {
+        function createElement11(type, config, children) {
           var propName;
           var props = {};
           var key = null;
@@ -609,8 +609,8 @@ var require_react_development = __commonJS({
           }
           return ReactElement(element.type, key, ref, self2, source, owner, props);
         }
-        function isValidElement(object) {
-          return typeof object === "object" && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+        function isValidElement(object2) {
+          return typeof object2 === "object" && object2 !== null && object2.$$typeof === REACT_ELEMENT_TYPE;
         }
         var SEPARATOR = ".";
         var SUBSEPARATOR = ":";
@@ -636,7 +636,7 @@ var require_react_development = __commonJS({
           }
           return index2.toString(36);
         }
-        function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
+        function mapIntoArray(children, array2, escapedPrefix, nameSoFar, callback) {
           var type = typeof children;
           if (type === "undefined" || type === "boolean") {
             children = null;
@@ -667,14 +667,14 @@ var require_react_development = __commonJS({
               if (childKey != null) {
                 escapedChildKey = escapeUserProvidedKey(childKey) + "/";
               }
-              mapIntoArray(mappedChild, array, escapedChildKey, "", function(c) {
+              mapIntoArray(mappedChild, array2, escapedChildKey, "", function(c) {
                 return c;
               });
             } else if (mappedChild != null) {
               if (isValidElement(mappedChild)) {
                 mappedChild = cloneAndReplaceKey(mappedChild, escapedPrefix + (mappedChild.key && (!_child || _child.key !== mappedChild.key) ? escapeUserProvidedKey("" + mappedChild.key) + "/" : "") + childKey);
               }
-              array.push(mappedChild);
+              array2.push(mappedChild);
             }
             return 1;
           }
@@ -686,7 +686,7 @@ var require_react_development = __commonJS({
             for (var i = 0; i < children.length; i++) {
               child = children[i];
               nextName = nextNamePrefix + getElementKey(child, i);
-              subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
+              subtreeCount += mapIntoArray(child, array2, escapedPrefix, nextName, callback);
             }
           } else {
             var iteratorFn = getIteratorFn(children);
@@ -706,7 +706,7 @@ var require_react_development = __commonJS({
               while (!(step = iterator.next()).done) {
                 child = step.value;
                 nextName = nextNamePrefix + getElementKey(child, ii++);
-                subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
+                subtreeCount += mapIntoArray(child, array2, escapedPrefix, nextName, callback);
               }
             } else if (type === "object") {
               var childrenString = "" + children;
@@ -934,7 +934,7 @@ var require_react_development = __commonJS({
           }
           return lazyType;
         }
-        function forwardRef7(render) {
+        function forwardRef9(render) {
           {
             if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
               error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
@@ -988,7 +988,7 @@ var require_react_development = __commonJS({
           }
           return false;
         }
-        function memo(type, compare2) {
+        function memo3(type, compare2) {
           {
             if (!isValidElementType(type)) {
               error("memo: The first argument must be a component. Instead received: %s", type === null ? "null" : typeof type);
@@ -1043,7 +1043,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context, unstable_observedBits);
         }
-        function useState11(initialState) {
+        function useState17(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1051,7 +1051,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer, initialArg, init);
         }
-        function useRef13(initialValue) {
+        function useRef14(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
@@ -1063,7 +1063,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useLayoutEffect(create, deps);
         }
-        function useCallback3(callback, deps) {
+        function useCallback4(callback, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
@@ -1285,8 +1285,8 @@ var require_react_development = __commonJS({
             return describeNativeComponentFrame(fn, false);
           }
         }
-        function shouldConstruct(Component5) {
-          var prototype = Component5.prototype;
+        function shouldConstruct(Component6) {
+          var prototype = Component6.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -1343,9 +1343,9 @@ var require_react_development = __commonJS({
         }
         function checkPropTypes(typeSpecs, values, location, componentName, element) {
           {
-            var has = Function.call.bind(Object.prototype.hasOwnProperty);
+            var has2 = Function.call.bind(Object.prototype.hasOwnProperty);
             for (var typeSpecName in typeSpecs) {
-              if (has(typeSpecs, typeSpecName)) {
+              if (has2(typeSpecs, typeSpecName)) {
                 var error$1 = void 0;
                 try {
                   if (typeof typeSpecs[typeSpecName] !== "function") {
@@ -1545,7 +1545,7 @@ var require_react_development = __commonJS({
               error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
             }
           }
-          var element = createElement10.apply(this, arguments);
+          var element = createElement11.apply(this, arguments);
           if (element == null) {
             return element;
           }
@@ -1610,19 +1610,19 @@ var require_react_development = __commonJS({
           only: onlyChild
         };
         exports.Children = Children4;
-        exports.Component = Component4;
-        exports.PureComponent = PureComponent;
+        exports.Component = Component5;
+        exports.PureComponent = PureComponent2;
         exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
         exports.cloneElement = cloneElement$1;
         exports.createContext = createContext3;
         exports.createElement = createElement$1;
         exports.createFactory = createFactory;
         exports.createRef = createRef2;
-        exports.forwardRef = forwardRef7;
+        exports.forwardRef = forwardRef9;
         exports.isValidElement = isValidElement;
         exports.lazy = lazy;
-        exports.memo = memo;
-        exports.useCallback = useCallback3;
+        exports.memo = memo3;
+        exports.useCallback = useCallback4;
         exports.useContext = useContext8;
         exports.useDebugValue = useDebugValue;
         exports.useEffect = useEffect14;
@@ -1630,8 +1630,8 @@ var require_react_development = __commonJS({
         exports.useLayoutEffect = useLayoutEffect2;
         exports.useMemo = useMemo3;
         exports.useReducer = useReducer;
-        exports.useRef = useRef13;
-        exports.useState = useState11;
+        exports.useRef = useRef14;
+        exports.useState = useState17;
         exports.version = ReactVersion;
       })();
     }
@@ -1788,7 +1788,7 @@ var require_scheduler_development = __commonJS({
             taskTimeoutID = -1;
           };
         }
-        function push(heap, node) {
+        function push2(heap, node) {
           var index2 = heap.length;
           heap.push(node);
           siftUp(heap, node, index2);
@@ -1797,7 +1797,7 @@ var require_scheduler_development = __commonJS({
           var first = heap[0];
           return first === void 0 ? null : first;
         }
-        function pop(heap) {
+        function pop2(heap) {
           var first = heap[0];
           if (first !== void 0) {
             var last = heap.pop();
@@ -1880,11 +1880,11 @@ var require_scheduler_development = __commonJS({
           var timer = peek(timerQueue);
           while (timer !== null) {
             if (timer.callback === null) {
-              pop(timerQueue);
+              pop2(timerQueue);
             } else if (timer.startTime <= currentTime) {
-              pop(timerQueue);
+              pop2(timerQueue);
               timer.sortIndex = timer.expirationTime;
-              push(taskQueue, timer);
+              push2(taskQueue, timer);
             } else {
               return;
             }
@@ -1954,12 +1954,12 @@ var require_scheduler_development = __commonJS({
                 currentTask.callback = continuationCallback;
               } else {
                 if (currentTask === peek(taskQueue)) {
-                  pop(taskQueue);
+                  pop2(taskQueue);
                 }
               }
               advanceTimers(currentTime);
             } else {
-              pop(taskQueue);
+              pop2(taskQueue);
             }
             currentTask = peek(taskQueue);
           }
@@ -2067,7 +2067,7 @@ var require_scheduler_development = __commonJS({
           };
           if (startTime > currentTime) {
             newTask.sortIndex = startTime;
-            push(timerQueue, newTask);
+            push2(timerQueue, newTask);
             if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
               if (isHostTimeoutScheduled) {
                 cancelHostTimeout();
@@ -2078,7 +2078,7 @@ var require_scheduler_development = __commonJS({
             }
           } else {
             newTask.sortIndex = expirationTime;
-            push(taskQueue, newTask);
+            push2(taskQueue, newTask);
             if (!isHostCallbackScheduled && !isPerformingWork) {
               isHostCallbackScheduled = true;
               requestHostCallback(flushWork);
@@ -2439,11 +2439,11 @@ var require_react_dom_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var React28 = require_react();
+        var React30 = require_react();
         var _assign = require_object_assign();
         var Scheduler = require_scheduler();
         var tracing = require_tracing();
-        var ReactSharedInternals = React28.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React30.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2475,7 +2475,7 @@ var require_react_dom_development = __commonJS({
             Function.prototype.apply.call(console[level], console, argsWithFormat);
           }
         }
-        if (!React28) {
+        if (!React30) {
           {
             throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
           }
@@ -3212,8 +3212,8 @@ var require_react_dom_development = __commonJS({
             return describeNativeComponentFrame(fn, false);
           }
         }
-        function shouldConstruct(Component4) {
-          var prototype = Component4.prototype;
+        function shouldConstruct(Component5) {
+          var prototype = Component5.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -3405,7 +3405,7 @@ var require_react_dom_development = __commonJS({
             return isRendering;
           }
         }
-        function toString(value) {
+        function toString2(value) {
           return "" + value;
         }
         function getToStringValue(value) {
@@ -3469,15 +3469,15 @@ var require_react_dom_development = __commonJS({
           if (node.hasOwnProperty(valueField) || typeof descriptor === "undefined" || typeof descriptor.get !== "function" || typeof descriptor.set !== "function") {
             return;
           }
-          var get2 = descriptor.get, set2 = descriptor.set;
+          var get4 = descriptor.get, set5 = descriptor.set;
           Object.defineProperty(node, valueField, {
             configurable: true,
             get: function() {
-              return get2.call(this);
+              return get4.call(this);
             },
             set: function(value) {
               currentValue = "" + value;
-              set2.call(this, value);
+              set5.call(this, value);
             }
           });
           Object.defineProperty(node, valueField, {
@@ -3595,10 +3595,10 @@ var require_react_dom_development = __commonJS({
           if (value != null) {
             if (type === "number") {
               if (value === 0 && node.value === "" || node.value != value) {
-                node.value = toString(value);
+                node.value = toString2(value);
               }
-            } else if (node.value !== toString(value)) {
-              node.value = toString(value);
+            } else if (node.value !== toString2(value)) {
+              node.value = toString2(value);
             }
           } else if (type === "submit" || type === "reset") {
             node.removeAttribute("value");
@@ -3625,7 +3625,7 @@ var require_react_dom_development = __commonJS({
             if (isButton && (props.value === void 0 || props.value === null)) {
               return;
             }
-            var initialValue = toString(node._wrapperState.initialValue);
+            var initialValue = toString2(node._wrapperState.initialValue);
             if (!isHydrating2) {
               {
                 if (initialValue !== node.value) {
@@ -3681,9 +3681,9 @@ var require_react_dom_development = __commonJS({
         function setDefaultValue(node, type, value) {
           if (type !== "number" || getActiveElement(node.ownerDocument) !== node) {
             if (value == null) {
-              node.defaultValue = toString(node._wrapperState.initialValue);
-            } else if (node.defaultValue !== toString(value)) {
-              node.defaultValue = toString(value);
+              node.defaultValue = toString2(node._wrapperState.initialValue);
+            } else if (node.defaultValue !== toString2(value)) {
+              node.defaultValue = toString2(value);
             }
           }
         }
@@ -3691,7 +3691,7 @@ var require_react_dom_development = __commonJS({
         var didWarnInvalidChild = false;
         function flattenChildren(children) {
           var content2 = "";
-          React28.Children.forEach(children, function(child) {
+          React30.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -3702,7 +3702,7 @@ var require_react_dom_development = __commonJS({
         function validateProps(element, props) {
           {
             if (typeof props.children === "object" && props.children !== null) {
-              React28.Children.forEach(props.children, function(child) {
+              React30.Children.forEach(props.children, function(child) {
                 if (child == null) {
                   return;
                 }
@@ -3726,7 +3726,7 @@ var require_react_dom_development = __commonJS({
         }
         function postMountWrapper$1(element, props) {
           if (props.value != null) {
-            element.setAttribute("value", toString(getToStringValue(props.value)));
+            element.setAttribute("value", toString2(getToStringValue(props.value)));
           }
         }
         function getHostProps$1(element, props) {
@@ -3786,7 +3786,7 @@ var require_react_dom_development = __commonJS({
               }
             }
           } else {
-            var _selectedValue = toString(getToStringValue(propValue));
+            var _selectedValue = toString2(getToStringValue(propValue));
             var defaultSelected = null;
             for (var _i2 = 0; _i2 < options2.length; _i2++) {
               if (options2[_i2].value === _selectedValue) {
@@ -3868,7 +3868,7 @@ var require_react_dom_development = __commonJS({
           var hostProps = _assign({}, props, {
             value: void 0,
             defaultValue: void 0,
-            children: toString(node._wrapperState.initialValue)
+            children: toString2(node._wrapperState.initialValue)
           });
           return hostProps;
         }
@@ -3919,7 +3919,7 @@ var require_react_dom_development = __commonJS({
           var value = getToStringValue(props.value);
           var defaultValue = getToStringValue(props.defaultValue);
           if (value != null) {
-            var newValue = toString(value);
+            var newValue = toString2(value);
             if (newValue !== node.value) {
               node.value = newValue;
             }
@@ -3928,7 +3928,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           if (defaultValue != null) {
-            node.defaultValue = toString(defaultValue);
+            node.defaultValue = toString2(defaultValue);
           }
         }
         function postMountWrapper$3(element, props) {
@@ -4143,7 +4143,7 @@ var require_react_dom_development = __commonJS({
           var warnedForNaNValue = false;
           var warnedForInfinityValue = false;
           var camelize = function(string2) {
-            return string2.replace(hyphenPattern, function(_5, character) {
+            return string2.replace(hyphenPattern, function(_19, character) {
               return character.toUpperCase();
             });
           };
@@ -5408,13 +5408,13 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function get(key) {
+        function get3(key) {
           return key._reactInternals;
         }
-        function has(key) {
+        function has2(key) {
           return key._reactInternals !== void 0;
         }
-        function set(key, value) {
+        function set4(key, value) {
           key._reactInternals = value;
         }
         var NoFlags = 0;
@@ -5493,7 +5493,7 @@ var require_react_dom_development = __commonJS({
               instance._warnedAboutRefsInRender = true;
             }
           }
-          var fiber = get(component);
+          var fiber = get3(component);
           if (!fiber) {
             return false;
           }
@@ -5882,9 +5882,9 @@ var require_react_dom_development = __commonJS({
           }
           return true;
         }
-        function attemptReplayContinuousQueuedEventInMap(queuedEvent, key, map) {
+        function attemptReplayContinuousQueuedEventInMap(queuedEvent, key, map2) {
           if (attemptReplayContinuousQueuedEvent(queuedEvent)) {
-            map.delete(key);
+            map2.delete(key);
           }
         }
         function replayUnblockedEvents() {
@@ -6517,14 +6517,14 @@ var require_react_dom_development = __commonJS({
         function includesSomeLane(a, b) {
           return (a & b) !== NoLanes;
         }
-        function isSubsetOfLanes(set2, subset) {
-          return (set2 & subset) === subset;
+        function isSubsetOfLanes(set5, subset) {
+          return (set5 & subset) === subset;
         }
         function mergeLanes(a, b) {
           return a | b;
         }
-        function removeLanes(set2, subset) {
-          return set2 & ~subset;
+        function removeLanes(set5, subset) {
+          return set5 & ~subset;
         }
         function laneToLanes(lane) {
           return lane;
@@ -7527,12 +7527,12 @@ var require_react_dom_development = __commonJS({
           }
           accumulateEnterLeaveTwoPhaseListeners(dispatchQueue, leave, enter, from, to);
         }
-        function is(x, y) {
+        function is2(x, y) {
           return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
         }
-        var objectIs = typeof Object.is === "function" ? Object.is : is;
+        var objectIs = typeof Object.is === "function" ? Object.is : is2;
         var hasOwnProperty$2 = Object.prototype.hasOwnProperty;
-        function shallowEqual(objA, objB) {
+        function shallowEqual2(objA, objB) {
           if (objectIs(objA, objB)) {
             return true;
           }
@@ -7830,7 +7830,7 @@ var require_react_dom_development = __commonJS({
             return;
           }
           var currentSelection = getSelection$1(activeElement$1);
-          if (!lastSelection || !shallowEqual(lastSelection, currentSelection)) {
+          if (!lastSelection || !shallowEqual2(lastSelection, currentSelection)) {
             lastSelection = currentSelection;
             var listeners = accumulateTwoPhaseListeners(activeElementInst$1, "onSelect");
             if (listeners.length > 0) {
@@ -8391,10 +8391,10 @@ var require_react_dom_development = __commonJS({
         function getOwnerDocumentFromRootContainer(rootContainerElement) {
           return rootContainerElement.nodeType === DOCUMENT_NODE ? rootContainerElement : rootContainerElement.ownerDocument;
         }
-        function noop2() {
+        function noop4() {
         }
         function trapClickOnNonInteractiveElement(node) {
-          node.onclick = noop2;
+          node.onclick = noop4;
         }
         function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps, isCustomComponentTag) {
           for (var propKey in nextProps) {
@@ -8456,7 +8456,7 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function createElement10(type, props, rootContainerElement, parentNamespace) {
+        function createElement11(type, props, rootContainerElement, parentNamespace) {
           var isCustomComponentTag;
           var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
           var domElement;
@@ -9333,7 +9333,7 @@ var require_react_dom_development = __commonJS({
             }
             parentNamespace = hostContextDev.namespace;
           }
-          var domElement = createElement10(type, props, rootContainerInstance, parentNamespace);
+          var domElement = createElement11(type, props, rootContainerInstance, parentNamespace);
           precacheFiberNode(internalInstanceHandle, domElement);
           updateFiberProps(domElement, props);
           return domElement;
@@ -9725,9 +9725,9 @@ var require_react_dom_development = __commonJS({
         }
         function checkPropTypes(typeSpecs, values, location, componentName, element) {
           {
-            var has2 = Function.call.bind(Object.prototype.hasOwnProperty);
+            var has3 = Function.call.bind(Object.prototype.hasOwnProperty);
             for (var typeSpecName in typeSpecs) {
-              if (has2(typeSpecs, typeSpecName)) {
+              if (has3(typeSpecs, typeSpecName)) {
                 var error$1 = void 0;
                 try {
                   if (typeof typeSpecs[typeSpecName] !== "function") {
@@ -9765,7 +9765,7 @@ var require_react_dom_development = __commonJS({
             current: defaultValue
           };
         }
-        function pop(cursor, fiber) {
+        function pop2(cursor, fiber) {
           if (index2 < 0) {
             {
               error("Unexpected pop.");
@@ -9784,7 +9784,7 @@ var require_react_dom_development = __commonJS({
           }
           index2--;
         }
-        function push(cursor, value, fiber) {
+        function push2(cursor, value, fiber) {
           index2++;
           valueStack[index2] = cursor.current;
           {
@@ -9803,9 +9803,9 @@ var require_react_dom_development = __commonJS({
         var contextStackCursor = createCursor(emptyContextObject);
         var didPerformWorkStackCursor = createCursor(false);
         var previousContext = emptyContextObject;
-        function getUnmaskedContext(workInProgress2, Component4, didPushOwnContextIfProvider) {
+        function getUnmaskedContext(workInProgress2, Component5, didPushOwnContextIfProvider) {
           {
-            if (didPushOwnContextIfProvider && isContextProvider(Component4)) {
+            if (didPushOwnContextIfProvider && isContextProvider(Component5)) {
               return previousContext;
             }
             return contextStackCursor.current;
@@ -9856,14 +9856,14 @@ var require_react_dom_development = __commonJS({
         }
         function popContext(fiber) {
           {
-            pop(didPerformWorkStackCursor, fiber);
-            pop(contextStackCursor, fiber);
+            pop2(didPerformWorkStackCursor, fiber);
+            pop2(contextStackCursor, fiber);
           }
         }
         function popTopLevelContextObject(fiber) {
           {
-            pop(didPerformWorkStackCursor, fiber);
-            pop(contextStackCursor, fiber);
+            pop2(didPerformWorkStackCursor, fiber);
+            pop2(contextStackCursor, fiber);
           }
         }
         function pushTopLevelContextObject(fiber, context, didChange) {
@@ -9873,8 +9873,8 @@ var require_react_dom_development = __commonJS({
                 throw Error("Unexpected context found on stack. This error is likely caused by a bug in React. Please file an issue.");
               }
             }
-            push(contextStackCursor, context, fiber);
-            push(didPerformWorkStackCursor, didChange, fiber);
+            push2(contextStackCursor, context, fiber);
+            push2(didPerformWorkStackCursor, didChange, fiber);
           }
         }
         function processChildContext(fiber, type, parentContext) {
@@ -9911,8 +9911,8 @@ var require_react_dom_development = __commonJS({
             var instance = workInProgress2.stateNode;
             var memoizedMergedChildContext = instance && instance.__reactInternalMemoizedMergedChildContext || emptyContextObject;
             previousContext = contextStackCursor.current;
-            push(contextStackCursor, memoizedMergedChildContext, workInProgress2);
-            push(didPerformWorkStackCursor, didPerformWorkStackCursor.current, workInProgress2);
+            push2(contextStackCursor, memoizedMergedChildContext, workInProgress2);
+            push2(didPerformWorkStackCursor, didPerformWorkStackCursor.current, workInProgress2);
             return true;
           }
         }
@@ -9927,13 +9927,13 @@ var require_react_dom_development = __commonJS({
             if (didChange) {
               var mergedContext = processChildContext(workInProgress2, type, previousContext);
               instance.__reactInternalMemoizedMergedChildContext = mergedContext;
-              pop(didPerformWorkStackCursor, workInProgress2);
-              pop(contextStackCursor, workInProgress2);
-              push(contextStackCursor, mergedContext, workInProgress2);
-              push(didPerformWorkStackCursor, didChange, workInProgress2);
+              pop2(didPerformWorkStackCursor, workInProgress2);
+              pop2(contextStackCursor, workInProgress2);
+              push2(contextStackCursor, mergedContext, workInProgress2);
+              push2(didPerformWorkStackCursor, didChange, workInProgress2);
             } else {
-              pop(didPerformWorkStackCursor, workInProgress2);
-              push(didPerformWorkStackCursor, didChange, workInProgress2);
+              pop2(didPerformWorkStackCursor, workInProgress2);
+              push2(didPerformWorkStackCursor, didChange, workInProgress2);
             }
           }
         }
@@ -9950,8 +9950,8 @@ var require_react_dom_development = __commonJS({
                 case HostRoot:
                   return node.stateNode.context;
                 case ClassComponent: {
-                  var Component4 = node.type;
-                  if (isContextProvider(Component4)) {
+                  var Component5 = node.type;
+                  if (isContextProvider(Component5)) {
                     return node.stateNode.__reactInternalMemoizedMergedChildContext;
                   }
                   break;
@@ -10202,12 +10202,12 @@ var require_react_dom_development = __commonJS({
             }
             return maybeStrictRoot;
           };
-          var setToSortedString = function(set2) {
-            var array = [];
-            set2.forEach(function(value) {
-              array.push(value);
+          var setToSortedString = function(set5) {
+            var array2 = [];
+            set5.forEach(function(value) {
+              array2.push(value);
             });
-            return array.sort().join(", ");
+            return array2.sort().join(", ");
           };
           var pendingComponentWillMountWarnings = [];
           var pendingUNSAFE_ComponentWillMountWarnings = [];
@@ -10363,10 +10363,10 @@ var require_react_dom_development = __commonJS({
             pendingLegacyContextWarning = new Map();
           };
         }
-        function resolveDefaultProps(Component4, baseProps) {
-          if (Component4 && Component4.defaultProps) {
+        function resolveDefaultProps(Component5, baseProps) {
+          if (Component5 && Component5.defaultProps) {
             var props = _assign({}, baseProps);
-            var defaultProps = Component4.defaultProps;
+            var defaultProps = Component5.defaultProps;
             for (var propName in defaultProps) {
               if (props[propName] === void 0) {
                 props[propName] = defaultProps[propName];
@@ -10407,7 +10407,7 @@ var require_react_dom_development = __commonJS({
         function pushProvider(providerFiber, nextValue) {
           var context = providerFiber.type._context;
           {
-            push(valueCursor, context._currentValue, providerFiber);
+            push2(valueCursor, context._currentValue, providerFiber);
             context._currentValue = nextValue;
             {
               if (context._currentRenderer !== void 0 && context._currentRenderer !== null && context._currentRenderer !== rendererSigil) {
@@ -10419,7 +10419,7 @@ var require_react_dom_development = __commonJS({
         }
         function popProvider(providerFiber) {
           var currentValue = valueCursor.current;
-          pop(valueCursor, providerFiber);
+          pop2(valueCursor, providerFiber);
           var context = providerFiber.type._context;
           {
             context._currentValue = currentValue;
@@ -10895,7 +10895,7 @@ var require_react_dom_development = __commonJS({
         }
         var fakeInternalInstance = {};
         var isArray = Array.isArray;
-        var emptyRefsObject = new React28.Component().refs;
+        var emptyRefsObject = new React30.Component().refs;
         var didWarnAboutStateAssignmentForComponent;
         var didWarnAboutUninitializedState;
         var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -10973,7 +10973,7 @@ var require_react_dom_development = __commonJS({
         var classComponentUpdater = {
           isMounted,
           enqueueSetState: function(inst, payload, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -10988,7 +10988,7 @@ var require_react_dom_development = __commonJS({
             scheduleUpdateOnFiber(fiber, lane, eventTime);
           },
           enqueueReplaceState: function(inst, payload, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -11004,7 +11004,7 @@ var require_react_dom_development = __commonJS({
             scheduleUpdateOnFiber(fiber, lane, eventTime);
           },
           enqueueForceUpdate: function(inst, callback) {
-            var fiber = get(inst);
+            var fiber = get3(inst);
             var eventTime = requestEventTime();
             var lane = requestUpdateLane(fiber);
             var update = createUpdate(eventTime, lane);
@@ -11041,7 +11041,7 @@ var require_react_dom_development = __commonJS({
             return shouldUpdate;
           }
           if (ctor.prototype && ctor.prototype.isPureReactComponent) {
-            return !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState);
+            return !shallowEqual2(oldProps, newProps) || !shallowEqual2(oldState, newState);
           }
           return true;
         }
@@ -11128,7 +11128,7 @@ var require_react_dom_development = __commonJS({
         function adoptClassInstance(workInProgress2, instance) {
           instance.updater = classComponentUpdater;
           workInProgress2.stateNode = instance;
-          set(instance, workInProgress2);
+          set4(instance, workInProgress2);
           {
             instance._reactInternalInstance = fakeInternalInstance;
           }
@@ -12114,8 +12114,8 @@ var require_react_dom_development = __commonJS({
             if (isUnkeyedTopLevelFragment) {
               newChild = newChild.props.children;
             }
-            var isObject = typeof newChild === "object" && newChild !== null;
-            if (isObject) {
+            var isObject2 = typeof newChild === "object" && newChild !== null;
+            if (isObject2) {
               switch (newChild.$$typeof) {
                 case REACT_ELEMENT_TYPE:
                   return placeSingleChild(reconcileSingleElement(returnFiber, currentFirstChild, newChild, lanes));
@@ -12132,7 +12132,7 @@ var require_react_dom_development = __commonJS({
             if (getIteratorFn(newChild)) {
               return reconcileChildrenIterator(returnFiber, currentFirstChild, newChild, lanes);
             }
-            if (isObject) {
+            if (isObject2) {
               throwOnInvalidObjectType(returnFiber, newChild);
             }
             {
@@ -12212,17 +12212,17 @@ var require_react_dom_development = __commonJS({
           return rootInstance;
         }
         function pushHostContainer(fiber, nextRootInstance) {
-          push(rootInstanceStackCursor, nextRootInstance, fiber);
-          push(contextFiberStackCursor, fiber, fiber);
-          push(contextStackCursor$1, NO_CONTEXT, fiber);
+          push2(rootInstanceStackCursor, nextRootInstance, fiber);
+          push2(contextFiberStackCursor, fiber, fiber);
+          push2(contextStackCursor$1, NO_CONTEXT, fiber);
           var nextRootContext = getRootHostContext(nextRootInstance);
-          pop(contextStackCursor$1, fiber);
-          push(contextStackCursor$1, nextRootContext, fiber);
+          pop2(contextStackCursor$1, fiber);
+          push2(contextStackCursor$1, nextRootContext, fiber);
         }
         function popHostContainer(fiber) {
-          pop(contextStackCursor$1, fiber);
-          pop(contextFiberStackCursor, fiber);
-          pop(rootInstanceStackCursor, fiber);
+          pop2(contextStackCursor$1, fiber);
+          pop2(contextFiberStackCursor, fiber);
+          pop2(rootInstanceStackCursor, fiber);
         }
         function getHostContext() {
           var context = requiredContext(contextStackCursor$1.current);
@@ -12235,15 +12235,15 @@ var require_react_dom_development = __commonJS({
           if (context === nextContext) {
             return;
           }
-          push(contextFiberStackCursor, fiber, fiber);
-          push(contextStackCursor$1, nextContext, fiber);
+          push2(contextFiberStackCursor, fiber, fiber);
+          push2(contextStackCursor$1, nextContext, fiber);
         }
         function popHostContext(fiber) {
           if (contextFiberStackCursor.current !== fiber) {
             return;
           }
-          pop(contextStackCursor$1, fiber);
-          pop(contextFiberStackCursor, fiber);
+          pop2(contextStackCursor$1, fiber);
+          pop2(contextFiberStackCursor, fiber);
         }
         var DefaultSuspenseContext = 0;
         var SubtreeSuspenseContextMask = 1;
@@ -12263,10 +12263,10 @@ var require_react_dom_development = __commonJS({
           return parentContext | subtreeContext;
         }
         function pushSuspenseContext(fiber, newContext) {
-          push(suspenseStackCursor, newContext, fiber);
+          push2(suspenseStackCursor, newContext, fiber);
         }
         function popSuspenseContext(fiber) {
-          pop(suspenseStackCursor, fiber);
+          pop2(suspenseStackCursor, fiber);
         }
         function shouldCaptureSuspense(workInProgress2, hasInvisibleParent) {
           var nextState = workInProgress2.memoizedState;
@@ -12682,7 +12682,7 @@ var require_react_dom_development = __commonJS({
           }
           return true;
         }
-        function renderWithHooks(current2, workInProgress2, Component4, props, secondArg, nextRenderLanes) {
+        function renderWithHooks(current2, workInProgress2, Component5, props, secondArg, nextRenderLanes) {
           renderLanes = nextRenderLanes;
           currentlyRenderingFiber$1 = workInProgress2;
           {
@@ -12702,7 +12702,7 @@ var require_react_dom_development = __commonJS({
               ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
             }
           }
-          var children = Component4(props, secondArg);
+          var children = Component5(props, secondArg);
           if (didScheduleRenderPhaseUpdateDuringThisPass) {
             var numberOfReRenders = 0;
             do {
@@ -12723,7 +12723,7 @@ var require_react_dom_development = __commonJS({
                 hookTypesUpdateIndexDev = -1;
               }
               ReactCurrentDispatcher$1.current = HooksDispatcherOnRerenderInDEV;
-              children = Component4(props, secondArg);
+              children = Component5(props, secondArg);
             } while (didScheduleRenderPhaseUpdateDuringThisPass);
           }
           ReactCurrentDispatcher$1.current = ContextOnlyDispatcher;
@@ -12842,8 +12842,8 @@ var require_react_dom_development = __commonJS({
             lastEffect: null
           };
         }
-        function basicStateReducer(state, action) {
-          return typeof action === "function" ? action(state) : action;
+        function basicStateReducer(state, action2) {
+          return typeof action2 === "function" ? action2(state) : action2;
         }
         function mountReducer(reducer, initialArg, init) {
           var hook = mountWorkInProgressHook();
@@ -12929,8 +12929,8 @@ var require_react_dom_development = __commonJS({
                 if (update.eagerReducer === reducer) {
                   newState = update.eagerState;
                 } else {
-                  var action = update.action;
-                  newState = reducer(newState, action);
+                  var action2 = update.action;
+                  newState = reducer(newState, action2);
                 }
               }
               update = update.next;
@@ -12968,8 +12968,8 @@ var require_react_dom_development = __commonJS({
             var firstRenderPhaseUpdate = lastRenderPhaseUpdate.next;
             var update = firstRenderPhaseUpdate;
             do {
-              var action = update.action;
-              newState = reducer(newState, action);
+              var action2 = update.action;
+              newState = reducer(newState, action2);
               update = update.next;
             } while (update !== firstRenderPhaseUpdate);
             if (!objectIs(newState, hook.memoizedState)) {
@@ -13443,7 +13443,7 @@ var require_react_dom_development = __commonJS({
           var id = rerenderState()[0];
           return id;
         }
-        function dispatchAction(fiber, queue, action) {
+        function dispatchAction(fiber, queue, action2) {
           {
             if (typeof arguments[3] === "function") {
               error("State updates from the useState() and useReducer() Hooks don't support the second callback argument. To execute a side effect after rendering, declare it in the component body with useEffect().");
@@ -13453,7 +13453,7 @@ var require_react_dom_development = __commonJS({
           var lane = requestUpdateLane(fiber);
           var update = {
             lane,
-            action,
+            action: action2,
             eagerReducer: null,
             eagerState: null,
             next: null
@@ -13480,7 +13480,7 @@ var require_react_dom_development = __commonJS({
                 }
                 try {
                   var currentState = queue.lastRenderedState;
-                  var eagerState = lastRenderedReducer(currentState, action);
+                  var eagerState = lastRenderedReducer(currentState, action2);
                   update.eagerReducer = lastRenderedReducer;
                   update.eagerState = eagerState;
                   if (objectIs(eagerState, currentState)) {
@@ -14310,16 +14310,16 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = reconcileChildFibers(workInProgress2, current2.child, null, renderLanes2);
           workInProgress2.child = reconcileChildFibers(workInProgress2, null, nextChildren, renderLanes2);
         }
-        function updateForwardRef(current2, workInProgress2, Component4, nextProps, renderLanes2) {
+        function updateForwardRef(current2, workInProgress2, Component5, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component4.propTypes;
+              var innerPropTypes = Component5.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
               }
             }
           }
-          var render2 = Component4.render;
+          var render2 = Component5.render;
           var ref = workInProgress2.ref;
           var nextChildren;
           prepareToReadContext(workInProgress2, renderLanes2);
@@ -14345,10 +14345,10 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateMemoComponent(current2, workInProgress2, Component4, nextProps, updateLanes, renderLanes2) {
+        function updateMemoComponent(current2, workInProgress2, Component5, nextProps, updateLanes, renderLanes2) {
           if (current2 === null) {
-            var type = Component4.type;
-            if (isSimpleFunctionComponent(type) && Component4.compare === null && Component4.defaultProps === void 0) {
+            var type = Component5.type;
+            if (isSimpleFunctionComponent(type) && Component5.compare === null && Component5.defaultProps === void 0) {
               var resolvedType = type;
               {
                 resolvedType = resolveFunctionForHotReloading(type);
@@ -14366,14 +14366,14 @@ var require_react_dom_development = __commonJS({
                 checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(type));
               }
             }
-            var child = createFiberFromTypeAndProps(Component4.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
+            var child = createFiberFromTypeAndProps(Component5.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
             child.ref = workInProgress2.ref;
             child.return = workInProgress2;
             workInProgress2.child = child;
             return child;
           }
           {
-            var _type = Component4.type;
+            var _type = Component5.type;
             var _innerPropTypes = _type.propTypes;
             if (_innerPropTypes) {
               checkPropTypes(_innerPropTypes, nextProps, "prop", getComponentName(_type));
@@ -14382,8 +14382,8 @@ var require_react_dom_development = __commonJS({
           var currentChild = current2.child;
           if (!includesSomeLane(updateLanes, renderLanes2)) {
             var prevProps = currentChild.memoizedProps;
-            var compare2 = Component4.compare;
-            compare2 = compare2 !== null ? compare2 : shallowEqual;
+            var compare2 = Component5.compare;
+            compare2 = compare2 !== null ? compare2 : shallowEqual2;
             if (compare2(prevProps, nextProps) && current2.ref === workInProgress2.ref) {
               return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
             }
@@ -14395,7 +14395,7 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = newChild;
           return newChild;
         }
-        function updateSimpleMemoComponent(current2, workInProgress2, Component4, nextProps, updateLanes, renderLanes2) {
+        function updateSimpleMemoComponent(current2, workInProgress2, Component5, nextProps, updateLanes, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
               var outerMemoType = workInProgress2.elementType;
@@ -14417,7 +14417,7 @@ var require_react_dom_development = __commonJS({
           }
           if (current2 !== null) {
             var prevProps = current2.memoizedProps;
-            if (shallowEqual(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type) {
+            if (shallowEqual2(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type) {
               didReceiveUpdate = false;
               if (!includesSomeLane(renderLanes2, updateLanes)) {
                 workInProgress2.lanes = current2.lanes;
@@ -14427,7 +14427,7 @@ var require_react_dom_development = __commonJS({
               }
             }
           }
-          return updateFunctionComponent(current2, workInProgress2, Component4, nextProps, renderLanes2);
+          return updateFunctionComponent(current2, workInProgress2, Component5, nextProps, renderLanes2);
         }
         function updateOffscreenComponent(current2, workInProgress2, renderLanes2) {
           var nextProps = workInProgress2.pendingProps;
@@ -14508,18 +14508,18 @@ var require_react_dom_development = __commonJS({
             workInProgress2.flags |= Ref2;
           }
         }
-        function updateFunctionComponent(current2, workInProgress2, Component4, nextProps, renderLanes2) {
+        function updateFunctionComponent(current2, workInProgress2, Component5, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component4.propTypes;
+              var innerPropTypes = Component5.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
               }
             }
           }
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component4, true);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component5, true);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           var nextChildren;
@@ -14527,11 +14527,11 @@ var require_react_dom_development = __commonJS({
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            nextChildren = renderWithHooks(current2, workInProgress2, Component4, nextProps, context, renderLanes2);
+            nextChildren = renderWithHooks(current2, workInProgress2, Component5, nextProps, context, renderLanes2);
             if (workInProgress2.mode & StrictMode) {
               disableLogs();
               try {
-                nextChildren = renderWithHooks(current2, workInProgress2, Component4, nextProps, context, renderLanes2);
+                nextChildren = renderWithHooks(current2, workInProgress2, Component5, nextProps, context, renderLanes2);
               } finally {
                 reenableLogs();
               }
@@ -14546,17 +14546,17 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateClassComponent(current2, workInProgress2, Component4, nextProps, renderLanes2) {
+        function updateClassComponent(current2, workInProgress2, Component5, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component4.propTypes;
+              var innerPropTypes = Component5.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component4));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
               }
             }
           }
           var hasContext;
-          if (isContextProvider(Component4)) {
+          if (isContextProvider(Component5)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
@@ -14571,15 +14571,15 @@ var require_react_dom_development = __commonJS({
               workInProgress2.alternate = null;
               workInProgress2.flags |= Placement;
             }
-            constructClassInstance(workInProgress2, Component4, nextProps);
-            mountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
+            constructClassInstance(workInProgress2, Component5, nextProps);
+            mountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
             shouldUpdate = true;
           } else if (current2 === null) {
-            shouldUpdate = resumeMountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
+            shouldUpdate = resumeMountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
           } else {
-            shouldUpdate = updateClassInstance(current2, workInProgress2, Component4, nextProps, renderLanes2);
+            shouldUpdate = updateClassInstance(current2, workInProgress2, Component5, nextProps, renderLanes2);
           }
-          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component4, shouldUpdate, hasContext, renderLanes2);
+          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component5, shouldUpdate, hasContext, renderLanes2);
           {
             var inst = workInProgress2.stateNode;
             if (shouldUpdate && inst.props !== nextProps) {
@@ -14591,19 +14591,19 @@ var require_react_dom_development = __commonJS({
           }
           return nextUnitOfWork;
         }
-        function finishClassComponent(current2, workInProgress2, Component4, shouldUpdate, hasContext, renderLanes2) {
+        function finishClassComponent(current2, workInProgress2, Component5, shouldUpdate, hasContext, renderLanes2) {
           markRef(current2, workInProgress2);
           var didCaptureError = (workInProgress2.flags & DidCapture) !== NoFlags;
           if (!shouldUpdate && !didCaptureError) {
             if (hasContext) {
-              invalidateContextProvider(workInProgress2, Component4, false);
+              invalidateContextProvider(workInProgress2, Component5, false);
             }
             return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
           }
           var instance = workInProgress2.stateNode;
           ReactCurrentOwner$1.current = workInProgress2;
           var nextChildren;
-          if (didCaptureError && typeof Component4.getDerivedStateFromError !== "function") {
+          if (didCaptureError && typeof Component5.getDerivedStateFromError !== "function") {
             nextChildren = null;
             {
               stopProfilerTimerIfRunning();
@@ -14631,7 +14631,7 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.memoizedState = instance.state;
           if (hasContext) {
-            invalidateContextProvider(workInProgress2, Component4, true);
+            invalidateContextProvider(workInProgress2, Component5, true);
           }
           return workInProgress2.child;
         }
@@ -14723,60 +14723,60 @@ var require_react_dom_development = __commonJS({
           var lazyComponent = elementType;
           var payload = lazyComponent._payload;
           var init = lazyComponent._init;
-          var Component4 = init(payload);
-          workInProgress2.type = Component4;
-          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component4);
-          var resolvedProps = resolveDefaultProps(Component4, props);
+          var Component5 = init(payload);
+          workInProgress2.type = Component5;
+          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component5);
+          var resolvedProps = resolveDefaultProps(Component5, props);
           var child;
           switch (resolvedTag) {
             case FunctionComponent: {
               {
-                validateFunctionComponentInDev(workInProgress2, Component4);
-                workInProgress2.type = Component4 = resolveFunctionForHotReloading(Component4);
+                validateFunctionComponentInDev(workInProgress2, Component5);
+                workInProgress2.type = Component5 = resolveFunctionForHotReloading(Component5);
               }
-              child = updateFunctionComponent(null, workInProgress2, Component4, resolvedProps, renderLanes2);
+              child = updateFunctionComponent(null, workInProgress2, Component5, resolvedProps, renderLanes2);
               return child;
             }
             case ClassComponent: {
               {
-                workInProgress2.type = Component4 = resolveClassForHotReloading(Component4);
+                workInProgress2.type = Component5 = resolveClassForHotReloading(Component5);
               }
-              child = updateClassComponent(null, workInProgress2, Component4, resolvedProps, renderLanes2);
+              child = updateClassComponent(null, workInProgress2, Component5, resolvedProps, renderLanes2);
               return child;
             }
             case ForwardRef: {
               {
-                workInProgress2.type = Component4 = resolveForwardRefForHotReloading(Component4);
+                workInProgress2.type = Component5 = resolveForwardRefForHotReloading(Component5);
               }
-              child = updateForwardRef(null, workInProgress2, Component4, resolvedProps, renderLanes2);
+              child = updateForwardRef(null, workInProgress2, Component5, resolvedProps, renderLanes2);
               return child;
             }
             case MemoComponent: {
               {
                 if (workInProgress2.type !== workInProgress2.elementType) {
-                  var outerPropTypes = Component4.propTypes;
+                  var outerPropTypes = Component5.propTypes;
                   if (outerPropTypes) {
-                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component4));
+                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component5));
                   }
                 }
               }
-              child = updateMemoComponent(null, workInProgress2, Component4, resolveDefaultProps(Component4.type, resolvedProps), updateLanes, renderLanes2);
+              child = updateMemoComponent(null, workInProgress2, Component5, resolveDefaultProps(Component5.type, resolvedProps), updateLanes, renderLanes2);
               return child;
             }
           }
           var hint = "";
           {
-            if (Component4 !== null && typeof Component4 === "object" && Component4.$$typeof === REACT_LAZY_TYPE) {
+            if (Component5 !== null && typeof Component5 === "object" && Component5.$$typeof === REACT_LAZY_TYPE) {
               hint = " Did you wrap a component in React.lazy() more than once?";
             }
           }
           {
             {
-              throw Error("Element type is invalid. Received a promise that resolves to: " + Component4 + ". Lazy element type must resolve to a class or function." + hint);
+              throw Error("Element type is invalid. Received a promise that resolves to: " + Component5 + ". Lazy element type must resolve to a class or function." + hint);
             }
           }
         }
-        function mountIncompleteClassComponent(_current, workInProgress2, Component4, nextProps, renderLanes2) {
+        function mountIncompleteClassComponent(_current, workInProgress2, Component5, nextProps, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14784,18 +14784,18 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.tag = ClassComponent;
           var hasContext;
-          if (isContextProvider(Component4)) {
+          if (isContextProvider(Component5)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
             hasContext = false;
           }
           prepareToReadContext(workInProgress2, renderLanes2);
-          constructClassInstance(workInProgress2, Component4, nextProps);
-          mountClassInstance(workInProgress2, Component4, nextProps, renderLanes2);
-          return finishClassComponent(null, workInProgress2, Component4, true, hasContext, renderLanes2);
+          constructClassInstance(workInProgress2, Component5, nextProps);
+          mountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
+          return finishClassComponent(null, workInProgress2, Component5, true, hasContext, renderLanes2);
         }
-        function mountIndeterminateComponent(_current, workInProgress2, Component4, renderLanes2) {
+        function mountIndeterminateComponent(_current, workInProgress2, Component5, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14804,14 +14804,14 @@ var require_react_dom_development = __commonJS({
           var props = workInProgress2.pendingProps;
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component4, false);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component5, false);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           prepareToReadContext(workInProgress2, renderLanes2);
           var value;
           {
-            if (Component4.prototype && typeof Component4.prototype.render === "function") {
-              var componentName = getComponentName(Component4) || "Unknown";
+            if (Component5.prototype && typeof Component5.prototype.render === "function") {
+              var componentName = getComponentName(Component5) || "Unknown";
               if (!didWarnAboutBadClass[componentName]) {
                 error("The <%s /> component appears to have a render method, but doesn't extend React.Component. This is likely to cause errors. Change %s to extend React.Component instead.", componentName, componentName);
                 didWarnAboutBadClass[componentName] = true;
@@ -14822,13 +14822,13 @@ var require_react_dom_development = __commonJS({
             }
             setIsRendering(true);
             ReactCurrentOwner$1.current = workInProgress2;
-            value = renderWithHooks(null, workInProgress2, Component4, props, context, renderLanes2);
+            value = renderWithHooks(null, workInProgress2, Component5, props, context, renderLanes2);
             setIsRendering(false);
           }
           workInProgress2.flags |= PerformedWork;
           {
             if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
-              var _componentName = getComponentName(Component4) || "Unknown";
+              var _componentName = getComponentName(Component5) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName, _componentName, _componentName);
                 didWarnAboutModulePatternComponent[_componentName] = true;
@@ -14837,7 +14837,7 @@ var require_react_dom_development = __commonJS({
           }
           if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
             {
-              var _componentName2 = getComponentName(Component4) || "Unknown";
+              var _componentName2 = getComponentName(Component5) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName2]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName2, _componentName2, _componentName2);
                 didWarnAboutModulePatternComponent[_componentName2] = true;
@@ -14847,7 +14847,7 @@ var require_react_dom_development = __commonJS({
             workInProgress2.memoizedState = null;
             workInProgress2.updateQueue = null;
             var hasContext = false;
-            if (isContextProvider(Component4)) {
+            if (isContextProvider(Component5)) {
               hasContext = true;
               pushContextProvider(workInProgress2);
             } else {
@@ -14855,20 +14855,20 @@ var require_react_dom_development = __commonJS({
             }
             workInProgress2.memoizedState = value.state !== null && value.state !== void 0 ? value.state : null;
             initializeUpdateQueue(workInProgress2);
-            var getDerivedStateFromProps = Component4.getDerivedStateFromProps;
+            var getDerivedStateFromProps = Component5.getDerivedStateFromProps;
             if (typeof getDerivedStateFromProps === "function") {
-              applyDerivedStateFromProps(workInProgress2, Component4, getDerivedStateFromProps, props);
+              applyDerivedStateFromProps(workInProgress2, Component5, getDerivedStateFromProps, props);
             }
             adoptClassInstance(workInProgress2, value);
-            mountClassInstance(workInProgress2, Component4, props, renderLanes2);
-            return finishClassComponent(null, workInProgress2, Component4, true, hasContext, renderLanes2);
+            mountClassInstance(workInProgress2, Component5, props, renderLanes2);
+            return finishClassComponent(null, workInProgress2, Component5, true, hasContext, renderLanes2);
           } else {
             workInProgress2.tag = FunctionComponent;
             {
               if (workInProgress2.mode & StrictMode) {
                 disableLogs();
                 try {
-                  value = renderWithHooks(null, workInProgress2, Component4, props, context, renderLanes2);
+                  value = renderWithHooks(null, workInProgress2, Component5, props, context, renderLanes2);
                 } finally {
                   reenableLogs();
                 }
@@ -14876,16 +14876,16 @@ var require_react_dom_development = __commonJS({
             }
             reconcileChildren(null, workInProgress2, value, renderLanes2);
             {
-              validateFunctionComponentInDev(workInProgress2, Component4);
+              validateFunctionComponentInDev(workInProgress2, Component5);
             }
             return workInProgress2.child;
           }
         }
-        function validateFunctionComponentInDev(workInProgress2, Component4) {
+        function validateFunctionComponentInDev(workInProgress2, Component5) {
           {
-            if (Component4) {
-              if (Component4.childContextTypes) {
-                error("%s(...): childContextTypes cannot be defined on a function component.", Component4.displayName || Component4.name || "Component");
+            if (Component5) {
+              if (Component5.childContextTypes) {
+                error("%s(...): childContextTypes cannot be defined on a function component.", Component5.displayName || Component5.name || "Component");
               }
             }
             if (workInProgress2.ref !== null) {
@@ -14904,15 +14904,15 @@ var require_react_dom_development = __commonJS({
                 error("Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s", info);
               }
             }
-            if (typeof Component4.getDerivedStateFromProps === "function") {
-              var _componentName3 = getComponentName(Component4) || "Unknown";
+            if (typeof Component5.getDerivedStateFromProps === "function") {
+              var _componentName3 = getComponentName(Component5) || "Unknown";
               if (!didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3]) {
                 error("%s: Function components do not support getDerivedStateFromProps.", _componentName3);
                 didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3] = true;
               }
             }
-            if (typeof Component4.contextType === "object" && Component4.contextType !== null) {
-              var _componentName4 = getComponentName(Component4) || "Unknown";
+            if (typeof Component5.contextType === "object" && Component5.contextType !== null) {
+              var _componentName4 = getComponentName(Component5) || "Unknown";
               if (!didWarnAboutContextTypeOnFunctionComponent[_componentName4]) {
                 error("%s: Function components do not support contextType.", _componentName4);
                 didWarnAboutContextTypeOnFunctionComponent[_componentName4] = true;
@@ -15521,8 +15521,8 @@ var require_react_dom_development = __commonJS({
                   pushHostContext(workInProgress2);
                   break;
                 case ClassComponent: {
-                  var Component4 = workInProgress2.type;
-                  if (isContextProvider(Component4)) {
+                  var Component5 = workInProgress2.type;
+                  if (isContextProvider(Component5)) {
                     pushContextProvider(workInProgress2);
                   }
                   break;
@@ -15817,8 +15817,8 @@ var require_react_dom_development = __commonJS({
             case MemoComponent:
               return null;
             case ClassComponent: {
-              var Component4 = workInProgress2.type;
-              if (isContextProvider(Component4)) {
+              var Component5 = workInProgress2.type;
+              if (isContextProvider(Component5)) {
                 popContext(workInProgress2);
               }
               return null;
@@ -16100,8 +16100,8 @@ var require_react_dom_development = __commonJS({
         function unwindWork(workInProgress2, renderLanes2) {
           switch (workInProgress2.tag) {
             case ClassComponent: {
-              var Component4 = workInProgress2.type;
-              if (isContextProvider(Component4)) {
+              var Component5 = workInProgress2.type;
+              if (isContextProvider(Component5)) {
                 popContext(workInProgress2);
               }
               var flags = workInProgress2.flags;
@@ -17743,13 +17743,13 @@ var require_react_dom_development = __commonJS({
           }
         }
         function pushRenderLanes(fiber, lanes) {
-          push(subtreeRenderLanesCursor, subtreeRenderLanes, fiber);
+          push2(subtreeRenderLanesCursor, subtreeRenderLanes, fiber);
           subtreeRenderLanes = mergeLanes(subtreeRenderLanes, lanes);
           workInProgressRootIncludedLanes = mergeLanes(workInProgressRootIncludedLanes, lanes);
         }
         function popRenderLanes(fiber) {
           subtreeRenderLanes = subtreeRenderLanesCursor.current;
-          pop(subtreeRenderLanesCursor, fiber);
+          pop2(subtreeRenderLanesCursor, fiber);
         }
         function prepareFreshStack(root2, lanes) {
           root2.finishedWork = null;
@@ -19267,18 +19267,18 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var createFiber = function(tag, pendingProps, key, mode) {
           return new FiberNode(tag, pendingProps, key, mode);
         };
-        function shouldConstruct$1(Component4) {
-          var prototype = Component4.prototype;
+        function shouldConstruct$1(Component5) {
+          var prototype = Component5.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function isSimpleFunctionComponent(type) {
           return typeof type === "function" && !shouldConstruct$1(type) && type.defaultProps === void 0;
         }
-        function resolveLazyComponentTag(Component4) {
-          if (typeof Component4 === "function") {
-            return shouldConstruct$1(Component4) ? ClassComponent : FunctionComponent;
-          } else if (Component4 !== void 0 && Component4 !== null) {
-            var $$typeof = Component4.$$typeof;
+        function resolveLazyComponentTag(Component5) {
+          if (typeof Component5 === "function") {
+            return shouldConstruct$1(Component5) ? ClassComponent : FunctionComponent;
+          } else if (Component5 !== void 0 && Component5 !== null) {
+            var $$typeof = Component5.$$typeof;
             if ($$typeof === REACT_FORWARD_REF_TYPE) {
               return ForwardRef;
             }
@@ -19714,19 +19714,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           if (!parentComponent) {
             return emptyContextObject;
           }
-          var fiber = get(parentComponent);
+          var fiber = get3(parentComponent);
           var parentContext = findCurrentUnmaskedContext(fiber);
           if (fiber.tag === ClassComponent) {
-            var Component4 = fiber.type;
-            if (isContextProvider(Component4)) {
-              return processChildContext(fiber, Component4, parentContext);
+            var Component5 = fiber.type;
+            if (isContextProvider(Component5)) {
+              return processChildContext(fiber, Component5, parentContext);
             }
           }
           return parentContext;
         }
         function findHostInstanceWithWarning(component, methodName) {
           {
-            var fiber = get(component);
+            var fiber = get3(component);
             if (fiber === void 0) {
               if (typeof component.render === "function") {
                 {
@@ -20282,7 +20282,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               throw Error("Target container is not a DOM element.");
             }
           }
-          if (!(parentComponent != null && has(parentComponent))) {
+          if (!(parentComponent != null && has2(parentComponent))) {
             {
               throw Error("parentComponent must be a valid React Component");
             }
@@ -21091,102 +21091,102 @@ var require_lodash = __commonJS({
         }
         return func.apply(thisArg, args);
       }
-      function arrayAggregator(array, setter, iteratee, accumulator) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arrayAggregator(array2, setter, iteratee, accumulator) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         while (++index2 < length) {
-          var value = array[index2];
-          setter(accumulator, value, iteratee(value), array);
+          var value = array2[index2];
+          setter(accumulator, value, iteratee(value), array2);
         }
         return accumulator;
       }
-      function arrayEach(array, iteratee) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arrayEach(array2, iteratee) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         while (++index2 < length) {
-          if (iteratee(array[index2], index2, array) === false) {
+          if (iteratee(array2[index2], index2, array2) === false) {
             break;
           }
         }
-        return array;
+        return array2;
       }
-      function arrayEachRight(array, iteratee) {
-        var length = array == null ? 0 : array.length;
+      function arrayEachRight(array2, iteratee) {
+        var length = array2 == null ? 0 : array2.length;
         while (length--) {
-          if (iteratee(array[length], length, array) === false) {
+          if (iteratee(array2[length], length, array2) === false) {
             break;
           }
         }
-        return array;
+        return array2;
       }
-      function arrayEvery(array, predicate) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arrayEvery(array2, predicate) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         while (++index2 < length) {
-          if (!predicate(array[index2], index2, array)) {
+          if (!predicate(array2[index2], index2, array2)) {
             return false;
           }
         }
         return true;
       }
-      function arrayFilter(array, predicate) {
-        var index2 = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
+      function arrayFilter(array2, predicate) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result = [];
         while (++index2 < length) {
-          var value = array[index2];
-          if (predicate(value, index2, array)) {
+          var value = array2[index2];
+          if (predicate(value, index2, array2)) {
             result[resIndex++] = value;
           }
         }
         return result;
       }
-      function arrayIncludes(array, value) {
-        var length = array == null ? 0 : array.length;
-        return !!length && baseIndexOf(array, value, 0) > -1;
+      function arrayIncludes(array2, value) {
+        var length = array2 == null ? 0 : array2.length;
+        return !!length && baseIndexOf(array2, value, 0) > -1;
       }
-      function arrayIncludesWith(array, value, comparator) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arrayIncludesWith(array2, value, comparator) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         while (++index2 < length) {
-          if (comparator(value, array[index2])) {
+          if (comparator(value, array2[index2])) {
             return true;
           }
         }
         return false;
       }
-      function arrayMap(array, iteratee) {
-        var index2 = -1, length = array == null ? 0 : array.length, result = Array(length);
+      function arrayMap(array2, iteratee) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
         while (++index2 < length) {
-          result[index2] = iteratee(array[index2], index2, array);
+          result[index2] = iteratee(array2[index2], index2, array2);
         }
         return result;
       }
-      function arrayPush(array, values) {
-        var index2 = -1, length = values.length, offset2 = array.length;
+      function arrayPush(array2, values) {
+        var index2 = -1, length = values.length, offset2 = array2.length;
         while (++index2 < length) {
-          array[offset2 + index2] = values[index2];
+          array2[offset2 + index2] = values[index2];
         }
-        return array;
+        return array2;
       }
-      function arrayReduce(array, iteratee, accumulator, initAccum) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arrayReduce(array2, iteratee, accumulator, initAccum) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         if (initAccum && length) {
-          accumulator = array[++index2];
+          accumulator = array2[++index2];
         }
         while (++index2 < length) {
-          accumulator = iteratee(accumulator, array[index2], index2, array);
+          accumulator = iteratee(accumulator, array2[index2], index2, array2);
         }
         return accumulator;
       }
-      function arrayReduceRight(array, iteratee, accumulator, initAccum) {
-        var length = array == null ? 0 : array.length;
+      function arrayReduceRight(array2, iteratee, accumulator, initAccum) {
+        var length = array2 == null ? 0 : array2.length;
         if (initAccum && length) {
-          accumulator = array[--length];
+          accumulator = array2[--length];
         }
         while (length--) {
-          accumulator = iteratee(accumulator, array[length], length, array);
+          accumulator = iteratee(accumulator, array2[length], length, array2);
         }
         return accumulator;
       }
-      function arraySome(array, predicate) {
-        var index2 = -1, length = array == null ? 0 : array.length;
+      function arraySome(array2, predicate) {
+        var index2 = -1, length = array2 == null ? 0 : array2.length;
         while (++index2 < length) {
-          if (predicate(array[index2], index2, array)) {
+          if (predicate(array2[index2], index2, array2)) {
             return true;
           }
         }
@@ -21209,22 +21209,22 @@ var require_lodash = __commonJS({
         });
         return result;
       }
-      function baseFindIndex(array, predicate, fromIndex, fromRight) {
-        var length = array.length, index2 = fromIndex + (fromRight ? 1 : -1);
+      function baseFindIndex(array2, predicate, fromIndex, fromRight) {
+        var length = array2.length, index2 = fromIndex + (fromRight ? 1 : -1);
         while (fromRight ? index2-- : ++index2 < length) {
-          if (predicate(array[index2], index2, array)) {
+          if (predicate(array2[index2], index2, array2)) {
             return index2;
           }
         }
         return -1;
       }
-      function baseIndexOf(array, value, fromIndex) {
-        return value === value ? strictIndexOf(array, value, fromIndex) : baseFindIndex(array, baseIsNaN, fromIndex);
+      function baseIndexOf(array2, value, fromIndex) {
+        return value === value ? strictIndexOf(array2, value, fromIndex) : baseFindIndex(array2, baseIsNaN, fromIndex);
       }
-      function baseIndexOfWith(array, value, fromIndex, comparator) {
-        var index2 = fromIndex - 1, length = array.length;
+      function baseIndexOfWith(array2, value, fromIndex, comparator) {
+        var index2 = fromIndex - 1, length = array2.length;
         while (++index2 < length) {
-          if (comparator(array[index2], value)) {
+          if (comparator(array2[index2], value)) {
             return index2;
           }
         }
@@ -21233,18 +21233,18 @@ var require_lodash = __commonJS({
       function baseIsNaN(value) {
         return value !== value;
       }
-      function baseMean(array, iteratee) {
-        var length = array == null ? 0 : array.length;
-        return length ? baseSum(array, iteratee) / length : NAN;
+      function baseMean(array2, iteratee) {
+        var length = array2 == null ? 0 : array2.length;
+        return length ? baseSum(array2, iteratee) / length : NAN;
       }
       function baseProperty(key) {
-        return function(object) {
-          return object == null ? undefined2 : object[key];
+        return function(object2) {
+          return object2 == null ? undefined2 : object2[key];
         };
       }
-      function basePropertyOf(object) {
+      function basePropertyOf(object2) {
         return function(key) {
-          return object == null ? undefined2 : object[key];
+          return object2 == null ? undefined2 : object2[key];
         };
       }
       function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
@@ -21253,18 +21253,18 @@ var require_lodash = __commonJS({
         });
         return accumulator;
       }
-      function baseSortBy(array, comparer) {
-        var length = array.length;
-        array.sort(comparer);
+      function baseSortBy(array2, comparer2) {
+        var length = array2.length;
+        array2.sort(comparer2);
         while (length--) {
-          array[length] = array[length].value;
+          array2[length] = array2[length].value;
         }
-        return array;
+        return array2;
       }
-      function baseSum(array, iteratee) {
-        var result, index2 = -1, length = array.length;
+      function baseSum(array2, iteratee) {
+        var result, index2 = -1, length = array2.length;
         while (++index2 < length) {
-          var current = iteratee(array[index2]);
+          var current = iteratee(array2[index2]);
           if (current !== undefined2) {
             result = result === undefined2 ? current : result + current;
           }
@@ -21278,9 +21278,9 @@ var require_lodash = __commonJS({
         }
         return result;
       }
-      function baseToPairs(object, props) {
+      function baseToPairs(object2, props) {
         return arrayMap(props, function(key) {
-          return [key, object[key]];
+          return [key, object2[key]];
         });
       }
       function baseTrim(string2) {
@@ -21291,9 +21291,9 @@ var require_lodash = __commonJS({
           return func(value);
         };
       }
-      function baseValues(object, props) {
+      function baseValues(object2, props) {
         return arrayMap(props, function(key) {
-          return object[key];
+          return object2[key];
         });
       }
       function cacheHas(cache, key) {
@@ -21311,10 +21311,10 @@ var require_lodash = __commonJS({
         }
         return index2;
       }
-      function countHolders(array, placeholder) {
-        var length = array.length, result = 0;
+      function countHolders(array2, placeholder) {
+        var length = array2.length, result = 0;
         while (length--) {
-          if (array[length] === placeholder) {
+          if (array2[length] === placeholder) {
             ++result;
           }
         }
@@ -21325,8 +21325,8 @@ var require_lodash = __commonJS({
       function escapeStringChar(chr) {
         return "\\" + stringEscapes[chr];
       }
-      function getValue(object, key) {
-        return object == null ? undefined2 : object[key];
+      function getValue(object2, key) {
+        return object2 == null ? undefined2 : object2[key];
       }
       function hasUnicode(string2) {
         return reHasUnicode.test(string2);
@@ -21341,9 +21341,9 @@ var require_lodash = __commonJS({
         }
         return result;
       }
-      function mapToArray(map) {
-        var index2 = -1, result = Array(map.size);
-        map.forEach(function(value, key) {
+      function mapToArray(map2) {
+        var index2 = -1, result = Array(map2.size);
+        map2.forEach(function(value, key) {
           result[++index2] = [key, value];
         });
         return result;
@@ -21353,44 +21353,44 @@ var require_lodash = __commonJS({
           return func(transform(arg));
         };
       }
-      function replaceHolders(array, placeholder) {
-        var index2 = -1, length = array.length, resIndex = 0, result = [];
+      function replaceHolders(array2, placeholder) {
+        var index2 = -1, length = array2.length, resIndex = 0, result = [];
         while (++index2 < length) {
-          var value = array[index2];
+          var value = array2[index2];
           if (value === placeholder || value === PLACEHOLDER) {
-            array[index2] = PLACEHOLDER;
+            array2[index2] = PLACEHOLDER;
             result[resIndex++] = index2;
           }
         }
         return result;
       }
-      function setToArray(set) {
-        var index2 = -1, result = Array(set.size);
-        set.forEach(function(value) {
+      function setToArray(set4) {
+        var index2 = -1, result = Array(set4.size);
+        set4.forEach(function(value) {
           result[++index2] = value;
         });
         return result;
       }
-      function setToPairs(set) {
-        var index2 = -1, result = Array(set.size);
-        set.forEach(function(value) {
+      function setToPairs(set4) {
+        var index2 = -1, result = Array(set4.size);
+        set4.forEach(function(value) {
           result[++index2] = [value, value];
         });
         return result;
       }
-      function strictIndexOf(array, value, fromIndex) {
-        var index2 = fromIndex - 1, length = array.length;
+      function strictIndexOf(array2, value, fromIndex) {
+        var index2 = fromIndex - 1, length = array2.length;
         while (++index2 < length) {
-          if (array[index2] === value) {
+          if (array2[index2] === value) {
             return index2;
           }
         }
         return -1;
       }
-      function strictLastIndexOf(array, value, fromIndex) {
+      function strictLastIndexOf(array2, value, fromIndex) {
         var index2 = fromIndex + 1;
         while (index2--) {
-          if (array[index2] === value) {
+          if (array2[index2] === value) {
             return index2;
           }
         }
@@ -21423,7 +21423,7 @@ var require_lodash = __commonJS({
         return string2.match(reUnicodeWord) || [];
       }
       var runInContext = function runInContext2(context) {
-        context = context == null ? root : _5.defaults(root.Object(), context, _5.pick(root, contextProps));
+        context = context == null ? root : _19.defaults(root.Object(), context, _19.pick(root, contextProps));
         var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
@@ -21438,8 +21438,8 @@ var require_lodash = __commonJS({
         var objectCtorString = funcToString.call(Object2);
         var oldDash = root._;
         var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
-        var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
-        var defineProperty = function() {
+        var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice2 = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
+        var defineProperty3 = function() {
           try {
             var func = getNative(Object2, "defineProperty");
             func({}, "", {});
@@ -21466,18 +21466,18 @@ var require_lodash = __commonJS({
           return new LodashWrapper(value);
         }
         var baseCreate = function() {
-          function object() {
+          function object2() {
           }
           return function(proto) {
-            if (!isObject(proto)) {
+            if (!isObject2(proto)) {
               return {};
             }
             if (objectCreate) {
               return objectCreate(proto);
             }
-            object.prototype = proto;
-            var result2 = new object();
-            object.prototype = undefined2;
+            object2.prototype = proto;
+            var result2 = new object2();
+            object2.prototype = undefined2;
             return result2;
           };
         }();
@@ -21534,20 +21534,20 @@ var require_lodash = __commonJS({
           return result2;
         }
         function lazyValue() {
-          var array = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array), isRight = dir < 0, arrLength = isArr ? array.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index2 = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index2 = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
           if (!isArr || !isRight && arrLength == length && takeCount == length) {
-            return baseWrapperValue(array, this.__actions__);
+            return baseWrapperValue(array2, this.__actions__);
           }
           var result2 = [];
           outer:
             while (length-- && resIndex < takeCount) {
               index2 += dir;
-              var iterIndex = -1, value = array[index2];
+              var iterIndex = -1, value = array2[index2];
               while (++iterIndex < iterLength) {
-                var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed = iteratee2(value);
+                var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed3 = iteratee2(value);
                 if (type == LAZY_MAP_FLAG) {
-                  value = computed;
-                } else if (!computed) {
+                  value = computed3;
+                } else if (!computed3) {
                   if (type == LAZY_FILTER_FLAG) {
                     continue outer;
                   } else {
@@ -21622,7 +21622,7 @@ var require_lodash = __commonJS({
           if (index2 == lastIndex) {
             data.pop();
           } else {
-            splice.call(data, index2, 1);
+            splice2.call(data, index2, 1);
           }
           --this.size;
           return true;
@@ -21751,31 +21751,31 @@ var require_lodash = __commonJS({
           }
           return result2;
         }
-        function arraySample(array) {
-          var length = array.length;
-          return length ? array[baseRandom(0, length - 1)] : undefined2;
+        function arraySample(array2) {
+          var length = array2.length;
+          return length ? array2[baseRandom(0, length - 1)] : undefined2;
         }
-        function arraySampleSize(array, n) {
-          return shuffleSelf(copyArray(array), baseClamp(n, 0, array.length));
+        function arraySampleSize(array2, n) {
+          return shuffleSelf(copyArray(array2), baseClamp(n, 0, array2.length));
         }
-        function arrayShuffle(array) {
-          return shuffleSelf(copyArray(array));
+        function arrayShuffle(array2) {
+          return shuffleSelf(copyArray(array2));
         }
-        function assignMergeValue(object, key, value) {
-          if (value !== undefined2 && !eq(object[key], value) || value === undefined2 && !(key in object)) {
-            baseAssignValue(object, key, value);
+        function assignMergeValue(object2, key, value) {
+          if (value !== undefined2 && !eq2(object2[key], value) || value === undefined2 && !(key in object2)) {
+            baseAssignValue(object2, key, value);
           }
         }
-        function assignValue(object, key, value) {
-          var objValue = object[key];
-          if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === undefined2 && !(key in object)) {
-            baseAssignValue(object, key, value);
+        function assignValue(object2, key, value) {
+          var objValue = object2[key];
+          if (!(hasOwnProperty.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
+            baseAssignValue(object2, key, value);
           }
         }
-        function assocIndexOf(array, key) {
-          var length = array.length;
+        function assocIndexOf(array2, key) {
+          var length = array2.length;
           while (length--) {
-            if (eq(array[length][0], key)) {
+            if (eq2(array2[length][0], key)) {
               return length;
             }
           }
@@ -21787,28 +21787,28 @@ var require_lodash = __commonJS({
           });
           return accumulator;
         }
-        function baseAssign(object, source) {
-          return object && copyObject(source, keys(source), object);
+        function baseAssign(object2, source) {
+          return object2 && copyObject(source, keys(source), object2);
         }
-        function baseAssignIn(object, source) {
-          return object && copyObject(source, keysIn(source), object);
+        function baseAssignIn(object2, source) {
+          return object2 && copyObject(source, keysIn(source), object2);
         }
-        function baseAssignValue(object, key, value) {
-          if (key == "__proto__" && defineProperty) {
-            defineProperty(object, key, {
+        function baseAssignValue(object2, key, value) {
+          if (key == "__proto__" && defineProperty3) {
+            defineProperty3(object2, key, {
               "configurable": true,
               "enumerable": true,
               "value": value,
               "writable": true
             });
           } else {
-            object[key] = value;
+            object2[key] = value;
           }
         }
-        function baseAt(object, paths) {
-          var index2 = -1, length = paths.length, result2 = Array2(length), skip = object == null;
+        function baseAt(object2, paths) {
+          var index2 = -1, length = paths.length, result2 = Array2(length), skip = object2 == null;
           while (++index2 < length) {
-            result2[index2] = skip ? undefined2 : get(object, paths[index2]);
+            result2[index2] = skip ? undefined2 : get3(object2, paths[index2]);
           }
           return result2;
         }
@@ -21823,15 +21823,15 @@ var require_lodash = __commonJS({
           }
           return number2;
         }
-        function baseClone(value, bitmask, customizer, key, object, stack) {
+        function baseClone(value, bitmask, customizer, key, object2, stack) {
           var result2, isDeep = bitmask & CLONE_DEEP_FLAG, isFlat = bitmask & CLONE_FLAT_FLAG, isFull = bitmask & CLONE_SYMBOLS_FLAG;
           if (customizer) {
-            result2 = object ? customizer(value, key, object, stack) : customizer(value);
+            result2 = object2 ? customizer(value, key, object2, stack) : customizer(value);
           }
           if (result2 !== undefined2) {
             return result2;
           }
-          if (!isObject(value)) {
+          if (!isObject2(value)) {
             return value;
           }
           var isArr = isArray(value);
@@ -21845,14 +21845,14 @@ var require_lodash = __commonJS({
             if (isBuffer(value)) {
               return cloneBuffer(value, isDeep);
             }
-            if (tag == objectTag || tag == argsTag || isFunc && !object) {
+            if (tag == objectTag || tag == argsTag || isFunc && !object2) {
               result2 = isFlat || isFunc ? {} : initCloneObject(value);
               if (!isDeep) {
                 return isFlat ? copySymbolsIn(value, baseAssignIn(result2, value)) : copySymbols(value, baseAssign(result2, value));
               }
             } else {
               if (!cloneableTags[tag]) {
-                return object ? value : {};
+                return object2 ? value : {};
               }
               result2 = initCloneByTag(value, tag, isDeep);
             }
@@ -21885,19 +21885,19 @@ var require_lodash = __commonJS({
         }
         function baseConforms(source) {
           var props = keys(source);
-          return function(object) {
-            return baseConformsTo(object, source, props);
+          return function(object2) {
+            return baseConformsTo(object2, source, props);
           };
         }
-        function baseConformsTo(object, source, props) {
+        function baseConformsTo(object2, source, props) {
           var length = props.length;
-          if (object == null) {
+          if (object2 == null) {
             return !length;
           }
-          object = Object2(object);
+          object2 = Object2(object2);
           while (length--) {
-            var key = props[length], predicate = source[key], value = object[key];
-            if (value === undefined2 && !(key in object) || !predicate(value)) {
+            var key = props[length], predicate = source[key], value = object2[key];
+            if (value === undefined2 && !(key in object2) || !predicate(value)) {
               return false;
             }
           }
@@ -21911,8 +21911,8 @@ var require_lodash = __commonJS({
             func.apply(undefined2, args);
           }, wait);
         }
-        function baseDifference(array, values2, iteratee2, comparator) {
-          var index2 = -1, includes2 = arrayIncludes, isCommon = true, length = array.length, result2 = [], valuesLength = values2.length;
+        function baseDifference(array2, values2, iteratee2, comparator) {
+          var index2 = -1, includes2 = arrayIncludes, isCommon = true, length = array2.length, result2 = [], valuesLength = values2.length;
           if (!length) {
             return result2;
           }
@@ -21929,17 +21929,17 @@ var require_lodash = __commonJS({
           }
           outer:
             while (++index2 < length) {
-              var value = array[index2], computed = iteratee2 == null ? value : iteratee2(value);
+              var value = array2[index2], computed3 = iteratee2 == null ? value : iteratee2(value);
               value = comparator || value !== 0 ? value : 0;
-              if (isCommon && computed === computed) {
+              if (isCommon && computed3 === computed3) {
                 var valuesIndex = valuesLength;
                 while (valuesIndex--) {
-                  if (values2[valuesIndex] === computed) {
+                  if (values2[valuesIndex] === computed3) {
                     continue outer;
                   }
                 }
                 result2.push(value);
-              } else if (!includes2(values2, computed, comparator)) {
+              } else if (!includes2(values2, computed3, comparator)) {
                 result2.push(value);
               }
             }
@@ -21955,18 +21955,18 @@ var require_lodash = __commonJS({
           });
           return result2;
         }
-        function baseExtremum(array, iteratee2, comparator) {
-          var index2 = -1, length = array.length;
+        function baseExtremum(array2, iteratee2, comparator) {
+          var index2 = -1, length = array2.length;
           while (++index2 < length) {
-            var value = array[index2], current = iteratee2(value);
-            if (current != null && (computed === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed))) {
-              var computed = current, result2 = value;
+            var value = array2[index2], current = iteratee2(value);
+            if (current != null && (computed3 === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed3))) {
+              var computed3 = current, result2 = value;
             }
           }
           return result2;
         }
-        function baseFill(array, value, start2, end) {
-          var length = array.length;
+        function baseFill(array2, value, start2, end) {
+          var length = array2.length;
           start2 = toInteger(start2);
           if (start2 < 0) {
             start2 = -start2 > length ? 0 : length + start2;
@@ -21977,9 +21977,9 @@ var require_lodash = __commonJS({
           }
           end = start2 > end ? 0 : toLength(end);
           while (start2 < end) {
-            array[start2++] = value;
+            array2[start2++] = value;
           }
-          return array;
+          return array2;
         }
         function baseFilter(collection, predicate) {
           var result2 = [];
@@ -21990,12 +21990,12 @@ var require_lodash = __commonJS({
           });
           return result2;
         }
-        function baseFlatten(array, depth, predicate, isStrict, result2) {
-          var index2 = -1, length = array.length;
+        function baseFlatten(array2, depth, predicate, isStrict, result2) {
+          var index2 = -1, length = array2.length;
           predicate || (predicate = isFlattenable);
           result2 || (result2 = []);
           while (++index2 < length) {
-            var value = array[index2];
+            var value = array2[index2];
             if (depth > 0 && predicate(value)) {
               if (depth > 1) {
                 baseFlatten(value, depth - 1, predicate, isStrict, result2);
@@ -22010,28 +22010,28 @@ var require_lodash = __commonJS({
         }
         var baseFor = createBaseFor();
         var baseForRight = createBaseFor(true);
-        function baseForOwn(object, iteratee2) {
-          return object && baseFor(object, iteratee2, keys);
+        function baseForOwn(object2, iteratee2) {
+          return object2 && baseFor(object2, iteratee2, keys);
         }
-        function baseForOwnRight(object, iteratee2) {
-          return object && baseForRight(object, iteratee2, keys);
+        function baseForOwnRight(object2, iteratee2) {
+          return object2 && baseForRight(object2, iteratee2, keys);
         }
-        function baseFunctions(object, props) {
+        function baseFunctions(object2, props) {
           return arrayFilter(props, function(key) {
-            return isFunction(object[key]);
+            return isFunction2(object2[key]);
           });
         }
-        function baseGet(object, path) {
-          path = castPath(path, object);
+        function baseGet(object2, path) {
+          path = castPath(path, object2);
           var index2 = 0, length = path.length;
-          while (object != null && index2 < length) {
-            object = object[toKey(path[index2++])];
+          while (object2 != null && index2 < length) {
+            object2 = object2[toKey(path[index2++])];
           }
-          return index2 && index2 == length ? object : undefined2;
+          return index2 && index2 == length ? object2 : undefined2;
         }
-        function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-          var result2 = keysFunc(object);
-          return isArray(object) ? result2 : arrayPush(result2, symbolsFunc(object));
+        function baseGetAllKeys(object2, keysFunc, symbolsFunc) {
+          var result2 = keysFunc(object2);
+          return isArray(object2) ? result2 : arrayPush(result2, symbolsFunc(object2));
         }
         function baseGetTag(value) {
           if (value == null) {
@@ -22042,11 +22042,11 @@ var require_lodash = __commonJS({
         function baseGt(value, other) {
           return value > other;
         }
-        function baseHas(object, key) {
-          return object != null && hasOwnProperty.call(object, key);
+        function baseHas(object2, key) {
+          return object2 != null && hasOwnProperty.call(object2, key);
         }
-        function baseHasIn(object, key) {
-          return object != null && key in Object2(object);
+        function baseHasIn(object2, key) {
+          return object2 != null && key in Object2(object2);
         }
         function baseInRange(number2, start2, end) {
           return number2 >= nativeMin(start2, end) && number2 < nativeMax(start2, end);
@@ -22054,46 +22054,46 @@ var require_lodash = __commonJS({
         function baseIntersection(arrays, iteratee2, comparator) {
           var includes2 = comparator ? arrayIncludesWith : arrayIncludes, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
           while (othIndex--) {
-            var array = arrays[othIndex];
+            var array2 = arrays[othIndex];
             if (othIndex && iteratee2) {
-              array = arrayMap(array, baseUnary(iteratee2));
+              array2 = arrayMap(array2, baseUnary(iteratee2));
             }
-            maxLength = nativeMin(array.length, maxLength);
-            caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array.length >= 120) ? new SetCache(othIndex && array) : undefined2;
+            maxLength = nativeMin(array2.length, maxLength);
+            caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array2.length >= 120) ? new SetCache(othIndex && array2) : undefined2;
           }
-          array = arrays[0];
+          array2 = arrays[0];
           var index2 = -1, seen = caches[0];
           outer:
             while (++index2 < length && result2.length < maxLength) {
-              var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
+              var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
-              if (!(seen ? cacheHas(seen, computed) : includes2(result2, computed, comparator))) {
+              if (!(seen ? cacheHas(seen, computed3) : includes2(result2, computed3, comparator))) {
                 othIndex = othLength;
                 while (--othIndex) {
                   var cache = caches[othIndex];
-                  if (!(cache ? cacheHas(cache, computed) : includes2(arrays[othIndex], computed, comparator))) {
+                  if (!(cache ? cacheHas(cache, computed3) : includes2(arrays[othIndex], computed3, comparator))) {
                     continue outer;
                   }
                 }
                 if (seen) {
-                  seen.push(computed);
+                  seen.push(computed3);
                 }
                 result2.push(value);
               }
             }
           return result2;
         }
-        function baseInverter(object, setter, iteratee2, accumulator) {
-          baseForOwn(object, function(value, key, object2) {
-            setter(accumulator, iteratee2(value), key, object2);
+        function baseInverter(object2, setter, iteratee2, accumulator) {
+          baseForOwn(object2, function(value, key, object3) {
+            setter(accumulator, iteratee2(value), key, object3);
           });
           return accumulator;
         }
-        function baseInvoke(object, path, args) {
-          path = castPath(path, object);
-          object = parent(object, path);
-          var func = object == null ? object : object[toKey(last(path))];
-          return func == null ? undefined2 : apply(func, object, args);
+        function baseInvoke(object2, path, args) {
+          path = castPath(path, object2);
+          object2 = parent(object2, path);
+          var func = object2 == null ? object2 : object2[toKey(last(path))];
+          return func == null ? undefined2 : apply(func, object2, args);
         }
         function baseIsArguments(value) {
           return isObjectLike(value) && baseGetTag(value) == argsTag;
@@ -22113,12 +22113,12 @@ var require_lodash = __commonJS({
           }
           return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
         }
-        function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-          var objIsArr = isArray(object), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
+        function baseIsEqualDeep(object2, other, bitmask, customizer, equalFunc, stack) {
+          var objIsArr = isArray(object2), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object2), othTag = othIsArr ? arrayTag : getTag(other);
           objTag = objTag == argsTag ? objectTag : objTag;
           othTag = othTag == argsTag ? objectTag : othTag;
           var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
-          if (isSameTag && isBuffer(object)) {
+          if (isSameTag && isBuffer(object2)) {
             if (!isBuffer(other)) {
               return false;
             }
@@ -22127,12 +22127,12 @@ var require_lodash = __commonJS({
           }
           if (isSameTag && !objIsObj) {
             stack || (stack = new Stack2());
-            return objIsArr || isTypedArray(object) ? equalArrays(object, other, bitmask, customizer, equalFunc, stack) : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+            return objIsArr || isTypedArray(object2) ? equalArrays(object2, other, bitmask, customizer, equalFunc, stack) : equalByTag(object2, other, objTag, bitmask, customizer, equalFunc, stack);
           }
           if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
-            var objIsWrapped = objIsObj && hasOwnProperty.call(object, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+            var objIsWrapped = objIsObj && hasOwnProperty.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
             if (objIsWrapped || othIsWrapped) {
-              var objUnwrapped = objIsWrapped ? object.value() : object, othUnwrapped = othIsWrapped ? other.value() : other;
+              var objUnwrapped = objIsWrapped ? object2.value() : object2, othUnwrapped = othIsWrapped ? other.value() : other;
               stack || (stack = new Stack2());
               return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
             }
@@ -22141,34 +22141,34 @@ var require_lodash = __commonJS({
             return false;
           }
           stack || (stack = new Stack2());
-          return equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+          return equalObjects(object2, other, bitmask, customizer, equalFunc, stack);
         }
         function baseIsMap(value) {
           return isObjectLike(value) && getTag(value) == mapTag;
         }
-        function baseIsMatch(object, source, matchData, customizer) {
+        function baseIsMatch(object2, source, matchData, customizer) {
           var index2 = matchData.length, length = index2, noCustomizer = !customizer;
-          if (object == null) {
+          if (object2 == null) {
             return !length;
           }
-          object = Object2(object);
+          object2 = Object2(object2);
           while (index2--) {
             var data = matchData[index2];
-            if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
+            if (noCustomizer && data[2] ? data[1] !== object2[data[0]] : !(data[0] in object2)) {
               return false;
             }
           }
           while (++index2 < length) {
             data = matchData[index2];
-            var key = data[0], objValue = object[key], srcValue = data[1];
+            var key = data[0], objValue = object2[key], srcValue = data[1];
             if (noCustomizer && data[2]) {
-              if (objValue === undefined2 && !(key in object)) {
+              if (objValue === undefined2 && !(key in object2)) {
                 return false;
               }
             } else {
               var stack = new Stack2();
               if (customizer) {
-                var result2 = customizer(objValue, srcValue, key, object, source, stack);
+                var result2 = customizer(objValue, srcValue, key, object2, source, stack);
               }
               if (!(result2 === undefined2 ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result2)) {
                 return false;
@@ -22178,10 +22178,10 @@ var require_lodash = __commonJS({
           return true;
         }
         function baseIsNative(value) {
-          if (!isObject(value) || isMasked(value)) {
+          if (!isObject2(value) || isMasked(value)) {
             return false;
           }
-          var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+          var pattern = isFunction2(value) ? reIsNative : reIsHostCtor;
           return pattern.test(toSource(value));
         }
         function baseIsRegExp(value) {
@@ -22205,25 +22205,25 @@ var require_lodash = __commonJS({
           }
           return property(value);
         }
-        function baseKeys(object) {
-          if (!isPrototype(object)) {
-            return nativeKeys(object);
+        function baseKeys(object2) {
+          if (!isPrototype(object2)) {
+            return nativeKeys(object2);
           }
           var result2 = [];
-          for (var key in Object2(object)) {
-            if (hasOwnProperty.call(object, key) && key != "constructor") {
+          for (var key in Object2(object2)) {
+            if (hasOwnProperty.call(object2, key) && key != "constructor") {
               result2.push(key);
             }
           }
           return result2;
         }
-        function baseKeysIn(object) {
-          if (!isObject(object)) {
-            return nativeKeysIn(object);
+        function baseKeysIn(object2) {
+          if (!isObject2(object2)) {
+            return nativeKeysIn(object2);
           }
-          var isProto = isPrototype(object), result2 = [];
-          for (var key in object) {
-            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object, key)))) {
+          var isProto = isPrototype(object2), result2 = [];
+          for (var key in object2) {
+            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object2, key)))) {
               result2.push(key);
             }
           }
@@ -22244,43 +22244,43 @@ var require_lodash = __commonJS({
           if (matchData.length == 1 && matchData[0][2]) {
             return matchesStrictComparable(matchData[0][0], matchData[0][1]);
           }
-          return function(object) {
-            return object === source || baseIsMatch(object, source, matchData);
+          return function(object2) {
+            return object2 === source || baseIsMatch(object2, source, matchData);
           };
         }
         function baseMatchesProperty(path, srcValue) {
           if (isKey(path) && isStrictComparable(srcValue)) {
             return matchesStrictComparable(toKey(path), srcValue);
           }
-          return function(object) {
-            var objValue = get(object, path);
-            return objValue === undefined2 && objValue === srcValue ? hasIn(object, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+          return function(object2) {
+            var objValue = get3(object2, path);
+            return objValue === undefined2 && objValue === srcValue ? hasIn(object2, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
           };
         }
-        function baseMerge(object, source, srcIndex, customizer, stack) {
-          if (object === source) {
+        function baseMerge(object2, source, srcIndex, customizer, stack) {
+          if (object2 === source) {
             return;
           }
           baseFor(source, function(srcValue, key) {
             stack || (stack = new Stack2());
-            if (isObject(srcValue)) {
-              baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+            if (isObject2(srcValue)) {
+              baseMergeDeep(object2, source, key, srcIndex, baseMerge, customizer, stack);
             } else {
-              var newValue = customizer ? customizer(safeGet(object, key), srcValue, key + "", object, source, stack) : undefined2;
+              var newValue = customizer ? customizer(safeGet(object2, key), srcValue, key + "", object2, source, stack) : undefined2;
               if (newValue === undefined2) {
                 newValue = srcValue;
               }
-              assignMergeValue(object, key, newValue);
+              assignMergeValue(object2, key, newValue);
             }
           }, keysIn);
         }
-        function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
-          var objValue = safeGet(object, key), srcValue = safeGet(source, key), stacked = stack.get(srcValue);
+        function baseMergeDeep(object2, source, key, srcIndex, mergeFunc, customizer, stack) {
+          var objValue = safeGet(object2, key), srcValue = safeGet(source, key), stacked = stack.get(srcValue);
           if (stacked) {
-            assignMergeValue(object, key, stacked);
+            assignMergeValue(object2, key, stacked);
             return;
           }
-          var newValue = customizer ? customizer(objValue, srcValue, key + "", object, source, stack) : undefined2;
+          var newValue = customizer ? customizer(objValue, srcValue, key + "", object2, source, stack) : undefined2;
           var isCommon = newValue === undefined2;
           if (isCommon) {
             var isArr = isArray(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
@@ -22299,11 +22299,11 @@ var require_lodash = __commonJS({
               } else {
                 newValue = [];
               }
-            } else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+            } else if (isPlainObject2(srcValue) || isArguments(srcValue)) {
               newValue = objValue;
               if (isArguments(objValue)) {
                 newValue = toPlainObject(objValue);
-              } else if (!isObject(objValue) || isFunction(objValue)) {
+              } else if (!isObject2(objValue) || isFunction2(objValue)) {
                 newValue = initCloneObject(srcValue);
               }
             } else {
@@ -22315,15 +22315,15 @@ var require_lodash = __commonJS({
             mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
             stack["delete"](srcValue);
           }
-          assignMergeValue(object, key, newValue);
+          assignMergeValue(object2, key, newValue);
         }
-        function baseNth(array, n) {
-          var length = array.length;
+        function baseNth(array2, n) {
+          var length = array2.length;
           if (!length) {
             return;
           }
           n += n < 0 ? length : 0;
-          return isIndex(n, length) ? array[n] : undefined2;
+          return isIndex(n, length) ? array2[n] : undefined2;
         }
         function baseOrderBy(collection, iteratees, orders) {
           if (iteratees.length) {
@@ -22346,63 +22346,63 @@ var require_lodash = __commonJS({
             });
             return { "criteria": criteria, "index": ++index2, "value": value };
           });
-          return baseSortBy(result2, function(object, other) {
-            return compareMultiple(object, other, orders);
+          return baseSortBy(result2, function(object2, other) {
+            return compareMultiple(object2, other, orders);
           });
         }
-        function basePick(object, paths) {
-          return basePickBy(object, paths, function(value, path) {
-            return hasIn(object, path);
+        function basePick(object2, paths) {
+          return basePickBy(object2, paths, function(value, path) {
+            return hasIn(object2, path);
           });
         }
-        function basePickBy(object, paths, predicate) {
+        function basePickBy(object2, paths, predicate) {
           var index2 = -1, length = paths.length, result2 = {};
           while (++index2 < length) {
-            var path = paths[index2], value = baseGet(object, path);
+            var path = paths[index2], value = baseGet(object2, path);
             if (predicate(value, path)) {
-              baseSet(result2, castPath(path, object), value);
+              baseSet(result2, castPath(path, object2), value);
             }
           }
           return result2;
         }
         function basePropertyDeep(path) {
-          return function(object) {
-            return baseGet(object, path);
+          return function(object2) {
+            return baseGet(object2, path);
           };
         }
-        function basePullAll(array, values2, iteratee2, comparator) {
-          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length = values2.length, seen = array;
-          if (array === values2) {
+        function basePullAll(array2, values2, iteratee2, comparator) {
+          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length = values2.length, seen = array2;
+          if (array2 === values2) {
             values2 = copyArray(values2);
           }
           if (iteratee2) {
-            seen = arrayMap(array, baseUnary(iteratee2));
+            seen = arrayMap(array2, baseUnary(iteratee2));
           }
           while (++index2 < length) {
-            var fromIndex = 0, value = values2[index2], computed = iteratee2 ? iteratee2(value) : value;
-            while ((fromIndex = indexOf2(seen, computed, fromIndex, comparator)) > -1) {
-              if (seen !== array) {
-                splice.call(seen, fromIndex, 1);
+            var fromIndex = 0, value = values2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
+            while ((fromIndex = indexOf2(seen, computed3, fromIndex, comparator)) > -1) {
+              if (seen !== array2) {
+                splice2.call(seen, fromIndex, 1);
               }
-              splice.call(array, fromIndex, 1);
+              splice2.call(array2, fromIndex, 1);
             }
           }
-          return array;
+          return array2;
         }
-        function basePullAt(array, indexes) {
-          var length = array ? indexes.length : 0, lastIndex = length - 1;
+        function basePullAt(array2, indexes) {
+          var length = array2 ? indexes.length : 0, lastIndex = length - 1;
           while (length--) {
             var index2 = indexes[length];
             if (length == lastIndex || index2 !== previous) {
               var previous = index2;
               if (isIndex(index2)) {
-                splice.call(array, index2, 1);
+                splice2.call(array2, index2, 1);
               } else {
-                baseUnset(array, index2);
+                baseUnset(array2, index2);
               }
             }
           }
-          return array;
+          return array2;
         }
         function baseRandom(lower, upper) {
           return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
@@ -22438,38 +22438,38 @@ var require_lodash = __commonJS({
           return arraySample(values(collection));
         }
         function baseSampleSize(collection, n) {
-          var array = values(collection);
-          return shuffleSelf(array, baseClamp(n, 0, array.length));
+          var array2 = values(collection);
+          return shuffleSelf(array2, baseClamp(n, 0, array2.length));
         }
-        function baseSet(object, path, value, customizer) {
-          if (!isObject(object)) {
-            return object;
+        function baseSet(object2, path, value, customizer) {
+          if (!isObject2(object2)) {
+            return object2;
           }
-          path = castPath(path, object);
-          var index2 = -1, length = path.length, lastIndex = length - 1, nested = object;
+          path = castPath(path, object2);
+          var index2 = -1, length = path.length, lastIndex = length - 1, nested = object2;
           while (nested != null && ++index2 < length) {
             var key = toKey(path[index2]), newValue = value;
             if (key === "__proto__" || key === "constructor" || key === "prototype") {
-              return object;
+              return object2;
             }
             if (index2 != lastIndex) {
               var objValue = nested[key];
               newValue = customizer ? customizer(objValue, key, nested) : undefined2;
               if (newValue === undefined2) {
-                newValue = isObject(objValue) ? objValue : isIndex(path[index2 + 1]) ? [] : {};
+                newValue = isObject2(objValue) ? objValue : isIndex(path[index2 + 1]) ? [] : {};
               }
             }
             assignValue(nested, key, newValue);
             nested = nested[key];
           }
-          return object;
+          return object2;
         }
         var baseSetData = !metaMap ? identity : function(func, data) {
           metaMap.set(func, data);
           return func;
         };
-        var baseSetToString = !defineProperty ? identity : function(func, string2) {
-          return defineProperty(func, "toString", {
+        var baseSetToString = !defineProperty3 ? identity : function(func, string2) {
+          return defineProperty3(func, "toString", {
             "configurable": true,
             "enumerable": false,
             "value": constant(string2),
@@ -22479,8 +22479,8 @@ var require_lodash = __commonJS({
         function baseShuffle(collection) {
           return shuffleSelf(values(collection));
         }
-        function baseSlice(array, start2, end) {
-          var index2 = -1, length = array.length;
+        function baseSlice(array2, start2, end) {
+          var index2 = -1, length = array2.length;
           if (start2 < 0) {
             start2 = -start2 > length ? 0 : length + start2;
           }
@@ -22492,7 +22492,7 @@ var require_lodash = __commonJS({
           start2 >>>= 0;
           var result2 = Array2(length);
           while (++index2 < length) {
-            result2[index2] = array[index2 + start2];
+            result2[index2] = array2[index2 + start2];
           }
           return result2;
         }
@@ -22504,12 +22504,12 @@ var require_lodash = __commonJS({
           });
           return !!result2;
         }
-        function baseSortedIndex(array, value, retHighest) {
-          var low = 0, high = array == null ? low : array.length;
+        function baseSortedIndex(array2, value, retHighest) {
+          var low = 0, high = array2 == null ? low : array2.length;
           if (typeof value == "number" && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
             while (low < high) {
-              var mid = low + high >>> 1, computed = array[mid];
-              if (computed !== null && !isSymbol(computed) && (retHighest ? computed <= value : computed < value)) {
+              var mid = low + high >>> 1, computed3 = array2[mid];
+              if (computed3 !== null && !isSymbol(computed3) && (retHighest ? computed3 <= value : computed3 < value)) {
                 low = mid + 1;
               } else {
                 high = mid;
@@ -22517,17 +22517,17 @@ var require_lodash = __commonJS({
             }
             return high;
           }
-          return baseSortedIndexBy(array, value, identity, retHighest);
+          return baseSortedIndexBy(array2, value, identity, retHighest);
         }
-        function baseSortedIndexBy(array, value, iteratee2, retHighest) {
-          var low = 0, high = array == null ? 0 : array.length;
+        function baseSortedIndexBy(array2, value, iteratee2, retHighest) {
+          var low = 0, high = array2 == null ? 0 : array2.length;
           if (high === 0) {
             return 0;
           }
           value = iteratee2(value);
           var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined2;
           while (low < high) {
-            var mid = nativeFloor((low + high) / 2), computed = iteratee2(array[mid]), othIsDefined = computed !== undefined2, othIsNull = computed === null, othIsReflexive = computed === computed, othIsSymbol = isSymbol(computed);
+            var mid = nativeFloor((low + high) / 2), computed3 = iteratee2(array2[mid]), othIsDefined = computed3 !== undefined2, othIsNull = computed3 === null, othIsReflexive = computed3 === computed3, othIsSymbol = isSymbol(computed3);
             if (valIsNaN) {
               var setLow = retHighest || othIsReflexive;
             } else if (valIsUndefined) {
@@ -22539,7 +22539,7 @@ var require_lodash = __commonJS({
             } else if (othIsNull || othIsSymbol) {
               setLow = false;
             } else {
-              setLow = retHighest ? computed <= value : computed < value;
+              setLow = retHighest ? computed3 <= value : computed3 < value;
             }
             if (setLow) {
               low = mid + 1;
@@ -22549,12 +22549,12 @@ var require_lodash = __commonJS({
           }
           return nativeMin(high, MAX_ARRAY_INDEX);
         }
-        function baseSortedUniq(array, iteratee2) {
-          var index2 = -1, length = array.length, resIndex = 0, result2 = [];
+        function baseSortedUniq(array2, iteratee2) {
+          var index2 = -1, length = array2.length, resIndex = 0, result2 = [];
           while (++index2 < length) {
-            var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
-            if (!index2 || !eq(computed, seen)) {
-              var seen = computed;
+            var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
+            if (!index2 || !eq2(computed3, seen)) {
+              var seen = computed3;
               result2[resIndex++] = value === 0 ? 0 : value;
             }
           }
@@ -22582,15 +22582,15 @@ var require_lodash = __commonJS({
           var result2 = value + "";
           return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
         }
-        function baseUniq(array, iteratee2, comparator) {
-          var index2 = -1, includes2 = arrayIncludes, length = array.length, isCommon = true, result2 = [], seen = result2;
+        function baseUniq(array2, iteratee2, comparator) {
+          var index2 = -1, includes2 = arrayIncludes, length = array2.length, isCommon = true, result2 = [], seen = result2;
           if (comparator) {
             isCommon = false;
             includes2 = arrayIncludesWith;
           } else if (length >= LARGE_ARRAY_SIZE) {
-            var set2 = iteratee2 ? null : createSet(array);
-            if (set2) {
-              return setToArray(set2);
+            var set5 = iteratee2 ? null : createSet(array2);
+            if (set5) {
+              return setToArray(set5);
             }
             isCommon = false;
             includes2 = cacheHas;
@@ -22600,49 +22600,49 @@ var require_lodash = __commonJS({
           }
           outer:
             while (++index2 < length) {
-              var value = array[index2], computed = iteratee2 ? iteratee2(value) : value;
+              var value = array2[index2], computed3 = iteratee2 ? iteratee2(value) : value;
               value = comparator || value !== 0 ? value : 0;
-              if (isCommon && computed === computed) {
+              if (isCommon && computed3 === computed3) {
                 var seenIndex = seen.length;
                 while (seenIndex--) {
-                  if (seen[seenIndex] === computed) {
+                  if (seen[seenIndex] === computed3) {
                     continue outer;
                   }
                 }
                 if (iteratee2) {
-                  seen.push(computed);
+                  seen.push(computed3);
                 }
                 result2.push(value);
-              } else if (!includes2(seen, computed, comparator)) {
+              } else if (!includes2(seen, computed3, comparator)) {
                 if (seen !== result2) {
-                  seen.push(computed);
+                  seen.push(computed3);
                 }
                 result2.push(value);
               }
             }
           return result2;
         }
-        function baseUnset(object, path) {
-          path = castPath(path, object);
-          object = parent(object, path);
-          return object == null || delete object[toKey(last(path))];
+        function baseUnset(object2, path) {
+          path = castPath(path, object2);
+          object2 = parent(object2, path);
+          return object2 == null || delete object2[toKey(last(path))];
         }
-        function baseUpdate(object, path, updater, customizer) {
-          return baseSet(object, path, updater(baseGet(object, path)), customizer);
+        function baseUpdate(object2, path, updater, customizer) {
+          return baseSet(object2, path, updater(baseGet(object2, path)), customizer);
         }
-        function baseWhile(array, predicate, isDrop, fromRight) {
-          var length = array.length, index2 = fromRight ? length : -1;
-          while ((fromRight ? index2-- : ++index2 < length) && predicate(array[index2], index2, array)) {
+        function baseWhile(array2, predicate, isDrop, fromRight) {
+          var length = array2.length, index2 = fromRight ? length : -1;
+          while ((fromRight ? index2-- : ++index2 < length) && predicate(array2[index2], index2, array2)) {
           }
-          return isDrop ? baseSlice(array, fromRight ? 0 : index2, fromRight ? index2 + 1 : length) : baseSlice(array, fromRight ? index2 + 1 : 0, fromRight ? length : index2);
+          return isDrop ? baseSlice(array2, fromRight ? 0 : index2, fromRight ? index2 + 1 : length) : baseSlice(array2, fromRight ? index2 + 1 : 0, fromRight ? length : index2);
         }
         function baseWrapperValue(value, actions) {
           var result2 = value;
           if (result2 instanceof LazyWrapper) {
             result2 = result2.value();
           }
-          return arrayReduce(actions, function(result3, action) {
-            return action.func.apply(action.thisArg, arrayPush([result3], action.args));
+          return arrayReduce(actions, function(result3, action2) {
+            return action2.func.apply(action2.thisArg, arrayPush([result3], action2.args));
           }, result2);
         }
         function baseXor(arrays, iteratee2, comparator) {
@@ -22652,10 +22652,10 @@ var require_lodash = __commonJS({
           }
           var index2 = -1, result2 = Array2(length);
           while (++index2 < length) {
-            var array = arrays[index2], othIndex = -1;
+            var array2 = arrays[index2], othIndex = -1;
             while (++othIndex < length) {
               if (othIndex != index2) {
-                result2[index2] = baseDifference(result2[index2] || array, arrays[othIndex], iteratee2, comparator);
+                result2[index2] = baseDifference(result2[index2] || array2, arrays[othIndex], iteratee2, comparator);
               }
             }
           }
@@ -22675,17 +22675,17 @@ var require_lodash = __commonJS({
         function castFunction(value) {
           return typeof value == "function" ? value : identity;
         }
-        function castPath(value, object) {
+        function castPath(value, object2) {
           if (isArray(value)) {
             return value;
           }
-          return isKey(value, object) ? [value] : stringToPath(toString(value));
+          return isKey(value, object2) ? [value] : stringToPath(toString2(value));
         }
         var castRest = baseRest;
-        function castSlice(array, start2, end) {
-          var length = array.length;
+        function castSlice(array2, start2, end) {
+          var length = array2.length;
           end = end === undefined2 ? length : end;
-          return !start2 && end >= length ? array : baseSlice(array, start2, end);
+          return !start2 && end >= length ? array2 : baseSlice(array2, start2, end);
         }
         var clearTimeout2 = ctxClearTimeout || function(id) {
           return root.clearTimeout(id);
@@ -22732,8 +22732,8 @@ var require_lodash = __commonJS({
           }
           return 0;
         }
-        function compareMultiple(object, other, orders) {
-          var index2 = -1, objCriteria = object.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
+        function compareMultiple(object2, other, orders) {
+          var index2 = -1, objCriteria = object2.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
           while (++index2 < length) {
             var result2 = compareAscending(objCriteria[index2], othCriteria[index2]);
             if (result2) {
@@ -22744,7 +22744,7 @@ var require_lodash = __commonJS({
               return result2 * (order == "desc" ? -1 : 1);
             }
           }
-          return object.index - other.index;
+          return object2.index - other.index;
         }
         function composeArgs(args, partials, holders, isCurried) {
           var argsIndex = -1, argsLength = args.length, holdersLength = holders.length, leftIndex = -1, leftLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result2 = Array2(leftLength + rangeLength), isUncurried = !isCurried;
@@ -22777,37 +22777,37 @@ var require_lodash = __commonJS({
           }
           return result2;
         }
-        function copyArray(source, array) {
+        function copyArray(source, array2) {
           var index2 = -1, length = source.length;
-          array || (array = Array2(length));
+          array2 || (array2 = Array2(length));
           while (++index2 < length) {
-            array[index2] = source[index2];
+            array2[index2] = source[index2];
           }
-          return array;
+          return array2;
         }
-        function copyObject(source, props, object, customizer) {
-          var isNew = !object;
-          object || (object = {});
+        function copyObject(source, props, object2, customizer) {
+          var isNew = !object2;
+          object2 || (object2 = {});
           var index2 = -1, length = props.length;
           while (++index2 < length) {
             var key = props[index2];
-            var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined2;
+            var newValue = customizer ? customizer(object2[key], source[key], key, object2, source) : undefined2;
             if (newValue === undefined2) {
               newValue = source[key];
             }
             if (isNew) {
-              baseAssignValue(object, key, newValue);
+              baseAssignValue(object2, key, newValue);
             } else {
-              assignValue(object, key, newValue);
+              assignValue(object2, key, newValue);
             }
           }
-          return object;
+          return object2;
         }
-        function copySymbols(source, object) {
-          return copyObject(source, getSymbols(source), object);
+        function copySymbols(source, object2) {
+          return copyObject(source, getSymbols(source), object2);
         }
-        function copySymbolsIn(source, object) {
-          return copyObject(source, getSymbolsIn(source), object);
+        function copySymbolsIn(source, object2) {
+          return copyObject(source, getSymbolsIn(source), object2);
         }
         function createAggregator(setter, initializer) {
           return function(collection, iteratee2) {
@@ -22816,21 +22816,21 @@ var require_lodash = __commonJS({
           };
         }
         function createAssigner(assigner) {
-          return baseRest(function(object, sources) {
+          return baseRest(function(object2, sources) {
             var index2 = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
             customizer = assigner.length > 3 && typeof customizer == "function" ? (length--, customizer) : undefined2;
             if (guard && isIterateeCall(sources[0], sources[1], guard)) {
               customizer = length < 3 ? undefined2 : customizer;
               length = 1;
             }
-            object = Object2(object);
+            object2 = Object2(object2);
             while (++index2 < length) {
               var source = sources[index2];
               if (source) {
-                assigner(object, source, index2, customizer);
+                assigner(object2, source, index2, customizer);
               }
             }
-            return object;
+            return object2;
           });
         }
         function createBaseEach(eachFunc, fromRight) {
@@ -22851,28 +22851,28 @@ var require_lodash = __commonJS({
           };
         }
         function createBaseFor(fromRight) {
-          return function(object, iteratee2, keysFunc) {
-            var index2 = -1, iterable = Object2(object), props = keysFunc(object), length = props.length;
+          return function(object2, iteratee2, keysFunc) {
+            var index2 = -1, iterable = Object2(object2), props = keysFunc(object2), length = props.length;
             while (length--) {
               var key = props[fromRight ? length : ++index2];
               if (iteratee2(iterable[key], key, iterable) === false) {
                 break;
               }
             }
-            return object;
+            return object2;
           };
         }
         function createBind(func, bitmask, thisArg) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
-          function wrapper() {
-            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+          function wrapper2() {
+            var fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
             return fn.apply(isBind ? thisArg : this, arguments);
           }
-          return wrapper;
+          return wrapper2;
         }
         function createCaseFirst(methodName) {
           return function(string2) {
-            string2 = toString(string2);
+            string2 = toString2(string2);
             var strSymbols = hasUnicode(string2) ? stringToArray(string2) : undefined2;
             var chr = strSymbols ? strSymbols[0] : string2.charAt(0);
             var trailing = strSymbols ? castSlice(strSymbols, 1).join("") : string2.slice(1);
@@ -22906,25 +22906,25 @@ var require_lodash = __commonJS({
                 return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
             }
             var thisBinding = baseCreate(Ctor.prototype), result2 = Ctor.apply(thisBinding, args);
-            return isObject(result2) ? result2 : thisBinding;
+            return isObject2(result2) ? result2 : thisBinding;
           };
         }
         function createCurry(func, bitmask, arity) {
           var Ctor = createCtor(func);
-          function wrapper() {
-            var length = arguments.length, args = Array2(length), index2 = length, placeholder = getHolder(wrapper);
+          function wrapper2() {
+            var length = arguments.length, args = Array2(length), index2 = length, placeholder = getHolder(wrapper2);
             while (index2--) {
               args[index2] = arguments[index2];
             }
             var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
             length -= holders.length;
             if (length < arity) {
-              return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, undefined2, args, holders, undefined2, undefined2, arity - length);
+              return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, undefined2, args, holders, undefined2, undefined2, arity - length);
             }
-            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+            var fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
             return apply(fn, this, args);
           }
-          return wrapper;
+          return wrapper2;
         }
         function createFind(findIndexFunc) {
           return function(collection, predicate, fromIndex) {
@@ -22951,24 +22951,24 @@ var require_lodash = __commonJS({
               if (typeof func != "function") {
                 throw new TypeError2(FUNC_ERROR_TEXT);
               }
-              if (prereq && !wrapper && getFuncName(func) == "wrapper") {
-                var wrapper = new LodashWrapper([], true);
+              if (prereq && !wrapper2 && getFuncName(func) == "wrapper") {
+                var wrapper2 = new LodashWrapper([], true);
               }
             }
-            index2 = wrapper ? index2 : length;
+            index2 = wrapper2 ? index2 : length;
             while (++index2 < length) {
               func = funcs[index2];
               var funcName = getFuncName(func), data = funcName == "wrapper" ? getData(func) : undefined2;
               if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) {
-                wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
+                wrapper2 = wrapper2[getFuncName(data[0])].apply(wrapper2, data[3]);
               } else {
-                wrapper = func.length == 1 && isLaziable(func) ? wrapper[funcName]() : wrapper.thru(func);
+                wrapper2 = func.length == 1 && isLaziable(func) ? wrapper2[funcName]() : wrapper2.thru(func);
               }
             }
             return function() {
               var args = arguments, value = args[0];
-              if (wrapper && args.length == 1 && isArray(value)) {
-                return wrapper.plant(value).value();
+              if (wrapper2 && args.length == 1 && isArray(value)) {
+                return wrapper2.plant(value).value();
               }
               var index3 = 0, result2 = length ? funcs[index3].apply(this, args) : value;
               while (++index3 < length) {
@@ -22980,13 +22980,13 @@ var require_lodash = __commonJS({
         }
         function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary2, arity) {
           var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined2 : createCtor(func);
-          function wrapper() {
+          function wrapper2() {
             var length = arguments.length, args = Array2(length), index2 = length;
             while (index2--) {
               args[index2] = arguments[index2];
             }
             if (isCurried) {
-              var placeholder = getHolder(wrapper), holdersCount = countHolders(args, placeholder);
+              var placeholder = getHolder(wrapper2), holdersCount = countHolders(args, placeholder);
             }
             if (partials) {
               args = composeArgs(args, partials, holders, isCurried);
@@ -22997,7 +22997,7 @@ var require_lodash = __commonJS({
             length -= holdersCount;
             if (isCurried && length < arity) {
               var newHolders = replaceHolders(args, placeholder);
-              return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, thisArg, args, newHolders, argPos, ary2, arity - length);
+              return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, thisArg, args, newHolders, argPos, ary2, arity - length);
             }
             var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
             length = args.length;
@@ -23009,16 +23009,16 @@ var require_lodash = __commonJS({
             if (isAry && ary2 < length) {
               args.length = ary2;
             }
-            if (this && this !== root && this instanceof wrapper) {
+            if (this && this !== root && this instanceof wrapper2) {
               fn = Ctor || createCtor(fn);
             }
             return fn.apply(thisBinding, args);
           }
-          return wrapper;
+          return wrapper2;
         }
         function createInverter(setter, toIteratee) {
-          return function(object, iteratee2) {
-            return baseInverter(object, setter, toIteratee(iteratee2), {});
+          return function(object2, iteratee2) {
+            return baseInverter(object2, setter, toIteratee(iteratee2), {});
           };
         }
         function createMathOperation(operator2, defaultValue) {
@@ -23068,8 +23068,8 @@ var require_lodash = __commonJS({
         }
         function createPartial(func, bitmask, thisArg, partials) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
-          function wrapper() {
-            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+          function wrapper2() {
+            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
             while (++leftIndex < leftLength) {
               args[leftIndex] = partials[leftIndex];
             }
@@ -23078,7 +23078,7 @@ var require_lodash = __commonJS({
             }
             return apply(fn, isBind ? thisArg : this, args);
           }
-          return wrapper;
+          return wrapper2;
         }
         function createRange(fromRight) {
           return function(start2, end, step) {
@@ -23137,26 +23137,26 @@ var require_lodash = __commonJS({
             number2 = toNumber(number2);
             precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
             if (precision && nativeIsFinite(number2)) {
-              var pair2 = (toString(number2) + "e").split("e"), value = func(pair2[0] + "e" + (+pair2[1] + precision));
-              pair2 = (toString(value) + "e").split("e");
+              var pair2 = (toString2(number2) + "e").split("e"), value = func(pair2[0] + "e" + (+pair2[1] + precision));
+              pair2 = (toString2(value) + "e").split("e");
               return +(pair2[0] + "e" + (+pair2[1] - precision));
             }
             return func(number2);
           };
         }
-        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop2 : function(values2) {
+        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop4 : function(values2) {
           return new Set2(values2);
         };
         function createToPairs(keysFunc) {
-          return function(object) {
-            var tag = getTag(object);
+          return function(object2) {
+            var tag = getTag(object2);
             if (tag == mapTag) {
-              return mapToArray(object);
+              return mapToArray(object2);
             }
             if (tag == setTag) {
-              return setToPairs(object);
+              return setToPairs(object2);
             }
-            return baseToPairs(object, keysFunc(object));
+            return baseToPairs(object2, keysFunc(object2));
           };
         }
         function createWrap(func, bitmask, thisArg, partials, holders, argPos, ary2, arity) {
@@ -23213,14 +23213,14 @@ var require_lodash = __commonJS({
           var setter = data ? baseSetData : setData;
           return setWrapToString(setter(result2, newData), func, bitmask);
         }
-        function customDefaultsAssignIn(objValue, srcValue, key, object) {
-          if (objValue === undefined2 || eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key)) {
+        function customDefaultsAssignIn(objValue, srcValue, key, object2) {
+          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
             return srcValue;
           }
           return objValue;
         }
-        function customDefaultsMerge(objValue, srcValue, key, object, source, stack) {
-          if (isObject(objValue) && isObject(srcValue)) {
+        function customDefaultsMerge(objValue, srcValue, key, object2, source, stack) {
+          if (isObject2(objValue) && isObject2(srcValue)) {
             stack.set(srcValue, objValue);
             baseMerge(objValue, srcValue, undefined2, customDefaultsMerge, stack);
             stack["delete"](srcValue);
@@ -23228,25 +23228,25 @@ var require_lodash = __commonJS({
           return objValue;
         }
         function customOmitClone(value) {
-          return isPlainObject(value) ? undefined2 : value;
+          return isPlainObject2(value) ? undefined2 : value;
         }
-        function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
-          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array.length, othLength = other.length;
+        function equalArrays(array2, other, bitmask, customizer, equalFunc, stack) {
+          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array2.length, othLength = other.length;
           if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
             return false;
           }
-          var arrStacked = stack.get(array);
+          var arrStacked = stack.get(array2);
           var othStacked = stack.get(other);
           if (arrStacked && othStacked) {
-            return arrStacked == other && othStacked == array;
+            return arrStacked == other && othStacked == array2;
           }
           var index2 = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
-          stack.set(array, other);
-          stack.set(other, array);
+          stack.set(array2, other);
+          stack.set(other, array2);
           while (++index2 < arrLength) {
-            var arrValue = array[index2], othValue = other[index2];
+            var arrValue = array2[index2], othValue = other[index2];
             if (customizer) {
-              var compared = isPartial ? customizer(othValue, arrValue, index2, other, array, stack) : customizer(arrValue, othValue, index2, array, other, stack);
+              var compared = isPartial ? customizer(othValue, arrValue, index2, other, array2, stack) : customizer(arrValue, othValue, index2, array2, other, stack);
             }
             if (compared !== undefined2) {
               if (compared) {
@@ -23269,58 +23269,58 @@ var require_lodash = __commonJS({
               break;
             }
           }
-          stack["delete"](array);
+          stack["delete"](array2);
           stack["delete"](other);
           return result2;
         }
-        function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+        function equalByTag(object2, other, tag, bitmask, customizer, equalFunc, stack) {
           switch (tag) {
             case dataViewTag:
-              if (object.byteLength != other.byteLength || object.byteOffset != other.byteOffset) {
+              if (object2.byteLength != other.byteLength || object2.byteOffset != other.byteOffset) {
                 return false;
               }
-              object = object.buffer;
+              object2 = object2.buffer;
               other = other.buffer;
             case arrayBufferTag:
-              if (object.byteLength != other.byteLength || !equalFunc(new Uint8Array2(object), new Uint8Array2(other))) {
+              if (object2.byteLength != other.byteLength || !equalFunc(new Uint8Array2(object2), new Uint8Array2(other))) {
                 return false;
               }
               return true;
             case boolTag:
             case dateTag:
             case numberTag:
-              return eq(+object, +other);
+              return eq2(+object2, +other);
             case errorTag:
-              return object.name == other.name && object.message == other.message;
+              return object2.name == other.name && object2.message == other.message;
             case regexpTag:
             case stringTag:
-              return object == other + "";
+              return object2 == other + "";
             case mapTag:
               var convert = mapToArray;
             case setTag:
               var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
               convert || (convert = setToArray);
-              if (object.size != other.size && !isPartial) {
+              if (object2.size != other.size && !isPartial) {
                 return false;
               }
-              var stacked = stack.get(object);
+              var stacked = stack.get(object2);
               if (stacked) {
                 return stacked == other;
               }
               bitmask |= COMPARE_UNORDERED_FLAG;
-              stack.set(object, other);
-              var result2 = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
-              stack["delete"](object);
+              stack.set(object2, other);
+              var result2 = equalArrays(convert(object2), convert(other), bitmask, customizer, equalFunc, stack);
+              stack["delete"](object2);
               return result2;
             case symbolTag:
               if (symbolValueOf) {
-                return symbolValueOf.call(object) == symbolValueOf.call(other);
+                return symbolValueOf.call(object2) == symbolValueOf.call(other);
               }
           }
           return false;
         }
-        function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
-          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
+        function equalObjects(object2, other, bitmask, customizer, equalFunc, stack) {
+          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object2), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
           if (objLength != othLength && !isPartial) {
             return false;
           }
@@ -23331,20 +23331,20 @@ var require_lodash = __commonJS({
               return false;
             }
           }
-          var objStacked = stack.get(object);
+          var objStacked = stack.get(object2);
           var othStacked = stack.get(other);
           if (objStacked && othStacked) {
-            return objStacked == other && othStacked == object;
+            return objStacked == other && othStacked == object2;
           }
           var result2 = true;
-          stack.set(object, other);
-          stack.set(other, object);
+          stack.set(object2, other);
+          stack.set(other, object2);
           var skipCtor = isPartial;
           while (++index2 < objLength) {
             key = objProps[index2];
-            var objValue = object[key], othValue = other[key];
+            var objValue = object2[key], othValue = other[key];
             if (customizer) {
-              var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
+              var compared = isPartial ? customizer(othValue, objValue, key, other, object2, stack) : customizer(objValue, othValue, key, object2, other, stack);
             }
             if (!(compared === undefined2 ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
               result2 = false;
@@ -23353,31 +23353,31 @@ var require_lodash = __commonJS({
             skipCtor || (skipCtor = key == "constructor");
           }
           if (result2 && !skipCtor) {
-            var objCtor = object.constructor, othCtor = other.constructor;
-            if (objCtor != othCtor && ("constructor" in object && "constructor" in other) && !(typeof objCtor == "function" && objCtor instanceof objCtor && typeof othCtor == "function" && othCtor instanceof othCtor)) {
+            var objCtor = object2.constructor, othCtor = other.constructor;
+            if (objCtor != othCtor && ("constructor" in object2 && "constructor" in other) && !(typeof objCtor == "function" && objCtor instanceof objCtor && typeof othCtor == "function" && othCtor instanceof othCtor)) {
               result2 = false;
             }
           }
-          stack["delete"](object);
+          stack["delete"](object2);
           stack["delete"](other);
           return result2;
         }
         function flatRest(func) {
           return setToString(overRest(func, undefined2, flatten2), func + "");
         }
-        function getAllKeys(object) {
-          return baseGetAllKeys(object, keys, getSymbols);
+        function getAllKeys(object2) {
+          return baseGetAllKeys(object2, keys, getSymbols);
         }
-        function getAllKeysIn(object) {
-          return baseGetAllKeys(object, keysIn, getSymbolsIn);
+        function getAllKeysIn(object2) {
+          return baseGetAllKeys(object2, keysIn, getSymbolsIn);
         }
-        var getData = !metaMap ? noop2 : function(func) {
+        var getData = !metaMap ? noop4 : function(func) {
           return metaMap.get(func);
         };
         function getFuncName(func) {
-          var result2 = func.name + "", array = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array.length : 0;
+          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array2.length : 0;
           while (length--) {
-            var data = array[length], otherFunc = data.func;
+            var data = array2[length], otherFunc = data.func;
             if (otherFunc == null || otherFunc == func) {
               return data.name;
             }
@@ -23385,28 +23385,28 @@ var require_lodash = __commonJS({
           return result2;
         }
         function getHolder(func) {
-          var object = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
-          return object.placeholder;
+          var object2 = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
+          return object2.placeholder;
         }
         function getIteratee() {
           var result2 = lodash.iteratee || iteratee;
           result2 = result2 === iteratee ? baseIteratee : result2;
           return arguments.length ? result2(arguments[0], arguments[1]) : result2;
         }
-        function getMapData(map2, key) {
-          var data = map2.__data__;
+        function getMapData(map3, key) {
+          var data = map3.__data__;
           return isKeyable(key) ? data[typeof key == "string" ? "string" : "hash"] : data.map;
         }
-        function getMatchData(object) {
-          var result2 = keys(object), length = result2.length;
+        function getMatchData(object2) {
+          var result2 = keys(object2), length = result2.length;
           while (length--) {
-            var key = result2[length], value = object[key];
+            var key = result2[length], value = object2[key];
             result2[length] = [key, value, isStrictComparable(value)];
           }
           return result2;
         }
-        function getNative(object, key) {
-          var value = getValue(object, key);
+        function getNative(object2, key) {
+          var value = getValue(object2, key);
           return baseIsNative(value) ? value : undefined2;
         }
         function getRawTag(value) {
@@ -23426,20 +23426,20 @@ var require_lodash = __commonJS({
           }
           return result2;
         }
-        var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
-          if (object == null) {
+        var getSymbols = !nativeGetSymbols ? stubArray : function(object2) {
+          if (object2 == null) {
             return [];
           }
-          object = Object2(object);
-          return arrayFilter(nativeGetSymbols(object), function(symbol) {
-            return propertyIsEnumerable.call(object, symbol);
+          object2 = Object2(object2);
+          return arrayFilter(nativeGetSymbols(object2), function(symbol) {
+            return propertyIsEnumerable.call(object2, symbol);
           });
         };
-        var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
+        var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object2) {
           var result2 = [];
-          while (object) {
-            arrayPush(result2, getSymbols(object));
-            object = getPrototype(object);
+          while (object2) {
+            arrayPush(result2, getSymbols(object2));
+            object2 = getPrototype(object2);
           }
           return result2;
         };
@@ -23489,43 +23489,43 @@ var require_lodash = __commonJS({
           var match = source.match(reWrapDetails);
           return match ? match[1].split(reSplitDetails) : [];
         }
-        function hasPath(object, path, hasFunc) {
-          path = castPath(path, object);
+        function hasPath(object2, path, hasFunc) {
+          path = castPath(path, object2);
           var index2 = -1, length = path.length, result2 = false;
           while (++index2 < length) {
             var key = toKey(path[index2]);
-            if (!(result2 = object != null && hasFunc(object, key))) {
+            if (!(result2 = object2 != null && hasFunc(object2, key))) {
               break;
             }
-            object = object[key];
+            object2 = object2[key];
           }
           if (result2 || ++index2 != length) {
             return result2;
           }
-          length = object == null ? 0 : object.length;
-          return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
+          length = object2 == null ? 0 : object2.length;
+          return !!length && isLength(length) && isIndex(key, length) && (isArray(object2) || isArguments(object2));
         }
-        function initCloneArray(array) {
-          var length = array.length, result2 = new array.constructor(length);
-          if (length && typeof array[0] == "string" && hasOwnProperty.call(array, "index")) {
-            result2.index = array.index;
-            result2.input = array.input;
+        function initCloneArray(array2) {
+          var length = array2.length, result2 = new array2.constructor(length);
+          if (length && typeof array2[0] == "string" && hasOwnProperty.call(array2, "index")) {
+            result2.index = array2.index;
+            result2.input = array2.input;
           }
           return result2;
         }
-        function initCloneObject(object) {
-          return typeof object.constructor == "function" && !isPrototype(object) ? baseCreate(getPrototype(object)) : {};
+        function initCloneObject(object2) {
+          return typeof object2.constructor == "function" && !isPrototype(object2) ? baseCreate(getPrototype(object2)) : {};
         }
-        function initCloneByTag(object, tag, isDeep) {
-          var Ctor = object.constructor;
+        function initCloneByTag(object2, tag, isDeep) {
+          var Ctor = object2.constructor;
           switch (tag) {
             case arrayBufferTag:
-              return cloneArrayBuffer(object);
+              return cloneArrayBuffer(object2);
             case boolTag:
             case dateTag:
-              return new Ctor(+object);
+              return new Ctor(+object2);
             case dataViewTag:
-              return cloneDataView(object, isDeep);
+              return cloneDataView(object2, isDeep);
             case float32Tag:
             case float64Tag:
             case int8Tag:
@@ -23535,18 +23535,18 @@ var require_lodash = __commonJS({
             case uint8ClampedTag:
             case uint16Tag:
             case uint32Tag:
-              return cloneTypedArray(object, isDeep);
+              return cloneTypedArray(object2, isDeep);
             case mapTag:
               return new Ctor();
             case numberTag:
             case stringTag:
-              return new Ctor(object);
+              return new Ctor(object2);
             case regexpTag:
-              return cloneRegExp(object);
+              return cloneRegExp(object2);
             case setTag:
               return new Ctor();
             case symbolTag:
-              return cloneSymbol(object);
+              return cloneSymbol(object2);
           }
         }
         function insertWrapDetails(source, details) {
@@ -23567,17 +23567,17 @@ var require_lodash = __commonJS({
           length = length == null ? MAX_SAFE_INTEGER : length;
           return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
         }
-        function isIterateeCall(value, index2, object) {
-          if (!isObject(object)) {
+        function isIterateeCall(value, index2, object2) {
+          if (!isObject2(object2)) {
             return false;
           }
           var type = typeof index2;
-          if (type == "number" ? isArrayLike(object) && isIndex(index2, object.length) : type == "string" && index2 in object) {
-            return eq(object[index2], value);
+          if (type == "number" ? isArrayLike(object2) && isIndex(index2, object2.length) : type == "string" && index2 in object2) {
+            return eq2(object2[index2], value);
           }
           return false;
         }
-        function isKey(value, object) {
+        function isKey(value, object2) {
           if (isArray(value)) {
             return false;
           }
@@ -23585,7 +23585,7 @@ var require_lodash = __commonJS({
           if (type == "number" || type == "symbol" || type == "boolean" || value == null || isSymbol(value)) {
             return true;
           }
-          return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object2(object);
+          return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object2 != null && value in Object2(object2);
         }
         function isKeyable(value) {
           var type = typeof value;
@@ -23605,20 +23605,20 @@ var require_lodash = __commonJS({
         function isMasked(func) {
           return !!maskSrcKey && maskSrcKey in func;
         }
-        var isMaskable = coreJsData ? isFunction : stubFalse;
+        var isMaskable = coreJsData ? isFunction2 : stubFalse;
         function isPrototype(value) {
           var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto;
           return value === proto;
         }
         function isStrictComparable(value) {
-          return value === value && !isObject(value);
+          return value === value && !isObject2(value);
         }
         function matchesStrictComparable(key, srcValue) {
-          return function(object) {
-            if (object == null) {
+          return function(object2) {
+            if (object2 == null) {
               return false;
             }
-            return object[key] === srcValue && (srcValue !== undefined2 || key in Object2(object));
+            return object2[key] === srcValue && (srcValue !== undefined2 || key in Object2(object2));
           };
         }
         function memoizeCapped(func) {
@@ -23667,10 +23667,10 @@ var require_lodash = __commonJS({
           data[1] = newBitmask;
           return data;
         }
-        function nativeKeysIn(object) {
+        function nativeKeysIn(object2) {
           var result2 = [];
-          if (object != null) {
-            for (var key in Object2(object)) {
+          if (object2 != null) {
+            for (var key in Object2(object2)) {
               result2.push(key);
             }
           }
@@ -23682,47 +23682,47 @@ var require_lodash = __commonJS({
         function overRest(func, start2, transform2) {
           start2 = nativeMax(start2 === undefined2 ? func.length - 1 : start2, 0);
           return function() {
-            var args = arguments, index2 = -1, length = nativeMax(args.length - start2, 0), array = Array2(length);
+            var args = arguments, index2 = -1, length = nativeMax(args.length - start2, 0), array2 = Array2(length);
             while (++index2 < length) {
-              array[index2] = args[start2 + index2];
+              array2[index2] = args[start2 + index2];
             }
             index2 = -1;
             var otherArgs = Array2(start2 + 1);
             while (++index2 < start2) {
               otherArgs[index2] = args[index2];
             }
-            otherArgs[start2] = transform2(array);
+            otherArgs[start2] = transform2(array2);
             return apply(func, this, otherArgs);
           };
         }
-        function parent(object, path) {
-          return path.length < 2 ? object : baseGet(object, baseSlice(path, 0, -1));
+        function parent(object2, path) {
+          return path.length < 2 ? object2 : baseGet(object2, baseSlice(path, 0, -1));
         }
-        function reorder(array, indexes) {
-          var arrLength = array.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array);
+        function reorder(array2, indexes) {
+          var arrLength = array2.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array2);
           while (length--) {
             var index2 = indexes[length];
-            array[length] = isIndex(index2, arrLength) ? oldArray[index2] : undefined2;
+            array2[length] = isIndex(index2, arrLength) ? oldArray[index2] : undefined2;
           }
-          return array;
+          return array2;
         }
-        function safeGet(object, key) {
-          if (key === "constructor" && typeof object[key] === "function") {
+        function safeGet(object2, key) {
+          if (key === "constructor" && typeof object2[key] === "function") {
             return;
           }
           if (key == "__proto__") {
             return;
           }
-          return object[key];
+          return object2[key];
         }
         var setData = shortOut(baseSetData);
         var setTimeout2 = ctxSetTimeout || function(func, wait) {
           return root.setTimeout(func, wait);
         };
         var setToString = shortOut(baseSetToString);
-        function setWrapToString(wrapper, reference, bitmask) {
+        function setWrapToString(wrapper2, reference, bitmask) {
           var source = reference + "";
-          return setToString(wrapper, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
+          return setToString(wrapper2, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
         }
         function shortOut(func) {
           var count = 0, lastCalled = 0;
@@ -23739,16 +23739,16 @@ var require_lodash = __commonJS({
             return func.apply(undefined2, arguments);
           };
         }
-        function shuffleSelf(array, size2) {
-          var index2 = -1, length = array.length, lastIndex = length - 1;
+        function shuffleSelf(array2, size2) {
+          var index2 = -1, length = array2.length, lastIndex = length - 1;
           size2 = size2 === undefined2 ? length : size2;
           while (++index2 < size2) {
-            var rand = baseRandom(index2, lastIndex), value = array[rand];
-            array[rand] = array[index2];
-            array[index2] = value;
+            var rand = baseRandom(index2, lastIndex), value = array2[rand];
+            array2[rand] = array2[index2];
+            array2[index2] = value;
           }
-          array.length = size2;
-          return array;
+          array2.length = size2;
+          return array2;
         }
         var stringToPath = memoizeCapped(function(string2) {
           var result2 = [];
@@ -23789,36 +23789,36 @@ var require_lodash = __commonJS({
           });
           return details.sort();
         }
-        function wrapperClone(wrapper) {
-          if (wrapper instanceof LazyWrapper) {
-            return wrapper.clone();
+        function wrapperClone(wrapper2) {
+          if (wrapper2 instanceof LazyWrapper) {
+            return wrapper2.clone();
           }
-          var result2 = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
-          result2.__actions__ = copyArray(wrapper.__actions__);
-          result2.__index__ = wrapper.__index__;
-          result2.__values__ = wrapper.__values__;
+          var result2 = new LodashWrapper(wrapper2.__wrapped__, wrapper2.__chain__);
+          result2.__actions__ = copyArray(wrapper2.__actions__);
+          result2.__index__ = wrapper2.__index__;
+          result2.__values__ = wrapper2.__values__;
           return result2;
         }
-        function chunk(array, size2, guard) {
-          if (guard ? isIterateeCall(array, size2, guard) : size2 === undefined2) {
+        function chunk(array2, size2, guard) {
+          if (guard ? isIterateeCall(array2, size2, guard) : size2 === undefined2) {
             size2 = 1;
           } else {
             size2 = nativeMax(toInteger(size2), 0);
           }
-          var length = array == null ? 0 : array.length;
+          var length = array2 == null ? 0 : array2.length;
           if (!length || size2 < 1) {
             return [];
           }
           var index2 = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
           while (index2 < length) {
-            result2[resIndex++] = baseSlice(array, index2, index2 += size2);
+            result2[resIndex++] = baseSlice(array2, index2, index2 += size2);
           }
           return result2;
         }
-        function compact(array) {
-          var index2 = -1, length = array == null ? 0 : array.length, resIndex = 0, result2 = [];
+        function compact(array2) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result2 = [];
           while (++index2 < length) {
-            var value = array[index2];
+            var value = array2[index2];
             if (value) {
               result2[resIndex++] = value;
             }
@@ -23830,65 +23830,65 @@ var require_lodash = __commonJS({
           if (!length) {
             return [];
           }
-          var args = Array2(length - 1), array = arguments[0], index2 = length;
+          var args = Array2(length - 1), array2 = arguments[0], index2 = length;
           while (index2--) {
             args[index2 - 1] = arguments[index2];
           }
-          return arrayPush(isArray(array) ? copyArray(array) : [array], baseFlatten(args, 1));
+          return arrayPush(isArray(array2) ? copyArray(array2) : [array2], baseFlatten(args, 1));
         }
-        var difference = baseRest(function(array, values2) {
-          return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values2, 1, isArrayLikeObject, true)) : [];
+        var difference = baseRest(function(array2, values2) {
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true)) : [];
         });
-        var differenceBy = baseRest(function(array, values2) {
+        var differenceBy = baseRest(function(array2, values2) {
           var iteratee2 = last(values2);
           if (isArrayLikeObject(iteratee2)) {
             iteratee2 = undefined2;
           }
-          return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values2, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2)) : [];
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2)) : [];
         });
-        var differenceWith = baseRest(function(array, values2) {
+        var differenceWith = baseRest(function(array2, values2) {
           var comparator = last(values2);
           if (isArrayLikeObject(comparator)) {
             comparator = undefined2;
           }
-          return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values2, 1, isArrayLikeObject, true), undefined2, comparator) : [];
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), undefined2, comparator) : [];
         });
-        function drop(array, n, guard) {
-          var length = array == null ? 0 : array.length;
+        function drop(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
           n = guard || n === undefined2 ? 1 : toInteger(n);
-          return baseSlice(array, n < 0 ? 0 : n, length);
+          return baseSlice(array2, n < 0 ? 0 : n, length);
         }
-        function dropRight(array, n, guard) {
-          var length = array == null ? 0 : array.length;
+        function dropRight(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
           n = guard || n === undefined2 ? 1 : toInteger(n);
           n = length - n;
-          return baseSlice(array, 0, n < 0 ? 0 : n);
+          return baseSlice(array2, 0, n < 0 ? 0 : n);
         }
-        function dropRightWhile(array, predicate) {
-          return array && array.length ? baseWhile(array, getIteratee(predicate, 3), true, true) : [];
+        function dropRightWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true, true) : [];
         }
-        function dropWhile(array, predicate) {
-          return array && array.length ? baseWhile(array, getIteratee(predicate, 3), true) : [];
+        function dropWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true) : [];
         }
-        function fill(array, value, start2, end) {
-          var length = array == null ? 0 : array.length;
+        function fill(array2, value, start2, end) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
-          if (start2 && typeof start2 != "number" && isIterateeCall(array, value, start2)) {
+          if (start2 && typeof start2 != "number" && isIterateeCall(array2, value, start2)) {
             start2 = 0;
             end = length;
           }
-          return baseFill(array, value, start2, end);
+          return baseFill(array2, value, start2, end);
         }
-        function findIndex(array, predicate, fromIndex) {
-          var length = array == null ? 0 : array.length;
+        function findIndex(array2, predicate, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return -1;
           }
@@ -23896,10 +23896,10 @@ var require_lodash = __commonJS({
           if (index2 < 0) {
             index2 = nativeMax(length + index2, 0);
           }
-          return baseFindIndex(array, getIteratee(predicate, 3), index2);
+          return baseFindIndex(array2, getIteratee(predicate, 3), index2);
         }
-        function findLastIndex(array, predicate, fromIndex) {
-          var length = array == null ? 0 : array.length;
+        function findLastIndex(array2, predicate, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return -1;
           }
@@ -23908,23 +23908,23 @@ var require_lodash = __commonJS({
             index2 = toInteger(fromIndex);
             index2 = fromIndex < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
           }
-          return baseFindIndex(array, getIteratee(predicate, 3), index2, true);
+          return baseFindIndex(array2, getIteratee(predicate, 3), index2, true);
         }
-        function flatten2(array) {
-          var length = array == null ? 0 : array.length;
-          return length ? baseFlatten(array, 1) : [];
+        function flatten2(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseFlatten(array2, 1) : [];
         }
-        function flattenDeep(array) {
-          var length = array == null ? 0 : array.length;
-          return length ? baseFlatten(array, INFINITY) : [];
+        function flattenDeep(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseFlatten(array2, INFINITY) : [];
         }
-        function flattenDepth(array, depth) {
-          var length = array == null ? 0 : array.length;
+        function flattenDepth(array2, depth) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
           depth = depth === undefined2 ? 1 : toInteger(depth);
-          return baseFlatten(array, depth);
+          return baseFlatten(array2, depth);
         }
         function fromPairs(pairs) {
           var index2 = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
@@ -23934,11 +23934,11 @@ var require_lodash = __commonJS({
           }
           return result2;
         }
-        function head(array) {
-          return array && array.length ? array[0] : undefined2;
+        function head(array2) {
+          return array2 && array2.length ? array2[0] : undefined2;
         }
-        function indexOf(array, value, fromIndex) {
-          var length = array == null ? 0 : array.length;
+        function indexOf(array2, value, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return -1;
           }
@@ -23946,11 +23946,11 @@ var require_lodash = __commonJS({
           if (index2 < 0) {
             index2 = nativeMax(length + index2, 0);
           }
-          return baseIndexOf(array, value, index2);
+          return baseIndexOf(array2, value, index2);
         }
-        function initial(array) {
-          var length = array == null ? 0 : array.length;
-          return length ? baseSlice(array, 0, -1) : [];
+        function initial(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseSlice(array2, 0, -1) : [];
         }
         var intersection = baseRest(function(arrays) {
           var mapped = arrayMap(arrays, castArrayLikeObject);
@@ -23973,15 +23973,15 @@ var require_lodash = __commonJS({
           }
           return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped, undefined2, comparator) : [];
         });
-        function join(array, separator) {
-          return array == null ? "" : nativeJoin.call(array, separator);
+        function join(array2, separator) {
+          return array2 == null ? "" : nativeJoin.call(array2, separator);
         }
-        function last(array) {
-          var length = array == null ? 0 : array.length;
-          return length ? array[length - 1] : undefined2;
+        function last(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? array2[length - 1] : undefined2;
         }
-        function lastIndexOf(array, value, fromIndex) {
-          var length = array == null ? 0 : array.length;
+        function lastIndexOf(array2, value, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return -1;
           }
@@ -23990,125 +23990,125 @@ var require_lodash = __commonJS({
             index2 = toInteger(fromIndex);
             index2 = index2 < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
           }
-          return value === value ? strictLastIndexOf(array, value, index2) : baseFindIndex(array, baseIsNaN, index2, true);
+          return value === value ? strictLastIndexOf(array2, value, index2) : baseFindIndex(array2, baseIsNaN, index2, true);
         }
-        function nth(array, n) {
-          return array && array.length ? baseNth(array, toInteger(n)) : undefined2;
+        function nth(array2, n) {
+          return array2 && array2.length ? baseNth(array2, toInteger(n)) : undefined2;
         }
         var pull = baseRest(pullAll);
-        function pullAll(array, values2) {
-          return array && array.length && values2 && values2.length ? basePullAll(array, values2) : array;
+        function pullAll(array2, values2) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2) : array2;
         }
-        function pullAllBy(array, values2, iteratee2) {
-          return array && array.length && values2 && values2.length ? basePullAll(array, values2, getIteratee(iteratee2, 2)) : array;
+        function pullAllBy(array2, values2, iteratee2) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, getIteratee(iteratee2, 2)) : array2;
         }
-        function pullAllWith(array, values2, comparator) {
-          return array && array.length && values2 && values2.length ? basePullAll(array, values2, undefined2, comparator) : array;
+        function pullAllWith(array2, values2, comparator) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, undefined2, comparator) : array2;
         }
-        var pullAt = flatRest(function(array, indexes) {
-          var length = array == null ? 0 : array.length, result2 = baseAt(array, indexes);
-          basePullAt(array, arrayMap(indexes, function(index2) {
+        var pullAt = flatRest(function(array2, indexes) {
+          var length = array2 == null ? 0 : array2.length, result2 = baseAt(array2, indexes);
+          basePullAt(array2, arrayMap(indexes, function(index2) {
             return isIndex(index2, length) ? +index2 : index2;
           }).sort(compareAscending));
           return result2;
         });
-        function remove2(array, predicate) {
+        function remove3(array2, predicate) {
           var result2 = [];
-          if (!(array && array.length)) {
+          if (!(array2 && array2.length)) {
             return result2;
           }
-          var index2 = -1, indexes = [], length = array.length;
+          var index2 = -1, indexes = [], length = array2.length;
           predicate = getIteratee(predicate, 3);
           while (++index2 < length) {
-            var value = array[index2];
-            if (predicate(value, index2, array)) {
+            var value = array2[index2];
+            if (predicate(value, index2, array2)) {
               result2.push(value);
               indexes.push(index2);
             }
           }
-          basePullAt(array, indexes);
+          basePullAt(array2, indexes);
           return result2;
         }
-        function reverse(array) {
-          return array == null ? array : nativeReverse.call(array);
+        function reverse2(array2) {
+          return array2 == null ? array2 : nativeReverse.call(array2);
         }
-        function slice(array, start2, end) {
-          var length = array == null ? 0 : array.length;
+        function slice(array2, start2, end) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
-          if (end && typeof end != "number" && isIterateeCall(array, start2, end)) {
+          if (end && typeof end != "number" && isIterateeCall(array2, start2, end)) {
             start2 = 0;
             end = length;
           } else {
             start2 = start2 == null ? 0 : toInteger(start2);
             end = end === undefined2 ? length : toInteger(end);
           }
-          return baseSlice(array, start2, end);
+          return baseSlice(array2, start2, end);
         }
-        function sortedIndex(array, value) {
-          return baseSortedIndex(array, value);
+        function sortedIndex(array2, value) {
+          return baseSortedIndex(array2, value);
         }
-        function sortedIndexBy(array, value, iteratee2) {
-          return baseSortedIndexBy(array, value, getIteratee(iteratee2, 2));
+        function sortedIndexBy(array2, value, iteratee2) {
+          return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2));
         }
-        function sortedIndexOf(array, value) {
-          var length = array == null ? 0 : array.length;
+        function sortedIndexOf(array2, value) {
+          var length = array2 == null ? 0 : array2.length;
           if (length) {
-            var index2 = baseSortedIndex(array, value);
-            if (index2 < length && eq(array[index2], value)) {
+            var index2 = baseSortedIndex(array2, value);
+            if (index2 < length && eq2(array2[index2], value)) {
               return index2;
             }
           }
           return -1;
         }
-        function sortedLastIndex(array, value) {
-          return baseSortedIndex(array, value, true);
+        function sortedLastIndex(array2, value) {
+          return baseSortedIndex(array2, value, true);
         }
-        function sortedLastIndexBy(array, value, iteratee2) {
-          return baseSortedIndexBy(array, value, getIteratee(iteratee2, 2), true);
+        function sortedLastIndexBy(array2, value, iteratee2) {
+          return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2), true);
         }
-        function sortedLastIndexOf(array, value) {
-          var length = array == null ? 0 : array.length;
+        function sortedLastIndexOf(array2, value) {
+          var length = array2 == null ? 0 : array2.length;
           if (length) {
-            var index2 = baseSortedIndex(array, value, true) - 1;
-            if (eq(array[index2], value)) {
+            var index2 = baseSortedIndex(array2, value, true) - 1;
+            if (eq2(array2[index2], value)) {
               return index2;
             }
           }
           return -1;
         }
-        function sortedUniq(array) {
-          return array && array.length ? baseSortedUniq(array) : [];
+        function sortedUniq(array2) {
+          return array2 && array2.length ? baseSortedUniq(array2) : [];
         }
-        function sortedUniqBy(array, iteratee2) {
-          return array && array.length ? baseSortedUniq(array, getIteratee(iteratee2, 2)) : [];
+        function sortedUniqBy(array2, iteratee2) {
+          return array2 && array2.length ? baseSortedUniq(array2, getIteratee(iteratee2, 2)) : [];
         }
-        function tail(array) {
-          var length = array == null ? 0 : array.length;
-          return length ? baseSlice(array, 1, length) : [];
+        function tail(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseSlice(array2, 1, length) : [];
         }
-        function take(array, n, guard) {
-          if (!(array && array.length)) {
+        function take(array2, n, guard) {
+          if (!(array2 && array2.length)) {
             return [];
           }
           n = guard || n === undefined2 ? 1 : toInteger(n);
-          return baseSlice(array, 0, n < 0 ? 0 : n);
+          return baseSlice(array2, 0, n < 0 ? 0 : n);
         }
-        function takeRight(array, n, guard) {
-          var length = array == null ? 0 : array.length;
+        function takeRight(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
           n = guard || n === undefined2 ? 1 : toInteger(n);
           n = length - n;
-          return baseSlice(array, n < 0 ? 0 : n, length);
+          return baseSlice(array2, n < 0 ? 0 : n, length);
         }
-        function takeRightWhile(array, predicate) {
-          return array && array.length ? baseWhile(array, getIteratee(predicate, 3), false, true) : [];
+        function takeRightWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), false, true) : [];
         }
-        function takeWhile(array, predicate) {
-          return array && array.length ? baseWhile(array, getIteratee(predicate, 3)) : [];
+        function takeWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3)) : [];
         }
         var union = baseRest(function(arrays) {
           return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true));
@@ -24125,36 +24125,36 @@ var require_lodash = __commonJS({
           comparator = typeof comparator == "function" ? comparator : undefined2;
           return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), undefined2, comparator);
         });
-        function uniq(array) {
-          return array && array.length ? baseUniq(array) : [];
+        function uniq(array2) {
+          return array2 && array2.length ? baseUniq(array2) : [];
         }
-        function uniqBy(array, iteratee2) {
-          return array && array.length ? baseUniq(array, getIteratee(iteratee2, 2)) : [];
+        function uniqBy(array2, iteratee2) {
+          return array2 && array2.length ? baseUniq(array2, getIteratee(iteratee2, 2)) : [];
         }
-        function uniqWith(array, comparator) {
+        function uniqWith(array2, comparator) {
           comparator = typeof comparator == "function" ? comparator : undefined2;
-          return array && array.length ? baseUniq(array, undefined2, comparator) : [];
+          return array2 && array2.length ? baseUniq(array2, undefined2, comparator) : [];
         }
-        function unzip(array) {
-          if (!(array && array.length)) {
+        function unzip(array2) {
+          if (!(array2 && array2.length)) {
             return [];
           }
           var length = 0;
-          array = arrayFilter(array, function(group) {
+          array2 = arrayFilter(array2, function(group) {
             if (isArrayLikeObject(group)) {
               length = nativeMax(group.length, length);
               return true;
             }
           });
           return baseTimes(length, function(index2) {
-            return arrayMap(array, baseProperty(index2));
+            return arrayMap(array2, baseProperty(index2));
           });
         }
-        function unzipWith(array, iteratee2) {
-          if (!(array && array.length)) {
+        function unzipWith(array2, iteratee2) {
+          if (!(array2 && array2.length)) {
             return [];
           }
-          var result2 = unzip(array);
+          var result2 = unzip(array2);
           if (iteratee2 == null) {
             return result2;
           }
@@ -24162,8 +24162,8 @@ var require_lodash = __commonJS({
             return apply(iteratee2, undefined2, group);
           });
         }
-        var without = baseRest(function(array, values2) {
-          return isArrayLikeObject(array) ? baseDifference(array, values2) : [];
+        var without = baseRest(function(array2, values2) {
+          return isArrayLikeObject(array2) ? baseDifference(array2, values2) : [];
         });
         var xor = baseRest(function(arrays) {
           return baseXor(arrayFilter(arrays, isArrayLikeObject));
@@ -24205,8 +24205,8 @@ var require_lodash = __commonJS({
           return interceptor(value);
         }
         var wrapperAt = flatRest(function(paths) {
-          var length = paths.length, start2 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object) {
-            return baseAt(object, paths);
+          var length = paths.length, start2 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object2) {
+            return baseAt(object2, paths);
           };
           if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper) || !isIndex(start2)) {
             return this.thru(interceptor);
@@ -24217,11 +24217,11 @@ var require_lodash = __commonJS({
             "args": [interceptor],
             "thisArg": undefined2
           });
-          return new LodashWrapper(value, this.__chain__).thru(function(array) {
-            if (length && !array.length) {
-              array.push(undefined2);
+          return new LodashWrapper(value, this.__chain__).thru(function(array2) {
+            if (length && !array2.length) {
+              array2.push(undefined2);
             }
-            return array;
+            return array2;
           });
         });
         function wrapperChain() {
@@ -24267,12 +24267,12 @@ var require_lodash = __commonJS({
             wrapped = wrapped.reverse();
             wrapped.__actions__.push({
               "func": thru,
-              "args": [reverse],
+              "args": [reverse2],
               "thisArg": undefined2
             });
             return new LodashWrapper(wrapped, this.__chain__);
           }
-          return this.thru(reverse);
+          return this.thru(reverse2);
         }
         function wrapperValue() {
           return baseWrapperValue(this.__wrapped__, this.__actions__);
@@ -24298,14 +24298,14 @@ var require_lodash = __commonJS({
         var find2 = createFind(findIndex);
         var findLast = createFind(findLastIndex);
         function flatMap(collection, iteratee2) {
-          return baseFlatten(map(collection, iteratee2), 1);
+          return baseFlatten(map2(collection, iteratee2), 1);
         }
         function flatMapDeep(collection, iteratee2) {
-          return baseFlatten(map(collection, iteratee2), INFINITY);
+          return baseFlatten(map2(collection, iteratee2), INFINITY);
         }
         function flatMapDepth(collection, iteratee2, depth) {
           depth = depth === undefined2 ? 1 : toInteger(depth);
-          return baseFlatten(map(collection, iteratee2), depth);
+          return baseFlatten(map2(collection, iteratee2), depth);
         }
         function forEach(collection, iteratee2) {
           var func = isArray(collection) ? arrayEach : baseEach;
@@ -24341,7 +24341,7 @@ var require_lodash = __commonJS({
         var keyBy = createAggregator(function(result2, value, key) {
           baseAssignValue(result2, key, value);
         });
-        function map(collection, iteratee2) {
+        function map2(collection, iteratee2) {
           var func = isArray(collection) ? arrayMap : baseMap;
           return func(collection, getIteratee(iteratee2, 3));
         }
@@ -24467,13 +24467,13 @@ var require_lodash = __commonJS({
           }
           return createWrap(func, bitmask, thisArg, partials, holders);
         });
-        var bindKey = baseRest(function(object, key, partials) {
+        var bindKey = baseRest(function(object2, key, partials) {
           var bitmask = WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG;
           if (partials.length) {
             var holders = replaceHolders(partials, getHolder(bindKey));
             bitmask |= WRAP_PARTIAL_FLAG;
           }
-          return createWrap(key, bitmask, object, partials, holders);
+          return createWrap(key, bitmask, object2, partials, holders);
         });
         function curry(func, arity, guard) {
           arity = guard ? undefined2 : arity;
@@ -24493,7 +24493,7 @@ var require_lodash = __commonJS({
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
           wait = toNumber(wait) || 0;
-          if (isObject(options)) {
+          if (isObject2(options)) {
             leading = !!options.leading;
             maxing = "maxWait" in options;
             maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
@@ -24613,7 +24613,7 @@ var require_lodash = __commonJS({
             return !predicate.apply(this, args);
           };
         }
-        function once(func) {
+        function once2(func) {
           return before(2, func);
         }
         var overArgs = castRest(function(func, transforms) {
@@ -24651,9 +24651,9 @@ var require_lodash = __commonJS({
           }
           start2 = start2 == null ? 0 : nativeMax(toInteger(start2), 0);
           return baseRest(function(args) {
-            var array = args[start2], otherArgs = castSlice(args, 0, start2);
-            if (array) {
-              arrayPush(otherArgs, array);
+            var array2 = args[start2], otherArgs = castSlice(args, 0, start2);
+            if (array2) {
+              arrayPush(otherArgs, array2);
             }
             return apply(func, this, otherArgs);
           });
@@ -24663,7 +24663,7 @@ var require_lodash = __commonJS({
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          if (isObject(options)) {
+          if (isObject2(options)) {
             leading = "leading" in options ? !!options.leading : leading;
             trailing = "trailing" in options ? !!options.trailing : trailing;
           }
@@ -24676,8 +24676,8 @@ var require_lodash = __commonJS({
         function unary(func) {
           return ary(func, 1);
         }
-        function wrap(value, wrapper) {
-          return partial(castFunction(wrapper), value);
+        function wrap(value, wrapper2) {
+          return partial(castFunction(wrapper2), value);
         }
         function castArray() {
           if (!arguments.length) {
@@ -24700,10 +24700,10 @@ var require_lodash = __commonJS({
           customizer = typeof customizer == "function" ? customizer : undefined2;
           return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG, customizer);
         }
-        function conformsTo(object, source) {
-          return source == null || baseConformsTo(object, source, keys(source));
+        function conformsTo(object2, source) {
+          return source == null || baseConformsTo(object2, source, keys(source));
         }
-        function eq(value, other) {
+        function eq2(value, other) {
           return value === other || value !== value && other !== other;
         }
         var gt = createRelationalOperation(baseGt);
@@ -24718,7 +24718,7 @@ var require_lodash = __commonJS({
         var isArray = Array2.isArray;
         var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
         function isArrayLike(value) {
-          return value != null && isLength(value.length) && !isFunction(value);
+          return value != null && isLength(value.length) && !isFunction2(value);
         }
         function isArrayLikeObject(value) {
           return isObjectLike(value) && isArrayLike(value);
@@ -24729,7 +24729,7 @@ var require_lodash = __commonJS({
         var isBuffer = nativeIsBuffer || stubFalse;
         var isDate = nodeIsDate ? baseUnary(nodeIsDate) : baseIsDate;
         function isElement(value) {
-          return isObjectLike(value) && value.nodeType === 1 && !isPlainObject(value);
+          return isObjectLike(value) && value.nodeType === 1 && !isPlainObject2(value);
         }
         function isEmpty(value) {
           if (value == null) {
@@ -24765,13 +24765,13 @@ var require_lodash = __commonJS({
             return false;
           }
           var tag = baseGetTag(value);
-          return tag == errorTag || tag == domExcTag || typeof value.message == "string" && typeof value.name == "string" && !isPlainObject(value);
+          return tag == errorTag || tag == domExcTag || typeof value.message == "string" && typeof value.name == "string" && !isPlainObject2(value);
         }
         function isFinite2(value) {
           return typeof value == "number" && nativeIsFinite(value);
         }
-        function isFunction(value) {
-          if (!isObject(value)) {
+        function isFunction2(value) {
+          if (!isObject2(value)) {
             return false;
           }
           var tag = baseGetTag(value);
@@ -24783,7 +24783,7 @@ var require_lodash = __commonJS({
         function isLength(value) {
           return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
         }
-        function isObject(value) {
+        function isObject2(value) {
           var type = typeof value;
           return value != null && (type == "object" || type == "function");
         }
@@ -24791,12 +24791,12 @@ var require_lodash = __commonJS({
           return value != null && typeof value == "object";
         }
         var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
-        function isMatch(object, source) {
-          return object === source || baseIsMatch(object, source, getMatchData(source));
+        function isMatch(object2, source) {
+          return object2 === source || baseIsMatch(object2, source, getMatchData(source));
         }
-        function isMatchWith(object, source, customizer) {
+        function isMatchWith(object2, source, customizer) {
           customizer = typeof customizer == "function" ? customizer : undefined2;
-          return baseIsMatch(object, source, getMatchData(source), customizer);
+          return baseIsMatch(object2, source, getMatchData(source), customizer);
         }
         function isNaN2(value) {
           return isNumber(value) && value != +value;
@@ -24816,7 +24816,7 @@ var require_lodash = __commonJS({
         function isNumber(value) {
           return typeof value == "number" || isObjectLike(value) && baseGetTag(value) == numberTag;
         }
-        function isPlainObject(value) {
+        function isPlainObject2(value) {
           if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
             return false;
           }
@@ -24890,9 +24890,9 @@ var require_lodash = __commonJS({
           if (isSymbol(value)) {
             return NAN;
           }
-          if (isObject(value)) {
+          if (isObject2(value)) {
             var other = typeof value.valueOf == "function" ? value.valueOf() : value;
-            value = isObject(other) ? other + "" : other;
+            value = isObject2(other) ? other + "" : other;
           }
           if (typeof value != "string") {
             return value === 0 ? value : +value;
@@ -24907,36 +24907,36 @@ var require_lodash = __commonJS({
         function toSafeInteger(value) {
           return value ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
         }
-        function toString(value) {
+        function toString2(value) {
           return value == null ? "" : baseToString(value);
         }
-        var assign = createAssigner(function(object, source) {
+        var assign2 = createAssigner(function(object2, source) {
           if (isPrototype(source) || isArrayLike(source)) {
-            copyObject(source, keys(source), object);
+            copyObject(source, keys(source), object2);
             return;
           }
           for (var key in source) {
             if (hasOwnProperty.call(source, key)) {
-              assignValue(object, key, source[key]);
+              assignValue(object2, key, source[key]);
             }
           }
         });
-        var assignIn = createAssigner(function(object, source) {
-          copyObject(source, keysIn(source), object);
+        var assignIn = createAssigner(function(object2, source) {
+          copyObject(source, keysIn(source), object2);
         });
-        var assignInWith = createAssigner(function(object, source, srcIndex, customizer) {
-          copyObject(source, keysIn(source), object, customizer);
+        var assignInWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          copyObject(source, keysIn(source), object2, customizer);
         });
-        var assignWith = createAssigner(function(object, source, srcIndex, customizer) {
-          copyObject(source, keys(source), object, customizer);
+        var assignWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          copyObject(source, keys(source), object2, customizer);
         });
         var at = flatRest(baseAt);
         function create(prototype, properties) {
           var result2 = baseCreate(prototype);
           return properties == null ? result2 : baseAssign(result2, properties);
         }
-        var defaults2 = baseRest(function(object, sources) {
-          object = Object2(object);
+        var defaults2 = baseRest(function(object2, sources) {
+          object2 = Object2(object2);
           var index2 = -1;
           var length = sources.length;
           var guard = length > 2 ? sources[2] : undefined2;
@@ -24950,51 +24950,51 @@ var require_lodash = __commonJS({
             var propsLength = props.length;
             while (++propsIndex < propsLength) {
               var key = props[propsIndex];
-              var value = object[key];
-              if (value === undefined2 || eq(value, objectProto[key]) && !hasOwnProperty.call(object, key)) {
-                object[key] = source[key];
+              var value = object2[key];
+              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
+                object2[key] = source[key];
               }
             }
           }
-          return object;
+          return object2;
         });
         var defaultsDeep = baseRest(function(args) {
           args.push(undefined2, customDefaultsMerge);
           return apply(mergeWith, undefined2, args);
         });
-        function findKey(object, predicate) {
-          return baseFindKey(object, getIteratee(predicate, 3), baseForOwn);
+        function findKey(object2, predicate) {
+          return baseFindKey(object2, getIteratee(predicate, 3), baseForOwn);
         }
-        function findLastKey(object, predicate) {
-          return baseFindKey(object, getIteratee(predicate, 3), baseForOwnRight);
+        function findLastKey(object2, predicate) {
+          return baseFindKey(object2, getIteratee(predicate, 3), baseForOwnRight);
         }
-        function forIn(object, iteratee2) {
-          return object == null ? object : baseFor(object, getIteratee(iteratee2, 3), keysIn);
+        function forIn(object2, iteratee2) {
+          return object2 == null ? object2 : baseFor(object2, getIteratee(iteratee2, 3), keysIn);
         }
-        function forInRight(object, iteratee2) {
-          return object == null ? object : baseForRight(object, getIteratee(iteratee2, 3), keysIn);
+        function forInRight(object2, iteratee2) {
+          return object2 == null ? object2 : baseForRight(object2, getIteratee(iteratee2, 3), keysIn);
         }
-        function forOwn(object, iteratee2) {
-          return object && baseForOwn(object, getIteratee(iteratee2, 3));
+        function forOwn(object2, iteratee2) {
+          return object2 && baseForOwn(object2, getIteratee(iteratee2, 3));
         }
-        function forOwnRight(object, iteratee2) {
-          return object && baseForOwnRight(object, getIteratee(iteratee2, 3));
+        function forOwnRight(object2, iteratee2) {
+          return object2 && baseForOwnRight(object2, getIteratee(iteratee2, 3));
         }
-        function functions(object) {
-          return object == null ? [] : baseFunctions(object, keys(object));
+        function functions(object2) {
+          return object2 == null ? [] : baseFunctions(object2, keys(object2));
         }
-        function functionsIn(object) {
-          return object == null ? [] : baseFunctions(object, keysIn(object));
+        function functionsIn(object2) {
+          return object2 == null ? [] : baseFunctions(object2, keysIn(object2));
         }
-        function get(object, path, defaultValue) {
-          var result2 = object == null ? undefined2 : baseGet(object, path);
+        function get3(object2, path, defaultValue) {
+          var result2 = object2 == null ? undefined2 : baseGet(object2, path);
           return result2 === undefined2 ? defaultValue : result2;
         }
-        function has(object, path) {
-          return object != null && hasPath(object, path, baseHas);
+        function has2(object2, path) {
+          return object2 != null && hasPath(object2, path, baseHas);
         }
-        function hasIn(object, path) {
-          return object != null && hasPath(object, path, baseHasIn);
+        function hasIn(object2, path) {
+          return object2 != null && hasPath(object2, path, baseHasIn);
         }
         var invert = createInverter(function(result2, value, key) {
           if (value != null && typeof value.toString != "function") {
@@ -25013,46 +25013,46 @@ var require_lodash = __commonJS({
           }
         }, getIteratee);
         var invoke = baseRest(baseInvoke);
-        function keys(object) {
-          return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+        function keys(object2) {
+          return isArrayLike(object2) ? arrayLikeKeys(object2) : baseKeys(object2);
         }
-        function keysIn(object) {
-          return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+        function keysIn(object2) {
+          return isArrayLike(object2) ? arrayLikeKeys(object2, true) : baseKeysIn(object2);
         }
-        function mapKeys(object, iteratee2) {
+        function mapKeys(object2, iteratee2) {
           var result2 = {};
           iteratee2 = getIteratee(iteratee2, 3);
-          baseForOwn(object, function(value, key, object2) {
-            baseAssignValue(result2, iteratee2(value, key, object2), value);
+          baseForOwn(object2, function(value, key, object3) {
+            baseAssignValue(result2, iteratee2(value, key, object3), value);
           });
           return result2;
         }
-        function mapValues(object, iteratee2) {
+        function mapValues(object2, iteratee2) {
           var result2 = {};
           iteratee2 = getIteratee(iteratee2, 3);
-          baseForOwn(object, function(value, key, object2) {
-            baseAssignValue(result2, key, iteratee2(value, key, object2));
+          baseForOwn(object2, function(value, key, object3) {
+            baseAssignValue(result2, key, iteratee2(value, key, object3));
           });
           return result2;
         }
-        var merge2 = createAssigner(function(object, source, srcIndex) {
-          baseMerge(object, source, srcIndex);
+        var merge2 = createAssigner(function(object2, source, srcIndex) {
+          baseMerge(object2, source, srcIndex);
         });
-        var mergeWith = createAssigner(function(object, source, srcIndex, customizer) {
-          baseMerge(object, source, srcIndex, customizer);
+        var mergeWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          baseMerge(object2, source, srcIndex, customizer);
         });
-        var omit = flatRest(function(object, paths) {
+        var omit = flatRest(function(object2, paths) {
           var result2 = {};
-          if (object == null) {
+          if (object2 == null) {
             return result2;
           }
           var isDeep = false;
           paths = arrayMap(paths, function(path) {
-            path = castPath(path, object);
+            path = castPath(path, object2);
             isDeep || (isDeep = path.length > 1);
             return path;
           });
-          copyObject(object, getAllKeysIn(object), result2);
+          copyObject(object2, getAllKeysIn(object2), result2);
           if (isDeep) {
             result2 = baseClone(result2, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
           }
@@ -25062,83 +25062,83 @@ var require_lodash = __commonJS({
           }
           return result2;
         });
-        function omitBy(object, predicate) {
-          return pickBy(object, negate(getIteratee(predicate)));
+        function omitBy(object2, predicate) {
+          return pickBy(object2, negate(getIteratee(predicate)));
         }
-        var pick = flatRest(function(object, paths) {
-          return object == null ? {} : basePick(object, paths);
+        var pick = flatRest(function(object2, paths) {
+          return object2 == null ? {} : basePick(object2, paths);
         });
-        function pickBy(object, predicate) {
-          if (object == null) {
+        function pickBy(object2, predicate) {
+          if (object2 == null) {
             return {};
           }
-          var props = arrayMap(getAllKeysIn(object), function(prop) {
+          var props = arrayMap(getAllKeysIn(object2), function(prop) {
             return [prop];
           });
           predicate = getIteratee(predicate);
-          return basePickBy(object, props, function(value, path) {
+          return basePickBy(object2, props, function(value, path) {
             return predicate(value, path[0]);
           });
         }
-        function result(object, path, defaultValue) {
-          path = castPath(path, object);
+        function result(object2, path, defaultValue) {
+          path = castPath(path, object2);
           var index2 = -1, length = path.length;
           if (!length) {
             length = 1;
-            object = undefined2;
+            object2 = undefined2;
           }
           while (++index2 < length) {
-            var value = object == null ? undefined2 : object[toKey(path[index2])];
+            var value = object2 == null ? undefined2 : object2[toKey(path[index2])];
             if (value === undefined2) {
               index2 = length;
               value = defaultValue;
             }
-            object = isFunction(value) ? value.call(object) : value;
+            object2 = isFunction2(value) ? value.call(object2) : value;
           }
-          return object;
+          return object2;
         }
-        function set(object, path, value) {
-          return object == null ? object : baseSet(object, path, value);
+        function set4(object2, path, value) {
+          return object2 == null ? object2 : baseSet(object2, path, value);
         }
-        function setWith(object, path, value, customizer) {
+        function setWith(object2, path, value, customizer) {
           customizer = typeof customizer == "function" ? customizer : undefined2;
-          return object == null ? object : baseSet(object, path, value, customizer);
+          return object2 == null ? object2 : baseSet(object2, path, value, customizer);
         }
         var toPairs = createToPairs(keys);
         var toPairsIn = createToPairs(keysIn);
-        function transform(object, iteratee2, accumulator) {
-          var isArr = isArray(object), isArrLike = isArr || isBuffer(object) || isTypedArray(object);
+        function transform(object2, iteratee2, accumulator) {
+          var isArr = isArray(object2), isArrLike = isArr || isBuffer(object2) || isTypedArray(object2);
           iteratee2 = getIteratee(iteratee2, 4);
           if (accumulator == null) {
-            var Ctor = object && object.constructor;
+            var Ctor = object2 && object2.constructor;
             if (isArrLike) {
               accumulator = isArr ? new Ctor() : [];
-            } else if (isObject(object)) {
-              accumulator = isFunction(Ctor) ? baseCreate(getPrototype(object)) : {};
+            } else if (isObject2(object2)) {
+              accumulator = isFunction2(Ctor) ? baseCreate(getPrototype(object2)) : {};
             } else {
               accumulator = {};
             }
           }
-          (isArrLike ? arrayEach : baseForOwn)(object, function(value, index2, object2) {
-            return iteratee2(accumulator, value, index2, object2);
+          (isArrLike ? arrayEach : baseForOwn)(object2, function(value, index2, object3) {
+            return iteratee2(accumulator, value, index2, object3);
           });
           return accumulator;
         }
-        function unset(object, path) {
-          return object == null ? true : baseUnset(object, path);
+        function unset(object2, path) {
+          return object2 == null ? true : baseUnset(object2, path);
         }
-        function update(object, path, updater) {
-          return object == null ? object : baseUpdate(object, path, castFunction(updater));
+        function update(object2, path, updater) {
+          return object2 == null ? object2 : baseUpdate(object2, path, castFunction(updater));
         }
-        function updateWith(object, path, updater, customizer) {
+        function updateWith(object2, path, updater, customizer) {
           customizer = typeof customizer == "function" ? customizer : undefined2;
-          return object == null ? object : baseUpdate(object, path, castFunction(updater), customizer);
+          return object2 == null ? object2 : baseUpdate(object2, path, castFunction(updater), customizer);
         }
-        function values(object) {
-          return object == null ? [] : baseValues(object, keys(object));
+        function values(object2) {
+          return object2 == null ? [] : baseValues(object2, keys(object2));
         }
-        function valuesIn(object) {
-          return object == null ? [] : baseValues(object, keysIn(object));
+        function valuesIn(object2) {
+          return object2 == null ? [] : baseValues(object2, keysIn(object2));
         }
         function clamp(number2, lower, upper) {
           if (upper === undefined2) {
@@ -25207,14 +25207,14 @@ var require_lodash = __commonJS({
           return result2 + (index2 ? capitalize(word) : word);
         });
         function capitalize(string2) {
-          return upperFirst(toString(string2).toLowerCase());
+          return upperFirst(toString2(string2).toLowerCase());
         }
         function deburr(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && string2.replace(reLatin, deburrLetter).replace(reComboMark, "");
         }
         function endsWith(string2, target, position) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           target = baseToString(target);
           var length = string2.length;
           position = position === undefined2 ? length : baseClamp(toInteger(position), 0, length);
@@ -25223,11 +25223,11 @@ var require_lodash = __commonJS({
           return position >= 0 && string2.slice(position, end) == target;
         }
         function escape(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasUnescapedHtml.test(string2) ? string2.replace(reUnescapedHtml, escapeHtmlChar) : string2;
         }
         function escapeRegExp(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasRegExpChar.test(string2) ? string2.replace(reRegExpChar, "\\$&") : string2;
         }
         var kebabCase = createCompounder(function(result2, word, index2) {
@@ -25238,7 +25238,7 @@ var require_lodash = __commonJS({
         });
         var lowerFirst = createCaseFirst("toLowerCase");
         function pad(string2, length, chars) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           length = toInteger(length);
           var strLength = length ? stringSize(string2) : 0;
           if (!length || strLength >= length) {
@@ -25248,13 +25248,13 @@ var require_lodash = __commonJS({
           return createPadding(nativeFloor(mid), chars) + string2 + createPadding(nativeCeil(mid), chars);
         }
         function padEnd(string2, length, chars) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           length = toInteger(length);
           var strLength = length ? stringSize(string2) : 0;
           return length && strLength < length ? string2 + createPadding(length - strLength, chars) : string2;
         }
         function padStart(string2, length, chars) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           length = toInteger(length);
           var strLength = length ? stringSize(string2) : 0;
           return length && strLength < length ? createPadding(length - strLength, chars) + string2 : string2;
@@ -25265,7 +25265,7 @@ var require_lodash = __commonJS({
           } else if (radix) {
             radix = +radix;
           }
-          return nativeParseInt(toString(string2).replace(reTrimStart, ""), radix || 0);
+          return nativeParseInt(toString2(string2).replace(reTrimStart, ""), radix || 0);
         }
         function repeat(string2, n, guard) {
           if (guard ? isIterateeCall(string2, n, guard) : n === undefined2) {
@@ -25273,10 +25273,10 @@ var require_lodash = __commonJS({
           } else {
             n = toInteger(n);
           }
-          return baseRepeat(toString(string2), n);
+          return baseRepeat(toString2(string2), n);
         }
-        function replace() {
-          var args = arguments, string2 = toString(args[0]);
+        function replace2() {
+          var args = arguments, string2 = toString2(args[0]);
           return args.length < 3 ? string2 : string2.replace(args[1], args[2]);
         }
         var snakeCase = createCompounder(function(result2, word, index2) {
@@ -25290,7 +25290,7 @@ var require_lodash = __commonJS({
           if (!limit) {
             return [];
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (typeof separator == "string" || separator != null && !isRegExp(separator))) {
             separator = baseToString(separator);
             if (!separator && hasUnicode(string2)) {
@@ -25303,7 +25303,7 @@ var require_lodash = __commonJS({
           return result2 + (index2 ? " " : "") + upperFirst(word);
         });
         function startsWith(string2, target, position) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           position = position == null ? 0 : baseClamp(toInteger(position), 0, string2.length);
           target = baseToString(target);
           return string2.slice(position, position + target.length) == target;
@@ -25313,7 +25313,7 @@ var require_lodash = __commonJS({
           if (guard && isIterateeCall(string2, options, guard)) {
             options = undefined2;
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           options = assignInWith({}, options, settings, customDefaultsAssignIn);
           var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
           var isEscaping, isEvaluating, index2 = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
@@ -25355,13 +25355,13 @@ var require_lodash = __commonJS({
           return result2;
         }
         function toLower(value) {
-          return toString(value).toLowerCase();
+          return toString2(value).toLowerCase();
         }
         function toUpper(value) {
-          return toString(value).toUpperCase();
+          return toString2(value).toUpperCase();
         }
         function trim(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return baseTrim(string2);
           }
@@ -25372,7 +25372,7 @@ var require_lodash = __commonJS({
           return castSlice(strSymbols, start2, end).join("");
         }
         function trimEnd(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return string2.slice(0, trimmedEndIndex(string2) + 1);
           }
@@ -25383,7 +25383,7 @@ var require_lodash = __commonJS({
           return castSlice(strSymbols, 0, end).join("");
         }
         function trimStart(string2, chars, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           if (string2 && (guard || chars === undefined2)) {
             return string2.replace(reTrimStart, "");
           }
@@ -25395,12 +25395,12 @@ var require_lodash = __commonJS({
         }
         function truncate(string2, options) {
           var length = DEFAULT_TRUNC_LENGTH, omission = DEFAULT_TRUNC_OMISSION;
-          if (isObject(options)) {
+          if (isObject2(options)) {
             var separator = "separator" in options ? options.separator : separator;
             length = "length" in options ? toInteger(options.length) : length;
             omission = "omission" in options ? baseToString(options.omission) : omission;
           }
-          string2 = toString(string2);
+          string2 = toString2(string2);
           var strLength = string2.length;
           if (hasUnicode(string2)) {
             var strSymbols = stringToArray(string2);
@@ -25424,7 +25424,7 @@ var require_lodash = __commonJS({
             if (string2.slice(end).search(separator)) {
               var match, substring = result2;
               if (!separator.global) {
-                separator = RegExp2(separator.source, toString(reFlags.exec(separator)) + "g");
+                separator = RegExp2(separator.source, toString2(reFlags.exec(separator)) + "g");
               }
               separator.lastIndex = 0;
               while (match = separator.exec(substring)) {
@@ -25441,7 +25441,7 @@ var require_lodash = __commonJS({
           return result2 + omission;
         }
         function unescape2(string2) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           return string2 && reHasEscapedHtml.test(string2) ? string2.replace(reEscapedHtml, unescapeHtmlChar) : string2;
         }
         var upperCase = createCompounder(function(result2, word, index2) {
@@ -25449,7 +25449,7 @@ var require_lodash = __commonJS({
         });
         var upperFirst = createCaseFirst("toUpperCase");
         function words(string2, pattern, guard) {
-          string2 = toString(string2);
+          string2 = toString2(string2);
           pattern = guard ? undefined2 : pattern;
           if (pattern === undefined2) {
             return hasUnicodeWord(string2) ? unicodeWords(string2) : asciiWords(string2);
@@ -25463,12 +25463,12 @@ var require_lodash = __commonJS({
             return isError(e) ? e : new Error2(e);
           }
         });
-        var bindAll = flatRest(function(object, methodNames) {
+        var bindAll = flatRest(function(object2, methodNames) {
           arrayEach(methodNames, function(key) {
             key = toKey(key);
-            baseAssignValue(object, key, bind(object[key], object));
+            baseAssignValue(object2, key, bind(object2[key], object2));
           });
-          return object;
+          return object2;
         });
         function cond(pairs) {
           var length = pairs == null ? 0 : pairs.length, toIteratee = getIteratee();
@@ -25499,7 +25499,7 @@ var require_lodash = __commonJS({
         function defaultTo(value, defaultValue) {
           return value == null || value !== value ? defaultValue : value;
         }
-        var flow = createFlow();
+        var flow3 = createFlow();
         var flowRight = createFlow(true);
         function identity(value) {
           return value;
@@ -25514,41 +25514,41 @@ var require_lodash = __commonJS({
           return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG));
         }
         var method = baseRest(function(path, args) {
-          return function(object) {
-            return baseInvoke(object, path, args);
+          return function(object2) {
+            return baseInvoke(object2, path, args);
           };
         });
-        var methodOf = baseRest(function(object, args) {
+        var methodOf = baseRest(function(object2, args) {
           return function(path) {
-            return baseInvoke(object, path, args);
+            return baseInvoke(object2, path, args);
           };
         });
-        function mixin(object, source, options) {
+        function mixin(object2, source, options) {
           var props = keys(source), methodNames = baseFunctions(source, props);
-          if (options == null && !(isObject(source) && (methodNames.length || !props.length))) {
+          if (options == null && !(isObject2(source) && (methodNames.length || !props.length))) {
             options = source;
-            source = object;
-            object = this;
+            source = object2;
+            object2 = this;
             methodNames = baseFunctions(source, keys(source));
           }
-          var chain2 = !(isObject(options) && "chain" in options) || !!options.chain, isFunc = isFunction(object);
+          var chain2 = !(isObject2(options) && "chain" in options) || !!options.chain, isFunc = isFunction2(object2);
           arrayEach(methodNames, function(methodName) {
             var func = source[methodName];
-            object[methodName] = func;
+            object2[methodName] = func;
             if (isFunc) {
-              object.prototype[methodName] = function() {
+              object2.prototype[methodName] = function() {
                 var chainAll = this.__chain__;
                 if (chain2 || chainAll) {
-                  var result2 = object(this.__wrapped__), actions = result2.__actions__ = copyArray(this.__actions__);
-                  actions.push({ "func": func, "args": arguments, "thisArg": object });
+                  var result2 = object2(this.__wrapped__), actions = result2.__actions__ = copyArray(this.__actions__);
+                  actions.push({ "func": func, "args": arguments, "thisArg": object2 });
                   result2.__chain__ = chainAll;
                   return result2;
                 }
-                return func.apply(object, arrayPush([this.value()], arguments));
+                return func.apply(object2, arrayPush([this.value()], arguments));
               };
             }
           });
-          return object;
+          return object2;
         }
         function noConflict() {
           if (root._ === this) {
@@ -25556,7 +25556,7 @@ var require_lodash = __commonJS({
           }
           return this;
         }
-        function noop2() {
+        function noop4() {
         }
         function nthArg(n) {
           n = toInteger(n);
@@ -25570,9 +25570,9 @@ var require_lodash = __commonJS({
         function property(path) {
           return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
         }
-        function propertyOf(object) {
+        function propertyOf(object2) {
           return function(path) {
-            return object == null ? undefined2 : baseGet(object, path);
+            return object2 == null ? undefined2 : baseGet(object2, path);
           };
         }
         var range = createRange();
@@ -25610,11 +25610,11 @@ var require_lodash = __commonJS({
           if (isArray(value)) {
             return arrayMap(value, toKey);
           }
-          return isSymbol(value) ? [value] : copyArray(stringToPath(toString(value)));
+          return isSymbol(value) ? [value] : copyArray(stringToPath(toString2(value)));
         }
         function uniqueId(prefix) {
           var id = ++idCounter;
-          return toString(prefix) + id;
+          return toString2(prefix) + id;
         }
         var add = createMathOperation(function(augend, addend) {
           return augend + addend;
@@ -25624,23 +25624,23 @@ var require_lodash = __commonJS({
           return dividend / divisor;
         }, 1);
         var floor = createRound("floor");
-        function max(array) {
-          return array && array.length ? baseExtremum(array, identity, baseGt) : undefined2;
+        function max(array2) {
+          return array2 && array2.length ? baseExtremum(array2, identity, baseGt) : undefined2;
         }
-        function maxBy(array, iteratee2) {
-          return array && array.length ? baseExtremum(array, getIteratee(iteratee2, 2), baseGt) : undefined2;
+        function maxBy(array2, iteratee2) {
+          return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseGt) : undefined2;
         }
-        function mean(array) {
-          return baseMean(array, identity);
+        function mean(array2) {
+          return baseMean(array2, identity);
         }
-        function meanBy(array, iteratee2) {
-          return baseMean(array, getIteratee(iteratee2, 2));
+        function meanBy(array2, iteratee2) {
+          return baseMean(array2, getIteratee(iteratee2, 2));
         }
-        function min(array) {
-          return array && array.length ? baseExtremum(array, identity, baseLt) : undefined2;
+        function min(array2) {
+          return array2 && array2.length ? baseExtremum(array2, identity, baseLt) : undefined2;
         }
-        function minBy(array, iteratee2) {
-          return array && array.length ? baseExtremum(array, getIteratee(iteratee2, 2), baseLt) : undefined2;
+        function minBy(array2, iteratee2) {
+          return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseLt) : undefined2;
         }
         var multiply = createMathOperation(function(multiplier, multiplicand) {
           return multiplier * multiplicand;
@@ -25649,15 +25649,15 @@ var require_lodash = __commonJS({
         var subtract = createMathOperation(function(minuend, subtrahend) {
           return minuend - subtrahend;
         }, 0);
-        function sum(array) {
-          return array && array.length ? baseSum(array, identity) : 0;
+        function sum(array2) {
+          return array2 && array2.length ? baseSum(array2, identity) : 0;
         }
-        function sumBy(array, iteratee2) {
-          return array && array.length ? baseSum(array, getIteratee(iteratee2, 2)) : 0;
+        function sumBy(array2, iteratee2) {
+          return array2 && array2.length ? baseSum(array2, getIteratee(iteratee2, 2)) : 0;
         }
         lodash.after = after;
         lodash.ary = ary;
-        lodash.assign = assign;
+        lodash.assign = assign2;
         lodash.assignIn = assignIn;
         lodash.assignInWith = assignInWith;
         lodash.assignWith = assignWith;
@@ -25699,7 +25699,7 @@ var require_lodash = __commonJS({
         lodash.flattenDeep = flattenDeep;
         lodash.flattenDepth = flattenDepth;
         lodash.flip = flip2;
-        lodash.flow = flow;
+        lodash.flow = flow3;
         lodash.flowRight = flowRight;
         lodash.fromPairs = fromPairs;
         lodash.functions = functions;
@@ -25716,7 +25716,7 @@ var require_lodash = __commonJS({
         lodash.keyBy = keyBy;
         lodash.keys = keys;
         lodash.keysIn = keysIn;
-        lodash.map = map;
+        lodash.map = map2;
         lodash.mapKeys = mapKeys;
         lodash.mapValues = mapValues;
         lodash.matches = matches;
@@ -25731,7 +25731,7 @@ var require_lodash = __commonJS({
         lodash.nthArg = nthArg;
         lodash.omit = omit;
         lodash.omitBy = omitBy;
-        lodash.once = once;
+        lodash.once = once2;
         lodash.orderBy = orderBy;
         lodash.over = over;
         lodash.overArgs = overArgs;
@@ -25753,11 +25753,11 @@ var require_lodash = __commonJS({
         lodash.rangeRight = rangeRight;
         lodash.rearg = rearg;
         lodash.reject = reject;
-        lodash.remove = remove2;
+        lodash.remove = remove3;
         lodash.rest = rest;
-        lodash.reverse = reverse;
+        lodash.reverse = reverse2;
         lodash.sampleSize = sampleSize;
-        lodash.set = set;
+        lodash.set = set4;
         lodash.setWith = setWith;
         lodash.shuffle = shuffle;
         lodash.slice = slice;
@@ -25824,7 +25824,7 @@ var require_lodash = __commonJS({
         lodash.defaultTo = defaultTo;
         lodash.divide = divide;
         lodash.endsWith = endsWith;
-        lodash.eq = eq;
+        lodash.eq = eq2;
         lodash.escape = escape;
         lodash.escapeRegExp = escapeRegExp;
         lodash.every = every;
@@ -25841,10 +25841,10 @@ var require_lodash = __commonJS({
         lodash.forInRight = forInRight;
         lodash.forOwn = forOwn;
         lodash.forOwnRight = forOwnRight;
-        lodash.get = get;
+        lodash.get = get3;
         lodash.gt = gt;
         lodash.gte = gte;
-        lodash.has = has;
+        lodash.has = has2;
         lodash.hasIn = hasIn;
         lodash.head = head;
         lodash.identity = identity;
@@ -25866,7 +25866,7 @@ var require_lodash = __commonJS({
         lodash.isEqualWith = isEqualWith;
         lodash.isError = isError;
         lodash.isFinite = isFinite2;
-        lodash.isFunction = isFunction;
+        lodash.isFunction = isFunction2;
         lodash.isInteger = isInteger;
         lodash.isLength = isLength;
         lodash.isMap = isMap;
@@ -25877,9 +25877,9 @@ var require_lodash = __commonJS({
         lodash.isNil = isNil;
         lodash.isNull = isNull;
         lodash.isNumber = isNumber;
-        lodash.isObject = isObject;
+        lodash.isObject = isObject2;
         lodash.isObjectLike = isObjectLike;
-        lodash.isPlainObject = isPlainObject;
+        lodash.isPlainObject = isPlainObject2;
         lodash.isRegExp = isRegExp;
         lodash.isSafeInteger = isSafeInteger;
         lodash.isSet = isSet;
@@ -25911,7 +25911,7 @@ var require_lodash = __commonJS({
         lodash.multiply = multiply;
         lodash.nth = nth;
         lodash.noConflict = noConflict;
-        lodash.noop = noop2;
+        lodash.noop = noop4;
         lodash.now = now;
         lodash.pad = pad;
         lodash.padEnd = padEnd;
@@ -25921,7 +25921,7 @@ var require_lodash = __commonJS({
         lodash.reduce = reduce;
         lodash.reduceRight = reduceRight;
         lodash.repeat = repeat;
-        lodash.replace = replace;
+        lodash.replace = replace2;
         lodash.result = result;
         lodash.round = round;
         lodash.runInContext = runInContext2;
@@ -25948,7 +25948,7 @@ var require_lodash = __commonJS({
         lodash.toLower = toLower;
         lodash.toNumber = toNumber;
         lodash.toSafeInteger = toSafeInteger;
-        lodash.toString = toString;
+        lodash.toString = toString2;
         lodash.toUpper = toUpper;
         lodash.trim = trim;
         lodash.trimEnd = trimEnd;
@@ -26130,17 +26130,17 @@ var require_lodash = __commonJS({
         }
         return lodash;
       };
-      var _5 = runInContext();
+      var _19 = runInContext();
       if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
-        root._ = _5;
+        root._ = _19;
         define(function() {
-          return _5;
+          return _19;
         });
       } else if (freeModule) {
-        (freeModule.exports = _5)._ = _5;
-        freeExports._ = _5;
+        (freeModule.exports = _19)._ = _19;
+        freeExports._ = _19;
       } else {
-        root._ = _5;
+        root._ = _19;
       }
     }).call(exports);
   }
@@ -29277,14 +29277,14 @@ var require_katex = __commonJS({
           "text": {}
         };
         var src_symbols = symbols;
-        function defineSymbol(mode, font, group, replace, name2, acceptUnicodeChar) {
+        function defineSymbol(mode, font, group, replace2, name2, acceptUnicodeChar) {
           symbols[mode][name2] = {
             font,
             group,
-            replace
+            replace: replace2
           };
-          if (acceptUnicodeChar && replace) {
-            symbols[mode][replace] = symbols[mode][name2];
+          if (acceptUnicodeChar && replace2) {
+            symbols[mode][replace2] = symbols[mode][name2];
           }
         }
         var math = "math";
@@ -31358,15 +31358,15 @@ var require_katex = __commonJS({
         };
         function buildMathML(tree, texExpression, options, isDisplayMode, forMathmlOnly) {
           var expression = buildMathML_buildExpression(tree, options);
-          var wrapper;
+          var wrapper2;
           if (expression.length === 1 && expression[0] instanceof MathNode && utils2.contains(["mrow", "mtable"], expression[0].type)) {
-            wrapper = expression[0];
+            wrapper2 = expression[0];
           } else {
-            wrapper = new mathMLTree.MathNode("mrow", expression);
+            wrapper2 = new mathMLTree.MathNode("mrow", expression);
           }
           var annotation = new mathMLTree.MathNode("annotation", [new mathMLTree.TextNode(texExpression)]);
           annotation.setAttribute("encoding", "application/x-tex");
-          var semantics = new mathMLTree.MathNode("semantics", [wrapper, annotation]);
+          var semantics = new mathMLTree.MathNode("semantics", [wrapper2, annotation]);
           var math2 = new mathMLTree.MathNode("math", [semantics]);
           math2.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
           if (isDisplayMode) {
@@ -32545,8 +32545,8 @@ var require_katex = __commonJS({
         });
         ;
         var getMetrics = function getMetrics2(symbol, font, mode) {
-          var replace = src_symbols.math[symbol] && src_symbols.math[symbol].replace;
-          var metrics = getCharacterMetrics(replace || symbol, font, mode);
+          var replace2 = src_symbols.math[symbol] && src_symbols.math[symbol].replace;
+          var metrics = getCharacterMetrics(replace2 || symbol, font, mode);
           if (!metrics) {
             throw new Error("Unsupported symbol " + symbol + " and font size " + font + ".");
           }
@@ -32563,11 +32563,11 @@ var require_katex = __commonJS({
         };
         var centerSpan = function centerSpan2(span, options, style2) {
           var newOptions = options.havingBaseStyle(style2);
-          var shift2 = (1 - options.sizeMultiplier / newOptions.sizeMultiplier) * options.fontMetrics().axisHeight;
+          var shift3 = (1 - options.sizeMultiplier / newOptions.sizeMultiplier) * options.fontMetrics().axisHeight;
           span.classes.push("delimcenter");
-          span.style.top = shift2 + "em";
-          span.height -= shift2;
-          span.depth += shift2;
+          span.style.top = shift3 + "em";
+          span.height -= shift3;
+          span.depth += shift3;
         };
         var makeSmallDelim = function makeSmallDelim2(delim, style2, center, options, mode, classes) {
           var text = buildCommon.makeSymbol(delim, "Main-Regular", mode, options);
@@ -33731,14 +33731,14 @@ var require_katex = __commonJS({
           if (group.addEqnNum) {
             for (r4 = 0; r4 < nr; ++r4) {
               var rw = body[r4];
-              var shift2 = rw.pos - offset2;
+              var shift3 = rw.pos - offset2;
               var eqnTag = buildCommon.makeSpan(["eqn-num"], [], options);
               eqnTag.depth = rw.depth;
               eqnTag.height = rw.height;
               eqnNumSpans.push({
                 type: "elem",
                 elem: eqnTag,
-                shift: shift2
+                shift: shift3
               });
             }
           }
@@ -36902,13 +36902,13 @@ var require_katex = __commonJS({
           },
           handler: function handler(_ref, args, optArgs) {
             var parser2 = _ref.parser;
-            var shift2 = optArgs[0];
+            var shift3 = optArgs[0];
             var width = assertNodeType(args[0], "size");
             var height = assertNodeType(args[1], "size");
             return {
               type: "rule",
               mode: parser2.mode,
-              shift: shift2 && assertNodeType(shift2, "size").value,
+              shift: shift3 && assertNodeType(shift3, "size").value,
               width: width.value,
               height: height.value
             };
@@ -36917,34 +36917,34 @@ var require_katex = __commonJS({
             var rule = buildCommon.makeSpan(["mord", "rule"], [], options);
             var width = calculateSize(group.width, options);
             var height = calculateSize(group.height, options);
-            var shift2 = group.shift ? calculateSize(group.shift, options) : 0;
+            var shift3 = group.shift ? calculateSize(group.shift, options) : 0;
             rule.style.borderRightWidth = width + "em";
             rule.style.borderTopWidth = height + "em";
-            rule.style.bottom = shift2 + "em";
+            rule.style.bottom = shift3 + "em";
             rule.width = width;
-            rule.height = height + shift2;
-            rule.depth = -shift2;
+            rule.height = height + shift3;
+            rule.depth = -shift3;
             rule.maxFontSize = height * 1.125 * options.sizeMultiplier;
             return rule;
           },
           mathmlBuilder: function mathmlBuilder2(group, options) {
             var width = calculateSize(group.width, options);
             var height = calculateSize(group.height, options);
-            var shift2 = group.shift ? calculateSize(group.shift, options) : 0;
+            var shift3 = group.shift ? calculateSize(group.shift, options) : 0;
             var color = options.color && options.getColor() || "black";
             var rule = new mathMLTree.MathNode("mspace");
             rule.setAttribute("mathbackground", color);
             rule.setAttribute("width", width + "em");
             rule.setAttribute("height", height + "em");
-            var wrapper = new mathMLTree.MathNode("mpadded", [rule]);
-            if (shift2 >= 0) {
-              wrapper.setAttribute("height", "+" + shift2 + "em");
+            var wrapper2 = new mathMLTree.MathNode("mpadded", [rule]);
+            if (shift3 >= 0) {
+              wrapper2.setAttribute("height", "+" + shift3 + "em");
             } else {
-              wrapper.setAttribute("height", shift2 + "em");
-              wrapper.setAttribute("depth", "+" + -shift2 + "em");
+              wrapper2.setAttribute("height", shift3 + "em");
+              wrapper2.setAttribute("depth", "+" + -shift3 + "em");
             }
-            wrapper.setAttribute("voffset", shift2 + "em");
-            return wrapper;
+            wrapper2.setAttribute("voffset", shift3 + "em");
+            return wrapper2;
           }
         });
         ;
@@ -37820,17 +37820,17 @@ var require_katex = __commonJS({
               }
             }
           };
-          _proto.has = function has(name2) {
+          _proto.has = function has2(name2) {
             return this.current.hasOwnProperty(name2) || this.builtins.hasOwnProperty(name2);
           };
-          _proto.get = function get(name2) {
+          _proto.get = function get3(name2) {
             if (this.current.hasOwnProperty(name2)) {
               return this.current[name2];
             } else {
               return this.builtins[name2];
             }
           };
-          _proto.set = function set(name2, value, global2) {
+          _proto.set = function set4(name2, value, global2) {
             if (global2 === void 0) {
               global2 = false;
             }
@@ -39310,8 +39310,8 @@ var require_curry2 = __commonJS({
               return fn(a, _b2);
             });
           default:
-            return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function(_a) {
-              return fn(_a, b);
+            return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function(_a2) {
+              return fn(_a2, b);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
               return fn(a, _b2);
             }) : fn(a, b);
@@ -39743,10 +39743,10 @@ var require_has = __commonJS({
 var require_isArguments = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_isArguments.js"(exports, module) {
     var _has = require_has();
-    var toString = Object.prototype.toString;
+    var toString2 = Object.prototype.toString;
     var _isArguments = /* @__PURE__ */ function() {
-      return toString.call(arguments) === "[object Arguments]" ? function _isArguments2(x) {
-        return toString.call(x) === "[object Arguments]";
+      return toString2.call(arguments) === "[object Arguments]" ? function _isArguments2(x) {
+        return toString2.call(x) === "[object Arguments]";
       } : function _isArguments2(x) {
         return _has("callee", x);
       };
@@ -39847,12 +39847,12 @@ var require_reject = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_concat.js
 var require_concat = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_concat.js"(exports, module) {
-    function _concat(set1, set2) {
+    function _concat(set1, set22) {
       set1 = set1 || [];
-      set2 = set2 || [];
+      set22 = set22 || [];
       var idx;
       var len1 = set1.length;
-      var len2 = set2.length;
+      var len2 = set22.length;
       var result = [];
       idx = 0;
       while (idx < len1) {
@@ -39861,7 +39861,7 @@ var require_concat = __commonJS({
       }
       idx = 0;
       while (idx < len2) {
-        result[result.length] = set2[idx];
+        result[result.length] = set22[idx];
         idx += 1;
       }
       return result;
@@ -39994,7 +39994,7 @@ var require_map2 = __commonJS({
     var _xmap = require_xmap();
     var curryN = require_curryN2();
     var keys = require_keys();
-    var map = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map2(fn, functor) {
+    var map2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map3(fn, functor) {
       switch (Object.prototype.toString.call(functor)) {
         case "[object Function]":
           return curryN(functor.length, function() {
@@ -40009,7 +40009,7 @@ var require_map2 = __commonJS({
           return _map(fn, functor);
       }
     }));
-    module.exports = map;
+    module.exports = map2;
   }
 });
 
@@ -40154,7 +40154,7 @@ var require_Tokenizer = __commonJS({
     var stateBeforeNumericEntity = ifElseState("X", 66, 65);
     var Tokenizer = function() {
       function Tokenizer2(options, cbs) {
-        var _a;
+        var _a2;
         this._state = 1;
         this.buffer = "";
         this.sectionStart = 0;
@@ -40166,7 +40166,7 @@ var require_Tokenizer = __commonJS({
         this.ended = false;
         this.cbs = cbs;
         this.xmlMode = !!(options === null || options === void 0 ? void 0 : options.xmlMode);
-        this.decodeEntities = (_a = options === null || options === void 0 ? void 0 : options.decodeEntities) !== null && _a !== void 0 ? _a : true;
+        this.decodeEntities = (_a2 = options === null || options === void 0 ? void 0 : options.decodeEntities) !== null && _a2 !== void 0 ? _a2 : true;
       }
       Tokenizer2.prototype.reset = function() {
         this._state = 1;
@@ -40489,14 +40489,14 @@ var require_Tokenizer = __commonJS({
         } else
           this._state = 1;
       };
-      Tokenizer2.prototype.parseFixedEntity = function(map) {
-        if (map === void 0) {
-          map = this.xmlMode ? xml_json_1.default : entities_json_1.default;
+      Tokenizer2.prototype.parseFixedEntity = function(map2) {
+        if (map2 === void 0) {
+          map2 = this.xmlMode ? xml_json_1.default : entities_json_1.default;
         }
         if (this.sectionStart + 1 < this._index) {
           var entity = this.buffer.substring(this.sectionStart + 1, this._index);
-          if (Object.prototype.hasOwnProperty.call(map, entity)) {
-            this.emitPartial(map[entity]);
+          if (Object.prototype.hasOwnProperty.call(map2, entity)) {
+            this.emitPartial(map2[entity]);
             this.sectionStart = this._index + 1;
           }
         }
@@ -40897,7 +40897,7 @@ var require_Parser = __commonJS({
         if (options === void 0) {
           options = {};
         }
-        var _a, _b2, _c, _d, _e2;
+        var _a2, _b2, _c, _d, _e2;
         this.startIndex = 0;
         this.endIndex = null;
         this.tagname = "";
@@ -40908,7 +40908,7 @@ var require_Parser = __commonJS({
         this.foreignContext = [];
         this.options = options;
         this.cbs = cbs !== null && cbs !== void 0 ? cbs : {};
-        this.lowerCaseTagNames = (_a = options.lowerCaseTags) !== null && _a !== void 0 ? _a : !options.xmlMode;
+        this.lowerCaseTagNames = (_a2 = options.lowerCaseTags) !== null && _a2 !== void 0 ? _a2 : !options.xmlMode;
         this.lowerCaseAttributeNames = (_b2 = options.lowerCaseAttributeNames) !== null && _b2 !== void 0 ? _b2 : !options.xmlMode;
         this.tokenizer = new ((_c = options.Tokenizer) !== null && _c !== void 0 ? _c : Tokenizer_1.default)(this.options, this);
         (_e2 = (_d = this.cbs).onparserinit) === null || _e2 === void 0 ? void 0 : _e2.call(_d, this);
@@ -40926,13 +40926,13 @@ var require_Parser = __commonJS({
         this.endIndex = this.tokenizer.getAbsoluteIndex();
       };
       Parser3.prototype.ontext = function(data) {
-        var _a, _b2;
+        var _a2, _b2;
         this.updatePosition(1);
         this.endIndex--;
-        (_b2 = (_a = this.cbs).ontext) === null || _b2 === void 0 ? void 0 : _b2.call(_a, data);
+        (_b2 = (_a2 = this.cbs).ontext) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, data);
       };
       Parser3.prototype.onopentagname = function(name2) {
-        var _a, _b2;
+        var _a2, _b2;
         if (this.lowerCaseTagNames) {
           name2 = name2.toLowerCase();
         }
@@ -40951,15 +40951,15 @@ var require_Parser = __commonJS({
             this.foreignContext.push(false);
           }
         }
-        (_b2 = (_a = this.cbs).onopentagname) === null || _b2 === void 0 ? void 0 : _b2.call(_a, name2);
+        (_b2 = (_a2 = this.cbs).onopentagname) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, name2);
         if (this.cbs.onopentag)
           this.attribs = {};
       };
       Parser3.prototype.onopentagend = function() {
-        var _a, _b2;
+        var _a2, _b2;
         this.updatePosition(1);
         if (this.attribs) {
-          (_b2 = (_a = this.cbs).onopentag) === null || _b2 === void 0 ? void 0 : _b2.call(_a, this.tagname, this.attribs);
+          (_b2 = (_a2 = this.cbs).onopentag) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, this.tagname, this.attribs);
           this.attribs = null;
         }
         if (!this.options.xmlMode && this.cbs.onclosetag && voidElements.has(this.tagname)) {
@@ -41002,11 +41002,11 @@ var require_Parser = __commonJS({
         }
       };
       Parser3.prototype.closeCurrentTag = function() {
-        var _a, _b2;
+        var _a2, _b2;
         var name2 = this.tagname;
         this.onopentagend();
         if (this.stack[this.stack.length - 1] === name2) {
-          (_b2 = (_a = this.cbs).onclosetag) === null || _b2 === void 0 ? void 0 : _b2.call(_a, name2);
+          (_b2 = (_a2 = this.cbs).onclosetag) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, name2);
           this.stack.pop();
         }
       };
@@ -41020,8 +41020,8 @@ var require_Parser = __commonJS({
         this.attribvalue += value;
       };
       Parser3.prototype.onattribend = function(quote) {
-        var _a, _b2;
-        (_b2 = (_a = this.cbs).onattribute) === null || _b2 === void 0 ? void 0 : _b2.call(_a, this.attribname, this.attribvalue, quote);
+        var _a2, _b2;
+        (_b2 = (_a2 = this.cbs).onattribute) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, this.attribname, this.attribvalue, quote);
         if (this.attribs && !Object.prototype.hasOwnProperty.call(this.attribs, this.attribname)) {
           this.attribs[this.attribname] = this.attribvalue;
         }
@@ -41049,16 +41049,16 @@ var require_Parser = __commonJS({
         }
       };
       Parser3.prototype.oncomment = function(value) {
-        var _a, _b2, _c, _d;
+        var _a2, _b2, _c, _d;
         this.updatePosition(4);
-        (_b2 = (_a = this.cbs).oncomment) === null || _b2 === void 0 ? void 0 : _b2.call(_a, value);
+        (_b2 = (_a2 = this.cbs).oncomment) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, value);
         (_d = (_c = this.cbs).oncommentend) === null || _d === void 0 ? void 0 : _d.call(_c);
       };
       Parser3.prototype.oncdata = function(value) {
-        var _a, _b2, _c, _d, _e2, _f2;
+        var _a2, _b2, _c, _d, _e2, _f2;
         this.updatePosition(1);
         if (this.options.xmlMode || this.options.recognizeCDATA) {
-          (_b2 = (_a = this.cbs).oncdatastart) === null || _b2 === void 0 ? void 0 : _b2.call(_a);
+          (_b2 = (_a2 = this.cbs).oncdatastart) === null || _b2 === void 0 ? void 0 : _b2.call(_a2);
           (_d = (_c = this.cbs).ontext) === null || _d === void 0 ? void 0 : _d.call(_c, value);
           (_f2 = (_e2 = this.cbs).oncdataend) === null || _f2 === void 0 ? void 0 : _f2.call(_e2);
         } else {
@@ -41066,20 +41066,20 @@ var require_Parser = __commonJS({
         }
       };
       Parser3.prototype.onerror = function(err) {
-        var _a, _b2;
-        (_b2 = (_a = this.cbs).onerror) === null || _b2 === void 0 ? void 0 : _b2.call(_a, err);
+        var _a2, _b2;
+        (_b2 = (_a2 = this.cbs).onerror) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, err);
       };
       Parser3.prototype.onend = function() {
-        var _a, _b2;
+        var _a2, _b2;
         if (this.cbs.onclosetag) {
           for (var i = this.stack.length; i > 0; this.cbs.onclosetag(this.stack[--i]))
             ;
         }
-        (_b2 = (_a = this.cbs).onend) === null || _b2 === void 0 ? void 0 : _b2.call(_a);
+        (_b2 = (_a2 = this.cbs).onend) === null || _b2 === void 0 ? void 0 : _b2.call(_a2);
       };
       Parser3.prototype.reset = function() {
-        var _a, _b2, _c, _d;
-        (_b2 = (_a = this.cbs).onreset) === null || _b2 === void 0 ? void 0 : _b2.call(_a);
+        var _a2, _b2, _c, _d;
+        (_b2 = (_a2 = this.cbs).onreset) === null || _b2 === void 0 ? void 0 : _b2.call(_a2);
         this.tokenizer.reset();
         this.tagname = "";
         this.attribname = "";
@@ -41138,8 +41138,8 @@ var require_node = __commonJS({
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
       };
     }();
-    var __assign = exports && exports.__assign || function() {
-      __assign = Object.assign || function(t2) {
+    var __assign2 = exports && exports.__assign || function() {
+      __assign2 = Object.assign || function(t2) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
           for (var p in s)
@@ -41148,7 +41148,7 @@ var require_node = __commonJS({
         }
         return t2;
       };
-      return __assign.apply(this, arguments);
+      return __assign2.apply(this, arguments);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.cloneNode = exports.Element = exports.NodeWithChildren = exports.ProcessingInstruction = exports.Comment = exports.Text = exports.DataNode = exports.Node = void 0;
@@ -41172,8 +41172,8 @@ var require_node = __commonJS({
       }
       Object.defineProperty(Node2.prototype, "nodeType", {
         get: function() {
-          var _a;
-          return (_a = nodeTypes.get(this.type)) !== null && _a !== void 0 ? _a : 1;
+          var _a2;
+          return (_a2 = nodeTypes.get(this.type)) !== null && _a2 !== void 0 ? _a2 : 1;
         },
         enumerable: false,
         configurable: true
@@ -41272,8 +41272,8 @@ var require_node = __commonJS({
       }
       Object.defineProperty(NodeWithChildren2.prototype, "firstChild", {
         get: function() {
-          var _a;
-          return (_a = this.children[0]) !== null && _a !== void 0 ? _a : null;
+          var _a2;
+          return (_a2 = this.children[0]) !== null && _a2 !== void 0 ? _a2 : null;
         },
         enumerable: false,
         configurable: true
@@ -41354,7 +41354,7 @@ var require_node = __commonJS({
         case "style": {
           var elem = node;
           var children = recursive ? cloneChildren(elem.children) : [];
-          var clone_1 = new Element2(elem.name, __assign({}, elem.attribs), children);
+          var clone_1 = new Element2(elem.name, __assign2({}, elem.attribs), children);
           children.forEach(function(child) {
             return child.parent = clone_1;
           });
@@ -41441,12 +41441,12 @@ var require_lib = __commonJS({
         this._parser = parser2;
       };
       DomHandler2.prototype.onreset = function() {
-        var _a;
+        var _a2;
         this.dom = [];
         this._done = false;
         this._tagStack = [];
         this._lastNode = null;
-        this._parser = (_a = this._parser) !== null && _a !== void 0 ? _a : null;
+        this._parser = (_a2 = this._parser) !== null && _a2 !== void 0 ? _a2 : null;
       };
       DomHandler2.prototype.onend = function() {
         if (this._done)
@@ -41618,8 +41618,8 @@ var require_node2 = __commonJS({
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
       };
     }();
-    var __assign = exports && exports.__assign || function() {
-      __assign = Object.assign || function(t2) {
+    var __assign2 = exports && exports.__assign || function() {
+      __assign2 = Object.assign || function(t2) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
           for (var p in s)
@@ -41628,7 +41628,7 @@ var require_node2 = __commonJS({
         }
         return t2;
       };
-      return __assign.apply(this, arguments);
+      return __assign2.apply(this, arguments);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.cloneNode = exports.hasChildren = exports.isDocument = exports.isDirective = exports.isComment = exports.isText = exports.isCDATA = exports.isTag = exports.Element = exports.Document = exports.NodeWithChildren = exports.ProcessingInstruction = exports.Comment = exports.Text = exports.DataNode = exports.Node = void 0;
@@ -41654,8 +41654,8 @@ var require_node2 = __commonJS({
       }
       Object.defineProperty(Node2.prototype, "nodeType", {
         get: function() {
-          var _a;
-          return (_a = nodeTypes.get(this.type)) !== null && _a !== void 0 ? _a : 1;
+          var _a2;
+          return (_a2 = nodeTypes.get(this.type)) !== null && _a2 !== void 0 ? _a2 : 1;
         },
         enumerable: false,
         configurable: true
@@ -41754,8 +41754,8 @@ var require_node2 = __commonJS({
       }
       Object.defineProperty(NodeWithChildren2.prototype, "firstChild", {
         get: function() {
-          var _a;
-          return (_a = this.children[0]) !== null && _a !== void 0 ? _a : null;
+          var _a2;
+          return (_a2 = this.children[0]) !== null && _a2 !== void 0 ? _a2 : null;
         },
         enumerable: false,
         configurable: true
@@ -41816,11 +41816,11 @@ var require_node2 = __commonJS({
         get: function() {
           var _this = this;
           return Object.keys(this.attribs).map(function(name2) {
-            var _a, _b2;
+            var _a2, _b2;
             return {
               name: name2,
               value: _this.attribs[name2],
-              namespace: (_a = _this["x-attribsNamespace"]) === null || _a === void 0 ? void 0 : _a[name2],
+              namespace: (_a2 = _this["x-attribsNamespace"]) === null || _a2 === void 0 ? void 0 : _a2[name2],
               prefix: (_b2 = _this["x-attribsPrefix"]) === null || _b2 === void 0 ? void 0 : _b2[name2]
             };
           });
@@ -41870,15 +41870,15 @@ var require_node2 = __commonJS({
         result = new Comment(node.data);
       } else if (isTag(node)) {
         var children = recursive ? cloneChildren(node.children) : [];
-        var clone_1 = new Element2(node.name, __assign({}, node.attribs), children);
+        var clone_1 = new Element2(node.name, __assign2({}, node.attribs), children);
         children.forEach(function(child) {
           return child.parent = clone_1;
         });
         if (node["x-attribsNamespace"]) {
-          clone_1["x-attribsNamespace"] = __assign({}, node["x-attribsNamespace"]);
+          clone_1["x-attribsNamespace"] = __assign2({}, node["x-attribsNamespace"]);
         }
         if (node["x-attribsPrefix"]) {
-          clone_1["x-attribsPrefix"] = __assign({}, node["x-attribsPrefix"]);
+          clone_1["x-attribsPrefix"] = __assign2({}, node["x-attribsPrefix"]);
         }
         result = clone_1;
       } else if (isCDATA(node)) {
@@ -41982,13 +41982,13 @@ var require_lib3 = __commonJS({
         this.parser = parser2;
       };
       DomHandler2.prototype.onreset = function() {
-        var _a;
+        var _a2;
         this.dom = [];
         this.root = new node_1.Document(this.dom);
         this.done = false;
         this.tagStack = [this.root];
         this.lastNode = null;
-        this.parser = (_a = this.parser) !== null && _a !== void 0 ? _a : null;
+        this.parser = (_a2 = this.parser) !== null && _a2 !== void 0 ? _a2 : null;
       };
       DomHandler2.prototype.onend = function() {
         if (this.done)
@@ -42106,10 +42106,10 @@ var require_decode2 = __commonJS({
     var strictEntityRe = /&(?:[a-zA-Z0-9]+|#[xX][\da-fA-F]+|#\d+);/g;
     exports.decodeXML = getStrictDecoder(xml_json_1.default);
     exports.decodeHTMLStrict = getStrictDecoder(entities_json_1.default);
-    function getStrictDecoder(map) {
-      var replace = getReplacer(map);
+    function getStrictDecoder(map2) {
+      var replace2 = getReplacer(map2);
       return function(str) {
-        return String(str).replace(strictEntityRe, replace);
+        return String(str).replace(strictEntityRe, replace2);
       };
     }
     var sorter = function(a, b) {
@@ -42127,18 +42127,18 @@ var require_decode2 = __commonJS({
         }
       }
       var re = new RegExp("&(?:" + keys.join("|") + "|#[xX][\\da-fA-F]+;?|#\\d+;?)", "g");
-      var replace = getReplacer(entities_json_1.default);
+      var replace2 = getReplacer(entities_json_1.default);
       function replacer(str) {
         if (str.substr(-1) !== ";")
           str += ";";
-        return replace(str);
+        return replace2(str);
       }
       return function(str) {
         return String(str).replace(re, replacer);
       };
     }();
-    function getReplacer(map) {
-      return function replace(str) {
+    function getReplacer(map2) {
+      return function replace2(str) {
         if (str.charAt(1) === "#") {
           var secondChar = str.charAt(2);
           if (secondChar === "X" || secondChar === "x") {
@@ -42146,7 +42146,7 @@ var require_decode2 = __commonJS({
           }
           return decode_codepoint_1.default(parseInt(str.substr(2), 10));
         }
-        return map[str.slice(1, -1)] || str;
+        return map2[str.slice(1, -1)] || str;
       };
     }
   }
@@ -42179,8 +42179,8 @@ var require_encode = __commonJS({
     function getInverseReplacer(inverse) {
       var single = [];
       var multiple = [];
-      for (var _i = 0, _a = Object.keys(inverse); _i < _a.length; _i++) {
-        var k = _a[_i];
+      for (var _i = 0, _a2 = Object.keys(inverse); _i < _a2.length; _i++) {
+        var k = _a2[_i];
         if (k.length === 1) {
           single.push("\\" + k);
         } else {
@@ -42419,8 +42419,8 @@ var require_foreignNames = __commonJS({
 var require_lib5 = __commonJS({
   "node_modules/reactex/node_modules/dom-serializer/lib/index.js"(exports) {
     "use strict";
-    var __assign = exports && exports.__assign || function() {
-      __assign = Object.assign || function(t2) {
+    var __assign2 = exports && exports.__assign || function() {
+      __assign2 = Object.assign || function(t2) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
           for (var p in s)
@@ -42429,7 +42429,7 @@ var require_lib5 = __commonJS({
         }
         return t2;
       };
-      return __assign.apply(this, arguments);
+      return __assign2.apply(this, arguments);
     };
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -42477,8 +42477,8 @@ var require_lib5 = __commonJS({
       if (!attributes)
         return;
       return Object.keys(attributes).map(function(key) {
-        var _a, _b2;
-        var value = (_a = attributes[key]) !== null && _a !== void 0 ? _a : "";
+        var _a2, _b2;
+        var value = (_a2 = attributes[key]) !== null && _a2 !== void 0 ? _a2 : "";
         if (opts.xmlMode === "foreign") {
           key = (_b2 = foreignNames_1.attributeNames.get(key)) !== null && _b2 !== void 0 ? _b2 : key;
         }
@@ -42553,15 +42553,15 @@ var require_lib5 = __commonJS({
     ]);
     var foreignElements = new Set(["svg", "math"]);
     function renderTag(elem, opts) {
-      var _a;
+      var _a2;
       if (opts.xmlMode === "foreign") {
-        elem.name = (_a = foreignNames_1.elementNames.get(elem.name)) !== null && _a !== void 0 ? _a : elem.name;
+        elem.name = (_a2 = foreignNames_1.elementNames.get(elem.name)) !== null && _a2 !== void 0 ? _a2 : elem.name;
         if (elem.parent && foreignModeIntegrationPoints.has(elem.parent.name)) {
-          opts = __assign(__assign({}, opts), { xmlMode: false });
+          opts = __assign2(__assign2({}, opts), { xmlMode: false });
         }
       }
       if (!opts.xmlMode && foreignElements.has(elem.name)) {
-        opts = __assign(__assign({}, opts), { xmlMode: "foreign" });
+        opts = __assign2(__assign2({}, opts), { xmlMode: "foreign" });
       }
       var tag = "<" + elem.name;
       var attribs = formatAttributes(elem.attribs, opts);
@@ -42673,8 +42673,8 @@ var require_traversal = __commonJS({
     var domhandler_1 = require_lib3();
     var emptyArray = [];
     function getChildren2(elem) {
-      var _a;
-      return (_a = elem.children) !== null && _a !== void 0 ? _a : emptyArray;
+      var _a2;
+      return (_a2 = elem.children) !== null && _a2 !== void 0 ? _a2 : emptyArray;
     }
     exports.getChildren = getChildren2;
     function getParent3(elem) {
@@ -42682,7 +42682,7 @@ var require_traversal = __commonJS({
     }
     exports.getParent = getParent3;
     function getSiblings(elem) {
-      var _a, _b2;
+      var _a2, _b2;
       var parent = getParent3(elem);
       if (parent != null)
         return getChildren2(parent);
@@ -42690,7 +42690,7 @@ var require_traversal = __commonJS({
       var prev = elem.prev, next = elem.next;
       while (prev != null) {
         siblings.unshift(prev);
-        _a = prev, prev = _a.prev;
+        _a2 = prev, prev = _a2.prev;
       }
       while (next != null) {
         siblings.push(next);
@@ -42700,8 +42700,8 @@ var require_traversal = __commonJS({
     }
     exports.getSiblings = getSiblings;
     function getAttributeValue(elem, name2) {
-      var _a;
-      return (_a = elem.attribs) === null || _a === void 0 ? void 0 : _a[name2];
+      var _a2;
+      return (_a2 = elem.attribs) === null || _a2 === void 0 ? void 0 : _a2[name2];
     }
     exports.getAttributeValue = getAttributeValue;
     function hasAttrib(elem, name2) {
@@ -42713,18 +42713,18 @@ var require_traversal = __commonJS({
     }
     exports.getName = getName;
     function nextElementSibling(elem) {
-      var _a;
+      var _a2;
       var next = elem.next;
       while (next !== null && !domhandler_1.isTag(next))
-        _a = next, next = _a.next;
+        _a2 = next, next = _a2.next;
       return next;
     }
     exports.nextElementSibling = nextElementSibling;
     function prevElementSibling(elem) {
-      var _a;
+      var _a2;
       var prev = elem.prev;
       while (prev !== null && !domhandler_1.isTag(prev))
-        _a = prev, prev = _a.prev;
+        _a2 = prev, prev = _a2.prev;
       return prev;
     }
     exports.prevElementSibling = prevElementSibling;
@@ -42896,12 +42896,12 @@ var require_querying = __commonJS({
     }
     exports.existsOne = existsOne;
     function findAll(test, nodes) {
-      var _a;
+      var _a2;
       var result = [];
       var stack = nodes.filter(domhandler_1.isTag);
       var elem;
       while (elem = stack.shift()) {
-        var children = (_a = elem.children) === null || _a === void 0 ? void 0 : _a.filter(domhandler_1.isTag);
+        var children = (_a2 = elem.children) === null || _a2 === void 0 ? void 0 : _a2.filter(domhandler_1.isTag);
         if (children && children.length > 0) {
           stack.unshift.apply(stack, children);
         }
@@ -43242,7 +43242,7 @@ var require_FeedHandler = __commonJS({
         return _this;
       }
       FeedHandler2.prototype.onend = function() {
-        var _a, _b2;
+        var _a2, _b2;
         var feed = {};
         var feedRoot = getOneElement(isValidFeed, this.dom);
         if (feedRoot) {
@@ -43282,7 +43282,7 @@ var require_FeedHandler = __commonJS({
               return entry;
             });
           } else {
-            var childs = (_b2 = (_a = getOneElement("channel", feedRoot.children)) === null || _a === void 0 ? void 0 : _a.children) !== null && _b2 !== void 0 ? _b2 : [];
+            var childs = (_b2 = (_a2 = getOneElement("channel", feedRoot.children)) === null || _a2 === void 0 ? void 0 : _a2.children) !== null && _b2 !== void 0 ? _b2 : [];
             feed.type = feedRoot.name.substr(0, 3);
             feed.id = "";
             addConditionally(feed, "title", "title", childs);
@@ -43746,13 +43746,13 @@ var require_lodash2 = __commonJS({
     var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
     var freeSelf = typeof self == "object" && self && self.Object === Object && self;
     var root = freeGlobal || freeSelf || Function("return this")();
-    function arrayReduce(array, iteratee, accumulator, initAccum) {
-      var index2 = -1, length = array ? array.length : 0;
+    function arrayReduce(array2, iteratee, accumulator, initAccum) {
+      var index2 = -1, length = array2 ? array2.length : 0;
       if (initAccum && length) {
-        accumulator = array[++index2];
+        accumulator = array2[++index2];
       }
       while (++index2 < length) {
-        accumulator = iteratee(accumulator, array[index2], index2, array);
+        accumulator = iteratee(accumulator, array2[index2], index2, array2);
       }
       return accumulator;
     }
@@ -43762,9 +43762,9 @@ var require_lodash2 = __commonJS({
     function asciiWords(string2) {
       return string2.match(reAsciiWord) || [];
     }
-    function basePropertyOf(object) {
+    function basePropertyOf(object2) {
       return function(key) {
-        return object == null ? void 0 : object[key];
+        return object2 == null ? void 0 : object2[key];
       };
     }
     var deburrLetter = basePropertyOf(deburredLetters);
@@ -43788,8 +43788,8 @@ var require_lodash2 = __commonJS({
     var Symbol2 = root.Symbol;
     var symbolProto = Symbol2 ? Symbol2.prototype : void 0;
     var symbolToString = symbolProto ? symbolProto.toString : void 0;
-    function baseSlice(array, start2, end) {
-      var index2 = -1, length = array.length;
+    function baseSlice(array2, start2, end) {
+      var index2 = -1, length = array2.length;
       if (start2 < 0) {
         start2 = -start2 > length ? 0 : length + start2;
       }
@@ -43801,7 +43801,7 @@ var require_lodash2 = __commonJS({
       start2 >>>= 0;
       var result = Array(length);
       while (++index2 < length) {
-        result[index2] = array[index2 + start2];
+        result[index2] = array2[index2 + start2];
       }
       return result;
     }
@@ -43815,14 +43815,14 @@ var require_lodash2 = __commonJS({
       var result = value + "";
       return result == "0" && 1 / value == -INFINITY ? "-0" : result;
     }
-    function castSlice(array, start2, end) {
-      var length = array.length;
+    function castSlice(array2, start2, end) {
+      var length = array2.length;
       end = end === void 0 ? length : end;
-      return !start2 && end >= length ? array : baseSlice(array, start2, end);
+      return !start2 && end >= length ? array2 : baseSlice(array2, start2, end);
     }
     function createCaseFirst(methodName) {
       return function(string2) {
-        string2 = toString(string2);
+        string2 = toString2(string2);
         var strSymbols = hasUnicode(string2) ? stringToArray(string2) : void 0;
         var chr = strSymbols ? strSymbols[0] : string2.charAt(0);
         var trailing = strSymbols ? castSlice(strSymbols, 1).join("") : string2.slice(1);
@@ -43840,7 +43840,7 @@ var require_lodash2 = __commonJS({
     function isSymbol(value) {
       return typeof value == "symbol" || isObjectLike(value) && objectToString.call(value) == symbolTag;
     }
-    function toString(value) {
+    function toString2(value) {
       return value == null ? "" : baseToString(value);
     }
     var camelCase = createCompounder(function(result, word, index2) {
@@ -43848,15 +43848,15 @@ var require_lodash2 = __commonJS({
       return result + (index2 ? capitalize(word) : word);
     });
     function capitalize(string2) {
-      return upperFirst(toString(string2).toLowerCase());
+      return upperFirst(toString2(string2).toLowerCase());
     }
     function deburr(string2) {
-      string2 = toString(string2);
+      string2 = toString2(string2);
       return string2 && string2.replace(reLatin, deburrLetter).replace(reComboMark, "");
     }
     var upperFirst = createCaseFirst("toUpperCase");
     function words(string2, pattern, guard) {
-      string2 = toString(string2);
+      string2 = toString2(string2);
       pattern = guard ? void 0 : pattern;
       if (pattern === void 0) {
         return hasUnicodeWord(string2) ? unicodeWords(string2) : asciiWords(string2);
@@ -43901,22 +43901,22 @@ var require_curry3 = __commonJS({
               return fn(a, _b2, _c);
             });
           case 2:
-            return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function(_a, _c) {
-              return fn(_a, b, _c);
+            return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function(_a2, _c) {
+              return fn(_a2, b, _c);
             }) : _isPlaceholder(b) ? _curry2(function(_b2, _c) {
               return fn(a, _b2, _c);
             }) : _curry1(function(_c) {
               return fn(a, b, _c);
             });
           default:
-            return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function(_a, _b2) {
-              return fn(_a, _b2, c);
-            }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function(_a, _c) {
-              return fn(_a, b, _c);
+            return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function(_a2, _b2) {
+              return fn(_a2, _b2, c);
+            }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function(_a2, _c) {
+              return fn(_a2, b, _c);
             }) : _isPlaceholder(b) && _isPlaceholder(c) ? _curry2(function(_b2, _c) {
               return fn(a, _b2, _c);
-            }) : _isPlaceholder(a) ? _curry1(function(_a) {
-              return fn(_a, b, c);
+            }) : _isPlaceholder(a) ? _curry1(function(_a2) {
+              return fn(_a2, b, c);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
               return fn(a, _b2, c);
             }) : _isPlaceholder(c) ? _curry1(function(_c) {
@@ -44021,11 +44021,11 @@ var require_equals = __commonJS({
     function _uniqContentEquals(aIterator, bIterator, stackA, stackB) {
       var a = _arrayFromIterator(aIterator);
       var b = _arrayFromIterator(bIterator);
-      function eq(_a, _b2) {
-        return _equals(_a, _b2, stackA.slice(), stackB.slice());
+      function eq2(_a2, _b2) {
+        return _equals(_a2, _b2, stackA.slice(), stackB.slice());
       }
       return !_includesWith(function(b2, aItem) {
-        return !_includesWith(eq, aItem, b2);
+        return !_includesWith(eq2, aItem, b2);
       }, b, a);
     }
     function _equals(a, b, stackA, stackB) {
@@ -44623,7 +44623,7 @@ var require_utils = __commonJS({
     var camelCase = require_lodash2();
     var toPairs = require_toPairs();
     var reduce = require_reduce2();
-    var React28 = require_react();
+    var React30 = require_react();
     var includes = require_includes2();
     var camelCaseAttrMap = require_camel_case_attribute_names();
     function createStyleJsonFromString(styleString) {
@@ -44673,7 +44673,7 @@ var require_utils = __commonJS({
       "selected",
       "truespeed"
     ];
-    function createElement10(node, index2, data, children) {
+    function createElement11(node, index2, data, children) {
       var elementProps = {
         key: index2
       };
@@ -44698,10 +44698,10 @@ var require_utils = __commonJS({
       }
       children = children || [];
       var allChildren = data != null ? [data].concat(children) : children;
-      return React28.createElement.apply(null, [node.name, elementProps].concat(allChildren));
+      return React30.createElement.apply(null, [node.name, elementProps].concat(allChildren));
     }
     module.exports = {
-      createElement: createElement10
+      createElement: createElement11
     };
   }
 });
@@ -44791,7 +44791,7 @@ var require_parser = __commonJS({
     var find2 = require_find();
     var reject = require_reject();
     var addIndex = require_addIndex();
-    var map = require_map2();
+    var map2 = require_map2();
     var HtmlParser = require_lib7().Parser;
     var DomHandler = require_lib().DomHandler;
     var ProcessingInstructions = require_processing_instructions();
@@ -44822,7 +44822,7 @@ var require_parser = __commonJS({
           if (processingInstruction != null) {
             var children = reject(function(x) {
               return x == null || x === false;
-            }, addIndex(map)(function(child, i) {
+            }, addIndex(map2)(function(child, i) {
               return traverseDom(child, isValidNode, processingInstructions, preprocessingInstructions, i);
             }, node.children || []));
             if (processingInstruction.replaceChildren) {
@@ -44886,34 +44886,34 @@ var require_react_is_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var hasSymbol = typeof Symbol === "function" && Symbol.for;
-        var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for("react.element") : 60103;
-        var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for("react.portal") : 60106;
-        var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for("react.fragment") : 60107;
-        var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for("react.strict_mode") : 60108;
-        var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for("react.profiler") : 60114;
-        var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for("react.provider") : 60109;
-        var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for("react.context") : 60110;
-        var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for("react.async_mode") : 60111;
-        var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for("react.concurrent_mode") : 60111;
-        var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for("react.forward_ref") : 60112;
-        var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for("react.suspense") : 60113;
-        var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for("react.suspense_list") : 60120;
-        var REACT_MEMO_TYPE = hasSymbol ? Symbol.for("react.memo") : 60115;
-        var REACT_LAZY_TYPE = hasSymbol ? Symbol.for("react.lazy") : 60116;
-        var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for("react.block") : 60121;
-        var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for("react.fundamental") : 60117;
-        var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for("react.responder") : 60118;
-        var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for("react.scope") : 60119;
+        var hasSymbol2 = typeof Symbol === "function" && Symbol.for;
+        var REACT_ELEMENT_TYPE = hasSymbol2 ? Symbol.for("react.element") : 60103;
+        var REACT_PORTAL_TYPE = hasSymbol2 ? Symbol.for("react.portal") : 60106;
+        var REACT_FRAGMENT_TYPE = hasSymbol2 ? Symbol.for("react.fragment") : 60107;
+        var REACT_STRICT_MODE_TYPE = hasSymbol2 ? Symbol.for("react.strict_mode") : 60108;
+        var REACT_PROFILER_TYPE = hasSymbol2 ? Symbol.for("react.profiler") : 60114;
+        var REACT_PROVIDER_TYPE = hasSymbol2 ? Symbol.for("react.provider") : 60109;
+        var REACT_CONTEXT_TYPE = hasSymbol2 ? Symbol.for("react.context") : 60110;
+        var REACT_ASYNC_MODE_TYPE = hasSymbol2 ? Symbol.for("react.async_mode") : 60111;
+        var REACT_CONCURRENT_MODE_TYPE = hasSymbol2 ? Symbol.for("react.concurrent_mode") : 60111;
+        var REACT_FORWARD_REF_TYPE = hasSymbol2 ? Symbol.for("react.forward_ref") : 60112;
+        var REACT_SUSPENSE_TYPE = hasSymbol2 ? Symbol.for("react.suspense") : 60113;
+        var REACT_SUSPENSE_LIST_TYPE = hasSymbol2 ? Symbol.for("react.suspense_list") : 60120;
+        var REACT_MEMO_TYPE = hasSymbol2 ? Symbol.for("react.memo") : 60115;
+        var REACT_LAZY_TYPE = hasSymbol2 ? Symbol.for("react.lazy") : 60116;
+        var REACT_BLOCK_TYPE = hasSymbol2 ? Symbol.for("react.block") : 60121;
+        var REACT_FUNDAMENTAL_TYPE = hasSymbol2 ? Symbol.for("react.fundamental") : 60117;
+        var REACT_RESPONDER_TYPE = hasSymbol2 ? Symbol.for("react.responder") : 60118;
+        var REACT_SCOPE_TYPE = hasSymbol2 ? Symbol.for("react.scope") : 60119;
         function isValidElementType(type) {
           return typeof type === "string" || typeof type === "function" || type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === "object" && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
         }
-        function typeOf(object) {
-          if (typeof object === "object" && object !== null) {
-            var $$typeof = object.$$typeof;
+        function typeOf(object2) {
+          if (typeof object2 === "object" && object2 !== null) {
+            var $$typeof = object2.$$typeof;
             switch ($$typeof) {
               case REACT_ELEMENT_TYPE:
-                var type = object.type;
+                var type = object2.type;
                 switch (type) {
                   case REACT_ASYNC_MODE_TYPE:
                   case REACT_CONCURRENT_MODE_TYPE:
@@ -44955,50 +44955,50 @@ var require_react_is_development = __commonJS({
         var StrictMode = REACT_STRICT_MODE_TYPE;
         var Suspense = REACT_SUSPENSE_TYPE;
         var hasWarnedAboutDeprecatedIsAsyncMode = false;
-        function isAsyncMode(object) {
+        function isAsyncMode(object2) {
           {
             if (!hasWarnedAboutDeprecatedIsAsyncMode) {
               hasWarnedAboutDeprecatedIsAsyncMode = true;
               console["warn"]("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 17+. Update your code to use ReactIs.isConcurrentMode() instead. It has the exact same API.");
             }
           }
-          return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
+          return isConcurrentMode(object2) || typeOf(object2) === REACT_ASYNC_MODE_TYPE;
         }
-        function isConcurrentMode(object) {
-          return typeOf(object) === REACT_CONCURRENT_MODE_TYPE;
+        function isConcurrentMode(object2) {
+          return typeOf(object2) === REACT_CONCURRENT_MODE_TYPE;
         }
-        function isContextConsumer(object) {
-          return typeOf(object) === REACT_CONTEXT_TYPE;
+        function isContextConsumer(object2) {
+          return typeOf(object2) === REACT_CONTEXT_TYPE;
         }
-        function isContextProvider(object) {
-          return typeOf(object) === REACT_PROVIDER_TYPE;
+        function isContextProvider(object2) {
+          return typeOf(object2) === REACT_PROVIDER_TYPE;
         }
-        function isElement(object) {
-          return typeof object === "object" && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+        function isElement(object2) {
+          return typeof object2 === "object" && object2 !== null && object2.$$typeof === REACT_ELEMENT_TYPE;
         }
-        function isForwardRef(object) {
-          return typeOf(object) === REACT_FORWARD_REF_TYPE;
+        function isForwardRef(object2) {
+          return typeOf(object2) === REACT_FORWARD_REF_TYPE;
         }
-        function isFragment(object) {
-          return typeOf(object) === REACT_FRAGMENT_TYPE;
+        function isFragment(object2) {
+          return typeOf(object2) === REACT_FRAGMENT_TYPE;
         }
-        function isLazy(object) {
-          return typeOf(object) === REACT_LAZY_TYPE;
+        function isLazy(object2) {
+          return typeOf(object2) === REACT_LAZY_TYPE;
         }
-        function isMemo2(object) {
-          return typeOf(object) === REACT_MEMO_TYPE;
+        function isMemo2(object2) {
+          return typeOf(object2) === REACT_MEMO_TYPE;
         }
-        function isPortal(object) {
-          return typeOf(object) === REACT_PORTAL_TYPE;
+        function isPortal(object2) {
+          return typeOf(object2) === REACT_PORTAL_TYPE;
         }
-        function isProfiler(object) {
-          return typeOf(object) === REACT_PROFILER_TYPE;
+        function isProfiler(object2) {
+          return typeOf(object2) === REACT_PROFILER_TYPE;
         }
-        function isStrictMode(object) {
-          return typeOf(object) === REACT_STRICT_MODE_TYPE;
+        function isStrictMode(object2) {
+          return typeOf(object2) === REACT_STRICT_MODE_TYPE;
         }
-        function isSuspense(object) {
-          return typeOf(object) === REACT_SUSPENSE_TYPE;
+        function isSuspense(object2) {
+          return typeOf(object2) === REACT_SUSPENSE_TYPE;
         }
         exports.AsyncMode = AsyncMode;
         exports.ConcurrentMode = ConcurrentMode;
@@ -45051,7 +45051,7 @@ var require_classnames = __commonJS({
     (function() {
       "use strict";
       var hasOwn = {}.hasOwnProperty;
-      function classNames7() {
+      function classNames8() {
         var classes = [];
         for (var i = 0; i < arguments.length; i++) {
           var arg = arguments[i];
@@ -45062,7 +45062,7 @@ var require_classnames = __commonJS({
             classes.push(arg);
           } else if (Array.isArray(arg)) {
             if (arg.length) {
-              var inner = classNames7.apply(null, arg);
+              var inner = classNames8.apply(null, arg);
               if (inner) {
                 classes.push(inner);
               }
@@ -45082,14 +45082,14 @@ var require_classnames = __commonJS({
         return classes.join(" ");
       }
       if (typeof module !== "undefined" && module.exports) {
-        classNames7.default = classNames7;
-        module.exports = classNames7;
+        classNames8.default = classNames8;
+        module.exports = classNames8;
       } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
         define("classnames", [], function() {
-          return classNames7;
+          return classNames8;
         });
       } else {
-        window.classNames = classNames7;
+        window.classNames = classNames8;
       }
     })();
   }
@@ -45363,16 +45363,16 @@ var require_runtime = __commonJS({
         tryLocsList.forEach(pushTryEntry, this);
         this.reset(true);
       }
-      exports2.keys = function(object) {
+      exports2.keys = function(object2) {
         var keys = [];
-        for (var key in object) {
+        for (var key in object2) {
           keys.push(key);
         }
         keys.reverse();
         return function next() {
           while (keys.length) {
             var key2 = keys.pop();
-            if (key2 in object) {
+            if (key2 in object2) {
               next.value = key2;
               next.done = false;
               return next;
@@ -45599,9 +45599,9 @@ var require_utils2 = __commonJS({
   "node_modules/axios/lib/utils.js"(exports, module) {
     "use strict";
     var bind = require_bind2();
-    var toString = Object.prototype.toString;
+    var toString2 = Object.prototype.toString;
     function isArray(val) {
-      return toString.call(val) === "[object Array]";
+      return toString2.call(val) === "[object Array]";
     }
     function isUndefined(val) {
       return typeof val === "undefined";
@@ -45610,7 +45610,7 @@ var require_utils2 = __commonJS({
       return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor) && typeof val.constructor.isBuffer === "function" && val.constructor.isBuffer(val);
     }
     function isArrayBuffer(val) {
-      return toString.call(val) === "[object ArrayBuffer]";
+      return toString2.call(val) === "[object ArrayBuffer]";
     }
     function isFormData(val) {
       return typeof FormData !== "undefined" && val instanceof FormData;
@@ -45630,30 +45630,30 @@ var require_utils2 = __commonJS({
     function isNumber(val) {
       return typeof val === "number";
     }
-    function isObject(val) {
+    function isObject2(val) {
       return val !== null && typeof val === "object";
     }
-    function isPlainObject(val) {
-      if (toString.call(val) !== "[object Object]") {
+    function isPlainObject2(val) {
+      if (toString2.call(val) !== "[object Object]") {
         return false;
       }
       var prototype = Object.getPrototypeOf(val);
       return prototype === null || prototype === Object.prototype;
     }
     function isDate(val) {
-      return toString.call(val) === "[object Date]";
+      return toString2.call(val) === "[object Date]";
     }
     function isFile(val) {
-      return toString.call(val) === "[object File]";
+      return toString2.call(val) === "[object File]";
     }
     function isBlob(val) {
-      return toString.call(val) === "[object Blob]";
+      return toString2.call(val) === "[object Blob]";
     }
-    function isFunction(val) {
-      return toString.call(val) === "[object Function]";
+    function isFunction2(val) {
+      return toString2.call(val) === "[object Function]";
     }
     function isStream(val) {
-      return isObject(val) && isFunction(val.pipe);
+      return isObject2(val) && isFunction2(val.pipe);
     }
     function isURLSearchParams(val) {
       return typeof URLSearchParams !== "undefined" && val instanceof URLSearchParams;
@@ -45689,9 +45689,9 @@ var require_utils2 = __commonJS({
     function merge2() {
       var result = {};
       function assignValue(val, key) {
-        if (isPlainObject(result[key]) && isPlainObject(val)) {
+        if (isPlainObject2(result[key]) && isPlainObject2(val)) {
           result[key] = merge2(result[key], val);
-        } else if (isPlainObject(val)) {
+        } else if (isPlainObject2(val)) {
           result[key] = merge2({}, val);
         } else if (isArray(val)) {
           result[key] = val.slice();
@@ -45728,13 +45728,13 @@ var require_utils2 = __commonJS({
       isArrayBufferView,
       isString: isString2,
       isNumber,
-      isObject,
-      isPlainObject,
+      isObject: isObject2,
+      isPlainObject: isPlainObject2,
       isUndefined,
       isDate,
       isFile,
       isBlob,
-      isFunction,
+      isFunction: isFunction2,
       isStream,
       isURLSearchParams,
       isStandardBrowserEnv,
@@ -45881,7 +45881,7 @@ var require_enhanceError = __commonJS({
       error.request = request;
       error.response = response;
       error.isAxiosError = true;
-      error.toJSON = function toJSON() {
+      error.toJSON = function toJSON2() {
         return {
           message: this.message,
           name: this.name,
@@ -45956,7 +45956,7 @@ var require_cookies = __commonJS({
           var match = document.cookie.match(new RegExp("(^|;\\s*)(" + name2 + ")=([^;]*)"));
           return match ? decodeURIComponent(match[3]) : null;
         },
-        remove: function remove2(name2) {
+        remove: function remove3(name2) {
           this.write(name2, "", Date.now() - 864e5);
         }
       };
@@ -45967,7 +45967,7 @@ var require_cookies = __commonJS({
         read: function read() {
           return null;
         },
-        remove: function remove2() {
+        remove: function remove3() {
         }
       };
     }();
@@ -46496,7 +46496,7 @@ var require_Cancel = __commonJS({
     function Cancel(message) {
       this.message = message;
     }
-    Cancel.prototype.toString = function toString() {
+    Cancel.prototype.toString = function toString2() {
       return "Cancel" + (this.message ? ": " + this.message : "");
     };
     Cancel.prototype.__CANCEL__ = true;
@@ -46609,25 +46609,26 @@ var require_axios2 = __commonJS({
 });
 
 // src/index.tsx
-var import_react22 = __toModule(require_react());
-var import_react_dom5 = __toModule(require_react_dom());
+var import_react31 = __toModule(require_react());
+var import_react_dom7 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/bibliography.js
-var import_react17 = __toModule(require_react());
+var import_react26 = __toModule(require_react());
 var import_bibtex_parse_js = __toModule(require_bibtexParse());
-var import_lodash4 = __toModule(require_lodash());
+var import_lodash5 = __toModule(require_lodash());
 
 // node_modules/reactex/dist/document.js
-var import_react16 = __toModule(require_react());
+var import_react25 = __toModule(require_react());
 
 // node_modules/reactex/dist/tex.js
-var import_react14 = __toModule(require_react());
+var import_react23 = __toModule(require_react());
 var import_katex = __toModule(require_katex());
 var import_html_to_react = __toModule(require_html_to_react());
+var import_react_dom6 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/definitions.js
-var import_react13 = __toModule(require_react());
-var import_lodash = __toModule(require_lodash());
+var import_react22 = __toModule(require_react());
+var import_lodash2 = __toModule(require_lodash());
 
 // node_modules/reactex/node_modules/@babel/runtime/helpers/esm/extends.js
 function _extends() {
@@ -46676,13 +46677,13 @@ function _defineProperty(obj, key, value) {
 }
 
 // node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectSpread2.js
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
+function ownKeys(object2, enumerableOnly) {
+  var keys = Object.keys(object2);
   if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
+    var symbols = Object.getOwnPropertySymbols(object2);
     if (enumerableOnly) {
       symbols = symbols.filter(function(sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        return Object.getOwnPropertyDescriptor(object2, sym).enumerable;
       });
     }
     keys.push.apply(keys, symbols);
@@ -46953,14 +46954,14 @@ function supportRef(nodeOrComponent) {
 // node_modules/reactex/node_modules/rc-util/es/Dom/addEventListener.js
 var import_react_dom2 = __toModule(require_react_dom());
 function addEventListenerWrap(target, eventType, cb, option) {
-  var callback = import_react_dom2.default.unstable_batchedUpdates ? function run(e) {
+  var callback = import_react_dom2.default.unstable_batchedUpdates ? function run3(e) {
     import_react_dom2.default.unstable_batchedUpdates(cb, e);
   } : cb;
   if (target.addEventListener) {
     target.addEventListener(eventType, callback, option);
   }
   return {
-    remove: function remove2() {
+    remove: function remove3() {
       if (target.removeEventListener) {
         target.removeEventListener(eventType, callback);
       }
@@ -47685,14 +47686,14 @@ function genCSSMotionList(transitionSupport) {
         var _this2 = this;
         var keyEntities = this.state.keyEntities;
         var _this$props = this.props, component = _this$props.component, children = _this$props.children, _onVisibleChanged = _this$props.onVisibleChanged, restProps = _objectWithoutProperties(_this$props, ["component", "children", "onVisibleChanged"]);
-        var Component4 = component || React7.Fragment;
+        var Component5 = component || React7.Fragment;
         var motionProps = {};
         MOTION_PROP_NAMES.forEach(function(prop) {
           motionProps[prop] = restProps[prop];
           delete restProps[prop];
         });
         delete restProps.keys;
-        return /* @__PURE__ */ React7.createElement(Component4, restProps, keyEntities.map(function(_ref2) {
+        return /* @__PURE__ */ React7.createElement(Component5, restProps, keyEntities.map(function(_ref2) {
           var status = _ref2.status, eventProps = _objectWithoutProperties(_ref2, ["status"]);
           var visible = status === STATUS_ADD || status === STATUS_KEEP;
           return /* @__PURE__ */ React7.createElement(CSSMotion, _extends({}, motionProps, {
@@ -47809,8 +47810,8 @@ var isVisible_default = function(element) {
     return true;
   }
   if (element.getBBox) {
-    var box = element.getBBox();
-    if (box.width || box.height) {
+    var box2 = element.getBBox();
+    if (box2.width || box2.height) {
       return true;
     }
   }
@@ -47824,13 +47825,13 @@ var isVisible_default = function(element) {
 };
 
 // node_modules/reactex/node_modules/dom-align/dist-web/index.js
-function ownKeys2(object, enumerableOnly) {
-  var keys = Object.keys(object);
+function ownKeys2(object2, enumerableOnly) {
+  var keys = Object.keys(object2);
   if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
+    var symbols = Object.getOwnPropertySymbols(object2);
     if (enumerableOnly) {
       symbols = symbols.filter(function(sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        return Object.getOwnPropertyDescriptor(object2, sym).enumerable;
       });
     }
     keys.push.apply(keys, symbols);
@@ -48000,15 +48001,15 @@ function css(el, name2, v) {
   return getComputedStyleX(el, name2);
 }
 function getClientPosition(elem) {
-  var box;
+  var box2;
   var x;
   var y;
   var doc2 = elem.ownerDocument;
   var body = doc2.body;
   var docElem = doc2 && doc2.documentElement;
-  box = elem.getBoundingClientRect();
-  x = box.left;
-  y = box.top;
+  box2 = elem.getBoundingClientRect();
+  x = box2.left;
+  y = box2.top;
   x -= docElem.clientLeft || body.clientLeft || 0;
   y -= docElem.clientTop || body.clientTop || 0;
   return {
@@ -48611,11 +48612,11 @@ function isCompleteFailX(elFuturePos, elRegion, visibleRect) {
 function isCompleteFailY(elFuturePos, elRegion, visibleRect) {
   return elFuturePos.top > visibleRect.bottom || elFuturePos.top + elRegion.height < visibleRect.top;
 }
-function flip(points, reg, map) {
+function flip(points, reg, map2) {
   var ret = [];
   utils.each(points, function(p) {
     ret.push(p.replace(reg, function(m) {
-      return map[m];
+      return map2[m];
     }));
   });
   return ret;
@@ -48844,8 +48845,8 @@ var MapShim = function() {
       if (ctx === void 0) {
         ctx = null;
       }
-      for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
-        var entry = _a[_i];
+      for (var _i = 0, _a2 = this.__entries__; _i < _a2.length; _i++) {
+        var entry = _a2[_i];
         callback.call(ctx, entry[1], entry[0]);
       }
     };
@@ -48918,17 +48919,17 @@ var ResizeObserverController = function() {
     this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
     this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
   }
-  ResizeObserverController2.prototype.addObserver = function(observer) {
-    if (!~this.observers_.indexOf(observer)) {
-      this.observers_.push(observer);
+  ResizeObserverController2.prototype.addObserver = function(observer3) {
+    if (!~this.observers_.indexOf(observer3)) {
+      this.observers_.push(observer3);
     }
     if (!this.connected_) {
       this.connect_();
     }
   };
-  ResizeObserverController2.prototype.removeObserver = function(observer) {
+  ResizeObserverController2.prototype.removeObserver = function(observer3) {
     var observers2 = this.observers_;
-    var index2 = observers2.indexOf(observer);
+    var index2 = observers2.indexOf(observer3);
     if (~index2) {
       observers2.splice(index2, 1);
     }
@@ -48943,11 +48944,11 @@ var ResizeObserverController = function() {
     }
   };
   ResizeObserverController2.prototype.updateObservers_ = function() {
-    var activeObservers = this.observers_.filter(function(observer) {
-      return observer.gatherActive(), observer.hasActive();
+    var activeObservers = this.observers_.filter(function(observer3) {
+      return observer3.gatherActive(), observer3.hasActive();
     });
-    activeObservers.forEach(function(observer) {
-      return observer.broadcastActive();
+    activeObservers.forEach(function(observer3) {
+      return observer3.broadcastActive();
     });
     return activeObservers.length > 0;
   };
@@ -48987,8 +48988,8 @@ var ResizeObserverController = function() {
     this.mutationEventsAdded_ = false;
     this.connected_ = false;
   };
-  ResizeObserverController2.prototype.onTransitionEnd_ = function(_a) {
-    var _b2 = _a.propertyName, propertyName = _b2 === void 0 ? "" : _b2;
+  ResizeObserverController2.prototype.onTransitionEnd_ = function(_a2) {
+    var _b2 = _a2.propertyName, propertyName = _b2 === void 0 ? "" : _b2;
     var isReflowProperty = transitionKeys.some(function(key) {
       return !!~propertyName.indexOf(key);
     });
@@ -49006,8 +49007,8 @@ var ResizeObserverController = function() {
   return ResizeObserverController2;
 }();
 var defineConfigurable = function(target, props) {
-  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
-    var key = _a[_i];
+  for (var _i = 0, _a2 = Object.keys(props); _i < _a2.length; _i++) {
+    var key = _a2[_i];
     Object.defineProperty(target, key, {
       value: props[key],
       enumerable: false,
@@ -49101,8 +49102,8 @@ function getContentRect(target) {
   }
   return getHTMLElementContentRect(target);
 }
-function createReadOnlyRect(_a) {
-  var x = _a.x, y = _a.y, width = _a.width, height = _a.height;
+function createReadOnlyRect(_a2) {
+  var x = _a2.x, y = _a2.y, width = _a2.width, height = _a2.height;
   var Constr = typeof DOMRectReadOnly !== "undefined" ? DOMRectReadOnly : Object;
   var rect = Object.create(Constr.prototype);
   defineConfigurable(rect, {
@@ -49238,8 +49239,8 @@ var ResizeObserver = function() {
       throw new TypeError("1 argument required, but only 0 present.");
     }
     var controller = ResizeObserverController.getInstance();
-    var observer = new ResizeObserverSPI(callback, controller, this);
-    observers.set(this, observer);
+    var observer3 = new ResizeObserverSPI(callback, controller, this);
+    observers.set(this, observer3);
   }
   return ResizeObserver2;
 }();
@@ -49249,8 +49250,8 @@ var ResizeObserver = function() {
   "disconnect"
 ].forEach(function(method) {
   ResizeObserver.prototype[method] = function() {
-    var _a;
-    return (_a = observers.get(this))[method].apply(_a, arguments);
+    var _a2;
+    return (_a2 = observers.get(this))[method].apply(_a2, arguments);
   };
 });
 var index = function() {
@@ -50180,50 +50181,50 @@ function generateTrigger(PortalComponent) {
     }, {
       key: "isClickToShow",
       value: function isClickToShow() {
-        var _this$props4 = this.props, action = _this$props4.action, showAction = _this$props4.showAction;
-        return action.indexOf("click") !== -1 || showAction.indexOf("click") !== -1;
+        var _this$props4 = this.props, action2 = _this$props4.action, showAction = _this$props4.showAction;
+        return action2.indexOf("click") !== -1 || showAction.indexOf("click") !== -1;
       }
     }, {
       key: "isContextMenuOnly",
       value: function isContextMenuOnly() {
-        var action = this.props.action;
-        return action === "contextMenu" || action.length === 1 && action[0] === "contextMenu";
+        var action2 = this.props.action;
+        return action2 === "contextMenu" || action2.length === 1 && action2[0] === "contextMenu";
       }
     }, {
       key: "isContextMenuToShow",
       value: function isContextMenuToShow() {
-        var _this$props5 = this.props, action = _this$props5.action, showAction = _this$props5.showAction;
-        return action.indexOf("contextMenu") !== -1 || showAction.indexOf("contextMenu") !== -1;
+        var _this$props5 = this.props, action2 = _this$props5.action, showAction = _this$props5.showAction;
+        return action2.indexOf("contextMenu") !== -1 || showAction.indexOf("contextMenu") !== -1;
       }
     }, {
       key: "isClickToHide",
       value: function isClickToHide() {
-        var _this$props6 = this.props, action = _this$props6.action, hideAction = _this$props6.hideAction;
-        return action.indexOf("click") !== -1 || hideAction.indexOf("click") !== -1;
+        var _this$props6 = this.props, action2 = _this$props6.action, hideAction = _this$props6.hideAction;
+        return action2.indexOf("click") !== -1 || hideAction.indexOf("click") !== -1;
       }
     }, {
       key: "isMouseEnterToShow",
       value: function isMouseEnterToShow() {
-        var _this$props7 = this.props, action = _this$props7.action, showAction = _this$props7.showAction;
-        return action.indexOf("hover") !== -1 || showAction.indexOf("mouseEnter") !== -1;
+        var _this$props7 = this.props, action2 = _this$props7.action, showAction = _this$props7.showAction;
+        return action2.indexOf("hover") !== -1 || showAction.indexOf("mouseEnter") !== -1;
       }
     }, {
       key: "isMouseLeaveToHide",
       value: function isMouseLeaveToHide() {
-        var _this$props8 = this.props, action = _this$props8.action, hideAction = _this$props8.hideAction;
-        return action.indexOf("hover") !== -1 || hideAction.indexOf("mouseLeave") !== -1;
+        var _this$props8 = this.props, action2 = _this$props8.action, hideAction = _this$props8.hideAction;
+        return action2.indexOf("hover") !== -1 || hideAction.indexOf("mouseLeave") !== -1;
       }
     }, {
       key: "isFocusToShow",
       value: function isFocusToShow() {
-        var _this$props9 = this.props, action = _this$props9.action, showAction = _this$props9.showAction;
-        return action.indexOf("focus") !== -1 || showAction.indexOf("focus") !== -1;
+        var _this$props9 = this.props, action2 = _this$props9.action, showAction = _this$props9.showAction;
+        return action2.indexOf("focus") !== -1 || showAction.indexOf("focus") !== -1;
       }
     }, {
       key: "isBlurToHide",
       value: function isBlurToHide() {
-        var _this$props10 = this.props, action = _this$props10.action, hideAction = _this$props10.hideAction;
-        return action.indexOf("focus") !== -1 || hideAction.indexOf("blur") !== -1;
+        var _this$props10 = this.props, action2 = _this$props10.action, hideAction = _this$props10.hideAction;
+        return action2.indexOf("focus") !== -1 || hideAction.indexOf("blur") !== -1;
       }
     }, {
       key: "forcePopupAlign",
@@ -50516,37 +50517,4865 @@ var es_default4 = Tooltip_default;
 
 // node_modules/reactex/dist/definitions.js
 var import_classnames6 = __toModule(require_classnames());
-var DefinitionData = class {
-  constructor() {
-    this.defs = {};
+
+// node_modules/reactex/node_modules/mobx/dist/mobx.esm.js
+var niceErrors = {
+  0: "Invalid value for configuration 'enforceActions', expected 'never', 'always' or 'observed'",
+  1: function _(annotationType, key) {
+    return "Cannot apply '" + annotationType + "' to '" + key.toString() + "': Field not found.";
+  },
+  5: "'keys()' can only be used on observable objects, arrays, sets and maps",
+  6: "'values()' can only be used on observable objects, arrays, sets and maps",
+  7: "'entries()' can only be used on observable objects, arrays and maps",
+  8: "'set()' can only be used on observable objects, arrays and maps",
+  9: "'remove()' can only be used on observable objects, arrays and maps",
+  10: "'has()' can only be used on observable objects, arrays and maps",
+  11: "'get()' can only be used on observable objects, arrays and maps",
+  12: "Invalid annotation",
+  13: "Dynamic observable objects cannot be frozen",
+  14: "Intercept handlers should return nothing or a change object",
+  15: "Observable arrays cannot be frozen",
+  16: "Modification exception: the internal structure of an observable array was changed.",
+  17: function _2(index2, length) {
+    return "[mobx.array] Index out of bounds, " + index2 + " is larger than " + length;
+  },
+  18: "mobx.map requires Map polyfill for the current browser. Check babel-polyfill or core-js/es6/map.js",
+  19: function _3(other) {
+    return "Cannot initialize from classes that inherit from Map: " + other.constructor.name;
+  },
+  20: function _4(other) {
+    return "Cannot initialize map from " + other;
+  },
+  21: function _5(dataStructure) {
+    return "Cannot convert to map from '" + dataStructure + "'";
+  },
+  22: "mobx.set requires Set polyfill for the current browser. Check babel-polyfill or core-js/es6/set.js",
+  23: "It is not possible to get index atoms from arrays",
+  24: function _6(thing) {
+    return "Cannot obtain administration from " + thing;
+  },
+  25: function _7(property, name2) {
+    return "the entry '" + property + "' does not exist in the observable map '" + name2 + "'";
+  },
+  26: "please specify a property",
+  27: function _8(property, name2) {
+    return "no observable property '" + property.toString() + "' found on the observable object '" + name2 + "'";
+  },
+  28: function _9(thing) {
+    return "Cannot obtain atom from " + thing;
+  },
+  29: "Expecting some object",
+  30: "invalid action stack. did you forget to finish an action?",
+  31: "missing option for computed: get",
+  32: function _10(name2, derivation) {
+    return "Cycle detected in computation " + name2 + ": " + derivation;
+  },
+  33: function _11(name2) {
+    return "The setter of computed value '" + name2 + "' is trying to update itself. Did you intend to update an _observable_ value, instead of the computed property?";
+  },
+  34: function _12(name2) {
+    return "[ComputedValue '" + name2 + "'] It is not possible to assign a new value to a computed value.";
+  },
+  35: "There are multiple, different versions of MobX active. Make sure MobX is loaded only once or use `configure({ isolateGlobalState: true })`",
+  36: "isolateGlobalState should be called before MobX is running any reactions",
+  37: function _13(method) {
+    return "[mobx] `observableArray." + method + "()` mutates the array in-place, which is not allowed inside a derivation. Use `array.slice()." + method + "()` instead";
+  },
+  38: "'ownKeys()' can only be used on observable objects",
+  39: "'defineProperty()' can only be used on observable objects"
+};
+var errors = true ? niceErrors : {};
+function die(error) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
   }
-  add_definition(name2, def) {
-    if (!(name2 in this.defs)) {
-      this.defs[name2] = def;
+  if (true) {
+    var e = typeof error === "string" ? error : errors[error];
+    if (typeof e === "function")
+      e = e.apply(null, args);
+    throw new Error("[MobX] " + e);
+  }
+  throw new Error(typeof error === "number" ? "[MobX] minified error nr: " + error + (args.length ? " " + args.map(String).join(",") : "") + ". Find the full error at: https://github.com/mobxjs/mobx/blob/main/packages/mobx/src/errors.ts" : "[MobX] " + error);
+}
+var mockGlobal = {};
+function getGlobal() {
+  if (typeof globalThis !== "undefined") {
+    return globalThis;
+  }
+  if (typeof window !== "undefined") {
+    return window;
+  }
+  if (typeof global !== "undefined") {
+    return global;
+  }
+  if (typeof self !== "undefined") {
+    return self;
+  }
+  return mockGlobal;
+}
+var assign = Object.assign;
+var getDescriptor = Object.getOwnPropertyDescriptor;
+var defineProperty = Object.defineProperty;
+var objectPrototype = Object.prototype;
+var EMPTY_ARRAY = [];
+Object.freeze(EMPTY_ARRAY);
+var EMPTY_OBJECT = {};
+Object.freeze(EMPTY_OBJECT);
+var hasProxy = typeof Proxy !== "undefined";
+var plainObjectString = /* @__PURE__ */ Object.toString();
+function assertProxies() {
+  if (!hasProxy) {
+    die(true ? "`Proxy` objects are not available in the current environment. Please configure MobX to enable a fallback implementation.`" : "Proxy not available");
+  }
+}
+function warnAboutProxyRequirement(msg) {
+  if (globalState.verifyProxies) {
+    die("MobX is currently configured to be able to run in ES5 mode, but in ES5 MobX won't be able to " + msg);
+  }
+}
+function getNextId() {
+  return ++globalState.mobxGuid;
+}
+function once(func) {
+  var invoked = false;
+  return function() {
+    if (invoked)
+      return;
+    invoked = true;
+    return func.apply(this, arguments);
+  };
+}
+var noop2 = function noop3() {
+};
+function isFunction(fn) {
+  return typeof fn === "function";
+}
+function isStringish(value) {
+  var t2 = typeof value;
+  switch (t2) {
+    case "string":
+    case "symbol":
+    case "number":
+      return true;
+  }
+  return false;
+}
+function isObject(value) {
+  return value !== null && typeof value === "object";
+}
+function isPlainObject(value) {
+  var _proto$constructor;
+  if (!isObject(value))
+    return false;
+  var proto = Object.getPrototypeOf(value);
+  if (proto == null)
+    return true;
+  return ((_proto$constructor = proto.constructor) == null ? void 0 : _proto$constructor.toString()) === plainObjectString;
+}
+function isGenerator(obj) {
+  var constructor = obj == null ? void 0 : obj.constructor;
+  if (!constructor)
+    return false;
+  if (constructor.name === "GeneratorFunction" || constructor.displayName === "GeneratorFunction")
+    return true;
+  return false;
+}
+function addHiddenProp(object2, propName, value) {
+  defineProperty(object2, propName, {
+    enumerable: false,
+    writable: true,
+    configurable: true,
+    value
+  });
+}
+function addHiddenFinalProp(object2, propName, value) {
+  defineProperty(object2, propName, {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value
+  });
+}
+function createInstanceofPredicate(name2, theClass) {
+  var propName = "isMobX" + name2;
+  theClass.prototype[propName] = true;
+  return function(x) {
+    return isObject(x) && x[propName] === true;
+  };
+}
+function isES6Map(thing) {
+  return thing instanceof Map;
+}
+function isES6Set(thing) {
+  return thing instanceof Set;
+}
+var hasGetOwnPropertySymbols = typeof Object.getOwnPropertySymbols !== "undefined";
+function getPlainObjectKeys(object2) {
+  var keys = Object.keys(object2);
+  if (!hasGetOwnPropertySymbols)
+    return keys;
+  var symbols = Object.getOwnPropertySymbols(object2);
+  if (!symbols.length)
+    return keys;
+  return [].concat(keys, symbols.filter(function(s) {
+    return objectPrototype.propertyIsEnumerable.call(object2, s);
+  }));
+}
+var ownKeys3 = typeof Reflect !== "undefined" && Reflect.ownKeys ? Reflect.ownKeys : hasGetOwnPropertySymbols ? function(obj) {
+  return Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
+} : Object.getOwnPropertyNames;
+function stringifyKey(key) {
+  if (typeof key === "string")
+    return key;
+  if (typeof key === "symbol")
+    return key.toString();
+  return new String(key).toString();
+}
+function toPrimitive(value) {
+  return value === null ? null : typeof value === "object" ? "" + value : value;
+}
+function hasProp(target, prop) {
+  return objectPrototype.hasOwnProperty.call(target, prop);
+}
+var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors || function getOwnPropertyDescriptors2(target) {
+  var res = {};
+  ownKeys3(target).forEach(function(key) {
+    res[key] = getDescriptor(target, key);
+  });
+  return res;
+};
+function _defineProperties2(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor)
+      descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+function _createClass2(Constructor, protoProps, staticProps) {
+  if (protoProps)
+    _defineProperties2(Constructor.prototype, protoProps);
+  if (staticProps)
+    _defineProperties2(Constructor, staticProps);
+  return Constructor;
+}
+function _extends2() {
+  _extends2 = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends2.apply(this, arguments);
+}
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  subClass.__proto__ = superClass;
+}
+function _assertThisInitialized2(self2) {
+  if (self2 === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+  return self2;
+}
+function _unsupportedIterableToArray2(o, minLen) {
+  if (!o)
+    return;
+  if (typeof o === "string")
+    return _arrayLikeToArray2(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor)
+    n = o.constructor.name;
+  if (n === "Map" || n === "Set")
+    return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
+    return _arrayLikeToArray2(o, minLen);
+}
+function _arrayLikeToArray2(arr, len) {
+  if (len == null || len > arr.length)
+    len = arr.length;
+  for (var i = 0, arr2 = new Array(len); i < len; i++)
+    arr2[i] = arr[i];
+  return arr2;
+}
+function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+  var it;
+  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray2(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it)
+        o = it;
+      var i = 0;
+      return function() {
+        if (i >= o.length)
+          return {
+            done: true
+          };
+        return {
+          done: false,
+          value: o[i++]
+        };
+      };
+    }
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  it = o[Symbol.iterator]();
+  return it.next.bind(it);
+}
+var storedAnnotationsSymbol = /* @__PURE__ */ Symbol("mobx-stored-annotations");
+function createDecoratorAnnotation(annotation) {
+  function decorator(target, property) {
+    storeAnnotation(target, property, annotation);
+  }
+  return Object.assign(decorator, annotation);
+}
+function storeAnnotation(prototype, key, annotation) {
+  if (!hasProp(prototype, storedAnnotationsSymbol)) {
+    addHiddenProp(prototype, storedAnnotationsSymbol, _extends2({}, prototype[storedAnnotationsSymbol]));
+  }
+  if (isOverride(annotation) && !hasProp(prototype[storedAnnotationsSymbol], key)) {
+    var fieldName = prototype.constructor.name + ".prototype." + key.toString();
+    die("'" + fieldName + "' is decorated with 'override', but no such decorated member was found on prototype.");
+  }
+  assertNotDecorated(prototype, annotation, key);
+  if (!isOverride(annotation)) {
+    prototype[storedAnnotationsSymbol][key] = annotation;
+  }
+}
+function assertNotDecorated(prototype, annotation, key) {
+  if (!isOverride(annotation) && hasProp(prototype[storedAnnotationsSymbol], key)) {
+    var fieldName = prototype.constructor.name + ".prototype." + key.toString();
+    var currentAnnotationType = prototype[storedAnnotationsSymbol][key].annotationType_;
+    var requestedAnnotationType = annotation.annotationType_;
+    die("Cannot apply '@" + requestedAnnotationType + "' to '" + fieldName + "':" + ("\nThe field is already decorated with '@" + currentAnnotationType + "'.") + "\nRe-decorating fields is not allowed.\nUse '@override' decorator for methods overriden by subclass.");
+  }
+}
+function collectStoredAnnotations(target) {
+  if (!hasProp(target, storedAnnotationsSymbol)) {
+    if (!target[storedAnnotationsSymbol]) {
+      die("No annotations were passed to makeObservable, but no decorated members have been found either");
+    }
+    addHiddenProp(target, storedAnnotationsSymbol, _extends2({}, target[storedAnnotationsSymbol]));
+  }
+  return target[storedAnnotationsSymbol];
+}
+var $mobx = /* @__PURE__ */ Symbol("mobx administration");
+var Atom = /* @__PURE__ */ function() {
+  function Atom2(name_) {
+    if (name_ === void 0) {
+      name_ = true ? "Atom@" + getNextId() : "Atom";
+    }
+    this.name_ = void 0;
+    this.isPendingUnobservation_ = false;
+    this.isBeingObserved_ = false;
+    this.observers_ = new Set();
+    this.diffValue_ = 0;
+    this.lastAccessedBy_ = 0;
+    this.lowestObserverState_ = IDerivationState_.NOT_TRACKING_;
+    this.onBOL = void 0;
+    this.onBUOL = void 0;
+    this.name_ = name_;
+  }
+  var _proto = Atom2.prototype;
+  _proto.onBO = function onBO() {
+    if (this.onBOL) {
+      this.onBOL.forEach(function(listener) {
+        return listener();
+      });
+    }
+  };
+  _proto.onBUO = function onBUO() {
+    if (this.onBUOL) {
+      this.onBUOL.forEach(function(listener) {
+        return listener();
+      });
+    }
+  };
+  _proto.reportObserved = function reportObserved$1() {
+    return reportObserved(this);
+  };
+  _proto.reportChanged = function reportChanged() {
+    startBatch();
+    propagateChanged(this);
+    endBatch();
+  };
+  _proto.toString = function toString2() {
+    return this.name_;
+  };
+  return Atom2;
+}();
+var isAtom = /* @__PURE__ */ createInstanceofPredicate("Atom", Atom);
+function createAtom(name2, onBecomeObservedHandler, onBecomeUnobservedHandler) {
+  if (onBecomeObservedHandler === void 0) {
+    onBecomeObservedHandler = noop2;
+  }
+  if (onBecomeUnobservedHandler === void 0) {
+    onBecomeUnobservedHandler = noop2;
+  }
+  var atom = new Atom(name2);
+  if (onBecomeObservedHandler !== noop2) {
+    onBecomeObserved(atom, onBecomeObservedHandler);
+  }
+  if (onBecomeUnobservedHandler !== noop2) {
+    onBecomeUnobserved(atom, onBecomeUnobservedHandler);
+  }
+  return atom;
+}
+function identityComparer(a, b) {
+  return a === b;
+}
+function structuralComparer(a, b) {
+  return deepEqual(a, b);
+}
+function shallowComparer(a, b) {
+  return deepEqual(a, b, 1);
+}
+function defaultComparer(a, b) {
+  return Object.is(a, b);
+}
+var comparer = {
+  identity: identityComparer,
+  structural: structuralComparer,
+  "default": defaultComparer,
+  shallow: shallowComparer
+};
+function deepEnhancer(v, _19, name2) {
+  if (isObservable(v))
+    return v;
+  if (Array.isArray(v))
+    return observable.array(v, {
+      name: name2
+    });
+  if (isPlainObject(v))
+    return observable.object(v, void 0, {
+      name: name2
+    });
+  if (isES6Map(v))
+    return observable.map(v, {
+      name: name2
+    });
+  if (isES6Set(v))
+    return observable.set(v, {
+      name: name2
+    });
+  if (typeof v === "function" && !isAction(v) && !isFlow(v)) {
+    if (isGenerator(v)) {
+      return flow(v);
+    } else {
+      return autoAction(name2, v);
     }
   }
+  return v;
+}
+function shallowEnhancer(v, _19, name2) {
+  if (v === void 0 || v === null)
+    return v;
+  if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v) || isObservableSet(v))
+    return v;
+  if (Array.isArray(v))
+    return observable.array(v, {
+      name: name2,
+      deep: false
+    });
+  if (isPlainObject(v))
+    return observable.object(v, void 0, {
+      name: name2,
+      deep: false
+    });
+  if (isES6Map(v))
+    return observable.map(v, {
+      name: name2,
+      deep: false
+    });
+  if (isES6Set(v))
+    return observable.set(v, {
+      name: name2,
+      deep: false
+    });
+  if (true)
+    die("The shallow modifier / decorator can only used in combination with arrays, objects, maps and sets");
+}
+function referenceEnhancer(newValue) {
+  return newValue;
+}
+function refStructEnhancer(v, oldValue) {
+  if (isObservable(v))
+    die("observable.struct should not be used with observable values");
+  if (deepEqual(v, oldValue))
+    return oldValue;
+  return v;
+}
+var OVERRIDE = "override";
+function isOverride(annotation) {
+  return annotation.annotationType_ === OVERRIDE;
+}
+function createActionAnnotation(name2, options) {
+  return {
+    annotationType_: name2,
+    options_: options,
+    make_: make_$1,
+    extend_: extend_$1
+  };
+}
+function make_$1(adm, key, descriptor, source) {
+  var _this$options_;
+  if ((_this$options_ = this.options_) == null ? void 0 : _this$options_.bound) {
+    return this.extend_(adm, key, descriptor, false) === null ? 0 : 1;
+  }
+  if (source === adm.target_) {
+    return this.extend_(adm, key, descriptor, false) === null ? 0 : 2;
+  }
+  if (isAction(descriptor.value)) {
+    return 1;
+  }
+  var actionDescriptor = createActionDescriptor(adm, this, key, descriptor, false);
+  defineProperty(source, key, actionDescriptor);
+  return 2;
+}
+function extend_$1(adm, key, descriptor, proxyTrap) {
+  var actionDescriptor = createActionDescriptor(adm, this, key, descriptor);
+  return adm.defineProperty_(key, actionDescriptor, proxyTrap);
+}
+function assertActionDescriptor(adm, _ref, key, _ref2) {
+  var annotationType_ = _ref.annotationType_;
+  var value = _ref2.value;
+  if (!isFunction(value)) {
+    die("Cannot apply '" + annotationType_ + "' to '" + adm.name_ + "." + key.toString() + "':" + ("\n'" + annotationType_ + "' can only be used on properties with a function value."));
+  }
+}
+function createActionDescriptor(adm, annotation, key, descriptor, safeDescriptors) {
+  var _annotation$options_, _annotation$options_$, _annotation$options_2, _annotation$options_$2, _annotation$options_3;
+  if (safeDescriptors === void 0) {
+    safeDescriptors = globalState.safeDescriptors;
+  }
+  assertActionDescriptor(adm, annotation, key, descriptor);
+  var value = descriptor.value;
+  if ((_annotation$options_ = annotation.options_) == null ? void 0 : _annotation$options_.bound) {
+    var _adm$proxy_;
+    value = value.bind((_adm$proxy_ = adm.proxy_) != null ? _adm$proxy_ : adm.target_);
+  }
+  return {
+    value: createAction((_annotation$options_$ = (_annotation$options_2 = annotation.options_) == null ? void 0 : _annotation$options_2.name) != null ? _annotation$options_$ : key.toString(), value, (_annotation$options_$2 = (_annotation$options_3 = annotation.options_) == null ? void 0 : _annotation$options_3.autoAction) != null ? _annotation$options_$2 : false),
+    configurable: safeDescriptors ? adm.isPlainObject_ : true,
+    enumerable: false,
+    writable: safeDescriptors ? false : true
+  };
+}
+function createFlowAnnotation(name2, options) {
+  return {
+    annotationType_: name2,
+    options_: options,
+    make_: make_$2,
+    extend_: extend_$2
+  };
+}
+function make_$2(adm, key, descriptor, source) {
+  var _this$options_;
+  if (source === adm.target_) {
+    return this.extend_(adm, key, descriptor, false) === null ? 0 : 2;
+  }
+  if (((_this$options_ = this.options_) == null ? void 0 : _this$options_.bound) && !isFlow(adm.target_[key])) {
+    if (this.extend_(adm, key, descriptor, false) === null)
+      return 0;
+  }
+  if (isFlow(descriptor.value)) {
+    return 1;
+  }
+  var flowDescriptor = createFlowDescriptor(adm, this, key, descriptor, false, false);
+  defineProperty(source, key, flowDescriptor);
+  return 2;
+}
+function extend_$2(adm, key, descriptor, proxyTrap) {
+  var _this$options_2;
+  var flowDescriptor = createFlowDescriptor(adm, this, key, descriptor, (_this$options_2 = this.options_) == null ? void 0 : _this$options_2.bound);
+  return adm.defineProperty_(key, flowDescriptor, proxyTrap);
+}
+function assertFlowDescriptor(adm, _ref, key, _ref2) {
+  var annotationType_ = _ref.annotationType_;
+  var value = _ref2.value;
+  if (!isFunction(value)) {
+    die("Cannot apply '" + annotationType_ + "' to '" + adm.name_ + "." + key.toString() + "':" + ("\n'" + annotationType_ + "' can only be used on properties with a generator function value."));
+  }
+}
+function createFlowDescriptor(adm, annotation, key, descriptor, bound, safeDescriptors) {
+  if (safeDescriptors === void 0) {
+    safeDescriptors = globalState.safeDescriptors;
+  }
+  assertFlowDescriptor(adm, annotation, key, descriptor);
+  var value = descriptor.value;
+  if (bound) {
+    var _adm$proxy_;
+    value = value.bind((_adm$proxy_ = adm.proxy_) != null ? _adm$proxy_ : adm.target_);
+  }
+  return {
+    value: flow(value),
+    configurable: safeDescriptors ? adm.isPlainObject_ : true,
+    enumerable: false,
+    writable: safeDescriptors ? false : true
+  };
+}
+function createComputedAnnotation(name2, options) {
+  return {
+    annotationType_: name2,
+    options_: options,
+    make_: make_$3,
+    extend_: extend_$3
+  };
+}
+function make_$3(adm, key, descriptor) {
+  return this.extend_(adm, key, descriptor, false) === null ? 0 : 1;
+}
+function extend_$3(adm, key, descriptor, proxyTrap) {
+  assertComputedDescriptor(adm, this, key, descriptor);
+  return adm.defineComputedProperty_(key, _extends2({}, this.options_, {
+    get: descriptor.get,
+    set: descriptor.set
+  }), proxyTrap);
+}
+function assertComputedDescriptor(adm, _ref, key, _ref2) {
+  var annotationType_ = _ref.annotationType_;
+  var get3 = _ref2.get;
+  if (!get3) {
+    die("Cannot apply '" + annotationType_ + "' to '" + adm.name_ + "." + key.toString() + "':" + ("\n'" + annotationType_ + "' can only be used on getter(+setter) properties."));
+  }
+}
+function createObservableAnnotation(name2, options) {
+  return {
+    annotationType_: name2,
+    options_: options,
+    make_: make_$4,
+    extend_: extend_$4
+  };
+}
+function make_$4(adm, key, descriptor) {
+  return this.extend_(adm, key, descriptor, false) === null ? 0 : 1;
+}
+function extend_$4(adm, key, descriptor, proxyTrap) {
+  var _this$options_$enhanc, _this$options_;
+  assertObservableDescriptor(adm, this, key, descriptor);
+  return adm.defineObservableProperty_(key, descriptor.value, (_this$options_$enhanc = (_this$options_ = this.options_) == null ? void 0 : _this$options_.enhancer) != null ? _this$options_$enhanc : deepEnhancer, proxyTrap);
+}
+function assertObservableDescriptor(adm, _ref, key, descriptor) {
+  var annotationType_ = _ref.annotationType_;
+  if (!("value" in descriptor)) {
+    die("Cannot apply '" + annotationType_ + "' to '" + adm.name_ + "." + key.toString() + "':" + ("\n'" + annotationType_ + "' cannot be used on getter/setter properties"));
+  }
+}
+var AUTO = "true";
+var autoAnnotation = /* @__PURE__ */ createAutoAnnotation();
+function createAutoAnnotation(options) {
+  return {
+    annotationType_: AUTO,
+    options_: options,
+    make_: make_$5,
+    extend_: extend_$5
+  };
+}
+function make_$5(adm, key, descriptor, source) {
+  var _this$options_3, _this$options_4;
+  if (descriptor.get) {
+    return computed.make_(adm, key, descriptor, source);
+  }
+  if (descriptor.set) {
+    var set4 = createAction(key.toString(), descriptor.set);
+    if (source === adm.target_) {
+      return adm.defineProperty_(key, {
+        configurable: globalState.safeDescriptors ? adm.isPlainObject_ : true,
+        set: set4
+      }) === null ? 0 : 2;
+    }
+    defineProperty(source, key, {
+      configurable: true,
+      set: set4
+    });
+    return 2;
+  }
+  if (source !== adm.target_ && typeof descriptor.value === "function") {
+    var _this$options_2;
+    if (isGenerator(descriptor.value)) {
+      var _this$options_;
+      var flowAnnotation2 = ((_this$options_ = this.options_) == null ? void 0 : _this$options_.autoBind) ? flow.bound : flow;
+      return flowAnnotation2.make_(adm, key, descriptor, source);
+    }
+    var actionAnnotation2 = ((_this$options_2 = this.options_) == null ? void 0 : _this$options_2.autoBind) ? autoAction.bound : autoAction;
+    return actionAnnotation2.make_(adm, key, descriptor, source);
+  }
+  var observableAnnotation2 = ((_this$options_3 = this.options_) == null ? void 0 : _this$options_3.deep) === false ? observable.ref : observable;
+  if (typeof descriptor.value === "function" && ((_this$options_4 = this.options_) == null ? void 0 : _this$options_4.autoBind)) {
+    var _adm$proxy_;
+    descriptor.value = descriptor.value.bind((_adm$proxy_ = adm.proxy_) != null ? _adm$proxy_ : adm.target_);
+  }
+  return observableAnnotation2.make_(adm, key, descriptor, source);
+}
+function extend_$5(adm, key, descriptor, proxyTrap) {
+  var _this$options_5, _this$options_6;
+  if (descriptor.get) {
+    return computed.extend_(adm, key, descriptor, proxyTrap);
+  }
+  if (descriptor.set) {
+    return adm.defineProperty_(key, {
+      configurable: globalState.safeDescriptors ? adm.isPlainObject_ : true,
+      set: createAction(key.toString(), descriptor.set)
+    }, proxyTrap);
+  }
+  if (typeof descriptor.value === "function" && ((_this$options_5 = this.options_) == null ? void 0 : _this$options_5.autoBind)) {
+    var _adm$proxy_2;
+    descriptor.value = descriptor.value.bind((_adm$proxy_2 = adm.proxy_) != null ? _adm$proxy_2 : adm.target_);
+  }
+  var observableAnnotation2 = ((_this$options_6 = this.options_) == null ? void 0 : _this$options_6.deep) === false ? observable.ref : observable;
+  return observableAnnotation2.extend_(adm, key, descriptor, proxyTrap);
+}
+var defaultCreateObservableOptions = {
+  deep: true,
+  name: void 0,
+  defaultDecorator: void 0,
+  proxy: true
 };
-var DefinitionContext = import_react13.default.createContext(new DefinitionData());
-var AdaptiveDisplay = ({ block, ...props }) => {
+Object.freeze(defaultCreateObservableOptions);
+function asCreateObservableOptions(thing) {
+  return thing || defaultCreateObservableOptions;
+}
+var observableAnnotation = /* @__PURE__ */ createObservableAnnotation("observable");
+var observableRefAnnotation = /* @__PURE__ */ createObservableAnnotation("observable.ref", {
+  enhancer: referenceEnhancer
+});
+var observableShallowAnnotation = /* @__PURE__ */ createObservableAnnotation("observable.shallow", {
+  enhancer: shallowEnhancer
+});
+var observableStructAnnotation = /* @__PURE__ */ createObservableAnnotation("observable.struct", {
+  enhancer: refStructEnhancer
+});
+var observableDecoratorAnnotation = /* @__PURE__ */ createDecoratorAnnotation(observableAnnotation);
+function getEnhancerFromOptions(options) {
+  return options.deep === true ? deepEnhancer : options.deep === false ? referenceEnhancer : getEnhancerFromAnnotation(options.defaultDecorator);
+}
+function getAnnotationFromOptions(options) {
+  var _options$defaultDecor;
+  return options ? (_options$defaultDecor = options.defaultDecorator) != null ? _options$defaultDecor : createAutoAnnotation(options) : void 0;
+}
+function getEnhancerFromAnnotation(annotation) {
+  var _annotation$options_$, _annotation$options_;
+  return !annotation ? deepEnhancer : (_annotation$options_$ = (_annotation$options_ = annotation.options_) == null ? void 0 : _annotation$options_.enhancer) != null ? _annotation$options_$ : deepEnhancer;
+}
+function createObservable(v, arg2, arg3) {
+  if (isStringish(arg2)) {
+    storeAnnotation(v, arg2, observableAnnotation);
+    return;
+  }
+  if (isObservable(v))
+    return v;
+  if (isPlainObject(v))
+    return observable.object(v, arg2, arg3);
+  if (Array.isArray(v))
+    return observable.array(v, arg2);
+  if (isES6Map(v))
+    return observable.map(v, arg2);
+  if (isES6Set(v))
+    return observable.set(v, arg2);
+  if (typeof v === "object" && v !== null)
+    return v;
+  return observable.box(v, arg2);
+}
+Object.assign(createObservable, observableDecoratorAnnotation);
+var observableFactories = {
+  box: function box(value, options) {
+    var o = asCreateObservableOptions(options);
+    return new ObservableValue(value, getEnhancerFromOptions(o), o.name, true, o.equals);
+  },
+  array: function array(initialValues, options) {
+    var o = asCreateObservableOptions(options);
+    return (globalState.useProxies === false || o.proxy === false ? createLegacyArray : createObservableArray)(initialValues, getEnhancerFromOptions(o), o.name);
+  },
+  map: function map(initialValues, options) {
+    var o = asCreateObservableOptions(options);
+    return new ObservableMap(initialValues, getEnhancerFromOptions(o), o.name);
+  },
+  set: function set(initialValues, options) {
+    var o = asCreateObservableOptions(options);
+    return new ObservableSet(initialValues, getEnhancerFromOptions(o), o.name);
+  },
+  object: function object(props, decorators, options) {
+    return extendObservable(globalState.useProxies === false || (options == null ? void 0 : options.proxy) === false ? asObservableObject({}, options) : asDynamicObservableObject({}, options), props, decorators);
+  },
+  ref: /* @__PURE__ */ createDecoratorAnnotation(observableRefAnnotation),
+  shallow: /* @__PURE__ */ createDecoratorAnnotation(observableShallowAnnotation),
+  deep: observableDecoratorAnnotation,
+  struct: /* @__PURE__ */ createDecoratorAnnotation(observableStructAnnotation)
+};
+var observable = /* @__PURE__ */ assign(createObservable, observableFactories);
+var COMPUTED = "computed";
+var COMPUTED_STRUCT = "computed.struct";
+var computedAnnotation = /* @__PURE__ */ createComputedAnnotation(COMPUTED);
+var computedStructAnnotation = /* @__PURE__ */ createComputedAnnotation(COMPUTED_STRUCT, {
+  equals: comparer.structural
+});
+var computed = function computed2(arg1, arg2) {
+  if (isStringish(arg2)) {
+    return storeAnnotation(arg1, arg2, computedAnnotation);
+  }
+  if (isPlainObject(arg1)) {
+    return createDecoratorAnnotation(createComputedAnnotation(COMPUTED, arg1));
+  }
+  if (true) {
+    if (!isFunction(arg1))
+      die("First argument to `computed` should be an expression.");
+    if (isFunction(arg2))
+      die("A setter as second argument is no longer supported, use `{ set: fn }` option instead");
+  }
+  var opts = isPlainObject(arg2) ? arg2 : {};
+  opts.get = arg1;
+  opts.name || (opts.name = arg1.name || "");
+  return new ComputedValue(opts);
+};
+Object.assign(computed, computedAnnotation);
+computed.struct = /* @__PURE__ */ createDecoratorAnnotation(computedStructAnnotation);
+var _getDescriptor$config;
+var _getDescriptor;
+var currentActionId = 0;
+var nextActionId = 1;
+var isFunctionNameConfigurable = (_getDescriptor$config = (_getDescriptor = /* @__PURE__ */ getDescriptor(function() {
+}, "name")) == null ? void 0 : _getDescriptor.configurable) != null ? _getDescriptor$config : false;
+var tmpNameDescriptor = {
+  value: "action",
+  configurable: true,
+  writable: false,
+  enumerable: false
+};
+function createAction(actionName, fn, autoAction2, ref) {
+  if (autoAction2 === void 0) {
+    autoAction2 = false;
+  }
+  if (true) {
+    if (!isFunction(fn))
+      die("`action` can only be invoked on functions");
+    if (typeof actionName !== "string" || !actionName)
+      die("actions should have valid names, got: '" + actionName + "'");
+  }
+  function res() {
+    return executeAction(actionName, autoAction2, fn, ref || this, arguments);
+  }
+  res.isMobxAction = true;
+  if (isFunctionNameConfigurable) {
+    tmpNameDescriptor.value = actionName;
+    Object.defineProperty(res, "name", tmpNameDescriptor);
+  }
+  return res;
+}
+function executeAction(actionName, canRunAsDerivation, fn, scope, args) {
+  var runInfo = _startAction(actionName, canRunAsDerivation, scope, args);
+  try {
+    return fn.apply(scope, args);
+  } catch (err) {
+    runInfo.error_ = err;
+    throw err;
+  } finally {
+    _endAction(runInfo);
+  }
+}
+function _startAction(actionName, canRunAsDerivation, scope, args) {
+  var notifySpy_ = isSpyEnabled() && !!actionName;
+  var startTime_ = 0;
+  if (notifySpy_) {
+    startTime_ = Date.now();
+    var flattenedArgs = args ? Array.from(args) : EMPTY_ARRAY;
+    spyReportStart({
+      type: ACTION,
+      name: actionName,
+      object: scope,
+      arguments: flattenedArgs
+    });
+  }
+  var prevDerivation_ = globalState.trackingDerivation;
+  var runAsAction = !canRunAsDerivation || !prevDerivation_;
+  startBatch();
+  var prevAllowStateChanges_ = globalState.allowStateChanges;
+  if (runAsAction) {
+    untrackedStart();
+    prevAllowStateChanges_ = allowStateChangesStart(true);
+  }
+  var prevAllowStateReads_ = allowStateReadsStart(true);
+  var runInfo = {
+    runAsAction_: runAsAction,
+    prevDerivation_,
+    prevAllowStateChanges_,
+    prevAllowStateReads_,
+    notifySpy_,
+    startTime_,
+    actionId_: nextActionId++,
+    parentActionId_: currentActionId
+  };
+  currentActionId = runInfo.actionId_;
+  return runInfo;
+}
+function _endAction(runInfo) {
+  if (currentActionId !== runInfo.actionId_) {
+    die(30);
+  }
+  currentActionId = runInfo.parentActionId_;
+  if (runInfo.error_ !== void 0) {
+    globalState.suppressReactionErrors = true;
+  }
+  allowStateChangesEnd(runInfo.prevAllowStateChanges_);
+  allowStateReadsEnd(runInfo.prevAllowStateReads_);
+  endBatch();
+  if (runInfo.runAsAction_)
+    untrackedEnd(runInfo.prevDerivation_);
+  if (runInfo.notifySpy_) {
+    spyReportEnd({
+      time: Date.now() - runInfo.startTime_
+    });
+  }
+  globalState.suppressReactionErrors = false;
+}
+function allowStateChanges(allowStateChanges2, func) {
+  var prev = allowStateChangesStart(allowStateChanges2);
+  try {
+    return func();
+  } finally {
+    allowStateChangesEnd(prev);
+  }
+}
+function allowStateChangesStart(allowStateChanges2) {
+  var prev = globalState.allowStateChanges;
+  globalState.allowStateChanges = allowStateChanges2;
+  return prev;
+}
+function allowStateChangesEnd(prev) {
+  globalState.allowStateChanges = prev;
+}
+var _Symbol$toPrimitive;
+var CREATE = "create";
+_Symbol$toPrimitive = Symbol.toPrimitive;
+var ObservableValue = /* @__PURE__ */ function(_Atom) {
+  _inheritsLoose(ObservableValue2, _Atom);
+  function ObservableValue2(value, enhancer, name_, notifySpy, equals) {
+    var _this;
+    if (name_ === void 0) {
+      name_ = true ? "ObservableValue@" + getNextId() : "ObservableValue";
+    }
+    if (notifySpy === void 0) {
+      notifySpy = true;
+    }
+    if (equals === void 0) {
+      equals = comparer["default"];
+    }
+    _this = _Atom.call(this, name_) || this;
+    _this.enhancer = void 0;
+    _this.name_ = void 0;
+    _this.equals = void 0;
+    _this.hasUnreportedChange_ = false;
+    _this.interceptors_ = void 0;
+    _this.changeListeners_ = void 0;
+    _this.value_ = void 0;
+    _this.dehancer = void 0;
+    _this.enhancer = enhancer;
+    _this.name_ = name_;
+    _this.equals = equals;
+    _this.value_ = enhancer(value, void 0, name_);
+    if (notifySpy && isSpyEnabled()) {
+      spyReport({
+        type: CREATE,
+        object: _assertThisInitialized2(_this),
+        observableKind: "value",
+        debugObjectName: _this.name_,
+        newValue: "" + _this.value_
+      });
+    }
+    return _this;
+  }
+  var _proto = ObservableValue2.prototype;
+  _proto.dehanceValue = function dehanceValue(value) {
+    if (this.dehancer !== void 0)
+      return this.dehancer(value);
+    return value;
+  };
+  _proto.set = function set4(newValue) {
+    var oldValue = this.value_;
+    newValue = this.prepareNewValue_(newValue);
+    if (newValue !== globalState.UNCHANGED) {
+      var notifySpy = isSpyEnabled();
+      if (notifySpy) {
+        spyReportStart({
+          type: UPDATE,
+          object: this,
+          observableKind: "value",
+          debugObjectName: this.name_,
+          newValue,
+          oldValue
+        });
+      }
+      this.setNewValue_(newValue);
+      if (notifySpy)
+        spyReportEnd();
+    }
+  };
+  _proto.prepareNewValue_ = function prepareNewValue_(newValue) {
+    checkIfStateModificationsAreAllowed(this);
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        object: this,
+        type: UPDATE,
+        newValue
+      });
+      if (!change)
+        return globalState.UNCHANGED;
+      newValue = change.newValue;
+    }
+    newValue = this.enhancer(newValue, this.value_, this.name_);
+    return this.equals(this.value_, newValue) ? globalState.UNCHANGED : newValue;
+  };
+  _proto.setNewValue_ = function setNewValue_(newValue) {
+    var oldValue = this.value_;
+    this.value_ = newValue;
+    this.reportChanged();
+    if (hasListeners(this)) {
+      notifyListeners(this, {
+        type: UPDATE,
+        object: this,
+        newValue,
+        oldValue
+      });
+    }
+  };
+  _proto.get = function get3() {
+    this.reportObserved();
+    return this.dehanceValue(this.value_);
+  };
+  _proto.intercept_ = function intercept_(handler) {
+    return registerInterceptor(this, handler);
+  };
+  _proto.observe_ = function observe_(listener, fireImmediately) {
+    if (fireImmediately)
+      listener({
+        observableKind: "value",
+        debugObjectName: this.name_,
+        object: this,
+        type: UPDATE,
+        newValue: this.value_,
+        oldValue: void 0
+      });
+    return registerListener(this, listener);
+  };
+  _proto.raw = function raw() {
+    return this.value_;
+  };
+  _proto.toJSON = function toJSON2() {
+    return this.get();
+  };
+  _proto.toString = function toString2() {
+    return this.name_ + "[" + this.value_ + "]";
+  };
+  _proto.valueOf = function valueOf() {
+    return toPrimitive(this.get());
+  };
+  _proto[_Symbol$toPrimitive] = function() {
+    return this.valueOf();
+  };
+  return ObservableValue2;
+}(Atom);
+var _Symbol$toPrimitive$1;
+_Symbol$toPrimitive$1 = Symbol.toPrimitive;
+var ComputedValue = /* @__PURE__ */ function() {
+  function ComputedValue2(options) {
+    this.dependenciesState_ = IDerivationState_.NOT_TRACKING_;
+    this.observing_ = [];
+    this.newObserving_ = null;
+    this.isBeingObserved_ = false;
+    this.isPendingUnobservation_ = false;
+    this.observers_ = new Set();
+    this.diffValue_ = 0;
+    this.runId_ = 0;
+    this.lastAccessedBy_ = 0;
+    this.lowestObserverState_ = IDerivationState_.UP_TO_DATE_;
+    this.unboundDepsCount_ = 0;
+    this.value_ = new CaughtException(null);
+    this.name_ = void 0;
+    this.triggeredBy_ = void 0;
+    this.isComputing_ = false;
+    this.isRunningSetter_ = false;
+    this.derivation = void 0;
+    this.setter_ = void 0;
+    this.isTracing_ = TraceMode.NONE;
+    this.scope_ = void 0;
+    this.equals_ = void 0;
+    this.requiresReaction_ = void 0;
+    this.keepAlive_ = void 0;
+    this.onBOL = void 0;
+    this.onBUOL = void 0;
+    if (!options.get)
+      die(31);
+    this.derivation = options.get;
+    this.name_ = options.name || (true ? "ComputedValue@" + getNextId() : "ComputedValue");
+    if (options.set) {
+      this.setter_ = createAction(true ? this.name_ + "-setter" : "ComputedValue-setter", options.set);
+    }
+    this.equals_ = options.equals || (options.compareStructural || options.struct ? comparer.structural : comparer["default"]);
+    this.scope_ = options.context;
+    this.requiresReaction_ = !!options.requiresReaction;
+    this.keepAlive_ = !!options.keepAlive;
+  }
+  var _proto = ComputedValue2.prototype;
+  _proto.onBecomeStale_ = function onBecomeStale_() {
+    propagateMaybeChanged(this);
+  };
+  _proto.onBO = function onBO() {
+    if (this.onBOL) {
+      this.onBOL.forEach(function(listener) {
+        return listener();
+      });
+    }
+  };
+  _proto.onBUO = function onBUO() {
+    if (this.onBUOL) {
+      this.onBUOL.forEach(function(listener) {
+        return listener();
+      });
+    }
+  };
+  _proto.get = function get3() {
+    if (this.isComputing_)
+      die(32, this.name_, this.derivation);
+    if (globalState.inBatch === 0 && this.observers_.size === 0 && !this.keepAlive_) {
+      if (shouldCompute(this)) {
+        this.warnAboutUntrackedRead_();
+        startBatch();
+        this.value_ = this.computeValue_(false);
+        endBatch();
+      }
+    } else {
+      reportObserved(this);
+      if (shouldCompute(this)) {
+        var prevTrackingContext = globalState.trackingContext;
+        if (this.keepAlive_ && !prevTrackingContext)
+          globalState.trackingContext = this;
+        if (this.trackAndCompute())
+          propagateChangeConfirmed(this);
+        globalState.trackingContext = prevTrackingContext;
+      }
+    }
+    var result = this.value_;
+    if (isCaughtException(result))
+      throw result.cause;
+    return result;
+  };
+  _proto.set = function set4(value) {
+    if (this.setter_) {
+      if (this.isRunningSetter_)
+        die(33, this.name_);
+      this.isRunningSetter_ = true;
+      try {
+        this.setter_.call(this.scope_, value);
+      } finally {
+        this.isRunningSetter_ = false;
+      }
+    } else
+      die(34, this.name_);
+  };
+  _proto.trackAndCompute = function trackAndCompute() {
+    var oldValue = this.value_;
+    var wasSuspended = this.dependenciesState_ === IDerivationState_.NOT_TRACKING_;
+    var newValue = this.computeValue_(true);
+    if (isSpyEnabled()) {
+      spyReport({
+        observableKind: "computed",
+        debugObjectName: this.name_,
+        object: this.scope_,
+        type: "update",
+        oldValue: this.value_,
+        newValue
+      });
+    }
+    var changed = wasSuspended || isCaughtException(oldValue) || isCaughtException(newValue) || !this.equals_(oldValue, newValue);
+    if (changed) {
+      this.value_ = newValue;
+    }
+    return changed;
+  };
+  _proto.computeValue_ = function computeValue_(track) {
+    this.isComputing_ = true;
+    var prev = allowStateChangesStart(false);
+    var res;
+    if (track) {
+      res = trackDerivedFunction(this, this.derivation, this.scope_);
+    } else {
+      if (globalState.disableErrorBoundaries === true) {
+        res = this.derivation.call(this.scope_);
+      } else {
+        try {
+          res = this.derivation.call(this.scope_);
+        } catch (e) {
+          res = new CaughtException(e);
+        }
+      }
+    }
+    allowStateChangesEnd(prev);
+    this.isComputing_ = false;
+    return res;
+  };
+  _proto.suspend_ = function suspend_() {
+    if (!this.keepAlive_) {
+      clearObserving(this);
+      this.value_ = void 0;
+    }
+  };
+  _proto.observe_ = function observe_(listener, fireImmediately) {
+    var _this = this;
+    var firstTime = true;
+    var prevValue = void 0;
+    return autorun(function() {
+      var newValue = _this.get();
+      if (!firstTime || fireImmediately) {
+        var prevU = untrackedStart();
+        listener({
+          observableKind: "computed",
+          debugObjectName: _this.name_,
+          type: UPDATE,
+          object: _this,
+          newValue,
+          oldValue: prevValue
+        });
+        untrackedEnd(prevU);
+      }
+      firstTime = false;
+      prevValue = newValue;
+    });
+  };
+  _proto.warnAboutUntrackedRead_ = function warnAboutUntrackedRead_() {
+    if (false)
+      return;
+    if (this.requiresReaction_ === true) {
+      die("[mobx] Computed value " + this.name_ + " is read outside a reactive context");
+    }
+    if (this.isTracing_ !== TraceMode.NONE) {
+      console.log("[mobx.trace] '" + this.name_ + "' is being read outside a reactive context. Doing a full recompute");
+    }
+    if (globalState.computedRequiresReaction) {
+      console.warn("[mobx] Computed value " + this.name_ + " is being read outside a reactive context. Doing a full recompute");
+    }
+  };
+  _proto.toString = function toString2() {
+    return this.name_ + "[" + this.derivation.toString() + "]";
+  };
+  _proto.valueOf = function valueOf() {
+    return toPrimitive(this.get());
+  };
+  _proto[_Symbol$toPrimitive$1] = function() {
+    return this.valueOf();
+  };
+  return ComputedValue2;
+}();
+var isComputedValue = /* @__PURE__ */ createInstanceofPredicate("ComputedValue", ComputedValue);
+var IDerivationState_;
+(function(IDerivationState_2) {
+  IDerivationState_2[IDerivationState_2["NOT_TRACKING_"] = -1] = "NOT_TRACKING_";
+  IDerivationState_2[IDerivationState_2["UP_TO_DATE_"] = 0] = "UP_TO_DATE_";
+  IDerivationState_2[IDerivationState_2["POSSIBLY_STALE_"] = 1] = "POSSIBLY_STALE_";
+  IDerivationState_2[IDerivationState_2["STALE_"] = 2] = "STALE_";
+})(IDerivationState_ || (IDerivationState_ = {}));
+var TraceMode;
+(function(TraceMode2) {
+  TraceMode2[TraceMode2["NONE"] = 0] = "NONE";
+  TraceMode2[TraceMode2["LOG"] = 1] = "LOG";
+  TraceMode2[TraceMode2["BREAK"] = 2] = "BREAK";
+})(TraceMode || (TraceMode = {}));
+var CaughtException = function CaughtException2(cause) {
+  this.cause = void 0;
+  this.cause = cause;
+};
+function isCaughtException(e) {
+  return e instanceof CaughtException;
+}
+function shouldCompute(derivation) {
+  switch (derivation.dependenciesState_) {
+    case IDerivationState_.UP_TO_DATE_:
+      return false;
+    case IDerivationState_.NOT_TRACKING_:
+    case IDerivationState_.STALE_:
+      return true;
+    case IDerivationState_.POSSIBLY_STALE_: {
+      var prevAllowStateReads = allowStateReadsStart(true);
+      var prevUntracked = untrackedStart();
+      var obs = derivation.observing_, l = obs.length;
+      for (var i = 0; i < l; i++) {
+        var obj = obs[i];
+        if (isComputedValue(obj)) {
+          if (globalState.disableErrorBoundaries) {
+            obj.get();
+          } else {
+            try {
+              obj.get();
+            } catch (e) {
+              untrackedEnd(prevUntracked);
+              allowStateReadsEnd(prevAllowStateReads);
+              return true;
+            }
+          }
+          if (derivation.dependenciesState_ === IDerivationState_.STALE_) {
+            untrackedEnd(prevUntracked);
+            allowStateReadsEnd(prevAllowStateReads);
+            return true;
+          }
+        }
+      }
+      changeDependenciesStateTo0(derivation);
+      untrackedEnd(prevUntracked);
+      allowStateReadsEnd(prevAllowStateReads);
+      return false;
+    }
+  }
+}
+function checkIfStateModificationsAreAllowed(atom) {
+  if (false) {
+    return;
+  }
+  var hasObservers = atom.observers_.size > 0;
+  if (!globalState.allowStateChanges && (hasObservers || globalState.enforceActions === "always"))
+    console.warn("[MobX] " + (globalState.enforceActions ? "Since strict-mode is enabled, changing (observed) observable values without using an action is not allowed. Tried to modify: " : "Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, a computed value or the render function of a React component? You can wrap side effects in 'runInAction' (or decorate functions with 'action') if needed. Tried to modify: ") + atom.name_);
+}
+function checkIfStateReadsAreAllowed(observable2) {
+  if (!globalState.allowStateReads && globalState.observableRequiresReaction) {
+    console.warn("[mobx] Observable " + observable2.name_ + " being read outside a reactive context");
+  }
+}
+function trackDerivedFunction(derivation, f, context) {
+  var prevAllowStateReads = allowStateReadsStart(true);
+  changeDependenciesStateTo0(derivation);
+  derivation.newObserving_ = new Array(derivation.observing_.length + 100);
+  derivation.unboundDepsCount_ = 0;
+  derivation.runId_ = ++globalState.runId;
+  var prevTracking = globalState.trackingDerivation;
+  globalState.trackingDerivation = derivation;
+  globalState.inBatch++;
+  var result;
+  if (globalState.disableErrorBoundaries === true) {
+    result = f.call(context);
+  } else {
+    try {
+      result = f.call(context);
+    } catch (e) {
+      result = new CaughtException(e);
+    }
+  }
+  globalState.inBatch--;
+  globalState.trackingDerivation = prevTracking;
+  bindDependencies(derivation);
+  warnAboutDerivationWithoutDependencies(derivation);
+  allowStateReadsEnd(prevAllowStateReads);
+  return result;
+}
+function warnAboutDerivationWithoutDependencies(derivation) {
+  if (false)
+    return;
+  if (derivation.observing_.length !== 0)
+    return;
+  if (globalState.reactionRequiresObservable || derivation.requiresObservable_) {
+    console.warn("[mobx] Derivation " + derivation.name_ + " is created/updated without reading any observable value");
+  }
+}
+function bindDependencies(derivation) {
+  var prevObserving = derivation.observing_;
+  var observing = derivation.observing_ = derivation.newObserving_;
+  var lowestNewObservingDerivationState = IDerivationState_.UP_TO_DATE_;
+  var i0 = 0, l = derivation.unboundDepsCount_;
+  for (var i = 0; i < l; i++) {
+    var dep = observing[i];
+    if (dep.diffValue_ === 0) {
+      dep.diffValue_ = 1;
+      if (i0 !== i)
+        observing[i0] = dep;
+      i0++;
+    }
+    if (dep.dependenciesState_ > lowestNewObservingDerivationState) {
+      lowestNewObservingDerivationState = dep.dependenciesState_;
+    }
+  }
+  observing.length = i0;
+  derivation.newObserving_ = null;
+  l = prevObserving.length;
+  while (l--) {
+    var _dep = prevObserving[l];
+    if (_dep.diffValue_ === 0) {
+      removeObserver(_dep, derivation);
+    }
+    _dep.diffValue_ = 0;
+  }
+  while (i0--) {
+    var _dep2 = observing[i0];
+    if (_dep2.diffValue_ === 1) {
+      _dep2.diffValue_ = 0;
+      addObserver(_dep2, derivation);
+    }
+  }
+  if (lowestNewObservingDerivationState !== IDerivationState_.UP_TO_DATE_) {
+    derivation.dependenciesState_ = lowestNewObservingDerivationState;
+    derivation.onBecomeStale_();
+  }
+}
+function clearObserving(derivation) {
+  var obs = derivation.observing_;
+  derivation.observing_ = [];
+  var i = obs.length;
+  while (i--) {
+    removeObserver(obs[i], derivation);
+  }
+  derivation.dependenciesState_ = IDerivationState_.NOT_TRACKING_;
+}
+function untracked(action2) {
+  var prev = untrackedStart();
+  try {
+    return action2();
+  } finally {
+    untrackedEnd(prev);
+  }
+}
+function untrackedStart() {
+  var prev = globalState.trackingDerivation;
+  globalState.trackingDerivation = null;
+  return prev;
+}
+function untrackedEnd(prev) {
+  globalState.trackingDerivation = prev;
+}
+function allowStateReadsStart(allowStateReads) {
+  var prev = globalState.allowStateReads;
+  globalState.allowStateReads = allowStateReads;
+  return prev;
+}
+function allowStateReadsEnd(prev) {
+  globalState.allowStateReads = prev;
+}
+function changeDependenciesStateTo0(derivation) {
+  if (derivation.dependenciesState_ === IDerivationState_.UP_TO_DATE_)
+    return;
+  derivation.dependenciesState_ = IDerivationState_.UP_TO_DATE_;
+  var obs = derivation.observing_;
+  var i = obs.length;
+  while (i--) {
+    obs[i].lowestObserverState_ = IDerivationState_.UP_TO_DATE_;
+  }
+}
+var MobXGlobals = function MobXGlobals2() {
+  this.version = 6;
+  this.UNCHANGED = {};
+  this.trackingDerivation = null;
+  this.trackingContext = null;
+  this.runId = 0;
+  this.mobxGuid = 0;
+  this.inBatch = 0;
+  this.pendingUnobservations = [];
+  this.pendingReactions = [];
+  this.isRunningReactions = false;
+  this.allowStateChanges = false;
+  this.allowStateReads = true;
+  this.enforceActions = true;
+  this.spyListeners = [];
+  this.globalReactionErrorHandlers = [];
+  this.computedRequiresReaction = false;
+  this.reactionRequiresObservable = false;
+  this.observableRequiresReaction = false;
+  this.disableErrorBoundaries = false;
+  this.suppressReactionErrors = false;
+  this.useProxies = true;
+  this.verifyProxies = false;
+  this.safeDescriptors = true;
+};
+var canMergeGlobalState = true;
+var isolateCalled = false;
+var globalState = /* @__PURE__ */ function() {
+  var global2 = /* @__PURE__ */ getGlobal();
+  if (global2.__mobxInstanceCount > 0 && !global2.__mobxGlobals)
+    canMergeGlobalState = false;
+  if (global2.__mobxGlobals && global2.__mobxGlobals.version !== new MobXGlobals().version)
+    canMergeGlobalState = false;
+  if (!canMergeGlobalState) {
+    setTimeout(function() {
+      if (!isolateCalled) {
+        die(35);
+      }
+    }, 1);
+    return new MobXGlobals();
+  } else if (global2.__mobxGlobals) {
+    global2.__mobxInstanceCount += 1;
+    if (!global2.__mobxGlobals.UNCHANGED)
+      global2.__mobxGlobals.UNCHANGED = {};
+    return global2.__mobxGlobals;
+  } else {
+    global2.__mobxInstanceCount = 1;
+    return global2.__mobxGlobals = /* @__PURE__ */ new MobXGlobals();
+  }
+}();
+function isolateGlobalState() {
+  if (globalState.pendingReactions.length || globalState.inBatch || globalState.isRunningReactions)
+    die(36);
+  isolateCalled = true;
+  if (canMergeGlobalState) {
+    var global2 = getGlobal();
+    if (--global2.__mobxInstanceCount === 0)
+      global2.__mobxGlobals = void 0;
+    globalState = new MobXGlobals();
+  }
+}
+function addObserver(observable2, node) {
+  observable2.observers_.add(node);
+  if (observable2.lowestObserverState_ > node.dependenciesState_)
+    observable2.lowestObserverState_ = node.dependenciesState_;
+}
+function removeObserver(observable2, node) {
+  observable2.observers_["delete"](node);
+  if (observable2.observers_.size === 0) {
+    queueForUnobservation(observable2);
+  }
+}
+function queueForUnobservation(observable2) {
+  if (observable2.isPendingUnobservation_ === false) {
+    observable2.isPendingUnobservation_ = true;
+    globalState.pendingUnobservations.push(observable2);
+  }
+}
+function startBatch() {
+  globalState.inBatch++;
+}
+function endBatch() {
+  if (--globalState.inBatch === 0) {
+    runReactions();
+    var list = globalState.pendingUnobservations;
+    for (var i = 0; i < list.length; i++) {
+      var observable2 = list[i];
+      observable2.isPendingUnobservation_ = false;
+      if (observable2.observers_.size === 0) {
+        if (observable2.isBeingObserved_) {
+          observable2.isBeingObserved_ = false;
+          observable2.onBUO();
+        }
+        if (observable2 instanceof ComputedValue) {
+          observable2.suspend_();
+        }
+      }
+    }
+    globalState.pendingUnobservations = [];
+  }
+}
+function reportObserved(observable2) {
+  checkIfStateReadsAreAllowed(observable2);
+  var derivation = globalState.trackingDerivation;
+  if (derivation !== null) {
+    if (derivation.runId_ !== observable2.lastAccessedBy_) {
+      observable2.lastAccessedBy_ = derivation.runId_;
+      derivation.newObserving_[derivation.unboundDepsCount_++] = observable2;
+      if (!observable2.isBeingObserved_ && globalState.trackingContext) {
+        observable2.isBeingObserved_ = true;
+        observable2.onBO();
+      }
+    }
+    return true;
+  } else if (observable2.observers_.size === 0 && globalState.inBatch > 0) {
+    queueForUnobservation(observable2);
+  }
+  return false;
+}
+function propagateChanged(observable2) {
+  if (observable2.lowestObserverState_ === IDerivationState_.STALE_)
+    return;
+  observable2.lowestObserverState_ = IDerivationState_.STALE_;
+  observable2.observers_.forEach(function(d) {
+    if (d.dependenciesState_ === IDerivationState_.UP_TO_DATE_) {
+      if (d.isTracing_ !== TraceMode.NONE) {
+        logTraceInfo(d, observable2);
+      }
+      d.onBecomeStale_();
+    }
+    d.dependenciesState_ = IDerivationState_.STALE_;
+  });
+}
+function propagateChangeConfirmed(observable2) {
+  if (observable2.lowestObserverState_ === IDerivationState_.STALE_)
+    return;
+  observable2.lowestObserverState_ = IDerivationState_.STALE_;
+  observable2.observers_.forEach(function(d) {
+    if (d.dependenciesState_ === IDerivationState_.POSSIBLY_STALE_) {
+      d.dependenciesState_ = IDerivationState_.STALE_;
+      if (d.isTracing_ !== TraceMode.NONE) {
+        logTraceInfo(d, observable2);
+      }
+    } else if (d.dependenciesState_ === IDerivationState_.UP_TO_DATE_) {
+      observable2.lowestObserverState_ = IDerivationState_.UP_TO_DATE_;
+    }
+  });
+}
+function propagateMaybeChanged(observable2) {
+  if (observable2.lowestObserverState_ !== IDerivationState_.UP_TO_DATE_)
+    return;
+  observable2.lowestObserverState_ = IDerivationState_.POSSIBLY_STALE_;
+  observable2.observers_.forEach(function(d) {
+    if (d.dependenciesState_ === IDerivationState_.UP_TO_DATE_) {
+      d.dependenciesState_ = IDerivationState_.POSSIBLY_STALE_;
+      d.onBecomeStale_();
+    }
+  });
+}
+function logTraceInfo(derivation, observable2) {
+  console.log("[mobx.trace] '" + derivation.name_ + "' is invalidated due to a change in: '" + observable2.name_ + "'");
+  if (derivation.isTracing_ === TraceMode.BREAK) {
+    var lines = [];
+    printDepTree(getDependencyTree(derivation), lines, 1);
+    new Function("debugger;\n/*\nTracing '" + derivation.name_ + "'\n\nYou are entering this break point because derivation '" + derivation.name_ + "' is being traced and '" + observable2.name_ + "' is now forcing it to update.\nJust follow the stacktrace you should now see in the devtools to see precisely what piece of your code is causing this update\nThe stackframe you are looking for is at least ~6-8 stack-frames up.\n\n" + (derivation instanceof ComputedValue ? derivation.derivation.toString().replace(/[*]\//g, "/") : "") + "\n\nThe dependencies for this derivation are:\n\n" + lines.join("\n") + "\n*/\n    ")();
+  }
+}
+function printDepTree(tree, lines, depth) {
+  if (lines.length >= 1e3) {
+    lines.push("(and many more)");
+    return;
+  }
+  lines.push("" + new Array(depth).join("	") + tree.name);
+  if (tree.dependencies)
+    tree.dependencies.forEach(function(child) {
+      return printDepTree(child, lines, depth + 1);
+    });
+}
+var Reaction = /* @__PURE__ */ function() {
+  function Reaction2(name_, onInvalidate_, errorHandler_, requiresObservable_) {
+    if (name_ === void 0) {
+      name_ = true ? "Reaction@" + getNextId() : "Reaction";
+    }
+    if (requiresObservable_ === void 0) {
+      requiresObservable_ = false;
+    }
+    this.name_ = void 0;
+    this.onInvalidate_ = void 0;
+    this.errorHandler_ = void 0;
+    this.requiresObservable_ = void 0;
+    this.observing_ = [];
+    this.newObserving_ = [];
+    this.dependenciesState_ = IDerivationState_.NOT_TRACKING_;
+    this.diffValue_ = 0;
+    this.runId_ = 0;
+    this.unboundDepsCount_ = 0;
+    this.isDisposed_ = false;
+    this.isScheduled_ = false;
+    this.isTrackPending_ = false;
+    this.isRunning_ = false;
+    this.isTracing_ = TraceMode.NONE;
+    this.name_ = name_;
+    this.onInvalidate_ = onInvalidate_;
+    this.errorHandler_ = errorHandler_;
+    this.requiresObservable_ = requiresObservable_;
+  }
+  var _proto = Reaction2.prototype;
+  _proto.onBecomeStale_ = function onBecomeStale_() {
+    this.schedule_();
+  };
+  _proto.schedule_ = function schedule_() {
+    if (!this.isScheduled_) {
+      this.isScheduled_ = true;
+      globalState.pendingReactions.push(this);
+      runReactions();
+    }
+  };
+  _proto.isScheduled = function isScheduled() {
+    return this.isScheduled_;
+  };
+  _proto.runReaction_ = function runReaction_() {
+    if (!this.isDisposed_) {
+      startBatch();
+      this.isScheduled_ = false;
+      var prev = globalState.trackingContext;
+      globalState.trackingContext = this;
+      if (shouldCompute(this)) {
+        this.isTrackPending_ = true;
+        try {
+          this.onInvalidate_();
+          if (this.isTrackPending_ && isSpyEnabled()) {
+            spyReport({
+              name: this.name_,
+              type: "scheduled-reaction"
+            });
+          }
+        } catch (e) {
+          this.reportExceptionInDerivation_(e);
+        }
+      }
+      globalState.trackingContext = prev;
+      endBatch();
+    }
+  };
+  _proto.track = function track(fn) {
+    if (this.isDisposed_) {
+      return;
+    }
+    startBatch();
+    var notify = isSpyEnabled();
+    var startTime;
+    if (notify) {
+      startTime = Date.now();
+      spyReportStart({
+        name: this.name_,
+        type: "reaction"
+      });
+    }
+    this.isRunning_ = true;
+    var prevReaction = globalState.trackingContext;
+    globalState.trackingContext = this;
+    var result = trackDerivedFunction(this, fn, void 0);
+    globalState.trackingContext = prevReaction;
+    this.isRunning_ = false;
+    this.isTrackPending_ = false;
+    if (this.isDisposed_) {
+      clearObserving(this);
+    }
+    if (isCaughtException(result))
+      this.reportExceptionInDerivation_(result.cause);
+    if (notify) {
+      spyReportEnd({
+        time: Date.now() - startTime
+      });
+    }
+    endBatch();
+  };
+  _proto.reportExceptionInDerivation_ = function reportExceptionInDerivation_(error) {
+    var _this = this;
+    if (this.errorHandler_) {
+      this.errorHandler_(error, this);
+      return;
+    }
+    if (globalState.disableErrorBoundaries)
+      throw error;
+    var message = true ? "[mobx] Encountered an uncaught exception that was thrown by a reaction or observer component, in: '" + this + "'" : "[mobx] uncaught error in '" + this + "'";
+    if (!globalState.suppressReactionErrors) {
+      console.error(message, error);
+    } else if (true)
+      console.warn("[mobx] (error in reaction '" + this.name_ + "' suppressed, fix error of causing action below)");
+    if (isSpyEnabled()) {
+      spyReport({
+        type: "error",
+        name: this.name_,
+        message,
+        error: "" + error
+      });
+    }
+    globalState.globalReactionErrorHandlers.forEach(function(f) {
+      return f(error, _this);
+    });
+  };
+  _proto.dispose = function dispose() {
+    if (!this.isDisposed_) {
+      this.isDisposed_ = true;
+      if (!this.isRunning_) {
+        startBatch();
+        clearObserving(this);
+        endBatch();
+      }
+    }
+  };
+  _proto.getDisposer_ = function getDisposer_() {
+    var r4 = this.dispose.bind(this);
+    r4[$mobx] = this;
+    return r4;
+  };
+  _proto.toString = function toString2() {
+    return "Reaction[" + this.name_ + "]";
+  };
+  _proto.trace = function trace$1(enterBreakPoint) {
+    if (enterBreakPoint === void 0) {
+      enterBreakPoint = false;
+    }
+    trace(this, enterBreakPoint);
+  };
+  return Reaction2;
+}();
+var MAX_REACTION_ITERATIONS = 100;
+var reactionScheduler = function reactionScheduler2(f) {
+  return f();
+};
+function runReactions() {
+  if (globalState.inBatch > 0 || globalState.isRunningReactions)
+    return;
+  reactionScheduler(runReactionsHelper);
+}
+function runReactionsHelper() {
+  globalState.isRunningReactions = true;
+  var allReactions = globalState.pendingReactions;
+  var iterations = 0;
+  while (allReactions.length > 0) {
+    if (++iterations === MAX_REACTION_ITERATIONS) {
+      console.error(true ? "Reaction doesn't converge to a stable state after " + MAX_REACTION_ITERATIONS + " iterations." + (" Probably there is a cycle in the reactive function: " + allReactions[0]) : "[mobx] cycle in reaction: " + allReactions[0]);
+      allReactions.splice(0);
+    }
+    var remainingReactions = allReactions.splice(0);
+    for (var i = 0, l = remainingReactions.length; i < l; i++) {
+      remainingReactions[i].runReaction_();
+    }
+  }
+  globalState.isRunningReactions = false;
+}
+var isReaction = /* @__PURE__ */ createInstanceofPredicate("Reaction", Reaction);
+function setReactionScheduler(fn) {
+  var baseScheduler = reactionScheduler;
+  reactionScheduler = function reactionScheduler3(f) {
+    return fn(function() {
+      return baseScheduler(f);
+    });
+  };
+}
+function isSpyEnabled() {
+  return !!globalState.spyListeners.length;
+}
+function spyReport(event) {
+  if (false)
+    return;
+  if (!globalState.spyListeners.length)
+    return;
+  var listeners = globalState.spyListeners;
+  for (var i = 0, l = listeners.length; i < l; i++) {
+    listeners[i](event);
+  }
+}
+function spyReportStart(event) {
+  if (false)
+    return;
+  var change = _extends2({}, event, {
+    spyReportStart: true
+  });
+  spyReport(change);
+}
+var END_EVENT = {
+  type: "report-end",
+  spyReportEnd: true
+};
+function spyReportEnd(change) {
+  if (false)
+    return;
+  if (change)
+    spyReport(_extends2({}, change, {
+      type: "report-end",
+      spyReportEnd: true
+    }));
+  else
+    spyReport(END_EVENT);
+}
+function spy(listener) {
+  if (false) {
+    console.warn("[mobx.spy] Is a no-op in production builds");
+    return function() {
+    };
+  } else {
+    globalState.spyListeners.push(listener);
+    return once(function() {
+      globalState.spyListeners = globalState.spyListeners.filter(function(l) {
+        return l !== listener;
+      });
+    });
+  }
+}
+var ACTION = "action";
+var ACTION_BOUND = "action.bound";
+var AUTOACTION = "autoAction";
+var AUTOACTION_BOUND = "autoAction.bound";
+var DEFAULT_ACTION_NAME = "<unnamed action>";
+var actionAnnotation = /* @__PURE__ */ createActionAnnotation(ACTION);
+var actionBoundAnnotation = /* @__PURE__ */ createActionAnnotation(ACTION_BOUND, {
+  bound: true
+});
+var autoActionAnnotation = /* @__PURE__ */ createActionAnnotation(AUTOACTION, {
+  autoAction: true
+});
+var autoActionBoundAnnotation = /* @__PURE__ */ createActionAnnotation(AUTOACTION_BOUND, {
+  autoAction: true,
+  bound: true
+});
+function createActionFactory(autoAction2) {
+  var res = function action2(arg1, arg2) {
+    if (isFunction(arg1))
+      return createAction(arg1.name || DEFAULT_ACTION_NAME, arg1, autoAction2);
+    if (isFunction(arg2))
+      return createAction(arg1, arg2, autoAction2);
+    if (isStringish(arg2)) {
+      return storeAnnotation(arg1, arg2, autoAction2 ? autoActionAnnotation : actionAnnotation);
+    }
+    if (isStringish(arg1)) {
+      return createDecoratorAnnotation(createActionAnnotation(autoAction2 ? AUTOACTION : ACTION, {
+        name: arg1,
+        autoAction: autoAction2
+      }));
+    }
+    if (true)
+      die("Invalid arguments for `action`");
+  };
+  return res;
+}
+var action = /* @__PURE__ */ createActionFactory(false);
+Object.assign(action, actionAnnotation);
+var autoAction = /* @__PURE__ */ createActionFactory(true);
+Object.assign(autoAction, autoActionAnnotation);
+action.bound = /* @__PURE__ */ createDecoratorAnnotation(actionBoundAnnotation);
+autoAction.bound = /* @__PURE__ */ createDecoratorAnnotation(autoActionBoundAnnotation);
+function isAction(thing) {
+  return isFunction(thing) && thing.isMobxAction === true;
+}
+function autorun(view, opts) {
+  var _opts$name, _opts;
+  if (opts === void 0) {
+    opts = EMPTY_OBJECT;
+  }
+  if (true) {
+    if (!isFunction(view))
+      die("Autorun expects a function as first argument");
+    if (isAction(view))
+      die("Autorun does not accept actions since actions are untrackable");
+  }
+  var name2 = (_opts$name = (_opts = opts) == null ? void 0 : _opts.name) != null ? _opts$name : true ? view.name || "Autorun@" + getNextId() : "Autorun";
+  var runSync = !opts.scheduler && !opts.delay;
+  var reaction;
+  if (runSync) {
+    reaction = new Reaction(name2, function() {
+      this.track(reactionRunner);
+    }, opts.onError, opts.requiresObservable);
+  } else {
+    var scheduler = createSchedulerFromOptions(opts);
+    var isScheduled = false;
+    reaction = new Reaction(name2, function() {
+      if (!isScheduled) {
+        isScheduled = true;
+        scheduler(function() {
+          isScheduled = false;
+          if (!reaction.isDisposed_)
+            reaction.track(reactionRunner);
+        });
+      }
+    }, opts.onError, opts.requiresObservable);
+  }
+  function reactionRunner() {
+    view(reaction);
+  }
+  reaction.schedule_();
+  return reaction.getDisposer_();
+}
+var run = function run2(f) {
+  return f();
+};
+function createSchedulerFromOptions(opts) {
+  return opts.scheduler ? opts.scheduler : opts.delay ? function(f) {
+    return setTimeout(f, opts.delay);
+  } : run;
+}
+var ON_BECOME_OBSERVED = "onBO";
+var ON_BECOME_UNOBSERVED = "onBUO";
+function onBecomeObserved(thing, arg2, arg3) {
+  return interceptHook(ON_BECOME_OBSERVED, thing, arg2, arg3);
+}
+function onBecomeUnobserved(thing, arg2, arg3) {
+  return interceptHook(ON_BECOME_UNOBSERVED, thing, arg2, arg3);
+}
+function interceptHook(hook, thing, arg2, arg3) {
+  var atom = typeof arg3 === "function" ? getAtom(thing, arg2) : getAtom(thing);
+  var cb = isFunction(arg3) ? arg3 : arg2;
+  var listenersKey = hook + "L";
+  if (atom[listenersKey]) {
+    atom[listenersKey].add(cb);
+  } else {
+    atom[listenersKey] = new Set([cb]);
+  }
+  return function() {
+    var hookListeners = atom[listenersKey];
+    if (hookListeners) {
+      hookListeners["delete"](cb);
+      if (hookListeners.size === 0) {
+        delete atom[listenersKey];
+      }
+    }
+  };
+}
+var NEVER = "never";
+var ALWAYS = "always";
+var OBSERVED = "observed";
+function configure(options) {
+  if (options.isolateGlobalState === true) {
+    isolateGlobalState();
+  }
+  var useProxies = options.useProxies, enforceActions = options.enforceActions;
+  if (useProxies !== void 0) {
+    globalState.useProxies = useProxies === ALWAYS ? true : useProxies === NEVER ? false : typeof Proxy !== "undefined";
+  }
+  if (useProxies === "ifavailable")
+    globalState.verifyProxies = true;
+  if (enforceActions !== void 0) {
+    var ea = enforceActions === ALWAYS ? ALWAYS : enforceActions === OBSERVED;
+    globalState.enforceActions = ea;
+    globalState.allowStateChanges = ea === true || ea === ALWAYS ? false : true;
+  }
+  ["computedRequiresReaction", "reactionRequiresObservable", "observableRequiresReaction", "disableErrorBoundaries", "safeDescriptors"].forEach(function(key) {
+    if (key in options)
+      globalState[key] = !!options[key];
+  });
+  globalState.allowStateReads = !globalState.observableRequiresReaction;
+  if (globalState.disableErrorBoundaries === true) {
+    console.warn("WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.");
+  }
+  if (options.reactionScheduler) {
+    setReactionScheduler(options.reactionScheduler);
+  }
+}
+function extendObservable(target, properties, annotations, options) {
+  if (true) {
+    if (arguments.length > 4)
+      die("'extendObservable' expected 2-4 arguments");
+    if (typeof target !== "object")
+      die("'extendObservable' expects an object as first argument");
+    if (isObservableMap(target))
+      die("'extendObservable' should not be used on maps, use map.merge instead");
+    if (!isPlainObject(properties))
+      die("'extendObservabe' only accepts plain objects as second argument");
+    if (isObservable(properties) || isObservable(annotations))
+      die("Extending an object with another observable (object) is not supported");
+  }
+  var descriptors = getOwnPropertyDescriptors(properties);
+  var adm = asObservableObject(target, options)[$mobx];
+  startBatch();
+  try {
+    ownKeys3(descriptors).forEach(function(key) {
+      adm.extend_(key, descriptors[key], !annotations ? true : key in annotations ? annotations[key] : true);
+    });
+  } finally {
+    endBatch();
+  }
+  return target;
+}
+function getDependencyTree(thing, property) {
+  return nodeToDependencyTree(getAtom(thing, property));
+}
+function nodeToDependencyTree(node) {
+  var result = {
+    name: node.name_
+  };
+  if (node.observing_ && node.observing_.length > 0)
+    result.dependencies = unique(node.observing_).map(nodeToDependencyTree);
+  return result;
+}
+function unique(list) {
+  return Array.from(new Set(list));
+}
+var generatorId = 0;
+function FlowCancellationError() {
+  this.message = "FLOW_CANCELLED";
+}
+FlowCancellationError.prototype = /* @__PURE__ */ Object.create(Error.prototype);
+var flowAnnotation = /* @__PURE__ */ createFlowAnnotation("flow");
+var flowBoundAnnotation = /* @__PURE__ */ createFlowAnnotation("flow.bound", {
+  bound: true
+});
+var flow = /* @__PURE__ */ Object.assign(function flow2(arg1, arg2) {
+  if (isStringish(arg2)) {
+    return storeAnnotation(arg1, arg2, flowAnnotation);
+  }
+  if (arguments.length !== 1)
+    die("Flow expects single argument with generator function");
+  var generator = arg1;
+  var name2 = generator.name || "<unnamed flow>";
+  var res = function res2() {
+    var ctx = this;
+    var args = arguments;
+    var runId = ++generatorId;
+    var gen = action(name2 + " - runid: " + runId + " - init", generator).apply(ctx, args);
+    var rejector;
+    var pendingPromise = void 0;
+    var promise = new Promise(function(resolve, reject) {
+      var stepId = 0;
+      rejector = reject;
+      function onFulfilled(res3) {
+        pendingPromise = void 0;
+        var ret;
+        try {
+          ret = action(name2 + " - runid: " + runId + " - yield " + stepId++, gen.next).call(gen, res3);
+        } catch (e) {
+          return reject(e);
+        }
+        next(ret);
+      }
+      function onRejected(err) {
+        pendingPromise = void 0;
+        var ret;
+        try {
+          ret = action(name2 + " - runid: " + runId + " - yield " + stepId++, gen["throw"]).call(gen, err);
+        } catch (e) {
+          return reject(e);
+        }
+        next(ret);
+      }
+      function next(ret) {
+        if (isFunction(ret == null ? void 0 : ret.then)) {
+          ret.then(next, reject);
+          return;
+        }
+        if (ret.done)
+          return resolve(ret.value);
+        pendingPromise = Promise.resolve(ret.value);
+        return pendingPromise.then(onFulfilled, onRejected);
+      }
+      onFulfilled(void 0);
+    });
+    promise.cancel = action(name2 + " - runid: " + runId + " - cancel", function() {
+      try {
+        if (pendingPromise)
+          cancelPromise(pendingPromise);
+        var _res = gen["return"](void 0);
+        var yieldedPromise = Promise.resolve(_res.value);
+        yieldedPromise.then(noop2, noop2);
+        cancelPromise(yieldedPromise);
+        rejector(new FlowCancellationError());
+      } catch (e) {
+        rejector(e);
+      }
+    });
+    return promise;
+  };
+  res.isMobXFlow = true;
+  return res;
+}, flowAnnotation);
+flow.bound = /* @__PURE__ */ createDecoratorAnnotation(flowBoundAnnotation);
+function cancelPromise(promise) {
+  if (isFunction(promise.cancel))
+    promise.cancel();
+}
+function isFlow(fn) {
+  return (fn == null ? void 0 : fn.isMobXFlow) === true;
+}
+function _isObservable(value, property) {
+  if (!value)
+    return false;
+  if (property !== void 0) {
+    if (isObservableMap(value) || isObservableArray(value))
+      return die("isObservable(object, propertyName) is not supported for arrays and maps. Use map.has or array.length instead.");
+    if (isObservableObject(value)) {
+      return value[$mobx].values_.has(property);
+    }
+    return false;
+  }
+  return isObservableObject(value) || !!value[$mobx] || isAtom(value) || isReaction(value) || isComputedValue(value);
+}
+function isObservable(value) {
+  if (arguments.length !== 1)
+    die("isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property");
+  return _isObservable(value);
+}
+function trace() {
+  if (false)
+    die("trace() is not available in production builds");
+  var enterBreakPoint = false;
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+  if (typeof args[args.length - 1] === "boolean")
+    enterBreakPoint = args.pop();
+  var derivation = getAtomFromArgs(args);
+  if (!derivation) {
+    return die("'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly");
+  }
+  if (derivation.isTracing_ === TraceMode.NONE) {
+    console.log("[mobx.trace] '" + derivation.name_ + "' tracing enabled");
+  }
+  derivation.isTracing_ = enterBreakPoint ? TraceMode.BREAK : TraceMode.LOG;
+}
+function getAtomFromArgs(args) {
+  switch (args.length) {
+    case 0:
+      return globalState.trackingDerivation;
+    case 1:
+      return getAtom(args[0]);
+    case 2:
+      return getAtom(args[0], args[1]);
+  }
+}
+function transaction(action2, thisArg) {
+  if (thisArg === void 0) {
+    thisArg = void 0;
+  }
+  startBatch();
+  try {
+    return action2.apply(thisArg);
+  } finally {
+    endBatch();
+  }
+}
+function getAdm(target) {
+  return target[$mobx];
+}
+var objectProxyTraps = {
+  has: function has(target, name2) {
+    if (globalState.trackingDerivation)
+      warnAboutProxyRequirement("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead.");
+    return getAdm(target).has_(name2);
+  },
+  get: function get(target, name2) {
+    return getAdm(target).get_(name2);
+  },
+  set: function set2(target, name2, value) {
+    var _getAdm$set_;
+    if (!isStringish(name2))
+      return false;
+    if (!getAdm(target).values_.has(name2)) {
+      warnAboutProxyRequirement("add a new observable property through direct assignment. Use 'set' from 'mobx' instead.");
+    }
+    return (_getAdm$set_ = getAdm(target).set_(name2, value, true)) != null ? _getAdm$set_ : true;
+  },
+  deleteProperty: function deleteProperty(target, name2) {
+    var _getAdm$delete_;
+    if (true) {
+      warnAboutProxyRequirement("delete properties from an observable object. Use 'remove' from 'mobx' instead.");
+    }
+    if (!isStringish(name2))
+      return false;
+    return (_getAdm$delete_ = getAdm(target).delete_(name2, true)) != null ? _getAdm$delete_ : true;
+  },
+  defineProperty: function defineProperty2(target, name2, descriptor) {
+    var _getAdm$definePropert;
+    if (true) {
+      warnAboutProxyRequirement("define property on an observable object. Use 'defineProperty' from 'mobx' instead.");
+    }
+    return (_getAdm$definePropert = getAdm(target).defineProperty_(name2, descriptor)) != null ? _getAdm$definePropert : true;
+  },
+  ownKeys: function ownKeys4(target) {
+    if (globalState.trackingDerivation)
+      warnAboutProxyRequirement("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead.");
+    return getAdm(target).ownKeys_();
+  },
+  preventExtensions: function preventExtensions(target) {
+    die(13);
+  }
+};
+function asDynamicObservableObject(target, options) {
+  var _target$$mobx, _target$$mobx$proxy_;
+  assertProxies();
+  target = asObservableObject(target, options);
+  return (_target$$mobx$proxy_ = (_target$$mobx = target[$mobx]).proxy_) != null ? _target$$mobx$proxy_ : _target$$mobx.proxy_ = new Proxy(target, objectProxyTraps);
+}
+function hasInterceptors(interceptable) {
+  return interceptable.interceptors_ !== void 0 && interceptable.interceptors_.length > 0;
+}
+function registerInterceptor(interceptable, handler) {
+  var interceptors = interceptable.interceptors_ || (interceptable.interceptors_ = []);
+  interceptors.push(handler);
+  return once(function() {
+    var idx = interceptors.indexOf(handler);
+    if (idx !== -1)
+      interceptors.splice(idx, 1);
+  });
+}
+function interceptChange(interceptable, change) {
+  var prevU = untrackedStart();
+  try {
+    var interceptors = [].concat(interceptable.interceptors_ || []);
+    for (var i = 0, l = interceptors.length; i < l; i++) {
+      change = interceptors[i](change);
+      if (change && !change.type)
+        die(14);
+      if (!change)
+        break;
+    }
+    return change;
+  } finally {
+    untrackedEnd(prevU);
+  }
+}
+function hasListeners(listenable) {
+  return listenable.changeListeners_ !== void 0 && listenable.changeListeners_.length > 0;
+}
+function registerListener(listenable, handler) {
+  var listeners = listenable.changeListeners_ || (listenable.changeListeners_ = []);
+  listeners.push(handler);
+  return once(function() {
+    var idx = listeners.indexOf(handler);
+    if (idx !== -1)
+      listeners.splice(idx, 1);
+  });
+}
+function notifyListeners(listenable, change) {
+  var prevU = untrackedStart();
+  var listeners = listenable.changeListeners_;
+  if (!listeners)
+    return;
+  listeners = listeners.slice();
+  for (var i = 0, l = listeners.length; i < l; i++) {
+    listeners[i](change);
+  }
+  untrackedEnd(prevU);
+}
+function makeObservable(target, annotations, options) {
+  var adm = asObservableObject(target, options)[$mobx];
+  startBatch();
+  try {
+    var _annotations;
+    (_annotations = annotations) != null ? _annotations : annotations = collectStoredAnnotations(target);
+    ownKeys3(annotations).forEach(function(key) {
+      return adm.make_(key, annotations[key]);
+    });
+  } finally {
+    endBatch();
+  }
+  return target;
+}
+var SPLICE = "splice";
+var UPDATE = "update";
+var MAX_SPLICE_SIZE = 1e4;
+var arrayTraps = {
+  get: function get2(target, name2) {
+    var adm = target[$mobx];
+    if (name2 === $mobx)
+      return adm;
+    if (name2 === "length")
+      return adm.getArrayLength_();
+    if (typeof name2 === "string" && !isNaN(name2)) {
+      return adm.get_(parseInt(name2));
+    }
+    if (hasProp(arrayExtensions, name2)) {
+      return arrayExtensions[name2];
+    }
+    return target[name2];
+  },
+  set: function set3(target, name2, value) {
+    var adm = target[$mobx];
+    if (name2 === "length") {
+      adm.setArrayLength_(value);
+    }
+    if (typeof name2 === "symbol" || isNaN(name2)) {
+      target[name2] = value;
+    } else {
+      adm.set_(parseInt(name2), value);
+    }
+    return true;
+  },
+  preventExtensions: function preventExtensions2() {
+    die(15);
+  }
+};
+var ObservableArrayAdministration = /* @__PURE__ */ function() {
+  function ObservableArrayAdministration2(name2, enhancer, owned_, legacyMode_) {
+    if (name2 === void 0) {
+      name2 = true ? "ObservableArray@" + getNextId() : "ObservableArray";
+    }
+    this.owned_ = void 0;
+    this.legacyMode_ = void 0;
+    this.atom_ = void 0;
+    this.values_ = [];
+    this.interceptors_ = void 0;
+    this.changeListeners_ = void 0;
+    this.enhancer_ = void 0;
+    this.dehancer = void 0;
+    this.proxy_ = void 0;
+    this.lastKnownLength_ = 0;
+    this.owned_ = owned_;
+    this.legacyMode_ = legacyMode_;
+    this.atom_ = new Atom(name2);
+    this.enhancer_ = function(newV, oldV) {
+      return enhancer(newV, oldV, true ? name2 + "[..]" : "ObservableArray[..]");
+    };
+  }
+  var _proto = ObservableArrayAdministration2.prototype;
+  _proto.dehanceValue_ = function dehanceValue_(value) {
+    if (this.dehancer !== void 0)
+      return this.dehancer(value);
+    return value;
+  };
+  _proto.dehanceValues_ = function dehanceValues_(values) {
+    if (this.dehancer !== void 0 && values.length > 0)
+      return values.map(this.dehancer);
+    return values;
+  };
+  _proto.intercept_ = function intercept_(handler) {
+    return registerInterceptor(this, handler);
+  };
+  _proto.observe_ = function observe_(listener, fireImmediately) {
+    if (fireImmediately === void 0) {
+      fireImmediately = false;
+    }
+    if (fireImmediately) {
+      listener({
+        observableKind: "array",
+        object: this.proxy_,
+        debugObjectName: this.atom_.name_,
+        type: "splice",
+        index: 0,
+        added: this.values_.slice(),
+        addedCount: this.values_.length,
+        removed: [],
+        removedCount: 0
+      });
+    }
+    return registerListener(this, listener);
+  };
+  _proto.getArrayLength_ = function getArrayLength_() {
+    this.atom_.reportObserved();
+    return this.values_.length;
+  };
+  _proto.setArrayLength_ = function setArrayLength_(newLength) {
+    if (typeof newLength !== "number" || newLength < 0)
+      die("Out of range: " + newLength);
+    var currentLength = this.values_.length;
+    if (newLength === currentLength)
+      return;
+    else if (newLength > currentLength) {
+      var newItems = new Array(newLength - currentLength);
+      for (var i = 0; i < newLength - currentLength; i++) {
+        newItems[i] = void 0;
+      }
+      this.spliceWithArray_(currentLength, 0, newItems);
+    } else
+      this.spliceWithArray_(newLength, currentLength - newLength);
+  };
+  _proto.updateArrayLength_ = function updateArrayLength_(oldLength, delta) {
+    if (oldLength !== this.lastKnownLength_)
+      die(16);
+    this.lastKnownLength_ += delta;
+    if (this.legacyMode_ && delta > 0)
+      reserveArrayBuffer(oldLength + delta + 1);
+  };
+  _proto.spliceWithArray_ = function spliceWithArray_(index2, deleteCount, newItems) {
+    var _this = this;
+    checkIfStateModificationsAreAllowed(this.atom_);
+    var length = this.values_.length;
+    if (index2 === void 0)
+      index2 = 0;
+    else if (index2 > length)
+      index2 = length;
+    else if (index2 < 0)
+      index2 = Math.max(0, length + index2);
+    if (arguments.length === 1)
+      deleteCount = length - index2;
+    else if (deleteCount === void 0 || deleteCount === null)
+      deleteCount = 0;
+    else
+      deleteCount = Math.max(0, Math.min(deleteCount, length - index2));
+    if (newItems === void 0)
+      newItems = EMPTY_ARRAY;
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        object: this.proxy_,
+        type: SPLICE,
+        index: index2,
+        removedCount: deleteCount,
+        added: newItems
+      });
+      if (!change)
+        return EMPTY_ARRAY;
+      deleteCount = change.removedCount;
+      newItems = change.added;
+    }
+    newItems = newItems.length === 0 ? newItems : newItems.map(function(v) {
+      return _this.enhancer_(v, void 0);
+    });
+    if (this.legacyMode_ || true) {
+      var lengthDelta = newItems.length - deleteCount;
+      this.updateArrayLength_(length, lengthDelta);
+    }
+    var res = this.spliceItemsIntoValues_(index2, deleteCount, newItems);
+    if (deleteCount !== 0 || newItems.length !== 0)
+      this.notifyArraySplice_(index2, newItems, res);
+    return this.dehanceValues_(res);
+  };
+  _proto.spliceItemsIntoValues_ = function spliceItemsIntoValues_(index2, deleteCount, newItems) {
+    if (newItems.length < MAX_SPLICE_SIZE) {
+      var _this$values_;
+      return (_this$values_ = this.values_).splice.apply(_this$values_, [index2, deleteCount].concat(newItems));
+    } else {
+      var res = this.values_.slice(index2, index2 + deleteCount);
+      var oldItems = this.values_.slice(index2 + deleteCount);
+      this.values_.length = index2 + newItems.length - deleteCount;
+      for (var i = 0; i < newItems.length; i++) {
+        this.values_[index2 + i] = newItems[i];
+      }
+      for (var _i = 0; _i < oldItems.length; _i++) {
+        this.values_[index2 + newItems.length + _i] = oldItems[_i];
+      }
+      return res;
+    }
+  };
+  _proto.notifyArrayChildUpdate_ = function notifyArrayChildUpdate_(index2, newValue, oldValue) {
+    var notifySpy = !this.owned_ && isSpyEnabled();
+    var notify = hasListeners(this);
+    var change = notify || notifySpy ? {
+      observableKind: "array",
+      object: this.proxy_,
+      type: UPDATE,
+      debugObjectName: this.atom_.name_,
+      index: index2,
+      newValue,
+      oldValue
+    } : null;
+    if (notifySpy)
+      spyReportStart(change);
+    this.atom_.reportChanged();
+    if (notify)
+      notifyListeners(this, change);
+    if (notifySpy)
+      spyReportEnd();
+  };
+  _proto.notifyArraySplice_ = function notifyArraySplice_(index2, added, removed) {
+    var notifySpy = !this.owned_ && isSpyEnabled();
+    var notify = hasListeners(this);
+    var change = notify || notifySpy ? {
+      observableKind: "array",
+      object: this.proxy_,
+      debugObjectName: this.atom_.name_,
+      type: SPLICE,
+      index: index2,
+      removed,
+      added,
+      removedCount: removed.length,
+      addedCount: added.length
+    } : null;
+    if (notifySpy)
+      spyReportStart(change);
+    this.atom_.reportChanged();
+    if (notify)
+      notifyListeners(this, change);
+    if (notifySpy)
+      spyReportEnd();
+  };
+  _proto.get_ = function get_(index2) {
+    if (index2 < this.values_.length) {
+      this.atom_.reportObserved();
+      return this.dehanceValue_(this.values_[index2]);
+    }
+    console.warn(true ? "[mobx] Out of bounds read: " + index2 : "[mobx.array] Attempt to read an array index (" + index2 + ") that is out of bounds (" + this.values_.length + "). Please check length first. Out of bound indices will not be tracked by MobX");
+  };
+  _proto.set_ = function set_(index2, newValue) {
+    var values = this.values_;
+    if (index2 < values.length) {
+      checkIfStateModificationsAreAllowed(this.atom_);
+      var oldValue = values[index2];
+      if (hasInterceptors(this)) {
+        var change = interceptChange(this, {
+          type: UPDATE,
+          object: this.proxy_,
+          index: index2,
+          newValue
+        });
+        if (!change)
+          return;
+        newValue = change.newValue;
+      }
+      newValue = this.enhancer_(newValue, oldValue);
+      var changed = newValue !== oldValue;
+      if (changed) {
+        values[index2] = newValue;
+        this.notifyArrayChildUpdate_(index2, newValue, oldValue);
+      }
+    } else if (index2 === values.length) {
+      this.spliceWithArray_(index2, 0, [newValue]);
+    } else {
+      die(17, index2, values.length);
+    }
+  };
+  return ObservableArrayAdministration2;
+}();
+function createObservableArray(initialValues, enhancer, name2, owned) {
+  if (name2 === void 0) {
+    name2 = true ? "ObservableArray@" + getNextId() : "ObservableArray";
+  }
+  if (owned === void 0) {
+    owned = false;
+  }
+  assertProxies();
+  var adm = new ObservableArrayAdministration(name2, enhancer, owned, false);
+  addHiddenFinalProp(adm.values_, $mobx, adm);
+  var proxy = new Proxy(adm.values_, arrayTraps);
+  adm.proxy_ = proxy;
+  if (initialValues && initialValues.length) {
+    var prev = allowStateChangesStart(true);
+    adm.spliceWithArray_(0, 0, initialValues);
+    allowStateChangesEnd(prev);
+  }
+  return proxy;
+}
+var arrayExtensions = {
+  clear: function clear() {
+    return this.splice(0);
+  },
+  replace: function replace(newItems) {
+    var adm = this[$mobx];
+    return adm.spliceWithArray_(0, adm.values_.length, newItems);
+  },
+  toJSON: function toJSON() {
+    return this.slice();
+  },
+  splice: function splice(index2, deleteCount) {
+    for (var _len = arguments.length, newItems = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      newItems[_key - 2] = arguments[_key];
+    }
+    var adm = this[$mobx];
+    switch (arguments.length) {
+      case 0:
+        return [];
+      case 1:
+        return adm.spliceWithArray_(index2);
+      case 2:
+        return adm.spliceWithArray_(index2, deleteCount);
+    }
+    return adm.spliceWithArray_(index2, deleteCount, newItems);
+  },
+  spliceWithArray: function spliceWithArray(index2, deleteCount, newItems) {
+    return this[$mobx].spliceWithArray_(index2, deleteCount, newItems);
+  },
+  push: function push() {
+    var adm = this[$mobx];
+    for (var _len2 = arguments.length, items = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      items[_key2] = arguments[_key2];
+    }
+    adm.spliceWithArray_(adm.values_.length, 0, items);
+    return adm.values_.length;
+  },
+  pop: function pop() {
+    return this.splice(Math.max(this[$mobx].values_.length - 1, 0), 1)[0];
+  },
+  shift: function shift() {
+    return this.splice(0, 1)[0];
+  },
+  unshift: function unshift() {
+    var adm = this[$mobx];
+    for (var _len3 = arguments.length, items = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      items[_key3] = arguments[_key3];
+    }
+    adm.spliceWithArray_(0, 0, items);
+    return adm.values_.length;
+  },
+  reverse: function reverse() {
+    if (globalState.trackingDerivation) {
+      die(37, "reverse");
+    }
+    this.replace(this.slice().reverse());
+    return this;
+  },
+  sort: function sort() {
+    if (globalState.trackingDerivation) {
+      die(37, "sort");
+    }
+    var copy = this.slice();
+    copy.sort.apply(copy, arguments);
+    this.replace(copy);
+    return this;
+  },
+  remove: function remove(value) {
+    var adm = this[$mobx];
+    var idx = adm.dehanceValues_(adm.values_).indexOf(value);
+    if (idx > -1) {
+      this.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+};
+addArrayExtension("concat", simpleFunc);
+addArrayExtension("flat", simpleFunc);
+addArrayExtension("includes", simpleFunc);
+addArrayExtension("indexOf", simpleFunc);
+addArrayExtension("join", simpleFunc);
+addArrayExtension("lastIndexOf", simpleFunc);
+addArrayExtension("slice", simpleFunc);
+addArrayExtension("toString", simpleFunc);
+addArrayExtension("toLocaleString", simpleFunc);
+addArrayExtension("every", mapLikeFunc);
+addArrayExtension("filter", mapLikeFunc);
+addArrayExtension("find", mapLikeFunc);
+addArrayExtension("findIndex", mapLikeFunc);
+addArrayExtension("flatMap", mapLikeFunc);
+addArrayExtension("forEach", mapLikeFunc);
+addArrayExtension("map", mapLikeFunc);
+addArrayExtension("some", mapLikeFunc);
+addArrayExtension("reduce", reduceLikeFunc);
+addArrayExtension("reduceRight", reduceLikeFunc);
+function addArrayExtension(funcName, funcFactory) {
+  if (typeof Array.prototype[funcName] === "function") {
+    arrayExtensions[funcName] = funcFactory(funcName);
+  }
+}
+function simpleFunc(funcName) {
+  return function() {
+    var adm = this[$mobx];
+    adm.atom_.reportObserved();
+    var dehancedValues = adm.dehanceValues_(adm.values_);
+    return dehancedValues[funcName].apply(dehancedValues, arguments);
+  };
+}
+function mapLikeFunc(funcName) {
+  return function(callback, thisArg) {
+    var _this2 = this;
+    var adm = this[$mobx];
+    adm.atom_.reportObserved();
+    var dehancedValues = adm.dehanceValues_(adm.values_);
+    return dehancedValues[funcName](function(element, index2) {
+      return callback.call(thisArg, element, index2, _this2);
+    });
+  };
+}
+function reduceLikeFunc(funcName) {
+  return function() {
+    var _this3 = this;
+    var adm = this[$mobx];
+    adm.atom_.reportObserved();
+    var dehancedValues = adm.dehanceValues_(adm.values_);
+    var callback = arguments[0];
+    arguments[0] = function(accumulator, currentValue, index2) {
+      return callback(accumulator, currentValue, index2, _this3);
+    };
+    return dehancedValues[funcName].apply(dehancedValues, arguments);
+  };
+}
+var isObservableArrayAdministration = /* @__PURE__ */ createInstanceofPredicate("ObservableArrayAdministration", ObservableArrayAdministration);
+function isObservableArray(thing) {
+  return isObject(thing) && isObservableArrayAdministration(thing[$mobx]);
+}
+var _Symbol$iterator;
+var _Symbol$toStringTag;
+var ObservableMapMarker = {};
+var ADD = "add";
+var DELETE = "delete";
+_Symbol$iterator = Symbol.iterator;
+_Symbol$toStringTag = Symbol.toStringTag;
+var ObservableMap = /* @__PURE__ */ function() {
+  function ObservableMap2(initialData, enhancer_, name_) {
+    if (enhancer_ === void 0) {
+      enhancer_ = deepEnhancer;
+    }
+    if (name_ === void 0) {
+      name_ = true ? "ObservableMap@" + getNextId() : "ObservableMap";
+    }
+    this.enhancer_ = void 0;
+    this.name_ = void 0;
+    this[$mobx] = ObservableMapMarker;
+    this.data_ = void 0;
+    this.hasMap_ = void 0;
+    this.keysAtom_ = void 0;
+    this.interceptors_ = void 0;
+    this.changeListeners_ = void 0;
+    this.dehancer = void 0;
+    this.enhancer_ = enhancer_;
+    this.name_ = name_;
+    if (!isFunction(Map)) {
+      die(18);
+    }
+    this.keysAtom_ = createAtom(true ? this.name_ + ".keys()" : "ObservableMap.keys()");
+    this.data_ = new Map();
+    this.hasMap_ = new Map();
+    this.merge(initialData);
+  }
+  var _proto = ObservableMap2.prototype;
+  _proto.has_ = function has_(key) {
+    return this.data_.has(key);
+  };
+  _proto.has = function has2(key) {
+    var _this = this;
+    if (!globalState.trackingDerivation)
+      return this.has_(key);
+    var entry = this.hasMap_.get(key);
+    if (!entry) {
+      var newEntry = entry = new ObservableValue(this.has_(key), referenceEnhancer, true ? this.name_ + "." + stringifyKey(key) + "?" : "ObservableMap.key?", false);
+      this.hasMap_.set(key, newEntry);
+      onBecomeUnobserved(newEntry, function() {
+        return _this.hasMap_["delete"](key);
+      });
+    }
+    return entry.get();
+  };
+  _proto.set = function set4(key, value) {
+    var hasKey = this.has_(key);
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        type: hasKey ? UPDATE : ADD,
+        object: this,
+        newValue: value,
+        name: key
+      });
+      if (!change)
+        return this;
+      value = change.newValue;
+    }
+    if (hasKey) {
+      this.updateValue_(key, value);
+    } else {
+      this.addValue_(key, value);
+    }
+    return this;
+  };
+  _proto["delete"] = function _delete(key) {
+    var _this2 = this;
+    checkIfStateModificationsAreAllowed(this.keysAtom_);
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        type: DELETE,
+        object: this,
+        name: key
+      });
+      if (!change)
+        return false;
+    }
+    if (this.has_(key)) {
+      var notifySpy = isSpyEnabled();
+      var notify = hasListeners(this);
+      var _change = notify || notifySpy ? {
+        observableKind: "map",
+        debugObjectName: this.name_,
+        type: DELETE,
+        object: this,
+        oldValue: this.data_.get(key).value_,
+        name: key
+      } : null;
+      if (notifySpy)
+        spyReportStart(_change);
+      transaction(function() {
+        _this2.keysAtom_.reportChanged();
+        _this2.updateHasMapEntry_(key, false);
+        var observable2 = _this2.data_.get(key);
+        observable2.setNewValue_(void 0);
+        _this2.data_["delete"](key);
+      });
+      if (notify)
+        notifyListeners(this, _change);
+      if (notifySpy)
+        spyReportEnd();
+      return true;
+    }
+    return false;
+  };
+  _proto.updateHasMapEntry_ = function updateHasMapEntry_(key, value) {
+    var entry = this.hasMap_.get(key);
+    if (entry) {
+      entry.setNewValue_(value);
+    }
+  };
+  _proto.updateValue_ = function updateValue_(key, newValue) {
+    var observable2 = this.data_.get(key);
+    newValue = observable2.prepareNewValue_(newValue);
+    if (newValue !== globalState.UNCHANGED) {
+      var notifySpy = isSpyEnabled();
+      var notify = hasListeners(this);
+      var change = notify || notifySpy ? {
+        observableKind: "map",
+        debugObjectName: this.name_,
+        type: UPDATE,
+        object: this,
+        oldValue: observable2.value_,
+        name: key,
+        newValue
+      } : null;
+      if (notifySpy)
+        spyReportStart(change);
+      observable2.setNewValue_(newValue);
+      if (notify)
+        notifyListeners(this, change);
+      if (notifySpy)
+        spyReportEnd();
+    }
+  };
+  _proto.addValue_ = function addValue_(key, newValue) {
+    var _this3 = this;
+    checkIfStateModificationsAreAllowed(this.keysAtom_);
+    transaction(function() {
+      var observable2 = new ObservableValue(newValue, _this3.enhancer_, true ? _this3.name_ + "." + stringifyKey(key) : "ObservableMap.key", false);
+      _this3.data_.set(key, observable2);
+      newValue = observable2.value_;
+      _this3.updateHasMapEntry_(key, true);
+      _this3.keysAtom_.reportChanged();
+    });
+    var notifySpy = isSpyEnabled();
+    var notify = hasListeners(this);
+    var change = notify || notifySpy ? {
+      observableKind: "map",
+      debugObjectName: this.name_,
+      type: ADD,
+      object: this,
+      name: key,
+      newValue
+    } : null;
+    if (notifySpy)
+      spyReportStart(change);
+    if (notify)
+      notifyListeners(this, change);
+    if (notifySpy)
+      spyReportEnd();
+  };
+  _proto.get = function get3(key) {
+    if (this.has(key))
+      return this.dehanceValue_(this.data_.get(key).get());
+    return this.dehanceValue_(void 0);
+  };
+  _proto.dehanceValue_ = function dehanceValue_(value) {
+    if (this.dehancer !== void 0) {
+      return this.dehancer(value);
+    }
+    return value;
+  };
+  _proto.keys = function keys() {
+    this.keysAtom_.reportObserved();
+    return this.data_.keys();
+  };
+  _proto.values = function values() {
+    var self2 = this;
+    var keys = this.keys();
+    return makeIterable({
+      next: function next() {
+        var _keys$next = keys.next(), done = _keys$next.done, value = _keys$next.value;
+        return {
+          done,
+          value: done ? void 0 : self2.get(value)
+        };
+      }
+    });
+  };
+  _proto.entries = function entries() {
+    var self2 = this;
+    var keys = this.keys();
+    return makeIterable({
+      next: function next() {
+        var _keys$next2 = keys.next(), done = _keys$next2.done, value = _keys$next2.value;
+        return {
+          done,
+          value: done ? void 0 : [value, self2.get(value)]
+        };
+      }
+    });
+  };
+  _proto[_Symbol$iterator] = function() {
+    return this.entries();
+  };
+  _proto.forEach = function forEach(callback, thisArg) {
+    for (var _iterator = _createForOfIteratorHelperLoose(this), _step; !(_step = _iterator()).done; ) {
+      var _step$value = _step.value, key = _step$value[0], value = _step$value[1];
+      callback.call(thisArg, value, key, this);
+    }
+  };
+  _proto.merge = function merge2(other) {
+    var _this4 = this;
+    if (isObservableMap(other)) {
+      other = new Map(other);
+    }
+    transaction(function() {
+      if (isPlainObject(other))
+        getPlainObjectKeys(other).forEach(function(key) {
+          return _this4.set(key, other[key]);
+        });
+      else if (Array.isArray(other))
+        other.forEach(function(_ref) {
+          var key = _ref[0], value = _ref[1];
+          return _this4.set(key, value);
+        });
+      else if (isES6Map(other)) {
+        if (other.constructor !== Map)
+          die(19, other);
+        other.forEach(function(value, key) {
+          return _this4.set(key, value);
+        });
+      } else if (other !== null && other !== void 0)
+        die(20, other);
+    });
+    return this;
+  };
+  _proto.clear = function clear2() {
+    var _this5 = this;
+    transaction(function() {
+      untracked(function() {
+        for (var _iterator2 = _createForOfIteratorHelperLoose(_this5.keys()), _step2; !(_step2 = _iterator2()).done; ) {
+          var key = _step2.value;
+          _this5["delete"](key);
+        }
+      });
+    });
+  };
+  _proto.replace = function replace2(values) {
+    var _this6 = this;
+    transaction(function() {
+      var replacementMap = convertToMap(values);
+      var orderedData = new Map();
+      var keysReportChangedCalled = false;
+      for (var _iterator3 = _createForOfIteratorHelperLoose(_this6.data_.keys()), _step3; !(_step3 = _iterator3()).done; ) {
+        var key = _step3.value;
+        if (!replacementMap.has(key)) {
+          var deleted = _this6["delete"](key);
+          if (deleted) {
+            keysReportChangedCalled = true;
+          } else {
+            var value = _this6.data_.get(key);
+            orderedData.set(key, value);
+          }
+        }
+      }
+      for (var _iterator4 = _createForOfIteratorHelperLoose(replacementMap.entries()), _step4; !(_step4 = _iterator4()).done; ) {
+        var _step4$value = _step4.value, _key = _step4$value[0], _value = _step4$value[1];
+        var keyExisted = _this6.data_.has(_key);
+        _this6.set(_key, _value);
+        if (_this6.data_.has(_key)) {
+          var _value2 = _this6.data_.get(_key);
+          orderedData.set(_key, _value2);
+          if (!keyExisted) {
+            keysReportChangedCalled = true;
+          }
+        }
+      }
+      if (!keysReportChangedCalled) {
+        if (_this6.data_.size !== orderedData.size) {
+          _this6.keysAtom_.reportChanged();
+        } else {
+          var iter1 = _this6.data_.keys();
+          var iter2 = orderedData.keys();
+          var next1 = iter1.next();
+          var next2 = iter2.next();
+          while (!next1.done) {
+            if (next1.value !== next2.value) {
+              _this6.keysAtom_.reportChanged();
+              break;
+            }
+            next1 = iter1.next();
+            next2 = iter2.next();
+          }
+        }
+      }
+      _this6.data_ = orderedData;
+    });
+    return this;
+  };
+  _proto.toString = function toString2() {
+    return "[object ObservableMap]";
+  };
+  _proto.toJSON = function toJSON2() {
+    return Array.from(this);
+  };
+  _proto.observe_ = function observe_(listener, fireImmediately) {
+    if (fireImmediately === true)
+      die("`observe` doesn't support fireImmediately=true in combination with maps.");
+    return registerListener(this, listener);
+  };
+  _proto.intercept_ = function intercept_(handler) {
+    return registerInterceptor(this, handler);
+  };
+  _createClass2(ObservableMap2, [{
+    key: "size",
+    get: function get3() {
+      this.keysAtom_.reportObserved();
+      return this.data_.size;
+    }
+  }, {
+    key: _Symbol$toStringTag,
+    get: function get3() {
+      return "Map";
+    }
+  }]);
+  return ObservableMap2;
+}();
+var isObservableMap = /* @__PURE__ */ createInstanceofPredicate("ObservableMap", ObservableMap);
+function convertToMap(dataStructure) {
+  if (isES6Map(dataStructure) || isObservableMap(dataStructure)) {
+    return dataStructure;
+  } else if (Array.isArray(dataStructure)) {
+    return new Map(dataStructure);
+  } else if (isPlainObject(dataStructure)) {
+    var map2 = new Map();
+    for (var key in dataStructure) {
+      map2.set(key, dataStructure[key]);
+    }
+    return map2;
+  } else {
+    return die(21, dataStructure);
+  }
+}
+var _Symbol$iterator$1;
+var _Symbol$toStringTag$1;
+var ObservableSetMarker = {};
+_Symbol$iterator$1 = Symbol.iterator;
+_Symbol$toStringTag$1 = Symbol.toStringTag;
+var ObservableSet = /* @__PURE__ */ function() {
+  function ObservableSet2(initialData, enhancer, name_) {
+    if (enhancer === void 0) {
+      enhancer = deepEnhancer;
+    }
+    if (name_ === void 0) {
+      name_ = true ? "ObservableSet@" + getNextId() : "ObservableSet";
+    }
+    this.name_ = void 0;
+    this[$mobx] = ObservableSetMarker;
+    this.data_ = new Set();
+    this.atom_ = void 0;
+    this.changeListeners_ = void 0;
+    this.interceptors_ = void 0;
+    this.dehancer = void 0;
+    this.enhancer_ = void 0;
+    this.name_ = name_;
+    if (!isFunction(Set)) {
+      die(22);
+    }
+    this.atom_ = createAtom(this.name_);
+    this.enhancer_ = function(newV, oldV) {
+      return enhancer(newV, oldV, name_);
+    };
+    if (initialData) {
+      this.replace(initialData);
+    }
+  }
+  var _proto = ObservableSet2.prototype;
+  _proto.dehanceValue_ = function dehanceValue_(value) {
+    if (this.dehancer !== void 0) {
+      return this.dehancer(value);
+    }
+    return value;
+  };
+  _proto.clear = function clear2() {
+    var _this = this;
+    transaction(function() {
+      untracked(function() {
+        for (var _iterator = _createForOfIteratorHelperLoose(_this.data_.values()), _step; !(_step = _iterator()).done; ) {
+          var value = _step.value;
+          _this["delete"](value);
+        }
+      });
+    });
+  };
+  _proto.forEach = function forEach(callbackFn, thisArg) {
+    for (var _iterator2 = _createForOfIteratorHelperLoose(this), _step2; !(_step2 = _iterator2()).done; ) {
+      var value = _step2.value;
+      callbackFn.call(thisArg, value, value, this);
+    }
+  };
+  _proto.add = function add(value) {
+    var _this2 = this;
+    checkIfStateModificationsAreAllowed(this.atom_);
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        type: ADD,
+        object: this,
+        newValue: value
+      });
+      if (!change)
+        return this;
+    }
+    if (!this.has(value)) {
+      transaction(function() {
+        _this2.data_.add(_this2.enhancer_(value, void 0));
+        _this2.atom_.reportChanged();
+      });
+      var notifySpy = isSpyEnabled();
+      var notify = hasListeners(this);
+      var _change = notify || notifySpy ? {
+        observableKind: "set",
+        debugObjectName: this.name_,
+        type: ADD,
+        object: this,
+        newValue: value
+      } : null;
+      if (notifySpy && true)
+        spyReportStart(_change);
+      if (notify)
+        notifyListeners(this, _change);
+      if (notifySpy && true)
+        spyReportEnd();
+    }
+    return this;
+  };
+  _proto["delete"] = function _delete(value) {
+    var _this3 = this;
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        type: DELETE,
+        object: this,
+        oldValue: value
+      });
+      if (!change)
+        return false;
+    }
+    if (this.has(value)) {
+      var notifySpy = isSpyEnabled();
+      var notify = hasListeners(this);
+      var _change2 = notify || notifySpy ? {
+        observableKind: "set",
+        debugObjectName: this.name_,
+        type: DELETE,
+        object: this,
+        oldValue: value
+      } : null;
+      if (notifySpy && true)
+        spyReportStart(_change2);
+      transaction(function() {
+        _this3.atom_.reportChanged();
+        _this3.data_["delete"](value);
+      });
+      if (notify)
+        notifyListeners(this, _change2);
+      if (notifySpy && true)
+        spyReportEnd();
+      return true;
+    }
+    return false;
+  };
+  _proto.has = function has2(value) {
+    this.atom_.reportObserved();
+    return this.data_.has(this.dehanceValue_(value));
+  };
+  _proto.entries = function entries() {
+    var nextIndex = 0;
+    var keys = Array.from(this.keys());
+    var values = Array.from(this.values());
+    return makeIterable({
+      next: function next() {
+        var index2 = nextIndex;
+        nextIndex += 1;
+        return index2 < values.length ? {
+          value: [keys[index2], values[index2]],
+          done: false
+        } : {
+          done: true
+        };
+      }
+    });
+  };
+  _proto.keys = function keys() {
+    return this.values();
+  };
+  _proto.values = function values() {
+    this.atom_.reportObserved();
+    var self2 = this;
+    var nextIndex = 0;
+    var observableValues = Array.from(this.data_.values());
+    return makeIterable({
+      next: function next() {
+        return nextIndex < observableValues.length ? {
+          value: self2.dehanceValue_(observableValues[nextIndex++]),
+          done: false
+        } : {
+          done: true
+        };
+      }
+    });
+  };
+  _proto.replace = function replace2(other) {
+    var _this4 = this;
+    if (isObservableSet(other)) {
+      other = new Set(other);
+    }
+    transaction(function() {
+      if (Array.isArray(other)) {
+        _this4.clear();
+        other.forEach(function(value) {
+          return _this4.add(value);
+        });
+      } else if (isES6Set(other)) {
+        _this4.clear();
+        other.forEach(function(value) {
+          return _this4.add(value);
+        });
+      } else if (other !== null && other !== void 0) {
+        die("Cannot initialize set from " + other);
+      }
+    });
+    return this;
+  };
+  _proto.observe_ = function observe_(listener, fireImmediately) {
+    if (fireImmediately === true)
+      die("`observe` doesn't support fireImmediately=true in combination with sets.");
+    return registerListener(this, listener);
+  };
+  _proto.intercept_ = function intercept_(handler) {
+    return registerInterceptor(this, handler);
+  };
+  _proto.toJSON = function toJSON2() {
+    return Array.from(this);
+  };
+  _proto.toString = function toString2() {
+    return "[object ObservableSet]";
+  };
+  _proto[_Symbol$iterator$1] = function() {
+    return this.values();
+  };
+  _createClass2(ObservableSet2, [{
+    key: "size",
+    get: function get3() {
+      this.atom_.reportObserved();
+      return this.data_.size;
+    }
+  }, {
+    key: _Symbol$toStringTag$1,
+    get: function get3() {
+      return "Set";
+    }
+  }]);
+  return ObservableSet2;
+}();
+var isObservableSet = /* @__PURE__ */ createInstanceofPredicate("ObservableSet", ObservableSet);
+var descriptorCache = /* @__PURE__ */ Object.create(null);
+var REMOVE = "remove";
+var ObservableObjectAdministration = /* @__PURE__ */ function() {
+  function ObservableObjectAdministration2(target_, values_, name_, defaultAnnotation_) {
+    if (values_ === void 0) {
+      values_ = new Map();
+    }
+    if (defaultAnnotation_ === void 0) {
+      defaultAnnotation_ = autoAnnotation;
+    }
+    this.target_ = void 0;
+    this.values_ = void 0;
+    this.name_ = void 0;
+    this.defaultAnnotation_ = void 0;
+    this.keysAtom_ = void 0;
+    this.changeListeners_ = void 0;
+    this.interceptors_ = void 0;
+    this.proxy_ = void 0;
+    this.isPlainObject_ = void 0;
+    this.appliedAnnotations_ = void 0;
+    this.pendingKeys_ = void 0;
+    this.target_ = target_;
+    this.values_ = values_;
+    this.name_ = name_;
+    this.defaultAnnotation_ = defaultAnnotation_;
+    this.keysAtom_ = new Atom(true ? this.name_ + ".keys" : "ObservableObject.keys");
+    this.isPlainObject_ = isPlainObject(this.target_);
+    if (!isAnnotation(this.defaultAnnotation_)) {
+      die("defaultAnnotation must be valid annotation");
+    }
+    if (true) {
+      this.appliedAnnotations_ = {};
+    }
+  }
+  var _proto = ObservableObjectAdministration2.prototype;
+  _proto.getObservablePropValue_ = function getObservablePropValue_(key) {
+    return this.values_.get(key).get();
+  };
+  _proto.setObservablePropValue_ = function setObservablePropValue_(key, newValue) {
+    var observable2 = this.values_.get(key);
+    if (observable2 instanceof ComputedValue) {
+      observable2.set(newValue);
+      return true;
+    }
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        type: UPDATE,
+        object: this.proxy_ || this.target_,
+        name: key,
+        newValue
+      });
+      if (!change)
+        return null;
+      newValue = change.newValue;
+    }
+    newValue = observable2.prepareNewValue_(newValue);
+    if (newValue !== globalState.UNCHANGED) {
+      var notify = hasListeners(this);
+      var notifySpy = isSpyEnabled();
+      var _change = notify || notifySpy ? {
+        type: UPDATE,
+        observableKind: "object",
+        debugObjectName: this.name_,
+        object: this.proxy_ || this.target_,
+        oldValue: observable2.value_,
+        name: key,
+        newValue
+      } : null;
+      if (notifySpy)
+        spyReportStart(_change);
+      observable2.setNewValue_(newValue);
+      if (notify)
+        notifyListeners(this, _change);
+      if (notifySpy)
+        spyReportEnd();
+    }
+    return true;
+  };
+  _proto.get_ = function get_(key) {
+    if (globalState.trackingDerivation && !hasProp(this.target_, key)) {
+      this.has_(key);
+    }
+    return this.target_[key];
+  };
+  _proto.set_ = function set_(key, value, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    if (hasProp(this.target_, key)) {
+      if (this.values_.has(key)) {
+        return this.setObservablePropValue_(key, value);
+      } else if (proxyTrap) {
+        return Reflect.set(this.target_, key, value);
+      } else {
+        this.target_[key] = value;
+        return true;
+      }
+    } else {
+      return this.extend_(key, {
+        value,
+        enumerable: true,
+        writable: true,
+        configurable: true
+      }, this.defaultAnnotation_, proxyTrap);
+    }
+  };
+  _proto.has_ = function has_(key) {
+    if (!globalState.trackingDerivation) {
+      return key in this.target_;
+    }
+    this.pendingKeys_ || (this.pendingKeys_ = new Map());
+    var entry = this.pendingKeys_.get(key);
+    if (!entry) {
+      entry = new ObservableValue(key in this.target_, referenceEnhancer, true ? this.name_ + "." + stringifyKey(key) + "?" : "ObservableObject.key?", false);
+      this.pendingKeys_.set(key, entry);
+    }
+    return entry.get();
+  };
+  _proto.make_ = function make_(key, annotation) {
+    if (annotation === true) {
+      annotation = this.defaultAnnotation_;
+    }
+    if (annotation === false) {
+      return;
+    }
+    assertAnnotable(this, annotation, key);
+    if (!(key in this.target_)) {
+      var _this$target_$storedA;
+      if ((_this$target_$storedA = this.target_[storedAnnotationsSymbol]) == null ? void 0 : _this$target_$storedA[key]) {
+        return;
+      } else {
+        die(1, annotation.annotationType_, this.name_ + "." + key.toString());
+      }
+    }
+    var source = this.target_;
+    while (source && source !== objectPrototype) {
+      var descriptor = getDescriptor(source, key);
+      if (descriptor) {
+        var outcome = annotation.make_(this, key, descriptor, source);
+        if (outcome === 0)
+          return;
+        if (outcome === 1)
+          break;
+      }
+      source = Object.getPrototypeOf(source);
+    }
+    recordAnnotationApplied(this, annotation, key);
+  };
+  _proto.extend_ = function extend_(key, descriptor, annotation, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    if (annotation === true) {
+      annotation = this.defaultAnnotation_;
+    }
+    if (annotation === false) {
+      return this.defineProperty_(key, descriptor, proxyTrap);
+    }
+    assertAnnotable(this, annotation, key);
+    var outcome = annotation.extend_(this, key, descriptor, proxyTrap);
+    if (outcome) {
+      recordAnnotationApplied(this, annotation, key);
+    }
+    return outcome;
+  };
+  _proto.defineProperty_ = function defineProperty_(key, descriptor, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    try {
+      startBatch();
+      var deleteOutcome = this.delete_(key);
+      if (!deleteOutcome) {
+        return deleteOutcome;
+      }
+      if (hasInterceptors(this)) {
+        var change = interceptChange(this, {
+          object: this.proxy_ || this.target_,
+          name: key,
+          type: ADD,
+          newValue: descriptor.value
+        });
+        if (!change)
+          return null;
+        var newValue = change.newValue;
+        if (descriptor.value !== newValue) {
+          descriptor = _extends2({}, descriptor, {
+            value: newValue
+          });
+        }
+      }
+      if (proxyTrap) {
+        if (!Reflect.defineProperty(this.target_, key, descriptor)) {
+          return false;
+        }
+      } else {
+        defineProperty(this.target_, key, descriptor);
+      }
+      this.notifyPropertyAddition_(key, descriptor.value);
+    } finally {
+      endBatch();
+    }
+    return true;
+  };
+  _proto.defineObservableProperty_ = function defineObservableProperty_(key, value, enhancer, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    try {
+      startBatch();
+      var deleteOutcome = this.delete_(key);
+      if (!deleteOutcome) {
+        return deleteOutcome;
+      }
+      if (hasInterceptors(this)) {
+        var change = interceptChange(this, {
+          object: this.proxy_ || this.target_,
+          name: key,
+          type: ADD,
+          newValue: value
+        });
+        if (!change)
+          return null;
+        value = change.newValue;
+      }
+      var cachedDescriptor = getCachedObservablePropDescriptor(key);
+      var descriptor = {
+        configurable: globalState.safeDescriptors ? this.isPlainObject_ : true,
+        enumerable: true,
+        get: cachedDescriptor.get,
+        set: cachedDescriptor.set
+      };
+      if (proxyTrap) {
+        if (!Reflect.defineProperty(this.target_, key, descriptor)) {
+          return false;
+        }
+      } else {
+        defineProperty(this.target_, key, descriptor);
+      }
+      var observable2 = new ObservableValue(value, enhancer, true ? this.name_ + "." + key.toString() : "ObservableObject.key", false);
+      this.values_.set(key, observable2);
+      this.notifyPropertyAddition_(key, observable2.value_);
+    } finally {
+      endBatch();
+    }
+    return true;
+  };
+  _proto.defineComputedProperty_ = function defineComputedProperty_(key, options, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    try {
+      startBatch();
+      var deleteOutcome = this.delete_(key);
+      if (!deleteOutcome) {
+        return deleteOutcome;
+      }
+      if (hasInterceptors(this)) {
+        var change = interceptChange(this, {
+          object: this.proxy_ || this.target_,
+          name: key,
+          type: ADD,
+          newValue: void 0
+        });
+        if (!change)
+          return null;
+      }
+      options.name || (options.name = true ? this.name_ + "." + key.toString() : "ObservableObject.key");
+      options.context = this.proxy_ || this.target_;
+      var cachedDescriptor = getCachedObservablePropDescriptor(key);
+      var descriptor = {
+        configurable: globalState.safeDescriptors ? this.isPlainObject_ : true,
+        enumerable: false,
+        get: cachedDescriptor.get,
+        set: cachedDescriptor.set
+      };
+      if (proxyTrap) {
+        if (!Reflect.defineProperty(this.target_, key, descriptor)) {
+          return false;
+        }
+      } else {
+        defineProperty(this.target_, key, descriptor);
+      }
+      this.values_.set(key, new ComputedValue(options));
+      this.notifyPropertyAddition_(key, void 0);
+    } finally {
+      endBatch();
+    }
+    return true;
+  };
+  _proto.delete_ = function delete_(key, proxyTrap) {
+    if (proxyTrap === void 0) {
+      proxyTrap = false;
+    }
+    if (!hasProp(this.target_, key)) {
+      return true;
+    }
+    if (hasInterceptors(this)) {
+      var change = interceptChange(this, {
+        object: this.proxy_ || this.target_,
+        name: key,
+        type: REMOVE
+      });
+      if (!change)
+        return null;
+    }
+    try {
+      var _this$pendingKeys_, _this$pendingKeys_$ge;
+      startBatch();
+      var notify = hasListeners(this);
+      var notifySpy = isSpyEnabled();
+      var observable2 = this.values_.get(key);
+      var value = void 0;
+      if (!observable2 && (notify || notifySpy)) {
+        var _getDescriptor2;
+        value = (_getDescriptor2 = getDescriptor(this.target_, key)) == null ? void 0 : _getDescriptor2.value;
+      }
+      if (proxyTrap) {
+        if (!Reflect.deleteProperty(this.target_, key)) {
+          return false;
+        }
+      } else {
+        delete this.target_[key];
+      }
+      if (true) {
+        delete this.appliedAnnotations_[key];
+      }
+      if (observable2) {
+        this.values_["delete"](key);
+        if (observable2 instanceof ObservableValue) {
+          value = observable2.value_;
+        }
+        propagateChanged(observable2);
+      }
+      this.keysAtom_.reportChanged();
+      (_this$pendingKeys_ = this.pendingKeys_) == null ? void 0 : (_this$pendingKeys_$ge = _this$pendingKeys_.get(key)) == null ? void 0 : _this$pendingKeys_$ge.set(key in this.target_);
+      if (notify || notifySpy) {
+        var _change2 = {
+          type: REMOVE,
+          observableKind: "object",
+          object: this.proxy_ || this.target_,
+          debugObjectName: this.name_,
+          oldValue: value,
+          name: key
+        };
+        if (notifySpy)
+          spyReportStart(_change2);
+        if (notify)
+          notifyListeners(this, _change2);
+        if (notifySpy)
+          spyReportEnd();
+      }
+    } finally {
+      endBatch();
+    }
+    return true;
+  };
+  _proto.observe_ = function observe_(callback, fireImmediately) {
+    if (fireImmediately === true)
+      die("`observe` doesn't support the fire immediately property for observable objects.");
+    return registerListener(this, callback);
+  };
+  _proto.intercept_ = function intercept_(handler) {
+    return registerInterceptor(this, handler);
+  };
+  _proto.notifyPropertyAddition_ = function notifyPropertyAddition_(key, value) {
+    var _this$pendingKeys_2, _this$pendingKeys_2$g;
+    var notify = hasListeners(this);
+    var notifySpy = isSpyEnabled();
+    if (notify || notifySpy) {
+      var change = notify || notifySpy ? {
+        type: ADD,
+        observableKind: "object",
+        debugObjectName: this.name_,
+        object: this.proxy_ || this.target_,
+        name: key,
+        newValue: value
+      } : null;
+      if (notifySpy)
+        spyReportStart(change);
+      if (notify)
+        notifyListeners(this, change);
+      if (notifySpy)
+        spyReportEnd();
+    }
+    (_this$pendingKeys_2 = this.pendingKeys_) == null ? void 0 : (_this$pendingKeys_2$g = _this$pendingKeys_2.get(key)) == null ? void 0 : _this$pendingKeys_2$g.set(true);
+    this.keysAtom_.reportChanged();
+  };
+  _proto.ownKeys_ = function ownKeys_() {
+    this.keysAtom_.reportObserved();
+    return ownKeys3(this.target_);
+  };
+  _proto.keys_ = function keys_() {
+    this.keysAtom_.reportObserved();
+    return Object.keys(this.target_);
+  };
+  return ObservableObjectAdministration2;
+}();
+function asObservableObject(target, options) {
+  var _options$name;
+  if (options && isObservableObject(target)) {
+    die("Options can't be provided for already observable objects.");
+  }
+  if (hasProp(target, $mobx)) {
+    if (!(getAdministration(target) instanceof ObservableObjectAdministration)) {
+      die("Cannot convert '" + getDebugName(target) + "' into observable object:\nThe target is already observable of different type.\nExtending builtins is not supported.");
+    }
+    return target;
+  }
+  if (!Object.isExtensible(target))
+    die("Cannot make the designated object observable; it is not extensible");
+  var name2 = (_options$name = options == null ? void 0 : options.name) != null ? _options$name : true ? (isPlainObject(target) ? "ObservableObject" : target.constructor.name) + "@" + getNextId() : "ObservableObject";
+  var adm = new ObservableObjectAdministration(target, new Map(), String(name2), getAnnotationFromOptions(options));
+  addHiddenProp(target, $mobx, adm);
+  return target;
+}
+var isObservableObjectAdministration = /* @__PURE__ */ createInstanceofPredicate("ObservableObjectAdministration", ObservableObjectAdministration);
+function getCachedObservablePropDescriptor(key) {
+  return descriptorCache[key] || (descriptorCache[key] = {
+    get: function get3() {
+      return this[$mobx].getObservablePropValue_(key);
+    },
+    set: function set4(value) {
+      return this[$mobx].setObservablePropValue_(key, value);
+    }
+  });
+}
+function isObservableObject(thing) {
+  if (isObject(thing)) {
+    return isObservableObjectAdministration(thing[$mobx]);
+  }
+  return false;
+}
+function recordAnnotationApplied(adm, annotation, key) {
+  var _adm$target_$storedAn;
+  if (true) {
+    adm.appliedAnnotations_[key] = annotation;
+  }
+  (_adm$target_$storedAn = adm.target_[storedAnnotationsSymbol]) == null ? true : delete _adm$target_$storedAn[key];
+}
+function assertAnnotable(adm, annotation, key) {
+  if (!isAnnotation(annotation)) {
+    die("Cannot annotate '" + adm.name_ + "." + key.toString() + "': Invalid annotation.");
+  }
+  if (!isOverride(annotation) && hasProp(adm.appliedAnnotations_, key)) {
+    var fieldName = adm.name_ + "." + key.toString();
+    var currentAnnotationType = adm.appliedAnnotations_[key].annotationType_;
+    var requestedAnnotationType = annotation.annotationType_;
+    die("Cannot apply '" + requestedAnnotationType + "' to '" + fieldName + "':" + ("\nThe field is already annotated with '" + currentAnnotationType + "'.") + "\nRe-annotating fields is not allowed.\nUse 'override' annotation for methods overriden by subclass.");
+  }
+}
+var OBSERVABLE_ARRAY_BUFFER_SIZE = 0;
+var StubArray = function StubArray2() {
+};
+function inherit(ctor, proto) {
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(ctor.prototype, proto);
+  } else if (ctor.prototype.__proto__ !== void 0) {
+    ctor.prototype.__proto__ = proto;
+  } else {
+    ctor.prototype = proto;
+  }
+}
+inherit(StubArray, Array.prototype);
+var LegacyObservableArray = /* @__PURE__ */ function(_StubArray) {
+  _inheritsLoose(LegacyObservableArray2, _StubArray);
+  function LegacyObservableArray2(initialValues, enhancer, name2, owned) {
+    var _this;
+    if (name2 === void 0) {
+      name2 = true ? "ObservableArray@" + getNextId() : "ObservableArray";
+    }
+    if (owned === void 0) {
+      owned = false;
+    }
+    _this = _StubArray.call(this) || this;
+    var adm = new ObservableArrayAdministration(name2, enhancer, owned, true);
+    adm.proxy_ = _assertThisInitialized2(_this);
+    addHiddenFinalProp(_assertThisInitialized2(_this), $mobx, adm);
+    if (initialValues && initialValues.length) {
+      var prev = allowStateChangesStart(true);
+      _this.spliceWithArray(0, 0, initialValues);
+      allowStateChangesEnd(prev);
+    }
+    return _this;
+  }
+  var _proto = LegacyObservableArray2.prototype;
+  _proto.concat = function concat() {
+    this[$mobx].atom_.reportObserved();
+    for (var _len = arguments.length, arrays = new Array(_len), _key = 0; _key < _len; _key++) {
+      arrays[_key] = arguments[_key];
+    }
+    return Array.prototype.concat.apply(this.slice(), arrays.map(function(a) {
+      return isObservableArray(a) ? a.slice() : a;
+    }));
+  };
+  _proto[Symbol.iterator] = function() {
+    var self2 = this;
+    var nextIndex = 0;
+    return makeIterable({
+      next: function next() {
+        return nextIndex < self2.length ? {
+          value: self2[nextIndex++],
+          done: false
+        } : {
+          done: true,
+          value: void 0
+        };
+      }
+    });
+  };
+  _createClass2(LegacyObservableArray2, [{
+    key: "length",
+    get: function get3() {
+      return this[$mobx].getArrayLength_();
+    },
+    set: function set4(newLength) {
+      this[$mobx].setArrayLength_(newLength);
+    }
+  }, {
+    key: Symbol.toStringTag,
+    get: function get3() {
+      return "Array";
+    }
+  }]);
+  return LegacyObservableArray2;
+}(StubArray);
+Object.entries(arrayExtensions).forEach(function(_ref) {
+  var prop = _ref[0], fn = _ref[1];
+  if (prop !== "concat")
+    addHiddenProp(LegacyObservableArray.prototype, prop, fn);
+});
+function createArrayEntryDescriptor(index2) {
+  return {
+    enumerable: false,
+    configurable: true,
+    get: function get3() {
+      return this[$mobx].get_(index2);
+    },
+    set: function set4(value) {
+      this[$mobx].set_(index2, value);
+    }
+  };
+}
+function createArrayBufferItem(index2) {
+  defineProperty(LegacyObservableArray.prototype, "" + index2, createArrayEntryDescriptor(index2));
+}
+function reserveArrayBuffer(max) {
+  if (max > OBSERVABLE_ARRAY_BUFFER_SIZE) {
+    for (var index2 = OBSERVABLE_ARRAY_BUFFER_SIZE; index2 < max + 100; index2++) {
+      createArrayBufferItem(index2);
+    }
+    OBSERVABLE_ARRAY_BUFFER_SIZE = max;
+  }
+}
+reserveArrayBuffer(1e3);
+function createLegacyArray(initialValues, enhancer, name2) {
+  return new LegacyObservableArray(initialValues, enhancer, name2);
+}
+function getAtom(thing, property) {
+  if (typeof thing === "object" && thing !== null) {
+    if (isObservableArray(thing)) {
+      if (property !== void 0)
+        die(23);
+      return thing[$mobx].atom_;
+    }
+    if (isObservableSet(thing)) {
+      return thing[$mobx];
+    }
+    if (isObservableMap(thing)) {
+      if (property === void 0)
+        return thing.keysAtom_;
+      var observable2 = thing.data_.get(property) || thing.hasMap_.get(property);
+      if (!observable2)
+        die(25, property, getDebugName(thing));
+      return observable2;
+    }
+    if (isObservableObject(thing)) {
+      if (!property)
+        return die(26);
+      var _observable = thing[$mobx].values_.get(property);
+      if (!_observable)
+        die(27, property, getDebugName(thing));
+      return _observable;
+    }
+    if (isAtom(thing) || isComputedValue(thing) || isReaction(thing)) {
+      return thing;
+    }
+  } else if (isFunction(thing)) {
+    if (isReaction(thing[$mobx])) {
+      return thing[$mobx];
+    }
+  }
+  die(28);
+}
+function getAdministration(thing, property) {
+  if (!thing)
+    die(29);
+  if (property !== void 0)
+    return getAdministration(getAtom(thing, property));
+  if (isAtom(thing) || isComputedValue(thing) || isReaction(thing))
+    return thing;
+  if (isObservableMap(thing) || isObservableSet(thing))
+    return thing;
+  if (thing[$mobx])
+    return thing[$mobx];
+  die(24, thing);
+}
+function getDebugName(thing, property) {
+  var named;
+  if (property !== void 0) {
+    named = getAtom(thing, property);
+  } else if (isAction(thing)) {
+    return thing.name;
+  } else if (isObservableObject(thing) || isObservableMap(thing) || isObservableSet(thing)) {
+    named = getAdministration(thing);
+  } else {
+    named = getAtom(thing);
+  }
+  return named.name_;
+}
+var toString = objectPrototype.toString;
+function deepEqual(a, b, depth) {
+  if (depth === void 0) {
+    depth = -1;
+  }
+  return eq(a, b, depth);
+}
+function eq(a, b, depth, aStack, bStack) {
+  if (a === b)
+    return a !== 0 || 1 / a === 1 / b;
+  if (a == null || b == null)
+    return false;
+  if (a !== a)
+    return b !== b;
+  var type = typeof a;
+  if (!isFunction(type) && type !== "object" && typeof b != "object")
+    return false;
+  var className = toString.call(a);
+  if (className !== toString.call(b))
+    return false;
+  switch (className) {
+    case "[object RegExp]":
+    case "[object String]":
+      return "" + a === "" + b;
+    case "[object Number]":
+      if (+a !== +a)
+        return +b !== +b;
+      return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+    case "[object Date]":
+    case "[object Boolean]":
+      return +a === +b;
+    case "[object Symbol]":
+      return typeof Symbol !== "undefined" && Symbol.valueOf.call(a) === Symbol.valueOf.call(b);
+    case "[object Map]":
+    case "[object Set]":
+      if (depth >= 0) {
+        depth++;
+      }
+      break;
+  }
+  a = unwrap(a);
+  b = unwrap(b);
+  var areArrays = className === "[object Array]";
+  if (!areArrays) {
+    if (typeof a != "object" || typeof b != "object")
+      return false;
+    var aCtor = a.constructor, bCtor = b.constructor;
+    if (aCtor !== bCtor && !(isFunction(aCtor) && aCtor instanceof aCtor && isFunction(bCtor) && bCtor instanceof bCtor) && "constructor" in a && "constructor" in b) {
+      return false;
+    }
+  }
+  if (depth === 0) {
+    return false;
+  } else if (depth < 0) {
+    depth = -1;
+  }
+  aStack = aStack || [];
+  bStack = bStack || [];
+  var length = aStack.length;
+  while (length--) {
+    if (aStack[length] === a)
+      return bStack[length] === b;
+  }
+  aStack.push(a);
+  bStack.push(b);
+  if (areArrays) {
+    length = a.length;
+    if (length !== b.length)
+      return false;
+    while (length--) {
+      if (!eq(a[length], b[length], depth - 1, aStack, bStack))
+        return false;
+    }
+  } else {
+    var keys = Object.keys(a);
+    var key;
+    length = keys.length;
+    if (Object.keys(b).length !== length)
+      return false;
+    while (length--) {
+      key = keys[length];
+      if (!(hasProp(b, key) && eq(a[key], b[key], depth - 1, aStack, bStack)))
+        return false;
+    }
+  }
+  aStack.pop();
+  bStack.pop();
+  return true;
+}
+function unwrap(a) {
+  if (isObservableArray(a))
+    return a.slice();
+  if (isES6Map(a) || isObservableMap(a))
+    return Array.from(a.entries());
+  if (isES6Set(a) || isObservableSet(a))
+    return Array.from(a.entries());
+  return a;
+}
+function makeIterable(iterator) {
+  iterator[Symbol.iterator] = getSelf;
+  return iterator;
+}
+function getSelf() {
+  return this;
+}
+function isAnnotation(thing) {
+  return thing instanceof Object && typeof thing.annotationType_ === "string" && isFunction(thing.make_) && isFunction(thing.extend_);
+}
+["Symbol", "Map", "Set", "Symbol"].forEach(function(m) {
+  var g = getGlobal();
+  if (typeof g[m] === "undefined") {
+    die("MobX requires global '" + m + "' to be available or polyfilled");
+  }
+});
+if (typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === "object") {
+  __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({
+    spy,
+    extras: {
+      getDebugName
+    },
+    $mobx
+  });
+}
+
+// node_modules/reactex/node_modules/mobx-react/dist/mobxreact.esm.js
+var import_react20 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/assertEnvironment.js
+var import_react13 = __toModule(require_react());
+if (!import_react13.useState) {
+  throw new Error("mobx-react-lite requires React with Hooks support");
+}
+if (!makeObservable) {
+  throw new Error("mobx-react-lite@3 requires mobx at least version 6 to be available");
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/reactBatchedUpdates.js
+var import_react_dom5 = __toModule(require_react_dom());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/observerBatching.js
+function defaultNoopBatch(callback) {
+  callback();
+}
+function observerBatching(reactionScheduler3) {
+  if (!reactionScheduler3) {
+    reactionScheduler3 = defaultNoopBatch;
+    if (true) {
+      console.warn("[MobX] Failed to get unstable_batched updates from react-dom / react-native");
+    }
+  }
+  configure({ reactionScheduler: reactionScheduler3 });
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/utils.js
+var import_react14 = __toModule(require_react());
+var __read = function(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m)
+    return o;
+  var i = m.call(o), r4, ar = [], e;
+  try {
+    while ((n === void 0 || n-- > 0) && !(r4 = i.next()).done)
+      ar.push(r4.value);
+  } catch (error) {
+    e = { error };
+  } finally {
+    try {
+      if (r4 && !r4.done && (m = i["return"]))
+        m.call(i);
+    } finally {
+      if (e)
+        throw e.error;
+    }
+  }
+  return ar;
+};
+var EMPTY_ARRAY2 = [];
+function useForceUpdate() {
+  var _a2 = __read((0, import_react14.useState)(0), 2), setTick = _a2[1];
+  var update = (0, import_react14.useCallback)(function() {
+    setTick(function(tick) {
+      return tick + 1;
+    });
+  }, EMPTY_ARRAY2);
+  return update;
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/useObserver.js
+var import_react15 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/printDebugValue.js
+function printDebugValue(v) {
+  return getDependencyTree(v);
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/FinalizationRegistryWrapper.js
+var FinalizationRegistryLocal = typeof FinalizationRegistry === "undefined" ? void 0 : FinalizationRegistry;
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/reactionCleanupTrackingCommon.js
+function createTrackingData(reaction) {
+  var trackingData = {
+    reaction,
+    mounted: false,
+    changedBeforeMount: false,
+    cleanAt: Date.now() + CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS
+  };
+  return trackingData;
+}
+var CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS = 1e4;
+var CLEANUP_TIMER_LOOP_MILLIS = 1e4;
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/createReactionCleanupTrackingUsingFinalizationRegister.js
+function createReactionCleanupTrackingUsingFinalizationRegister(FinalizationRegistry2) {
+  var cleanupTokenToReactionTrackingMap = new Map();
+  var globalCleanupTokensCounter = 1;
+  var registry = new FinalizationRegistry2(function cleanupFunction(token) {
+    var trackedReaction = cleanupTokenToReactionTrackingMap.get(token);
+    if (trackedReaction) {
+      trackedReaction.reaction.dispose();
+      cleanupTokenToReactionTrackingMap.delete(token);
+    }
+  });
+  return {
+    addReactionToTrack: function(reactionTrackingRef, reaction, objectRetainedByReact) {
+      var token = globalCleanupTokensCounter++;
+      registry.register(objectRetainedByReact, token, reactionTrackingRef);
+      reactionTrackingRef.current = createTrackingData(reaction);
+      reactionTrackingRef.current.finalizationRegistryCleanupToken = token;
+      cleanupTokenToReactionTrackingMap.set(token, reactionTrackingRef.current);
+      return reactionTrackingRef.current;
+    },
+    recordReactionAsCommitted: function(reactionRef) {
+      registry.unregister(reactionRef);
+      if (reactionRef.current && reactionRef.current.finalizationRegistryCleanupToken) {
+        cleanupTokenToReactionTrackingMap.delete(reactionRef.current.finalizationRegistryCleanupToken);
+      }
+    },
+    forceCleanupTimerToRunNowForTests: function() {
+    },
+    resetCleanupScheduleForTests: function() {
+    }
+  };
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/createTimerBasedReactionCleanupTracking.js
+var __values = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m)
+    return m.call(o);
+  if (o && typeof o.length === "number")
+    return {
+      next: function() {
+        if (o && i >= o.length)
+          o = void 0;
+        return { value: o && o[i++], done: !o };
+      }
+    };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+function createTimerBasedReactionCleanupTracking() {
+  var uncommittedReactionRefs = new Set();
+  var reactionCleanupHandle;
+  function forceCleanupTimerToRunNowForTests2() {
+    if (reactionCleanupHandle) {
+      clearTimeout(reactionCleanupHandle);
+      cleanUncommittedReactions();
+    }
+  }
+  function resetCleanupScheduleForTests2() {
+    var e_1, _a2;
+    if (uncommittedReactionRefs.size > 0) {
+      try {
+        for (var uncommittedReactionRefs_1 = __values(uncommittedReactionRefs), uncommittedReactionRefs_1_1 = uncommittedReactionRefs_1.next(); !uncommittedReactionRefs_1_1.done; uncommittedReactionRefs_1_1 = uncommittedReactionRefs_1.next()) {
+          var ref = uncommittedReactionRefs_1_1.value;
+          var tracking = ref.current;
+          if (tracking) {
+            tracking.reaction.dispose();
+            ref.current = null;
+          }
+        }
+      } catch (e_1_1) {
+        e_1 = { error: e_1_1 };
+      } finally {
+        try {
+          if (uncommittedReactionRefs_1_1 && !uncommittedReactionRefs_1_1.done && (_a2 = uncommittedReactionRefs_1.return))
+            _a2.call(uncommittedReactionRefs_1);
+        } finally {
+          if (e_1)
+            throw e_1.error;
+        }
+      }
+      uncommittedReactionRefs.clear();
+    }
+    if (reactionCleanupHandle) {
+      clearTimeout(reactionCleanupHandle);
+      reactionCleanupHandle = void 0;
+    }
+  }
+  function ensureCleanupTimerRunning() {
+    if (reactionCleanupHandle === void 0) {
+      reactionCleanupHandle = setTimeout(cleanUncommittedReactions, CLEANUP_TIMER_LOOP_MILLIS);
+    }
+  }
+  function scheduleCleanupOfReactionIfLeaked(ref) {
+    uncommittedReactionRefs.add(ref);
+    ensureCleanupTimerRunning();
+  }
+  function recordReactionAsCommitted2(reactionRef) {
+    uncommittedReactionRefs.delete(reactionRef);
+  }
+  function cleanUncommittedReactions() {
+    reactionCleanupHandle = void 0;
+    var now = Date.now();
+    uncommittedReactionRefs.forEach(function(ref) {
+      var tracking = ref.current;
+      if (tracking) {
+        if (now >= tracking.cleanAt) {
+          tracking.reaction.dispose();
+          ref.current = null;
+          uncommittedReactionRefs.delete(ref);
+        }
+      }
+    });
+    if (uncommittedReactionRefs.size > 0) {
+      ensureCleanupTimerRunning();
+    }
+  }
+  return {
+    addReactionToTrack: function(reactionTrackingRef, reaction, objectRetainedByReact) {
+      reactionTrackingRef.current = createTrackingData(reaction);
+      scheduleCleanupOfReactionIfLeaked(reactionTrackingRef);
+      return reactionTrackingRef.current;
+    },
+    recordReactionAsCommitted: recordReactionAsCommitted2,
+    forceCleanupTimerToRunNowForTests: forceCleanupTimerToRunNowForTests2,
+    resetCleanupScheduleForTests: resetCleanupScheduleForTests2
+  };
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/utils/reactionCleanupTracking.js
+var _a = FinalizationRegistryLocal ? createReactionCleanupTrackingUsingFinalizationRegister(FinalizationRegistryLocal) : createTimerBasedReactionCleanupTracking();
+var addReactionToTrack = _a.addReactionToTrack;
+var recordReactionAsCommitted = _a.recordReactionAsCommitted;
+var resetCleanupScheduleForTests = _a.resetCleanupScheduleForTests;
+var forceCleanupTimerToRunNowForTests = _a.forceCleanupTimerToRunNowForTests;
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/staticRendering.js
+var globalIsUsingStaticRendering = false;
+function isUsingStaticRendering() {
+  return globalIsUsingStaticRendering;
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/useObserver.js
+var __read2 = function(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m)
+    return o;
+  var i = m.call(o), r4, ar = [], e;
+  try {
+    while ((n === void 0 || n-- > 0) && !(r4 = i.next()).done)
+      ar.push(r4.value);
+  } catch (error) {
+    e = { error };
+  } finally {
+    try {
+      if (r4 && !r4.done && (m = i["return"]))
+        m.call(i);
+    } finally {
+      if (e)
+        throw e.error;
+    }
+  }
+  return ar;
+};
+function observerComponentNameFor(baseComponentName) {
+  return "observer" + baseComponentName;
+}
+var ObjectToBeRetainedByReact = function() {
+  function ObjectToBeRetainedByReact2() {
+  }
+  return ObjectToBeRetainedByReact2;
+}();
+function useObserver(fn, baseComponentName) {
+  if (baseComponentName === void 0) {
+    baseComponentName = "observed";
+  }
+  if (isUsingStaticRendering()) {
+    return fn();
+  }
+  var _a2 = __read2(import_react15.default.useState(new ObjectToBeRetainedByReact()), 1), objectRetainedByReact = _a2[0];
+  var forceUpdate = useForceUpdate();
+  var reactionTrackingRef = import_react15.default.useRef(null);
+  if (!reactionTrackingRef.current) {
+    var newReaction = new Reaction(observerComponentNameFor(baseComponentName), function() {
+      if (trackingData_1.mounted) {
+        forceUpdate();
+      } else {
+        trackingData_1.changedBeforeMount = true;
+      }
+    });
+    var trackingData_1 = addReactionToTrack(reactionTrackingRef, newReaction, objectRetainedByReact);
+  }
+  var reaction = reactionTrackingRef.current.reaction;
+  import_react15.default.useDebugValue(reaction, printDebugValue);
+  import_react15.default.useEffect(function() {
+    recordReactionAsCommitted(reactionTrackingRef);
+    if (reactionTrackingRef.current) {
+      reactionTrackingRef.current.mounted = true;
+      if (reactionTrackingRef.current.changedBeforeMount) {
+        reactionTrackingRef.current.changedBeforeMount = false;
+        forceUpdate();
+      }
+    } else {
+      reactionTrackingRef.current = {
+        reaction: new Reaction(observerComponentNameFor(baseComponentName), function() {
+          forceUpdate();
+        }),
+        mounted: true,
+        changedBeforeMount: false,
+        cleanAt: Infinity
+      };
+      forceUpdate();
+    }
+    return function() {
+      reactionTrackingRef.current.reaction.dispose();
+      reactionTrackingRef.current = null;
+    };
+  }, []);
+  var rendering;
+  var exception;
+  reaction.track(function() {
+    try {
+      rendering = fn();
+    } catch (e) {
+      exception = e;
+    }
+  });
+  if (exception) {
+    throw exception;
+  }
+  return rendering;
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/observer.js
+var import_react16 = __toModule(require_react());
+var __assign = function() {
+  __assign = Object.assign || function(t2) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+      for (var p in s)
+        if (Object.prototype.hasOwnProperty.call(s, p))
+          t2[p] = s[p];
+    }
+    return t2;
+  };
+  return __assign.apply(this, arguments);
+};
+function observer(baseComponent, options) {
+  if (isUsingStaticRendering()) {
+    return baseComponent;
+  }
+  var realOptions = __assign({ forwardRef: false }, options);
+  var baseComponentName = baseComponent.displayName || baseComponent.name;
+  var wrappedComponent = function(props, ref) {
+    return useObserver(function() {
+      return baseComponent(props, ref);
+    }, baseComponentName);
+  };
+  wrappedComponent.displayName = baseComponentName;
+  var memoComponent;
+  if (realOptions.forwardRef) {
+    memoComponent = (0, import_react16.memo)((0, import_react16.forwardRef)(wrappedComponent));
+  } else {
+    memoComponent = (0, import_react16.memo)(wrappedComponent);
+  }
+  copyStaticProperties(baseComponent, memoComponent);
+  memoComponent.displayName = baseComponentName;
+  return memoComponent;
+}
+var hoistBlackList = {
+  $$typeof: true,
+  render: true,
+  compare: true,
+  type: true
+};
+function copyStaticProperties(base2, target) {
+  Object.keys(base2).forEach(function(key) {
+    if (!hoistBlackList[key]) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base2, key));
+    }
+  });
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/ObserverComponent.js
+function ObserverComponent(_a2) {
+  var children = _a2.children, render = _a2.render;
+  var component = children || render;
+  if (typeof component !== "function") {
+    return null;
+  }
+  return useObserver(component);
+}
+if (true) {
+  ObserverComponent.propTypes = {
+    children: ObserverPropsCheck,
+    render: ObserverPropsCheck
+  };
+}
+ObserverComponent.displayName = "Observer";
+function ObserverPropsCheck(props, key, componentName, location, propFullName) {
+  var extraKey = key === "children" ? "render" : "children";
+  var hasProp2 = typeof props[key] === "function";
+  var hasExtraProp = typeof props[extraKey] === "function";
+  if (hasProp2 && hasExtraProp) {
+    return new Error("MobX Observer: Do not use children and render in the same time in`" + componentName);
+  }
+  if (hasProp2 || hasExtraProp) {
+    return null;
+  }
+  return new Error("Invalid prop `" + propFullName + "` of type `" + typeof props[key] + "` supplied to `" + componentName + "`, expected `function`.");
+}
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/useLocalObservable.js
+var import_react17 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/useLocalStore.js
+var import_react19 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/useAsObservableSource.js
+var import_react18 = __toModule(require_react());
+
+// node_modules/reactex/node_modules/mobx-react-lite/es/index.js
+observerBatching(import_react_dom5.unstable_batchedUpdates);
+
+// node_modules/reactex/node_modules/mobx-react/dist/mobxreact.esm.js
+var symbolId = 0;
+function createSymbol(name2) {
+  if (typeof Symbol === "function") {
+    return Symbol(name2);
+  }
+  var symbol = "__$mobx-react " + name2 + " (" + symbolId + ")";
+  symbolId++;
+  return symbol;
+}
+var createdSymbols = {};
+function newSymbol(name2) {
+  if (!createdSymbols[name2]) {
+    createdSymbols[name2] = createSymbol(name2);
+  }
+  return createdSymbols[name2];
+}
+function shallowEqual(objA, objB) {
+  if (is(objA, objB))
+    return true;
+  if (typeof objA !== "object" || objA === null || typeof objB !== "object" || objB === null) {
+    return false;
+  }
+  var keysA = Object.keys(objA);
+  var keysB = Object.keys(objB);
+  if (keysA.length !== keysB.length)
+    return false;
+  for (var i = 0; i < keysA.length; i++) {
+    if (!Object.hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
+      return false;
+    }
+  }
+  return true;
+}
+function is(x, y) {
+  if (x === y) {
+    return x !== 0 || 1 / x === 1 / y;
+  } else {
+    return x !== x && y !== y;
+  }
+}
+function setHiddenProp(target, prop, value) {
+  if (!Object.hasOwnProperty.call(target, prop)) {
+    Object.defineProperty(target, prop, {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value
+    });
+  } else {
+    target[prop] = value;
+  }
+}
+var mobxMixins = /* @__PURE__ */ newSymbol("patchMixins");
+var mobxPatchedDefinition = /* @__PURE__ */ newSymbol("patchedDefinition");
+function getMixins(target, methodName) {
+  var mixins = target[mobxMixins] = target[mobxMixins] || {};
+  var methodMixins = mixins[methodName] = mixins[methodName] || {};
+  methodMixins.locks = methodMixins.locks || 0;
+  methodMixins.methods = methodMixins.methods || [];
+  return methodMixins;
+}
+function wrapper(realMethod, mixins) {
+  var _this = this;
+  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    args[_key - 2] = arguments[_key];
+  }
+  mixins.locks++;
+  try {
+    var retVal;
+    if (realMethod !== void 0 && realMethod !== null) {
+      retVal = realMethod.apply(this, args);
+    }
+    return retVal;
+  } finally {
+    mixins.locks--;
+    if (mixins.locks === 0) {
+      mixins.methods.forEach(function(mx) {
+        mx.apply(_this, args);
+      });
+    }
+  }
+}
+function wrapFunction(realMethod, mixins) {
+  var fn = function fn2() {
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+    wrapper.call.apply(wrapper, [this, realMethod, mixins].concat(args));
+  };
+  return fn;
+}
+function patch(target, methodName, mixinMethod) {
+  var mixins = getMixins(target, methodName);
+  if (mixins.methods.indexOf(mixinMethod) < 0) {
+    mixins.methods.push(mixinMethod);
+  }
+  var oldDefinition = Object.getOwnPropertyDescriptor(target, methodName);
+  if (oldDefinition && oldDefinition[mobxPatchedDefinition]) {
+    return;
+  }
+  var originalMethod = target[methodName];
+  var newDefinition = createDefinition(target, methodName, oldDefinition ? oldDefinition.enumerable : void 0, mixins, originalMethod);
+  Object.defineProperty(target, methodName, newDefinition);
+}
+function createDefinition(target, methodName, enumerable, mixins, originalMethod) {
+  var _ref;
+  var wrappedFunc = wrapFunction(originalMethod, mixins);
+  return _ref = {}, _ref[mobxPatchedDefinition] = true, _ref.get = function get3() {
+    return wrappedFunc;
+  }, _ref.set = function set4(value) {
+    if (this === target) {
+      wrappedFunc = wrapFunction(value, mixins);
+    } else {
+      var newDefinition = createDefinition(this, methodName, enumerable, mixins, value);
+      Object.defineProperty(this, methodName, newDefinition);
+    }
+  }, _ref.configurable = true, _ref.enumerable = enumerable, _ref;
+}
+var mobxAdminProperty = $mobx || "$mobx";
+var mobxObserverProperty = /* @__PURE__ */ newSymbol("isMobXReactObserver");
+var mobxIsUnmounted = /* @__PURE__ */ newSymbol("isUnmounted");
+var skipRenderKey = /* @__PURE__ */ newSymbol("skipRender");
+var isForcingUpdateKey = /* @__PURE__ */ newSymbol("isForcingUpdate");
+function makeClassComponentObserver(componentClass) {
+  var target = componentClass.prototype;
+  if (componentClass[mobxObserverProperty]) {
+    var displayName = getDisplayName(target);
+    console.warn("The provided component class (" + displayName + ") \n                has already been declared as an observer component.");
+  } else {
+    componentClass[mobxObserverProperty] = true;
+  }
+  if (target.componentWillReact)
+    throw new Error("The componentWillReact life-cycle event is no longer supported");
+  if (componentClass["__proto__"] !== import_react20.PureComponent) {
+    if (!target.shouldComponentUpdate)
+      target.shouldComponentUpdate = observerSCU;
+    else if (target.shouldComponentUpdate !== observerSCU)
+      throw new Error("It is not allowed to use shouldComponentUpdate in observer based components.");
+  }
+  makeObservableProp(target, "props");
+  makeObservableProp(target, "state");
+  var baseRender = target.render;
+  target.render = function() {
+    return makeComponentReactive.call(this, baseRender);
+  };
+  patch(target, "componentWillUnmount", function() {
+    var _this$render$mobxAdmi;
+    if (isUsingStaticRendering() === true)
+      return;
+    (_this$render$mobxAdmi = this.render[mobxAdminProperty]) == null ? void 0 : _this$render$mobxAdmi.dispose();
+    this[mobxIsUnmounted] = true;
+    if (!this.render[mobxAdminProperty]) {
+      var _displayName = getDisplayName(this);
+      console.warn("The reactive render of an observer class component (" + _displayName + ") \n                was overriden after MobX attached. This may result in a memory leak if the \n                overriden reactive render was not properly disposed.");
+    }
+  });
+  return componentClass;
+}
+function getDisplayName(comp) {
+  return comp.displayName || comp.name || comp.constructor && (comp.constructor.displayName || comp.constructor.name) || "<component>";
+}
+function makeComponentReactive(render) {
+  var _this = this;
+  if (isUsingStaticRendering() === true)
+    return render.call(this);
+  setHiddenProp(this, skipRenderKey, false);
+  setHiddenProp(this, isForcingUpdateKey, false);
+  var initialName = getDisplayName(this);
+  var baseRender = render.bind(this);
+  var isRenderingPending = false;
+  var reaction = new Reaction(initialName + ".render()", function() {
+    if (!isRenderingPending) {
+      isRenderingPending = true;
+      if (_this[mobxIsUnmounted] !== true) {
+        var hasError = true;
+        try {
+          setHiddenProp(_this, isForcingUpdateKey, true);
+          if (!_this[skipRenderKey])
+            import_react20.Component.prototype.forceUpdate.call(_this);
+          hasError = false;
+        } finally {
+          setHiddenProp(_this, isForcingUpdateKey, false);
+          if (hasError)
+            reaction.dispose();
+        }
+      }
+    }
+  });
+  reaction["reactComponent"] = this;
+  reactiveRender[mobxAdminProperty] = reaction;
+  this.render = reactiveRender;
+  function reactiveRender() {
+    isRenderingPending = false;
+    var exception = void 0;
+    var rendering = void 0;
+    reaction.track(function() {
+      try {
+        rendering = allowStateChanges(false, baseRender);
+      } catch (e) {
+        exception = e;
+      }
+    });
+    if (exception) {
+      throw exception;
+    }
+    return rendering;
+  }
+  return reactiveRender.call(this);
+}
+function observerSCU(nextProps, nextState) {
+  if (isUsingStaticRendering()) {
+    console.warn("[mobx-react] It seems that a re-rendering of a React component is triggered while in static (server-side) mode. Please make sure components are rendered only once server-side.");
+  }
+  if (this.state !== nextState) {
+    return true;
+  }
+  return !shallowEqual(this.props, nextProps);
+}
+function makeObservableProp(target, propName) {
+  var valueHolderKey = newSymbol("reactProp_" + propName + "_valueHolder");
+  var atomHolderKey = newSymbol("reactProp_" + propName + "_atomHolder");
+  function getAtom2() {
+    if (!this[atomHolderKey]) {
+      setHiddenProp(this, atomHolderKey, createAtom("reactive " + propName));
+    }
+    return this[atomHolderKey];
+  }
+  Object.defineProperty(target, propName, {
+    configurable: true,
+    enumerable: true,
+    get: function get3() {
+      var prevReadState = false;
+      if (allowStateReadsStart && allowStateReadsEnd) {
+        prevReadState = allowStateReadsStart(true);
+      }
+      getAtom2.call(this).reportObserved();
+      if (allowStateReadsStart && allowStateReadsEnd) {
+        allowStateReadsEnd(prevReadState);
+      }
+      return this[valueHolderKey];
+    },
+    set: function set4(v) {
+      if (!this[isForcingUpdateKey] && !shallowEqual(this[valueHolderKey], v)) {
+        setHiddenProp(this, valueHolderKey, v);
+        setHiddenProp(this, skipRenderKey, true);
+        getAtom2.call(this).reportChanged();
+        setHiddenProp(this, skipRenderKey, false);
+      } else {
+        setHiddenProp(this, valueHolderKey, v);
+      }
+    }
+  });
+}
+var hasSymbol = typeof Symbol === "function" && Symbol["for"];
+var ReactForwardRefSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.forward_ref") : typeof import_react20.forwardRef === "function" && (0, import_react20.forwardRef)(function(props) {
+  return null;
+})["$$typeof"];
+var ReactMemoSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.memo") : typeof import_react20.memo === "function" && (0, import_react20.memo)(function(props) {
+  return null;
+})["$$typeof"];
+function observer2(component) {
+  if (component["isMobxInjector"] === true) {
+    console.warn("Mobx observer: You are trying to use 'observer' on a component that already has 'inject'. Please apply 'observer' before applying 'inject'");
+  }
+  if (ReactMemoSymbol && component["$$typeof"] === ReactMemoSymbol) {
+    throw new Error("Mobx observer: You are trying to use 'observer' on a function component wrapped in either another observer or 'React.memo'. The observer already applies 'React.memo' for you.");
+  }
+  if (ReactForwardRefSymbol && component["$$typeof"] === ReactForwardRefSymbol) {
+    var baseRender = component["render"];
+    if (typeof baseRender !== "function")
+      throw new Error("render property of ForwardRef was not a function");
+    return (0, import_react20.forwardRef)(function ObserverForwardRef() {
+      var args = arguments;
+      return (0, import_react20.createElement)(ObserverComponent, null, function() {
+        return baseRender.apply(void 0, args);
+      });
+    });
+  }
+  if (typeof component === "function" && (!component.prototype || !component.prototype.render) && !component["isReactClass"] && !Object.prototype.isPrototypeOf.call(import_react20.Component, component)) {
+    return observer(component);
+  }
+  return makeClassComponentObserver(component);
+}
+function _extends3() {
+  _extends3 = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends3.apply(this, arguments);
+}
+function _objectWithoutPropertiesLoose2(source, excluded) {
+  if (source == null)
+    return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0)
+      continue;
+    target[key] = source[key];
+  }
+  return target;
+}
+var MobXProviderContext = /* @__PURE__ */ import_react20.default.createContext({});
+function Provider(props) {
+  var children = props.children, stores = _objectWithoutPropertiesLoose2(props, ["children"]);
+  var parentValue = import_react20.default.useContext(MobXProviderContext);
+  var mutableProviderRef = import_react20.default.useRef(_extends3({}, parentValue, stores));
+  var value = mutableProviderRef.current;
+  if (true) {
+    var newValue = _extends3({}, value, stores);
+    if (!shallowEqual(value, newValue)) {
+      throw new Error("MobX Provider: The set of provided stores has changed. See: https://github.com/mobxjs/mobx-react#the-set-of-provided-stores-has-changed-error.");
+    }
+  }
+  return import_react20.default.createElement(MobXProviderContext.Provider, {
+    value
+  }, children);
+}
+Provider.displayName = "MobXProvider";
+if (!import_react20.Component)
+  throw new Error("mobx-react requires React to be available");
+if (!observable)
+  throw new Error("mobx-react requires mobx to be available");
+
+// node_modules/reactex/dist/utils.js
+var import_react21 = __toModule(require_react());
+var import_lodash = __toModule(require_lodash());
+var zipExn = (l1, l2) => {
+  if (l1.length != l2.length) {
+    throw `Cannot zip lists of length ${l1.length} and ${l2.length}`;
+  }
+  return import_lodash.default.zip(l1, l2);
+};
+var AdaptiveDisplay = ({
+  block,
+  ...props
+}) => {
   if (block) {
-    return /* @__PURE__ */ import_react13.default.createElement("div", {
+    return /* @__PURE__ */ import_react21.default.createElement("div", {
       ...props
     });
   } else {
-    return /* @__PURE__ */ import_react13.default.createElement("span", {
+    return /* @__PURE__ */ import_react21.default.createElement("span", {
       ...props
     });
   }
 };
+
+// node_modules/reactex/dist/definitions.js
+var __defProp2 = Object.defineProperty;
+var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc2(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp2(target, key, result);
+  return result;
+};
+var DefinitionData = class {
+  constructor() {
+    this.defs = {};
+    this.def_mode = false;
+    makeObservable(this);
+  }
+  add_definition(name2, def) {
+    if (!(name2 in this.defs)) {
+      action(() => {
+        this.defs[name2] = def;
+      })();
+    }
+  }
+  add_mode_listeners() {
+    let on_keydown = action(({ key }) => {
+      if (key === "Alt") {
+        this.def_mode = true;
+      }
+    });
+    let on_keyup = action(({ key }) => {
+      if (key == "Alt") {
+        this.def_mode = false;
+      }
+    });
+    (0, import_react22.useEffect)(() => {
+      window.addEventListener("keydown", on_keydown);
+      window.addEventListener("keyup", on_keyup);
+      return () => {
+        window.removeEventListener("keydown", on_keydown);
+        window.removeEventListener("keyup", on_keyup);
+      };
+    }, []);
+  }
+};
+__decorateClass([
+  observable
+], DefinitionData.prototype, "defs", 2);
+__decorateClass([
+  observable
+], DefinitionData.prototype, "def_mode", 2);
+var DefinitionContext = import_react22.default.createContext(new DefinitionData());
 var Definition = (props) => {
-  let ctx = (0, import_react13.useContext)(DefinitionContext);
-  let [name2] = (0, import_react13.useState)(props.name || import_lodash.default.uniqueId("def-"));
-  (0, import_react13.useEffect)(() => {
-    let tooltip = typeof props.tooltip !== "undefined" ? props.tooltip : /* @__PURE__ */ import_react13.default.createElement(import_react13.default.Fragment, null, props.children);
-    let label = props.label || null;
-    ctx.add_definition(name2, { tooltip, label });
+  let ctx = (0, import_react22.useContext)(DefinitionContext);
+  let [name2] = (0, import_react22.useState)(props.name || import_lodash2.default.uniqueId("def-"));
+  (0, import_react22.useEffect)(() => {
+    let Tooltip3 = typeof props.Tooltip !== "undefined" ? props.Tooltip : () => /* @__PURE__ */ import_react22.default.createElement(import_react22.default.Fragment, null, props.children);
+    let Label = props.Label || null;
+    ctx.add_definition(name2, { Tooltip: Tooltip3, Label });
   }, []);
-  return /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
+  return /* @__PURE__ */ import_react22.default.createElement(AdaptiveDisplay, {
     block: props.block,
     id: `def-${name2}`
   }, props.children);
@@ -50556,11 +55385,11 @@ function checkVisible(elm) {
   var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
-var Ref = (props) => {
-  let ctx = (0, import_react13.useContext)(DefinitionContext);
+var Ref = observer2((props) => {
+  let ctx = (0, import_react22.useContext)(DefinitionContext);
   let def = ctx.defs[props.name];
   if (!def) {
-    return /* @__PURE__ */ import_react13.default.createElement("span", {
+    return /* @__PURE__ */ import_react22.default.createElement("span", {
       className: "error"
     }, props.name);
   }
@@ -50586,23 +55415,31 @@ var Ref = (props) => {
       });
     }, 100);
   };
-  let inner = props.children ? /* @__PURE__ */ import_react13.default.createElement(import_react13.default.Fragment, null, props.children) : def.label ? def.label : /* @__PURE__ */ import_react13.default.createElement("span", {
+  let inner = props.children ? /* @__PURE__ */ import_react22.default.createElement(import_react22.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react22.default.createElement(def.Label, null) : /* @__PURE__ */ import_react22.default.createElement("span", {
     className: "error"
   }, 'No children or label for "', props.name, '"');
-  inner = /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
+  inner = /* @__PURE__ */ import_react22.default.createElement(AdaptiveDisplay, {
     block: props.block,
-    className: (0, import_classnames6.default)("ref", { nolink: props.nolink }),
-    onClick: on_click
+    className: (0, import_classnames6.default)("ref", {
+      nolink: props.nolink,
+      "def-mode": ctx.def_mode
+    }),
+    onClick: (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    onDoubleClick: on_click
   }, inner);
-  if (def.tooltip) {
-    return /* @__PURE__ */ import_react13.default.createElement(es_default4, {
+  if (def.Tooltip) {
+    return /* @__PURE__ */ import_react22.default.createElement(es_default4, {
       placement: "top",
-      overlay: def.tooltip
+      overlay: /* @__PURE__ */ import_react22.default.createElement(def.Tooltip, null),
+      trigger: ["click"]
     }, inner);
   } else {
     return inner;
   }
-};
+});
 
 // node_modules/reactex/dist/tex.js
 var r = String.raw;
@@ -50611,7 +55448,33 @@ var TexContext = class {
   constructor() {
     this.macros = {};
   }
-  render(contents, block) {
+  async dimensions(contents, block, container) {
+    let node = this.render(contents, block, true);
+    let el = document.createElement("div");
+    el.style.display = "inline-block";
+    el.style.position = "absolute";
+    el.style.left = "-99999px";
+    import_react_dom6.default.render(node, el);
+    let promise = new Promise((resolve, _22) => {
+      let observer3 = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          Array.from(mutation.addedNodes).forEach((added_node) => {
+            if (added_node == el) {
+              observer3.disconnect();
+              resolve(void 0);
+            }
+          });
+        });
+      });
+      observer3.observe(container, { childList: true, subtree: false });
+    });
+    container.appendChild(el);
+    await promise;
+    let rect = el.getBoundingClientRect();
+    container.removeChild(el);
+    return rect;
+  }
+  render(contents, block = false, raw = false, props = {}) {
     let html = import_katex.default.renderToString(contents, {
       macros: this.macros,
       globalGroup: true,
@@ -50620,7 +55483,14 @@ var TexContext = class {
       output: "html",
       displayMode: block
     });
-    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react14.default);
+    if (raw) {
+      return /* @__PURE__ */ import_react23.default.createElement(AdaptiveDisplay, {
+        block,
+        dangerouslySetInnerHTML: { __html: html },
+        ...props
+      });
+    }
+    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react23.default);
     let instrs = [
       {
         replaceChildren: true,
@@ -50628,7 +55498,7 @@ var TexContext = class {
         processNode: (node2, children, index2) => {
           let def = node2.attribs["data-cmd"];
           let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react14.default.createElement(Ref, {
+          return /* @__PURE__ */ import_react23.default.createElement(Ref, {
             name: `tex:${def}`,
             nolink: true
           }, inner);
@@ -50640,40 +55510,39 @@ var TexContext = class {
         processNode: (node2, children, index2) => {
           let def = node2.attribs["data-def"];
           let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react14.default.createElement(Definition, {
+          return /* @__PURE__ */ import_react23.default.createElement(Definition, {
             name: `tex:${def}`,
-            tooltip: null
+            Tooltip: null
           }, inner);
         }
       },
       {
-        shouldProcessNode: (_5) => true,
+        shouldProcessNode: (_22) => true,
         processNode: defns.processDefaultNode
       }
     ];
     let parser2 = new import_html_to_react.default.Parser();
-    let node = parser2.parseWithInstructions(html, (_5) => true, instrs);
-    if (block) {
-      return /* @__PURE__ */ import_react14.default.createElement("div", null, node);
-    } else {
-      return /* @__PURE__ */ import_react14.default.createElement("span", null, node);
-    }
+    let node = parser2.parseWithInstructions(html, (_22) => true, instrs);
+    return /* @__PURE__ */ import_react23.default.createElement(AdaptiveDisplay, {
+      block,
+      ...props
+    }, node);
   }
 };
-var ReactTexContext = import_react14.default.createContext(null);
-var Tex = ({ children }) => {
-  let ctx = (0, import_react14.useContext)(ReactTexContext);
-  return ctx.render(children, false);
+var ReactTexContext = import_react23.default.createContext(new TexContext());
+var Tex = ({ children, raw, ...props }) => {
+  let ctx = (0, import_react23.useContext)(ReactTexContext);
+  return ctx.render(children, false, raw, props);
 };
-var TexBlock = ({ children }) => {
-  let ctx = (0, import_react14.useContext)(ReactTexContext);
-  return ctx.render(children, true);
+var TexBlock = ({ children, raw, ...props }) => {
+  let ctx = (0, import_react23.useContext)(ReactTexContext);
+  return ctx.render(children, true, raw, props);
 };
 var $ = Tex;
 var $$ = TexBlock;
 
 // node_modules/reactex/dist/code.js
-var import_react15 = __toModule(require_react());
+var import_react24 = __toModule(require_react());
 
 // node_modules/@codemirror/text/dist/index.js
 var extend = /* @__PURE__ */ "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,3b,f,,w,1j,,,,4,8,4,,3,7,a,2,t,,1m,,,,2,4,8,,9,,a,2,q,,2,2,1l,,4,2,4,2,2,3,3,,u,2,3,,b,2,1l,,4,5,,2,4,,k,2,m,6,,,1m,,,2,,4,8,,7,3,a,2,u,,1n,,,,c,,9,,14,,3,,1l,3,5,3,,4,7,2,b,2,t,,1m,,2,,2,,3,,5,2,7,2,b,2,s,2,1l,2,,,2,4,8,,9,,a,2,t,,20,,4,,2,3,,,8,,29,,2,7,c,8,2q,,2,9,b,6,22,2,r,,,,,,1j,e,,5,,2,5,b,,10,9,,2u,4,,6,,2,2,2,p,2,4,3,g,4,d,,2,2,6,,f,,jj,3,qa,3,t,3,t,2,u,2,1s,2,,7,8,,2,b,9,,19,3,3b,2,y,,3a,3,4,2,9,,6,3,63,2,2,,1m,,,7,,,,,2,8,6,a,2,,1c,h,1r,4,1c,7,,,5,,14,9,c,2,w,4,2,2,,3,1k,,,2,3,,,3,1m,8,2,2,48,3,,d,,7,4,,6,,3,2,5i,1m,,5,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,p,2,5,,47,2,q,i,d,,12,8,p,b,1a,3,1c,,2,4,2,2,13,,1v,6,2,2,2,2,c,,8,,1b,,1f,,,3,2,2,5,2,,,16,2,8,,6m,,2,,4,,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,ar,2,49,b,4w,,1i,f,1k,3,1d,4,2,2,1x,3,10,5,,8,1q,,c,2,1g,9,a,4,2,,2n,3,2,,,2,6,,4g,,3,8,l,2,1l,2,,,,,m,,e,7,3,5,5f,8,2,3,,,n,,29,,2,6,,,2,,,2,,2,6j,,2,4,6,2,,2,r,2,2d,8,2,,,2,2y,,,,2,6,,,2t,3,2,4,,5,77,9,,2,6t,,a,2,,,4,,40,4,2,2,4,,w,a,14,6,2,4,8,,9,6,2,3,1a,d,,2,ba,7,,6,,,2a,m,2,7,,2,,2,3e,6,3,,,2,,7,,,20,2,3,,,,9n,2,f0b,5,1n,7,t4,,1r,4,29,,f5k,2,43q,,,3,4,5,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,79,7,c5,4,15s,7,31,7,240,5,gx7k,2o,3k,6o".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -51364,8 +56233,8 @@ var ChangeSet = class extends ChangeDesc {
         return;
       if (pos < length)
         addSection(sections, length - pos, -1);
-      let set = new ChangeSet(sections, inserted);
-      total = total ? total.compose(set.map(total)) : set;
+      let set4 = new ChangeSet(sections, inserted);
+      total = total ? total.compose(set4.map(total)) : set4;
       sections = [];
       inserted = [];
       pos = 0;
@@ -51564,8 +56433,8 @@ function composeSets(setA, setB, mkSet = false) {
   }
 }
 var SectionIter = class {
-  constructor(set) {
-    this.set = set;
+  constructor(set4) {
+    this.set = set4;
     this.i = 0;
     this.next();
   }
@@ -51760,20 +56629,20 @@ var Facet = class {
   of(value) {
     return new FacetProvider([], this, 0, value);
   }
-  compute(deps, get) {
+  compute(deps, get3) {
     if (this.isStatic)
       throw new Error("Can't compute a static facet");
-    return new FacetProvider(deps, this, 1, get);
+    return new FacetProvider(deps, this, 1, get3);
   }
-  computeN(deps, get) {
+  computeN(deps, get3) {
     if (this.isStatic)
       throw new Error("Can't compute a static facet");
-    return new FacetProvider(deps, this, 2, get);
+    return new FacetProvider(deps, this, 2, get3);
   }
-  from(field, get) {
-    if (!get)
-      get = (x) => x;
-    return this.compute([field], (state) => get(state.field(field)));
+  from(field, get3) {
+    if (!get3)
+      get3 = (x) => x;
+    return this.compute([field], (state) => get3(state.field(field)));
   }
 };
 function sameArray(a, b) {
@@ -51788,7 +56657,7 @@ var FacetProvider = class {
     this.id = nextID++;
   }
   dynamicSlot(addresses) {
-    var _a;
+    var _a2;
     let getter = this.value;
     let compare2 = this.facet.compareInput;
     let idx = addresses[this.id] >> 1, multi = this.type == 2;
@@ -51798,7 +56667,7 @@ var FacetProvider = class {
         depDoc = true;
       else if (dep == "selection")
         depSel = true;
-      else if ((((_a = addresses[dep.id]) !== null && _a !== void 0 ? _a : 1) & 1) == 0)
+      else if ((((_a2 = addresses[dep.id]) !== null && _a2 !== void 0 ? _a2 : 1) & 1) == 0)
         depAddrs.push(addresses[dep.id]);
     }
     return (state, tr) => {
@@ -52090,8 +56959,8 @@ var AnnotationType = class {
   }
 };
 var StateEffectType = class {
-  constructor(map) {
-    this.map = map;
+  constructor(map2) {
+    this.map = map2;
   }
   of(value) {
     return new StateEffect(this, value);
@@ -52188,7 +57057,7 @@ function joinRanges(a, b) {
   }
 }
 function mergeTransaction(a, b, sequential) {
-  var _a;
+  var _a2;
   let mapForA, mapForB, changes;
   if (sequential) {
     mapForA = b.changes;
@@ -52201,7 +57070,7 @@ function mergeTransaction(a, b, sequential) {
   }
   return {
     changes,
-    selection: b.selection ? b.selection.map(mapForB) : (_a = a.selection) === null || _a === void 0 ? void 0 : _a.map(mapForA),
+    selection: b.selection ? b.selection.map(mapForB) : (_a2 = a.selection) === null || _a2 === void 0 ? void 0 : _a2.map(mapForA),
     effects: StateEffect.mapEffects(a.effects, mapForA).concat(StateEffect.mapEffects(b.effects, mapForB)),
     annotations: a.annotations.length ? a.annotations.concat(b.annotations) : b.annotations,
     scrollIntoView: a.scrollIntoView || b.scrollIntoView
@@ -52289,7 +57158,7 @@ var nonASCIISingleCaseWordChar = /[\u00df\u0587\u0590-\u05f4\u0600-\u06ff\u3040-
 var wordChar;
 try {
   wordChar = /* @__PURE__ */ new RegExp("[\\p{Alphabetic}\\p{Number}_]", "u");
-} catch (_5) {
+} catch (_19) {
 }
 function hasWordChar(str) {
   if (wordChar)
@@ -52323,7 +57192,7 @@ var EditorState = class {
     if (tr && tr.startState.config == config) {
       this.values = tr.startState.values.slice();
     } else {
-      this.values = config.dynamicSlots.map((_5) => null);
+      this.values = config.dynamicSlots.map((_19) => null);
       if (tr)
         for (let id in config.address) {
           let cur = config.address[id], prev = tr.startState.config.address[id];
@@ -52462,9 +57331,9 @@ var EditorState = class {
     return this.facet(EditorState.lineSeparator) || "\n";
   }
   phrase(phrase) {
-    for (let map of this.facet(EditorState.phrases))
-      if (Object.prototype.hasOwnProperty.call(map, phrase))
-        return map[phrase];
+    for (let map2 of this.facet(EditorState.phrases))
+      if (Object.prototype.hasOwnProperty.call(map2, phrase))
+        return map2[phrase];
     return phrase;
   }
   languageDataAt(name2, pos) {
@@ -52730,11 +57599,11 @@ var RangeSet = class {
     return this.chunkPos[index2] + this.chunk[index2].length;
   }
   update(updateSpec) {
-    let { add = [], sort = false, filterFrom = 0, filterTo = this.length } = updateSpec;
+    let { add = [], sort: sort2 = false, filterFrom = 0, filterTo = this.length } = updateSpec;
     let filter = updateSpec.filter;
     if (add.length == 0 && !filter)
       return this;
-    if (sort)
+    if (sort2)
       add.slice().sort(cmpRange);
     if (this.isEmpty)
       return add.length ? RangeSet.of(add) : this;
@@ -52800,8 +57669,8 @@ var RangeSet = class {
     return HeapCursor.from(sets).goto(from);
   }
   static compare(oldSets, newSets, textDiff, comparator, minPointSize = -1) {
-    let a = oldSets.filter((set) => set.maxPoint >= 500 || !set.isEmpty && newSets.indexOf(set) < 0 && set.maxPoint >= minPointSize);
-    let b = newSets.filter((set) => set.maxPoint >= 500 || !set.isEmpty && oldSets.indexOf(set) < 0 && set.maxPoint >= minPointSize);
+    let a = oldSets.filter((set4) => set4.maxPoint >= 500 || !set4.isEmpty && newSets.indexOf(set4) < 0 && set4.maxPoint >= minPointSize);
+    let b = newSets.filter((set4) => set4.maxPoint >= 500 || !set4.isEmpty && oldSets.indexOf(set4) < 0 && set4.maxPoint >= minPointSize);
     let sharedChunks = findSharedChunks(a, b);
     let sideA = new SpanCursor(a, sharedChunks, minPointSize);
     let sideB = new SpanCursor(b, sharedChunks, minPointSize);
@@ -52812,8 +57681,8 @@ var RangeSet = class {
   static eq(oldSets, newSets, from = 0, to) {
     if (to == null)
       to = 1e9;
-    let a = oldSets.filter((set) => !set.isEmpty && newSets.indexOf(set) < 0);
-    let b = newSets.filter((set) => !set.isEmpty && oldSets.indexOf(set) < 0);
+    let a = oldSets.filter((set4) => !set4.isEmpty && newSets.indexOf(set4) < 0);
+    let b = newSets.filter((set4) => !set4.isEmpty && oldSets.indexOf(set4) < 0);
     if (a.length != b.length)
       return false;
     if (!a.length)
@@ -52848,9 +57717,9 @@ var RangeSet = class {
     }
     return open;
   }
-  static of(ranges, sort = false) {
+  static of(ranges, sort2 = false) {
     let build = new RangeSetBuilder();
-    for (let range of ranges instanceof Range ? [ranges] : sort ? lazySort(ranges) : ranges)
+    for (let range of ranges instanceof Range ? [ranges] : sort2 ? lazySort(ranges) : ranges)
       build.add(range.from, range.to, range.value);
     return build.finish();
   }
@@ -52947,15 +57816,15 @@ var RangeSetBuilder = class {
 };
 function findSharedChunks(a, b) {
   let inA = new Map();
-  for (let set of a)
-    for (let i = 0; i < set.chunk.length; i++)
-      if (set.chunk[i].maxPoint < 500)
-        inA.set(set.chunk[i], set.chunkPos[i]);
+  for (let set4 of a)
+    for (let i = 0; i < set4.chunk.length; i++)
+      if (set4.chunk[i].maxPoint < 500)
+        inA.set(set4.chunk[i], set4.chunkPos[i]);
   let shared = new Set();
-  for (let set of b)
-    for (let i = 0; i < set.chunk.length; i++)
-      if (inA.get(set.chunk[i]) == set.chunkPos[i])
-        shared.add(set.chunk[i]);
+  for (let set4 of b)
+    for (let i = 0; i < set4.chunk.length; i++)
+      if (inA.get(set4.chunk[i]) == set4.chunkPos[i])
+        shared.add(set4.chunk[i]);
   return shared;
 }
 var LayerCursor = class {
@@ -53125,9 +57994,9 @@ var SpanCursor = class {
     this.cursor.forward(pos, side);
   }
   removeActive(index2) {
-    remove(this.active, index2);
-    remove(this.activeTo, index2);
-    remove(this.activeRank, index2);
+    remove2(this.active, index2);
+    remove2(this.activeTo, index2);
+    remove2(this.activeRank, index2);
     this.minActive = findMinIndex(this.active, this.activeTo);
   }
   addActive(trackOpen) {
@@ -53155,7 +58024,7 @@ var SpanCursor = class {
         }
         this.removeActive(a);
         if (trackOpen)
-          remove(trackOpen, a);
+          remove2(trackOpen, a);
       } else if (!this.cursor.value) {
         this.to = this.endSide = 1e9;
         break;
@@ -53243,22 +58112,22 @@ function sameValues(a, b) {
       return false;
   return true;
 }
-function remove(array, index2) {
-  for (let i = index2, e = array.length - 1; i < e; i++)
-    array[i] = array[i + 1];
-  array.pop();
+function remove2(array2, index2) {
+  for (let i = index2, e = array2.length - 1; i < e; i++)
+    array2[i] = array2[i + 1];
+  array2.pop();
 }
-function insert(array, index2, value) {
-  for (let i = array.length - 1; i >= index2; i--)
-    array[i + 1] = array[i];
-  array[index2] = value;
+function insert(array2, index2, value) {
+  for (let i = array2.length - 1; i >= index2; i--)
+    array2[i + 1] = array2[i];
+  array2[index2] = value;
 }
-function findMinIndex(value, array) {
+function findMinIndex(value, array2) {
   let found = -1, foundPos = 1e9;
-  for (let i = 0; i < array.length; i++)
-    if ((array[i] - foundPos || value[i].endSide - value[found].endSide) < 0) {
+  for (let i = 0; i < array2.length; i++)
+    if ((array2[i] - foundPos || value[i].endSide - value[found].endSide) < 0) {
       found = i;
-      foundPos = array[i];
+      foundPos = array2[i];
     }
   return found;
 }
@@ -53319,7 +58188,7 @@ var base = {
   222: "'",
   229: "q"
 };
-var shift = {
+var shift2 = {
   48: ")",
   49: "!",
   50: "@",
@@ -53358,11 +58227,11 @@ for (var i = 1; i <= 24; i++)
   base[i + 111] = "F" + i;
 for (var i = 65; i <= 90; i++) {
   base[i] = String.fromCharCode(i + 32);
-  shift[i] = String.fromCharCode(i);
+  shift2[i] = String.fromCharCode(i);
 }
 for (var code in base)
-  if (!shift.hasOwnProperty(code))
-    shift[code] = base[code];
+  if (!shift2.hasOwnProperty(code))
+    shift2[code] = base[code];
 
 // node_modules/@codemirror/view/dist/index.js
 function getSelection(root) {
@@ -53382,7 +58251,7 @@ function hasSelection(dom, selection) {
     return false;
   try {
     return contains2(dom, selection.anchorNode);
-  } catch (_5) {
+  } catch (_19) {
     return false;
   }
 }
@@ -53575,7 +58444,7 @@ function contentEditablePlainTextSupported() {
     try {
       dummy.contentEditable = "plaintext-only";
       _plainTextSupported = dummy.contentEditable == "plaintext-only";
-    } catch (_5) {
+    } catch (_19) {
     }
   }
   return _plainTextSupported;
@@ -53630,13 +58499,13 @@ var ContentView = class {
     return null;
   }
   sync(track) {
-    var _a;
+    var _a2;
     if (this.dirty & 2) {
       let parent = this.dom, pos = null;
       for (let child of this.children) {
         if (child.dirty) {
           let next2 = pos ? pos.nextSibling : parent.firstChild;
-          if (!child.dom && next2 && !((_a = ContentView.get(next2)) === null || _a === void 0 ? void 0 : _a.parent))
+          if (!child.dom && next2 && !((_a2 = ContentView.get(next2)) === null || _a2 === void 0 ? void 0 : _a2.parent))
             child.reuseDOM(next2);
           child.sync(track);
           child.dirty = 0;
@@ -54283,8 +59152,8 @@ var Decoration = class extends RangeValue {
   static line(spec) {
     return new LineDecoration(spec);
   }
-  static set(of, sort = false) {
-    return RangeSet.of(of, sort);
+  static set(of, sort2 = false) {
+    return RangeSet.of(of, sort2);
   }
   hasHeight() {
     return this.widget ? this.widget.estimatedHeight > -1 : false;
@@ -54698,14 +59567,14 @@ function logException(state, exception, context) {
 }
 var editable = /* @__PURE__ */ Facet.define({ combine: (values) => values.length ? values[0] : true });
 var PluginFieldProvider = class {
-  constructor(field, get) {
+  constructor(field, get3) {
     this.field = field;
-    this.get = get;
+    this.get = get3;
   }
 };
 var PluginField = class {
-  from(get) {
-    return new PluginFieldProvider(this, get);
+  from(get3) {
+    return new PluginFieldProvider(this, get3);
   }
   static define() {
     return new PluginField();
@@ -54747,9 +59616,9 @@ var PluginInstance = class {
     this.value = null;
   }
   takeField(type, target) {
-    for (let { field, get } of this.spec.fields)
+    for (let { field, get: get3 } of this.spec.fields)
       if (field == type)
-        target.push(get(this.value));
+        target.push(get3(this.value));
   }
   update(view) {
     if (!this.value) {
@@ -54771,7 +59640,7 @@ var PluginInstance = class {
         if (this.value.destroy)
           try {
             this.value.destroy();
-          } catch (_5) {
+          } catch (_19) {
           }
         return PluginInstance.dummy;
       }
@@ -54779,8 +59648,8 @@ var PluginInstance = class {
     return this;
   }
   destroy(view) {
-    var _a;
-    if ((_a = this.value) === null || _a === void 0 ? void 0 : _a.destroy) {
+    var _a2;
+    if ((_a2 = this.value) === null || _a2 === void 0 ? void 0 : _a2.destroy) {
       try {
         this.value.destroy();
       } catch (e) {
@@ -54808,19 +59677,19 @@ var ChangedRange = class {
   join(other) {
     return new ChangedRange(Math.min(this.fromA, other.fromA), Math.max(this.toA, other.toA), Math.min(this.fromB, other.fromB), Math.max(this.toB, other.toB));
   }
-  addToSet(set) {
-    let i = set.length, me = this;
+  addToSet(set4) {
+    let i = set4.length, me = this;
     for (; i > 0; i--) {
-      let range = set[i - 1];
+      let range = set4[i - 1];
       if (range.fromA > me.toA)
         continue;
       if (range.toA < me.fromA)
         break;
       me = me.join(range);
-      set.splice(i - 1, 1);
+      set4.splice(i - 1, 1);
     }
-    set.splice(i, 0, me);
-    return set;
+    set4.splice(i, 0, me);
+    return set4;
   }
   static extendWithRanges(diff, ranges) {
     if (ranges.length == 0)
@@ -54944,14 +59813,14 @@ var DocView = class extends ContentView {
   }
   updateInner(changes, deco, oldLength, forceSelection = false, pointerSel = false) {
     this.updateChildren(changes, deco, oldLength);
-    let { observer } = this.view;
-    observer.ignore(() => {
+    let { observer: observer3 } = this.view;
+    observer3.ignore(() => {
       this.dom.style.height = this.view.viewState.domHeight + "px";
       this.dom.style.minWidth = this.minWidth ? this.minWidth + "px" : "";
-      let track = browser.chrome || browser.ios ? { node: observer.selectionRange.focusNode, written: false } : void 0;
+      let track = browser.chrome || browser.ios ? { node: observer3.selectionRange.focusNode, written: false } : void 0;
       this.sync(track);
       this.dirty = 0;
-      if (track && (track.written || observer.selectionRange.focusNode != track.node))
+      if (track && (track.written || observer3.selectionRange.focusNode != track.node))
         forceSelection = true;
       this.updateSelection(forceSelection, pointerSel);
       this.dom.style.height = "";
@@ -55410,9 +60279,9 @@ function computeOrder(line, direction) {
       let end = i + 1;
       while (end < len && types[end] == 64)
         end++;
-      let replace = i && prev == 8 || end < len && types[end] == 8 ? prevStrong == 1 ? 1 : 8 : 256;
+      let replace2 = i && prev == 8 || end < len && types[end] == 8 ? prevStrong == 1 ? 1 : 8 : 256;
       for (let j = i; j < end; j++)
-        types[j] = replace;
+        types[j] = replace2;
       i = end - 1;
     } else if (type == 8 && prevStrong == 1) {
       types[i] = 1;
@@ -55465,9 +60334,9 @@ function computeOrder(line, direction) {
         end++;
       let beforeL = (i ? types[i - 1] : outerType) == 1;
       let afterL = (end < len ? types[end] : outerType) == 1;
-      let replace = beforeL == afterL ? beforeL ? 1 : 2 : outerType;
+      let replace2 = beforeL == afterL ? beforeL ? 1 : 2 : outerType;
       for (let j = i; j < end; j++)
-        types[j] = replace;
+        types[j] = replace2;
       i = end - 1;
     }
   }
@@ -55503,7 +60372,7 @@ function trivialOrder(length) {
 }
 var movedOver = "";
 function moveVisually(line, order, dir, start2, forward) {
-  var _a;
+  var _a2;
   let startIndex = start2.head - line.from, spanI = -1;
   if (startIndex == 0) {
     if (!forward || !line.length)
@@ -55522,7 +60391,7 @@ function moveVisually(line, order, dir, start2, forward) {
     }
   }
   if (spanI < 0)
-    spanI = BidiSpan.find(order, startIndex, (_a = start2.bidiLevel) !== null && _a !== void 0 ? _a : -1, start2.assoc);
+    spanI = BidiSpan.find(order, startIndex, (_a2 = start2.bidiLevel) !== null && _a2 !== void 0 ? _a2 : -1, start2.assoc);
   let span = order[spanI];
   if (startIndex == span.side(forward, dir)) {
     span = order[spanI += forward ? 1 : -1];
@@ -55803,8 +60672,8 @@ function skipAtoms(view, oldPos, pos) {
   let atoms = view.pluginField(PluginField.atomicRanges);
   for (; ; ) {
     let moved = false;
-    for (let set of atoms) {
-      set.between(pos.from - 1, pos.from + 1, (from, to, value) => {
+    for (let set4 of atoms) {
+      set4.between(pos.from - 1, pos.from + 1, (from, to, value) => {
         if (pos.from > from && pos.from < to) {
           pos = oldPos.from > pos.from ? EditorSelection.cursor(from, 1) : EditorSelection.cursor(to, -1);
           moved = true;
@@ -55858,8 +60727,8 @@ var InputState = class {
   }
   ensureHandlers(view) {
     let handlers2 = this.customHandlers = view.pluginField(domEventHandlers);
-    for (let set of handlers2) {
-      for (let type in set.handlers)
+    for (let set4 of handlers2) {
+      for (let type in set4.handlers)
         if (this.registeredEvents.indexOf(type) < 0 && type != "scroll") {
           this.registeredEvents.push(type);
           view.contentDOM.addEventListener(type, (event) => {
@@ -55872,11 +60741,11 @@ var InputState = class {
     }
   }
   runCustomHandlers(type, view, event) {
-    for (let set of this.customHandlers) {
-      let handler = set.handlers[type], handled = false;
+    for (let set4 of this.customHandlers) {
+      let handler = set4.handlers[type], handled = false;
       if (handler) {
         try {
-          handled = handler.call(set.plugin, event, view);
+          handled = handler.call(set4.plugin, event, view);
         } catch (e) {
           logException(view.state, e);
         }
@@ -55890,11 +60759,11 @@ var InputState = class {
     return false;
   }
   runScrollHandlers(view, event) {
-    for (let set of this.customHandlers) {
-      let handler = set.handlers.scroll;
+    for (let set4 of this.customHandlers) {
+      let handler = set4.handlers.scroll;
       if (handler) {
         try {
-          handler.call(set.plugin, event, view);
+          handler.call(set4.plugin, event, view);
         } catch (e) {
           logException(view.state, e);
         }
@@ -57162,15 +62031,15 @@ var ViewState = class {
   }
   getViewport(bias, scrollTo) {
     let marginTop = 0.5 - Math.max(-0.5, Math.min(0.5, bias / 1e3 / 2));
-    let map = this.heightMap, doc2 = this.state.doc, { visibleTop, visibleBottom } = this;
-    let viewport = new Viewport(map.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, doc2, 0, 0).from, map.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, doc2, 0, 0).to);
+    let map2 = this.heightMap, doc2 = this.state.doc, { visibleTop, visibleBottom } = this;
+    let viewport = new Viewport(map2.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, doc2, 0, 0).to);
     if (scrollTo) {
       if (scrollTo.head < viewport.from) {
-        let { top: newTop } = map.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
-        viewport = new Viewport(map.lineAt(newTop - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map.lineAt(newTop + (visibleBottom - visibleTop) + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
+        let { top: newTop } = map2.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
+        viewport = new Viewport(map2.lineAt(newTop - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newTop + (visibleBottom - visibleTop) + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
       } else if (scrollTo.head > viewport.to) {
-        let { bottom: newBottom } = map.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
-        viewport = new Viewport(map.lineAt(newBottom - (visibleBottom - visibleTop) - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map.lineAt(newBottom + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
+        let { bottom: newBottom } = map2.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
+        viewport = new Viewport(map2.lineAt(newBottom - (visibleBottom - visibleTop) - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newBottom + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
       }
     }
     return viewport;
@@ -57338,8 +62207,8 @@ function findFraction(structure, pos) {
   }
   return counted / structure.total;
 }
-function find(array, f) {
-  for (let val of array)
+function find(array2, f) {
+  for (let val of array2)
     if (f(val))
       return val;
   return void 0;
@@ -57640,8 +62509,8 @@ var DOMObserver = class {
     return this._selectionRange;
   }
   setSelectionRange(anchor, head) {
-    var _a;
-    if (!((_a = this._selectionRange) === null || _a === void 0 ? void 0 : _a.type))
+    var _a2;
+    if (!((_a2 = this._selectionRange) === null || _a2 === void 0 ? void 0 : _a2.type))
       this._selectionRange = {
         anchorNode: anchor.node,
         anchorOffset: anchor.offset,
@@ -58361,8 +63230,8 @@ var EditorView = class {
     return order;
   }
   get hasFocus() {
-    var _a;
-    return (document.hasFocus() || browser.safari && ((_a = this.inputState) === null || _a === void 0 ? void 0 : _a.lastContextMenu) > Date.now() - 3e4) && this.root.activeElement == this.contentDOM;
+    var _a2;
+    return (document.hasFocus() || browser.safari && ((_a2 = this.inputState) === null || _a2 === void 0 ? void 0 : _a2.lastContextMenu) > Date.now() - 3e4) && this.root.activeElement == this.contentDOM;
   }
   focus() {
     this.observer.ignore(() => {
@@ -58891,11 +63760,11 @@ var NodeType = class {
     }
     return this.id == name2;
   }
-  static match(map) {
+  static match(map2) {
     let direct = Object.create(null);
-    for (let prop in map)
+    for (let prop in map2)
       for (let name2 of prop.split(" "))
-        direct[name2] = map[prop];
+        direct[name2] = map2[prop];
     return (node) => {
       for (let groups = node.prop(NodeProp.group), i = -1; i < (groups ? groups.length : 0); i++) {
         let found = direct[i < 0 ? node.name : groups[i]];
@@ -58995,10 +63864,10 @@ function withHash(tree, hash) {
   return tree;
 }
 var TreeBuffer = class {
-  constructor(buffer, length, set, type = NodeType.none) {
+  constructor(buffer, length, set4, type = NodeType.none) {
     this.buffer = buffer;
     this.length = length;
-    this.set = set;
+    this.set = set4;
     this.type = type;
   }
   toString() {
@@ -59443,7 +64312,7 @@ var FlatBufferCursor = class {
 };
 var BalanceBranchFactor = 8;
 function buildTree(data) {
-  var _a;
+  var _a2;
   let { buffer, nodeSet, topID = 0, maxBufferLength = DefaultBufferLength, reused = [], minRepeatType = nodeSet.types.length } = data;
   let cursor = Array.isArray(buffer) ? new FlatBufferCursor(buffer, buffer.length) : buffer;
   let types2 = nodeSet.types;
@@ -59551,7 +64420,7 @@ function buildTree(data) {
   let children = [], positions = [];
   while (cursor.pos > 0)
     takeNode(data.start || 0, 0, children, positions, -1);
-  let length = (_a = data.length) !== null && _a !== void 0 ? _a : children.length ? positions[0] + children[0].length : 0;
+  let length = (_a2 = data.length) !== null && _a2 !== void 0 ? _a2 : children.length ? positions[0] + children[0].length : 0;
   return new Tree(types2[topID], children.reverse(), positions.reverse(), length);
 }
 function balanceRange(outerType, innerType, children, positions, from, to, start2, maxBufferLength, length, contextHash) {
@@ -60066,8 +64935,8 @@ function foldInside(node) {
 // node_modules/@codemirror/highlight/dist/index.js
 var nextTagID = 0;
 var Tag = class {
-  constructor(set, base2, modified) {
-    this.set = set;
+  constructor(set4, base2, modified) {
+    this.set = set4;
     this.base = base2;
     this.modified = modified;
     this.id = nextTagID++;
@@ -60103,23 +64972,23 @@ var Modifier = class {
     let exists = mods[0].instances.find((t2) => t2.base == base2 && sameArray2(mods, t2.modified));
     if (exists)
       return exists;
-    let set = [], tag = new Tag(set, base2, mods);
+    let set4 = [], tag = new Tag(set4, base2, mods);
     for (let m of mods)
       m.instances.push(tag);
     let configs = permute(mods);
     for (let parent of base2.set)
       for (let config of configs)
-        set.push(Modifier.get(parent, config));
+        set4.push(Modifier.get(parent, config));
     return tag;
   }
 };
 function sameArray2(a, b) {
   return a.length == b.length && a.every((x, i) => x == b[i]);
 }
-function permute(array) {
-  let result = [array];
-  for (let i = 0; i < array.length; i++) {
-    for (let a of permute(array.slice(0, i).concat(array.slice(i + 1))))
+function permute(array2) {
+  let result = [array2];
+  for (let i = 0; i < array2.length; i++) {
+    for (let a of permute(array2.slice(0, i).concat(array2.slice(i + 1))))
       result.push(a);
   }
   return result;
@@ -60566,7 +65435,7 @@ var classHighlightStyle = /* @__PURE__ */ HighlightStyle.define([
 ]);
 
 // node_modules/reactex/dist/code.js
-var import_lodash2 = __toModule(require_lodash());
+var import_lodash3 = __toModule(require_lodash());
 var add_highlight = StateEffect.define();
 var clear_highlights = StateEffect.define();
 var highlight_field = StateField.define({
@@ -60625,16 +65494,16 @@ var pos_to_linecol = (editor, pos) => {
 };
 var ListingData = class {
 };
-var ListingContext = import_react15.default.createContext(new ListingData());
+var ListingContext = import_react24.default.createContext(new ListingData());
 var ListingConfigure = ({
   language: language2
 }) => {
-  let ctx = (0, import_react15.useContext)(ListingContext);
+  let ctx = (0, import_react24.useContext)(ListingContext);
   ctx.language = language2;
   return null;
 };
 var parse_with_delimiters = (code, delimiters) => {
-  let [open, close] = import_lodash2.default.unzip(delimiters);
+  let [open, close] = import_lodash3.default.unzip(delimiters);
   let make_check = (arr) => {
     let r4 = new RegExp(`^${arr.join("|")}`);
     return (s) => {
@@ -60672,10 +65541,10 @@ var parse_with_delimiters = (code, delimiters) => {
   return { output_code: output_code.join(""), ranges };
 };
 var Listing = (props) => {
-  let [editor, set_editor] = (0, import_react15.useState)(null);
-  let ctx = (0, import_react15.useContext)(ListingContext);
-  let ref = (0, import_react15.useRef)(null);
-  (0, import_react15.useEffect)(() => {
+  let [editor, set_editor] = (0, import_react24.useState)(null);
+  let ctx = (0, import_react24.useContext)(ListingContext);
+  let ref = (0, import_react24.useRef)(null);
+  (0, import_react24.useEffect)(() => {
     let language2 = props.language || ctx.language;
     if (!language2) {
       throw "Language not specified";
@@ -60712,13 +65581,14 @@ var Listing = (props) => {
     }
     set_editor(editor2);
   }, []);
-  return /* @__PURE__ */ import_react15.default.createElement("div", {
+  return /* @__PURE__ */ import_react24.default.createElement("div", {
     ref
   });
 };
 
 // node_modules/reactex/dist/document.js
-var import_lodash3 = __toModule(require_lodash());
+var import_lodash4 = __toModule(require_lodash());
+var import_classnames7 = __toModule(require_classnames());
 var SectionData = class {
   constructor() {
     this.subsections = 0;
@@ -60737,26 +65607,26 @@ var DocumentData = class {
     }
   }
 };
-var DocumentContext = import_react16.default.createContext(new DocumentData());
+var DocumentContext = import_react25.default.createContext(new DocumentData());
 var SectionTitle = ({
   level,
   children
 }) => {
   let Header;
   if (!level || level == 0) {
-    Header = (props) => /* @__PURE__ */ import_react16.default.createElement("h2", {
+    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h2", {
       ...props
     });
   } else if (level == 1) {
-    Header = (props) => /* @__PURE__ */ import_react16.default.createElement("h3", {
+    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h3", {
       ...props
     });
   } else {
-    Header = (props) => /* @__PURE__ */ import_react16.default.createElement("h4", {
+    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h4", {
       ...props
     });
   }
-  return /* @__PURE__ */ import_react16.default.createElement(Header, {
+  return /* @__PURE__ */ import_react25.default.createElement(Header, {
     className: "section-title"
   }, children);
 };
@@ -60765,12 +65635,12 @@ var Section = ({
   title,
   children
 }) => {
-  let doc_ctx = (0, import_react16.useContext)(DocumentContext);
-  let def_ctx = (0, import_react16.useContext)(DefinitionContext);
+  let doc_ctx = (0, import_react25.useContext)(DocumentContext);
+  let def_ctx = (0, import_react25.useContext)(DefinitionContext);
   if (doc_ctx.section_contexts.length == 0) {
     doc_ctx.sections += 1;
   } else {
-    import_lodash3.default.last(doc_ctx.section_contexts).subsections += 1;
+    import_lodash4.default.last(doc_ctx.section_contexts).subsections += 1;
   }
   let level = doc_ctx.section_contexts.length;
   let sec_num = [
@@ -60783,25 +65653,25 @@ var Section = ({
     doc_ctx.section_contexts.pop();
     return null;
   };
-  return /* @__PURE__ */ import_react16.default.createElement(Definition, {
+  return /* @__PURE__ */ import_react25.default.createElement(Definition, {
     name: name2,
-    label: /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, "Section ", sec_num),
-    tooltip: null,
+    Label: () => /* @__PURE__ */ import_react25.default.createElement(import_react25.default.Fragment, null, "Section ", sec_num),
+    Tooltip: null,
     block: true
-  }, /* @__PURE__ */ import_react16.default.createElement("section", null, /* @__PURE__ */ import_react16.default.createElement(SectionTitle, {
+  }, /* @__PURE__ */ import_react25.default.createElement("section", null, /* @__PURE__ */ import_react25.default.createElement(SectionTitle, {
     level
-  }, /* @__PURE__ */ import_react16.default.createElement("span", {
+  }, /* @__PURE__ */ import_react25.default.createElement("span", {
     className: "section-number"
-  }, sec_num), " ", title), children, /* @__PURE__ */ import_react16.default.createElement(Cleanup, null)));
+  }, sec_num), " ", title), children, /* @__PURE__ */ import_react25.default.createElement(Cleanup, null)));
 };
 var Footnote = ({ children }) => {
-  let ctx = (0, import_react16.useContext)(DocumentContext);
+  let ctx = (0, import_react25.useContext)(DocumentContext);
   ctx.footnotes.push(children);
   let i = ctx.footnotes.length;
-  return /* @__PURE__ */ import_react16.default.createElement("a", {
+  return /* @__PURE__ */ import_react25.default.createElement("a", {
     href: `#footnote-${i}`,
     id: `footnote-ref-${i}`
-  }, /* @__PURE__ */ import_react16.default.createElement("sup", {
+  }, /* @__PURE__ */ import_react25.default.createElement("sup", {
     className: "footnote-marker"
   }, i));
 };
@@ -60818,57 +65688,55 @@ var Wrap = ({
   } else {
     style2 = {};
   }
-  return /* @__PURE__ */ import_react16.default.createElement("div", {
+  return /* @__PURE__ */ import_react25.default.createElement("div", {
     style: { float: align, ...style2 }
   }, children);
 };
 var Row = ({ children }) => {
-  return /* @__PURE__ */ import_react16.default.createElement("div", {
+  return /* @__PURE__ */ import_react25.default.createElement("div", {
     className: "row"
   }, children);
 };
-var Document = ({ children, bibtex }) => {
-  let [second_pass, set_second_pass] = (0, import_react16.useState)(false);
-  (0, import_react16.useEffect)(() => {
-    set_second_pass(true);
-  });
-  let [def_ctx, set_def_ctx] = (0, import_react16.useState)(new DefinitionData());
+var Document = observer2(({ children, bibtex }) => {
+  let [def_ctx, set_def_ctx] = (0, import_react25.useState)(new DefinitionData());
+  def_ctx.add_mode_listeners();
   let Footnotes = (_22) => {
-    let ctx = (0, import_react16.useContext)(DocumentContext);
-    return /* @__PURE__ */ import_react16.default.createElement("div", {
+    let ctx = (0, import_react25.useContext)(DocumentContext);
+    return /* @__PURE__ */ import_react25.default.createElement("div", {
       className: "footnotes"
     }, ctx.footnotes.map((footnote, i) => {
       let top2 = {};
       i += 1;
-      return /* @__PURE__ */ import_react16.default.createElement("div", {
+      return /* @__PURE__ */ import_react25.default.createElement("div", {
         className: "footnote",
         id: `footnote-${i}`,
         key: i
-      }, /* @__PURE__ */ import_react16.default.createElement("a", {
+      }, /* @__PURE__ */ import_react25.default.createElement("a", {
         className: "backlink",
         href: `#footnote-ref-${i}`
-      }, "\u2B05"), /* @__PURE__ */ import_react16.default.createElement("span", {
+      }, "\u2B05"), /* @__PURE__ */ import_react25.default.createElement("span", {
         className: "footnote-number"
       }, i), footnote);
     }));
   };
-  return /* @__PURE__ */ import_react16.default.createElement(DefinitionContext.Provider, {
+  return /* @__PURE__ */ import_react25.default.createElement(DefinitionContext.Provider, {
     value: def_ctx
-  }, /* @__PURE__ */ import_react16.default.createElement(DocumentContext.Provider, {
+  }, /* @__PURE__ */ import_react25.default.createElement(DocumentContext.Provider, {
     value: new DocumentData()
-  }, /* @__PURE__ */ import_react16.default.createElement(ReactTexContext.Provider, {
+  }, /* @__PURE__ */ import_react25.default.createElement(ReactTexContext.Provider, {
     value: new TexContext()
-  }, /* @__PURE__ */ import_react16.default.createElement(ReactBibliographyContext.Provider, {
+  }, /* @__PURE__ */ import_react25.default.createElement(ReactBibliographyContext.Provider, {
     value: new BibliographyContext(bibtex || "")
-  }, /* @__PURE__ */ import_react16.default.createElement(ListingContext.Provider, {
+  }, /* @__PURE__ */ import_react25.default.createElement(ListingContext.Provider, {
     value: new ListingData()
-  }, /* @__PURE__ */ import_react16.default.createElement("div", {
-    className: "document-wrapper",
-    key: second_pass.toString()
-  }, /* @__PURE__ */ import_react16.default.createElement("div", {
+  }, /* @__PURE__ */ import_react25.default.createElement("div", {
+    className: (0, import_classnames7.default)("document-wrapper", {
+      "def-mode": def_ctx.def_mode
+    })
+  }, /* @__PURE__ */ import_react25.default.createElement("div", {
     className: "document"
-  }, children), /* @__PURE__ */ import_react16.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react16.default.createElement(Footnotes, null)))))));
-};
+  }, children), /* @__PURE__ */ import_react25.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react25.default.createElement(Footnotes, null)))))));
+});
 
 // node_modules/reactex/dist/bibliography.js
 function isString(x) {
@@ -60906,9 +65774,9 @@ var BibliographyEntry = class {
   }
   bib_cite() {
     let names = this.authors?.map((author) => [...author.slice(1), author[0]].join(" "));
-    return /* @__PURE__ */ import_react17.default.createElement("div", {
+    return /* @__PURE__ */ import_react26.default.createElement("div", {
       className: "bib-reference"
-    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react17.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
+    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react26.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
   }
 };
 function intersperse(arr, sep) {
@@ -60922,7 +65790,7 @@ function intersperse(arr, sep) {
 var BibliographyContext = class {
   constructor(bibtex) {
     let entries = import_bibtex_parse_js.default.toJSON(bibtex);
-    this.citations = import_lodash4.default.chain(entries).map((entry) => [entry.citationKey, new BibliographyEntry(entry)]).fromPairs().value();
+    this.citations = import_lodash5.default.chain(entries).map((entry) => [entry.citationKey, new BibliographyEntry(entry)]).fromPairs().value();
     this.used_citations = {};
   }
   cite(keys, full, yearonly) {
@@ -60932,145 +65800,197 @@ var BibliographyContext = class {
     return full ? intersperse(keys.map((key) => {
       let entry = this.citations[key];
       let author = entry.display_author();
-      return /* @__PURE__ */ import_react17.default.createElement(Ref, {
+      return /* @__PURE__ */ import_react26.default.createElement(Ref, {
         name: key
       }, `${author} [${entry.year}]`);
-    }), /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, "; ")) : /* @__PURE__ */ import_react17.default.createElement("span", null, "[", intersperse(keys.map((key) => {
+    }), /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, "; ")) : /* @__PURE__ */ import_react26.default.createElement("span", null, "[", intersperse(keys.map((key) => {
       let entry = this.citations[key];
       if (yearonly) {
         return entry.year;
       } else {
         let author = entry.display_author();
-        return /* @__PURE__ */ import_react17.default.createElement(Ref, {
+        return /* @__PURE__ */ import_react26.default.createElement(Ref, {
           name: key
         }, `${author} ${entry.year}`);
       }
     }), ", "), "]");
   }
 };
-var ReactBibliographyContext = import_react17.default.createContext(null);
+var ReactBibliographyContext = import_react26.default.createContext(null);
 var ReferencesSection = (_22) => {
-  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react17.default.createElement("section", null, /* @__PURE__ */ import_react17.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react17.default.createElement(References, {
+  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react26.default.createElement("section", null, /* @__PURE__ */ import_react26.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react26.default.createElement(References, {
     keys: Object.keys(ctx.used_citations)
   }));
 };
 var References = ({ keys }) => {
-  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react17.default.createElement("div", {
+  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react26.default.createElement("div", {
     className: "bib-references"
-  }, keys.map((key) => /* @__PURE__ */ import_react17.default.createElement("div", {
+  }, keys.map((key) => /* @__PURE__ */ import_react26.default.createElement("div", {
     key
-  }, /* @__PURE__ */ import_react17.default.createElement(Definition, {
+  }, /* @__PURE__ */ import_react26.default.createElement(Definition, {
     name: key,
     block: true
   }, ctx.citations[key].bib_cite()))));
 };
 var Cite = ({ v, f, y }) => {
-  let ctx = (0, import_react17.useContext)(ReactBibliographyContext);
+  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
   let keys = typeof v === "string" ? [v] : v;
-  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, ctx.cite(keys, f || false, y || false));
+  return /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, ctx.cite(keys, f || false, y || false));
 };
 
 // node_modules/reactex/dist/header.js
-var import_react18 = __toModule(require_react());
-var import_react19 = __toModule(require_react());
-var AffiliationContext = (0, import_react19.createContext)({});
-var InlineError = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("span", {
+var import_react27 = __toModule(require_react());
+var import_react28 = __toModule(require_react());
+var AffiliationContext = (0, import_react28.createContext)({});
+var InlineError = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("span", {
   className: "inline-error"
 }, children);
-var AuthorContext = (0, import_react19.createContext)({});
+var AuthorContext = (0, import_react28.createContext)({});
 var Institution = ({ value }) => {
-  let ctx = (0, import_react19.useContext)(AffiliationContext);
+  let ctx = (0, import_react28.useContext)(AffiliationContext);
   ctx.institution = value;
-  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
+  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
 };
 var Affiliation = ({ children }) => {
-  let auth_ctx = (0, import_react19.useContext)(AuthorContext);
+  let auth_ctx = (0, import_react28.useContext)(AuthorContext);
   let aff_ctx = {};
   let Inner = () => {
     if (!auth_ctx.affiliations) {
       auth_ctx.affiliations = [];
     }
     auth_ctx.affiliations.push(aff_ctx);
-    return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
+    return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
   };
-  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(AffiliationContext.Provider, {
+  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(AffiliationContext.Provider, {
     value: aff_ctx
-  }, children), /* @__PURE__ */ import_react18.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react27.default.createElement(Inner, null));
 };
 var Name = ({ value }) => {
-  let ctx = (0, import_react19.useContext)(AuthorContext);
+  let ctx = (0, import_react28.useContext)(AuthorContext);
   ctx.name = value;
-  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null);
+  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
 };
 var Author = ({ children }) => {
   let ctx = {};
-  let Inner = () => /* @__PURE__ */ import_react18.default.createElement("div", {
+  let Inner = () => /* @__PURE__ */ import_react27.default.createElement("div", {
     className: "author"
-  }, ctx.name ? /* @__PURE__ */ import_react18.default.createElement("span", {
+  }, ctx.name ? /* @__PURE__ */ import_react27.default.createElement("span", {
     className: "author-name"
-  }, ctx.name) : /* @__PURE__ */ import_react18.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react18.default.createElement("span", {
+  }, ctx.name) : /* @__PURE__ */ import_react27.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react27.default.createElement("span", {
     className: "author-affiliation"
-  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react18.default.createElement("span", {
+  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react27.default.createElement("span", {
     key: i
-  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, ", ", affiliation.country) : null))) : null);
-  return /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(AuthorContext.Provider, {
+  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, ", ", affiliation.country) : null))) : null);
+  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(AuthorContext.Provider, {
     value: ctx
-  }, children), /* @__PURE__ */ import_react18.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react27.default.createElement(Inner, null));
 };
 var Authors = ({ children }) => {
-  return /* @__PURE__ */ import_react18.default.createElement("div", {
+  return /* @__PURE__ */ import_react27.default.createElement("div", {
     className: "authors"
   }, children);
 };
-var Title = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("h1", {
+var Title = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("h1", {
   className: "document-title"
 }, children);
-var Abstract = ({ children }) => /* @__PURE__ */ import_react18.default.createElement("div", {
+var Abstract = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("div", {
   className: "abstract"
 }, children);
 
 // node_modules/reactex/dist/language.js
-var import_react20 = __toModule(require_react());
+var import_react29 = __toModule(require_react());
 var r2 = String.raw;
 var Language2 = class {
   constructor(grammar) {
     this.Commands = () => {
-      let commands = this.grammar.map(([kind, cmd, metavar, branches]) => {
+      let commands = this.grammar.map(({ cmd, metavar, branches }) => {
         let mv_cmd = newcommand(`${cmd}`, 0, metavar);
-        let branch_cmds = branches.map(([subcmd, nargs, body, _5]) => newcommand(cmd + subcmd, nargs, body));
+        let branch_cmds = branches.map(({ subcmd, nargs, body }) => newcommand(cmd + subcmd, nargs, body));
         return [mv_cmd].concat(branch_cmds).join("\n");
       }).join("\n");
-      return /* @__PURE__ */ import_react20.default.createElement($$, null, commands);
+      return /* @__PURE__ */ import_react29.default.createElement($$, null, commands);
     };
-    this.Bnf = () => {
-      let ctx = (0, import_react20.useContext)(DefinitionContext);
-      let tex = this.grammar.map(([kind, cmd, metavar, branches]) => {
+    this.BnfInner = ({ container_ref }) => {
+      let def_ctx = (0, import_react29.useContext)(DefinitionContext);
+      let tex_ctx = (0, import_react29.useContext)(ReactTexContext);
+      let branch_to_tex = (cmd) => ({ subcmd, args }) => {
+        let arg_str = args.map((arg) => `{${arg}}`).join("");
+        return r2`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
+      };
+      let [branch_dims, set_branch_dims] = (0, import_react29.useState)(null);
+      (0, import_react29.useEffect)(() => {
+        let cancel;
+        let promise = new Promise((resolve, reject) => {
+          Promise.all(this.grammar.map(({ cmd, branches }) => Promise.all(branches.map(branch_to_tex(cmd)).map((tex2) => tex_ctx.dimensions(tex2, false, container_ref))))).then(resolve);
+          cancel = reject;
+        });
+        promise.then((branch_dims2) => {
+          set_branch_dims(branch_dims2);
+        }).catch((_19) => {
+        });
+        return cancel;
+      }, []);
+      if (branch_dims === null) {
+        return null;
+      }
+      const MAX_ROW_WIDTH = 350;
+      let tex = zipExn(this.grammar, branch_dims).map(([{ kind, cmd, metavar, branches }, bdims]) => {
         let rhs;
         if (branches.length > 0) {
-          let branches_str = branches.map(([subcmd, _1, _22, args]) => {
-            let arg_str = args.map((arg) => `{${arg}}`).join("");
-            return r2`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
-          }).join(r2` \mid `);
-          rhs = `::= ~ ${branches_str}`;
+          let [rows] = zipExn(branches, bdims).reduce(([rows2, cur_width], [branch, dims]) => {
+            let last_row = rows2[rows2.length - 1];
+            if (cur_width + dims.width > MAX_ROW_WIDTH && last_row.length > 0) {
+              rows2.push([branch]);
+              cur_width = dims.width;
+            } else {
+              last_row.push(branch);
+              cur_width += dims.width;
+            }
+            return [rows2, cur_width];
+          }, [[[]], 0]);
+          let str = rows.map((row) => row.map(branch_to_tex(cmd)).join(r2` \mid `)).join(r2`\\& & & && &&\mid`);
+          rhs = `::= ~ &&${str}`;
         } else {
           rhs = ``;
         }
         kind = kind.replace(` `, r2`\ `);
-        ctx.add_definition(`tex:${cmd}`, {
-          tooltip: /* @__PURE__ */ import_react20.default.createElement($, null, r2`\mathsf{${kind}} ~ ${metavar} ${rhs}`),
-          label: null
+        branches.forEach(({ subcmd }) => {
+          def_ctx.add_definition(`tex:${cmd}${subcmd}`, {
+            Tooltip: () => /* @__PURE__ */ import_react29.default.createElement($$, {
+              className: "nomargin"
+            }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
+            Label: null
+          });
+        });
+        def_ctx.add_definition(`tex:${cmd}`, {
+          Tooltip: () => /* @__PURE__ */ import_react29.default.createElement($$, {
+            className: "nomargin"
+          }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
+          Label: null
         });
         return r2`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
       }).join(r2`\\`);
-      return /* @__PURE__ */ import_react20.default.createElement($$, null, r2`
-    \begin{aligned}      
-      ${tex}
-    \end{aligned}
-    `);
+      return /* @__PURE__ */ import_react29.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
     };
-    this.grammar = grammar;
+    this.Bnf = () => {
+      let ref = (0, import_react29.useRef)(null);
+      return /* @__PURE__ */ import_react29.default.createElement("div", {
+        ref
+      }, ref.current ? /* @__PURE__ */ import_react29.default.createElement(this.BnfInner, {
+        container_ref: ref.current
+      }) : null);
+    };
+    this.grammar = grammar.map(([kind, cmd, metavar, in_branches]) => {
+      let branches = in_branches.map(([subcmd, nargs, body, args]) => ({
+        subcmd,
+        nargs,
+        body,
+        args
+      }));
+      return { kind, cmd, metavar, branches };
+    });
   }
 };
 
@@ -61089,7 +66009,7 @@ var Stack = class {
     this.parent = parent;
   }
   toString() {
-    return `[${this.stack.filter((_5, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
+    return `[${this.stack.filter((_19, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
   }
   static start(p, state, pos = 0) {
     let cx = p.parser.context;
@@ -61102,8 +66022,8 @@ var Stack = class {
     this.stack.push(this.state, start2, this.bufferBase + this.buffer.length);
     this.state = state;
   }
-  reduce(action) {
-    let depth = action >> 19, type = action & 65535;
+  reduce(action2) {
+    let depth = action2 >> 19, type = action2 & 65535;
     let { parser: parser2 } = this.p;
     let dPrec = parser2.dynamicPrecedence(type);
     if (dPrec)
@@ -61115,14 +66035,14 @@ var Stack = class {
       this.reduceContext(type);
       return;
     }
-    let base2 = this.stack.length - (depth - 1) * 3 - (action & 262144 ? 6 : 0);
+    let base2 = this.stack.length - (depth - 1) * 3 - (action2 & 262144 ? 6 : 0);
     let start2 = this.stack[base2 - 2];
     let bufferBase = this.stack[base2 - 1], count = this.bufferBase + this.buffer.length - bufferBase;
-    if (type < parser2.minRepeatTerm || action & 131072) {
+    if (type < parser2.minRepeatTerm || action2 & 131072) {
       let pos = parser2.stateFlag(this.state, 1) ? this.pos : this.reducePos;
       this.storeNode(type, start2, pos, count + 4, true);
     }
-    if (action & 262144) {
+    if (action2 & 262144) {
       this.state = this.stack[base2];
     } else {
       let baseStateID = this.stack[base2 - 3];
@@ -61168,11 +66088,11 @@ var Stack = class {
       this.buffer[index2 + 3] = size;
     }
   }
-  shift(action, next, nextEnd) {
-    if (action & 131072) {
-      this.pushState(action & 65535, this.pos);
-    } else if ((action & 262144) == 0) {
-      let start2 = this.pos, nextState = action, { parser: parser2 } = this.p;
+  shift(action2, next, nextEnd) {
+    if (action2 & 131072) {
+      this.pushState(action2 & 65535, this.pos);
+    } else if ((action2 & 262144) == 0) {
+      let start2 = this.pos, nextState = action2, { parser: parser2 } = this.p;
       if (nextEnd > this.pos || next <= parser2.maxNode) {
         this.pos = nextEnd;
         if (!parser2.stateFlag(nextState, 1))
@@ -61188,11 +66108,11 @@ var Stack = class {
       this.pos = nextEnd;
     }
   }
-  apply(action, next, nextEnd) {
-    if (action & 65536)
-      this.reduce(action);
+  apply(action2, next, nextEnd) {
+    if (action2 & 65536)
+      this.reduce(action2);
     else
-      this.shift(action, next, nextEnd);
+      this.shift(action2, next, nextEnd);
   }
   useNode(value, next) {
     let index2 = this.p.reused.length - 1;
@@ -61227,12 +66147,12 @@ var Stack = class {
   }
   canShift(term) {
     for (let sim = new SimulatedStack(this); ; ) {
-      let action = this.p.parser.stateSlot(sim.top, 4) || this.p.parser.hasAction(sim.top, term);
-      if ((action & 65536) == 0)
+      let action2 = this.p.parser.stateSlot(sim.top, 4) || this.p.parser.hasAction(sim.top, term);
+      if ((action2 & 65536) == 0)
         return true;
-      if (action == 0)
+      if (action2 == 0)
         return false;
-      sim.reduce(action);
+      sim.reduce(action2);
     }
   }
   get ruleStart() {
@@ -61386,8 +66306,8 @@ var SimulatedStack = class {
     this.rest = stack.stack;
     this.offset = this.rest.length;
   }
-  reduce(action) {
-    let term = action & 65535, depth = action >> 19;
+  reduce(action2) {
+    let term = action2 & 65535, depth = action2 >> 19;
     if (depth == 0) {
       if (this.rest == this.stack.stack)
         this.rest = this.rest.slice();
@@ -61506,7 +66426,7 @@ function readToken(data, input, token, stack, group) {
 function decodeArray(input, Type = Uint16Array) {
   if (typeof input != "string")
     return input;
-  let array = null;
+  let array2 = null;
   for (let pos = 0, out = 0; pos < input.length; ) {
     let value = 0;
     for (; ; ) {
@@ -61529,12 +66449,12 @@ function decodeArray(input, Type = Uint16Array) {
         break;
       value *= 46;
     }
-    if (array)
-      array[out++] = value;
+    if (array2)
+      array2[out++] = value;
     else
-      array = new Type(value);
+      array2 = new Type(value);
   }
-  return array;
+  return array2;
 }
 var verbose = typeof process != "undefined" && /\bparse\b/.test(process.env.LOG);
 var stackIDs = null;
@@ -61642,7 +66562,7 @@ var TokenCache = class {
     this.tokens = [];
     this.mainToken = dummyToken;
     this.actions = [];
-    this.tokens = parser2.tokenizers.map((_5) => new CachedToken());
+    this.tokens = parser2.tokenizers.map((_19) => new CachedToken());
   }
   getActions(stack, input) {
     let actionIndex = 0;
@@ -61708,19 +66628,19 @@ var TokenCache = class {
       token.accept(0, stack.pos + 1);
     }
   }
-  putAction(action, token, end, index2) {
+  putAction(action2, token, end, index2) {
     for (let i = 0; i < index2; i += 3)
-      if (this.actions[i] == action)
+      if (this.actions[i] == action2)
         return index2;
-    this.actions[index2++] = action;
+    this.actions[index2++] = action2;
     this.actions[index2++] = token;
     this.actions[index2++] = end;
     return index2;
   }
   addActions(stack, token, end, index2) {
     let { state } = stack, { parser: parser2 } = stack.p, { data } = parser2;
-    for (let set = 0; set < 2; set++) {
-      for (let i = parser2.stateSlot(state, set ? 2 : 1); ; i += 3) {
+    for (let set4 = 0; set4 < 2; set4++) {
+      for (let i = parser2.stateSlot(state, set4 ? 2 : 1); ; i += 3) {
         if (data[i] == 65535) {
           if (data[i + 1] == 1) {
             i = pair(data, i + 2);
@@ -61883,12 +66803,12 @@ var Parse = class {
     }
     let actions = this.tokens.getActions(stack, input);
     for (let i = 0; i < actions.length; ) {
-      let action = actions[i++], term = actions[i++], end = actions[i++];
+      let action2 = actions[i++], term = actions[i++], end = actions[i++];
       let last = i == actions.length || !split;
       let localStack = last ? stack : stack.split();
-      localStack.apply(action, term, end);
+      localStack.apply(action2, term, end);
       if (verbose)
-        console.log(base2 + this.stackID(localStack) + ` (via ${(action & 65536) == 0 ? "shift" : `reduce of ${parser2.getName(action & 65535)}`} for ${parser2.getName(term)} @ ${start2}${localStack == stack ? "" : ", split"})`);
+        console.log(base2 + this.stackID(localStack) + ` (via ${(action2 & 65536) == 0 ? "shift" : `reduce of ${parser2.getName(action2 & 65535)}`} for ${parser2.getName(term)} @ ${start2}${localStack == stack ? "" : ", split"})`);
       if (last)
         return true;
       else if (localStack.pos > start2)
@@ -62164,8 +67084,8 @@ var Parser = class {
   }
   hasAction(state, terminal) {
     let data = this.data;
-    for (let set = 0; set < 2; set++) {
-      for (let i = this.stateSlot(state, set ? 2 : 1), next; ; i += 3) {
+    for (let set4 = 0; set4 < 2; set4++) {
+      for (let i = this.stateSlot(state, set4 ? 2 : 1), next; ; i += 3) {
         if ((next = data[i]) == 65535) {
           if (data[i + 1] == 1)
             next = data[i = pair(data, i + 2)];
@@ -62190,8 +67110,8 @@ var Parser = class {
     let flags = this.stateSlot(state, 0);
     return flags & 4 ? this.nested[flags >> 10] : null;
   }
-  validAction(state, action) {
-    if (action == this.stateSlot(state, 4))
+  validAction(state, action2) {
+    if (action2 == this.stateSlot(state, 4))
       return true;
     for (let i = this.stateSlot(state, 1); ; i += 3) {
       if (this.data[i] == 65535) {
@@ -62200,7 +67120,7 @@ var Parser = class {
         else
           return false;
       }
-      if (action == pair(this.data, i + 1))
+      if (action2 == pair(this.data, i + 1))
         return true;
     }
   }
@@ -62505,13 +67425,13 @@ function rust() {
 }
 
 // src/slicer.tsx
-var import_react21 = __toModule(require_react());
+var import_react30 = __toModule(require_react());
 var import_axios = __toModule(require_axios2());
 var SliceListing = ({
   code,
   prelude
 }) => {
-  let [editor, set_editor] = (0, import_react21.useState)(null);
+  let [editor, set_editor] = (0, import_react30.useState)(null);
   let get_slice = async (range) => {
     editor.dispatch({ effects: clear_highlights.of(null) });
     let program = [prelude || ""].concat(editor.state.doc.toJSON()).join("\n");
@@ -62523,7 +67443,7 @@ var SliceListing = ({
       throw "Start line different from end line";
     }
     let request = { program, line: start2.line, start: start2.col, end: end.col };
-    let response = await import_axios.default.post("http://charlotte.stanford.edu:8889", request);
+    let response = await import_axios.default.post("http://mindover.computer:8888", request);
     if (response.data.error) {
       console.error(response.data.error);
       return;
@@ -62552,7 +67472,7 @@ var SliceListing = ({
       ]
     });
   };
-  return /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement(Listing, {
+  return /* @__PURE__ */ import_react30.default.createElement("div", null, /* @__PURE__ */ import_react30.default.createElement(Listing, {
     editable: true,
     code,
     extensions: [
@@ -62572,7 +67492,7 @@ var SliceListing = ({
         get_slice(range);
       }
     }
-  }), /* @__PURE__ */ import_react21.default.createElement("button", {
+  }), /* @__PURE__ */ import_react30.default.createElement("button", {
     onClick: () => {
       let selection = editor.state.selection;
       let range = selection.main;
@@ -62986,14 +67906,15 @@ var example_default = `@inproceedings{horwitz1988interprocedural,
 
 // src/index.tsx
 var r3 = String.raw;
-var C2 = (props) => /* @__PURE__ */ import_react22.default.createElement("code", {
+var C2 = (props) => /* @__PURE__ */ import_react31.default.createElement("code", {
   ...props
 });
-var Principle = ({ type, text }) => /* @__PURE__ */ import_react22.default.createElement("p", {
+var Principle = ({ type, text }) => /* @__PURE__ */ import_react31.default.createElement("p", {
   style: { margin: "1rem" }
-}, /* @__PURE__ */ import_react22.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react22.default.createElement("em", null, text));
+}, /* @__PURE__ */ import_react31.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react31.default.createElement("em", null, text));
 var Oxide = new Language2([
   ["Variable", "vr", "x", []],
+  ["Function", "fname", "f", []],
   ["Number", "num", "n", []],
   ["Path", "path", "q", [
     [r3`empty`, 0, r3`\varepsilon`, []],
@@ -63010,8 +67931,8 @@ var Oxide = new Language2([
   ["Constant", "const", "c", [
     [`unit`, 0, "()", []],
     [`num`, 1, "#1", [r3`\num`]],
-    [`true`, 0, r3`\mathsf{true}`, []],
-    [`false`, 0, r3`\mathsf{false}`, []]
+    [`true`, 0, r3`\msf{true}`, []],
+    [`false`, 0, r3`\msf{false}`, []]
   ]],
   ["Concrete Provenance", "concrprov", "r", []],
   ["Abstract Provenance", "abstrprov", r3`\varrho`, []],
@@ -63020,197 +67941,246 @@ var Oxide = new Language2([
     ["abstr", 1, "#1", [r3`\abstrprov`]]
   ]],
   ["Ownership Qualifier", "ownq", r3`\omega`, [
-    ["shrd", 0, r3`\mathsf{shrd}`, []],
-    ["uniq", 0, r3`\mathsf{uniq}`, []]
+    ["shrd", 0, r3`\msf{shrd}`, []],
+    ["uniq", 0, r3`\msf{uniq}`, []]
   ]],
   ["Base Type", "tyb", r3`\tau^\textsc{B}`, [
-    ["unit", 0, r3`\mathsf{unit}`, []],
-    ["num", 0, r3`\mathsf{u32}`, []],
-    ["bool", 0, r3`\mathsf{bool}`, []]
+    ["unit", 0, r3`\msf{unit}`, []],
+    ["num", 0, r3`\msf{u32}`, []],
+    ["bool", 0, r3`\msf{bool}`, []]
   ]],
   ["Sized Type", "tys", r3`\tau^\textsc{SI}`, [
     ["base", 1, "{#1}", [r3`\tyb`]],
     ["ref", 3, r3`\&{#1}~{#2}~{#3}`, [r3`\prov`, r3`\ownq`, r3`\tau^\textsc{XI}`]],
     ["tup", 1, r3`({#1})`, [r3`\tys{}_1, \ldots, \tys{}_n`]]
+  ]],
+  ["Expression", "expr", "e", [
+    ["const", 1, "{#1}", [r3`\const`]],
+    ["pexp", 1, "{#1}", [r3`\pexp`]],
+    ["ref", 3, r3`\&{#1}~{#2}~{#3}`, [r3`\concrprov`, r3`\ownq`, r3`\pexp`]],
+    [
+      "ite",
+      3,
+      r3`\msf{if}~{#1}~\{\,{#2}\,\}~\msf{else}~\{\,{#3}\,\}`,
+      [r3`\expr_1`, r3`\expr_2`, r3`\expr_3`]
+    ],
+    [
+      "let",
+      4,
+      r3`\msf{let}~{#1} : {#2} = {#3}; ~ {#4}`,
+      [r3`\expr_1`, r3`\tys`, r3`\expr_2`, r3`\expr_3`]
+    ],
+    ["plcasgn", 2, r3`{#1} \mathrel{:=} {#2}`, [r3`\plc`, r3`\expr`]],
+    ["pexpagn", 2, r3`{#1} \mathrel{:=} {#2}`, [r3`\pexp`, r3`\expr`]],
+    ["seq", 2, r3`{#1};~{#2}`, [r3`\expr_1`, r3`\expr_2`]],
+    [
+      "call",
+      5,
+      r3`{#1}\left\langle{#2}, {#3}, {#4}\right\rangle\left({#5}\right)`,
+      [r3`\fname`, r3`\overline{\Phi}`, r3`\overline{\rho}`, r3`\overline{\tau}`, r3`\plc`]
+    ]
+  ]],
+  ["Global Entries", "fdef", r3`\varepsilon`, [
+    [
+      "form",
+      9,
+      r3`\msf{fn}~{#1}\left\langle {#2}, {#3}, {#4}, \right\rangle\left({#5} : {#6}\right) \rightarrow {#7} ~ \msf{where} ~ {#8} ~ \{\,{#9}\,\}`,
+      [
+        r3`\fname`,
+        r3`\overline{\psi}`,
+        r3`\overline{\abstrprov}`,
+        r3`\overline{\alpha}`,
+        r3`\vr`,
+        r3`\tys_a`,
+        r3`\tys_r`,
+        r3`\overline{\abstrprov_1 : \abstrprov_2}`,
+        r3`\expr`
+      ]
+    ]
+  ]],
+  ["Global Environment", "fenv", r3`\Sigma`, [
+    ["empty", 0, r3`\bullet`, []],
+    ["with", 2, r3`{#1}, {#2}`, [r3`\fenv`, r3`\fdef`]]
   ]]
 ]);
-var App = (_5) => /* @__PURE__ */ import_react22.default.createElement(Document, {
+var App = (_19) => /* @__PURE__ */ import_react31.default.createElement(Document, {
   bibtex: example_default
-}, /* @__PURE__ */ import_react22.default.createElement(ListingConfigure, {
+}, /* @__PURE__ */ import_react31.default.createElement(ListingConfigure, {
   language: rust()
-}), /* @__PURE__ */ import_react22.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react22.default.createElement(Authors, null, /* @__PURE__ */ import_react22.default.createElement(Author, null, /* @__PURE__ */ import_react22.default.createElement(Name, {
+}), /* @__PURE__ */ import_react31.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react31.default.createElement(Authors, null, /* @__PURE__ */ import_react31.default.createElement(Author, null, /* @__PURE__ */ import_react31.default.createElement(Name, {
   value: "Will Crichton"
-}), /* @__PURE__ */ import_react22.default.createElement(Affiliation, null, /* @__PURE__ */ import_react22.default.createElement(Institution, {
+}), /* @__PURE__ */ import_react31.default.createElement(Affiliation, null, /* @__PURE__ */ import_react31.default.createElement(Institution, {
   value: "Stanford University"
-})))), /* @__PURE__ */ import_react22.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react22.default.createElement($$, null, r3`
+})))), /* @__PURE__ */ import_react31.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react31.default.createElement($$, null, r3`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
-    `), /* @__PURE__ */ import_react22.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react22.default.createElement(Section, {
+    \newcommand{\msf}[1]{\mathsf{#1}}
+    `), /* @__PURE__ */ import_react31.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Introduction",
   name: "sec:intro"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: ["xu2005brief", "silva2012vocabulary"]
-}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "parnin2011automated"
-}), /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), /* @__PURE__ */ import_react31.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "cuoq2012frama"
-}), " and dg ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and dg ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "llvmslicer"
-}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "jayaraman2005kaveri"
-}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "balakrishnan2005codesurfer"
-}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react31.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react31.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react31.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react31.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react31.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react31.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react31.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react31.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react31.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react31.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react31.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react31.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react31.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react31.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react31.default.createElement("ul", null, /* @__PURE__ */ import_react31.default.createElement("li", null, /* @__PURE__ */ import_react31.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "might2010resolving"
-}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "zhao2018parallel"
-}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react22.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react22.default.createElement("p", null), /* @__PURE__ */ import_react22.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react31.default.createElement("li", null, /* @__PURE__ */ import_react31.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react31.default.createElement("li", null, /* @__PURE__ */ import_react31.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react31.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react31.default.createElement("p", null), /* @__PURE__ */ import_react31.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "rountev1999data",
   f: true
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "cousot2002modular",
   f: true
-}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react31.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), "."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react31.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react31.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "girard1987linear"
-}), ", class-based alias management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ", class-based alias management", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "clarke1998ownership"
-}), ", and region-based memory management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ", and region-based memory management", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "grossman2002region"
-}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react22.default.createElement("ol", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react31.default.createElement("ol", null, /* @__PURE__ */ import_react31.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:background"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react31.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "weiss2019oxide"
-}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:model"
-}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:algorithm"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react31.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "abadi1999core",
   f: true
-}), " (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:soundness"
-}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:appendix"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ")."), /* @__PURE__ */ import_react31.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:implementation"
-}), ")"), /* @__PURE__ */ import_react22.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ")"), /* @__PURE__ */ import_react31.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:evaluation"
-}), ")."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ")."))), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Principles",
   name: "sec:background"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:places"
-}), "), references (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), references (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:pointers"
-}), "), function calls (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), function calls (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:funcalls"
-}), "), and interior mutability (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), and interior mutability (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:intmut"
-}), ").", " "), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ").", " "), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Places",
   name: "sec:places"
-}, /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let y = 2;
 let z = 3;
 x = y;
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react22.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react31.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let mut y = 2;
 if y > 0 { x = 3; } 
 else     { y = 4; }
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react22.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react31.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react31.default.createElement(Row, null, /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{:?}", @t@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.0@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.2@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react31.default.createElement(Principle, {
   type: "places",
   text: "A mutation to a place is a mutation to all conflicting places."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), /* @__PURE__ */ import_react31.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "References",
   name: "sec:pointers"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   code: r3`let mut x = 1;
 let y = &mut x;
 *y = 2;
 let z = &x;
 println!("{}", @*z@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react22.default.createElement(Ref, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:intmut"
-}), "). For a given type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react22.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), "). For a given type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react31.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react31.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   v: "smaragdakis2015pointer"
-}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react31.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react31.default.createElement(Row, null, /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`// Dangling reference
 let p = {
   let x = 1; &x
 };
 let y = *p;`
-}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`// Use-after-free
 let d = tempdir();
 let d2 = &d;
 d.close();
 let p = d2.path();`
-}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`// Iterator invalidation
 let mut v = vec![1,2];
 for x in v.iter() {
   v.push(*x);
 }`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react31.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`let mut x: i32 = 1;
 let y: &'1 i32 = &'0 mut x;
 *y = 2;
 let z: &'3 i32 = &'2 x;
 println!("{}", *z);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "tofte1997region"
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "grossman2002region"
-}), " use this model."), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " use this model."), /* @__PURE__ */ import_react31.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "polonius"
-}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`let mut x = 1;
 let mut y = 2;
 let z: &'2 mut i32 = if true {
@@ -63220,93 +68190,93 @@ let z: &'2 mut i32 = if true {
 };
 let w: &'4 mut i32 = &'3 mut *z;
 *w = 1;`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react31.default.createElement(Principle, {
   type: "references",
   text: "The lifetime of a reference contains all potential aliases of what the reference points-to."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), /* @__PURE__ */ import_react31.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Function calls",
   name: "sec:funcalls"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react22.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react31.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react31.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{} {} {}", y, z, w);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:intro"
-}), ".", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react22.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), ".", " "), /* @__PURE__ */ import_react31.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react31.default.createElement("ul", null, /* @__PURE__ */ import_react31.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react31.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react31.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react31.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react31.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react31.default.createElement(Row, null, /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @y@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @z@);`
-}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react31.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @w@);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react31.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react31.default.createElement(Principle, {
   type: "function calls",
   text: "When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
-}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), /* @__PURE__ */ import_react31.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react31.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react22.default.createElement("center", {
+}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react31.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react31.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react31.default.createElement("center", {
   style: { margin: "1rem 0" }
-}, /* @__PURE__ */ import_react22.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react22.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}, /* @__PURE__ */ import_react31.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react31.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Interior mutability",
   name: "sec:intmut"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react31.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react31.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react31.default.createElement(Listing, {
   code: r3`let value = Arc::new(Mutex::new(0));
 let value_ref = value.clone();
 thread::spawn(move || { 
   *value_ref.lock().unwrap() += 1; 
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`
-})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react22.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react22.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react22.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react31.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react31.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react31.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react31.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react31.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react31.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "astrauskas2020programmers"
-}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react31.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:whole-vs-mod"
-}), "."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), "."))), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Formal Model",
   name: "sec:model"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react31.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react31.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:syn"
-}), "), static semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), static semantics (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:statsem"
-}), ") and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), ") and dynamic semantics (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:dynsem"
-}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "sec:formal_principles"
-}), ")."), /* @__PURE__ */ import_react22.default.createElement(Section, {
+}), ")."), /* @__PURE__ */ import_react31.default.createElement(Section, {
   title: "Syntax",
   name: "sec:syn"
-}, /* @__PURE__ */ import_react22.default.createElement("p", null, /* @__PURE__ */ import_react22.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react31.default.createElement("p", null, /* @__PURE__ */ import_react31.default.createElement(Ref, {
   name: "fig:oxide_syntax"
-}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react22.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react22.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react22.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react22.default.createElement("p", null, "Test. ", /* @__PURE__ */ import_react22.default.createElement($, null, "\\pexp")))));
-import_react_dom5.default.render(/* @__PURE__ */ import_react22.default.createElement(App, null), document.getElementById("container"));
+}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react31.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react31.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react31.default.createElement(Row, null, /* @__PURE__ */ import_react31.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("p", null, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react31.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))))));
+import_react_dom7.default.render(/* @__PURE__ */ import_react31.default.createElement(App, null), document.getElementById("container"));
 export {
   App
 };

@@ -1433,6 +1433,18 @@ a[href].nolink,
 .ref.nolink {
   color: inherit;
 }
+a[href].nolink:hover,
+.ref.nolink:hover {
+  background: rgba(19, 92, 202, 0.2);
+}
+.def-mode .ref.nolink {
+  border: 1px solid rgba(19, 92, 202, 0.2);
+  padding: 3px;
+  display: inline-block;
+}
+.def-mode .ref.nolink .ref.nolink {
+  padding: 3px;
+}
 *:target {
   animation: fadeout 1s;
   padding: 4px;
@@ -1491,9 +1503,12 @@ pre {
 section {
   margin-top: 2rem;
 }
-span.katex {
+.katex {
   font-size: 1em;
   line-height: 1;
+}
+.nomargin .katex-display {
+  margin: 0;
 }
 .katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
   pointer-events: none;
