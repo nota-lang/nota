@@ -30,7 +30,7 @@ var require_object_assign = __commonJS({
   "node_modules/object-assign/index.js"(exports, module) {
     "use strict";
     var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var hasOwnProperty2 = Object.prototype.hasOwnProperty;
     var propIsEnumerable = Object.prototype.propertyIsEnumerable;
     function toObject(val) {
       if (val === null || val === void 0) {
@@ -77,7 +77,7 @@ var require_object_assign = __commonJS({
       for (var s = 1; s < arguments.length; s++) {
         from = Object(arguments[s]);
         for (var key in from) {
-          if (hasOwnProperty.call(from, key)) {
+          if (hasOwnProperty2.call(from, key)) {
             to[key] = from[key];
           }
         }
@@ -207,34 +207,34 @@ var require_react_development = __commonJS({
         {
           ReactSharedInternals.ReactDebugCurrentFrame = ReactDebugCurrentFrame;
         }
-        function warn(format) {
+        function warn(format2) {
           {
             for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
               args[_key - 1] = arguments[_key];
             }
-            printWarning("warn", format, args);
+            printWarning("warn", format2, args);
           }
         }
-        function error(format) {
+        function error(format2) {
           {
             for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
               args[_key2 - 1] = arguments[_key2];
             }
-            printWarning("error", format, args);
+            printWarning("error", format2, args);
           }
         }
-        function printWarning(level, format, args) {
+        function printWarning(level, format2, args) {
           {
             var ReactDebugCurrentFrame2 = ReactSharedInternals.ReactDebugCurrentFrame;
             var stack = ReactDebugCurrentFrame2.getStackAddendum();
             if (stack !== "") {
-              format += "%s";
+              format2 += "%s";
               args = args.concat([stack]);
             }
             var argsWithFormat = args.map(function(item) {
               return "" + item;
             });
-            argsWithFormat.unshift("Warning: " + format);
+            argsWithFormat.unshift("Warning: " + format2);
             Function.prototype.apply.call(console[level], console, argsWithFormat);
           }
         }
@@ -269,14 +269,14 @@ var require_react_development = __commonJS({
         {
           Object.freeze(emptyObject);
         }
-        function Component5(props, context, updater) {
+        function Component2(props, context, updater) {
           this.props = props;
           this.context = context;
           this.refs = emptyObject;
           this.updater = updater || ReactNoopUpdateQueue;
         }
-        Component5.prototype.isReactComponent = {};
-        Component5.prototype.setState = function(partialState, callback) {
+        Component2.prototype.isReactComponent = {};
+        Component2.prototype.setState = function(partialState, callback) {
           if (!(typeof partialState === "object" || typeof partialState === "function" || partialState == null)) {
             {
               throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");
@@ -284,7 +284,7 @@ var require_react_development = __commonJS({
           }
           this.updater.enqueueSetState(this, partialState, callback, "setState");
         };
-        Component5.prototype.forceUpdate = function(callback) {
+        Component2.prototype.forceUpdate = function(callback) {
           this.updater.enqueueForceUpdate(this, callback, "forceUpdate");
         };
         {
@@ -293,7 +293,7 @@ var require_react_development = __commonJS({
             replaceState: ["replaceState", "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."]
           };
           var defineDeprecationWarning = function(methodName, info) {
-            Object.defineProperty(Component5.prototype, methodName, {
+            Object.defineProperty(Component2.prototype, methodName, {
               get: function() {
                 warn("%s(...) is deprecated in plain JavaScript React classes. %s", info[0], info[1]);
                 return void 0;
@@ -308,7 +308,7 @@ var require_react_development = __commonJS({
         }
         function ComponentDummy() {
         }
-        ComponentDummy.prototype = Component5.prototype;
+        ComponentDummy.prototype = Component2.prototype;
         function PureComponent2(props, context, updater) {
           this.props = props;
           this.context = context;
@@ -317,9 +317,9 @@ var require_react_development = __commonJS({
         }
         var pureComponentPrototype = PureComponent2.prototype = new ComponentDummy();
         pureComponentPrototype.constructor = PureComponent2;
-        _assign(pureComponentPrototype, Component5.prototype);
+        _assign(pureComponentPrototype, Component2.prototype);
         pureComponentPrototype.isPureReactComponent = true;
-        function createRef2() {
+        function createRef() {
           var refObject = {
             current: null
           };
@@ -392,7 +392,7 @@ var require_react_development = __commonJS({
           }
           return null;
         }
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
         var RESERVED_PROPS = {
           key: true,
           ref: true,
@@ -405,7 +405,7 @@ var require_react_development = __commonJS({
         }
         function hasValidRef(config) {
           {
-            if (hasOwnProperty.call(config, "ref")) {
+            if (hasOwnProperty2.call(config, "ref")) {
               var getter = Object.getOwnPropertyDescriptor(config, "ref").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -416,7 +416,7 @@ var require_react_development = __commonJS({
         }
         function hasValidKey(config) {
           {
-            if (hasOwnProperty.call(config, "key")) {
+            if (hasOwnProperty2.call(config, "key")) {
               var getter = Object.getOwnPropertyDescriptor(config, "key").get;
               if (getter && getter.isReactWarning) {
                 return false;
@@ -502,7 +502,7 @@ var require_react_development = __commonJS({
           }
           return element;
         };
-        function createElement11(type, config, children) {
+        function createElement2(type, config, children) {
           var propName;
           var props = {};
           var key = null;
@@ -522,7 +522,7 @@ var require_react_development = __commonJS({
             self2 = config.__self === void 0 ? null : config.__self;
             source = config.__source === void 0 ? null : config.__source;
             for (propName in config) {
-              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
                 props[propName] = config[propName];
               }
             }
@@ -543,10 +543,10 @@ var require_react_development = __commonJS({
             props.children = childArray;
           }
           if (type && type.defaultProps) {
-            var defaultProps = type.defaultProps;
-            for (propName in defaultProps) {
+            var defaultProps2 = type.defaultProps;
+            for (propName in defaultProps2) {
               if (props[propName] === void 0) {
-                props[propName] = defaultProps[propName];
+                props[propName] = defaultProps2[propName];
               }
             }
           }
@@ -588,14 +588,14 @@ var require_react_development = __commonJS({
             if (hasValidKey(config)) {
               key = "" + config.key;
             }
-            var defaultProps;
+            var defaultProps2;
             if (element.type && element.type.defaultProps) {
-              defaultProps = element.type.defaultProps;
+              defaultProps2 = element.type.defaultProps;
             }
             for (propName in config) {
-              if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
-                if (config[propName] === void 0 && defaultProps !== void 0) {
-                  props[propName] = defaultProps[propName];
+              if (hasOwnProperty2.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+                if (config[propName] === void 0 && defaultProps2 !== void 0) {
+                  props[propName] = defaultProps2[propName];
                 } else {
                   props[propName] = config[propName];
                 }
@@ -760,7 +760,7 @@ var require_react_development = __commonJS({
           }
           return children;
         }
-        function createContext3(defaultValue, calculateChangedBits) {
+        function createContext2(defaultValue, calculateChangedBits) {
           if (calculateChangedBits === void 0) {
             calculateChangedBits = null;
           } else {
@@ -906,17 +906,17 @@ var require_react_development = __commonJS({
             _init: lazyInitializer
           };
           {
-            var defaultProps;
+            var defaultProps2;
             var propTypes2;
             Object.defineProperties(lazyType, {
               defaultProps: {
                 configurable: true,
                 get: function() {
-                  return defaultProps;
+                  return defaultProps2;
                 },
                 set: function(newDefaultProps) {
                   error("React.lazy(...): It is not supported to assign `defaultProps` to a lazy component import. Either specify them where the component is defined, or create a wrapping component around it.");
-                  defaultProps = newDefaultProps;
+                  defaultProps2 = newDefaultProps;
                   Object.defineProperty(lazyType, "defaultProps", {
                     enumerable: true
                   });
@@ -939,26 +939,26 @@ var require_react_development = __commonJS({
           }
           return lazyType;
         }
-        function forwardRef9(render) {
+        function forwardRef6(render2) {
           {
-            if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
+            if (render2 != null && render2.$$typeof === REACT_MEMO_TYPE) {
               error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
-            } else if (typeof render !== "function") {
-              error("forwardRef requires a render function but was given %s.", render === null ? "null" : typeof render);
+            } else if (typeof render2 !== "function") {
+              error("forwardRef requires a render function but was given %s.", render2 === null ? "null" : typeof render2);
             } else {
-              if (render.length !== 0 && render.length !== 2) {
-                error("forwardRef render functions accept exactly two parameters: props and ref. %s", render.length === 1 ? "Did you forget to use the ref parameter?" : "Any additional parameter will be undefined.");
+              if (render2.length !== 0 && render2.length !== 2) {
+                error("forwardRef render functions accept exactly two parameters: props and ref. %s", render2.length === 1 ? "Did you forget to use the ref parameter?" : "Any additional parameter will be undefined.");
               }
             }
-            if (render != null) {
-              if (render.defaultProps != null || render.propTypes != null) {
+            if (render2 != null) {
+              if (render2.defaultProps != null || render2.propTypes != null) {
                 error("forwardRef render functions do not support propTypes or defaultProps. Did you accidentally pass a React component?");
               }
             }
           }
           var elementType = {
             $$typeof: REACT_FORWARD_REF_TYPE,
-            render
+            render: render2
           };
           {
             var ownName;
@@ -970,8 +970,8 @@ var require_react_development = __commonJS({
               },
               set: function(name2) {
                 ownName = name2;
-                if (render.displayName == null) {
-                  render.displayName = name2;
+                if (render2.displayName == null) {
+                  render2.displayName = name2;
                 }
               }
             });
@@ -1048,7 +1048,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context, unstable_observedBits);
         }
-        function useState17(initialState) {
+        function useState12(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1056,11 +1056,11 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer2, initialArg, init2);
         }
-        function useRef15(initialValue) {
+        function useRef5(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect15(create, deps) {
+        function useEffect6(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1068,15 +1068,15 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useLayoutEffect(create, deps);
         }
-        function useCallback6(callback, deps) {
+        function useCallback4(callback, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo4(create, deps) {
+        function useMemo3(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useMemo(create, deps);
         }
-        function useImperativeHandle5(ref, create, deps) {
+        function useImperativeHandle(ref, create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useImperativeHandle(ref, create, deps);
         }
@@ -1185,12 +1185,12 @@ var require_react_development = __commonJS({
           var PossiblyWeakMap = typeof WeakMap === "function" ? WeakMap : Map;
           componentFrameCache = new PossiblyWeakMap();
         }
-        function describeNativeComponentFrame(fn, construct) {
-          if (!fn || reentry) {
+        function describeNativeComponentFrame(fn3, construct) {
+          if (!fn3 || reentry) {
             return "";
           }
           {
-            var frame = componentFrameCache.get(fn);
+            var frame = componentFrameCache.get(fn3);
             if (frame !== void 0) {
               return frame;
             }
@@ -1221,14 +1221,14 @@ var require_react_development = __commonJS({
                 } catch (x) {
                   control = x;
                 }
-                Reflect.construct(fn, [], Fake);
+                Reflect.construct(fn3, [], Fake);
               } else {
                 try {
                   Fake.call();
                 } catch (x) {
                   control = x;
                 }
-                fn.call(Fake.prototype);
+                fn3.call(Fake.prototype);
               }
             } else {
               try {
@@ -1236,7 +1236,7 @@ var require_react_development = __commonJS({
               } catch (x) {
                 control = x;
               }
-              fn();
+              fn3();
             }
           } catch (sample) {
             if (sample && control && typeof sample.stack === "string") {
@@ -1256,8 +1256,8 @@ var require_react_development = __commonJS({
                       if (c < 0 || sampleLines[s] !== controlLines[c]) {
                         var _frame = "\n" + sampleLines[s].replace(" at new ", " at ");
                         {
-                          if (typeof fn === "function") {
-                            componentFrameCache.set(fn, _frame);
+                          if (typeof fn3 === "function") {
+                            componentFrameCache.set(fn3, _frame);
                           }
                         }
                         return _frame;
@@ -1276,22 +1276,22 @@ var require_react_development = __commonJS({
             }
             Error.prepareStackTrace = previousPrepareStackTrace;
           }
-          var name2 = fn ? fn.displayName || fn.name : "";
+          var name2 = fn3 ? fn3.displayName || fn3.name : "";
           var syntheticFrame = name2 ? describeBuiltInComponentFrame(name2) : "";
           {
-            if (typeof fn === "function") {
-              componentFrameCache.set(fn, syntheticFrame);
+            if (typeof fn3 === "function") {
+              componentFrameCache.set(fn3, syntheticFrame);
             }
           }
           return syntheticFrame;
         }
-        function describeFunctionComponentFrame(fn, source, ownerFn) {
+        function describeFunctionComponentFrame(fn3, source, ownerFn) {
           {
-            return describeNativeComponentFrame(fn, false);
+            return describeNativeComponentFrame(fn3, false);
           }
         }
-        function shouldConstruct(Component6) {
-          var prototype = Component6.prototype;
+        function shouldConstruct(Component3) {
+          var prototype = Component3.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -1550,7 +1550,7 @@ var require_react_development = __commonJS({
               error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
             }
           }
-          var element = createElement11.apply(this, arguments);
+          var element = createElement2.apply(this, arguments);
           if (element == null) {
             return element;
           }
@@ -1607,36 +1607,36 @@ var require_react_development = __commonJS({
         var createElement$1 = createElementWithValidation;
         var cloneElement$1 = cloneElementWithValidation;
         var createFactory = createFactoryWithValidation;
-        var Children4 = {
+        var Children = {
           map: mapChildren,
           forEach: forEachChildren,
           count: countChildren,
           toArray,
           only: onlyChild
         };
-        exports.Children = Children4;
-        exports.Component = Component5;
+        exports.Children = Children;
+        exports.Component = Component2;
         exports.PureComponent = PureComponent2;
         exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
         exports.cloneElement = cloneElement$1;
-        exports.createContext = createContext3;
+        exports.createContext = createContext2;
         exports.createElement = createElement$1;
         exports.createFactory = createFactory;
-        exports.createRef = createRef2;
-        exports.forwardRef = forwardRef9;
+        exports.createRef = createRef;
+        exports.forwardRef = forwardRef6;
         exports.isValidElement = isValidElement;
         exports.lazy = lazy;
         exports.memo = memo3;
-        exports.useCallback = useCallback6;
+        exports.useCallback = useCallback4;
         exports.useContext = useContext8;
         exports.useDebugValue = useDebugValue2;
-        exports.useEffect = useEffect15;
-        exports.useImperativeHandle = useImperativeHandle5;
+        exports.useEffect = useEffect6;
+        exports.useImperativeHandle = useImperativeHandle;
         exports.useLayoutEffect = useLayoutEffect2;
-        exports.useMemo = useMemo4;
+        exports.useMemo = useMemo3;
         exports.useReducer = useReducer2;
-        exports.useRef = useRef15;
-        exports.useState = useState17;
+        exports.useRef = useRef5;
+        exports.useState = useState12;
         exports.version = ReactVersion;
       })();
     }
@@ -1834,21 +1834,21 @@ var require_scheduler_development = __commonJS({
           var length = heap.length;
           while (index2 < length) {
             var leftIndex = (index2 + 1) * 2 - 1;
-            var left = heap[leftIndex];
+            var left2 = heap[leftIndex];
             var rightIndex = leftIndex + 1;
-            var right = heap[rightIndex];
-            if (left !== void 0 && compare2(left, node) < 0) {
-              if (right !== void 0 && compare2(right, left) < 0) {
-                heap[index2] = right;
+            var right2 = heap[rightIndex];
+            if (left2 !== void 0 && compare2(left2, node) < 0) {
+              if (right2 !== void 0 && compare2(right2, left2) < 0) {
+                heap[index2] = right2;
                 heap[rightIndex] = node;
                 index2 = rightIndex;
               } else {
-                heap[index2] = left;
+                heap[index2] = left2;
                 heap[leftIndex] = node;
                 index2 = leftIndex;
               }
-            } else if (right !== void 0 && compare2(right, node) < 0) {
-              heap[index2] = right;
+            } else if (right2 !== void 0 && compare2(right2, node) < 0) {
+              heap[index2] = right2;
               heap[rightIndex] = node;
               index2 = rightIndex;
             } else {
@@ -2444,43 +2444,43 @@ var require_react_dom_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var React31 = require_react();
+        var React14 = require_react();
         var _assign = require_object_assign();
         var Scheduler = require_scheduler();
         var tracing = require_tracing();
-        var ReactSharedInternals = React31.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-        function warn(format) {
+        var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        function warn(format2) {
           {
             for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
               args[_key - 1] = arguments[_key];
             }
-            printWarning("warn", format, args);
+            printWarning("warn", format2, args);
           }
         }
-        function error(format) {
+        function error(format2) {
           {
             for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
               args[_key2 - 1] = arguments[_key2];
             }
-            printWarning("error", format, args);
+            printWarning("error", format2, args);
           }
         }
-        function printWarning(level, format, args) {
+        function printWarning(level, format2, args) {
           {
             var ReactDebugCurrentFrame2 = ReactSharedInternals.ReactDebugCurrentFrame;
             var stack = ReactDebugCurrentFrame2.getStackAddendum();
             if (stack !== "") {
-              format += "%s";
+              format2 += "%s";
               args = args.concat([stack]);
             }
             var argsWithFormat = args.map(function(item) {
               return "" + item;
             });
-            argsWithFormat.unshift("Warning: " + format);
+            argsWithFormat.unshift("Warning: " + format2);
             Function.prototype.apply.call(console[level], console, argsWithFormat);
           }
         }
-        if (!React31) {
+        if (!React14) {
           {
             throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
           }
@@ -2492,7 +2492,7 @@ var require_react_dom_development = __commonJS({
         var HostPortal = 4;
         var HostComponent = 5;
         var HostText = 6;
-        var Fragment2 = 7;
+        var Fragment = 7;
         var Mode = 8;
         var ContextConsumer = 9;
         var ContextProvider = 10;
@@ -2551,14 +2551,14 @@ var require_react_dom_development = __commonJS({
         var ATTRIBUTE_NAME_CHAR = ATTRIBUTE_NAME_START_CHAR + "\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
         var ROOT_ATTRIBUTE_NAME = "data-reactroot";
         var VALID_ATTRIBUTE_NAME_REGEX = new RegExp("^[" + ATTRIBUTE_NAME_START_CHAR + "][" + ATTRIBUTE_NAME_CHAR + "]*$");
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var hasOwnProperty2 = Object.prototype.hasOwnProperty;
         var illegalAttributeNameCache = {};
         var validatedAttributeNameCache = {};
         function isAttributeNameSafe(attributeName) {
-          if (hasOwnProperty.call(validatedAttributeNameCache, attributeName)) {
+          if (hasOwnProperty2.call(validatedAttributeNameCache, attributeName)) {
             return true;
           }
-          if (hasOwnProperty.call(illegalAttributeNameCache, attributeName)) {
+          if (hasOwnProperty2.call(illegalAttributeNameCache, attributeName)) {
             return false;
           }
           if (VALID_ATTRIBUTE_NAME_REGEX.test(attributeName)) {
@@ -3107,12 +3107,12 @@ var require_react_dom_development = __commonJS({
           var PossiblyWeakMap = typeof WeakMap === "function" ? WeakMap : Map;
           componentFrameCache = new PossiblyWeakMap();
         }
-        function describeNativeComponentFrame(fn, construct) {
-          if (!fn || reentry) {
+        function describeNativeComponentFrame(fn3, construct) {
+          if (!fn3 || reentry) {
             return "";
           }
           {
-            var frame = componentFrameCache.get(fn);
+            var frame = componentFrameCache.get(fn3);
             if (frame !== void 0) {
               return frame;
             }
@@ -3143,14 +3143,14 @@ var require_react_dom_development = __commonJS({
                 } catch (x) {
                   control = x;
                 }
-                Reflect.construct(fn, [], Fake);
+                Reflect.construct(fn3, [], Fake);
               } else {
                 try {
                   Fake.call();
                 } catch (x) {
                   control = x;
                 }
-                fn.call(Fake.prototype);
+                fn3.call(Fake.prototype);
               }
             } else {
               try {
@@ -3158,7 +3158,7 @@ var require_react_dom_development = __commonJS({
               } catch (x) {
                 control = x;
               }
-              fn();
+              fn3();
             }
           } catch (sample) {
             if (sample && control && typeof sample.stack === "string") {
@@ -3178,8 +3178,8 @@ var require_react_dom_development = __commonJS({
                       if (c < 0 || sampleLines[s] !== controlLines[c]) {
                         var _frame = "\n" + sampleLines[s].replace(" at new ", " at ");
                         {
-                          if (typeof fn === "function") {
-                            componentFrameCache.set(fn, _frame);
+                          if (typeof fn3 === "function") {
+                            componentFrameCache.set(fn3, _frame);
                           }
                         }
                         return _frame;
@@ -3198,11 +3198,11 @@ var require_react_dom_development = __commonJS({
             }
             Error.prepareStackTrace = previousPrepareStackTrace;
           }
-          var name2 = fn ? fn.displayName || fn.name : "";
+          var name2 = fn3 ? fn3.displayName || fn3.name : "";
           var syntheticFrame = name2 ? describeBuiltInComponentFrame(name2) : "";
           {
-            if (typeof fn === "function") {
-              componentFrameCache.set(fn, syntheticFrame);
+            if (typeof fn3 === "function") {
+              componentFrameCache.set(fn3, syntheticFrame);
             }
           }
           return syntheticFrame;
@@ -3212,13 +3212,13 @@ var require_react_dom_development = __commonJS({
             return describeNativeComponentFrame(ctor, true);
           }
         }
-        function describeFunctionComponentFrame(fn, source, ownerFn) {
+        function describeFunctionComponentFrame(fn3, source, ownerFn) {
           {
-            return describeNativeComponentFrame(fn, false);
+            return describeNativeComponentFrame(fn3, false);
           }
         }
-        function shouldConstruct(Component5) {
-          var prototype = Component5.prototype;
+        function shouldConstruct(Component2) {
+          var prototype = Component2.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
@@ -3696,7 +3696,7 @@ var require_react_dom_development = __commonJS({
         var didWarnInvalidChild = false;
         function flattenChildren(children) {
           var content2 = "";
-          React31.Children.forEach(children, function(child) {
+          React14.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -3704,10 +3704,10 @@ var require_react_dom_development = __commonJS({
           });
           return content2;
         }
-        function validateProps(element, props) {
+        function validateProps2(element, props) {
           {
             if (typeof props.children === "object" && props.children !== null) {
-              React31.Children.forEach(props.children, function(child) {
+              React14.Children.forEach(props.children, function(child) {
                 if (child == null) {
                   return;
                 }
@@ -4225,7 +4225,7 @@ var require_react_dom_development = __commonJS({
           }
         }
         function setValueForStyles(node, styles) {
-          var style3 = node.style;
+          var style2 = node.style;
           for (var styleName in styles) {
             if (!styles.hasOwnProperty(styleName)) {
               continue;
@@ -4241,9 +4241,9 @@ var require_react_dom_development = __commonJS({
               styleName = "cssFloat";
             }
             if (isCustomProperty) {
-              style3.setProperty(styleName, styleValue);
+              style2.setProperty(styleName, styleValue);
             } else {
-              style3[styleName] = styleValue;
+              style2[styleName] = styleValue;
             }
           }
         }
@@ -5161,11 +5161,11 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        var batchedUpdatesImpl = function(fn, bookkeeping) {
-          return fn(bookkeeping);
+        var batchedUpdatesImpl = function(fn3, bookkeeping) {
+          return fn3(bookkeeping);
         };
-        var discreteUpdatesImpl = function(fn, a, b, c, d) {
-          return fn(a, b, c, d);
+        var discreteUpdatesImpl = function(fn3, a, b, c, d) {
+          return fn3(a, b, c, d);
         };
         var flushDiscreteUpdatesImpl = function() {
         };
@@ -5179,35 +5179,35 @@ var require_react_dom_development = __commonJS({
             restoreStateIfNeeded();
           }
         }
-        function batchedUpdates(fn, bookkeeping) {
+        function batchedUpdates(fn3, bookkeeping) {
           if (isInsideEventHandler) {
-            return fn(bookkeeping);
+            return fn3(bookkeeping);
           }
           isInsideEventHandler = true;
           try {
-            return batchedUpdatesImpl(fn, bookkeeping);
+            return batchedUpdatesImpl(fn3, bookkeeping);
           } finally {
             isInsideEventHandler = false;
             finishEventHandler();
           }
         }
-        function batchedEventUpdates(fn, a, b) {
+        function batchedEventUpdates(fn3, a, b) {
           if (isBatchingEventUpdates) {
-            return fn(a, b);
+            return fn3(a, b);
           }
           isBatchingEventUpdates = true;
           try {
-            return batchedEventUpdatesImpl(fn, a, b);
+            return batchedEventUpdatesImpl(fn3, a, b);
           } finally {
             isBatchingEventUpdates = false;
             finishEventHandler();
           }
         }
-        function discreteUpdates(fn, a, b, c, d) {
+        function discreteUpdates(fn3, a, b, c, d) {
           var prevIsInsideEventHandler = isInsideEventHandler;
           isInsideEventHandler = true;
           try {
-            return discreteUpdatesImpl(fn, a, b, c, d);
+            return discreteUpdatesImpl(fn3, a, b, c, d);
           } finally {
             isInsideEventHandler = prevIsInsideEventHandler;
             if (!isInsideEventHandler) {
@@ -5689,20 +5689,20 @@ var require_react_dom_development = __commonJS({
           return false;
         }
         var attemptUserBlockingHydration;
-        function setAttemptUserBlockingHydration(fn) {
-          attemptUserBlockingHydration = fn;
+        function setAttemptUserBlockingHydration(fn3) {
+          attemptUserBlockingHydration = fn3;
         }
         var attemptContinuousHydration;
-        function setAttemptContinuousHydration(fn) {
-          attemptContinuousHydration = fn;
+        function setAttemptContinuousHydration(fn3) {
+          attemptContinuousHydration = fn3;
         }
         var attemptHydrationAtCurrentPriority;
-        function setAttemptHydrationAtCurrentPriority(fn) {
-          attemptHydrationAtCurrentPriority = fn;
+        function setAttemptHydrationAtCurrentPriority(fn3) {
+          attemptHydrationAtCurrentPriority = fn3;
         }
         var attemptHydrationAtPriority;
-        function setAttemptHydrationAtPriority(fn) {
-          attemptHydrationAtPriority = fn;
+        function setAttemptHydrationAtPriority(fn3) {
+          attemptHydrationAtPriority = fn3;
         }
         var hasScheduledReplayAttempt = false;
         var queuedDiscreteEvents = [];
@@ -5983,50 +5983,50 @@ var require_react_dom_development = __commonJS({
         var DiscreteEvent = 0;
         var UserBlockingEvent = 1;
         var ContinuousEvent = 2;
-        function makePrefixMap2(styleProp, eventName) {
+        function makePrefixMap(styleProp, eventName) {
           var prefixes2 = {};
           prefixes2[styleProp.toLowerCase()] = eventName.toLowerCase();
           prefixes2["Webkit" + styleProp] = "webkit" + eventName;
           prefixes2["Moz" + styleProp] = "moz" + eventName;
           return prefixes2;
         }
-        var vendorPrefixes2 = {
-          animationend: makePrefixMap2("Animation", "AnimationEnd"),
-          animationiteration: makePrefixMap2("Animation", "AnimationIteration"),
-          animationstart: makePrefixMap2("Animation", "AnimationStart"),
-          transitionend: makePrefixMap2("Transition", "TransitionEnd")
+        var vendorPrefixes = {
+          animationend: makePrefixMap("Animation", "AnimationEnd"),
+          animationiteration: makePrefixMap("Animation", "AnimationIteration"),
+          animationstart: makePrefixMap("Animation", "AnimationStart"),
+          transitionend: makePrefixMap("Transition", "TransitionEnd")
         };
-        var prefixedEventNames2 = {};
-        var style2 = {};
+        var prefixedEventNames = {};
+        var style = {};
         if (canUseDOM) {
-          style2 = document.createElement("div").style;
+          style = document.createElement("div").style;
           if (!("AnimationEvent" in window)) {
-            delete vendorPrefixes2.animationend.animation;
-            delete vendorPrefixes2.animationiteration.animation;
-            delete vendorPrefixes2.animationstart.animation;
+            delete vendorPrefixes.animationend.animation;
+            delete vendorPrefixes.animationiteration.animation;
+            delete vendorPrefixes.animationstart.animation;
           }
           if (!("TransitionEvent" in window)) {
-            delete vendorPrefixes2.transitionend.transition;
+            delete vendorPrefixes.transitionend.transition;
           }
         }
-        function getVendorPrefixedEventName2(eventName) {
-          if (prefixedEventNames2[eventName]) {
-            return prefixedEventNames2[eventName];
-          } else if (!vendorPrefixes2[eventName]) {
+        function getVendorPrefixedEventName(eventName) {
+          if (prefixedEventNames[eventName]) {
+            return prefixedEventNames[eventName];
+          } else if (!vendorPrefixes[eventName]) {
             return eventName;
           }
-          var prefixMap = vendorPrefixes2[eventName];
+          var prefixMap = vendorPrefixes[eventName];
           for (var styleProp in prefixMap) {
-            if (prefixMap.hasOwnProperty(styleProp) && styleProp in style2) {
-              return prefixedEventNames2[eventName] = prefixMap[styleProp];
+            if (prefixMap.hasOwnProperty(styleProp) && styleProp in style) {
+              return prefixedEventNames[eventName] = prefixMap[styleProp];
             }
           }
           return eventName;
         }
-        var ANIMATION_END = getVendorPrefixedEventName2("animationend");
-        var ANIMATION_ITERATION = getVendorPrefixedEventName2("animationiteration");
-        var ANIMATION_START = getVendorPrefixedEventName2("animationstart");
-        var TRANSITION_END = getVendorPrefixedEventName2("transitionend");
+        var ANIMATION_END = getVendorPrefixedEventName("animationend");
+        var ANIMATION_ITERATION = getVendorPrefixedEventName("animationiteration");
+        var ANIMATION_START = getVendorPrefixedEventName("animationstart");
+        var TRANSITION_END = getVendorPrefixedEventName("transitionend");
         var topLevelEventsToReactNames = new Map();
         var eventPriorities = new Map();
         var discreteEventPairsForSimpleEventPlugin = [
@@ -6722,16 +6722,16 @@ var require_react_dom_development = __commonJS({
           target.addEventListener(eventType, listener, true);
           return listener;
         }
-        function addEventCaptureListenerWithPassiveFlag(target, eventType, listener, passive) {
+        function addEventCaptureListenerWithPassiveFlag(target, eventType, listener, passive2) {
           target.addEventListener(eventType, listener, {
             capture: true,
-            passive
+            passive: passive2
           });
           return listener;
         }
-        function addEventBubbleListenerWithPassiveFlag(target, eventType, listener, passive) {
+        function addEventBubbleListenerWithPassiveFlag(target, eventType, listener, passive2) {
           target.addEventListener(eventType, listener, {
-            passive
+            passive: passive2
           });
           return listener;
         }
@@ -6752,25 +6752,25 @@ var require_react_dom_development = __commonJS({
           if (fallbackText) {
             return fallbackText;
           }
-          var start2;
+          var start3;
           var startValue = startText;
           var startLength = startValue.length;
-          var end;
+          var end2;
           var endValue = getText();
           var endLength = endValue.length;
-          for (start2 = 0; start2 < startLength; start2++) {
-            if (startValue[start2] !== endValue[start2]) {
+          for (start3 = 0; start3 < startLength; start3++) {
+            if (startValue[start3] !== endValue[start3]) {
               break;
             }
           }
-          var minEnd = startLength - start2;
-          for (end = 1; end <= minEnd; end++) {
-            if (startValue[startLength - end] !== endValue[endLength - end]) {
+          var minEnd = startLength - start3;
+          for (end2 = 1; end2 <= minEnd; end2++) {
+            if (startValue[startLength - end2] !== endValue[endLength - end2]) {
               break;
             }
           }
-          var sliceTail = end > 1 ? 1 - end : void 0;
-          fallbackText = endValue.slice(start2, sliceTail);
+          var sliceTail = end2 > 1 ? 1 - end2 : void 0;
+          fallbackText = endValue.slice(start3, sliceTail);
           return fallbackText;
         }
         function getText() {
@@ -7606,8 +7606,8 @@ var require_react_dom_development = __commonJS({
         }
         function getModernOffsetsFromPoints(outerNode, anchorNode, anchorOffset, focusNode, focusOffset) {
           var length = 0;
-          var start2 = -1;
-          var end = -1;
+          var start3 = -1;
+          var end2 = -1;
           var indexWithinAnchor = 0;
           var indexWithinFocus = 0;
           var node = outerNode;
@@ -7617,10 +7617,10 @@ var require_react_dom_development = __commonJS({
               var next = null;
               while (true) {
                 if (node === anchorNode && (anchorOffset === 0 || node.nodeType === TEXT_NODE)) {
-                  start2 = length + anchorOffset;
+                  start3 = length + anchorOffset;
                 }
                 if (node === focusNode && (focusOffset === 0 || node.nodeType === TEXT_NODE)) {
-                  end = length + focusOffset;
+                  end2 = length + focusOffset;
                 }
                 if (node.nodeType === TEXT_NODE) {
                   length += node.nodeValue.length;
@@ -7636,10 +7636,10 @@ var require_react_dom_development = __commonJS({
                   break outer;
                 }
                 if (parentNode === anchorNode && ++indexWithinAnchor === anchorOffset) {
-                  start2 = length;
+                  start3 = length;
                 }
                 if (parentNode === focusNode && ++indexWithinFocus === focusOffset) {
-                  end = length;
+                  end2 = length;
                 }
                 if ((next = node.nextSibling) !== null) {
                   break;
@@ -7649,12 +7649,12 @@ var require_react_dom_development = __commonJS({
               }
               node = next;
             }
-          if (start2 === -1 || end === -1) {
+          if (start3 === -1 || end2 === -1) {
             return null;
           }
           return {
-            start: start2,
-            end
+            start: start3,
+            end: end2
           };
         }
         function setOffsets(node, offsets) {
@@ -7665,15 +7665,15 @@ var require_react_dom_development = __commonJS({
           }
           var selection = win.getSelection();
           var length = node.textContent.length;
-          var start2 = Math.min(offsets.start, length);
-          var end = offsets.end === void 0 ? start2 : Math.min(offsets.end, length);
-          if (!selection.extend && start2 > end) {
-            var temp = end;
-            end = start2;
-            start2 = temp;
+          var start3 = Math.min(offsets.start, length);
+          var end2 = offsets.end === void 0 ? start3 : Math.min(offsets.end, length);
+          if (!selection.extend && start3 > end2) {
+            var temp = end2;
+            end2 = start3;
+            start3 = temp;
           }
-          var startMarker = getNodeForCharacterOffset(node, start2);
-          var endMarker = getNodeForCharacterOffset(node, end);
+          var startMarker = getNodeForCharacterOffset(node, start3);
+          var endMarker = getNodeForCharacterOffset(node, end2);
           if (startMarker && endMarker) {
             if (selection.rangeCount === 1 && selection.anchorNode === startMarker.node && selection.anchorOffset === startMarker.offset && selection.focusNode === endMarker.node && selection.focusOffset === endMarker.offset) {
               return;
@@ -7681,7 +7681,7 @@ var require_react_dom_development = __commonJS({
             var range = doc2.createRange();
             range.setStart(startMarker.node, startMarker.offset);
             selection.removeAllRanges();
-            if (start2 > end) {
+            if (start3 > end2) {
               selection.addRange(range);
               selection.extend(endMarker.node, endMarker.offset);
             } else {
@@ -7789,14 +7789,14 @@ var require_react_dom_development = __commonJS({
           };
         }
         function setSelection(input, offsets) {
-          var start2 = offsets.start;
-          var end = offsets.end;
-          if (end === void 0) {
-            end = start2;
+          var start3 = offsets.start;
+          var end2 = offsets.end;
+          if (end2 === void 0) {
+            end2 = start3;
           }
           if ("selectionStart" in input) {
-            input.selectionStart = start2;
-            input.selectionEnd = Math.min(end, input.value.length);
+            input.selectionStart = start3;
+            input.selectionEnd = Math.min(end2, input.value.length);
           } else {
             setOffsets(input, offsets);
           }
@@ -8218,7 +8218,7 @@ var require_react_dom_development = __commonJS({
           }
           return listeners;
         }
-        function getParent3(inst) {
+        function getParent(inst) {
           if (inst === null) {
             return null;
           }
@@ -8234,19 +8234,19 @@ var require_react_dom_development = __commonJS({
           var nodeA = instA;
           var nodeB = instB;
           var depthA = 0;
-          for (var tempA = nodeA; tempA; tempA = getParent3(tempA)) {
+          for (var tempA = nodeA; tempA; tempA = getParent(tempA)) {
             depthA++;
           }
           var depthB = 0;
-          for (var tempB = nodeB; tempB; tempB = getParent3(tempB)) {
+          for (var tempB = nodeB; tempB; tempB = getParent(tempB)) {
             depthB++;
           }
           while (depthA - depthB > 0) {
-            nodeA = getParent3(nodeA);
+            nodeA = getParent(nodeA);
             depthA--;
           }
           while (depthB - depthA > 0) {
-            nodeB = getParent3(nodeB);
+            nodeB = getParent(nodeB);
             depthB--;
           }
           var depth = depthA;
@@ -8254,8 +8254,8 @@ var require_react_dom_development = __commonJS({
             if (nodeA === nodeB || nodeB !== null && nodeA === nodeB.alternate) {
               return nodeA;
             }
-            nodeA = getParent3(nodeA);
-            nodeB = getParent3(nodeB);
+            nodeA = getParent(nodeA);
+            nodeB = getParent(nodeB);
           }
           return null;
         }
@@ -8396,10 +8396,10 @@ var require_react_dom_development = __commonJS({
         function getOwnerDocumentFromRootContainer(rootContainerElement) {
           return rootContainerElement.nodeType === DOCUMENT_NODE ? rootContainerElement : rootContainerElement.ownerDocument;
         }
-        function noop5() {
+        function noop4() {
         }
         function trapClickOnNonInteractiveElement(node) {
-          node.onclick = noop5;
+          node.onclick = noop4;
         }
         function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps, isCustomComponentTag) {
           for (var propKey in nextProps) {
@@ -8461,7 +8461,7 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function createElement11(type, props, rootContainerElement, parentNamespace) {
+        function createElement2(type, props, rootContainerElement, parentNamespace) {
           var isCustomComponentTag;
           var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
           var domElement;
@@ -8477,10 +8477,10 @@ var require_react_dom_development = __commonJS({
               }
             }
             if (type === "script") {
-              var div = ownerDocument.createElement("div");
-              div.innerHTML = "<script><\/script>";
-              var firstChild = div.firstChild;
-              domElement = div.removeChild(firstChild);
+              var div2 = ownerDocument.createElement("div");
+              div2.innerHTML = "<script><\/script>";
+              var firstChild = div2.firstChild;
+              domElement = div2.removeChild(firstChild);
             } else if (typeof props.is === "string") {
               domElement = ownerDocument.createElement(type, {
                 is: props.is
@@ -8558,7 +8558,7 @@ var require_react_dom_development = __commonJS({
               listenToNonDelegatedEvent("invalid", domElement);
               break;
             case "option":
-              validateProps(domElement, rawProps);
+              validateProps2(domElement, rawProps);
               props = getHostProps$1(domElement, rawProps);
               break;
             case "select":
@@ -8813,7 +8813,7 @@ var require_react_dom_development = __commonJS({
               listenToNonDelegatedEvent("invalid", domElement);
               break;
             case "option":
-              validateProps(domElement, rawProps);
+              validateProps2(domElement, rawProps);
               break;
             case "select":
               initWrapperState$1(domElement, rawProps);
@@ -9338,7 +9338,7 @@ var require_react_dom_development = __commonJS({
             }
             parentNamespace = hostContextDev.namespace;
           }
-          var domElement = createElement11(type, props, rootContainerInstance, parentNamespace);
+          var domElement = createElement2(type, props, rootContainerInstance, parentNamespace);
           precacheFiberNode(internalInstanceHandle, domElement);
           updateFiberProps(domElement, props);
           return domElement;
@@ -9430,11 +9430,11 @@ var require_react_dom_development = __commonJS({
         }
         function hideInstance(instance) {
           instance = instance;
-          var style3 = instance.style;
-          if (typeof style3.setProperty === "function") {
-            style3.setProperty("display", "none", "important");
+          var style2 = instance.style;
+          if (typeof style2.setProperty === "function") {
+            style2.setProperty("display", "none", "important");
           } else {
-            style3.display = "none";
+            style2.display = "none";
           }
         }
         function hideTextInstance(textInstance) {
@@ -9808,9 +9808,9 @@ var require_react_dom_development = __commonJS({
         var contextStackCursor = createCursor(emptyContextObject);
         var didPerformWorkStackCursor = createCursor(false);
         var previousContext = emptyContextObject;
-        function getUnmaskedContext(workInProgress2, Component5, didPushOwnContextIfProvider) {
+        function getUnmaskedContext(workInProgress2, Component2, didPushOwnContextIfProvider) {
           {
-            if (didPushOwnContextIfProvider && isContextProvider(Component5)) {
+            if (didPushOwnContextIfProvider && isContextProvider(Component2)) {
               return previousContext;
             }
             return contextStackCursor.current;
@@ -9955,8 +9955,8 @@ var require_react_dom_development = __commonJS({
                 case HostRoot:
                   return node.stateNode.context;
                 case ClassComponent: {
-                  var Component5 = node.type;
-                  if (isContextProvider(Component5)) {
+                  var Component2 = node.type;
+                  if (isContextProvider(Component2)) {
                     return node.stateNode.__reactInternalMemoizedMergedChildContext;
                   }
                   break;
@@ -10112,9 +10112,9 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function runWithPriority$1(reactPriorityLevel, fn) {
+        function runWithPriority$1(reactPriorityLevel, fn3) {
           var priorityLevel = reactPriorityToSchedulerPriority(reactPriorityLevel);
-          return Scheduler_runWithPriority(priorityLevel, fn);
+          return Scheduler_runWithPriority(priorityLevel, fn3);
         }
         function scheduleCallback(reactPriorityLevel, callback, options2) {
           var priorityLevel = reactPriorityToSchedulerPriority(reactPriorityLevel);
@@ -10368,13 +10368,13 @@ var require_react_dom_development = __commonJS({
             pendingLegacyContextWarning = new Map();
           };
         }
-        function resolveDefaultProps(Component5, baseProps) {
-          if (Component5 && Component5.defaultProps) {
+        function resolveDefaultProps(Component2, baseProps) {
+          if (Component2 && Component2.defaultProps) {
             var props = _assign({}, baseProps);
-            var defaultProps = Component5.defaultProps;
-            for (var propName in defaultProps) {
+            var defaultProps2 = Component2.defaultProps;
+            for (var propName in defaultProps2) {
               if (props[propName] === void 0) {
-                props[propName] = defaultProps[propName];
+                props[propName] = defaultProps2[propName];
               }
             }
             return props;
@@ -10598,14 +10598,14 @@ var require_react_dom_development = __commonJS({
           var queue = workInProgress2.updateQueue;
           var currentQueue = current2.updateQueue;
           if (queue === currentQueue) {
-            var clone2 = {
+            var clone = {
               baseState: currentQueue.baseState,
               firstBaseUpdate: currentQueue.firstBaseUpdate,
               lastBaseUpdate: currentQueue.lastBaseUpdate,
               shared: currentQueue.shared,
               effects: currentQueue.effects
             };
-            workInProgress2.updateQueue = clone2;
+            workInProgress2.updateQueue = clone;
           }
         }
         function createUpdate(eventTime, lane) {
@@ -10652,7 +10652,7 @@ var require_react_dom_development = __commonJS({
               if (firstBaseUpdate !== null) {
                 var update = firstBaseUpdate;
                 do {
-                  var clone2 = {
+                  var clone = {
                     eventTime: update.eventTime,
                     lane: update.lane,
                     tag: update.tag,
@@ -10661,10 +10661,10 @@ var require_react_dom_development = __commonJS({
                     next: null
                   };
                   if (newLast === null) {
-                    newFirst = newLast = clone2;
+                    newFirst = newLast = clone;
                   } else {
-                    newLast.next = clone2;
-                    newLast = clone2;
+                    newLast.next = clone;
+                    newLast = clone;
                   }
                   update = update.next;
                 } while (update !== null);
@@ -10802,7 +10802,7 @@ var require_react_dom_development = __commonJS({
               var updateLane = update.lane;
               var updateEventTime = update.eventTime;
               if (!isSubsetOfLanes(renderLanes2, updateLane)) {
-                var clone2 = {
+                var clone = {
                   eventTime: updateEventTime,
                   lane: updateLane,
                   tag: update.tag,
@@ -10811,10 +10811,10 @@ var require_react_dom_development = __commonJS({
                   next: null
                 };
                 if (newLastBaseUpdate === null) {
-                  newFirstBaseUpdate = newLastBaseUpdate = clone2;
+                  newFirstBaseUpdate = newLastBaseUpdate = clone;
                   newBaseState = newState;
                 } else {
-                  newLastBaseUpdate = newLastBaseUpdate.next = clone2;
+                  newLastBaseUpdate = newLastBaseUpdate.next = clone;
                 }
                 newLanes = mergeLanes(newLanes, updateLane);
               } else {
@@ -10889,10 +10889,10 @@ var require_react_dom_development = __commonJS({
           finishedQueue.effects = null;
           if (effects !== null) {
             for (var i = 0; i < effects.length; i++) {
-              var effect = effects[i];
-              var callback = effect.callback;
+              var effect5 = effects[i];
+              var callback = effect5.callback;
               if (callback !== null) {
-                effect.callback = null;
+                effect5.callback = null;
                 callCallback(callback, instance);
               }
             }
@@ -10900,7 +10900,7 @@ var require_react_dom_development = __commonJS({
         }
         var fakeInternalInstance = {};
         var isArray = Array.isArray;
-        var emptyRefsObject = new React31.Component().refs;
+        var emptyRefsObject = new React14.Component().refs;
         var didWarnAboutStateAssignmentForComponent;
         var didWarnAboutUninitializedState;
         var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -11605,10 +11605,10 @@ var require_react_dom_development = __commonJS({
             return existingChildren;
           }
           function useFiber(fiber, pendingProps) {
-            var clone2 = createWorkInProgress(fiber, pendingProps);
-            clone2.index = 0;
-            clone2.sibling = null;
-            return clone2;
+            var clone = createWorkInProgress(fiber, pendingProps);
+            clone.index = 0;
+            clone.sibling = null;
+            return clone;
           }
           function placeChild(newFiber, lastPlacedIndex, newIndex) {
             newFiber.index = newIndex;
@@ -11676,7 +11676,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-            if (current2 === null || current2.tag !== Fragment2) {
+            if (current2 === null || current2.tag !== Fragment) {
               var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
               created.return = returnFiber;
               return created;
@@ -12044,7 +12044,7 @@ var require_react_dom_development = __commonJS({
             while (child !== null) {
               if (child.key === key) {
                 switch (child.tag) {
-                  case Fragment2: {
+                  case Fragment: {
                     if (element.type === REACT_FRAGMENT_TYPE) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
@@ -12687,7 +12687,7 @@ var require_react_dom_development = __commonJS({
           }
           return true;
         }
-        function renderWithHooks(current2, workInProgress2, Component5, props, secondArg, nextRenderLanes) {
+        function renderWithHooks(current2, workInProgress2, Component2, props, secondArg, nextRenderLanes) {
           renderLanes = nextRenderLanes;
           currentlyRenderingFiber$1 = workInProgress2;
           {
@@ -12707,7 +12707,7 @@ var require_react_dom_development = __commonJS({
               ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
             }
           }
-          var children = Component5(props, secondArg);
+          var children = Component2(props, secondArg);
           if (didScheduleRenderPhaseUpdateDuringThisPass) {
             var numberOfReRenders = 0;
             do {
@@ -12728,7 +12728,7 @@ var require_react_dom_development = __commonJS({
                 hookTypesUpdateIndexDev = -1;
               }
               ReactCurrentDispatcher$1.current = HooksDispatcherOnRerenderInDEV;
-              children = Component5(props, secondArg);
+              children = Component2(props, secondArg);
             } while (didScheduleRenderPhaseUpdateDuringThisPass);
           }
           ReactCurrentDispatcher$1.current = ContextOnlyDispatcher;
@@ -12905,7 +12905,7 @@ var require_react_dom_development = __commonJS({
             do {
               var updateLane = update.lane;
               if (!isSubsetOfLanes(renderLanes, updateLane)) {
-                var clone2 = {
+                var clone = {
                   lane: updateLane,
                   action: update.action,
                   eagerReducer: update.eagerReducer,
@@ -12913,10 +12913,10 @@ var require_react_dom_development = __commonJS({
                   next: null
                 };
                 if (newBaseQueueLast === null) {
-                  newBaseQueueFirst = newBaseQueueLast = clone2;
+                  newBaseQueueFirst = newBaseQueueLast = clone;
                   newBaseState = newState;
                 } else {
-                  newBaseQueueLast = newBaseQueueLast.next = clone2;
+                  newBaseQueueLast = newBaseQueueLast.next = clone;
                 }
                 currentlyRenderingFiber$1.lanes = mergeLanes(currentlyRenderingFiber$1.lanes, updateLane);
                 markSkippedUpdateLanes(updateLane);
@@ -13141,7 +13141,7 @@ var require_react_dom_development = __commonJS({
           return rerenderReducer(basicStateReducer);
         }
         function pushEffect(tag, create, destroy, deps) {
-          var effect = {
+          var effect5 = {
             tag,
             create,
             destroy,
@@ -13152,19 +13152,19 @@ var require_react_dom_development = __commonJS({
           if (componentUpdateQueue === null) {
             componentUpdateQueue = createFunctionComponentUpdateQueue();
             currentlyRenderingFiber$1.updateQueue = componentUpdateQueue;
-            componentUpdateQueue.lastEffect = effect.next = effect;
+            componentUpdateQueue.lastEffect = effect5.next = effect5;
           } else {
             var lastEffect = componentUpdateQueue.lastEffect;
             if (lastEffect === null) {
-              componentUpdateQueue.lastEffect = effect.next = effect;
+              componentUpdateQueue.lastEffect = effect5.next = effect5;
             } else {
               var firstEffect = lastEffect.next;
-              lastEffect.next = effect;
-              effect.next = firstEffect;
-              componentUpdateQueue.lastEffect = effect;
+              lastEffect.next = effect5;
+              effect5.next = firstEffect;
+              componentUpdateQueue.lastEffect = effect5;
             }
           }
-          return effect;
+          return effect5;
         }
         function mountRef(initialValue) {
           var hook = mountWorkInProgressHook();
@@ -13373,21 +13373,21 @@ var require_react_dom_development = __commonJS({
         }
         function mountTransition() {
           var _mountState2 = mountState(false), isPending = _mountState2[0], setPending = _mountState2[1];
-          var start2 = startTransition.bind(null, setPending);
-          mountRef(start2);
-          return [start2, isPending];
+          var start3 = startTransition.bind(null, setPending);
+          mountRef(start3);
+          return [start3, isPending];
         }
         function updateTransition() {
           var _updateState2 = updateState(), isPending = _updateState2[0];
           var startRef = updateRef();
-          var start2 = startRef.current;
-          return [start2, isPending];
+          var start3 = startRef.current;
+          return [start3, isPending];
         }
         function rerenderTransition() {
           var _rerenderState2 = rerenderState(), isPending = _rerenderState2[0];
           var startRef = updateRef();
-          var start2 = startRef.current;
-          return [start2, isPending];
+          var start3 = startRef.current;
+          return [start3, isPending];
         }
         var isUpdatingOpaqueValueInRenderPhase = false;
         function getIsUpdatingOpaqueValueInRenderPhaseInDEV() {
@@ -14315,27 +14315,27 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = reconcileChildFibers(workInProgress2, current2.child, null, renderLanes2);
           workInProgress2.child = reconcileChildFibers(workInProgress2, null, nextChildren, renderLanes2);
         }
-        function updateForwardRef(current2, workInProgress2, Component5, nextProps, renderLanes2) {
+        function updateForwardRef(current2, workInProgress2, Component2, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component5.propTypes;
+              var innerPropTypes = Component2.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component2));
               }
             }
           }
-          var render2 = Component5.render;
+          var render3 = Component2.render;
           var ref = workInProgress2.ref;
           var nextChildren;
           prepareToReadContext(workInProgress2, renderLanes2);
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            nextChildren = renderWithHooks(current2, workInProgress2, render2, nextProps, ref, renderLanes2);
+            nextChildren = renderWithHooks(current2, workInProgress2, render3, nextProps, ref, renderLanes2);
             if (workInProgress2.mode & StrictMode) {
               disableLogs();
               try {
-                nextChildren = renderWithHooks(current2, workInProgress2, render2, nextProps, ref, renderLanes2);
+                nextChildren = renderWithHooks(current2, workInProgress2, render3, nextProps, ref, renderLanes2);
               } finally {
                 reenableLogs();
               }
@@ -14350,10 +14350,10 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateMemoComponent(current2, workInProgress2, Component5, nextProps, updateLanes, renderLanes2) {
+        function updateMemoComponent(current2, workInProgress2, Component2, nextProps, updateLanes, renderLanes2) {
           if (current2 === null) {
-            var type = Component5.type;
-            if (isSimpleFunctionComponent(type) && Component5.compare === null && Component5.defaultProps === void 0) {
+            var type = Component2.type;
+            if (isSimpleFunctionComponent(type) && Component2.compare === null && Component2.defaultProps === void 0) {
               var resolvedType = type;
               {
                 resolvedType = resolveFunctionForHotReloading(type);
@@ -14371,14 +14371,14 @@ var require_react_dom_development = __commonJS({
                 checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(type));
               }
             }
-            var child = createFiberFromTypeAndProps(Component5.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
+            var child = createFiberFromTypeAndProps(Component2.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
             child.ref = workInProgress2.ref;
             child.return = workInProgress2;
             workInProgress2.child = child;
             return child;
           }
           {
-            var _type = Component5.type;
+            var _type = Component2.type;
             var _innerPropTypes = _type.propTypes;
             if (_innerPropTypes) {
               checkPropTypes(_innerPropTypes, nextProps, "prop", getComponentName(_type));
@@ -14387,7 +14387,7 @@ var require_react_dom_development = __commonJS({
           var currentChild = current2.child;
           if (!includesSomeLane(updateLanes, renderLanes2)) {
             var prevProps = currentChild.memoizedProps;
-            var compare2 = Component5.compare;
+            var compare2 = Component2.compare;
             compare2 = compare2 !== null ? compare2 : shallowEqual2;
             if (compare2(prevProps, nextProps) && current2.ref === workInProgress2.ref) {
               return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
@@ -14400,7 +14400,7 @@ var require_react_dom_development = __commonJS({
           workInProgress2.child = newChild;
           return newChild;
         }
-        function updateSimpleMemoComponent(current2, workInProgress2, Component5, nextProps, updateLanes, renderLanes2) {
+        function updateSimpleMemoComponent(current2, workInProgress2, Component2, nextProps, updateLanes, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
               var outerMemoType = workInProgress2.elementType;
@@ -14432,7 +14432,7 @@ var require_react_dom_development = __commonJS({
               }
             }
           }
-          return updateFunctionComponent(current2, workInProgress2, Component5, nextProps, renderLanes2);
+          return updateFunctionComponent(current2, workInProgress2, Component2, nextProps, renderLanes2);
         }
         function updateOffscreenComponent(current2, workInProgress2, renderLanes2) {
           var nextProps = workInProgress2.pendingProps;
@@ -14513,18 +14513,18 @@ var require_react_dom_development = __commonJS({
             workInProgress2.flags |= Ref2;
           }
         }
-        function updateFunctionComponent(current2, workInProgress2, Component5, nextProps, renderLanes2) {
+        function updateFunctionComponent(current2, workInProgress2, Component2, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component5.propTypes;
+              var innerPropTypes = Component2.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component2));
               }
             }
           }
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component5, true);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component2, true);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           var nextChildren;
@@ -14532,11 +14532,11 @@ var require_react_dom_development = __commonJS({
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            nextChildren = renderWithHooks(current2, workInProgress2, Component5, nextProps, context, renderLanes2);
+            nextChildren = renderWithHooks(current2, workInProgress2, Component2, nextProps, context, renderLanes2);
             if (workInProgress2.mode & StrictMode) {
               disableLogs();
               try {
-                nextChildren = renderWithHooks(current2, workInProgress2, Component5, nextProps, context, renderLanes2);
+                nextChildren = renderWithHooks(current2, workInProgress2, Component2, nextProps, context, renderLanes2);
               } finally {
                 reenableLogs();
               }
@@ -14551,17 +14551,17 @@ var require_react_dom_development = __commonJS({
           reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
           return workInProgress2.child;
         }
-        function updateClassComponent(current2, workInProgress2, Component5, nextProps, renderLanes2) {
+        function updateClassComponent(current2, workInProgress2, Component2, nextProps, renderLanes2) {
           {
             if (workInProgress2.type !== workInProgress2.elementType) {
-              var innerPropTypes = Component5.propTypes;
+              var innerPropTypes = Component2.propTypes;
               if (innerPropTypes) {
-                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component5));
+                checkPropTypes(innerPropTypes, nextProps, "prop", getComponentName(Component2));
               }
             }
           }
           var hasContext;
-          if (isContextProvider(Component5)) {
+          if (isContextProvider(Component2)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
@@ -14576,15 +14576,15 @@ var require_react_dom_development = __commonJS({
               workInProgress2.alternate = null;
               workInProgress2.flags |= Placement;
             }
-            constructClassInstance(workInProgress2, Component5, nextProps);
-            mountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
+            constructClassInstance(workInProgress2, Component2, nextProps);
+            mountClassInstance(workInProgress2, Component2, nextProps, renderLanes2);
             shouldUpdate = true;
           } else if (current2 === null) {
-            shouldUpdate = resumeMountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
+            shouldUpdate = resumeMountClassInstance(workInProgress2, Component2, nextProps, renderLanes2);
           } else {
-            shouldUpdate = updateClassInstance(current2, workInProgress2, Component5, nextProps, renderLanes2);
+            shouldUpdate = updateClassInstance(current2, workInProgress2, Component2, nextProps, renderLanes2);
           }
-          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component5, shouldUpdate, hasContext, renderLanes2);
+          var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component2, shouldUpdate, hasContext, renderLanes2);
           {
             var inst = workInProgress2.stateNode;
             if (shouldUpdate && inst.props !== nextProps) {
@@ -14596,19 +14596,19 @@ var require_react_dom_development = __commonJS({
           }
           return nextUnitOfWork;
         }
-        function finishClassComponent(current2, workInProgress2, Component5, shouldUpdate, hasContext, renderLanes2) {
+        function finishClassComponent(current2, workInProgress2, Component2, shouldUpdate, hasContext, renderLanes2) {
           markRef(current2, workInProgress2);
           var didCaptureError = (workInProgress2.flags & DidCapture) !== NoFlags;
           if (!shouldUpdate && !didCaptureError) {
             if (hasContext) {
-              invalidateContextProvider(workInProgress2, Component5, false);
+              invalidateContextProvider(workInProgress2, Component2, false);
             }
             return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
           }
           var instance = workInProgress2.stateNode;
           ReactCurrentOwner$1.current = workInProgress2;
           var nextChildren;
-          if (didCaptureError && typeof Component5.getDerivedStateFromError !== "function") {
+          if (didCaptureError && typeof Component2.getDerivedStateFromError !== "function") {
             nextChildren = null;
             {
               stopProfilerTimerIfRunning();
@@ -14636,7 +14636,7 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.memoizedState = instance.state;
           if (hasContext) {
-            invalidateContextProvider(workInProgress2, Component5, true);
+            invalidateContextProvider(workInProgress2, Component2, true);
           }
           return workInProgress2.child;
         }
@@ -14728,60 +14728,60 @@ var require_react_dom_development = __commonJS({
           var lazyComponent = elementType;
           var payload = lazyComponent._payload;
           var init2 = lazyComponent._init;
-          var Component5 = init2(payload);
-          workInProgress2.type = Component5;
-          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component5);
-          var resolvedProps = resolveDefaultProps(Component5, props);
+          var Component2 = init2(payload);
+          workInProgress2.type = Component2;
+          var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component2);
+          var resolvedProps = resolveDefaultProps(Component2, props);
           var child;
           switch (resolvedTag) {
             case FunctionComponent: {
               {
-                validateFunctionComponentInDev(workInProgress2, Component5);
-                workInProgress2.type = Component5 = resolveFunctionForHotReloading(Component5);
+                validateFunctionComponentInDev(workInProgress2, Component2);
+                workInProgress2.type = Component2 = resolveFunctionForHotReloading(Component2);
               }
-              child = updateFunctionComponent(null, workInProgress2, Component5, resolvedProps, renderLanes2);
+              child = updateFunctionComponent(null, workInProgress2, Component2, resolvedProps, renderLanes2);
               return child;
             }
             case ClassComponent: {
               {
-                workInProgress2.type = Component5 = resolveClassForHotReloading(Component5);
+                workInProgress2.type = Component2 = resolveClassForHotReloading(Component2);
               }
-              child = updateClassComponent(null, workInProgress2, Component5, resolvedProps, renderLanes2);
+              child = updateClassComponent(null, workInProgress2, Component2, resolvedProps, renderLanes2);
               return child;
             }
             case ForwardRef: {
               {
-                workInProgress2.type = Component5 = resolveForwardRefForHotReloading(Component5);
+                workInProgress2.type = Component2 = resolveForwardRefForHotReloading(Component2);
               }
-              child = updateForwardRef(null, workInProgress2, Component5, resolvedProps, renderLanes2);
+              child = updateForwardRef(null, workInProgress2, Component2, resolvedProps, renderLanes2);
               return child;
             }
             case MemoComponent: {
               {
                 if (workInProgress2.type !== workInProgress2.elementType) {
-                  var outerPropTypes = Component5.propTypes;
+                  var outerPropTypes = Component2.propTypes;
                   if (outerPropTypes) {
-                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component5));
+                    checkPropTypes(outerPropTypes, resolvedProps, "prop", getComponentName(Component2));
                   }
                 }
               }
-              child = updateMemoComponent(null, workInProgress2, Component5, resolveDefaultProps(Component5.type, resolvedProps), updateLanes, renderLanes2);
+              child = updateMemoComponent(null, workInProgress2, Component2, resolveDefaultProps(Component2.type, resolvedProps), updateLanes, renderLanes2);
               return child;
             }
           }
           var hint = "";
           {
-            if (Component5 !== null && typeof Component5 === "object" && Component5.$$typeof === REACT_LAZY_TYPE) {
+            if (Component2 !== null && typeof Component2 === "object" && Component2.$$typeof === REACT_LAZY_TYPE) {
               hint = " Did you wrap a component in React.lazy() more than once?";
             }
           }
           {
             {
-              throw Error("Element type is invalid. Received a promise that resolves to: " + Component5 + ". Lazy element type must resolve to a class or function." + hint);
+              throw Error("Element type is invalid. Received a promise that resolves to: " + Component2 + ". Lazy element type must resolve to a class or function." + hint);
             }
           }
         }
-        function mountIncompleteClassComponent(_current, workInProgress2, Component5, nextProps, renderLanes2) {
+        function mountIncompleteClassComponent(_current, workInProgress2, Component2, nextProps, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14789,18 +14789,18 @@ var require_react_dom_development = __commonJS({
           }
           workInProgress2.tag = ClassComponent;
           var hasContext;
-          if (isContextProvider(Component5)) {
+          if (isContextProvider(Component2)) {
             hasContext = true;
             pushContextProvider(workInProgress2);
           } else {
             hasContext = false;
           }
           prepareToReadContext(workInProgress2, renderLanes2);
-          constructClassInstance(workInProgress2, Component5, nextProps);
-          mountClassInstance(workInProgress2, Component5, nextProps, renderLanes2);
-          return finishClassComponent(null, workInProgress2, Component5, true, hasContext, renderLanes2);
+          constructClassInstance(workInProgress2, Component2, nextProps);
+          mountClassInstance(workInProgress2, Component2, nextProps, renderLanes2);
+          return finishClassComponent(null, workInProgress2, Component2, true, hasContext, renderLanes2);
         }
-        function mountIndeterminateComponent(_current, workInProgress2, Component5, renderLanes2) {
+        function mountIndeterminateComponent(_current, workInProgress2, Component2, renderLanes2) {
           if (_current !== null) {
             _current.alternate = null;
             workInProgress2.alternate = null;
@@ -14809,14 +14809,14 @@ var require_react_dom_development = __commonJS({
           var props = workInProgress2.pendingProps;
           var context;
           {
-            var unmaskedContext = getUnmaskedContext(workInProgress2, Component5, false);
+            var unmaskedContext = getUnmaskedContext(workInProgress2, Component2, false);
             context = getMaskedContext(workInProgress2, unmaskedContext);
           }
           prepareToReadContext(workInProgress2, renderLanes2);
           var value;
           {
-            if (Component5.prototype && typeof Component5.prototype.render === "function") {
-              var componentName = getComponentName(Component5) || "Unknown";
+            if (Component2.prototype && typeof Component2.prototype.render === "function") {
+              var componentName = getComponentName(Component2) || "Unknown";
               if (!didWarnAboutBadClass[componentName]) {
                 error("The <%s /> component appears to have a render method, but doesn't extend React.Component. This is likely to cause errors. Change %s to extend React.Component instead.", componentName, componentName);
                 didWarnAboutBadClass[componentName] = true;
@@ -14827,13 +14827,13 @@ var require_react_dom_development = __commonJS({
             }
             setIsRendering(true);
             ReactCurrentOwner$1.current = workInProgress2;
-            value = renderWithHooks(null, workInProgress2, Component5, props, context, renderLanes2);
+            value = renderWithHooks(null, workInProgress2, Component2, props, context, renderLanes2);
             setIsRendering(false);
           }
           workInProgress2.flags |= PerformedWork;
           {
             if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
-              var _componentName = getComponentName(Component5) || "Unknown";
+              var _componentName = getComponentName(Component2) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName, _componentName, _componentName);
                 didWarnAboutModulePatternComponent[_componentName] = true;
@@ -14842,7 +14842,7 @@ var require_react_dom_development = __commonJS({
           }
           if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
             {
-              var _componentName2 = getComponentName(Component5) || "Unknown";
+              var _componentName2 = getComponentName(Component2) || "Unknown";
               if (!didWarnAboutModulePatternComponent[_componentName2]) {
                 error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName2, _componentName2, _componentName2);
                 didWarnAboutModulePatternComponent[_componentName2] = true;
@@ -14852,7 +14852,7 @@ var require_react_dom_development = __commonJS({
             workInProgress2.memoizedState = null;
             workInProgress2.updateQueue = null;
             var hasContext = false;
-            if (isContextProvider(Component5)) {
+            if (isContextProvider(Component2)) {
               hasContext = true;
               pushContextProvider(workInProgress2);
             } else {
@@ -14860,20 +14860,20 @@ var require_react_dom_development = __commonJS({
             }
             workInProgress2.memoizedState = value.state !== null && value.state !== void 0 ? value.state : null;
             initializeUpdateQueue(workInProgress2);
-            var getDerivedStateFromProps = Component5.getDerivedStateFromProps;
+            var getDerivedStateFromProps = Component2.getDerivedStateFromProps;
             if (typeof getDerivedStateFromProps === "function") {
-              applyDerivedStateFromProps(workInProgress2, Component5, getDerivedStateFromProps, props);
+              applyDerivedStateFromProps(workInProgress2, Component2, getDerivedStateFromProps, props);
             }
             adoptClassInstance(workInProgress2, value);
-            mountClassInstance(workInProgress2, Component5, props, renderLanes2);
-            return finishClassComponent(null, workInProgress2, Component5, true, hasContext, renderLanes2);
+            mountClassInstance(workInProgress2, Component2, props, renderLanes2);
+            return finishClassComponent(null, workInProgress2, Component2, true, hasContext, renderLanes2);
           } else {
             workInProgress2.tag = FunctionComponent;
             {
               if (workInProgress2.mode & StrictMode) {
                 disableLogs();
                 try {
-                  value = renderWithHooks(null, workInProgress2, Component5, props, context, renderLanes2);
+                  value = renderWithHooks(null, workInProgress2, Component2, props, context, renderLanes2);
                 } finally {
                   reenableLogs();
                 }
@@ -14881,16 +14881,16 @@ var require_react_dom_development = __commonJS({
             }
             reconcileChildren(null, workInProgress2, value, renderLanes2);
             {
-              validateFunctionComponentInDev(workInProgress2, Component5);
+              validateFunctionComponentInDev(workInProgress2, Component2);
             }
             return workInProgress2.child;
           }
         }
-        function validateFunctionComponentInDev(workInProgress2, Component5) {
+        function validateFunctionComponentInDev(workInProgress2, Component2) {
           {
-            if (Component5) {
-              if (Component5.childContextTypes) {
-                error("%s(...): childContextTypes cannot be defined on a function component.", Component5.displayName || Component5.name || "Component");
+            if (Component2) {
+              if (Component2.childContextTypes) {
+                error("%s(...): childContextTypes cannot be defined on a function component.", Component2.displayName || Component2.name || "Component");
               }
             }
             if (workInProgress2.ref !== null) {
@@ -14909,15 +14909,15 @@ var require_react_dom_development = __commonJS({
                 error("Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s", info);
               }
             }
-            if (typeof Component5.getDerivedStateFromProps === "function") {
-              var _componentName3 = getComponentName(Component5) || "Unknown";
+            if (typeof Component2.getDerivedStateFromProps === "function") {
+              var _componentName3 = getComponentName(Component2) || "Unknown";
               if (!didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3]) {
                 error("%s: Function components do not support getDerivedStateFromProps.", _componentName3);
                 didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3] = true;
               }
             }
-            if (typeof Component5.contextType === "object" && Component5.contextType !== null) {
-              var _componentName4 = getComponentName(Component5) || "Unknown";
+            if (typeof Component2.contextType === "object" && Component2.contextType !== null) {
+              var _componentName4 = getComponentName(Component2) || "Unknown";
               if (!didWarnAboutContextTypeOnFunctionComponent[_componentName4]) {
                 error("%s: Function components do not support contextType.", _componentName4);
                 didWarnAboutContextTypeOnFunctionComponent[_componentName4] = true;
@@ -15426,9 +15426,9 @@ var require_react_dom_development = __commonJS({
             }
           }
           var newProps = workInProgress2.pendingProps;
-          var render2 = newProps.children;
+          var render3 = newProps.children;
           {
-            if (typeof render2 !== "function") {
+            if (typeof render3 !== "function") {
               error("A context consumer was rendered with multiple children, or a child that isn't a function. A context consumer expects a single child that is a function. If you did pass a function, make sure there is no trailing or leading whitespace around it.");
             }
           }
@@ -15438,7 +15438,7 @@ var require_react_dom_development = __commonJS({
           {
             ReactCurrentOwner$1.current = workInProgress2;
             setIsRendering(true);
-            newChildren = render2(newValue);
+            newChildren = render3(newValue);
             setIsRendering(false);
           }
           workInProgress2.flags |= PerformedWork;
@@ -15526,8 +15526,8 @@ var require_react_dom_development = __commonJS({
                   pushHostContext(workInProgress2);
                   break;
                 case ClassComponent: {
-                  var Component5 = workInProgress2.type;
-                  if (isContextProvider(Component5)) {
+                  var Component2 = workInProgress2.type;
+                  if (isContextProvider(Component2)) {
                     pushContextProvider(workInProgress2);
                   }
                   break;
@@ -15648,7 +15648,7 @@ var require_react_dom_development = __commonJS({
               var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
               return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
             }
-            case Fragment2:
+            case Fragment:
               return updateFragment(current2, workInProgress2, renderLanes2);
             case Mode:
               return updateMode(current2, workInProgress2, renderLanes2);
@@ -15815,15 +15815,15 @@ var require_react_dom_development = __commonJS({
             case SimpleMemoComponent:
             case FunctionComponent:
             case ForwardRef:
-            case Fragment2:
+            case Fragment:
             case Mode:
             case Profiler:
             case ContextConsumer:
             case MemoComponent:
               return null;
             case ClassComponent: {
-              var Component5 = workInProgress2.type;
-              if (isContextProvider(Component5)) {
+              var Component2 = workInProgress2.type;
+              if (isContextProvider(Component2)) {
                 popContext(workInProgress2);
               }
               return null;
@@ -16105,8 +16105,8 @@ var require_react_dom_development = __commonJS({
         function unwindWork(workInProgress2, renderLanes2) {
           switch (workInProgress2.tag) {
             case ClassComponent: {
-              var Component5 = workInProgress2.type;
-              if (isContextProvider(Component5)) {
+              var Component2 = workInProgress2.type;
+              if (isContextProvider(Component2)) {
                 popContext(workInProgress2);
               }
               var flags = workInProgress2.flags;
@@ -16519,17 +16519,17 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect = firstEffect;
+            var effect5 = firstEffect;
             do {
-              if ((effect.tag & tag) === tag) {
-                var destroy = effect.destroy;
-                effect.destroy = void 0;
+              if ((effect5.tag & tag) === tag) {
+                var destroy = effect5.destroy;
+                effect5.destroy = void 0;
                 if (destroy !== void 0) {
                   destroy();
                 }
               }
-              effect = effect.next;
-            } while (effect !== firstEffect);
+              effect5 = effect5.next;
+            } while (effect5 !== firstEffect);
           }
         }
         function commitHookEffectListMount(tag, finishedWork) {
@@ -16537,13 +16537,13 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect = firstEffect;
+            var effect5 = firstEffect;
             do {
-              if ((effect.tag & tag) === tag) {
-                var create = effect.create;
-                effect.destroy = create();
+              if ((effect5.tag & tag) === tag) {
+                var create = effect5.create;
+                effect5.destroy = create();
                 {
-                  var destroy = effect.destroy;
+                  var destroy = effect5.destroy;
                   if (destroy !== void 0 && typeof destroy !== "function") {
                     var addendum = void 0;
                     if (destroy === null) {
@@ -16557,8 +16557,8 @@ var require_react_dom_development = __commonJS({
                   }
                 }
               }
-              effect = effect.next;
-            } while (effect !== firstEffect);
+              effect5 = effect5.next;
+            } while (effect5 !== firstEffect);
           }
         }
         function schedulePassiveEffects(finishedWork) {
@@ -16566,15 +16566,15 @@ var require_react_dom_development = __commonJS({
           var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
           if (lastEffect !== null) {
             var firstEffect = lastEffect.next;
-            var effect = firstEffect;
+            var effect5 = firstEffect;
             do {
-              var _effect = effect, next = _effect.next, tag = _effect.tag;
+              var _effect = effect5, next = _effect.next, tag = _effect.tag;
               if ((tag & Passive$1) !== NoFlags$1 && (tag & HasEffect) !== NoFlags$1) {
-                enqueuePendingPassiveHookEffectUnmount(finishedWork, effect);
-                enqueuePendingPassiveHookEffectMount(finishedWork, effect);
+                enqueuePendingPassiveHookEffectUnmount(finishedWork, effect5);
+                enqueuePendingPassiveHookEffectMount(finishedWork, effect5);
               }
-              effect = next;
-            } while (effect !== firstEffect);
+              effect5 = next;
+            } while (effect5 !== firstEffect);
           }
         }
         function commitLifeCycles(finishedRoot, current2, finishedWork, committedLanes) {
@@ -16790,20 +16790,20 @@ var require_react_dom_development = __commonJS({
                 var lastEffect = updateQueue.lastEffect;
                 if (lastEffect !== null) {
                   var firstEffect = lastEffect.next;
-                  var effect = firstEffect;
+                  var effect5 = firstEffect;
                   do {
-                    var _effect2 = effect, destroy = _effect2.destroy, tag = _effect2.tag;
+                    var _effect2 = effect5, destroy = _effect2.destroy, tag = _effect2.tag;
                     if (destroy !== void 0) {
                       if ((tag & Passive$1) !== NoFlags$1) {
-                        enqueuePendingPassiveHookEffectUnmount(current2, effect);
+                        enqueuePendingPassiveHookEffectUnmount(current2, effect5);
                       } else {
                         {
                           safelyCallDestroy(current2, destroy);
                         }
                       }
                     }
-                    effect = effect.next;
-                  } while (effect !== firstEffect);
+                    effect5 = effect5.next;
+                  } while (effect5 !== firstEffect);
                 }
               }
               return;
@@ -17670,11 +17670,11 @@ var require_react_dom_development = __commonJS({
           }
           flushSyncCallbackQueue();
         }
-        function batchedUpdates$1(fn, a) {
+        function batchedUpdates$1(fn3, a) {
           var prevExecutionContext = executionContext;
           executionContext |= BatchedContext;
           try {
-            return fn(a);
+            return fn3(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17683,11 +17683,11 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function batchedEventUpdates$1(fn, a) {
+        function batchedEventUpdates$1(fn3, a) {
           var prevExecutionContext = executionContext;
           executionContext |= EventContext;
           try {
-            return fn(a);
+            return fn3(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17696,12 +17696,12 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function discreteUpdates$1(fn, a, b, c, d) {
+        function discreteUpdates$1(fn3, a, b, c, d) {
           var prevExecutionContext = executionContext;
           executionContext |= DiscreteEventContext;
           {
             try {
-              return runWithPriority$1(UserBlockingPriority$2, fn.bind(null, a, b, c, d));
+              return runWithPriority$1(UserBlockingPriority$2, fn3.bind(null, a, b, c, d));
             } finally {
               executionContext = prevExecutionContext;
               if (executionContext === NoContext) {
@@ -17711,12 +17711,12 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function unbatchedUpdates(fn, a) {
+        function unbatchedUpdates(fn3, a) {
           var prevExecutionContext = executionContext;
           executionContext &= ~BatchedContext;
           executionContext |= LegacyUnbatchedContext;
           try {
-            return fn(a);
+            return fn3(a);
           } finally {
             executionContext = prevExecutionContext;
             if (executionContext === NoContext) {
@@ -17725,19 +17725,19 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function flushSync(fn, a) {
+        function flushSync(fn3, a) {
           var prevExecutionContext = executionContext;
           if ((prevExecutionContext & (RenderContext | CommitContext)) !== NoContext) {
             {
               error("flushSync was called from inside a lifecycle method. React cannot flush when React is already rendering. Consider moving this call to a scheduler task or micro task.");
             }
-            return fn(a);
+            return fn3(a);
           }
           executionContext |= BatchedContext;
           {
             try {
-              if (fn) {
-                return runWithPriority$1(ImmediatePriority$1, fn.bind(null, a));
+              if (fn3) {
+                return runWithPriority$1(ImmediatePriority$1, fn3.bind(null, a));
               } else {
                 return void 0;
               }
@@ -18374,8 +18374,8 @@ var require_react_dom_development = __commonJS({
           }
           return false;
         }
-        function enqueuePendingPassiveHookEffectMount(fiber, effect) {
-          pendingPassiveHookEffectsMount.push(effect, fiber);
+        function enqueuePendingPassiveHookEffectMount(fiber, effect5) {
+          pendingPassiveHookEffectsMount.push(effect5, fiber);
           if (!rootDoesHavePassiveEffects) {
             rootDoesHavePassiveEffects = true;
             scheduleCallback(NormalPriority$1, function() {
@@ -18384,8 +18384,8 @@ var require_react_dom_development = __commonJS({
             });
           }
         }
-        function enqueuePendingPassiveHookEffectUnmount(fiber, effect) {
-          pendingPassiveHookEffectsUnmount.push(effect, fiber);
+        function enqueuePendingPassiveHookEffectUnmount(fiber, effect5) {
+          pendingPassiveHookEffectsUnmount.push(effect5, fiber);
           {
             fiber.flags |= PassiveUnmountPendingDev;
             var alternate = fiber.alternate;
@@ -18401,9 +18401,9 @@ var require_react_dom_development = __commonJS({
             });
           }
         }
-        function invokePassiveEffectCreate(effect) {
-          var create = effect.create;
-          effect.destroy = create();
+        function invokePassiveEffectCreate(effect5) {
+          var create = effect5.create;
+          effect5.destroy = create();
         }
         function flushPassiveEffectsImpl() {
           if (rootWithPendingPassiveEffects === null) {
@@ -18479,14 +18479,14 @@ var require_react_dom_development = __commonJS({
               resetCurrentFiber();
             }
           }
-          var effect = root2.current.firstEffect;
-          while (effect !== null) {
-            var nextNextEffect = effect.nextEffect;
-            effect.nextEffect = null;
-            if (effect.flags & Deletion) {
-              detachFiberAfterEffects(effect);
+          var effect5 = root2.current.firstEffect;
+          while (effect5 !== null) {
+            var nextNextEffect = effect5.nextEffect;
+            effect5.nextEffect = null;
+            if (effect5.flags & Deletion) {
+              detachFiberAfterEffects(effect5);
             }
-            effect = nextNextEffect;
+            effect5 = nextNextEffect;
           }
           {
             popInteractions(prevInteractions);
@@ -19272,18 +19272,18 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var createFiber = function(tag, pendingProps, key, mode) {
           return new FiberNode(tag, pendingProps, key, mode);
         };
-        function shouldConstruct$1(Component5) {
-          var prototype = Component5.prototype;
+        function shouldConstruct$1(Component2) {
+          var prototype = Component2.prototype;
           return !!(prototype && prototype.isReactComponent);
         }
         function isSimpleFunctionComponent(type) {
           return typeof type === "function" && !shouldConstruct$1(type) && type.defaultProps === void 0;
         }
-        function resolveLazyComponentTag(Component5) {
-          if (typeof Component5 === "function") {
-            return shouldConstruct$1(Component5) ? ClassComponent : FunctionComponent;
-          } else if (Component5 !== void 0 && Component5 !== null) {
-            var $$typeof = Component5.$$typeof;
+        function resolveLazyComponentTag(Component2) {
+          if (typeof Component2 === "function") {
+            return shouldConstruct$1(Component2) ? ClassComponent : FunctionComponent;
+          } else if (Component2 !== void 0 && Component2 !== null) {
+            var $$typeof = Component2.$$typeof;
             if ($$typeof === REACT_FORWARD_REF_TYPE) {
               return ForwardRef;
             }
@@ -19519,7 +19519,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return fiber;
         }
         function createFiberFromFragment(elements, mode, lanes, key) {
-          var fiber = createFiber(Fragment2, elements, key, mode);
+          var fiber = createFiber(Fragment, elements, key, mode);
           fiber.lanes = lanes;
           return fiber;
         }
@@ -19699,7 +19699,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             root2.mutableSourceEagerHydrationData.push(mutableSource, version);
           }
         }
-        function createPortal(children, containerInfo, implementation) {
+        function createPortal2(children, containerInfo, implementation) {
           var key = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : null;
           return {
             $$typeof: REACT_PORTAL_TYPE,
@@ -19722,9 +19722,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           var fiber = get3(parentComponent);
           var parentContext = findCurrentUnmaskedContext(fiber);
           if (fiber.tag === ClassComponent) {
-            var Component5 = fiber.type;
-            if (isContextProvider(Component5)) {
-              return processChildContext(fiber, Component5, parentContext);
+            var Component2 = fiber.type;
+            if (isContextProvider(Component2)) {
+              return processChildContext(fiber, Component2, parentContext);
             }
           }
           return parentContext;
@@ -19872,10 +19872,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           scheduleUpdateOnFiber(fiber, lane, eventTime);
           markRetryLaneIfNotHydrated(fiber, lane);
         }
-        function runWithPriority$2(priority, fn) {
+        function runWithPriority$2(priority, fn3) {
           try {
             setCurrentUpdateLanePriority(priority);
-            return fn();
+            return fn3();
           } finally {
           }
         }
@@ -20232,7 +20232,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           return getPublicRootInstance(fiberRoot);
         }
-        function findDOMNode2(componentOrElement) {
+        function findDOMNode(componentOrElement) {
           {
             var owner = ReactCurrentOwner$3.current;
             if (owner !== null && owner.stateNode !== null) {
@@ -20267,7 +20267,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
           return legacyRenderSubtreeIntoContainer(null, element, container, true, callback);
         }
-        function render(element, container, callback) {
+        function render2(element, container, callback) {
           if (!isValidContainer(container)) {
             {
               throw Error("Target container is not a DOM element.");
@@ -20352,7 +20352,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               throw Error("Target container is not a DOM element.");
             }
           }
-          return createPortal(children, container, null, key);
+          return createPortal2(children, container, null, key);
         }
         function renderSubtreeIntoContainer(parentComponent, element, containerNode, callback) {
           return unstable_renderSubtreeIntoContainer(parentComponent, element, containerNode, callback);
@@ -20396,10 +20396,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         }
         exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = Internals;
         exports.createPortal = createPortal$1;
-        exports.findDOMNode = findDOMNode2;
+        exports.findDOMNode = findDOMNode;
         exports.flushSync = flushSync;
         exports.hydrate = hydrate;
-        exports.render = render;
+        exports.render = render2;
         exports.unmountComponentAtNode = unmountComponentAtNode;
         exports.unstable_batchedUpdates = batchedUpdates$1;
         exports.unstable_createPortal = unstable_createPortal;
@@ -20495,7 +20495,7 @@ var require_bibtexParse = __commonJS({
         this.value_braces = function() {
           var bracecount = 0;
           this.match("{", false);
-          var start2 = this.pos;
+          var start3 = this.pos;
           var escaped = false;
           while (true) {
             if (!escaped) {
@@ -20503,9 +20503,9 @@ var require_bibtexParse = __commonJS({
                 if (bracecount > 0) {
                   bracecount--;
                 } else {
-                  var end = this.pos;
+                  var end2 = this.pos;
                   this.match("}", false);
-                  return this.input.substring(start2, end);
+                  return this.input.substring(start3, end2);
                 }
                 ;
               } else if (this.input[this.pos] == "{") {
@@ -20544,16 +20544,16 @@ var require_bibtexParse = __commonJS({
         };
         this.value_quotes = function() {
           this.match('"', false);
-          var start2 = this.pos;
+          var start3 = this.pos;
           var escaped = false;
           while (true) {
             if (!escaped) {
               if (this.input[this.pos] == '"') {
-                var end = this.pos;
+                var end2 = this.pos;
                 this.match('"', false);
-                return this.input.substring(start2, end);
+                return this.input.substring(start3, end2);
               } else if (this.pos >= this.input.length - 1) {
-                throw TypeError("Unterminated value: value_quotes", this.input.substring(start2));
+                throw TypeError("Unterminated value: value_quotes", this.input.substring(start3));
               }
               ;
             }
@@ -20566,7 +20566,7 @@ var require_bibtexParse = __commonJS({
           ;
         };
         this.single_value = function() {
-          var start2 = this.pos;
+          var start3 = this.pos;
           if (this.tryMatch("{")) {
             return this.value_braces();
           } else if (this.tryMatch('"')) {
@@ -20578,7 +20578,7 @@ var require_bibtexParse = __commonJS({
             else if (this.months.indexOf(k.toLowerCase()) >= 0)
               return k.toLowerCase();
             else
-              throw "Value expected: single_value" + this.input.substring(start2) + " for key: " + k;
+              throw "Value expected: single_value" + this.input.substring(start3) + " for key: " + k;
           }
           ;
         };
@@ -20593,7 +20593,7 @@ var require_bibtexParse = __commonJS({
           return values.join("");
         };
         this.key = function(optional) {
-          var start2 = this.pos;
+          var start3 = this.pos;
           while (true) {
             if (this.pos >= this.input.length) {
               throw TypeError("Runaway key: key");
@@ -20601,11 +20601,11 @@ var require_bibtexParse = __commonJS({
             ;
             if (this.notKey.indexOf(this.input[this.pos]) >= 0) {
               if (optional && this.input[this.pos] != ",") {
-                this.pos = start2;
+                this.pos = start3;
                 return null;
               }
               ;
-              return this.input.substring(start2, this.pos);
+              return this.input.substring(start3, this.pos);
             } else {
               this.pos++;
             }
@@ -21433,8 +21433,8 @@ var require_lodash = __commonJS({
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
         var funcToString = funcProto.toString;
-        var hasOwnProperty = objectProto.hasOwnProperty;
-        var idCounter = 0;
+        var hasOwnProperty2 = objectProto.hasOwnProperty;
+        var idCounter2 = 0;
         var maskSrcKey = function() {
           var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
           return uid ? "Symbol(src)_1." + uid : "";
@@ -21442,7 +21442,7 @@ var require_lodash = __commonJS({
         var nativeObjectToString = objectProto.toString;
         var objectCtorString = funcToString.call(Object2);
         var oldDash = root._;
-        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
+        var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty2).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
         var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice2 = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
         var defineProperty3 = function() {
           try {
@@ -21464,7 +21464,7 @@ var require_lodash = __commonJS({
             if (value instanceof LodashWrapper) {
               return value;
             }
-            if (hasOwnProperty.call(value, "__wrapped__")) {
+            if (hasOwnProperty2.call(value, "__wrapped__")) {
               return wrapperClone(value);
             }
           }
@@ -21539,7 +21539,7 @@ var require_lodash = __commonJS({
           return result2;
         }
         function lazyValue() {
-          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index2 = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start3 = view.start, end2 = view.end, length = end2 - start3, index2 = isRight ? end2 : start3 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
           if (!isArr || !isRight && arrLength == length && takeCount == length) {
             return baseWrapperValue(array2, this.__actions__);
           }
@@ -21589,11 +21589,11 @@ var require_lodash = __commonJS({
             var result2 = data[key];
             return result2 === HASH_UNDEFINED ? undefined2 : result2;
           }
-          return hasOwnProperty.call(data, key) ? data[key] : undefined2;
+          return hasOwnProperty2.call(data, key) ? data[key] : undefined2;
         }
         function hashHas(key) {
           var data = this.__data__;
-          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty.call(data, key);
+          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty2.call(data, key);
         }
         function hashSet(key, value) {
           var data = this.__data__;
@@ -21748,9 +21748,9 @@ var require_lodash = __commonJS({
         Stack2.prototype.has = stackHas;
         Stack2.prototype.set = stackSet;
         function arrayLikeKeys(value, inherited) {
-          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
+          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType2 = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType2, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
           for (var key in value) {
-            if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
+            if ((inherited || hasOwnProperty2.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType2 && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
               result2.push(key);
             }
           }
@@ -21773,7 +21773,7 @@ var require_lodash = __commonJS({
         }
         function assignValue(object2, key, value) {
           var objValue = object2[key];
-          if (!(hasOwnProperty.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
+          if (!(hasOwnProperty2.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
             baseAssignValue(object2, key, value);
           }
         }
@@ -21970,19 +21970,19 @@ var require_lodash = __commonJS({
           }
           return result2;
         }
-        function baseFill(array2, value, start2, end) {
+        function baseFill(array2, value, start3, end2) {
           var length = array2.length;
-          start2 = toInteger(start2);
-          if (start2 < 0) {
-            start2 = -start2 > length ? 0 : length + start2;
+          start3 = toInteger(start3);
+          if (start3 < 0) {
+            start3 = -start3 > length ? 0 : length + start3;
           }
-          end = end === undefined2 || end > length ? length : toInteger(end);
-          if (end < 0) {
-            end += length;
+          end2 = end2 === undefined2 || end2 > length ? length : toInteger(end2);
+          if (end2 < 0) {
+            end2 += length;
           }
-          end = start2 > end ? 0 : toLength(end);
-          while (start2 < end) {
-            array2[start2++] = value;
+          end2 = start3 > end2 ? 0 : toLength(end2);
+          while (start3 < end2) {
+            array2[start3++] = value;
           }
           return array2;
         }
@@ -22048,13 +22048,13 @@ var require_lodash = __commonJS({
           return value > other;
         }
         function baseHas(object2, key) {
-          return object2 != null && hasOwnProperty.call(object2, key);
+          return object2 != null && hasOwnProperty2.call(object2, key);
         }
         function baseHasIn(object2, key) {
           return object2 != null && key in Object2(object2);
         }
-        function baseInRange(number2, start2, end) {
-          return number2 >= nativeMin(start2, end) && number2 < nativeMax(start2, end);
+        function baseInRange(number2, start3, end2) {
+          return number2 >= nativeMin(start3, end2) && number2 < nativeMax(start3, end2);
         }
         function baseIntersection(arrays, iteratee2, comparator) {
           var includes2 = comparator ? arrayIncludesWith : arrayIncludes, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
@@ -22135,7 +22135,7 @@ var require_lodash = __commonJS({
             return objIsArr || isTypedArray(object2) ? equalArrays(object2, other, bitmask, customizer, equalFunc, stack) : equalByTag(object2, other, objTag, bitmask, customizer, equalFunc, stack);
           }
           if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
-            var objIsWrapped = objIsObj && hasOwnProperty.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+            var objIsWrapped = objIsObj && hasOwnProperty2.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty2.call(other, "__wrapped__");
             if (objIsWrapped || othIsWrapped) {
               var objUnwrapped = objIsWrapped ? object2.value() : object2, othUnwrapped = othIsWrapped ? other.value() : other;
               stack || (stack = new Stack2());
@@ -22216,7 +22216,7 @@ var require_lodash = __commonJS({
           }
           var result2 = [];
           for (var key in Object2(object2)) {
-            if (hasOwnProperty.call(object2, key) && key != "constructor") {
+            if (hasOwnProperty2.call(object2, key) && key != "constructor") {
               result2.push(key);
             }
           }
@@ -22228,7 +22228,7 @@ var require_lodash = __commonJS({
           }
           var isProto = isPrototype(object2), result2 = [];
           for (var key in object2) {
-            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object2, key)))) {
+            if (!(key == "constructor" && (isProto || !hasOwnProperty2.call(object2, key)))) {
               result2.push(key);
             }
           }
@@ -22412,11 +22412,11 @@ var require_lodash = __commonJS({
         function baseRandom(lower, upper) {
           return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
         }
-        function baseRange(start2, end, step, fromRight) {
-          var index2 = -1, length = nativeMax(nativeCeil((end - start2) / (step || 1)), 0), result2 = Array2(length);
+        function baseRange(start3, end2, step, fromRight) {
+          var index2 = -1, length = nativeMax(nativeCeil((end2 - start3) / (step || 1)), 0), result2 = Array2(length);
           while (length--) {
-            result2[fromRight ? length : ++index2] = start2;
-            start2 += step;
+            result2[fromRight ? length : ++index2] = start3;
+            start3 += step;
           }
           return result2;
         }
@@ -22436,8 +22436,8 @@ var require_lodash = __commonJS({
           } while (n);
           return result2;
         }
-        function baseRest(func, start2) {
-          return setToString(overRest(func, start2, identity), func + "");
+        function baseRest(func, start3) {
+          return setToString(overRest(func, start3, identity), func + "");
         }
         function baseSample(collection) {
           return arraySample(values(collection));
@@ -22484,20 +22484,20 @@ var require_lodash = __commonJS({
         function baseShuffle(collection) {
           return shuffleSelf(values(collection));
         }
-        function baseSlice(array2, start2, end) {
+        function baseSlice(array2, start3, end2) {
           var index2 = -1, length = array2.length;
-          if (start2 < 0) {
-            start2 = -start2 > length ? 0 : length + start2;
+          if (start3 < 0) {
+            start3 = -start3 > length ? 0 : length + start3;
           }
-          end = end > length ? length : end;
-          if (end < 0) {
-            end += length;
+          end2 = end2 > length ? length : end2;
+          if (end2 < 0) {
+            end2 += length;
           }
-          length = start2 > end ? 0 : end - start2 >>> 0;
-          start2 >>>= 0;
+          length = start3 > end2 ? 0 : end2 - start3 >>> 0;
+          start3 >>>= 0;
           var result2 = Array2(length);
           while (++index2 < length) {
-            result2[index2] = array2[index2 + start2];
+            result2[index2] = array2[index2 + start3];
           }
           return result2;
         }
@@ -22687,10 +22687,10 @@ var require_lodash = __commonJS({
           return isKey(value, object2) ? [value] : stringToPath(toString2(value));
         }
         var castRest = baseRest;
-        function castSlice(array2, start2, end) {
+        function castSlice(array2, start3, end2) {
           var length = array2.length;
-          end = end === undefined2 ? length : end;
-          return !start2 && end >= length ? array2 : baseSlice(array2, start2, end);
+          end2 = end2 === undefined2 ? length : end2;
+          return !start3 && end2 >= length ? array2 : baseSlice(array2, start3, end2);
         }
         var clearTimeout2 = ctxClearTimeout || function(id) {
           return root.clearTimeout(id);
@@ -22745,8 +22745,8 @@ var require_lodash = __commonJS({
               if (index2 >= ordersLength) {
                 return result2;
               }
-              var order = orders[index2];
-              return result2 * (order == "desc" ? -1 : 1);
+              var order2 = orders[index2];
+              return result2 * (order2 == "desc" ? -1 : 1);
             }
           }
           return object2.index - other.index;
@@ -22870,8 +22870,8 @@ var require_lodash = __commonJS({
         function createBind(func, bitmask, thisArg) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper2() {
-            var fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
-            return fn.apply(isBind ? thisArg : this, arguments);
+            var fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            return fn3.apply(isBind ? thisArg : this, arguments);
           }
           return wrapper2;
         }
@@ -22926,8 +22926,8 @@ var require_lodash = __commonJS({
             if (length < arity) {
               return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, undefined2, args, holders, undefined2, undefined2, arity - length);
             }
-            var fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
-            return apply(fn, this, args);
+            var fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            return apply(fn3, this, args);
           }
           return wrapper2;
         }
@@ -23004,7 +23004,7 @@ var require_lodash = __commonJS({
               var newHolders = replaceHolders(args, placeholder);
               return createRecurry(func, bitmask, createHybrid, wrapper2.placeholder, thisArg, args, newHolders, argPos, ary2, arity - length);
             }
-            var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
+            var thisBinding = isBind ? thisArg : this, fn3 = isBindKey ? thisBinding[func] : func;
             length = args.length;
             if (argPos) {
               args = reorder(args, argPos);
@@ -23015,9 +23015,9 @@ var require_lodash = __commonJS({
               args.length = ary2;
             }
             if (this && this !== root && this instanceof wrapper2) {
-              fn = Ctor || createCtor(fn);
+              fn3 = Ctor || createCtor(fn3);
             }
-            return fn.apply(thisBinding, args);
+            return fn3.apply(thisBinding, args);
           }
           return wrapper2;
         }
@@ -23074,31 +23074,31 @@ var require_lodash = __commonJS({
         function createPartial(func, bitmask, thisArg, partials) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper2() {
-            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper2 ? Ctor : func;
+            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn3 = this && this !== root && this instanceof wrapper2 ? Ctor : func;
             while (++leftIndex < leftLength) {
               args[leftIndex] = partials[leftIndex];
             }
             while (argsLength--) {
               args[leftIndex++] = arguments[++argsIndex];
             }
-            return apply(fn, isBind ? thisArg : this, args);
+            return apply(fn3, isBind ? thisArg : this, args);
           }
           return wrapper2;
         }
         function createRange(fromRight) {
-          return function(start2, end, step) {
-            if (step && typeof step != "number" && isIterateeCall(start2, end, step)) {
-              end = step = undefined2;
+          return function(start3, end2, step) {
+            if (step && typeof step != "number" && isIterateeCall(start3, end2, step)) {
+              end2 = step = undefined2;
             }
-            start2 = toFinite(start2);
-            if (end === undefined2) {
-              end = start2;
-              start2 = 0;
+            start3 = toFinite(start3);
+            if (end2 === undefined2) {
+              end2 = start3;
+              start3 = 0;
             } else {
-              end = toFinite(end);
+              end2 = toFinite(end2);
             }
-            step = step === undefined2 ? start2 < end ? 1 : -1 : toFinite(step);
-            return baseRange(start2, end, step, fromRight);
+            step = step === undefined2 ? start3 < end2 ? 1 : -1 : toFinite(step);
+            return baseRange(start3, end2, step, fromRight);
           };
         }
         function createRelationalOperation(operator2) {
@@ -23149,7 +23149,7 @@ var require_lodash = __commonJS({
             return func(number2);
           };
         }
-        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop5 : function(values2) {
+        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop4 : function(values2) {
           return new Set2(values2);
         };
         function createToPairs(keysFunc) {
@@ -23219,7 +23219,7 @@ var require_lodash = __commonJS({
           return setWrapToString(setter(result2, newData), func, bitmask);
         }
         function customDefaultsAssignIn(objValue, srcValue, key, object2) {
-          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
+          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty2.call(object2, key)) {
             return srcValue;
           }
           return objValue;
@@ -23332,7 +23332,7 @@ var require_lodash = __commonJS({
           var index2 = objLength;
           while (index2--) {
             var key = objProps[index2];
-            if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+            if (!(isPartial ? key in other : hasOwnProperty2.call(other, key))) {
               return false;
             }
           }
@@ -23376,11 +23376,11 @@ var require_lodash = __commonJS({
         function getAllKeysIn(object2) {
           return baseGetAllKeys(object2, keysIn, getSymbolsIn);
         }
-        var getData = !metaMap ? noop5 : function(func) {
+        var getData = !metaMap ? noop4 : function(func) {
           return metaMap.get(func);
         };
         function getFuncName(func) {
-          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array2.length : 0;
+          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty2.call(realNames, result2) ? array2.length : 0;
           while (length--) {
             var data = array2[length], otherFunc = data.func;
             if (otherFunc == null || otherFunc == func) {
@@ -23390,7 +23390,7 @@ var require_lodash = __commonJS({
           return result2;
         }
         function getHolder(func) {
-          var object2 = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
+          var object2 = hasOwnProperty2.call(lodash, "placeholder") ? lodash : func;
           return object2.placeholder;
         }
         function getIteratee() {
@@ -23415,7 +23415,7 @@ var require_lodash = __commonJS({
           return baseIsNative(value) ? value : undefined2;
         }
         function getRawTag(value) {
-          var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+          var isOwn = hasOwnProperty2.call(value, symToStringTag), tag = value[symToStringTag];
           try {
             value[symToStringTag] = undefined2;
             var unmasked = true;
@@ -23469,26 +23469,26 @@ var require_lodash = __commonJS({
             return result2;
           };
         }
-        function getView(start2, end, transforms) {
+        function getView(start3, end2, transforms) {
           var index2 = -1, length = transforms.length;
           while (++index2 < length) {
             var data = transforms[index2], size2 = data.size;
             switch (data.type) {
               case "drop":
-                start2 += size2;
+                start3 += size2;
                 break;
               case "dropRight":
-                end -= size2;
+                end2 -= size2;
                 break;
               case "take":
-                end = nativeMin(end, start2 + size2);
+                end2 = nativeMin(end2, start3 + size2);
                 break;
               case "takeRight":
-                start2 = nativeMax(start2, end - size2);
+                start3 = nativeMax(start3, end2 - size2);
                 break;
             }
           }
-          return { "start": start2, "end": end };
+          return { "start": start3, "end": end2 };
         }
         function getWrapDetails(source) {
           var match = source.match(reWrapDetails);
@@ -23512,7 +23512,7 @@ var require_lodash = __commonJS({
         }
         function initCloneArray(array2) {
           var length = array2.length, result2 = new array2.constructor(length);
-          if (length && typeof array2[0] == "string" && hasOwnProperty.call(array2, "index")) {
+          if (length && typeof array2[0] == "string" && hasOwnProperty2.call(array2, "index")) {
             result2.index = array2.index;
             result2.input = array2.input;
           }
@@ -23684,19 +23684,19 @@ var require_lodash = __commonJS({
         function objectToString(value) {
           return nativeObjectToString.call(value);
         }
-        function overRest(func, start2, transform2) {
-          start2 = nativeMax(start2 === undefined2 ? func.length - 1 : start2, 0);
+        function overRest(func, start3, transform2) {
+          start3 = nativeMax(start3 === undefined2 ? func.length - 1 : start3, 0);
           return function() {
-            var args = arguments, index2 = -1, length = nativeMax(args.length - start2, 0), array2 = Array2(length);
+            var args = arguments, index2 = -1, length = nativeMax(args.length - start3, 0), array2 = Array2(length);
             while (++index2 < length) {
-              array2[index2] = args[start2 + index2];
+              array2[index2] = args[start3 + index2];
             }
             index2 = -1;
-            var otherArgs = Array2(start2 + 1);
-            while (++index2 < start2) {
+            var otherArgs = Array2(start3 + 1);
+            while (++index2 < start3) {
               otherArgs[index2] = args[index2];
             }
-            otherArgs[start2] = transform2(array2);
+            otherArgs[start3] = transform2(array2);
             return apply(func, this, otherArgs);
           };
         }
@@ -23725,8 +23725,8 @@ var require_lodash = __commonJS({
           return root.setTimeout(func, wait);
         };
         var setToString = shortOut(baseSetToString);
-        function setWrapToString(wrapper2, reference, bitmask) {
-          var source = reference + "";
+        function setWrapToString(wrapper2, reference2, bitmask) {
+          var source = reference2 + "";
           return setToString(wrapper2, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
         }
         function shortOut(func) {
@@ -23881,16 +23881,16 @@ var require_lodash = __commonJS({
         function dropWhile(array2, predicate) {
           return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true) : [];
         }
-        function fill(array2, value, start2, end) {
+        function fill(array2, value, start3, end2) {
           var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
-          if (start2 && typeof start2 != "number" && isIterateeCall(array2, value, start2)) {
-            start2 = 0;
-            end = length;
+          if (start3 && typeof start3 != "number" && isIterateeCall(array2, value, start3)) {
+            start3 = 0;
+            end2 = length;
           }
-          return baseFill(array2, value, start2, end);
+          return baseFill(array2, value, start3, end2);
         }
         function findIndex(array2, predicate, fromIndex) {
           var length = array2 == null ? 0 : array2.length;
@@ -24037,19 +24037,19 @@ var require_lodash = __commonJS({
         function reverse2(array2) {
           return array2 == null ? array2 : nativeReverse.call(array2);
         }
-        function slice(array2, start2, end) {
+        function slice(array2, start3, end2) {
           var length = array2 == null ? 0 : array2.length;
           if (!length) {
             return [];
           }
-          if (end && typeof end != "number" && isIterateeCall(array2, start2, end)) {
-            start2 = 0;
-            end = length;
+          if (end2 && typeof end2 != "number" && isIterateeCall(array2, start3, end2)) {
+            start3 = 0;
+            end2 = length;
           } else {
-            start2 = start2 == null ? 0 : toInteger(start2);
-            end = end === undefined2 ? length : toInteger(end);
+            start3 = start3 == null ? 0 : toInteger(start3);
+            end2 = end2 === undefined2 ? length : toInteger(end2);
           }
-          return baseSlice(array2, start2, end);
+          return baseSlice(array2, start3, end2);
         }
         function sortedIndex(array2, value) {
           return baseSortedIndex(array2, value);
@@ -24210,13 +24210,13 @@ var require_lodash = __commonJS({
           return interceptor(value);
         }
         var wrapperAt = flatRest(function(paths) {
-          var length = paths.length, start2 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object2) {
+          var length = paths.length, start3 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object2) {
             return baseAt(object2, paths);
           };
-          if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper) || !isIndex(start2)) {
+          if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper) || !isIndex(start3)) {
             return this.thru(interceptor);
           }
-          value = value.slice(start2, +start2 + (length ? 1 : 0));
+          value = value.slice(start3, +start3 + (length ? 1 : 0));
           value.__actions__.push({
             "func": thru,
             "args": [interceptor],
@@ -24248,15 +24248,15 @@ var require_lodash = __commonJS({
         function wrapperPlant(value) {
           var result2, parent2 = this;
           while (parent2 instanceof baseLodash) {
-            var clone3 = wrapperClone(parent2);
-            clone3.__index__ = 0;
-            clone3.__values__ = undefined2;
+            var clone2 = wrapperClone(parent2);
+            clone2.__index__ = 0;
+            clone2.__values__ = undefined2;
             if (result2) {
-              previous.__wrapped__ = clone3;
+              previous.__wrapped__ = clone2;
             } else {
-              result2 = clone3;
+              result2 = clone2;
             }
-            var previous = clone3;
+            var previous = clone2;
             parent2 = parent2.__wrapped__;
           }
           previous.__wrapped__ = value;
@@ -24283,7 +24283,7 @@ var require_lodash = __commonJS({
           return baseWrapperValue(this.__wrapped__, this.__actions__);
         }
         var countBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty.call(result2, key)) {
+          if (hasOwnProperty2.call(result2, key)) {
             ++result2[key];
           } else {
             baseAssignValue(result2, key, 1);
@@ -24321,7 +24321,7 @@ var require_lodash = __commonJS({
           return func(collection, getIteratee(iteratee2, 3));
         }
         var groupBy = createAggregator(function(result2, value, key) {
-          if (hasOwnProperty.call(result2, key)) {
+          if (hasOwnProperty2.call(result2, key)) {
             result2[key].push(value);
           } else {
             baseAssignValue(result2, key, [value]);
@@ -24492,7 +24492,7 @@ var require_lodash = __commonJS({
           result2.placeholder = curryRight.placeholder;
           return result2;
         }
-        function debounce(func, wait, options) {
+        function debounce3(func, wait, options) {
           var lastArgs, lastThis, maxWait, result2, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
@@ -24643,27 +24643,27 @@ var require_lodash = __commonJS({
         var rearg = flatRest(function(func, indexes) {
           return createWrap(func, WRAP_REARG_FLAG, undefined2, undefined2, undefined2, indexes);
         });
-        function rest(func, start2) {
+        function rest(func, start3) {
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          start2 = start2 === undefined2 ? start2 : toInteger(start2);
-          return baseRest(func, start2);
+          start3 = start3 === undefined2 ? start3 : toInteger(start3);
+          return baseRest(func, start3);
         }
-        function spread(func, start2) {
+        function spread(func, start3) {
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
           }
-          start2 = start2 == null ? 0 : nativeMax(toInteger(start2), 0);
+          start3 = start3 == null ? 0 : nativeMax(toInteger(start3), 0);
           return baseRest(function(args) {
-            var array2 = args[start2], otherArgs = castSlice(args, 0, start2);
+            var array2 = args[start3], otherArgs = castSlice(args, 0, start3);
             if (array2) {
               arrayPush(otherArgs, array2);
             }
             return apply(func, this, otherArgs);
           });
         }
-        function throttle2(func, wait, options) {
+        function throttle(func, wait, options) {
           var leading = true, trailing = true;
           if (typeof func != "function") {
             throw new TypeError2(FUNC_ERROR_TEXT);
@@ -24672,7 +24672,7 @@ var require_lodash = __commonJS({
             leading = "leading" in options ? !!options.leading : leading;
             trailing = "trailing" in options ? !!options.trailing : trailing;
           }
-          return debounce(func, wait, {
+          return debounce3(func, wait, {
             "leading": leading,
             "maxWait": wait,
             "trailing": trailing
@@ -24691,7 +24691,7 @@ var require_lodash = __commonJS({
           var value = arguments[0];
           return isArray(value) ? value : [value];
         }
-        function clone2(value) {
+        function clone(value) {
           return baseClone(value, CLONE_SYMBOLS_FLAG);
         }
         function cloneWith(value, customizer) {
@@ -24718,7 +24718,7 @@ var require_lodash = __commonJS({
         var isArguments = baseIsArguments(function() {
           return arguments;
         }()) ? baseIsArguments : function(value) {
-          return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+          return isObjectLike(value) && hasOwnProperty2.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
         };
         var isArray = Array2.isArray;
         var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
@@ -24733,7 +24733,7 @@ var require_lodash = __commonJS({
         }
         var isBuffer = nativeIsBuffer || stubFalse;
         var isDate = nodeIsDate ? baseUnary(nodeIsDate) : baseIsDate;
-        function isElement(value) {
+        function isElement3(value) {
           return isObjectLike(value) && value.nodeType === 1 && !isPlainObject2(value);
         }
         function isEmpty(value) {
@@ -24751,7 +24751,7 @@ var require_lodash = __commonJS({
             return !baseKeys(value).length;
           }
           for (var key in value) {
-            if (hasOwnProperty.call(value, key)) {
+            if (hasOwnProperty2.call(value, key)) {
               return false;
             }
           }
@@ -24829,7 +24829,7 @@ var require_lodash = __commonJS({
           if (proto === null) {
             return true;
           }
-          var Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
+          var Ctor = hasOwnProperty2.call(proto, "constructor") && proto.constructor;
           return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
         }
         var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
@@ -24921,7 +24921,7 @@ var require_lodash = __commonJS({
             return;
           }
           for (var key in source) {
-            if (hasOwnProperty.call(source, key)) {
+            if (hasOwnProperty2.call(source, key)) {
               assignValue(object2, key, source[key]);
             }
           }
@@ -24956,7 +24956,7 @@ var require_lodash = __commonJS({
             while (++propsIndex < propsLength) {
               var key = props[propsIndex];
               var value = object2[key];
-              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
+              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty2.call(object2, key)) {
                 object2[key] = source[key];
               }
             }
@@ -25011,7 +25011,7 @@ var require_lodash = __commonJS({
           if (value != null && typeof value.toString != "function") {
             value = nativeObjectToString.call(value);
           }
-          if (hasOwnProperty.call(result2, value)) {
+          if (hasOwnProperty2.call(result2, value)) {
             result2[value].push(key);
           } else {
             result2[value] = [key];
@@ -25040,7 +25040,7 @@ var require_lodash = __commonJS({
           });
           return result2;
         }
-        var merge2 = createAssigner(function(object2, source, srcIndex) {
+        var merge = createAssigner(function(object2, source, srcIndex) {
           baseMerge(object2, source, srcIndex);
         });
         var mergeWith = createAssigner(function(object2, source, srcIndex, customizer) {
@@ -25160,16 +25160,16 @@ var require_lodash = __commonJS({
           }
           return baseClamp(toNumber(number2), lower, upper);
         }
-        function inRange(number2, start2, end) {
-          start2 = toFinite(start2);
-          if (end === undefined2) {
-            end = start2;
-            start2 = 0;
+        function inRange(number2, start3, end2) {
+          start3 = toFinite(start3);
+          if (end2 === undefined2) {
+            end2 = start3;
+            start3 = 0;
           } else {
-            end = toFinite(end);
+            end2 = toFinite(end2);
           }
           number2 = toNumber(number2);
-          return baseInRange(number2, start2, end);
+          return baseInRange(number2, start3, end2);
         }
         function random(lower, upper, floating) {
           if (floating && typeof floating != "boolean" && isIterateeCall(lower, upper, floating)) {
@@ -25223,9 +25223,9 @@ var require_lodash = __commonJS({
           target = baseToString(target);
           var length = string2.length;
           position = position === undefined2 ? length : baseClamp(toInteger(position), 0, length);
-          var end = position;
+          var end2 = position;
           position -= target.length;
-          return position >= 0 && string2.slice(position, end) == target;
+          return position >= 0 && string2.slice(position, end2) == target;
         }
         function escape(string2) {
           string2 = toString2(string2);
@@ -25323,7 +25323,7 @@ var require_lodash = __commonJS({
           var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
           var isEscaping, isEvaluating, index2 = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
           var reDelimiters = RegExp2((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g");
-          var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+          var sourceURL = "//# sourceURL=" + (hasOwnProperty2.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
           string2.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset2) {
             interpolateValue || (interpolateValue = esTemplateValue);
             source += string2.slice(index2, offset2).replace(reUnescapedString, escapeStringChar);
@@ -25342,7 +25342,7 @@ var require_lodash = __commonJS({
             return match;
           });
           source += "';\n";
-          var variable = hasOwnProperty.call(options, "variable") && options.variable;
+          var variable = hasOwnProperty2.call(options, "variable") && options.variable;
           if (!variable) {
             source = "with (obj) {\n" + source + "\n}\n";
           } else if (reForbiddenIdentifierChars.test(variable)) {
@@ -25373,8 +25373,8 @@ var require_lodash = __commonJS({
           if (!string2 || !(chars = baseToString(chars))) {
             return string2;
           }
-          var strSymbols = stringToArray(string2), chrSymbols = stringToArray(chars), start2 = charsStartIndex(strSymbols, chrSymbols), end = charsEndIndex(strSymbols, chrSymbols) + 1;
-          return castSlice(strSymbols, start2, end).join("");
+          var strSymbols = stringToArray(string2), chrSymbols = stringToArray(chars), start3 = charsStartIndex(strSymbols, chrSymbols), end2 = charsEndIndex(strSymbols, chrSymbols) + 1;
+          return castSlice(strSymbols, start3, end2).join("");
         }
         function trimEnd(string2, chars, guard) {
           string2 = toString2(string2);
@@ -25384,8 +25384,8 @@ var require_lodash = __commonJS({
           if (!string2 || !(chars = baseToString(chars))) {
             return string2;
           }
-          var strSymbols = stringToArray(string2), end = charsEndIndex(strSymbols, stringToArray(chars)) + 1;
-          return castSlice(strSymbols, 0, end).join("");
+          var strSymbols = stringToArray(string2), end2 = charsEndIndex(strSymbols, stringToArray(chars)) + 1;
+          return castSlice(strSymbols, 0, end2).join("");
         }
         function trimStart(string2, chars, guard) {
           string2 = toString2(string2);
@@ -25395,8 +25395,8 @@ var require_lodash = __commonJS({
           if (!string2 || !(chars = baseToString(chars))) {
             return string2;
           }
-          var strSymbols = stringToArray(string2), start2 = charsStartIndex(strSymbols, stringToArray(chars));
-          return castSlice(strSymbols, start2).join("");
+          var strSymbols = stringToArray(string2), start3 = charsStartIndex(strSymbols, stringToArray(chars));
+          return castSlice(strSymbols, start3).join("");
         }
         function truncate(string2, options) {
           var length = DEFAULT_TRUNC_LENGTH, omission = DEFAULT_TRUNC_OMISSION;
@@ -25414,19 +25414,19 @@ var require_lodash = __commonJS({
           if (length >= strLength) {
             return string2;
           }
-          var end = length - stringSize(omission);
-          if (end < 1) {
+          var end2 = length - stringSize(omission);
+          if (end2 < 1) {
             return omission;
           }
-          var result2 = strSymbols ? castSlice(strSymbols, 0, end).join("") : string2.slice(0, end);
+          var result2 = strSymbols ? castSlice(strSymbols, 0, end2).join("") : string2.slice(0, end2);
           if (separator === undefined2) {
             return result2 + omission;
           }
           if (strSymbols) {
-            end += result2.length - end;
+            end2 += result2.length - end2;
           }
           if (isRegExp(separator)) {
-            if (string2.slice(end).search(separator)) {
+            if (string2.slice(end2).search(separator)) {
               var match, substring = result2;
               if (!separator.global) {
                 separator = RegExp2(separator.source, toString2(reFlags.exec(separator)) + "g");
@@ -25435,9 +25435,9 @@ var require_lodash = __commonJS({
               while (match = separator.exec(substring)) {
                 var newEnd = match.index;
               }
-              result2 = result2.slice(0, newEnd === undefined2 ? end : newEnd);
+              result2 = result2.slice(0, newEnd === undefined2 ? end2 : newEnd);
             }
-          } else if (string2.indexOf(baseToString(separator), end) != end) {
+          } else if (string2.indexOf(baseToString(separator), end2) != end2) {
             var index2 = result2.lastIndexOf(separator);
             if (index2 > -1) {
               result2 = result2.slice(0, index2);
@@ -25561,7 +25561,7 @@ var require_lodash = __commonJS({
           }
           return this;
         }
-        function noop5() {
+        function noop4() {
         }
         function nthArg(n) {
           n = toInteger(n);
@@ -25618,7 +25618,7 @@ var require_lodash = __commonJS({
           return isSymbol(value) ? [value] : copyArray(stringToPath(toString2(value)));
         }
         function uniqueId(prefix) {
-          var id = ++idCounter;
+          var id = ++idCounter2;
           return toString2(prefix) + id;
         }
         var add = createMathOperation(function(augend, addend) {
@@ -25629,7 +25629,7 @@ var require_lodash = __commonJS({
           return dividend / divisor;
         }, 1);
         var floor = createRound("floor");
-        function max(array2) {
+        function max2(array2) {
           return array2 && array2.length ? baseExtremum(array2, identity, baseGt) : undefined2;
         }
         function maxBy(array2, iteratee2) {
@@ -25641,7 +25641,7 @@ var require_lodash = __commonJS({
         function meanBy(array2, iteratee2) {
           return baseMean(array2, getIteratee(iteratee2, 2));
         }
-        function min(array2) {
+        function min2(array2) {
           return array2 && array2.length ? baseExtremum(array2, identity, baseLt) : undefined2;
         }
         function minBy(array2, iteratee2) {
@@ -25650,7 +25650,7 @@ var require_lodash = __commonJS({
         var multiply = createMathOperation(function(multiplier, multiplicand) {
           return multiplier * multiplicand;
         }, 1);
-        var round = createRound("round");
+        var round2 = createRound("round");
         var subtract = createMathOperation(function(minuend, subtrahend) {
           return minuend - subtrahend;
         }, 0);
@@ -25683,7 +25683,7 @@ var require_lodash = __commonJS({
         lodash.create = create;
         lodash.curry = curry;
         lodash.curryRight = curryRight;
-        lodash.debounce = debounce;
+        lodash.debounce = debounce3;
         lodash.defaults = defaults2;
         lodash.defaultsDeep = defaultsDeep;
         lodash.defer = defer;
@@ -25727,7 +25727,7 @@ var require_lodash = __commonJS({
         lodash.matches = matches;
         lodash.matchesProperty = matchesProperty;
         lodash.memoize = memoize;
-        lodash.merge = merge2;
+        lodash.merge = merge;
         lodash.mergeWith = mergeWith;
         lodash.method = method;
         lodash.methodOf = methodOf;
@@ -25777,7 +25777,7 @@ var require_lodash = __commonJS({
         lodash.takeRightWhile = takeRightWhile;
         lodash.takeWhile = takeWhile;
         lodash.tap = tap;
-        lodash.throttle = throttle2;
+        lodash.throttle = throttle;
         lodash.thru = thru;
         lodash.toArray = toArray;
         lodash.toPairs = toPairs;
@@ -25820,7 +25820,7 @@ var require_lodash = __commonJS({
         lodash.capitalize = capitalize;
         lodash.ceil = ceil;
         lodash.clamp = clamp;
-        lodash.clone = clone2;
+        lodash.clone = clone;
         lodash.cloneDeep = cloneDeep;
         lodash.cloneDeepWith = cloneDeepWith;
         lodash.cloneWith = cloneWith;
@@ -25865,7 +25865,7 @@ var require_lodash = __commonJS({
         lodash.isBoolean = isBoolean;
         lodash.isBuffer = isBuffer;
         lodash.isDate = isDate;
-        lodash.isElement = isElement;
+        lodash.isElement = isElement3;
         lodash.isEmpty = isEmpty;
         lodash.isEqual = isEqual;
         lodash.isEqualWith = isEqualWith;
@@ -25902,11 +25902,11 @@ var require_lodash = __commonJS({
         lodash.lowerFirst = lowerFirst;
         lodash.lt = lt;
         lodash.lte = lte;
-        lodash.max = max;
+        lodash.max = max2;
         lodash.maxBy = maxBy;
         lodash.mean = mean;
         lodash.meanBy = meanBy;
-        lodash.min = min;
+        lodash.min = min2;
         lodash.minBy = minBy;
         lodash.stubArray = stubArray;
         lodash.stubFalse = stubFalse;
@@ -25916,7 +25916,7 @@ var require_lodash = __commonJS({
         lodash.multiply = multiply;
         lodash.nth = nth;
         lodash.noConflict = noConflict;
-        lodash.noop = noop5;
+        lodash.noop = noop4;
         lodash.now = now;
         lodash.pad = pad;
         lodash.padEnd = padEnd;
@@ -25928,7 +25928,7 @@ var require_lodash = __commonJS({
         lodash.repeat = repeat;
         lodash.replace = replace2;
         lodash.result = result;
-        lodash.round = round;
+        lodash.round = round2;
         lodash.runInContext = runInContext2;
         lodash.sample = sample;
         lodash.size = size;
@@ -25969,7 +25969,7 @@ var require_lodash = __commonJS({
         mixin(lodash, function() {
           var source = {};
           baseForOwn(lodash, function(func, methodName) {
-            if (!hasOwnProperty.call(lodash.prototype, methodName)) {
+            if (!hasOwnProperty2.call(lodash.prototype, methodName)) {
               source[methodName] = func;
             }
           });
@@ -26041,20 +26041,20 @@ var require_lodash = __commonJS({
         LazyWrapper.prototype.reject = function(predicate) {
           return this.filter(negate(getIteratee(predicate)));
         };
-        LazyWrapper.prototype.slice = function(start2, end) {
-          start2 = toInteger(start2);
+        LazyWrapper.prototype.slice = function(start3, end2) {
+          start3 = toInteger(start3);
           var result2 = this;
-          if (result2.__filtered__ && (start2 > 0 || end < 0)) {
+          if (result2.__filtered__ && (start3 > 0 || end2 < 0)) {
             return new LazyWrapper(result2);
           }
-          if (start2 < 0) {
-            result2 = result2.takeRight(-start2);
-          } else if (start2) {
-            result2 = result2.drop(start2);
+          if (start3 < 0) {
+            result2 = result2.takeRight(-start3);
+          } else if (start3) {
+            result2 = result2.drop(start3);
           }
-          if (end !== undefined2) {
-            end = toInteger(end);
-            result2 = end < 0 ? result2.dropRight(-end) : result2.take(end - start2);
+          if (end2 !== undefined2) {
+            end2 = toInteger(end2);
+            result2 = end2 < 0 ? result2.dropRight(-end2) : result2.take(end2 - start3);
           }
           return result2;
         };
@@ -26109,7 +26109,7 @@ var require_lodash = __commonJS({
           var lodashFunc = lodash[methodName];
           if (lodashFunc) {
             var key = lodashFunc.name + "";
-            if (!hasOwnProperty.call(realNames, key)) {
+            if (!hasOwnProperty2.call(realNames, key)) {
               realNames[key] = [];
             }
             realNames[key].push({ "name": methodName, "func": lodashFunc });
@@ -26157,7 +26157,7 @@ var require_classnames = __commonJS({
     (function() {
       "use strict";
       var hasOwn = {}.hasOwnProperty;
-      function classNames8() {
+      function classNames3() {
         var classes = [];
         for (var i = 0; i < arguments.length; i++) {
           var arg = arguments[i];
@@ -26168,7 +26168,7 @@ var require_classnames = __commonJS({
             classes.push(arg);
           } else if (Array.isArray(arg)) {
             if (arg.length) {
-              var inner = classNames8.apply(null, arg);
+              var inner = classNames3.apply(null, arg);
               if (inner) {
                 classes.push(inner);
               }
@@ -26188,14 +26188,14 @@ var require_classnames = __commonJS({
         return classes.join(" ");
       }
       if (typeof module !== "undefined" && module.exports) {
-        classNames8.default = classNames8;
-        module.exports = classNames8;
+        classNames3.default = classNames3;
+        module.exports = classNames3;
       } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
         define("classnames", [], function() {
-          return classNames8;
+          return classNames3;
         });
       } else {
-        window.classNames = classNames8;
+        window.classNames = classNames3;
       }
     })();
   }
@@ -26241,36 +26241,36 @@ var require_katex = __commonJS({
         var ParseError = function ParseError2(message, token) {
           this.position = void 0;
           var error = "KaTeX parse error: " + message;
-          var start2;
+          var start3;
           var loc = token && token.loc;
           if (loc && loc.start <= loc.end) {
             var input = loc.lexer.input;
-            start2 = loc.start;
-            var end = loc.end;
-            if (start2 === input.length) {
+            start3 = loc.start;
+            var end2 = loc.end;
+            if (start3 === input.length) {
               error += " at end of input: ";
             } else {
-              error += " at position " + (start2 + 1) + ": ";
+              error += " at position " + (start3 + 1) + ": ";
             }
-            var underlined = input.slice(start2, end).replace(/[^]/g, "$&\u0332");
-            var left;
-            if (start2 > 15) {
-              left = "\u2026" + input.slice(start2 - 15, start2);
+            var underlined = input.slice(start3, end2).replace(/[^]/g, "$&\u0332");
+            var left2;
+            if (start3 > 15) {
+              left2 = "\u2026" + input.slice(start3 - 15, start3);
             } else {
-              left = input.slice(0, start2);
+              left2 = input.slice(0, start3);
             }
-            var right;
-            if (end + 15 < input.length) {
-              right = input.slice(end, end + 15) + "\u2026";
+            var right2;
+            if (end2 + 15 < input.length) {
+              right2 = input.slice(end2, end2 + 15) + "\u2026";
             } else {
-              right = input.slice(end);
+              right2 = input.slice(end2);
             }
-            error += left + underlined + right;
+            error += left2 + underlined + right2;
           }
           var self2 = new Error(error);
           self2.name = "ParseError";
           self2.__proto__ = ParseError2.prototype;
-          self2.position = start2;
+          self2.position = start3;
           return self2;
         };
         ParseError.prototype.__proto__ = Error.prototype;
@@ -26332,7 +26332,7 @@ var require_katex = __commonJS({
           var protocol = /^\s*([^\\/#]*?)(?::|&#0*58|&#x0*3a)/i.exec(url);
           return protocol != null ? protocol[1] : "_relative";
         };
-        var utils2 = {
+        var utils = {
           contains: contains3,
           deflt,
           escape: utils_escape,
@@ -26359,20 +26359,20 @@ var require_katex = __commonJS({
             this.maxExpand = void 0;
             this.globalGroup = void 0;
             options = options || {};
-            this.displayMode = utils2.deflt(options.displayMode, false);
-            this.output = utils2.deflt(options.output, "htmlAndMathml");
-            this.leqno = utils2.deflt(options.leqno, false);
-            this.fleqn = utils2.deflt(options.fleqn, false);
-            this.throwOnError = utils2.deflt(options.throwOnError, true);
-            this.errorColor = utils2.deflt(options.errorColor, "#cc0000");
+            this.displayMode = utils.deflt(options.displayMode, false);
+            this.output = utils.deflt(options.output, "htmlAndMathml");
+            this.leqno = utils.deflt(options.leqno, false);
+            this.fleqn = utils.deflt(options.fleqn, false);
+            this.throwOnError = utils.deflt(options.throwOnError, true);
+            this.errorColor = utils.deflt(options.errorColor, "#cc0000");
             this.macros = options.macros || {};
-            this.minRuleThickness = Math.max(0, utils2.deflt(options.minRuleThickness, 0));
-            this.colorIsTextColor = utils2.deflt(options.colorIsTextColor, false);
-            this.strict = utils2.deflt(options.strict, "warn");
-            this.trust = utils2.deflt(options.trust, false);
-            this.maxSize = Math.max(0, utils2.deflt(options.maxSize, Infinity));
-            this.maxExpand = Math.max(0, utils2.deflt(options.maxExpand, 1e3));
-            this.globalGroup = utils2.deflt(options.globalGroup, false);
+            this.minRuleThickness = Math.max(0, utils.deflt(options.minRuleThickness, 0));
+            this.colorIsTextColor = utils.deflt(options.colorIsTextColor, false);
+            this.strict = utils.deflt(options.strict, "warn");
+            this.trust = utils.deflt(options.trust, false);
+            this.maxSize = Math.max(0, utils.deflt(options.maxSize, Infinity));
+            this.maxExpand = Math.max(0, utils.deflt(options.maxExpand, 1e3));
+            this.globalGroup = utils.deflt(options.globalGroup, false);
           }
           var _proto = Settings2.prototype;
           _proto.reportNonstrict = function reportNonstrict(errorCode, errorMsg, token) {
@@ -26413,7 +26413,7 @@ var require_katex = __commonJS({
           };
           _proto.isTrusted = function isTrusted(context) {
             if (context.url && !context.protocol) {
-              context.protocol = utils2.protocolFromUrl(context.url);
+              context.protocol = utils.protocolFromUrl(context.url);
             }
             var trust = typeof this.trust === "function" ? this.trust(context) : this.trust;
             return Boolean(trust);
@@ -26679,7 +26679,7 @@ var require_katex = __commonJS({
           }
           var _proto = DocumentFragment2.prototype;
           _proto.hasClass = function hasClass(className) {
-            return utils2.contains(this.classes, className);
+            return utils.contains(this.classes, className);
           };
           _proto.toNode = function toNode() {
             var frag = document.createDocumentFragment();
@@ -26709,13 +26709,13 @@ var require_katex = __commonJS({
             return cls;
           }).join(" ");
         };
-        var initNode = function initNode2(classes, options, style2) {
+        var initNode = function initNode2(classes, options, style) {
           this.classes = classes || [];
           this.attributes = {};
           this.height = 0;
           this.depth = 0;
           this.maxFontSize = 0;
-          this.style = style2 || {};
+          this.style = style || {};
           if (options) {
             if (options.style.isTight()) {
               this.classes.push("mtight");
@@ -26729,9 +26729,9 @@ var require_katex = __commonJS({
         var _toNode = function toNode(tagName) {
           var node = document.createElement(tagName);
           node.className = createClass(this.classes);
-          for (var style2 in this.style) {
-            if (this.style.hasOwnProperty(style2)) {
-              node.style[style2] = this.style[style2];
+          for (var style in this.style) {
+            if (this.style.hasOwnProperty(style)) {
+              node.style[style] = this.style[style];
             }
           }
           for (var attr in this.attributes) {
@@ -26747,20 +26747,20 @@ var require_katex = __commonJS({
         var _toMarkup = function toMarkup(tagName) {
           var markup = "<" + tagName;
           if (this.classes.length) {
-            markup += ' class="' + utils2.escape(createClass(this.classes)) + '"';
+            markup += ' class="' + utils.escape(createClass(this.classes)) + '"';
           }
           var styles2 = "";
-          for (var style2 in this.style) {
-            if (this.style.hasOwnProperty(style2)) {
-              styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
+          for (var style in this.style) {
+            if (this.style.hasOwnProperty(style)) {
+              styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
             }
           }
           if (styles2) {
-            markup += ' style="' + utils2.escape(styles2) + '"';
+            markup += ' style="' + utils.escape(styles2) + '"';
           }
           for (var attr in this.attributes) {
             if (this.attributes.hasOwnProperty(attr)) {
-              markup += " " + attr + '="' + utils2.escape(this.attributes[attr]) + '"';
+              markup += " " + attr + '="' + utils.escape(this.attributes[attr]) + '"';
             }
           }
           markup += ">";
@@ -26771,7 +26771,7 @@ var require_katex = __commonJS({
           return markup;
         };
         var Span = /* @__PURE__ */ function() {
-          function Span2(classes, children, options, style2) {
+          function Span2(classes, children, options, style) {
             this.children = void 0;
             this.attributes = void 0;
             this.classes = void 0;
@@ -26780,7 +26780,7 @@ var require_katex = __commonJS({
             this.width = void 0;
             this.maxFontSize = void 0;
             this.style = void 0;
-            initNode.call(this, classes, options, style2);
+            initNode.call(this, classes, options, style);
             this.children = children || [];
           }
           var _proto = Span2.prototype;
@@ -26788,7 +26788,7 @@ var require_katex = __commonJS({
             this.attributes[attribute] = value;
           };
           _proto.hasClass = function hasClass(className) {
-            return utils2.contains(this.classes, className);
+            return utils.contains(this.classes, className);
           };
           _proto.toNode = function toNode() {
             return _toNode.call(this, "span");
@@ -26816,7 +26816,7 @@ var require_katex = __commonJS({
             this.attributes[attribute] = value;
           };
           _proto2.hasClass = function hasClass(className) {
-            return utils2.contains(this.classes, className);
+            return utils.contains(this.classes, className);
           };
           _proto2.toNode = function toNode() {
             return _toNode.call(this, "a");
@@ -26827,7 +26827,7 @@ var require_katex = __commonJS({
           return Anchor2;
         }();
         var Img = /* @__PURE__ */ function() {
-          function Img2(src, alt, style2) {
+          function Img2(src, alt, style) {
             this.src = void 0;
             this.alt = void 0;
             this.classes = void 0;
@@ -26838,20 +26838,20 @@ var require_katex = __commonJS({
             this.alt = alt;
             this.src = src;
             this.classes = ["mord"];
-            this.style = style2;
+            this.style = style;
           }
           var _proto3 = Img2.prototype;
           _proto3.hasClass = function hasClass(className) {
-            return utils2.contains(this.classes, className);
+            return utils.contains(this.classes, className);
           };
           _proto3.toNode = function toNode() {
             var node = document.createElement("img");
             node.src = this.src;
             node.alt = this.alt;
             node.className = "mord";
-            for (var style2 in this.style) {
-              if (this.style.hasOwnProperty(style2)) {
-                node.style[style2] = this.style[style2];
+            for (var style in this.style) {
+              if (this.style.hasOwnProperty(style)) {
+                node.style[style] = this.style[style];
               }
             }
             return node;
@@ -26859,13 +26859,13 @@ var require_katex = __commonJS({
           _proto3.toMarkup = function toMarkup() {
             var markup = "<img  src='" + this.src + " 'alt='" + this.alt + "' ";
             var styles2 = "";
-            for (var style2 in this.style) {
-              if (this.style.hasOwnProperty(style2)) {
-                styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
+            for (var style in this.style) {
+              if (this.style.hasOwnProperty(style)) {
+                styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
               }
             }
             if (styles2) {
-              markup += ' style="' + utils2.escape(styles2) + '"';
+              markup += ' style="' + utils.escape(styles2) + '"';
             }
             markup += "'/>";
             return markup;
@@ -26879,7 +26879,7 @@ var require_katex = __commonJS({
           "\xEC": "\u0131\u0300"
         };
         var SymbolNode = /* @__PURE__ */ function() {
-          function SymbolNode2(text, height, depth, italic, skew, width, classes, style2) {
+          function SymbolNode2(text, height, depth, italic, skew, width, classes, style) {
             this.text = void 0;
             this.height = void 0;
             this.depth = void 0;
@@ -26896,7 +26896,7 @@ var require_katex = __commonJS({
             this.skew = skew || 0;
             this.width = width || 0;
             this.classes = classes || [];
-            this.style = style2 || {};
+            this.style = style || {};
             this.maxFontSize = 0;
             var script = scriptFromCodepoint(this.text.charCodeAt(0));
             if (script) {
@@ -26908,7 +26908,7 @@ var require_katex = __commonJS({
           }
           var _proto4 = SymbolNode2.prototype;
           _proto4.hasClass = function hasClass(className) {
-            return utils2.contains(this.classes, className);
+            return utils.contains(this.classes, className);
           };
           _proto4.toNode = function toNode() {
             var node = document.createTextNode(this.text);
@@ -26921,10 +26921,10 @@ var require_katex = __commonJS({
               span = span || document.createElement("span");
               span.className = createClass(this.classes);
             }
-            for (var style2 in this.style) {
-              if (this.style.hasOwnProperty(style2)) {
+            for (var style in this.style) {
+              if (this.style.hasOwnProperty(style)) {
                 span = span || document.createElement("span");
-                span.style[style2] = this.style[style2];
+                span.style[style] = this.style[style];
               }
             }
             if (span) {
@@ -26940,23 +26940,23 @@ var require_katex = __commonJS({
             if (this.classes.length) {
               needsSpan = true;
               markup += ' class="';
-              markup += utils2.escape(createClass(this.classes));
+              markup += utils.escape(createClass(this.classes));
               markup += '"';
             }
             var styles2 = "";
             if (this.italic > 0) {
               styles2 += "margin-right:" + this.italic + "em;";
             }
-            for (var style2 in this.style) {
-              if (this.style.hasOwnProperty(style2)) {
-                styles2 += utils2.hyphenate(style2) + ":" + this.style[style2] + ";";
+            for (var style in this.style) {
+              if (this.style.hasOwnProperty(style)) {
+                styles2 += utils.hyphenate(style) + ":" + this.style[style] + ";";
               }
             }
             if (styles2) {
               needsSpan = true;
-              markup += ' style="' + utils2.escape(styles2) + '"';
+              markup += ' style="' + utils.escape(styles2) + '"';
             }
-            var escaped = utils2.escape(this.text);
+            var escaped = utils.escape(this.text);
             if (needsSpan) {
               markup += ">";
               markup += escaped;
@@ -29344,7 +29344,7 @@ var require_katex = __commonJS({
         }
         var math = "math";
         var symbols_text = "text";
-        var main = "main";
+        var main2 = "main";
         var ams = "ams";
         var accent = "accent-token";
         var bin = "bin";
@@ -29357,101 +29357,101 @@ var require_katex = __commonJS({
         var rel = "rel";
         var spacing = "spacing";
         var textord = "textord";
-        defineSymbol(math, main, rel, "\u2261", "\\equiv", true);
-        defineSymbol(math, main, rel, "\u227A", "\\prec", true);
-        defineSymbol(math, main, rel, "\u227B", "\\succ", true);
-        defineSymbol(math, main, rel, "\u223C", "\\sim", true);
-        defineSymbol(math, main, rel, "\u22A5", "\\perp");
-        defineSymbol(math, main, rel, "\u2AAF", "\\preceq", true);
-        defineSymbol(math, main, rel, "\u2AB0", "\\succeq", true);
-        defineSymbol(math, main, rel, "\u2243", "\\simeq", true);
-        defineSymbol(math, main, rel, "\u2223", "\\mid", true);
-        defineSymbol(math, main, rel, "\u226A", "\\ll", true);
-        defineSymbol(math, main, rel, "\u226B", "\\gg", true);
-        defineSymbol(math, main, rel, "\u224D", "\\asymp", true);
-        defineSymbol(math, main, rel, "\u2225", "\\parallel");
-        defineSymbol(math, main, rel, "\u22C8", "\\bowtie", true);
-        defineSymbol(math, main, rel, "\u2323", "\\smile", true);
-        defineSymbol(math, main, rel, "\u2291", "\\sqsubseteq", true);
-        defineSymbol(math, main, rel, "\u2292", "\\sqsupseteq", true);
-        defineSymbol(math, main, rel, "\u2250", "\\doteq", true);
-        defineSymbol(math, main, rel, "\u2322", "\\frown", true);
-        defineSymbol(math, main, rel, "\u220B", "\\ni", true);
-        defineSymbol(math, main, rel, "\u221D", "\\propto", true);
-        defineSymbol(math, main, rel, "\u22A2", "\\vdash", true);
-        defineSymbol(math, main, rel, "\u22A3", "\\dashv", true);
-        defineSymbol(math, main, rel, "\u220B", "\\owns");
-        defineSymbol(math, main, punct, ".", "\\ldotp");
-        defineSymbol(math, main, punct, "\u22C5", "\\cdotp");
-        defineSymbol(math, main, textord, "#", "\\#");
-        defineSymbol(symbols_text, main, textord, "#", "\\#");
-        defineSymbol(math, main, textord, "&", "\\&");
-        defineSymbol(symbols_text, main, textord, "&", "\\&");
-        defineSymbol(math, main, textord, "\u2135", "\\aleph", true);
-        defineSymbol(math, main, textord, "\u2200", "\\forall", true);
-        defineSymbol(math, main, textord, "\u210F", "\\hbar", true);
-        defineSymbol(math, main, textord, "\u2203", "\\exists", true);
-        defineSymbol(math, main, textord, "\u2207", "\\nabla", true);
-        defineSymbol(math, main, textord, "\u266D", "\\flat", true);
-        defineSymbol(math, main, textord, "\u2113", "\\ell", true);
-        defineSymbol(math, main, textord, "\u266E", "\\natural", true);
-        defineSymbol(math, main, textord, "\u2663", "\\clubsuit", true);
-        defineSymbol(math, main, textord, "\u2118", "\\wp", true);
-        defineSymbol(math, main, textord, "\u266F", "\\sharp", true);
-        defineSymbol(math, main, textord, "\u2662", "\\diamondsuit", true);
-        defineSymbol(math, main, textord, "\u211C", "\\Re", true);
-        defineSymbol(math, main, textord, "\u2661", "\\heartsuit", true);
-        defineSymbol(math, main, textord, "\u2111", "\\Im", true);
-        defineSymbol(math, main, textord, "\u2660", "\\spadesuit", true);
-        defineSymbol(math, main, textord, "\xA7", "\\S", true);
-        defineSymbol(symbols_text, main, textord, "\xA7", "\\S");
-        defineSymbol(math, main, textord, "\xB6", "\\P", true);
-        defineSymbol(symbols_text, main, textord, "\xB6", "\\P");
-        defineSymbol(math, main, textord, "\u2020", "\\dag");
-        defineSymbol(symbols_text, main, textord, "\u2020", "\\dag");
-        defineSymbol(symbols_text, main, textord, "\u2020", "\\textdagger");
-        defineSymbol(math, main, textord, "\u2021", "\\ddag");
-        defineSymbol(symbols_text, main, textord, "\u2021", "\\ddag");
-        defineSymbol(symbols_text, main, textord, "\u2021", "\\textdaggerdbl");
-        defineSymbol(math, main, symbols_close, "\u23B1", "\\rmoustache", true);
-        defineSymbol(math, main, symbols_open, "\u23B0", "\\lmoustache", true);
-        defineSymbol(math, main, symbols_close, "\u27EF", "\\rgroup", true);
-        defineSymbol(math, main, symbols_open, "\u27EE", "\\lgroup", true);
-        defineSymbol(math, main, bin, "\u2213", "\\mp", true);
-        defineSymbol(math, main, bin, "\u2296", "\\ominus", true);
-        defineSymbol(math, main, bin, "\u228E", "\\uplus", true);
-        defineSymbol(math, main, bin, "\u2293", "\\sqcap", true);
-        defineSymbol(math, main, bin, "\u2217", "\\ast");
-        defineSymbol(math, main, bin, "\u2294", "\\sqcup", true);
-        defineSymbol(math, main, bin, "\u25EF", "\\bigcirc", true);
-        defineSymbol(math, main, bin, "\u2219", "\\bullet");
-        defineSymbol(math, main, bin, "\u2021", "\\ddagger");
-        defineSymbol(math, main, bin, "\u2240", "\\wr", true);
-        defineSymbol(math, main, bin, "\u2A3F", "\\amalg");
-        defineSymbol(math, main, bin, "&", "\\And");
-        defineSymbol(math, main, rel, "\u27F5", "\\longleftarrow", true);
-        defineSymbol(math, main, rel, "\u21D0", "\\Leftarrow", true);
-        defineSymbol(math, main, rel, "\u27F8", "\\Longleftarrow", true);
-        defineSymbol(math, main, rel, "\u27F6", "\\longrightarrow", true);
-        defineSymbol(math, main, rel, "\u21D2", "\\Rightarrow", true);
-        defineSymbol(math, main, rel, "\u27F9", "\\Longrightarrow", true);
-        defineSymbol(math, main, rel, "\u2194", "\\leftrightarrow", true);
-        defineSymbol(math, main, rel, "\u27F7", "\\longleftrightarrow", true);
-        defineSymbol(math, main, rel, "\u21D4", "\\Leftrightarrow", true);
-        defineSymbol(math, main, rel, "\u27FA", "\\Longleftrightarrow", true);
-        defineSymbol(math, main, rel, "\u21A6", "\\mapsto", true);
-        defineSymbol(math, main, rel, "\u27FC", "\\longmapsto", true);
-        defineSymbol(math, main, rel, "\u2197", "\\nearrow", true);
-        defineSymbol(math, main, rel, "\u21A9", "\\hookleftarrow", true);
-        defineSymbol(math, main, rel, "\u21AA", "\\hookrightarrow", true);
-        defineSymbol(math, main, rel, "\u2198", "\\searrow", true);
-        defineSymbol(math, main, rel, "\u21BC", "\\leftharpoonup", true);
-        defineSymbol(math, main, rel, "\u21C0", "\\rightharpoonup", true);
-        defineSymbol(math, main, rel, "\u2199", "\\swarrow", true);
-        defineSymbol(math, main, rel, "\u21BD", "\\leftharpoondown", true);
-        defineSymbol(math, main, rel, "\u21C1", "\\rightharpoondown", true);
-        defineSymbol(math, main, rel, "\u2196", "\\nwarrow", true);
-        defineSymbol(math, main, rel, "\u21CC", "\\rightleftharpoons", true);
+        defineSymbol(math, main2, rel, "\u2261", "\\equiv", true);
+        defineSymbol(math, main2, rel, "\u227A", "\\prec", true);
+        defineSymbol(math, main2, rel, "\u227B", "\\succ", true);
+        defineSymbol(math, main2, rel, "\u223C", "\\sim", true);
+        defineSymbol(math, main2, rel, "\u22A5", "\\perp");
+        defineSymbol(math, main2, rel, "\u2AAF", "\\preceq", true);
+        defineSymbol(math, main2, rel, "\u2AB0", "\\succeq", true);
+        defineSymbol(math, main2, rel, "\u2243", "\\simeq", true);
+        defineSymbol(math, main2, rel, "\u2223", "\\mid", true);
+        defineSymbol(math, main2, rel, "\u226A", "\\ll", true);
+        defineSymbol(math, main2, rel, "\u226B", "\\gg", true);
+        defineSymbol(math, main2, rel, "\u224D", "\\asymp", true);
+        defineSymbol(math, main2, rel, "\u2225", "\\parallel");
+        defineSymbol(math, main2, rel, "\u22C8", "\\bowtie", true);
+        defineSymbol(math, main2, rel, "\u2323", "\\smile", true);
+        defineSymbol(math, main2, rel, "\u2291", "\\sqsubseteq", true);
+        defineSymbol(math, main2, rel, "\u2292", "\\sqsupseteq", true);
+        defineSymbol(math, main2, rel, "\u2250", "\\doteq", true);
+        defineSymbol(math, main2, rel, "\u2322", "\\frown", true);
+        defineSymbol(math, main2, rel, "\u220B", "\\ni", true);
+        defineSymbol(math, main2, rel, "\u221D", "\\propto", true);
+        defineSymbol(math, main2, rel, "\u22A2", "\\vdash", true);
+        defineSymbol(math, main2, rel, "\u22A3", "\\dashv", true);
+        defineSymbol(math, main2, rel, "\u220B", "\\owns");
+        defineSymbol(math, main2, punct, ".", "\\ldotp");
+        defineSymbol(math, main2, punct, "\u22C5", "\\cdotp");
+        defineSymbol(math, main2, textord, "#", "\\#");
+        defineSymbol(symbols_text, main2, textord, "#", "\\#");
+        defineSymbol(math, main2, textord, "&", "\\&");
+        defineSymbol(symbols_text, main2, textord, "&", "\\&");
+        defineSymbol(math, main2, textord, "\u2135", "\\aleph", true);
+        defineSymbol(math, main2, textord, "\u2200", "\\forall", true);
+        defineSymbol(math, main2, textord, "\u210F", "\\hbar", true);
+        defineSymbol(math, main2, textord, "\u2203", "\\exists", true);
+        defineSymbol(math, main2, textord, "\u2207", "\\nabla", true);
+        defineSymbol(math, main2, textord, "\u266D", "\\flat", true);
+        defineSymbol(math, main2, textord, "\u2113", "\\ell", true);
+        defineSymbol(math, main2, textord, "\u266E", "\\natural", true);
+        defineSymbol(math, main2, textord, "\u2663", "\\clubsuit", true);
+        defineSymbol(math, main2, textord, "\u2118", "\\wp", true);
+        defineSymbol(math, main2, textord, "\u266F", "\\sharp", true);
+        defineSymbol(math, main2, textord, "\u2662", "\\diamondsuit", true);
+        defineSymbol(math, main2, textord, "\u211C", "\\Re", true);
+        defineSymbol(math, main2, textord, "\u2661", "\\heartsuit", true);
+        defineSymbol(math, main2, textord, "\u2111", "\\Im", true);
+        defineSymbol(math, main2, textord, "\u2660", "\\spadesuit", true);
+        defineSymbol(math, main2, textord, "\xA7", "\\S", true);
+        defineSymbol(symbols_text, main2, textord, "\xA7", "\\S");
+        defineSymbol(math, main2, textord, "\xB6", "\\P", true);
+        defineSymbol(symbols_text, main2, textord, "\xB6", "\\P");
+        defineSymbol(math, main2, textord, "\u2020", "\\dag");
+        defineSymbol(symbols_text, main2, textord, "\u2020", "\\dag");
+        defineSymbol(symbols_text, main2, textord, "\u2020", "\\textdagger");
+        defineSymbol(math, main2, textord, "\u2021", "\\ddag");
+        defineSymbol(symbols_text, main2, textord, "\u2021", "\\ddag");
+        defineSymbol(symbols_text, main2, textord, "\u2021", "\\textdaggerdbl");
+        defineSymbol(math, main2, symbols_close, "\u23B1", "\\rmoustache", true);
+        defineSymbol(math, main2, symbols_open, "\u23B0", "\\lmoustache", true);
+        defineSymbol(math, main2, symbols_close, "\u27EF", "\\rgroup", true);
+        defineSymbol(math, main2, symbols_open, "\u27EE", "\\lgroup", true);
+        defineSymbol(math, main2, bin, "\u2213", "\\mp", true);
+        defineSymbol(math, main2, bin, "\u2296", "\\ominus", true);
+        defineSymbol(math, main2, bin, "\u228E", "\\uplus", true);
+        defineSymbol(math, main2, bin, "\u2293", "\\sqcap", true);
+        defineSymbol(math, main2, bin, "\u2217", "\\ast");
+        defineSymbol(math, main2, bin, "\u2294", "\\sqcup", true);
+        defineSymbol(math, main2, bin, "\u25EF", "\\bigcirc", true);
+        defineSymbol(math, main2, bin, "\u2219", "\\bullet");
+        defineSymbol(math, main2, bin, "\u2021", "\\ddagger");
+        defineSymbol(math, main2, bin, "\u2240", "\\wr", true);
+        defineSymbol(math, main2, bin, "\u2A3F", "\\amalg");
+        defineSymbol(math, main2, bin, "&", "\\And");
+        defineSymbol(math, main2, rel, "\u27F5", "\\longleftarrow", true);
+        defineSymbol(math, main2, rel, "\u21D0", "\\Leftarrow", true);
+        defineSymbol(math, main2, rel, "\u27F8", "\\Longleftarrow", true);
+        defineSymbol(math, main2, rel, "\u27F6", "\\longrightarrow", true);
+        defineSymbol(math, main2, rel, "\u21D2", "\\Rightarrow", true);
+        defineSymbol(math, main2, rel, "\u27F9", "\\Longrightarrow", true);
+        defineSymbol(math, main2, rel, "\u2194", "\\leftrightarrow", true);
+        defineSymbol(math, main2, rel, "\u27F7", "\\longleftrightarrow", true);
+        defineSymbol(math, main2, rel, "\u21D4", "\\Leftrightarrow", true);
+        defineSymbol(math, main2, rel, "\u27FA", "\\Longleftrightarrow", true);
+        defineSymbol(math, main2, rel, "\u21A6", "\\mapsto", true);
+        defineSymbol(math, main2, rel, "\u27FC", "\\longmapsto", true);
+        defineSymbol(math, main2, rel, "\u2197", "\\nearrow", true);
+        defineSymbol(math, main2, rel, "\u21A9", "\\hookleftarrow", true);
+        defineSymbol(math, main2, rel, "\u21AA", "\\hookrightarrow", true);
+        defineSymbol(math, main2, rel, "\u2198", "\\searrow", true);
+        defineSymbol(math, main2, rel, "\u21BC", "\\leftharpoonup", true);
+        defineSymbol(math, main2, rel, "\u21C0", "\\rightharpoonup", true);
+        defineSymbol(math, main2, rel, "\u2199", "\\swarrow", true);
+        defineSymbol(math, main2, rel, "\u21BD", "\\leftharpoondown", true);
+        defineSymbol(math, main2, rel, "\u21C1", "\\rightharpoondown", true);
+        defineSymbol(math, main2, rel, "\u2196", "\\nwarrow", true);
+        defineSymbol(math, main2, rel, "\u21CC", "\\rightleftharpoons", true);
         defineSymbol(math, ams, rel, "\u226E", "\\nless", true);
         defineSymbol(math, ams, rel, "\uE010", "\\@nleqslant");
         defineSymbol(math, ams, rel, "\uE011", "\\@nleqq");
@@ -29531,7 +29531,7 @@ var require_katex = __commonJS({
         defineSymbol(math, ams, textord, "\u2222", "\\sphericalangle", true);
         defineSymbol(math, ams, textord, "\u2201", "\\complement", true);
         defineSymbol(math, ams, textord, "\xF0", "\\eth", true);
-        defineSymbol(symbols_text, main, textord, "\xF0", "\xF0");
+        defineSymbol(symbols_text, main2, textord, "\xF0", "\xF0");
         defineSymbol(math, ams, textord, "\u2571", "\\diagup");
         defineSymbol(math, ams, textord, "\u2572", "\\diagdown");
         defineSymbol(math, ams, textord, "\u25A1", "\\square");
@@ -29621,7 +29621,7 @@ var require_katex = __commonJS({
         defineSymbol(math, ams, bin, "\u22B2", "\\lhd");
         defineSymbol(math, ams, bin, "\u22B3", "\\rhd");
         defineSymbol(math, ams, rel, "\u2242", "\\eqsim", true);
-        defineSymbol(math, main, rel, "\u22C8", "\\Join");
+        defineSymbol(math, main2, rel, "\u22C8", "\\Join");
         defineSymbol(math, ams, rel, "\u2251", "\\Doteq", true);
         defineSymbol(math, ams, bin, "\u2214", "\\dotplus", true);
         defineSymbol(math, ams, bin, "\u2216", "\\smallsetminus");
@@ -29659,8 +29659,8 @@ var require_katex = __commonJS({
         defineSymbol(math, ams, rel, "\u21C8", "\\upuparrows", true);
         defineSymbol(math, ams, rel, "\u21BF", "\\upharpoonleft", true);
         defineSymbol(math, ams, rel, "\u21C3", "\\downharpoonleft", true);
-        defineSymbol(math, main, rel, "\u22B6", "\\origof", true);
-        defineSymbol(math, main, rel, "\u22B7", "\\imageof", true);
+        defineSymbol(math, main2, rel, "\u22B6", "\\origof", true);
+        defineSymbol(math, main2, rel, "\u22B7", "\\imageof", true);
         defineSymbol(math, ams, rel, "\u22B8", "\\multimap", true);
         defineSymbol(math, ams, rel, "\u21AD", "\\leftrightsquigarrow", true);
         defineSymbol(math, ams, rel, "\u21C9", "\\rightrightarrows", true);
@@ -29678,296 +29678,296 @@ var require_katex = __commonJS({
         defineSymbol(math, ams, rel, "\u21DD", "\\leadsto");
         defineSymbol(math, ams, rel, "\u21DB", "\\Rrightarrow", true);
         defineSymbol(math, ams, rel, "\u21BE", "\\restriction");
-        defineSymbol(math, main, textord, "\u2018", "`");
-        defineSymbol(math, main, textord, "$", "\\$");
-        defineSymbol(symbols_text, main, textord, "$", "\\$");
-        defineSymbol(symbols_text, main, textord, "$", "\\textdollar");
-        defineSymbol(math, main, textord, "%", "\\%");
-        defineSymbol(symbols_text, main, textord, "%", "\\%");
-        defineSymbol(math, main, textord, "_", "\\_");
-        defineSymbol(symbols_text, main, textord, "_", "\\_");
-        defineSymbol(symbols_text, main, textord, "_", "\\textunderscore");
-        defineSymbol(math, main, textord, "\u2220", "\\angle", true);
-        defineSymbol(math, main, textord, "\u221E", "\\infty", true);
-        defineSymbol(math, main, textord, "\u2032", "\\prime");
-        defineSymbol(math, main, textord, "\u25B3", "\\triangle");
-        defineSymbol(math, main, textord, "\u0393", "\\Gamma", true);
-        defineSymbol(math, main, textord, "\u0394", "\\Delta", true);
-        defineSymbol(math, main, textord, "\u0398", "\\Theta", true);
-        defineSymbol(math, main, textord, "\u039B", "\\Lambda", true);
-        defineSymbol(math, main, textord, "\u039E", "\\Xi", true);
-        defineSymbol(math, main, textord, "\u03A0", "\\Pi", true);
-        defineSymbol(math, main, textord, "\u03A3", "\\Sigma", true);
-        defineSymbol(math, main, textord, "\u03A5", "\\Upsilon", true);
-        defineSymbol(math, main, textord, "\u03A6", "\\Phi", true);
-        defineSymbol(math, main, textord, "\u03A8", "\\Psi", true);
-        defineSymbol(math, main, textord, "\u03A9", "\\Omega", true);
-        defineSymbol(math, main, textord, "A", "\u0391");
-        defineSymbol(math, main, textord, "B", "\u0392");
-        defineSymbol(math, main, textord, "E", "\u0395");
-        defineSymbol(math, main, textord, "Z", "\u0396");
-        defineSymbol(math, main, textord, "H", "\u0397");
-        defineSymbol(math, main, textord, "I", "\u0399");
-        defineSymbol(math, main, textord, "K", "\u039A");
-        defineSymbol(math, main, textord, "M", "\u039C");
-        defineSymbol(math, main, textord, "N", "\u039D");
-        defineSymbol(math, main, textord, "O", "\u039F");
-        defineSymbol(math, main, textord, "P", "\u03A1");
-        defineSymbol(math, main, textord, "T", "\u03A4");
-        defineSymbol(math, main, textord, "X", "\u03A7");
-        defineSymbol(math, main, textord, "\xAC", "\\neg", true);
-        defineSymbol(math, main, textord, "\xAC", "\\lnot");
-        defineSymbol(math, main, textord, "\u22A4", "\\top");
-        defineSymbol(math, main, textord, "\u22A5", "\\bot");
-        defineSymbol(math, main, textord, "\u2205", "\\emptyset");
+        defineSymbol(math, main2, textord, "\u2018", "`");
+        defineSymbol(math, main2, textord, "$", "\\$");
+        defineSymbol(symbols_text, main2, textord, "$", "\\$");
+        defineSymbol(symbols_text, main2, textord, "$", "\\textdollar");
+        defineSymbol(math, main2, textord, "%", "\\%");
+        defineSymbol(symbols_text, main2, textord, "%", "\\%");
+        defineSymbol(math, main2, textord, "_", "\\_");
+        defineSymbol(symbols_text, main2, textord, "_", "\\_");
+        defineSymbol(symbols_text, main2, textord, "_", "\\textunderscore");
+        defineSymbol(math, main2, textord, "\u2220", "\\angle", true);
+        defineSymbol(math, main2, textord, "\u221E", "\\infty", true);
+        defineSymbol(math, main2, textord, "\u2032", "\\prime");
+        defineSymbol(math, main2, textord, "\u25B3", "\\triangle");
+        defineSymbol(math, main2, textord, "\u0393", "\\Gamma", true);
+        defineSymbol(math, main2, textord, "\u0394", "\\Delta", true);
+        defineSymbol(math, main2, textord, "\u0398", "\\Theta", true);
+        defineSymbol(math, main2, textord, "\u039B", "\\Lambda", true);
+        defineSymbol(math, main2, textord, "\u039E", "\\Xi", true);
+        defineSymbol(math, main2, textord, "\u03A0", "\\Pi", true);
+        defineSymbol(math, main2, textord, "\u03A3", "\\Sigma", true);
+        defineSymbol(math, main2, textord, "\u03A5", "\\Upsilon", true);
+        defineSymbol(math, main2, textord, "\u03A6", "\\Phi", true);
+        defineSymbol(math, main2, textord, "\u03A8", "\\Psi", true);
+        defineSymbol(math, main2, textord, "\u03A9", "\\Omega", true);
+        defineSymbol(math, main2, textord, "A", "\u0391");
+        defineSymbol(math, main2, textord, "B", "\u0392");
+        defineSymbol(math, main2, textord, "E", "\u0395");
+        defineSymbol(math, main2, textord, "Z", "\u0396");
+        defineSymbol(math, main2, textord, "H", "\u0397");
+        defineSymbol(math, main2, textord, "I", "\u0399");
+        defineSymbol(math, main2, textord, "K", "\u039A");
+        defineSymbol(math, main2, textord, "M", "\u039C");
+        defineSymbol(math, main2, textord, "N", "\u039D");
+        defineSymbol(math, main2, textord, "O", "\u039F");
+        defineSymbol(math, main2, textord, "P", "\u03A1");
+        defineSymbol(math, main2, textord, "T", "\u03A4");
+        defineSymbol(math, main2, textord, "X", "\u03A7");
+        defineSymbol(math, main2, textord, "\xAC", "\\neg", true);
+        defineSymbol(math, main2, textord, "\xAC", "\\lnot");
+        defineSymbol(math, main2, textord, "\u22A4", "\\top");
+        defineSymbol(math, main2, textord, "\u22A5", "\\bot");
+        defineSymbol(math, main2, textord, "\u2205", "\\emptyset");
         defineSymbol(math, ams, textord, "\u2205", "\\varnothing");
-        defineSymbol(math, main, mathord, "\u03B1", "\\alpha", true);
-        defineSymbol(math, main, mathord, "\u03B2", "\\beta", true);
-        defineSymbol(math, main, mathord, "\u03B3", "\\gamma", true);
-        defineSymbol(math, main, mathord, "\u03B4", "\\delta", true);
-        defineSymbol(math, main, mathord, "\u03F5", "\\epsilon", true);
-        defineSymbol(math, main, mathord, "\u03B6", "\\zeta", true);
-        defineSymbol(math, main, mathord, "\u03B7", "\\eta", true);
-        defineSymbol(math, main, mathord, "\u03B8", "\\theta", true);
-        defineSymbol(math, main, mathord, "\u03B9", "\\iota", true);
-        defineSymbol(math, main, mathord, "\u03BA", "\\kappa", true);
-        defineSymbol(math, main, mathord, "\u03BB", "\\lambda", true);
-        defineSymbol(math, main, mathord, "\u03BC", "\\mu", true);
-        defineSymbol(math, main, mathord, "\u03BD", "\\nu", true);
-        defineSymbol(math, main, mathord, "\u03BE", "\\xi", true);
-        defineSymbol(math, main, mathord, "\u03BF", "\\omicron", true);
-        defineSymbol(math, main, mathord, "\u03C0", "\\pi", true);
-        defineSymbol(math, main, mathord, "\u03C1", "\\rho", true);
-        defineSymbol(math, main, mathord, "\u03C3", "\\sigma", true);
-        defineSymbol(math, main, mathord, "\u03C4", "\\tau", true);
-        defineSymbol(math, main, mathord, "\u03C5", "\\upsilon", true);
-        defineSymbol(math, main, mathord, "\u03D5", "\\phi", true);
-        defineSymbol(math, main, mathord, "\u03C7", "\\chi", true);
-        defineSymbol(math, main, mathord, "\u03C8", "\\psi", true);
-        defineSymbol(math, main, mathord, "\u03C9", "\\omega", true);
-        defineSymbol(math, main, mathord, "\u03B5", "\\varepsilon", true);
-        defineSymbol(math, main, mathord, "\u03D1", "\\vartheta", true);
-        defineSymbol(math, main, mathord, "\u03D6", "\\varpi", true);
-        defineSymbol(math, main, mathord, "\u03F1", "\\varrho", true);
-        defineSymbol(math, main, mathord, "\u03C2", "\\varsigma", true);
-        defineSymbol(math, main, mathord, "\u03C6", "\\varphi", true);
-        defineSymbol(math, main, bin, "\u2217", "*");
-        defineSymbol(math, main, bin, "+", "+");
-        defineSymbol(math, main, bin, "\u2212", "-");
-        defineSymbol(math, main, bin, "\u22C5", "\\cdot", true);
-        defineSymbol(math, main, bin, "\u2218", "\\circ");
-        defineSymbol(math, main, bin, "\xF7", "\\div", true);
-        defineSymbol(math, main, bin, "\xB1", "\\pm", true);
-        defineSymbol(math, main, bin, "\xD7", "\\times", true);
-        defineSymbol(math, main, bin, "\u2229", "\\cap", true);
-        defineSymbol(math, main, bin, "\u222A", "\\cup", true);
-        defineSymbol(math, main, bin, "\u2216", "\\setminus");
-        defineSymbol(math, main, bin, "\u2227", "\\land");
-        defineSymbol(math, main, bin, "\u2228", "\\lor");
-        defineSymbol(math, main, bin, "\u2227", "\\wedge", true);
-        defineSymbol(math, main, bin, "\u2228", "\\vee", true);
-        defineSymbol(math, main, textord, "\u221A", "\\surd");
-        defineSymbol(math, main, symbols_open, "\u27E8", "\\langle", true);
-        defineSymbol(math, main, symbols_open, "\u2223", "\\lvert");
-        defineSymbol(math, main, symbols_open, "\u2225", "\\lVert");
-        defineSymbol(math, main, symbols_close, "?", "?");
-        defineSymbol(math, main, symbols_close, "!", "!");
-        defineSymbol(math, main, symbols_close, "\u27E9", "\\rangle", true);
-        defineSymbol(math, main, symbols_close, "\u2223", "\\rvert");
-        defineSymbol(math, main, symbols_close, "\u2225", "\\rVert");
-        defineSymbol(math, main, rel, "=", "=");
-        defineSymbol(math, main, rel, ":", ":");
-        defineSymbol(math, main, rel, "\u2248", "\\approx", true);
-        defineSymbol(math, main, rel, "\u2245", "\\cong", true);
-        defineSymbol(math, main, rel, "\u2265", "\\ge");
-        defineSymbol(math, main, rel, "\u2265", "\\geq", true);
-        defineSymbol(math, main, rel, "\u2190", "\\gets");
-        defineSymbol(math, main, rel, ">", "\\gt", true);
-        defineSymbol(math, main, rel, "\u2208", "\\in", true);
-        defineSymbol(math, main, rel, "\uE020", "\\@not");
-        defineSymbol(math, main, rel, "\u2282", "\\subset", true);
-        defineSymbol(math, main, rel, "\u2283", "\\supset", true);
-        defineSymbol(math, main, rel, "\u2286", "\\subseteq", true);
-        defineSymbol(math, main, rel, "\u2287", "\\supseteq", true);
+        defineSymbol(math, main2, mathord, "\u03B1", "\\alpha", true);
+        defineSymbol(math, main2, mathord, "\u03B2", "\\beta", true);
+        defineSymbol(math, main2, mathord, "\u03B3", "\\gamma", true);
+        defineSymbol(math, main2, mathord, "\u03B4", "\\delta", true);
+        defineSymbol(math, main2, mathord, "\u03F5", "\\epsilon", true);
+        defineSymbol(math, main2, mathord, "\u03B6", "\\zeta", true);
+        defineSymbol(math, main2, mathord, "\u03B7", "\\eta", true);
+        defineSymbol(math, main2, mathord, "\u03B8", "\\theta", true);
+        defineSymbol(math, main2, mathord, "\u03B9", "\\iota", true);
+        defineSymbol(math, main2, mathord, "\u03BA", "\\kappa", true);
+        defineSymbol(math, main2, mathord, "\u03BB", "\\lambda", true);
+        defineSymbol(math, main2, mathord, "\u03BC", "\\mu", true);
+        defineSymbol(math, main2, mathord, "\u03BD", "\\nu", true);
+        defineSymbol(math, main2, mathord, "\u03BE", "\\xi", true);
+        defineSymbol(math, main2, mathord, "\u03BF", "\\omicron", true);
+        defineSymbol(math, main2, mathord, "\u03C0", "\\pi", true);
+        defineSymbol(math, main2, mathord, "\u03C1", "\\rho", true);
+        defineSymbol(math, main2, mathord, "\u03C3", "\\sigma", true);
+        defineSymbol(math, main2, mathord, "\u03C4", "\\tau", true);
+        defineSymbol(math, main2, mathord, "\u03C5", "\\upsilon", true);
+        defineSymbol(math, main2, mathord, "\u03D5", "\\phi", true);
+        defineSymbol(math, main2, mathord, "\u03C7", "\\chi", true);
+        defineSymbol(math, main2, mathord, "\u03C8", "\\psi", true);
+        defineSymbol(math, main2, mathord, "\u03C9", "\\omega", true);
+        defineSymbol(math, main2, mathord, "\u03B5", "\\varepsilon", true);
+        defineSymbol(math, main2, mathord, "\u03D1", "\\vartheta", true);
+        defineSymbol(math, main2, mathord, "\u03D6", "\\varpi", true);
+        defineSymbol(math, main2, mathord, "\u03F1", "\\varrho", true);
+        defineSymbol(math, main2, mathord, "\u03C2", "\\varsigma", true);
+        defineSymbol(math, main2, mathord, "\u03C6", "\\varphi", true);
+        defineSymbol(math, main2, bin, "\u2217", "*");
+        defineSymbol(math, main2, bin, "+", "+");
+        defineSymbol(math, main2, bin, "\u2212", "-");
+        defineSymbol(math, main2, bin, "\u22C5", "\\cdot", true);
+        defineSymbol(math, main2, bin, "\u2218", "\\circ");
+        defineSymbol(math, main2, bin, "\xF7", "\\div", true);
+        defineSymbol(math, main2, bin, "\xB1", "\\pm", true);
+        defineSymbol(math, main2, bin, "\xD7", "\\times", true);
+        defineSymbol(math, main2, bin, "\u2229", "\\cap", true);
+        defineSymbol(math, main2, bin, "\u222A", "\\cup", true);
+        defineSymbol(math, main2, bin, "\u2216", "\\setminus");
+        defineSymbol(math, main2, bin, "\u2227", "\\land");
+        defineSymbol(math, main2, bin, "\u2228", "\\lor");
+        defineSymbol(math, main2, bin, "\u2227", "\\wedge", true);
+        defineSymbol(math, main2, bin, "\u2228", "\\vee", true);
+        defineSymbol(math, main2, textord, "\u221A", "\\surd");
+        defineSymbol(math, main2, symbols_open, "\u27E8", "\\langle", true);
+        defineSymbol(math, main2, symbols_open, "\u2223", "\\lvert");
+        defineSymbol(math, main2, symbols_open, "\u2225", "\\lVert");
+        defineSymbol(math, main2, symbols_close, "?", "?");
+        defineSymbol(math, main2, symbols_close, "!", "!");
+        defineSymbol(math, main2, symbols_close, "\u27E9", "\\rangle", true);
+        defineSymbol(math, main2, symbols_close, "\u2223", "\\rvert");
+        defineSymbol(math, main2, symbols_close, "\u2225", "\\rVert");
+        defineSymbol(math, main2, rel, "=", "=");
+        defineSymbol(math, main2, rel, ":", ":");
+        defineSymbol(math, main2, rel, "\u2248", "\\approx", true);
+        defineSymbol(math, main2, rel, "\u2245", "\\cong", true);
+        defineSymbol(math, main2, rel, "\u2265", "\\ge");
+        defineSymbol(math, main2, rel, "\u2265", "\\geq", true);
+        defineSymbol(math, main2, rel, "\u2190", "\\gets");
+        defineSymbol(math, main2, rel, ">", "\\gt", true);
+        defineSymbol(math, main2, rel, "\u2208", "\\in", true);
+        defineSymbol(math, main2, rel, "\uE020", "\\@not");
+        defineSymbol(math, main2, rel, "\u2282", "\\subset", true);
+        defineSymbol(math, main2, rel, "\u2283", "\\supset", true);
+        defineSymbol(math, main2, rel, "\u2286", "\\subseteq", true);
+        defineSymbol(math, main2, rel, "\u2287", "\\supseteq", true);
         defineSymbol(math, ams, rel, "\u2288", "\\nsubseteq", true);
         defineSymbol(math, ams, rel, "\u2289", "\\nsupseteq", true);
-        defineSymbol(math, main, rel, "\u22A8", "\\models");
-        defineSymbol(math, main, rel, "\u2190", "\\leftarrow", true);
-        defineSymbol(math, main, rel, "\u2264", "\\le");
-        defineSymbol(math, main, rel, "\u2264", "\\leq", true);
-        defineSymbol(math, main, rel, "<", "\\lt", true);
-        defineSymbol(math, main, rel, "\u2192", "\\rightarrow", true);
-        defineSymbol(math, main, rel, "\u2192", "\\to");
+        defineSymbol(math, main2, rel, "\u22A8", "\\models");
+        defineSymbol(math, main2, rel, "\u2190", "\\leftarrow", true);
+        defineSymbol(math, main2, rel, "\u2264", "\\le");
+        defineSymbol(math, main2, rel, "\u2264", "\\leq", true);
+        defineSymbol(math, main2, rel, "<", "\\lt", true);
+        defineSymbol(math, main2, rel, "\u2192", "\\rightarrow", true);
+        defineSymbol(math, main2, rel, "\u2192", "\\to");
         defineSymbol(math, ams, rel, "\u2271", "\\ngeq", true);
         defineSymbol(math, ams, rel, "\u2270", "\\nleq", true);
-        defineSymbol(math, main, spacing, "\xA0", "\\ ");
-        defineSymbol(math, main, spacing, "\xA0", "\\space");
-        defineSymbol(math, main, spacing, "\xA0", "\\nobreakspace");
-        defineSymbol(symbols_text, main, spacing, "\xA0", "\\ ");
-        defineSymbol(symbols_text, main, spacing, "\xA0", " ");
-        defineSymbol(symbols_text, main, spacing, "\xA0", "\\space");
-        defineSymbol(symbols_text, main, spacing, "\xA0", "\\nobreakspace");
-        defineSymbol(math, main, spacing, null, "\\nobreak");
-        defineSymbol(math, main, spacing, null, "\\allowbreak");
-        defineSymbol(math, main, punct, ",", ",");
-        defineSymbol(math, main, punct, ";", ";");
+        defineSymbol(math, main2, spacing, "\xA0", "\\ ");
+        defineSymbol(math, main2, spacing, "\xA0", "\\space");
+        defineSymbol(math, main2, spacing, "\xA0", "\\nobreakspace");
+        defineSymbol(symbols_text, main2, spacing, "\xA0", "\\ ");
+        defineSymbol(symbols_text, main2, spacing, "\xA0", " ");
+        defineSymbol(symbols_text, main2, spacing, "\xA0", "\\space");
+        defineSymbol(symbols_text, main2, spacing, "\xA0", "\\nobreakspace");
+        defineSymbol(math, main2, spacing, null, "\\nobreak");
+        defineSymbol(math, main2, spacing, null, "\\allowbreak");
+        defineSymbol(math, main2, punct, ",", ",");
+        defineSymbol(math, main2, punct, ";", ";");
         defineSymbol(math, ams, bin, "\u22BC", "\\barwedge", true);
         defineSymbol(math, ams, bin, "\u22BB", "\\veebar", true);
-        defineSymbol(math, main, bin, "\u2299", "\\odot", true);
-        defineSymbol(math, main, bin, "\u2295", "\\oplus", true);
-        defineSymbol(math, main, bin, "\u2297", "\\otimes", true);
-        defineSymbol(math, main, textord, "\u2202", "\\partial", true);
-        defineSymbol(math, main, bin, "\u2298", "\\oslash", true);
+        defineSymbol(math, main2, bin, "\u2299", "\\odot", true);
+        defineSymbol(math, main2, bin, "\u2295", "\\oplus", true);
+        defineSymbol(math, main2, bin, "\u2297", "\\otimes", true);
+        defineSymbol(math, main2, textord, "\u2202", "\\partial", true);
+        defineSymbol(math, main2, bin, "\u2298", "\\oslash", true);
         defineSymbol(math, ams, bin, "\u229A", "\\circledcirc", true);
         defineSymbol(math, ams, bin, "\u22A1", "\\boxdot", true);
-        defineSymbol(math, main, bin, "\u25B3", "\\bigtriangleup");
-        defineSymbol(math, main, bin, "\u25BD", "\\bigtriangledown");
-        defineSymbol(math, main, bin, "\u2020", "\\dagger");
-        defineSymbol(math, main, bin, "\u22C4", "\\diamond");
-        defineSymbol(math, main, bin, "\u22C6", "\\star");
-        defineSymbol(math, main, bin, "\u25C3", "\\triangleleft");
-        defineSymbol(math, main, bin, "\u25B9", "\\triangleright");
-        defineSymbol(math, main, symbols_open, "{", "\\{");
-        defineSymbol(symbols_text, main, textord, "{", "\\{");
-        defineSymbol(symbols_text, main, textord, "{", "\\textbraceleft");
-        defineSymbol(math, main, symbols_close, "}", "\\}");
-        defineSymbol(symbols_text, main, textord, "}", "\\}");
-        defineSymbol(symbols_text, main, textord, "}", "\\textbraceright");
-        defineSymbol(math, main, symbols_open, "{", "\\lbrace");
-        defineSymbol(math, main, symbols_close, "}", "\\rbrace");
-        defineSymbol(math, main, symbols_open, "[", "\\lbrack", true);
-        defineSymbol(symbols_text, main, textord, "[", "\\lbrack", true);
-        defineSymbol(math, main, symbols_close, "]", "\\rbrack", true);
-        defineSymbol(symbols_text, main, textord, "]", "\\rbrack", true);
-        defineSymbol(math, main, symbols_open, "(", "\\lparen", true);
-        defineSymbol(math, main, symbols_close, ")", "\\rparen", true);
-        defineSymbol(symbols_text, main, textord, "<", "\\textless", true);
-        defineSymbol(symbols_text, main, textord, ">", "\\textgreater", true);
-        defineSymbol(math, main, symbols_open, "\u230A", "\\lfloor", true);
-        defineSymbol(math, main, symbols_close, "\u230B", "\\rfloor", true);
-        defineSymbol(math, main, symbols_open, "\u2308", "\\lceil", true);
-        defineSymbol(math, main, symbols_close, "\u2309", "\\rceil", true);
-        defineSymbol(math, main, textord, "\\", "\\backslash");
-        defineSymbol(math, main, textord, "\u2223", "|");
-        defineSymbol(math, main, textord, "\u2223", "\\vert");
-        defineSymbol(symbols_text, main, textord, "|", "\\textbar", true);
-        defineSymbol(math, main, textord, "\u2225", "\\|");
-        defineSymbol(math, main, textord, "\u2225", "\\Vert");
-        defineSymbol(symbols_text, main, textord, "\u2225", "\\textbardbl");
-        defineSymbol(symbols_text, main, textord, "~", "\\textasciitilde");
-        defineSymbol(symbols_text, main, textord, "\\", "\\textbackslash");
-        defineSymbol(symbols_text, main, textord, "^", "\\textasciicircum");
-        defineSymbol(math, main, rel, "\u2191", "\\uparrow", true);
-        defineSymbol(math, main, rel, "\u21D1", "\\Uparrow", true);
-        defineSymbol(math, main, rel, "\u2193", "\\downarrow", true);
-        defineSymbol(math, main, rel, "\u21D3", "\\Downarrow", true);
-        defineSymbol(math, main, rel, "\u2195", "\\updownarrow", true);
-        defineSymbol(math, main, rel, "\u21D5", "\\Updownarrow", true);
-        defineSymbol(math, main, op, "\u2210", "\\coprod");
-        defineSymbol(math, main, op, "\u22C1", "\\bigvee");
-        defineSymbol(math, main, op, "\u22C0", "\\bigwedge");
-        defineSymbol(math, main, op, "\u2A04", "\\biguplus");
-        defineSymbol(math, main, op, "\u22C2", "\\bigcap");
-        defineSymbol(math, main, op, "\u22C3", "\\bigcup");
-        defineSymbol(math, main, op, "\u222B", "\\int");
-        defineSymbol(math, main, op, "\u222B", "\\intop");
-        defineSymbol(math, main, op, "\u222C", "\\iint");
-        defineSymbol(math, main, op, "\u222D", "\\iiint");
-        defineSymbol(math, main, op, "\u220F", "\\prod");
-        defineSymbol(math, main, op, "\u2211", "\\sum");
-        defineSymbol(math, main, op, "\u2A02", "\\bigotimes");
-        defineSymbol(math, main, op, "\u2A01", "\\bigoplus");
-        defineSymbol(math, main, op, "\u2A00", "\\bigodot");
-        defineSymbol(math, main, op, "\u222E", "\\oint");
-        defineSymbol(math, main, op, "\u222F", "\\oiint");
-        defineSymbol(math, main, op, "\u2230", "\\oiiint");
-        defineSymbol(math, main, op, "\u2A06", "\\bigsqcup");
-        defineSymbol(math, main, op, "\u222B", "\\smallint");
-        defineSymbol(symbols_text, main, inner, "\u2026", "\\textellipsis");
-        defineSymbol(math, main, inner, "\u2026", "\\mathellipsis");
-        defineSymbol(symbols_text, main, inner, "\u2026", "\\ldots", true);
-        defineSymbol(math, main, inner, "\u2026", "\\ldots", true);
-        defineSymbol(math, main, inner, "\u22EF", "\\@cdots", true);
-        defineSymbol(math, main, inner, "\u22F1", "\\ddots", true);
-        defineSymbol(math, main, textord, "\u22EE", "\\varvdots");
-        defineSymbol(math, main, accent, "\u02CA", "\\acute");
-        defineSymbol(math, main, accent, "\u02CB", "\\grave");
-        defineSymbol(math, main, accent, "\xA8", "\\ddot");
-        defineSymbol(math, main, accent, "~", "\\tilde");
-        defineSymbol(math, main, accent, "\u02C9", "\\bar");
-        defineSymbol(math, main, accent, "\u02D8", "\\breve");
-        defineSymbol(math, main, accent, "\u02C7", "\\check");
-        defineSymbol(math, main, accent, "^", "\\hat");
-        defineSymbol(math, main, accent, "\u20D7", "\\vec");
-        defineSymbol(math, main, accent, "\u02D9", "\\dot");
-        defineSymbol(math, main, accent, "\u02DA", "\\mathring");
-        defineSymbol(math, main, mathord, "\uE131", "\\@imath");
-        defineSymbol(math, main, mathord, "\uE237", "\\@jmath");
-        defineSymbol(math, main, textord, "\u0131", "\u0131");
-        defineSymbol(math, main, textord, "\u0237", "\u0237");
-        defineSymbol(symbols_text, main, textord, "\u0131", "\\i", true);
-        defineSymbol(symbols_text, main, textord, "\u0237", "\\j", true);
-        defineSymbol(symbols_text, main, textord, "\xDF", "\\ss", true);
-        defineSymbol(symbols_text, main, textord, "\xE6", "\\ae", true);
-        defineSymbol(symbols_text, main, textord, "\u0153", "\\oe", true);
-        defineSymbol(symbols_text, main, textord, "\xF8", "\\o", true);
-        defineSymbol(symbols_text, main, textord, "\xC6", "\\AE", true);
-        defineSymbol(symbols_text, main, textord, "\u0152", "\\OE", true);
-        defineSymbol(symbols_text, main, textord, "\xD8", "\\O", true);
-        defineSymbol(symbols_text, main, accent, "\u02CA", "\\'");
-        defineSymbol(symbols_text, main, accent, "\u02CB", "\\`");
-        defineSymbol(symbols_text, main, accent, "\u02C6", "\\^");
-        defineSymbol(symbols_text, main, accent, "\u02DC", "\\~");
-        defineSymbol(symbols_text, main, accent, "\u02C9", "\\=");
-        defineSymbol(symbols_text, main, accent, "\u02D8", "\\u");
-        defineSymbol(symbols_text, main, accent, "\u02D9", "\\.");
-        defineSymbol(symbols_text, main, accent, "\u02DA", "\\r");
-        defineSymbol(symbols_text, main, accent, "\u02C7", "\\v");
-        defineSymbol(symbols_text, main, accent, "\xA8", '\\"');
-        defineSymbol(symbols_text, main, accent, "\u02DD", "\\H");
-        defineSymbol(symbols_text, main, accent, "\u25EF", "\\textcircled");
+        defineSymbol(math, main2, bin, "\u25B3", "\\bigtriangleup");
+        defineSymbol(math, main2, bin, "\u25BD", "\\bigtriangledown");
+        defineSymbol(math, main2, bin, "\u2020", "\\dagger");
+        defineSymbol(math, main2, bin, "\u22C4", "\\diamond");
+        defineSymbol(math, main2, bin, "\u22C6", "\\star");
+        defineSymbol(math, main2, bin, "\u25C3", "\\triangleleft");
+        defineSymbol(math, main2, bin, "\u25B9", "\\triangleright");
+        defineSymbol(math, main2, symbols_open, "{", "\\{");
+        defineSymbol(symbols_text, main2, textord, "{", "\\{");
+        defineSymbol(symbols_text, main2, textord, "{", "\\textbraceleft");
+        defineSymbol(math, main2, symbols_close, "}", "\\}");
+        defineSymbol(symbols_text, main2, textord, "}", "\\}");
+        defineSymbol(symbols_text, main2, textord, "}", "\\textbraceright");
+        defineSymbol(math, main2, symbols_open, "{", "\\lbrace");
+        defineSymbol(math, main2, symbols_close, "}", "\\rbrace");
+        defineSymbol(math, main2, symbols_open, "[", "\\lbrack", true);
+        defineSymbol(symbols_text, main2, textord, "[", "\\lbrack", true);
+        defineSymbol(math, main2, symbols_close, "]", "\\rbrack", true);
+        defineSymbol(symbols_text, main2, textord, "]", "\\rbrack", true);
+        defineSymbol(math, main2, symbols_open, "(", "\\lparen", true);
+        defineSymbol(math, main2, symbols_close, ")", "\\rparen", true);
+        defineSymbol(symbols_text, main2, textord, "<", "\\textless", true);
+        defineSymbol(symbols_text, main2, textord, ">", "\\textgreater", true);
+        defineSymbol(math, main2, symbols_open, "\u230A", "\\lfloor", true);
+        defineSymbol(math, main2, symbols_close, "\u230B", "\\rfloor", true);
+        defineSymbol(math, main2, symbols_open, "\u2308", "\\lceil", true);
+        defineSymbol(math, main2, symbols_close, "\u2309", "\\rceil", true);
+        defineSymbol(math, main2, textord, "\\", "\\backslash");
+        defineSymbol(math, main2, textord, "\u2223", "|");
+        defineSymbol(math, main2, textord, "\u2223", "\\vert");
+        defineSymbol(symbols_text, main2, textord, "|", "\\textbar", true);
+        defineSymbol(math, main2, textord, "\u2225", "\\|");
+        defineSymbol(math, main2, textord, "\u2225", "\\Vert");
+        defineSymbol(symbols_text, main2, textord, "\u2225", "\\textbardbl");
+        defineSymbol(symbols_text, main2, textord, "~", "\\textasciitilde");
+        defineSymbol(symbols_text, main2, textord, "\\", "\\textbackslash");
+        defineSymbol(symbols_text, main2, textord, "^", "\\textasciicircum");
+        defineSymbol(math, main2, rel, "\u2191", "\\uparrow", true);
+        defineSymbol(math, main2, rel, "\u21D1", "\\Uparrow", true);
+        defineSymbol(math, main2, rel, "\u2193", "\\downarrow", true);
+        defineSymbol(math, main2, rel, "\u21D3", "\\Downarrow", true);
+        defineSymbol(math, main2, rel, "\u2195", "\\updownarrow", true);
+        defineSymbol(math, main2, rel, "\u21D5", "\\Updownarrow", true);
+        defineSymbol(math, main2, op, "\u2210", "\\coprod");
+        defineSymbol(math, main2, op, "\u22C1", "\\bigvee");
+        defineSymbol(math, main2, op, "\u22C0", "\\bigwedge");
+        defineSymbol(math, main2, op, "\u2A04", "\\biguplus");
+        defineSymbol(math, main2, op, "\u22C2", "\\bigcap");
+        defineSymbol(math, main2, op, "\u22C3", "\\bigcup");
+        defineSymbol(math, main2, op, "\u222B", "\\int");
+        defineSymbol(math, main2, op, "\u222B", "\\intop");
+        defineSymbol(math, main2, op, "\u222C", "\\iint");
+        defineSymbol(math, main2, op, "\u222D", "\\iiint");
+        defineSymbol(math, main2, op, "\u220F", "\\prod");
+        defineSymbol(math, main2, op, "\u2211", "\\sum");
+        defineSymbol(math, main2, op, "\u2A02", "\\bigotimes");
+        defineSymbol(math, main2, op, "\u2A01", "\\bigoplus");
+        defineSymbol(math, main2, op, "\u2A00", "\\bigodot");
+        defineSymbol(math, main2, op, "\u222E", "\\oint");
+        defineSymbol(math, main2, op, "\u222F", "\\oiint");
+        defineSymbol(math, main2, op, "\u2230", "\\oiiint");
+        defineSymbol(math, main2, op, "\u2A06", "\\bigsqcup");
+        defineSymbol(math, main2, op, "\u222B", "\\smallint");
+        defineSymbol(symbols_text, main2, inner, "\u2026", "\\textellipsis");
+        defineSymbol(math, main2, inner, "\u2026", "\\mathellipsis");
+        defineSymbol(symbols_text, main2, inner, "\u2026", "\\ldots", true);
+        defineSymbol(math, main2, inner, "\u2026", "\\ldots", true);
+        defineSymbol(math, main2, inner, "\u22EF", "\\@cdots", true);
+        defineSymbol(math, main2, inner, "\u22F1", "\\ddots", true);
+        defineSymbol(math, main2, textord, "\u22EE", "\\varvdots");
+        defineSymbol(math, main2, accent, "\u02CA", "\\acute");
+        defineSymbol(math, main2, accent, "\u02CB", "\\grave");
+        defineSymbol(math, main2, accent, "\xA8", "\\ddot");
+        defineSymbol(math, main2, accent, "~", "\\tilde");
+        defineSymbol(math, main2, accent, "\u02C9", "\\bar");
+        defineSymbol(math, main2, accent, "\u02D8", "\\breve");
+        defineSymbol(math, main2, accent, "\u02C7", "\\check");
+        defineSymbol(math, main2, accent, "^", "\\hat");
+        defineSymbol(math, main2, accent, "\u20D7", "\\vec");
+        defineSymbol(math, main2, accent, "\u02D9", "\\dot");
+        defineSymbol(math, main2, accent, "\u02DA", "\\mathring");
+        defineSymbol(math, main2, mathord, "\uE131", "\\@imath");
+        defineSymbol(math, main2, mathord, "\uE237", "\\@jmath");
+        defineSymbol(math, main2, textord, "\u0131", "\u0131");
+        defineSymbol(math, main2, textord, "\u0237", "\u0237");
+        defineSymbol(symbols_text, main2, textord, "\u0131", "\\i", true);
+        defineSymbol(symbols_text, main2, textord, "\u0237", "\\j", true);
+        defineSymbol(symbols_text, main2, textord, "\xDF", "\\ss", true);
+        defineSymbol(symbols_text, main2, textord, "\xE6", "\\ae", true);
+        defineSymbol(symbols_text, main2, textord, "\u0153", "\\oe", true);
+        defineSymbol(symbols_text, main2, textord, "\xF8", "\\o", true);
+        defineSymbol(symbols_text, main2, textord, "\xC6", "\\AE", true);
+        defineSymbol(symbols_text, main2, textord, "\u0152", "\\OE", true);
+        defineSymbol(symbols_text, main2, textord, "\xD8", "\\O", true);
+        defineSymbol(symbols_text, main2, accent, "\u02CA", "\\'");
+        defineSymbol(symbols_text, main2, accent, "\u02CB", "\\`");
+        defineSymbol(symbols_text, main2, accent, "\u02C6", "\\^");
+        defineSymbol(symbols_text, main2, accent, "\u02DC", "\\~");
+        defineSymbol(symbols_text, main2, accent, "\u02C9", "\\=");
+        defineSymbol(symbols_text, main2, accent, "\u02D8", "\\u");
+        defineSymbol(symbols_text, main2, accent, "\u02D9", "\\.");
+        defineSymbol(symbols_text, main2, accent, "\u02DA", "\\r");
+        defineSymbol(symbols_text, main2, accent, "\u02C7", "\\v");
+        defineSymbol(symbols_text, main2, accent, "\xA8", '\\"');
+        defineSymbol(symbols_text, main2, accent, "\u02DD", "\\H");
+        defineSymbol(symbols_text, main2, accent, "\u25EF", "\\textcircled");
         var ligatures = {
           "--": true,
           "---": true,
           "``": true,
           "''": true
         };
-        defineSymbol(symbols_text, main, textord, "\u2013", "--", true);
-        defineSymbol(symbols_text, main, textord, "\u2013", "\\textendash");
-        defineSymbol(symbols_text, main, textord, "\u2014", "---", true);
-        defineSymbol(symbols_text, main, textord, "\u2014", "\\textemdash");
-        defineSymbol(symbols_text, main, textord, "\u2018", "`", true);
-        defineSymbol(symbols_text, main, textord, "\u2018", "\\textquoteleft");
-        defineSymbol(symbols_text, main, textord, "\u2019", "'", true);
-        defineSymbol(symbols_text, main, textord, "\u2019", "\\textquoteright");
-        defineSymbol(symbols_text, main, textord, "\u201C", "``", true);
-        defineSymbol(symbols_text, main, textord, "\u201C", "\\textquotedblleft");
-        defineSymbol(symbols_text, main, textord, "\u201D", "''", true);
-        defineSymbol(symbols_text, main, textord, "\u201D", "\\textquotedblright");
-        defineSymbol(math, main, textord, "\xB0", "\\degree", true);
-        defineSymbol(symbols_text, main, textord, "\xB0", "\\degree");
-        defineSymbol(symbols_text, main, textord, "\xB0", "\\textdegree", true);
-        defineSymbol(math, main, textord, "\xA3", "\\pounds");
-        defineSymbol(math, main, textord, "\xA3", "\\mathsterling", true);
-        defineSymbol(symbols_text, main, textord, "\xA3", "\\pounds");
-        defineSymbol(symbols_text, main, textord, "\xA3", "\\textsterling", true);
+        defineSymbol(symbols_text, main2, textord, "\u2013", "--", true);
+        defineSymbol(symbols_text, main2, textord, "\u2013", "\\textendash");
+        defineSymbol(symbols_text, main2, textord, "\u2014", "---", true);
+        defineSymbol(symbols_text, main2, textord, "\u2014", "\\textemdash");
+        defineSymbol(symbols_text, main2, textord, "\u2018", "`", true);
+        defineSymbol(symbols_text, main2, textord, "\u2018", "\\textquoteleft");
+        defineSymbol(symbols_text, main2, textord, "\u2019", "'", true);
+        defineSymbol(symbols_text, main2, textord, "\u2019", "\\textquoteright");
+        defineSymbol(symbols_text, main2, textord, "\u201C", "``", true);
+        defineSymbol(symbols_text, main2, textord, "\u201C", "\\textquotedblleft");
+        defineSymbol(symbols_text, main2, textord, "\u201D", "''", true);
+        defineSymbol(symbols_text, main2, textord, "\u201D", "\\textquotedblright");
+        defineSymbol(math, main2, textord, "\xB0", "\\degree", true);
+        defineSymbol(symbols_text, main2, textord, "\xB0", "\\degree");
+        defineSymbol(symbols_text, main2, textord, "\xB0", "\\textdegree", true);
+        defineSymbol(math, main2, textord, "\xA3", "\\pounds");
+        defineSymbol(math, main2, textord, "\xA3", "\\mathsterling", true);
+        defineSymbol(symbols_text, main2, textord, "\xA3", "\\pounds");
+        defineSymbol(symbols_text, main2, textord, "\xA3", "\\textsterling", true);
         defineSymbol(math, ams, textord, "\u2720", "\\maltese");
         defineSymbol(symbols_text, ams, textord, "\u2720", "\\maltese");
         var mathTextSymbols = '0123456789/@."';
         for (var i = 0; i < mathTextSymbols.length; i++) {
           var ch = mathTextSymbols.charAt(i);
-          defineSymbol(math, main, textord, ch, ch);
+          defineSymbol(math, main2, textord, ch, ch);
         }
         var textSymbols = '0123456789!@*()-=+";:?/.,';
         for (var _i = 0; _i < textSymbols.length; _i++) {
           var _ch = textSymbols.charAt(_i);
-          defineSymbol(symbols_text, main, textord, _ch, _ch);
+          defineSymbol(symbols_text, main2, textord, _ch, _ch);
         }
         var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         for (var _i2 = 0; _i2 < letters.length; _i2++) {
           var _ch2 = letters.charAt(_i2);
-          defineSymbol(math, main, mathord, _ch2, _ch2);
-          defineSymbol(symbols_text, main, textord, _ch2, _ch2);
+          defineSymbol(math, main2, mathord, _ch2, _ch2);
+          defineSymbol(symbols_text, main2, textord, _ch2, _ch2);
         }
         defineSymbol(math, ams, textord, "C", "\u2102");
         defineSymbol(symbols_text, ams, textord, "C", "\u2102");
@@ -29983,67 +29983,67 @@ var require_katex = __commonJS({
         defineSymbol(symbols_text, ams, textord, "R", "\u211D");
         defineSymbol(math, ams, textord, "Z", "\u2124");
         defineSymbol(symbols_text, ams, textord, "Z", "\u2124");
-        defineSymbol(math, main, mathord, "h", "\u210E");
-        defineSymbol(symbols_text, main, mathord, "h", "\u210E");
+        defineSymbol(math, main2, mathord, "h", "\u210E");
+        defineSymbol(symbols_text, main2, mathord, "h", "\u210E");
         var wideChar = "";
         for (var _i3 = 0; _i3 < letters.length; _i3++) {
           var _ch3 = letters.charAt(_i3);
           wideChar = String.fromCharCode(55349, 56320 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56372 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56424 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56580 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56736 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56788 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56840 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           wideChar = String.fromCharCode(55349, 56944 + _i3);
-          defineSymbol(math, main, mathord, _ch3, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+          defineSymbol(math, main2, mathord, _ch3, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           if (_i3 < 26) {
             wideChar = String.fromCharCode(55349, 56632 + _i3);
-            defineSymbol(math, main, mathord, _ch3, wideChar);
-            defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+            defineSymbol(math, main2, mathord, _ch3, wideChar);
+            defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
             wideChar = String.fromCharCode(55349, 56476 + _i3);
-            defineSymbol(math, main, mathord, _ch3, wideChar);
-            defineSymbol(symbols_text, main, textord, _ch3, wideChar);
+            defineSymbol(math, main2, mathord, _ch3, wideChar);
+            defineSymbol(symbols_text, main2, textord, _ch3, wideChar);
           }
         }
         wideChar = String.fromCharCode(55349, 56668);
-        defineSymbol(math, main, mathord, "k", wideChar);
-        defineSymbol(symbols_text, main, textord, "k", wideChar);
+        defineSymbol(math, main2, mathord, "k", wideChar);
+        defineSymbol(symbols_text, main2, textord, "k", wideChar);
         for (var _i4 = 0; _i4 < 10; _i4++) {
           var _ch4 = _i4.toString();
           wideChar = String.fromCharCode(55349, 57294 + _i4);
-          defineSymbol(math, main, mathord, _ch4, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch4, wideChar);
+          defineSymbol(math, main2, mathord, _ch4, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch4, wideChar);
           wideChar = String.fromCharCode(55349, 57314 + _i4);
-          defineSymbol(math, main, mathord, _ch4, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch4, wideChar);
+          defineSymbol(math, main2, mathord, _ch4, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch4, wideChar);
           wideChar = String.fromCharCode(55349, 57324 + _i4);
-          defineSymbol(math, main, mathord, _ch4, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch4, wideChar);
+          defineSymbol(math, main2, mathord, _ch4, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch4, wideChar);
           wideChar = String.fromCharCode(55349, 57334 + _i4);
-          defineSymbol(math, main, mathord, _ch4, wideChar);
-          defineSymbol(symbols_text, main, textord, _ch4, wideChar);
+          defineSymbol(math, main2, mathord, _ch4, wideChar);
+          defineSymbol(symbols_text, main2, textord, _ch4, wideChar);
         }
         var extraLatin = "\xC7\xD0\xDE\xE7\xFE";
         for (var _i5 = 0; _i5 < extraLatin.length; _i5++) {
           var _ch5 = extraLatin.charAt(_i5);
-          defineSymbol(math, main, mathord, _ch5, _ch5);
-          defineSymbol(symbols_text, main, textord, _ch5, _ch5);
+          defineSymbol(math, main2, mathord, _ch5, _ch5);
+          defineSymbol(symbols_text, main2, textord, _ch5, _ch5);
         }
         ;
         var wideLatinLetterData = [
@@ -30127,8 +30127,8 @@ var require_katex = __commonJS({
           2.074,
           2.488
         ];
-        var sizeAtStyle = function sizeAtStyle2(size, style2) {
-          return style2.size < 2 ? size : sizeStyleMap[size - 1][style2.size - 1];
+        var sizeAtStyle = function sizeAtStyle2(size, style) {
+          return style.size < 2 ? size : sizeStyleMap[size - 1][style.size - 1];
         };
         var Options = /* @__PURE__ */ function() {
           function Options2(data) {
@@ -30181,13 +30181,13 @@ var require_katex = __commonJS({
             }
             return new Options2(data);
           };
-          _proto.havingStyle = function havingStyle(style2) {
-            if (this.style === style2) {
+          _proto.havingStyle = function havingStyle(style) {
+            if (this.style === style) {
               return this;
             } else {
               return this.extend({
-                style: style2,
-                size: sizeAtStyle(this.textSize, style2)
+                style,
+                size: sizeAtStyle(this.textSize, style)
               });
             }
           };
@@ -30206,14 +30206,14 @@ var require_katex = __commonJS({
               });
             }
           };
-          _proto.havingBaseStyle = function havingBaseStyle(style2) {
-            style2 = style2 || this.style.text();
-            var wantSize = sizeAtStyle(Options2.BASESIZE, style2);
-            if (this.size === wantSize && this.textSize === Options2.BASESIZE && this.style === style2) {
+          _proto.havingBaseStyle = function havingBaseStyle(style) {
+            style = style || this.style.text();
+            var wantSize = sizeAtStyle(Options2.BASESIZE, style);
+            if (this.size === wantSize && this.textSize === Options2.BASESIZE && this.style === style) {
               return this;
             } else {
               return this.extend({
-                style: style2,
+                style,
                 size: wantSize
               });
             }
@@ -30476,8 +30476,8 @@ var require_katex = __commonJS({
               return false;
             }
           }
-          for (var style2 in prev.style) {
-            if (prev.style.hasOwnProperty(style2) && prev.style[style2] !== next.style[style2]) {
+          for (var style in prev.style) {
+            if (prev.style.hasOwnProperty(style) && prev.style[style] !== next.style[style]) {
               return false;
             }
           }
@@ -30523,13 +30523,13 @@ var require_katex = __commonJS({
           elem.depth = depth;
           elem.maxFontSize = maxFontSize;
         };
-        var makeSpan = function makeSpan2(classes, children, options, style2) {
-          var span = new Span(classes, children, options, style2);
+        var makeSpan = function makeSpan2(classes, children, options, style) {
+          var span = new Span(classes, children, options, style);
           sizeElementFromChildren(span);
           return span;
         };
-        var makeSvgSpan = function makeSvgSpan2(classes, children, options, style2) {
-          return new Span(classes, children, options, style2);
+        var makeSvgSpan = function makeSvgSpan2(classes, children, options, style) {
+          return new Span(classes, children, options, style);
         };
         var makeLineSpan = function makeLineSpan2(className, options, thickness) {
           var line = makeSpan([className], [], options);
@@ -30577,12 +30577,12 @@ var require_katex = __commonJS({
           }
           var depth;
           if (params.positionType === "top") {
-            var bottom = params.positionData;
+            var bottom2 = params.positionData;
             for (var _i6 = 0; _i6 < params.children.length; _i6++) {
               var child = params.children[_i6];
-              bottom -= child.type === "kern" ? child.size : child.elem.height + child.elem.depth;
+              bottom2 -= child.type === "kern" ? child.size : child.elem.height + child.elem.depth;
             }
-            depth = bottom;
+            depth = bottom2;
           } else if (params.positionType === "bottom") {
             depth = -params.positionData;
           } else {
@@ -30627,8 +30627,8 @@ var require_katex = __commonJS({
             } else {
               var _elem = _child.elem;
               var classes = _child.wrapperClasses || [];
-              var style2 = _child.wrapperStyle || {};
-              var childWrap = makeSpan(classes, [pstrut, _elem], void 0, style2);
+              var style = _child.wrapperStyle || {};
+              var childWrap = makeSpan(classes, [pstrut, _elem], void 0, style);
               childWrap.style.top = -pstrutSize - currPos - _elem.depth + "em";
               if (_child.marginLeft) {
                 childWrap.style.marginLeft = _child.marginLeft;
@@ -30971,9 +30971,9 @@ var require_katex = __commonJS({
           traverseNonSpaceNodes(groups, function(node2, prev) {
             var prevType = prev.classes[0];
             var type = node2.classes[0];
-            if (prevType === "mbin" && utils2.contains(binRightCanceller, type)) {
+            if (prevType === "mbin" && utils.contains(binRightCanceller, type)) {
               prev.classes[0] = "mord";
-            } else if (type === "mbin" && utils2.contains(binLeftCanceller, prevType)) {
+            } else if (type === "mbin" && utils.contains(binLeftCanceller, prevType)) {
               node2.classes[0] = "mord";
             }
           }, {
@@ -31188,12 +31188,12 @@ var require_katex = __commonJS({
             for (var attr in this.attributes) {
               if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
                 markup += " " + attr + '="';
-                markup += utils2.escape(this.attributes[attr]);
+                markup += utils.escape(this.attributes[attr]);
                 markup += '"';
               }
             }
             if (this.classes.length > 0) {
-              markup += ' class ="' + utils2.escape(createClass(this.classes)) + '"';
+              markup += ' class ="' + utils.escape(createClass(this.classes)) + '"';
             }
             markup += ">";
             for (var i2 = 0; i2 < this.children.length; i2++) {
@@ -31219,7 +31219,7 @@ var require_katex = __commonJS({
             return document.createTextNode(this.text);
           };
           _proto2.toMarkup = function toMarkup() {
-            return utils2.escape(this.toText());
+            return utils.escape(this.toText());
           };
           _proto2.toText = function toText() {
             return this.text;
@@ -31340,7 +31340,7 @@ var require_katex = __commonJS({
             return "monospace";
           }
           var text = group.text;
-          if (utils2.contains(["\\imath", "\\jmath"], text)) {
+          if (utils.contains(["\\imath", "\\jmath"], text)) {
             return null;
           }
           if (src_symbols[mode][text] && src_symbols[mode][text].replace) {
@@ -31414,7 +31414,7 @@ var require_katex = __commonJS({
         function buildMathML(tree, texExpression, options, isDisplayMode, forMathmlOnly) {
           var expression = buildMathML_buildExpression(tree, options);
           var wrapper2;
-          if (expression.length === 1 && expression[0] instanceof MathNode && utils2.contains(["mrow", "mtable"], expression[0].type)) {
+          if (expression.length === 1 && expression[0] instanceof MathNode && utils.contains(["mrow", "mtable"], expression[0].type)) {
             wrapper2 = expression[0];
           } else {
             wrapper2 = new mathMLTree.MathNode("mrow", expression);
@@ -31576,7 +31576,7 @@ var require_katex = __commonJS({
           function buildSvgSpan_() {
             var viewBoxWidth = 4e5;
             var label = group.label.substr(1);
-            if (utils2.contains(["widehat", "widecheck", "widetilde", "utilde"], label)) {
+            if (utils.contains(["widehat", "widecheck", "widetilde", "utilde"], label)) {
               var grp = group;
               var numChars = groupLength(grp.base);
               var viewBoxHeight;
@@ -31758,10 +31758,10 @@ var require_katex = __commonJS({
             base2 = group.base;
           }
           var body = buildGroup(base2, options.havingCrampedStyle());
-          var mustShift = group.isShifty && utils2.isCharacterBox(base2);
+          var mustShift = group.isShifty && utils.isCharacterBox(base2);
           var skew = 0;
           if (mustShift) {
-            var baseChar = utils2.getBaseElem(base2);
+            var baseChar = utils.getBaseElem(base2);
             var baseGroup = buildGroup(baseChar, options.havingCrampedStyle());
             skew = assertSymbolDomNode(baseGroup).skew;
           }
@@ -31788,11 +31788,11 @@ var require_katex = __commonJS({
               accentBody.classes.push("accent-full");
               clearance = body.height;
             }
-            var left = skew;
+            var left2 = skew;
             if (!accentFull) {
-              left -= width / 2;
+              left2 -= width / 2;
             }
-            accentBody.style.left = left + "em";
+            accentBody.style.left = left2 + "em";
             if (group.label === "\\textcircled") {
               accentBody.style.top = ".2em";
             }
@@ -31992,14 +31992,14 @@ var require_katex = __commonJS({
             };
           },
           htmlBuilder: function htmlBuilder2(group, options) {
-            var style2 = options.style;
-            var newOptions = options.havingStyle(style2.sup());
+            var style = options.style;
+            var newOptions = options.havingStyle(style.sup());
             var upperGroup = buildCommon.wrapFragment(buildGroup(group.body, newOptions, options), options);
             var arrowPrefix = group.label.slice(0, 2) === "\\x" ? "x" : "cd";
             upperGroup.classes.push(arrowPrefix + "-arrow-pad");
             var lowerGroup;
             if (group.below) {
-              newOptions = options.havingStyle(style2.sub());
+              newOptions = options.havingStyle(style.sub());
               lowerGroup = buildCommon.wrapFragment(buildGroup(group.below, newOptions, options), options);
               lowerGroup.classes.push(arrowPrefix + "-arrow-pad");
             }
@@ -32118,12 +32118,12 @@ var require_katex = __commonJS({
             case "\\\\cdlongequal":
               return parser2.callFunction("\\\\cdlongequal", [], []);
             case "\\Vert": {
-              var arrow = {
+              var arrow2 = {
                 type: "textord",
                 text: "\\Vert",
                 mode: "math"
               };
-              return parser2.callFunction("\\Big", [arrow], []);
+              return parser2.callFunction("\\Big", [arrow2], []);
             }
             default:
               return {
@@ -32199,10 +32199,10 @@ var require_katex = __commonJS({
                 } else {
                   throw new src_ParseError('Expected one of "<>AV=|." after @', rowNodes[j]);
                 }
-                var arrow = cdArrow(arrowChar, labels, parser2);
+                var arrow2 = cdArrow(arrowChar, labels, parser2);
                 var wrappedArrow = {
                   type: "styling",
-                  body: [arrow],
+                  body: [arrow2],
                   mode: "math",
                   style: "display"
                 };
@@ -32616,19 +32616,19 @@ var require_katex = __commonJS({
           span.maxFontSize = newOptions.sizeMultiplier;
           return span;
         };
-        var centerSpan = function centerSpan2(span, options, style2) {
-          var newOptions = options.havingBaseStyle(style2);
+        var centerSpan = function centerSpan2(span, options, style) {
+          var newOptions = options.havingBaseStyle(style);
           var shift3 = (1 - options.sizeMultiplier / newOptions.sizeMultiplier) * options.fontMetrics().axisHeight;
           span.classes.push("delimcenter");
           span.style.top = shift3 + "em";
           span.height -= shift3;
           span.depth += shift3;
         };
-        var makeSmallDelim = function makeSmallDelim2(delim, style2, center, options, mode, classes) {
+        var makeSmallDelim = function makeSmallDelim2(delim, style, center, options, mode, classes) {
           var text = buildCommon.makeSymbol(delim, "Main-Regular", mode, options);
-          var span = styleWrap(text, style2, options, classes);
+          var span = styleWrap(text, style, options, classes);
           if (center) {
-            centerSpan(span, options, style2);
+            centerSpan(span, options, style);
           }
           return span;
         };
@@ -32683,107 +32683,107 @@ var require_katex = __commonJS({
         var verts = ["|", "\\lvert", "\\rvert", "\\vert"];
         var doubleVerts = ["\\|", "\\lVert", "\\rVert", "\\Vert"];
         var makeStackedDelim = function makeStackedDelim2(delim, heightTotal, center, options, mode, classes) {
-          var top2;
+          var top3;
           var middle;
           var repeat;
-          var bottom;
-          top2 = repeat = bottom = delim;
+          var bottom2;
+          top3 = repeat = bottom2 = delim;
           middle = null;
           var font = "Size1-Regular";
           if (delim === "\\uparrow") {
-            repeat = bottom = "\u23D0";
+            repeat = bottom2 = "\u23D0";
           } else if (delim === "\\Uparrow") {
-            repeat = bottom = "\u2016";
+            repeat = bottom2 = "\u2016";
           } else if (delim === "\\downarrow") {
-            top2 = repeat = "\u23D0";
+            top3 = repeat = "\u23D0";
           } else if (delim === "\\Downarrow") {
-            top2 = repeat = "\u2016";
+            top3 = repeat = "\u2016";
           } else if (delim === "\\updownarrow") {
-            top2 = "\\uparrow";
+            top3 = "\\uparrow";
             repeat = "\u23D0";
-            bottom = "\\downarrow";
+            bottom2 = "\\downarrow";
           } else if (delim === "\\Updownarrow") {
-            top2 = "\\Uparrow";
+            top3 = "\\Uparrow";
             repeat = "\u2016";
-            bottom = "\\Downarrow";
-          } else if (utils2.contains(verts, delim)) {
+            bottom2 = "\\Downarrow";
+          } else if (utils.contains(verts, delim)) {
             repeat = "\u2223";
-          } else if (utils2.contains(doubleVerts, delim)) {
+          } else if (utils.contains(doubleVerts, delim)) {
             repeat = "\u2225";
           } else if (delim === "[" || delim === "\\lbrack") {
-            top2 = "\u23A1";
+            top3 = "\u23A1";
             repeat = "\u23A2";
-            bottom = "\u23A3";
+            bottom2 = "\u23A3";
             font = "Size4-Regular";
           } else if (delim === "]" || delim === "\\rbrack") {
-            top2 = "\u23A4";
+            top3 = "\u23A4";
             repeat = "\u23A5";
-            bottom = "\u23A6";
+            bottom2 = "\u23A6";
             font = "Size4-Regular";
           } else if (delim === "\\lfloor" || delim === "\u230A") {
-            repeat = top2 = "\u23A2";
-            bottom = "\u23A3";
+            repeat = top3 = "\u23A2";
+            bottom2 = "\u23A3";
             font = "Size4-Regular";
           } else if (delim === "\\lceil" || delim === "\u2308") {
-            top2 = "\u23A1";
-            repeat = bottom = "\u23A2";
+            top3 = "\u23A1";
+            repeat = bottom2 = "\u23A2";
             font = "Size4-Regular";
           } else if (delim === "\\rfloor" || delim === "\u230B") {
-            repeat = top2 = "\u23A5";
-            bottom = "\u23A6";
+            repeat = top3 = "\u23A5";
+            bottom2 = "\u23A6";
             font = "Size4-Regular";
           } else if (delim === "\\rceil" || delim === "\u2309") {
-            top2 = "\u23A4";
-            repeat = bottom = "\u23A5";
+            top3 = "\u23A4";
+            repeat = bottom2 = "\u23A5";
             font = "Size4-Regular";
           } else if (delim === "(" || delim === "\\lparen") {
-            top2 = "\u239B";
+            top3 = "\u239B";
             repeat = "\u239C";
-            bottom = "\u239D";
+            bottom2 = "\u239D";
             font = "Size4-Regular";
           } else if (delim === ")" || delim === "\\rparen") {
-            top2 = "\u239E";
+            top3 = "\u239E";
             repeat = "\u239F";
-            bottom = "\u23A0";
+            bottom2 = "\u23A0";
             font = "Size4-Regular";
           } else if (delim === "\\{" || delim === "\\lbrace") {
-            top2 = "\u23A7";
+            top3 = "\u23A7";
             middle = "\u23A8";
-            bottom = "\u23A9";
+            bottom2 = "\u23A9";
             repeat = "\u23AA";
             font = "Size4-Regular";
           } else if (delim === "\\}" || delim === "\\rbrace") {
-            top2 = "\u23AB";
+            top3 = "\u23AB";
             middle = "\u23AC";
-            bottom = "\u23AD";
+            bottom2 = "\u23AD";
             repeat = "\u23AA";
             font = "Size4-Regular";
           } else if (delim === "\\lgroup" || delim === "\u27EE") {
-            top2 = "\u23A7";
-            bottom = "\u23A9";
+            top3 = "\u23A7";
+            bottom2 = "\u23A9";
             repeat = "\u23AA";
             font = "Size4-Regular";
           } else if (delim === "\\rgroup" || delim === "\u27EF") {
-            top2 = "\u23AB";
-            bottom = "\u23AD";
+            top3 = "\u23AB";
+            bottom2 = "\u23AD";
             repeat = "\u23AA";
             font = "Size4-Regular";
           } else if (delim === "\\lmoustache" || delim === "\u23B0") {
-            top2 = "\u23A7";
-            bottom = "\u23AD";
+            top3 = "\u23A7";
+            bottom2 = "\u23AD";
             repeat = "\u23AA";
             font = "Size4-Regular";
           } else if (delim === "\\rmoustache" || delim === "\u23B1") {
-            top2 = "\u23AB";
-            bottom = "\u23A9";
+            top3 = "\u23AB";
+            bottom2 = "\u23A9";
             repeat = "\u23AA";
             font = "Size4-Regular";
           }
-          var topMetrics = getMetrics(top2, font, mode);
+          var topMetrics = getMetrics(top3, font, mode);
           var topHeightTotal = topMetrics.height + topMetrics.depth;
           var repeatMetrics = getMetrics(repeat, font, mode);
           var repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
-          var bottomMetrics = getMetrics(bottom, font, mode);
+          var bottomMetrics = getMetrics(bottom2, font, mode);
           var bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
           var middleHeightTotal = 0;
           var middleFactor = 1;
@@ -32801,7 +32801,7 @@ var require_katex = __commonJS({
           }
           var depth = realHeightTotal / 2 - axisHeight;
           var stack = [];
-          stack.push(makeGlyphSpan(bottom, font, mode));
+          stack.push(makeGlyphSpan(bottom2, font, mode));
           stack.push(lap);
           if (middle === null) {
             var innerHeight2 = realHeightTotal - topHeightTotal - bottomHeightTotal + 2 * lapInEms;
@@ -32815,7 +32815,7 @@ var require_katex = __commonJS({
             stack.push(makeInner(repeat, _innerHeight, options));
           }
           stack.push(lap);
-          stack.push(makeGlyphSpan(top2, font, mode));
+          stack.push(makeGlyphSpan(top3, font, mode));
           var newOptions = options.havingBaseStyle(src_Style.TEXT);
           var inner2 = buildCommon.makeVList({
             positionType: "bottom",
@@ -32892,9 +32892,9 @@ var require_katex = __commonJS({
           } else if (delim === ">" || delim === "\\gt" || delim === "\u27E9") {
             delim = "\\rangle";
           }
-          if (utils2.contains(stackLargeDelimiters, delim) || utils2.contains(stackNeverDelimiters, delim)) {
+          if (utils.contains(stackLargeDelimiters, delim) || utils.contains(stackNeverDelimiters, delim)) {
             return makeLargeDelim(delim, size, false, options, mode, classes);
-          } else if (utils2.contains(stackAlwaysDelimiters, delim)) {
+          } else if (utils.contains(stackAlwaysDelimiters, delim)) {
             return makeStackedDelim(delim, sizeToMaxHeight[size], false, options, mode, classes);
           } else {
             throw new src_ParseError("Illegal delimiter: '" + delim + "'");
@@ -32970,8 +32970,8 @@ var require_katex = __commonJS({
           }
         };
         var traverseSequence = function traverseSequence2(delim, height, sequence, options) {
-          var start2 = Math.min(2, 3 - options.style.size);
-          for (var i2 = start2; i2 < sequence.length; i2++) {
+          var start3 = Math.min(2, 3 - options.style.size);
+          for (var i2 = start3; i2 < sequence.length; i2++) {
             if (sequence[i2].type === "stack") {
               break;
             }
@@ -32994,9 +32994,9 @@ var require_katex = __commonJS({
             delim = "\\rangle";
           }
           var sequence;
-          if (utils2.contains(stackNeverDelimiters, delim)) {
+          if (utils.contains(stackNeverDelimiters, delim)) {
             sequence = stackNeverDelimiterSequence;
-          } else if (utils2.contains(stackLargeDelimiters, delim)) {
+          } else if (utils.contains(stackLargeDelimiters, delim)) {
             sequence = stackLargeDelimiterSequence;
           } else {
             sequence = stackAlwaysDelimiterSequence;
@@ -33095,7 +33095,7 @@ var require_katex = __commonJS({
         var delimiters = ["(", "\\lparen", ")", "\\rparen", "[", "\\lbrack", "]", "\\rbrack", "\\{", "\\lbrace", "\\}", "\\rbrace", "\\lfloor", "\\rfloor", "\u230A", "\u230B", "\\lceil", "\\rceil", "\u2308", "\u2309", "<", ">", "\\langle", "\u27E8", "\\rangle", "\u27E9", "\\lt", "\\gt", "\\lvert", "\\rvert", "\\lVert", "\\rVert", "\\lgroup", "\\rgroup", "\u27EE", "\u27EF", "\\lmoustache", "\\rmoustache", "\u23B0", "\u23B1", "/", "\\backslash", "|", "\\vert", "\\|", "\\Vert", "\\uparrow", "\\Uparrow", "\\downarrow", "\\Downarrow", "\\updownarrow", "\\Updownarrow", "."];
         function checkDelimiter(delim, context) {
           var symDelim = checkSymbolNodeType(delim);
-          if (symDelim && utils2.contains(delimiters, symDelim.text)) {
+          if (symDelim && utils.contains(delimiters, symDelim.text)) {
             return symDelim;
           } else if (symDelim) {
             throw new src_ParseError("Invalid delimiter '" + symDelim.text + "' after '" + context.funcName + "'", delim);
@@ -33182,14 +33182,14 @@ var require_katex = __commonJS({
             var body = parser2.parseExpression(false);
             --parser2.leftrightDepth;
             parser2.expect("\\right", false);
-            var right = assertNodeType(parser2.parseFunction(), "leftright-right");
+            var right2 = assertNodeType(parser2.parseFunction(), "leftright-right");
             return {
               type: "leftright",
               mode: parser2.mode,
               body,
               left: delim.text,
-              right: right.delim,
-              rightColor: right.color
+              right: right2.delim,
+              rightColor: right2.color
             };
           },
           htmlBuilder: function htmlBuilder2(group, options) {
@@ -33301,7 +33301,7 @@ var require_katex = __commonJS({
           var scale = options.sizeMultiplier;
           var img;
           var imgShift = 0;
-          var isSingleChar = utils2.isCharacterBox(group.body);
+          var isSingleChar = utils.isCharacterBox(group.body);
           if (label === "sout") {
             img = buildCommon.makeSpan(["stretchy", "sout"]);
             img.height = options.fontMetrics().defaultRuleThickness / scale;
@@ -33603,7 +33603,7 @@ var require_katex = __commonJS({
             throw new src_ParseError("{" + context.envName + "} can be used only in display mode.");
           }
         };
-        function parseArray(parser2, _ref, style2) {
+        function parseArray(parser2, _ref, style) {
           var hskipBeforeAndAfter = _ref.hskipBeforeAndAfter, addJot = _ref.addJot, cols = _ref.cols, arraystretch = _ref.arraystretch, colSeparationType = _ref.colSeparationType, addEqnNum = _ref.addEqnNum, singleRow = _ref.singleRow, emptySingleRow = _ref.emptySingleRow, maxNumCols = _ref.maxNumCols, leqno = _ref.leqno;
           parser2.gullet.beginGroup();
           if (!singleRow) {
@@ -33635,11 +33635,11 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               body: cell
             };
-            if (style2) {
+            if (style) {
               cell = {
                 type: "styling",
                 mode: parser2.mode,
-                style: style2,
+                style,
                 body: [cell]
               };
             }
@@ -33827,7 +33827,7 @@ var require_katex = __commonJS({
             }
             var sepwidth = void 0;
             if (c > 0 || group.hskipBeforeAndAfter) {
-              sepwidth = utils2.deflt(colDescr.pregap, arraycolsep);
+              sepwidth = utils.deflt(colDescr.pregap, arraycolsep);
               if (sepwidth !== 0) {
                 colSep = buildCommon.makeSpan(["arraycolsep"], []);
                 colSep.style.width = sepwidth + "em";
@@ -33857,7 +33857,7 @@ var require_katex = __commonJS({
             col = buildCommon.makeSpan(["col-align-" + (colDescr.align || "c")], [col]);
             cols.push(col);
             if (c < nc - 1 || group.hskipBeforeAndAfter) {
-              sepwidth = utils2.deflt(colDescr.postgap, arraycolsep);
+              sepwidth = utils.deflt(colDescr.postgap, arraycolsep);
               if (sepwidth !== 0) {
                 colSep = buildCommon.makeSpan(["arraycolsep"], []);
                 colSep.style.width = sepwidth + "em";
@@ -34280,7 +34280,7 @@ var require_katex = __commonJS({
             numArgs: 0
           },
           handler: function handler(context) {
-            if (utils2.contains(["gather", "gather*"], context.envName)) {
+            if (utils.contains(["gather", "gather*"], context.envName)) {
               validateAmsEnvironmentContext(context);
             }
             var res = {
@@ -34389,9 +34389,9 @@ var require_katex = __commonJS({
               var result = env.handler(context, _args, optArgs);
               parser2.expect("\\end", false);
               var endNameToken = parser2.nextToken;
-              var end = assertNodeType(parser2.parseFunction(), "environment");
-              if (end.name !== envName) {
-                throw new src_ParseError("Mismatch: \\begin{" + envName + "} matched by \\end{" + end.name + "}", endNameToken);
+              var end2 = assertNodeType(parser2.parseFunction(), "environment");
+              if (end2.name !== envName) {
+                throw new src_ParseError("Mismatch: \\begin{" + envName + "} matched by \\end{" + end2.name + "}", endNameToken);
               }
               return result;
             }
@@ -34456,7 +34456,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass: "m" + funcName.substr(5),
               body: ordargument(body),
-              isCharacterBox: utils2.isCharacterBox(body)
+              isCharacterBox: utils.isCharacterBox(body)
             };
           },
           htmlBuilder: mclass_htmlBuilder,
@@ -34483,7 +34483,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass: binrelClass(args[0]),
               body: ordargument(args[1]),
-              isCharacterBox: utils2.isCharacterBox(args[1])
+              isCharacterBox: utils.isCharacterBox(args[1])
             };
           }
         });
@@ -34525,7 +34525,7 @@ var require_katex = __commonJS({
               mode: parser2.mode,
               mclass,
               body: [supsub],
-              isCharacterBox: utils2.isCharacterBox(supsub)
+              isCharacterBox: utils.isCharacterBox(supsub)
             };
           },
           htmlBuilder: mclass_htmlBuilder,
@@ -34595,7 +34595,7 @@ var require_katex = __commonJS({
           handler: function handler(_ref2, args) {
             var parser2 = _ref2.parser;
             var body = args[0];
-            var isCharacterBox2 = utils2.isCharacterBox(body);
+            var isCharacterBox2 = utils.isCharacterBox(body);
             return {
               type: "mclass",
               mode: parser2.mode,
@@ -34621,11 +34621,11 @@ var require_katex = __commonJS({
             var parser2 = _ref3.parser, funcName = _ref3.funcName, breakOnTokenText = _ref3.breakOnTokenText;
             var mode = parser2.mode;
             var body = parser2.parseExpression(true, breakOnTokenText);
-            var style2 = "math" + funcName.slice(1);
+            var style = "math" + funcName.slice(1);
             return {
               type: "font",
               mode,
-              font: style2,
+              font: style,
               body: {
                 type: "ordgroup",
                 mode: parser2.mode,
@@ -34638,22 +34638,22 @@ var require_katex = __commonJS({
         });
         ;
         var adjustStyle = function adjustStyle2(size, originalStyle) {
-          var style2 = originalStyle;
+          var style = originalStyle;
           if (size === "display") {
-            style2 = style2.id >= src_Style.SCRIPT.id ? style2.text() : src_Style.DISPLAY;
-          } else if (size === "text" && style2.size === src_Style.DISPLAY.size) {
-            style2 = src_Style.TEXT;
+            style = style.id >= src_Style.SCRIPT.id ? style.text() : src_Style.DISPLAY;
+          } else if (size === "text" && style.size === src_Style.DISPLAY.size) {
+            style = src_Style.TEXT;
           } else if (size === "script") {
-            style2 = src_Style.SCRIPT;
+            style = src_Style.SCRIPT;
           } else if (size === "scriptscript") {
-            style2 = src_Style.SCRIPTSCRIPT;
+            style = src_Style.SCRIPTSCRIPT;
           }
-          return style2;
+          return style;
         };
         var genfrac_htmlBuilder = function htmlBuilder2(group, options) {
-          var style2 = adjustStyle(group.size, options.style);
-          var nstyle = style2.fracNum();
-          var dstyle = style2.fracDen();
+          var style = adjustStyle(group.size, options.style);
+          var nstyle = style.fracNum();
+          var dstyle = style.fracDen();
           var newOptions;
           newOptions = options.havingStyle(nstyle);
           var numerm = buildGroup(group.numer, newOptions, options);
@@ -34685,7 +34685,7 @@ var require_katex = __commonJS({
           var numShift;
           var clearance;
           var denomShift;
-          if (style2.size === src_Style.DISPLAY.size || group.size === "display") {
+          if (style.size === src_Style.DISPLAY.size || group.size === "display") {
             numShift = options.fontMetrics().num1;
             if (ruleWidth > 0) {
               clearance = 3 * ruleSpacing;
@@ -34748,13 +34748,13 @@ var require_katex = __commonJS({
               }]
             }, options);
           }
-          newOptions = options.havingStyle(style2);
+          newOptions = options.havingStyle(style);
           frac.height *= newOptions.sizeMultiplier / options.sizeMultiplier;
           frac.depth *= newOptions.sizeMultiplier / options.sizeMultiplier;
           var delimSize;
-          if (style2.size === src_Style.DISPLAY.size) {
+          if (style.size === src_Style.DISPLAY.size) {
             delimSize = options.fontMetrics().delim1;
-          } else if (style2.size === src_Style.SCRIPTSCRIPT.size) {
+          } else if (style.size === src_Style.SCRIPTSCRIPT.size) {
             delimSize = options.havingStyle(src_Style.SCRIPT).fontMetrics().delim2;
           } else {
             delimSize = options.fontMetrics().delim2;
@@ -34764,14 +34764,14 @@ var require_katex = __commonJS({
           if (group.leftDelim == null) {
             leftDelim = makeNullDelimiter(options, ["mopen"]);
           } else {
-            leftDelim = delimiter.customSizedDelim(group.leftDelim, delimSize, true, options.havingStyle(style2), group.mode, ["mopen"]);
+            leftDelim = delimiter.customSizedDelim(group.leftDelim, delimSize, true, options.havingStyle(style), group.mode, ["mopen"]);
           }
           if (group.continued) {
             rightDelim = buildCommon.makeSpan([]);
           } else if (group.rightDelim == null) {
             rightDelim = makeNullDelimiter(options, ["mclose"]);
           } else {
-            rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style2), group.mode, ["mclose"]);
+            rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style), group.mode, ["mclose"]);
           }
           return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options);
         };
@@ -34783,10 +34783,10 @@ var require_katex = __commonJS({
             var ruleWidth = calculateSize(group.barSize, options);
             node.setAttribute("linethickness", ruleWidth + "em");
           }
-          var style2 = adjustStyle(group.size, options.style);
-          if (style2.size !== options.style.size) {
+          var style = adjustStyle(group.size, options.style);
+          if (style.size !== options.style.size) {
             node = new mathMLTree.MathNode("mstyle", [node]);
-            var isDisplay = style2.size === src_Style.DISPLAY.size ? "true" : "false";
+            var isDisplay = style.size === src_Style.DISPLAY.size ? "true" : "false";
             node.setAttribute("displaystyle", isDisplay);
             node.setAttribute("scriptlevel", "0");
           }
@@ -35059,11 +35059,11 @@ var require_katex = __commonJS({
         });
         ;
         var horizBrace_htmlBuilder = function htmlBuilder2(grp, options) {
-          var style2 = options.style;
+          var style = options.style;
           var supSubGroup;
           var group;
           if (grp.type === "supsub") {
-            supSubGroup = grp.sup ? buildGroup(grp.sup, options.havingStyle(style2.sup()), options) : buildGroup(grp.sub, options.havingStyle(style2.sub()), options);
+            supSubGroup = grp.sup ? buildGroup(grp.sup, options.havingStyle(style.sup()), options) : buildGroup(grp.sub, options.havingStyle(style.sub()), options);
             group = assertNodeType(grp.base, "horizBrace");
           } else {
             group = assertNodeType(grp, "horizBrace");
@@ -35485,16 +35485,16 @@ var require_katex = __commonJS({
             if (group.width.number > 0) {
               width = calculateSize(group.width, options);
             }
-            var style2 = {
+            var style = {
               height: height + depth + "em"
             };
             if (width > 0) {
-              style2.width = width + "em";
+              style.width = width + "em";
             }
             if (depth > 0) {
-              style2.verticalAlign = -depth + "em";
+              style.verticalAlign = -depth + "em";
             }
-            var node = new Img(group.src, group.alt, style2);
+            var node = new Img(group.src, group.alt, style);
             node.height = height;
             node.depth = depth;
             return node;
@@ -35687,20 +35687,20 @@ var require_katex = __commonJS({
           }
         });
         ;
-        var assembleSupSub = function assembleSupSub2(base2, supGroup, subGroup, options, style2, slant, baseShift) {
+        var assembleSupSub = function assembleSupSub2(base2, supGroup, subGroup, options, style, slant, baseShift) {
           base2 = buildCommon.makeSpan([], [base2]);
-          var subIsSingleCharacter = subGroup && utils2.isCharacterBox(subGroup);
+          var subIsSingleCharacter = subGroup && utils.isCharacterBox(subGroup);
           var sub;
           var sup;
           if (supGroup) {
-            var elem = buildGroup(supGroup, options.havingStyle(style2.sup()), options);
+            var elem = buildGroup(supGroup, options.havingStyle(style.sup()), options);
             sup = {
               elem,
               kern: Math.max(options.fontMetrics().bigOpSpacing1, options.fontMetrics().bigOpSpacing3 - elem.depth)
             };
           }
           if (subGroup) {
-            var _elem = buildGroup(subGroup, options.havingStyle(style2.sub()), options);
+            var _elem = buildGroup(subGroup, options.havingStyle(style.sub()), options);
             sub = {
               elem: _elem,
               kern: Math.max(options.fontMetrics().bigOpSpacing2, options.fontMetrics().bigOpSpacing4 - _elem.height)
@@ -35708,10 +35708,10 @@ var require_katex = __commonJS({
           }
           var finalGroup;
           if (sup && sub) {
-            var bottom = options.fontMetrics().bigOpSpacing5 + sub.elem.height + sub.elem.depth + sub.kern + base2.depth + baseShift;
+            var bottom2 = options.fontMetrics().bigOpSpacing5 + sub.elem.height + sub.elem.depth + sub.kern + base2.depth + baseShift;
             finalGroup = buildCommon.makeVList({
               positionType: "bottom",
-              positionData: bottom,
+              positionData: bottom2,
               children: [{
                 type: "kern",
                 size: options.fontMetrics().bigOpSpacing5
@@ -35738,10 +35738,10 @@ var require_katex = __commonJS({
               }]
             }, options);
           } else if (sub) {
-            var top2 = base2.height - baseShift;
+            var top3 = base2.height - baseShift;
             finalGroup = buildCommon.makeVList({
               positionType: "top",
-              positionData: top2,
+              positionData: top3,
               children: [{
                 type: "kern",
                 size: options.fontMetrics().bigOpSpacing5
@@ -35803,9 +35803,9 @@ var require_katex = __commonJS({
           } else {
             group = assertNodeType(grp, "op");
           }
-          var style2 = options.style;
+          var style = options.style;
           var large = false;
-          if (style2.size === src_Style.DISPLAY.size && group.symbol && !utils2.contains(noSuccessor, group.name)) {
+          if (style.size === src_Style.DISPLAY.size && group.symbol && !utils.contains(noSuccessor, group.name)) {
             large = true;
           }
           var base2;
@@ -35858,7 +35858,7 @@ var require_katex = __commonJS({
             slant = base2.italic;
           }
           if (hasLimits) {
-            return assembleSupSub(base2, supGroup, subGroup, options, style2, slant, baseShift);
+            return assembleSupSub(base2, supGroup, subGroup, options, style, slant, baseShift);
           } else {
             if (baseShift) {
               base2.style.position = "relative";
@@ -35871,7 +35871,7 @@ var require_katex = __commonJS({
           var node;
           if (group.symbol) {
             node = new MathNode("mo", [makeText(group.name, group.mode)]);
-            if (utils2.contains(noSuccessor, group.name)) {
+            if (utils.contains(noSuccessor, group.name)) {
               node.setAttribute("largeop", "false");
             }
           } else if (group.body) {
@@ -36343,7 +36343,7 @@ var require_katex = __commonJS({
           } else if (next.substr(0, 4) === "\\not") {
             thedots = "\\dotsb";
           } else if (next in src_symbols.math) {
-            if (utils2.contains(["bin", "rel"], src_symbols.math[next].group)) {
+            if (utils.contains(["bin", "rel"], src_symbols.math[next].group)) {
               thedots = "\\dotsb";
             }
           }
@@ -37230,11 +37230,11 @@ var require_katex = __commonJS({
           handler: function handler(_ref, args) {
             var breakOnTokenText = _ref.breakOnTokenText, funcName = _ref.funcName, parser2 = _ref.parser;
             var body = parser2.parseExpression(true, breakOnTokenText);
-            var style2 = funcName.slice(1, funcName.length - 5);
+            var style = funcName.slice(1, funcName.length - 5);
             return {
               type: "styling",
               mode: parser2.mode,
-              style: style2,
+              style,
               body
             };
           },
@@ -37272,7 +37272,7 @@ var require_katex = __commonJS({
             var _delegate = base2.alwaysHandleSupSub && (options.style.size === src_Style.DISPLAY.size || base2.limits);
             return _delegate ? operatorname_htmlBuilder : null;
           } else if (base2.type === "accent") {
-            return utils2.isCharacterBox(base2.base) ? htmlBuilder : null;
+            return utils.isCharacterBox(base2.base) ? htmlBuilder : null;
           } else if (base2.type === "horizBrace") {
             var isSup = !group.sub;
             return isSup === base2.isOver ? horizBrace_htmlBuilder : null;
@@ -37294,7 +37294,7 @@ var require_katex = __commonJS({
             var metrics = options.fontMetrics();
             var supShift = 0;
             var subShift = 0;
-            var isCharacterBox2 = valueBase && utils2.isCharacterBox(valueBase);
+            var isCharacterBox2 = valueBase && utils.isCharacterBox(valueBase);
             if (valueSup) {
               var newOptions = options.havingStyle(options.style.sup());
               supm = buildGroup(valueSup, newOptions, options);
@@ -37753,13 +37753,13 @@ var require_katex = __commonJS({
         var src_functions = functions;
         ;
         var SourceLocation = /* @__PURE__ */ function() {
-          function SourceLocation2(lexer, start2, end) {
+          function SourceLocation2(lexer, start3, end2) {
             this.lexer = void 0;
             this.start = void 0;
             this.end = void 0;
             this.lexer = lexer;
-            this.start = start2;
-            this.end = end;
+            this.start = start3;
+            this.end = end2;
           }
           SourceLocation2.range = function range(first, second) {
             if (!second) {
@@ -37897,9 +37897,9 @@ var require_katex = __commonJS({
                 this.undefStack[this.undefStack.length - 1][name2] = value;
               }
             } else {
-              var top2 = this.undefStack[this.undefStack.length - 1];
-              if (top2 && !top2.hasOwnProperty(name2)) {
-                top2[name2] = this.current[name2];
+              var top3 = this.undefStack[this.undefStack.length - 1];
+              if (top3 && !top3.hasOwnProperty(name2)) {
+                top3[name2] = this.current[name2];
               }
             }
             this.current[name2] = value;
@@ -37960,27 +37960,27 @@ var require_katex = __commonJS({
             (_this$stack = this.stack).push.apply(_this$stack, tokens);
           };
           _proto.scanArgument = function scanArgument(isOptional) {
-            var start2;
-            var end;
+            var start3;
+            var end2;
             var tokens;
             if (isOptional) {
               this.consumeSpaces();
               if (this.future().text !== "[") {
                 return null;
               }
-              start2 = this.popToken();
+              start3 = this.popToken();
               var _this$consumeArg = this.consumeArg(["]"]);
               tokens = _this$consumeArg.tokens;
-              end = _this$consumeArg.end;
+              end2 = _this$consumeArg.end;
             } else {
               var _this$consumeArg2 = this.consumeArg();
               tokens = _this$consumeArg2.tokens;
-              start2 = _this$consumeArg2.start;
-              end = _this$consumeArg2.end;
+              start3 = _this$consumeArg2.start;
+              end2 = _this$consumeArg2.end;
             }
-            this.pushToken(new Token2("EOF", end.loc));
+            this.pushToken(new Token2("EOF", end2.loc));
             this.pushTokens(tokens);
-            return start2.range(end, "");
+            return start3.range(end2, "");
           };
           _proto.consumeSpaces = function consumeSpaces() {
             for (; ; ) {
@@ -37998,7 +37998,7 @@ var require_katex = __commonJS({
             if (!isDelimited) {
               this.consumeSpaces();
             }
-            var start2 = this.future();
+            var start3 = this.future();
             var tok;
             var depth = 0;
             var match = 0;
@@ -38027,14 +38027,14 @@ var require_katex = __commonJS({
                 }
               }
             } while (depth !== 0 || isDelimited);
-            if (start2.text === "{" && tokens[tokens.length - 1].text === "}") {
+            if (start3.text === "{" && tokens[tokens.length - 1].text === "}") {
               tokens.pop();
               tokens.shift();
             }
             tokens.reverse();
             return {
               tokens,
-              start: start2,
+              start: start3,
               end: tok
             };
           };
@@ -39219,7 +39219,7 @@ var require_katex = __commonJS({
         };
         var src_parseTree = parseTree;
         ;
-        var render = function render2(expression, baseNode, options) {
+        var render2 = function render3(expression, baseNode, options) {
           baseNode.textContent = "";
           var node = renderToDomTree(expression, options).toNode();
           baseNode.appendChild(node);
@@ -39227,7 +39227,7 @@ var require_katex = __commonJS({
         if (typeof document !== "undefined") {
           if (document.compatMode !== "CSS1Compat") {
             typeof console !== "undefined" && console.warn("Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.");
-            render = function render2() {
+            render2 = function render3() {
               throw new src_ParseError("KaTeX doesn't work in quirks mode.");
             };
           }
@@ -39269,7 +39269,7 @@ var require_katex = __commonJS({
         };
         var katex2 = {
           version: "0.13.11",
-          render,
+          render: render2,
           renderToString,
           ParseError: src_ParseError,
           __parse: generateParseTree,
@@ -39309,14 +39309,14 @@ var require_isArray = __commonJS({
 var require_checkForMethod = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_checkForMethod.js"(exports, module) {
     var _isArray = require_isArray();
-    function _checkForMethod(methodname, fn) {
+    function _checkForMethod(methodname, fn3) {
       return function() {
         var length = arguments.length;
         if (length === 0) {
-          return fn();
+          return fn3();
         }
         var obj = arguments[length - 1];
-        return _isArray(obj) || typeof obj[methodname] !== "function" ? fn.apply(this, arguments) : obj[methodname].apply(obj, Array.prototype.slice.call(arguments, 0, length - 1));
+        return _isArray(obj) || typeof obj[methodname] !== "function" ? fn3.apply(this, arguments) : obj[methodname].apply(obj, Array.prototype.slice.call(arguments, 0, length - 1));
       };
     }
     module.exports = _checkForMethod;
@@ -39337,12 +39337,12 @@ var require_isPlaceholder = __commonJS({
 var require_curry1 = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curry1.js"(exports, module) {
     var _isPlaceholder = require_isPlaceholder();
-    function _curry1(fn) {
+    function _curry1(fn3) {
       return function f1(a) {
         if (arguments.length === 0 || _isPlaceholder(a)) {
           return f1;
         } else {
-          return fn.apply(this, arguments);
+          return fn3.apply(this, arguments);
         }
       };
     }
@@ -39355,21 +39355,21 @@ var require_curry2 = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curry2.js"(exports, module) {
     var _curry1 = require_curry1();
     var _isPlaceholder = require_isPlaceholder();
-    function _curry2(fn) {
+    function _curry2(fn3) {
       return function f2(a, b) {
         switch (arguments.length) {
           case 0:
             return f2;
           case 1:
             return _isPlaceholder(a) ? f2 : _curry1(function(_b2) {
-              return fn(a, _b2);
+              return fn3(a, _b2);
             });
           default:
             return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function(_a2) {
-              return fn(_a2, b);
+              return fn3(_a2, b);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
-              return fn(a, _b2);
-            }) : fn(a, b);
+              return fn3(a, _b2);
+            }) : fn3(a, b);
         }
       };
     }
@@ -39382,11 +39382,11 @@ var require_forEach = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/forEach.js"(exports, module) {
     var _checkForMethod = require_checkForMethod();
     var _curry2 = require_curry2();
-    var forEach = /* @__PURE__ */ _curry2(/* @__PURE__ */ _checkForMethod("forEach", function forEach2(fn, list) {
+    var forEach = /* @__PURE__ */ _curry2(/* @__PURE__ */ _checkForMethod("forEach", function forEach2(fn3, list) {
       var len = list.length;
       var idx = 0;
       while (idx < len) {
-        fn(list[idx]);
+        fn3(list[idx]);
         idx += 1;
       }
       return list;
@@ -39410,10 +39410,10 @@ var require_dispatchable = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_dispatchable.js"(exports, module) {
     var _isArray = require_isArray();
     var _isTransformer = require_isTransformer();
-    function _dispatchable(methodNames, xf, fn) {
+    function _dispatchable(methodNames, xf, fn3) {
       return function() {
         if (arguments.length === 0) {
-          return fn();
+          return fn3();
         }
         var args = Array.prototype.slice.call(arguments, 0);
         var obj = args.pop();
@@ -39430,7 +39430,7 @@ var require_dispatchable = __commonJS({
             return transducer(obj);
           }
         }
-        return fn.apply(this, arguments);
+        return fn3.apply(this, arguments);
       };
     }
     module.exports = _dispatchable;
@@ -39505,11 +39505,11 @@ var require_find = __commonJS({
     var _curry2 = require_curry2();
     var _dispatchable = require_dispatchable();
     var _xfind = require_xfind();
-    var find2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["find"], _xfind, function find3(fn, list) {
+    var find2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["find"], _xfind, function find3(fn3, list) {
       var idx = 0;
       var len = list.length;
       while (idx < len) {
-        if (fn(list[idx])) {
+        if (fn3(list[idx])) {
           return list[idx];
         }
         idx += 1;
@@ -39534,12 +39534,12 @@ var require_complement = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_filter.js
 var require_filter = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_filter.js"(exports, module) {
-    function _filter(fn, list) {
+    function _filter(fn3, list) {
       var idx = 0;
       var len = list.length;
       var result = [];
       while (idx < len) {
-        if (fn(list[idx])) {
+        if (fn3(list[idx])) {
           result[result.length] = list[idx];
         }
         idx += 1;
@@ -39608,8 +39608,8 @@ var require_isArrayLike = __commonJS({
 var require_xwrap = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_xwrap.js"(exports, module) {
     var XWrap = /* @__PURE__ */ function() {
-      function XWrap2(fn) {
-        this.f = fn;
+      function XWrap2(fn3) {
+        this.f = fn3;
       }
       XWrap2.prototype["@@transducer/init"] = function() {
         throw new Error("init not implemented on XWrap");
@@ -39622,8 +39622,8 @@ var require_xwrap = __commonJS({
       };
       return XWrap2;
     }();
-    function _xwrap(fn) {
-      return new XWrap(fn);
+    function _xwrap(fn3) {
+      return new XWrap(fn3);
     }
     module.exports = _xwrap;
   }
@@ -39632,51 +39632,51 @@ var require_xwrap = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_arity.js
 var require_arity = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_arity.js"(exports, module) {
-    function _arity(n, fn) {
+    function _arity(n, fn3) {
       switch (n) {
         case 0:
           return function() {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 1:
           return function(a0) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 2:
           return function(a0, a1) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 3:
           return function(a0, a1, a2) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 4:
           return function(a0, a1, a2, a3) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 5:
           return function(a0, a1, a2, a3, a4) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 6:
           return function(a0, a1, a2, a3, a4, a5) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 7:
           return function(a0, a1, a2, a3, a4, a5, a6) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 8:
           return function(a0, a1, a2, a3, a4, a5, a6, a7) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 9:
           return function(a0, a1, a2, a3, a4, a5, a6, a7, a8) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         case 10:
           return function(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
-            return fn.apply(this, arguments);
+            return fn3.apply(this, arguments);
           };
         default:
           throw new Error("First argument to _arity must be a non-negative integer no greater than ten");
@@ -39691,9 +39691,9 @@ var require_bind = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/bind.js"(exports, module) {
     var _arity = require_arity();
     var _curry2 = require_curry2();
-    var bind = /* @__PURE__ */ _curry2(function bind2(fn, thisObj) {
-      return _arity(fn.length, function() {
-        return fn.apply(thisObj, arguments);
+    var bind = /* @__PURE__ */ _curry2(function bind2(fn3, thisObj) {
+      return _arity(fn3.length, function() {
+        return fn3.apply(thisObj, arguments);
       });
     });
     module.exports = bind;
@@ -39735,24 +39735,24 @@ var require_reduce = __commonJS({
       return xf["@@transducer/result"](obj[methodName](bind(xf["@@transducer/step"], xf), acc));
     }
     var symIterator = typeof Symbol !== "undefined" ? Symbol.iterator : "@@iterator";
-    function _reduce(fn, acc, list) {
-      if (typeof fn === "function") {
-        fn = _xwrap(fn);
+    function _reduce(fn3, acc, list) {
+      if (typeof fn3 === "function") {
+        fn3 = _xwrap(fn3);
       }
       if (_isArrayLike(list)) {
-        return _arrayReduce(fn, acc, list);
+        return _arrayReduce(fn3, acc, list);
       }
       if (typeof list["fantasy-land/reduce"] === "function") {
-        return _methodReduce(fn, acc, list, "fantasy-land/reduce");
+        return _methodReduce(fn3, acc, list, "fantasy-land/reduce");
       }
       if (list[symIterator] != null) {
-        return _iterableReduce(fn, acc, list[symIterator]());
+        return _iterableReduce(fn3, acc, list[symIterator]());
       }
       if (typeof list.next === "function") {
-        return _iterableReduce(fn, acc, list);
+        return _iterableReduce(fn3, acc, list);
       }
       if (typeof list.reduce === "function") {
-        return _methodReduce(fn, acc, list, "reduce");
+        return _methodReduce(fn3, acc, list, "reduce");
       }
       throw new TypeError("reduce: list must be array or iterable");
     }
@@ -39930,11 +39930,11 @@ var require_curryN = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_curryN.js"(exports, module) {
     var _arity = require_arity();
     var _isPlaceholder = require_isPlaceholder();
-    function _curryN(length, received, fn) {
+    function _curryN(length, received, fn3) {
       return function() {
         var combined = [];
         var argsIdx = 0;
-        var left = length;
+        var left2 = length;
         var combinedIdx = 0;
         while (combinedIdx < received.length || argsIdx < arguments.length) {
           var result;
@@ -39946,11 +39946,11 @@ var require_curryN = __commonJS({
           }
           combined[combinedIdx] = result;
           if (!_isPlaceholder(result)) {
-            left -= 1;
+            left2 -= 1;
           }
           combinedIdx += 1;
         }
-        return left <= 0 ? fn.apply(this, combined) : _arity(left, _curryN(length, combined, fn));
+        return left2 <= 0 ? fn3.apply(this, combined) : _arity(left2, _curryN(length, combined, fn3));
       };
     }
     module.exports = _curryN;
@@ -39964,11 +39964,11 @@ var require_curryN2 = __commonJS({
     var _curry1 = require_curry1();
     var _curry2 = require_curry2();
     var _curryN = require_curryN();
-    var curryN = /* @__PURE__ */ _curry2(function curryN2(length, fn) {
+    var curryN = /* @__PURE__ */ _curry2(function curryN2(length, fn3) {
       if (length === 1) {
-        return _curry1(fn);
+        return _curry1(fn3);
       }
-      return _arity(length, _curryN(length, [], fn));
+      return _arity(length, _curryN(length, [], fn3));
     });
     module.exports = curryN;
   }
@@ -39980,8 +39980,8 @@ var require_addIndex = __commonJS({
     var _concat = require_concat();
     var _curry1 = require_curry1();
     var curryN = require_curryN2();
-    var addIndex = /* @__PURE__ */ _curry1(function addIndex2(fn) {
-      return curryN(fn.length, function() {
+    var addIndex = /* @__PURE__ */ _curry1(function addIndex2(fn3) {
+      return curryN(fn3.length, function() {
         var idx = 0;
         var origFn = arguments[0];
         var list = arguments[arguments.length - 1];
@@ -39991,7 +39991,7 @@ var require_addIndex = __commonJS({
           idx += 1;
           return result;
         };
-        return fn.apply(this, args);
+        return fn3.apply(this, args);
       });
     });
     module.exports = addIndex;
@@ -40001,12 +40001,12 @@ var require_addIndex = __commonJS({
 // node_modules/reactex/node_modules/ramda/src/internal/_map.js
 var require_map = __commonJS({
   "node_modules/reactex/node_modules/ramda/src/internal/_map.js"(exports, module) {
-    function _map(fn, functor) {
+    function _map(fn3, functor) {
       var idx = 0;
       var len = functor.length;
       var result = Array(len);
       while (idx < len) {
-        result[idx] = fn(functor[idx]);
+        result[idx] = fn3(functor[idx]);
         idx += 1;
       }
       return result;
@@ -40049,19 +40049,19 @@ var require_map2 = __commonJS({
     var _xmap = require_xmap();
     var curryN = require_curryN2();
     var keys = require_keys();
-    var map2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map3(fn, functor) {
+    var map2 = /* @__PURE__ */ _curry2(/* @__PURE__ */ _dispatchable(["fantasy-land/map", "map"], _xmap, function map3(fn3, functor) {
       switch (Object.prototype.toString.call(functor)) {
         case "[object Function]":
           return curryN(functor.length, function() {
-            return fn.call(this, functor.apply(this, arguments));
+            return fn3.call(this, functor.apply(this, arguments));
           });
         case "[object Object]":
           return _reduce(function(acc, key) {
-            acc[key] = fn(functor[key]);
+            acc[key] = fn3(functor[key]);
             return acc;
           }, {}, keys(functor));
         default:
-          return _map(fn, functor);
+          return _map(fn3, functor);
       }
     }));
     module.exports = map2;
@@ -40557,10 +40557,10 @@ var require_Tokenizer = __commonJS({
         }
       };
       Tokenizer2.prototype.parseLegacyEntity = function() {
-        var start2 = this.sectionStart + 1;
-        var limit = Math.min(this._index - start2, 6);
+        var start3 = this.sectionStart + 1;
+        var limit = Math.min(this._index - start3, 6);
         while (limit >= 2) {
-          var entity = this.buffer.substr(start2, limit);
+          var entity = this.buffer.substr(start3, limit);
           if (Object.prototype.hasOwnProperty.call(legacy_json_1.default, entity)) {
             this.emitPartial(legacy_json_1.default[entity]);
             this.sectionStart += limit + 1;
@@ -42243,15 +42243,15 @@ var require_encode = __commonJS({
         }
       }
       single.sort();
-      for (var start2 = 0; start2 < single.length - 1; start2++) {
-        var end = start2;
-        while (end < single.length - 1 && single[end].charCodeAt(1) + 1 === single[end + 1].charCodeAt(1)) {
-          end += 1;
+      for (var start3 = 0; start3 < single.length - 1; start3++) {
+        var end2 = start3;
+        while (end2 < single.length - 1 && single[end2].charCodeAt(1) + 1 === single[end2 + 1].charCodeAt(1)) {
+          end2 += 1;
         }
-        var count = 1 + end - start2;
+        var count = 1 + end2 - start3;
         if (count < 3)
           continue;
-        single.splice(start2, count, single[start2] + "-" + single[end]);
+        single.splice(start3, count, single[start3] + "-" + single[end2]);
       }
       multiple.unshift("[" + single.join("") + "]");
       return new RegExp(multiple.join("|"), "g");
@@ -42564,7 +42564,7 @@ var require_lib5 = __commonJS({
       "track",
       "wbr"
     ]);
-    function render(node, options) {
+    function render2(node, options) {
       if (options === void 0) {
         options = {};
       }
@@ -42575,11 +42575,11 @@ var require_lib5 = __commonJS({
       }
       return output;
     }
-    exports.default = render;
+    exports.default = render2;
     function renderNode(node, options) {
       switch (node.type) {
         case ElementType.Root:
-          return render(node.children, options);
+          return render2(node.children, options);
         case ElementType.Directive:
         case ElementType.Doctype:
           return renderDirective(node);
@@ -42630,7 +42630,7 @@ var require_lib5 = __commonJS({
       } else {
         tag += ">";
         if (elem.children.length > 0) {
-          tag += render(elem.children, opts);
+          tag += render2(elem.children, opts);
         }
         if (opts.xmlMode || !singleTag.has(elem.name)) {
           tag += "</" + elem.name + ">";
@@ -42727,20 +42727,20 @@ var require_traversal = __commonJS({
     exports.prevElementSibling = exports.nextElementSibling = exports.getName = exports.hasAttrib = exports.getAttributeValue = exports.getSiblings = exports.getParent = exports.getChildren = void 0;
     var domhandler_1 = require_lib3();
     var emptyArray = [];
-    function getChildren2(elem) {
+    function getChildren3(elem) {
       var _a2;
       return (_a2 = elem.children) !== null && _a2 !== void 0 ? _a2 : emptyArray;
     }
-    exports.getChildren = getChildren2;
-    function getParent3(elem) {
+    exports.getChildren = getChildren3;
+    function getParent(elem) {
       return elem.parent || null;
     }
-    exports.getParent = getParent3;
+    exports.getParent = getParent;
     function getSiblings(elem) {
       var _a2, _b2;
-      var parent = getParent3(elem);
+      var parent = getParent(elem);
       if (parent != null)
-        return getChildren2(parent);
+        return getChildren3(parent);
       var siblings = [elem];
       var prev = elem.prev, next = elem.next;
       while (prev != null) {
@@ -43843,20 +43843,20 @@ var require_lodash2 = __commonJS({
     var Symbol2 = root.Symbol;
     var symbolProto = Symbol2 ? Symbol2.prototype : void 0;
     var symbolToString = symbolProto ? symbolProto.toString : void 0;
-    function baseSlice(array2, start2, end) {
+    function baseSlice(array2, start3, end2) {
       var index2 = -1, length = array2.length;
-      if (start2 < 0) {
-        start2 = -start2 > length ? 0 : length + start2;
+      if (start3 < 0) {
+        start3 = -start3 > length ? 0 : length + start3;
       }
-      end = end > length ? length : end;
-      if (end < 0) {
-        end += length;
+      end2 = end2 > length ? length : end2;
+      if (end2 < 0) {
+        end2 += length;
       }
-      length = start2 > end ? 0 : end - start2 >>> 0;
-      start2 >>>= 0;
+      length = start3 > end2 ? 0 : end2 - start3 >>> 0;
+      start3 >>>= 0;
       var result = Array(length);
       while (++index2 < length) {
-        result[index2] = array2[index2 + start2];
+        result[index2] = array2[index2 + start3];
       }
       return result;
     }
@@ -43870,10 +43870,10 @@ var require_lodash2 = __commonJS({
       var result = value + "";
       return result == "0" && 1 / value == -INFINITY ? "-0" : result;
     }
-    function castSlice(array2, start2, end) {
+    function castSlice(array2, start3, end2) {
       var length = array2.length;
-      end = end === void 0 ? length : end;
-      return !start2 && end >= length ? array2 : baseSlice(array2, start2, end);
+      end2 = end2 === void 0 ? length : end2;
+      return !start3 && end2 >= length ? array2 : baseSlice(array2, start3, end2);
     }
     function createCaseFirst(methodName) {
       return function(string2) {
@@ -43946,37 +43946,37 @@ var require_curry3 = __commonJS({
     var _curry1 = require_curry1();
     var _curry2 = require_curry2();
     var _isPlaceholder = require_isPlaceholder();
-    function _curry3(fn) {
+    function _curry3(fn3) {
       return function f3(a, b, c) {
         switch (arguments.length) {
           case 0:
             return f3;
           case 1:
             return _isPlaceholder(a) ? f3 : _curry2(function(_b2, _c) {
-              return fn(a, _b2, _c);
+              return fn3(a, _b2, _c);
             });
           case 2:
             return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function(_a2, _c) {
-              return fn(_a2, b, _c);
+              return fn3(_a2, b, _c);
             }) : _isPlaceholder(b) ? _curry2(function(_b2, _c) {
-              return fn(a, _b2, _c);
+              return fn3(a, _b2, _c);
             }) : _curry1(function(_c) {
-              return fn(a, b, _c);
+              return fn3(a, b, _c);
             });
           default:
             return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function(_a2, _b2) {
-              return fn(_a2, _b2, c);
+              return fn3(_a2, _b2, c);
             }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function(_a2, _c) {
-              return fn(_a2, b, _c);
+              return fn3(_a2, b, _c);
             }) : _isPlaceholder(b) && _isPlaceholder(c) ? _curry2(function(_b2, _c) {
-              return fn(a, _b2, _c);
+              return fn3(a, _b2, _c);
             }) : _isPlaceholder(a) ? _curry1(function(_a2) {
-              return fn(_a2, b, c);
+              return fn3(_a2, b, c);
             }) : _isPlaceholder(b) ? _curry1(function(_b2) {
-              return fn(a, _b2, c);
+              return fn3(a, _b2, c);
             }) : _isPlaceholder(c) ? _curry1(function(_c) {
-              return fn(a, b, _c);
-            }) : fn(a, b, c);
+              return fn3(a, b, _c);
+            }) : fn3(a, b, c);
         }
       };
     }
@@ -44678,7 +44678,7 @@ var require_utils = __commonJS({
     var camelCase = require_lodash2();
     var toPairs = require_toPairs();
     var reduce = require_reduce2();
-    var React31 = require_react();
+    var React14 = require_react();
     var includes = require_includes2();
     var camelCaseAttrMap = require_camel_case_attribute_names();
     function createStyleJsonFromString(styleString) {
@@ -44728,7 +44728,7 @@ var require_utils = __commonJS({
       "selected",
       "truespeed"
     ];
-    function createElement11(node, index2, data, children) {
+    function createElement2(node, index2, data, children) {
       var elementProps = {
         key: index2
       };
@@ -44753,10 +44753,10 @@ var require_utils = __commonJS({
       }
       children = children || [];
       var allChildren = data != null ? [data].concat(children) : children;
-      return React31.createElement.apply(null, [node.name, elementProps].concat(allChildren));
+      return React14.createElement.apply(null, [node.name, elementProps].concat(allChildren));
     }
     module.exports = {
-      createElement: createElement11
+      createElement: createElement2
     };
   }
 });
@@ -44765,7 +44765,7 @@ var require_utils = __commonJS({
 var require_process_node_definitions = __commonJS({
   "node_modules/reactex/node_modules/html-to-react/lib/process-node-definitions.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils();
+    var utils = require_utils();
     var voidElementTags = [
       "area",
       "base",
@@ -44793,9 +44793,9 @@ var require_process_node_definitions = __commonJS({
           return false;
         }
         if (voidElementTags.indexOf(node.name) > -1) {
-          return utils2.createElement(node, index2);
+          return utils.createElement(node, index2);
         } else {
-          return utils2.createElement(node, index2, node.data, children);
+          return utils.createElement(node, index2, node.data, children);
         }
       }
       return {
@@ -44851,7 +44851,7 @@ var require_parser = __commonJS({
     var DomHandler = require_lib().DomHandler;
     var ProcessingInstructions = require_processing_instructions();
     var IsValidNodeDefinitions = require_is_valid_node_definitions();
-    var utils2 = require_utils();
+    var utils = require_utils();
     function Html2ReactParser(options) {
       function parseHtmlToTree(html) {
         options = options || {};
@@ -44881,7 +44881,7 @@ var require_parser = __commonJS({
               return traverseDom(child, isValidNode, processingInstructions, preprocessingInstructions, i);
             }, node.children || []));
             if (processingInstruction.replaceChildren) {
-              return utils2.createElement(node, index2, node.data, [
+              return utils.createElement(node, index2, node.data, [
                 processingInstruction.processNode(node, children, index2)
               ]);
             } else {
@@ -44934,666 +44934,17 @@ var require_html_to_react = __commonJS({
   }
 });
 
-// node_modules/reactex/node_modules/react-is/cjs/react-is.development.js
-var require_react_is_development = __commonJS({
-  "node_modules/reactex/node_modules/react-is/cjs/react-is.development.js"(exports) {
-    "use strict";
-    if (true) {
-      (function() {
-        "use strict";
-        var hasSymbol2 = typeof Symbol === "function" && Symbol.for;
-        var REACT_ELEMENT_TYPE = hasSymbol2 ? Symbol.for("react.element") : 60103;
-        var REACT_PORTAL_TYPE = hasSymbol2 ? Symbol.for("react.portal") : 60106;
-        var REACT_FRAGMENT_TYPE = hasSymbol2 ? Symbol.for("react.fragment") : 60107;
-        var REACT_STRICT_MODE_TYPE = hasSymbol2 ? Symbol.for("react.strict_mode") : 60108;
-        var REACT_PROFILER_TYPE = hasSymbol2 ? Symbol.for("react.profiler") : 60114;
-        var REACT_PROVIDER_TYPE = hasSymbol2 ? Symbol.for("react.provider") : 60109;
-        var REACT_CONTEXT_TYPE = hasSymbol2 ? Symbol.for("react.context") : 60110;
-        var REACT_ASYNC_MODE_TYPE = hasSymbol2 ? Symbol.for("react.async_mode") : 60111;
-        var REACT_CONCURRENT_MODE_TYPE = hasSymbol2 ? Symbol.for("react.concurrent_mode") : 60111;
-        var REACT_FORWARD_REF_TYPE = hasSymbol2 ? Symbol.for("react.forward_ref") : 60112;
-        var REACT_SUSPENSE_TYPE = hasSymbol2 ? Symbol.for("react.suspense") : 60113;
-        var REACT_SUSPENSE_LIST_TYPE = hasSymbol2 ? Symbol.for("react.suspense_list") : 60120;
-        var REACT_MEMO_TYPE = hasSymbol2 ? Symbol.for("react.memo") : 60115;
-        var REACT_LAZY_TYPE = hasSymbol2 ? Symbol.for("react.lazy") : 60116;
-        var REACT_BLOCK_TYPE = hasSymbol2 ? Symbol.for("react.block") : 60121;
-        var REACT_FUNDAMENTAL_TYPE = hasSymbol2 ? Symbol.for("react.fundamental") : 60117;
-        var REACT_RESPONDER_TYPE = hasSymbol2 ? Symbol.for("react.responder") : 60118;
-        var REACT_SCOPE_TYPE = hasSymbol2 ? Symbol.for("react.scope") : 60119;
-        function isValidElementType(type) {
-          return typeof type === "string" || typeof type === "function" || type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === "object" && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
-        }
-        function typeOf(object2) {
-          if (typeof object2 === "object" && object2 !== null) {
-            var $$typeof = object2.$$typeof;
-            switch ($$typeof) {
-              case REACT_ELEMENT_TYPE:
-                var type = object2.type;
-                switch (type) {
-                  case REACT_ASYNC_MODE_TYPE:
-                  case REACT_CONCURRENT_MODE_TYPE:
-                  case REACT_FRAGMENT_TYPE:
-                  case REACT_PROFILER_TYPE:
-                  case REACT_STRICT_MODE_TYPE:
-                  case REACT_SUSPENSE_TYPE:
-                    return type;
-                  default:
-                    var $$typeofType = type && type.$$typeof;
-                    switch ($$typeofType) {
-                      case REACT_CONTEXT_TYPE:
-                      case REACT_FORWARD_REF_TYPE:
-                      case REACT_LAZY_TYPE:
-                      case REACT_MEMO_TYPE:
-                      case REACT_PROVIDER_TYPE:
-                        return $$typeofType;
-                      default:
-                        return $$typeof;
-                    }
-                }
-              case REACT_PORTAL_TYPE:
-                return $$typeof;
-            }
-          }
-          return void 0;
-        }
-        var AsyncMode = REACT_ASYNC_MODE_TYPE;
-        var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
-        var ContextConsumer = REACT_CONTEXT_TYPE;
-        var ContextProvider = REACT_PROVIDER_TYPE;
-        var Element2 = REACT_ELEMENT_TYPE;
-        var ForwardRef = REACT_FORWARD_REF_TYPE;
-        var Fragment2 = REACT_FRAGMENT_TYPE;
-        var Lazy = REACT_LAZY_TYPE;
-        var Memo = REACT_MEMO_TYPE;
-        var Portal2 = REACT_PORTAL_TYPE;
-        var Profiler = REACT_PROFILER_TYPE;
-        var StrictMode = REACT_STRICT_MODE_TYPE;
-        var Suspense = REACT_SUSPENSE_TYPE;
-        var hasWarnedAboutDeprecatedIsAsyncMode = false;
-        function isAsyncMode(object2) {
-          {
-            if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-              hasWarnedAboutDeprecatedIsAsyncMode = true;
-              console["warn"]("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 17+. Update your code to use ReactIs.isConcurrentMode() instead. It has the exact same API.");
-            }
-          }
-          return isConcurrentMode(object2) || typeOf(object2) === REACT_ASYNC_MODE_TYPE;
-        }
-        function isConcurrentMode(object2) {
-          return typeOf(object2) === REACT_CONCURRENT_MODE_TYPE;
-        }
-        function isContextConsumer(object2) {
-          return typeOf(object2) === REACT_CONTEXT_TYPE;
-        }
-        function isContextProvider(object2) {
-          return typeOf(object2) === REACT_PROVIDER_TYPE;
-        }
-        function isElement(object2) {
-          return typeof object2 === "object" && object2 !== null && object2.$$typeof === REACT_ELEMENT_TYPE;
-        }
-        function isForwardRef(object2) {
-          return typeOf(object2) === REACT_FORWARD_REF_TYPE;
-        }
-        function isFragment(object2) {
-          return typeOf(object2) === REACT_FRAGMENT_TYPE;
-        }
-        function isLazy(object2) {
-          return typeOf(object2) === REACT_LAZY_TYPE;
-        }
-        function isMemo2(object2) {
-          return typeOf(object2) === REACT_MEMO_TYPE;
-        }
-        function isPortal(object2) {
-          return typeOf(object2) === REACT_PORTAL_TYPE;
-        }
-        function isProfiler(object2) {
-          return typeOf(object2) === REACT_PROFILER_TYPE;
-        }
-        function isStrictMode(object2) {
-          return typeOf(object2) === REACT_STRICT_MODE_TYPE;
-        }
-        function isSuspense(object2) {
-          return typeOf(object2) === REACT_SUSPENSE_TYPE;
-        }
-        exports.AsyncMode = AsyncMode;
-        exports.ConcurrentMode = ConcurrentMode;
-        exports.ContextConsumer = ContextConsumer;
-        exports.ContextProvider = ContextProvider;
-        exports.Element = Element2;
-        exports.ForwardRef = ForwardRef;
-        exports.Fragment = Fragment2;
-        exports.Lazy = Lazy;
-        exports.Memo = Memo;
-        exports.Portal = Portal2;
-        exports.Profiler = Profiler;
-        exports.StrictMode = StrictMode;
-        exports.Suspense = Suspense;
-        exports.isAsyncMode = isAsyncMode;
-        exports.isConcurrentMode = isConcurrentMode;
-        exports.isContextConsumer = isContextConsumer;
-        exports.isContextProvider = isContextProvider;
-        exports.isElement = isElement;
-        exports.isForwardRef = isForwardRef;
-        exports.isFragment = isFragment;
-        exports.isLazy = isLazy;
-        exports.isMemo = isMemo2;
-        exports.isPortal = isPortal;
-        exports.isProfiler = isProfiler;
-        exports.isStrictMode = isStrictMode;
-        exports.isSuspense = isSuspense;
-        exports.isValidElementType = isValidElementType;
-        exports.typeOf = typeOf;
-      })();
-    }
-  }
-});
-
-// node_modules/reactex/node_modules/react-is/index.js
-var require_react_is = __commonJS({
-  "node_modules/reactex/node_modules/react-is/index.js"(exports, module) {
-    "use strict";
-    if (false) {
-      module.exports = null;
-    } else {
-      module.exports = require_react_is_development();
-    }
-  }
-});
-
-// node_modules/reactex/node_modules/regenerator-runtime/runtime.js
-var require_runtime = __commonJS({
-  "node_modules/reactex/node_modules/regenerator-runtime/runtime.js"(exports, module) {
-    var runtime = function(exports2) {
-      "use strict";
-      var Op = Object.prototype;
-      var hasOwn = Op.hasOwnProperty;
-      var undefined2;
-      var $Symbol = typeof Symbol === "function" ? Symbol : {};
-      var iteratorSymbol = $Symbol.iterator || "@@iterator";
-      var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
-      var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-      function define2(obj, key, value) {
-        Object.defineProperty(obj, key, {
-          value,
-          enumerable: true,
-          configurable: true,
-          writable: true
-        });
-        return obj[key];
-      }
-      try {
-        define2({}, "");
-      } catch (err) {
-        define2 = function(obj, key, value) {
-          return obj[key] = value;
-        };
-      }
-      function wrap(innerFn, outerFn, self2, tryLocsList) {
-        var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
-        var generator = Object.create(protoGenerator.prototype);
-        var context = new Context(tryLocsList || []);
-        generator._invoke = makeInvokeMethod(innerFn, self2, context);
-        return generator;
-      }
-      exports2.wrap = wrap;
-      function tryCatch(fn, obj, arg) {
-        try {
-          return { type: "normal", arg: fn.call(obj, arg) };
-        } catch (err) {
-          return { type: "throw", arg: err };
-        }
-      }
-      var GenStateSuspendedStart = "suspendedStart";
-      var GenStateSuspendedYield = "suspendedYield";
-      var GenStateExecuting = "executing";
-      var GenStateCompleted = "completed";
-      var ContinueSentinel = {};
-      function Generator() {
-      }
-      function GeneratorFunction() {
-      }
-      function GeneratorFunctionPrototype() {
-      }
-      var IteratorPrototype = {};
-      define2(IteratorPrototype, iteratorSymbol, function() {
-        return this;
-      });
-      var getProto = Object.getPrototypeOf;
-      var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-      if (NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-        IteratorPrototype = NativeIteratorPrototype;
-      }
-      var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-      GeneratorFunction.prototype = GeneratorFunctionPrototype;
-      define2(Gp, "constructor", GeneratorFunctionPrototype);
-      define2(GeneratorFunctionPrototype, "constructor", GeneratorFunction);
-      GeneratorFunction.displayName = define2(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction");
-      function defineIteratorMethods(prototype) {
-        ["next", "throw", "return"].forEach(function(method) {
-          define2(prototype, method, function(arg) {
-            return this._invoke(method, arg);
-          });
-        });
-      }
-      exports2.isGeneratorFunction = function(genFun) {
-        var ctor = typeof genFun === "function" && genFun.constructor;
-        return ctor ? ctor === GeneratorFunction || (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
-      };
-      exports2.mark = function(genFun) {
-        if (Object.setPrototypeOf) {
-          Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-        } else {
-          genFun.__proto__ = GeneratorFunctionPrototype;
-          define2(genFun, toStringTagSymbol, "GeneratorFunction");
-        }
-        genFun.prototype = Object.create(Gp);
-        return genFun;
-      };
-      exports2.awrap = function(arg) {
-        return { __await: arg };
-      };
-      function AsyncIterator(generator, PromiseImpl) {
-        function invoke(method, arg, resolve, reject) {
-          var record = tryCatch(generator[method], generator, arg);
-          if (record.type === "throw") {
-            reject(record.arg);
-          } else {
-            var result = record.arg;
-            var value = result.value;
-            if (value && typeof value === "object" && hasOwn.call(value, "__await")) {
-              return PromiseImpl.resolve(value.__await).then(function(value2) {
-                invoke("next", value2, resolve, reject);
-              }, function(err) {
-                invoke("throw", err, resolve, reject);
-              });
-            }
-            return PromiseImpl.resolve(value).then(function(unwrapped) {
-              result.value = unwrapped;
-              resolve(result);
-            }, function(error) {
-              return invoke("throw", error, resolve, reject);
-            });
-          }
-        }
-        var previousPromise;
-        function enqueue(method, arg) {
-          function callInvokeWithMethodAndArg() {
-            return new PromiseImpl(function(resolve, reject) {
-              invoke(method, arg, resolve, reject);
-            });
-          }
-          return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-        }
-        this._invoke = enqueue;
-      }
-      defineIteratorMethods(AsyncIterator.prototype);
-      define2(AsyncIterator.prototype, asyncIteratorSymbol, function() {
-        return this;
-      });
-      exports2.AsyncIterator = AsyncIterator;
-      exports2.async = function(innerFn, outerFn, self2, tryLocsList, PromiseImpl) {
-        if (PromiseImpl === void 0)
-          PromiseImpl = Promise;
-        var iter = new AsyncIterator(wrap(innerFn, outerFn, self2, tryLocsList), PromiseImpl);
-        return exports2.isGeneratorFunction(outerFn) ? iter : iter.next().then(function(result) {
-          return result.done ? result.value : iter.next();
-        });
-      };
-      function makeInvokeMethod(innerFn, self2, context) {
-        var state = GenStateSuspendedStart;
-        return function invoke(method, arg) {
-          if (state === GenStateExecuting) {
-            throw new Error("Generator is already running");
-          }
-          if (state === GenStateCompleted) {
-            if (method === "throw") {
-              throw arg;
-            }
-            return doneResult();
-          }
-          context.method = method;
-          context.arg = arg;
-          while (true) {
-            var delegate = context.delegate;
-            if (delegate) {
-              var delegateResult = maybeInvokeDelegate(delegate, context);
-              if (delegateResult) {
-                if (delegateResult === ContinueSentinel)
-                  continue;
-                return delegateResult;
-              }
-            }
-            if (context.method === "next") {
-              context.sent = context._sent = context.arg;
-            } else if (context.method === "throw") {
-              if (state === GenStateSuspendedStart) {
-                state = GenStateCompleted;
-                throw context.arg;
-              }
-              context.dispatchException(context.arg);
-            } else if (context.method === "return") {
-              context.abrupt("return", context.arg);
-            }
-            state = GenStateExecuting;
-            var record = tryCatch(innerFn, self2, context);
-            if (record.type === "normal") {
-              state = context.done ? GenStateCompleted : GenStateSuspendedYield;
-              if (record.arg === ContinueSentinel) {
-                continue;
-              }
-              return {
-                value: record.arg,
-                done: context.done
-              };
-            } else if (record.type === "throw") {
-              state = GenStateCompleted;
-              context.method = "throw";
-              context.arg = record.arg;
-            }
-          }
-        };
-      }
-      function maybeInvokeDelegate(delegate, context) {
-        var method = delegate.iterator[context.method];
-        if (method === undefined2) {
-          context.delegate = null;
-          if (context.method === "throw") {
-            if (delegate.iterator["return"]) {
-              context.method = "return";
-              context.arg = undefined2;
-              maybeInvokeDelegate(delegate, context);
-              if (context.method === "throw") {
-                return ContinueSentinel;
-              }
-            }
-            context.method = "throw";
-            context.arg = new TypeError("The iterator does not provide a 'throw' method");
-          }
-          return ContinueSentinel;
-        }
-        var record = tryCatch(method, delegate.iterator, context.arg);
-        if (record.type === "throw") {
-          context.method = "throw";
-          context.arg = record.arg;
-          context.delegate = null;
-          return ContinueSentinel;
-        }
-        var info = record.arg;
-        if (!info) {
-          context.method = "throw";
-          context.arg = new TypeError("iterator result is not an object");
-          context.delegate = null;
-          return ContinueSentinel;
-        }
-        if (info.done) {
-          context[delegate.resultName] = info.value;
-          context.next = delegate.nextLoc;
-          if (context.method !== "return") {
-            context.method = "next";
-            context.arg = undefined2;
-          }
-        } else {
-          return info;
-        }
-        context.delegate = null;
-        return ContinueSentinel;
-      }
-      defineIteratorMethods(Gp);
-      define2(Gp, toStringTagSymbol, "Generator");
-      define2(Gp, iteratorSymbol, function() {
-        return this;
-      });
-      define2(Gp, "toString", function() {
-        return "[object Generator]";
-      });
-      function pushTryEntry(locs) {
-        var entry = { tryLoc: locs[0] };
-        if (1 in locs) {
-          entry.catchLoc = locs[1];
-        }
-        if (2 in locs) {
-          entry.finallyLoc = locs[2];
-          entry.afterLoc = locs[3];
-        }
-        this.tryEntries.push(entry);
-      }
-      function resetTryEntry(entry) {
-        var record = entry.completion || {};
-        record.type = "normal";
-        delete record.arg;
-        entry.completion = record;
-      }
-      function Context(tryLocsList) {
-        this.tryEntries = [{ tryLoc: "root" }];
-        tryLocsList.forEach(pushTryEntry, this);
-        this.reset(true);
-      }
-      exports2.keys = function(object2) {
-        var keys = [];
-        for (var key in object2) {
-          keys.push(key);
-        }
-        keys.reverse();
-        return function next() {
-          while (keys.length) {
-            var key2 = keys.pop();
-            if (key2 in object2) {
-              next.value = key2;
-              next.done = false;
-              return next;
-            }
-          }
-          next.done = true;
-          return next;
-        };
-      };
-      function values(iterable) {
-        if (iterable) {
-          var iteratorMethod = iterable[iteratorSymbol];
-          if (iteratorMethod) {
-            return iteratorMethod.call(iterable);
-          }
-          if (typeof iterable.next === "function") {
-            return iterable;
-          }
-          if (!isNaN(iterable.length)) {
-            var i = -1, next = function next2() {
-              while (++i < iterable.length) {
-                if (hasOwn.call(iterable, i)) {
-                  next2.value = iterable[i];
-                  next2.done = false;
-                  return next2;
-                }
-              }
-              next2.value = undefined2;
-              next2.done = true;
-              return next2;
-            };
-            return next.next = next;
-          }
-        }
-        return { next: doneResult };
-      }
-      exports2.values = values;
-      function doneResult() {
-        return { value: undefined2, done: true };
-      }
-      Context.prototype = {
-        constructor: Context,
-        reset: function(skipTempReset) {
-          this.prev = 0;
-          this.next = 0;
-          this.sent = this._sent = undefined2;
-          this.done = false;
-          this.delegate = null;
-          this.method = "next";
-          this.arg = undefined2;
-          this.tryEntries.forEach(resetTryEntry);
-          if (!skipTempReset) {
-            for (var name2 in this) {
-              if (name2.charAt(0) === "t" && hasOwn.call(this, name2) && !isNaN(+name2.slice(1))) {
-                this[name2] = undefined2;
-              }
-            }
-          }
-        },
-        stop: function() {
-          this.done = true;
-          var rootEntry = this.tryEntries[0];
-          var rootRecord = rootEntry.completion;
-          if (rootRecord.type === "throw") {
-            throw rootRecord.arg;
-          }
-          return this.rval;
-        },
-        dispatchException: function(exception) {
-          if (this.done) {
-            throw exception;
-          }
-          var context = this;
-          function handle(loc, caught) {
-            record.type = "throw";
-            record.arg = exception;
-            context.next = loc;
-            if (caught) {
-              context.method = "next";
-              context.arg = undefined2;
-            }
-            return !!caught;
-          }
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            var record = entry.completion;
-            if (entry.tryLoc === "root") {
-              return handle("end");
-            }
-            if (entry.tryLoc <= this.prev) {
-              var hasCatch = hasOwn.call(entry, "catchLoc");
-              var hasFinally = hasOwn.call(entry, "finallyLoc");
-              if (hasCatch && hasFinally) {
-                if (this.prev < entry.catchLoc) {
-                  return handle(entry.catchLoc, true);
-                } else if (this.prev < entry.finallyLoc) {
-                  return handle(entry.finallyLoc);
-                }
-              } else if (hasCatch) {
-                if (this.prev < entry.catchLoc) {
-                  return handle(entry.catchLoc, true);
-                }
-              } else if (hasFinally) {
-                if (this.prev < entry.finallyLoc) {
-                  return handle(entry.finallyLoc);
-                }
-              } else {
-                throw new Error("try statement without catch or finally");
-              }
-            }
-          }
-        },
-        abrupt: function(type, arg) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-              var finallyEntry = entry;
-              break;
-            }
-          }
-          if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
-            finallyEntry = null;
-          }
-          var record = finallyEntry ? finallyEntry.completion : {};
-          record.type = type;
-          record.arg = arg;
-          if (finallyEntry) {
-            this.method = "next";
-            this.next = finallyEntry.finallyLoc;
-            return ContinueSentinel;
-          }
-          return this.complete(record);
-        },
-        complete: function(record, afterLoc) {
-          if (record.type === "throw") {
-            throw record.arg;
-          }
-          if (record.type === "break" || record.type === "continue") {
-            this.next = record.arg;
-          } else if (record.type === "return") {
-            this.rval = this.arg = record.arg;
-            this.method = "return";
-            this.next = "end";
-          } else if (record.type === "normal" && afterLoc) {
-            this.next = afterLoc;
-          }
-          return ContinueSentinel;
-        },
-        finish: function(finallyLoc) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.finallyLoc === finallyLoc) {
-              this.complete(entry.completion, entry.afterLoc);
-              resetTryEntry(entry);
-              return ContinueSentinel;
-            }
-          }
-        },
-        "catch": function(tryLoc) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.tryLoc === tryLoc) {
-              var record = entry.completion;
-              if (record.type === "throw") {
-                var thrown = record.arg;
-                resetTryEntry(entry);
-              }
-              return thrown;
-            }
-          }
-          throw new Error("illegal catch attempt");
-        },
-        delegateYield: function(iterable, resultName, nextLoc) {
-          this.delegate = {
-            iterator: values(iterable),
-            resultName,
-            nextLoc
-          };
-          if (this.method === "next") {
-            this.arg = undefined2;
-          }
-          return ContinueSentinel;
-        }
-      };
-      return exports2;
-    }(typeof module === "object" ? module.exports : {});
-    try {
-      regeneratorRuntime = runtime;
-    } catch (accidentalStrictMode) {
-      if (typeof globalThis === "object") {
-        globalThis.regeneratorRuntime = runtime;
-      } else {
-        Function("r", "regeneratorRuntime = r")(runtime);
-      }
-    }
-  }
-});
-
-// node_modules/reactex/node_modules/@babel/runtime/regenerator/index.js
-var require_regenerator = __commonJS({
-  "node_modules/reactex/node_modules/@babel/runtime/regenerator/index.js"(exports, module) {
-    module.exports = require_runtime();
-  }
-});
-
 // node_modules/axios/lib/helpers/bind.js
 var require_bind2 = __commonJS({
   "node_modules/axios/lib/helpers/bind.js"(exports, module) {
     "use strict";
-    module.exports = function bind(fn, thisArg) {
+    module.exports = function bind(fn3, thisArg) {
       return function wrap() {
         var args = new Array(arguments.length);
         for (var i = 0; i < args.length; i++) {
           args[i] = arguments[i];
         }
-        return fn.apply(thisArg, args);
+        return fn3.apply(thisArg, args);
       };
     };
   }
@@ -45672,7 +45023,7 @@ var require_utils2 = __commonJS({
       }
       return typeof window !== "undefined" && typeof document !== "undefined";
     }
-    function forEach(obj, fn) {
+    function forEach(obj, fn3) {
       if (obj === null || typeof obj === "undefined") {
         return;
       }
@@ -45681,23 +45032,23 @@ var require_utils2 = __commonJS({
       }
       if (isArray(obj)) {
         for (var i = 0, l = obj.length; i < l; i++) {
-          fn.call(null, obj[i], i, obj);
+          fn3.call(null, obj[i], i, obj);
         }
       } else {
         for (var key in obj) {
           if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            fn.call(null, obj[key], key, obj);
+            fn3.call(null, obj[key], key, obj);
           }
         }
       }
     }
-    function merge2() {
+    function merge() {
       var result = {};
       function assignValue(val, key) {
         if (isPlainObject2(result[key]) && isPlainObject2(val)) {
-          result[key] = merge2(result[key], val);
+          result[key] = merge(result[key], val);
         } else if (isPlainObject2(val)) {
-          result[key] = merge2({}, val);
+          result[key] = merge({}, val);
         } else if (isArray(val)) {
           result[key] = val.slice();
         } else {
@@ -45744,7 +45095,7 @@ var require_utils2 = __commonJS({
       isURLSearchParams,
       isStandardBrowserEnv,
       forEach,
-      merge: merge2,
+      merge,
       extend: extend2,
       trim,
       stripBOM
@@ -45756,7 +45107,7 @@ var require_utils2 = __commonJS({
 var require_buildURL = __commonJS({
   "node_modules/axios/lib/helpers/buildURL.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     function encode(val) {
       return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+").replace(/%5B/gi, "[").replace(/%5D/gi, "]");
     }
@@ -45767,23 +45118,23 @@ var require_buildURL = __commonJS({
       var serializedParams;
       if (paramsSerializer) {
         serializedParams = paramsSerializer(params);
-      } else if (utils2.isURLSearchParams(params)) {
+      } else if (utils.isURLSearchParams(params)) {
         serializedParams = params.toString();
       } else {
         var parts = [];
-        utils2.forEach(params, function serialize(val, key) {
+        utils.forEach(params, function serialize(val, key) {
           if (val === null || typeof val === "undefined") {
             return;
           }
-          if (utils2.isArray(val)) {
+          if (utils.isArray(val)) {
             key = key + "[]";
           } else {
             val = [val];
           }
-          utils2.forEach(val, function parseValue(v) {
-            if (utils2.isDate(v)) {
+          utils.forEach(val, function parseValue(v) {
+            if (utils.isDate(v)) {
               v = v.toISOString();
-            } else if (utils2.isObject(v)) {
+            } else if (utils.isObject(v)) {
               v = JSON.stringify(v);
             }
             parts.push(encode(key) + "=" + encode(v));
@@ -45807,7 +45158,7 @@ var require_buildURL = __commonJS({
 var require_InterceptorManager = __commonJS({
   "node_modules/axios/lib/core/InterceptorManager.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     function InterceptorManager() {
       this.handlers = [];
     }
@@ -45823,10 +45174,10 @@ var require_InterceptorManager = __commonJS({
         this.handlers[id] = null;
       }
     };
-    InterceptorManager.prototype.forEach = function forEach(fn) {
-      utils2.forEach(this.handlers, function forEachHandler(h) {
+    InterceptorManager.prototype.forEach = function forEach(fn3) {
+      utils.forEach(this.handlers, function forEachHandler(h) {
         if (h !== null) {
-          fn(h);
+          fn3(h);
         }
       });
     };
@@ -45838,10 +45189,10 @@ var require_InterceptorManager = __commonJS({
 var require_transformData = __commonJS({
   "node_modules/axios/lib/core/transformData.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     module.exports = function transformData(data, headers, fns) {
-      utils2.forEach(fns, function transform(fn) {
-        data = fn(data, headers);
+      utils.forEach(fns, function transform(fn3) {
+        data = fn3(data, headers);
       });
       return data;
     };
@@ -45862,9 +45213,9 @@ var require_isCancel = __commonJS({
 var require_normalizeHeaderName = __commonJS({
   "node_modules/axios/lib/helpers/normalizeHeaderName.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     module.exports = function normalizeHeaderName(headers, normalizedName) {
-      utils2.forEach(headers, function processHeader(value, name2) {
+      utils.forEach(headers, function processHeader(value, name2) {
         if (name2 !== normalizedName && name2.toUpperCase() === normalizedName.toUpperCase()) {
           headers[normalizedName] = value;
           delete headers[name2];
@@ -45937,19 +45288,19 @@ var require_settle = __commonJS({
 var require_cookies = __commonJS({
   "node_modules/axios/lib/helpers/cookies.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
-    module.exports = utils2.isStandardBrowserEnv() ? function standardBrowserEnv() {
+    var utils = require_utils2();
+    module.exports = utils.isStandardBrowserEnv() ? function standardBrowserEnv() {
       return {
-        write: function write(name2, value, expires, path, domain, secure) {
+        write: function write2(name2, value, expires, path, domain, secure) {
           var cookie = [];
           cookie.push(name2 + "=" + encodeURIComponent(value));
-          if (utils2.isNumber(expires)) {
+          if (utils.isNumber(expires)) {
             cookie.push("expires=" + new Date(expires).toGMTString());
           }
-          if (utils2.isString(path)) {
+          if (utils.isString(path)) {
             cookie.push("path=" + path);
           }
-          if (utils2.isString(domain)) {
+          if (utils.isString(domain)) {
             cookie.push("domain=" + domain);
           }
           if (secure === true) {
@@ -45957,7 +45308,7 @@ var require_cookies = __commonJS({
           }
           document.cookie = cookie.join("; ");
         },
-        read: function read(name2) {
+        read: function read2(name2) {
           var match = document.cookie.match(new RegExp("(^|;\\s*)(" + name2 + ")=([^;]*)"));
           return match ? decodeURIComponent(match[3]) : null;
         },
@@ -45967,9 +45318,9 @@ var require_cookies = __commonJS({
       };
     }() : function nonStandardBrowserEnv() {
       return {
-        write: function write() {
+        write: function write2() {
         },
-        read: function read() {
+        read: function read2() {
           return null;
         },
         remove: function remove3() {
@@ -46018,7 +45369,7 @@ var require_buildFullPath = __commonJS({
 var require_parseHeaders = __commonJS({
   "node_modules/axios/lib/helpers/parseHeaders.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var ignoreDuplicateOf = [
       "age",
       "authorization",
@@ -46046,10 +45397,10 @@ var require_parseHeaders = __commonJS({
       if (!headers) {
         return parsed;
       }
-      utils2.forEach(headers.split("\n"), function parser2(line) {
+      utils.forEach(headers.split("\n"), function parser2(line) {
         i = line.indexOf(":");
-        key = utils2.trim(line.substr(0, i)).toLowerCase();
-        val = utils2.trim(line.substr(i + 1));
+        key = utils.trim(line.substr(0, i)).toLowerCase();
+        val = utils.trim(line.substr(i + 1));
         if (key) {
           if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
             return;
@@ -46070,8 +45421,8 @@ var require_parseHeaders = __commonJS({
 var require_isURLSameOrigin = __commonJS({
   "node_modules/axios/lib/helpers/isURLSameOrigin.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
-    module.exports = utils2.isStandardBrowserEnv() ? function standardBrowserEnv() {
+    var utils = require_utils2();
+    module.exports = utils.isStandardBrowserEnv() ? function standardBrowserEnv() {
       var msie = /(msie|trident)/i.test(navigator.userAgent);
       var urlParsingNode = document.createElement("a");
       var originURL;
@@ -46095,7 +45446,7 @@ var require_isURLSameOrigin = __commonJS({
       }
       originURL = resolveURL(window.location.href);
       return function isURLSameOrigin(requestURL) {
-        var parsed = utils2.isString(requestURL) ? resolveURL(requestURL) : requestURL;
+        var parsed = utils.isString(requestURL) ? resolveURL(requestURL) : requestURL;
         return parsed.protocol === originURL.protocol && parsed.host === originURL.host;
       };
     }() : function nonStandardBrowserEnv() {
@@ -46110,7 +45461,7 @@ var require_isURLSameOrigin = __commonJS({
 var require_xhr = __commonJS({
   "node_modules/axios/lib/adapters/xhr.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var settle = require_settle();
     var cookies = require_cookies();
     var buildURL = require_buildURL();
@@ -46122,7 +45473,7 @@ var require_xhr = __commonJS({
       return new Promise(function dispatchXhrRequest(resolve, reject) {
         var requestData = config.data;
         var requestHeaders = config.headers;
-        if (utils2.isFormData(requestData)) {
+        if (utils.isFormData(requestData)) {
           delete requestHeaders["Content-Type"];
         }
         var request = new XMLHttpRequest();
@@ -46173,14 +45524,14 @@ var require_xhr = __commonJS({
           reject(createError(timeoutErrorMessage, config, "ECONNABORTED", request));
           request = null;
         };
-        if (utils2.isStandardBrowserEnv()) {
+        if (utils.isStandardBrowserEnv()) {
           var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ? cookies.read(config.xsrfCookieName) : void 0;
           if (xsrfValue) {
             requestHeaders[config.xsrfHeaderName] = xsrfValue;
           }
         }
         if ("setRequestHeader" in request) {
-          utils2.forEach(requestHeaders, function setRequestHeader(val, key) {
+          utils.forEach(requestHeaders, function setRequestHeader(val, key) {
             if (typeof requestData === "undefined" && key.toLowerCase() === "content-type") {
               delete requestHeaders[key];
             } else {
@@ -46188,7 +45539,7 @@ var require_xhr = __commonJS({
             }
           });
         }
-        if (!utils2.isUndefined(config.withCredentials)) {
+        if (!utils.isUndefined(config.withCredentials)) {
           request.withCredentials = !!config.withCredentials;
         }
         if (config.responseType) {
@@ -46229,13 +45580,13 @@ var require_xhr = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/axios/lib/defaults.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var normalizeHeaderName = require_normalizeHeaderName();
     var DEFAULT_CONTENT_TYPE = {
       "Content-Type": "application/x-www-form-urlencoded"
     };
     function setContentTypeIfUnset(headers, value) {
-      if (!utils2.isUndefined(headers) && utils2.isUndefined(headers["Content-Type"])) {
+      if (!utils.isUndefined(headers) && utils.isUndefined(headers["Content-Type"])) {
         headers["Content-Type"] = value;
       }
     }
@@ -46253,17 +45604,17 @@ var require_defaults = __commonJS({
       transformRequest: [function transformRequest(data, headers) {
         normalizeHeaderName(headers, "Accept");
         normalizeHeaderName(headers, "Content-Type");
-        if (utils2.isFormData(data) || utils2.isArrayBuffer(data) || utils2.isBuffer(data) || utils2.isStream(data) || utils2.isFile(data) || utils2.isBlob(data)) {
+        if (utils.isFormData(data) || utils.isArrayBuffer(data) || utils.isBuffer(data) || utils.isStream(data) || utils.isFile(data) || utils.isBlob(data)) {
           return data;
         }
-        if (utils2.isArrayBufferView(data)) {
+        if (utils.isArrayBufferView(data)) {
           return data.buffer;
         }
-        if (utils2.isURLSearchParams(data)) {
+        if (utils.isURLSearchParams(data)) {
           setContentTypeIfUnset(headers, "application/x-www-form-urlencoded;charset=utf-8");
           return data.toString();
         }
-        if (utils2.isObject(data)) {
+        if (utils.isObject(data)) {
           setContentTypeIfUnset(headers, "application/json;charset=utf-8");
           return JSON.stringify(data);
         }
@@ -46292,11 +45643,11 @@ var require_defaults = __commonJS({
         "Accept": "application/json, text/plain, */*"
       }
     };
-    utils2.forEach(["delete", "get", "head"], function forEachMethodNoData(method) {
+    utils.forEach(["delete", "get", "head"], function forEachMethodNoData(method) {
       defaults2.headers[method] = {};
     });
-    utils2.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
-      defaults2.headers[method] = utils2.merge(DEFAULT_CONTENT_TYPE);
+    utils.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
+      defaults2.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
     });
     module.exports = defaults2;
   }
@@ -46306,7 +45657,7 @@ var require_defaults = __commonJS({
 var require_dispatchRequest = __commonJS({
   "node_modules/axios/lib/core/dispatchRequest.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var transformData = require_transformData();
     var isCancel = require_isCancel();
     var defaults2 = require_defaults();
@@ -46319,8 +45670,8 @@ var require_dispatchRequest = __commonJS({
       throwIfCancellationRequested(config);
       config.headers = config.headers || {};
       config.data = transformData(config.data, config.headers, config.transformRequest);
-      config.headers = utils2.merge(config.headers.common || {}, config.headers[config.method] || {}, config.headers);
-      utils2.forEach(["delete", "get", "head", "post", "put", "patch", "common"], function cleanHeaderConfig(method) {
+      config.headers = utils.merge(config.headers.common || {}, config.headers[config.method] || {}, config.headers);
+      utils.forEach(["delete", "get", "head", "post", "put", "patch", "common"], function cleanHeaderConfig(method) {
         delete config.headers[method];
       });
       var adapter = config.adapter || defaults2.adapter;
@@ -46345,7 +45696,7 @@ var require_dispatchRequest = __commonJS({
 var require_mergeConfig = __commonJS({
   "node_modules/axios/lib/core/mergeConfig.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     module.exports = function mergeConfig(config1, config2) {
       config2 = config2 || {};
       var config = {};
@@ -46378,36 +45729,36 @@ var require_mergeConfig = __commonJS({
       ];
       var directMergeKeys = ["validateStatus"];
       function getMergedValue(target, source) {
-        if (utils2.isPlainObject(target) && utils2.isPlainObject(source)) {
-          return utils2.merge(target, source);
-        } else if (utils2.isPlainObject(source)) {
-          return utils2.merge({}, source);
-        } else if (utils2.isArray(source)) {
+        if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
+          return utils.merge(target, source);
+        } else if (utils.isPlainObject(source)) {
+          return utils.merge({}, source);
+        } else if (utils.isArray(source)) {
           return source.slice();
         }
         return source;
       }
       function mergeDeepProperties(prop) {
-        if (!utils2.isUndefined(config2[prop])) {
+        if (!utils.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(config1[prop], config2[prop]);
-        } else if (!utils2.isUndefined(config1[prop])) {
+        } else if (!utils.isUndefined(config1[prop])) {
           config[prop] = getMergedValue(void 0, config1[prop]);
         }
       }
-      utils2.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
-        if (!utils2.isUndefined(config2[prop])) {
+      utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
+        if (!utils.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(void 0, config2[prop]);
         }
       });
-      utils2.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
-      utils2.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
-        if (!utils2.isUndefined(config2[prop])) {
+      utils.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
+      utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+        if (!utils.isUndefined(config2[prop])) {
           config[prop] = getMergedValue(void 0, config2[prop]);
-        } else if (!utils2.isUndefined(config1[prop])) {
+        } else if (!utils.isUndefined(config1[prop])) {
           config[prop] = getMergedValue(void 0, config1[prop]);
         }
       });
-      utils2.forEach(directMergeKeys, function merge2(prop) {
+      utils.forEach(directMergeKeys, function merge(prop) {
         if (prop in config2) {
           config[prop] = getMergedValue(config1[prop], config2[prop]);
         } else if (prop in config1) {
@@ -46418,7 +45769,7 @@ var require_mergeConfig = __commonJS({
       var otherKeys = Object.keys(config1).concat(Object.keys(config2)).filter(function filterAxiosKeys(key) {
         return axiosKeys.indexOf(key) === -1;
       });
-      utils2.forEach(otherKeys, mergeDeepProperties);
+      utils.forEach(otherKeys, mergeDeepProperties);
       return config;
     };
   }
@@ -46428,7 +45779,7 @@ var require_mergeConfig = __commonJS({
 var require_Axios = __commonJS({
   "node_modules/axios/lib/core/Axios.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var buildURL = require_buildURL();
     var InterceptorManager = require_InterceptorManager();
     var dispatchRequest = require_dispatchRequest();
@@ -46472,7 +45823,7 @@ var require_Axios = __commonJS({
       config = mergeConfig(this.defaults, config);
       return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, "");
     };
-    utils2.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
+    utils.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
       Axios.prototype[method] = function(url, config) {
         return this.request(mergeConfig(config || {}, {
           method,
@@ -46481,7 +45832,7 @@ var require_Axios = __commonJS({
         }));
       };
     });
-    utils2.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
+    utils.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
       Axios.prototype[method] = function(url, data, config) {
         return this.request(mergeConfig(config || {}, {
           method,
@@ -46576,7 +45927,7 @@ var require_isAxiosError = __commonJS({
 var require_axios = __commonJS({
   "node_modules/axios/lib/axios.js"(exports, module) {
     "use strict";
-    var utils2 = require_utils2();
+    var utils = require_utils2();
     var bind = require_bind2();
     var Axios = require_Axios();
     var mergeConfig = require_mergeConfig();
@@ -46584,8 +45935,8 @@ var require_axios = __commonJS({
     function createInstance2(defaultConfig) {
       var context = new Axios(defaultConfig);
       var instance = bind(Axios.prototype.request, context);
-      utils2.extend(instance, Axios.prototype, context);
-      utils2.extend(instance, context);
+      utils.extend(instance, Axios.prototype, context);
+      utils.extend(instance, context);
       return instance;
     }
     var axios2 = createInstance2(defaults2);
@@ -46614,3916 +45965,18 @@ var require_axios2 = __commonJS({
 });
 
 // src/index.tsx
-var import_react32 = __toModule(require_react());
-var import_react_dom7 = __toModule(require_react_dom());
+var import_react22 = __toModule(require_react());
+var import_react_dom4 = __toModule(require_react_dom());
 
 // node_modules/reactex/dist/bibliography.js
-var import_react26 = __toModule(require_react());
+var import_react16 = __toModule(require_react());
 var import_bibtex_parse_js = __toModule(require_bibtexParse());
 var import_lodash5 = __toModule(require_lodash());
 
 // node_modules/reactex/dist/document.js
-var import_react25 = __toModule(require_react());
+var import_react15 = __toModule(require_react());
 var import_lodash4 = __toModule(require_lodash());
-var import_classnames7 = __toModule(require_classnames());
-
-// node_modules/reactex/dist/tex.js
-var import_react23 = __toModule(require_react());
-var import_katex = __toModule(require_katex());
-var import_html_to_react = __toModule(require_html_to_react());
-var import_react_dom6 = __toModule(require_react_dom());
-
-// node_modules/reactex/dist/definitions.js
-var import_react22 = __toModule(require_react());
-var import_lodash2 = __toModule(require_lodash());
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/extends.js
-function _extends() {
-  _extends = Object.assign || function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-    return target;
-  };
-  return _extends.apply(this, arguments);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/typeof.js
-function _typeof(obj) {
-  "@babel/helpers - typeof";
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function _typeof3(obj2) {
-      return typeof obj2;
-    };
-  } else {
-    _typeof = function _typeof3(obj2) {
-      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-    };
-  }
-  return _typeof(obj);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/defineProperty.js
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectSpread2.js
-function ownKeys(object2, enumerableOnly) {
-  var keys = Object.keys(object2);
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object2);
-    if (enumerableOnly) {
-      symbols = symbols.filter(function(sym) {
-        return Object.getOwnPropertyDescriptor(object2, sym).enumerable;
-      });
-    }
-    keys.push.apply(keys, symbols);
-  }
-  return keys;
-}
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function(key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function(key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-  return target;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null)
-    return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0)
-      continue;
-    target[key] = source[key];
-  }
-  return target;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
-function _objectWithoutProperties(source, excluded) {
-  if (source == null)
-    return {};
-  var target = _objectWithoutPropertiesLoose(source, excluded);
-  var key, i;
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0)
-        continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key))
-        continue;
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
-
-// node_modules/reactex/node_modules/rc-tooltip/es/Tooltip.js
-var React18 = __toModule(require_react());
-var import_react12 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/classCallCheck.js
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/createClass.js
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor)
-      descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps)
-    _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps)
-    _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js
-function _assertThisInitialized(self2) {
-  if (self2 === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-  return self2;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf2(o2, p2) {
-    o2.__proto__ = p2;
-    return o2;
-  };
-  return _setPrototypeOf(o, p);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/inherits.js
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass)
-    _setPrototypeOf(subClass, superClass);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf2(o2) {
-    return o2.__proto__ || Object.getPrototypeOf(o2);
-  };
-  return _getPrototypeOf(o);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/isNativeReflectConstruct.js
-function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct)
-    return false;
-  if (Reflect.construct.sham)
-    return false;
-  if (typeof Proxy === "function")
-    return true;
-  try {
-    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
-    }));
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js
-function _possibleConstructorReturn(self2, call) {
-  if (call && (_typeof(call) === "object" || typeof call === "function")) {
-    return call;
-  }
-  return _assertThisInitialized(self2);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/createSuper.js
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-  return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived), result;
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-// node_modules/reactex/node_modules/rc-trigger/es/index.js
-var React16 = __toModule(require_react());
-var import_react_dom4 = __toModule(require_react_dom());
-
-// node_modules/reactex/node_modules/rc-util/es/raf.js
-var raf = function raf2(callback) {
-  return +setTimeout(callback, 16);
-};
-var caf = function caf2(num) {
-  return clearTimeout(num);
-};
-if (typeof window !== "undefined" && "requestAnimationFrame" in window) {
-  raf = function raf3(callback) {
-    return window.requestAnimationFrame(callback);
-  };
-  caf = function caf3(handle) {
-    return window.cancelAnimationFrame(handle);
-  };
-}
-var rafUUID = 0;
-var rafIds = new Map();
-function cleanup(id) {
-  rafIds.delete(id);
-}
-function wrapperRaf(callback) {
-  var times = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1;
-  rafUUID += 1;
-  var id = rafUUID;
-  function callRef(leftTimes) {
-    if (leftTimes === 0) {
-      cleanup(id);
-      callback();
-    } else {
-      var realId = raf(function() {
-        callRef(leftTimes - 1);
-      });
-      rafIds.set(id, realId);
-    }
-  }
-  callRef(times);
-  return id;
-}
-wrapperRaf.cancel = function(id) {
-  var realId = rafIds.get(id);
-  cleanup(realId);
-  return caf(realId);
-};
-
-// node_modules/reactex/node_modules/rc-util/es/Dom/contains.js
-function contains(root, n) {
-  if (!root) {
-    return false;
-  }
-  return root.contains(n);
-}
-
-// node_modules/reactex/node_modules/rc-util/es/Dom/findDOMNode.js
-var import_react_dom = __toModule(require_react_dom());
-function findDOMNode(node) {
-  if (node instanceof HTMLElement) {
-    return node;
-  }
-  return import_react_dom.default.findDOMNode(node);
-}
-
-// node_modules/reactex/node_modules/rc-util/es/ref.js
-var import_react_is = __toModule(require_react_is());
-function fillRef(ref, node) {
-  if (typeof ref === "function") {
-    ref(node);
-  } else if (_typeof(ref) === "object" && ref && "current" in ref) {
-    ref.current = node;
-  }
-}
-function composeRef() {
-  for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
-    refs[_key] = arguments[_key];
-  }
-  return function(node) {
-    refs.forEach(function(ref) {
-      fillRef(ref, node);
-    });
-  };
-}
-function supportRef(nodeOrComponent) {
-  var _type$prototype, _nodeOrComponent$prot;
-  var type = (0, import_react_is.isMemo)(nodeOrComponent) ? nodeOrComponent.type.type : nodeOrComponent.type;
-  if (typeof type === "function" && !((_type$prototype = type.prototype) === null || _type$prototype === void 0 ? void 0 : _type$prototype.render)) {
-    return false;
-  }
-  if (typeof nodeOrComponent === "function" && !((_nodeOrComponent$prot = nodeOrComponent.prototype) === null || _nodeOrComponent$prot === void 0 ? void 0 : _nodeOrComponent$prot.render)) {
-    return false;
-  }
-  return true;
-}
-
-// node_modules/reactex/node_modules/rc-util/es/Dom/addEventListener.js
-var import_react_dom2 = __toModule(require_react_dom());
-function addEventListenerWrap(target, eventType, cb, option) {
-  var callback = import_react_dom2.default.unstable_batchedUpdates ? function run3(e) {
-    import_react_dom2.default.unstable_batchedUpdates(cb, e);
-  } : cb;
-  if (target.addEventListener) {
-    target.addEventListener(eventType, callback, option);
-  }
-  return {
-    remove: function remove3() {
-      if (target.removeEventListener) {
-        target.removeEventListener(eventType, callback);
-      }
-    }
-  };
-}
-
-// node_modules/reactex/node_modules/rc-util/es/Portal.js
-var import_react = __toModule(require_react());
-var import_react_dom3 = __toModule(require_react_dom());
-
-// node_modules/reactex/node_modules/rc-util/es/Dom/canUseDom.js
-function canUseDom() {
-  return !!(typeof window !== "undefined" && window.document && window.document.createElement);
-}
-
-// node_modules/reactex/node_modules/rc-util/es/Portal.js
-var Portal = /* @__PURE__ */ (0, import_react.forwardRef)(function(props, ref) {
-  var didUpdate = props.didUpdate, getContainer = props.getContainer, children = props.children;
-  var containerRef = (0, import_react.useRef)();
-  (0, import_react.useImperativeHandle)(ref, function() {
-    return {};
-  });
-  var initRef = (0, import_react.useRef)(false);
-  if (!initRef.current && canUseDom()) {
-    containerRef.current = getContainer();
-    initRef.current = true;
-  }
-  (0, import_react.useEffect)(function() {
-    didUpdate === null || didUpdate === void 0 ? void 0 : didUpdate(props);
-  });
-  (0, import_react.useEffect)(function() {
-    return function() {
-      var _containerRef$current, _containerRef$current2;
-      (_containerRef$current = containerRef.current) === null || _containerRef$current === void 0 ? void 0 : (_containerRef$current2 = _containerRef$current.parentNode) === null || _containerRef$current2 === void 0 ? void 0 : _containerRef$current2.removeChild(containerRef.current);
-    };
-  }, []);
-  return containerRef.current ? /* @__PURE__ */ import_react_dom3.default.createPortal(children, containerRef.current) : null;
-});
-var Portal_default = Portal;
-
-// node_modules/reactex/node_modules/rc-trigger/es/index.js
-var import_classnames5 = __toModule(require_classnames());
-
-// node_modules/reactex/node_modules/rc-trigger/es/utils/alignUtil.js
-function isPointsEq(a1, a2, isAlignPoint) {
-  if (isAlignPoint) {
-    return a1[0] === a2[0];
-  }
-  return a1[0] === a2[0] && a1[1] === a2[1];
-}
-function getAlignFromPlacement(builtinPlacements, placementStr, align) {
-  var baseAlign = builtinPlacements[placementStr] || {};
-  return _objectSpread2(_objectSpread2({}, baseAlign), align);
-}
-function getAlignPopupClassName(builtinPlacements, prefixCls, align, isAlignPoint) {
-  var points = align.points;
-  var placements2 = Object.keys(builtinPlacements);
-  for (var i = 0; i < placements2.length; i += 1) {
-    var placement = placements2[i];
-    if (isPointsEq(builtinPlacements[placement].points, points, isAlignPoint)) {
-      return "".concat(prefixCls, "-placement-").concat(placement);
-    }
-  }
-  return "";
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr))
-    return arr;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
-function _iterableToArrayLimit(arr, i) {
-  var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
-  if (_i == null)
-    return;
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _s, _e2;
-  try {
-    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-      if (i && _arr.length === i)
-        break;
-    }
-  } catch (err) {
-    _d = true;
-    _e2 = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null)
-        _i["return"]();
-    } finally {
-      if (_d)
-        throw _e2;
-    }
-  }
-  return _arr;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length)
-    len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-    arr2[i] = arr[i];
-  }
-  return arr2;
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o)
-    return;
-  if (typeof o === "string")
-    return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor)
-    n = o.constructor.name;
-  if (n === "Map" || n === "Set")
-    return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
-    return _arrayLikeToArray(o, minLen);
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/slicedToArray.js
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-}
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/index.js
-var React14 = __toModule(require_react());
-var import_react11 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-util/es/isMobile.js
-var isMobile_default = function() {
-  if (typeof navigator === "undefined" || typeof window === "undefined") {
-    return false;
-  }
-  var agent = navigator.userAgent || navigator.vendor || window.opera;
-  if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw-(n|u)|c55\/|capi|ccwa|cdm-|cell|chtm|cldc|cmd-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc-s|devi|dica|dmob|do(c|p)o|ds(12|-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(-|_)|g1 u|g560|gene|gf-5|g-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd-(m|p|t)|hei-|hi(pt|ta)|hp( i|ip)|hs-c|ht(c(-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i-(20|go|ma)|i230|iac( |-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|-[a-w])|libw|lynx|m1-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|-([1-8]|c))|phil|pire|pl(ay|uc)|pn-2|po(ck|rt|se)|prox|psio|pt-g|qa-a|qc(07|12|21|32|60|-[2-7]|i-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h-|oo|p-)|sdk\/|se(c(-|0|1)|47|mc|nd|ri)|sgh-|shar|sie(-|m)|sk-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h-|v-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl-|tdg-|tel(i|m)|tim-|t-mo|to(pl|sh)|ts(70|m-|m3|m5)|tx-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas-|your|zeto|zte-/i.test(agent === null || agent === void 0 ? void 0 : agent.substr(0, 4))) {
-    return true;
-  }
-  return false;
-};
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/Mask.js
-var React8 = __toModule(require_react());
 var import_classnames2 = __toModule(require_classnames());
-
-// node_modules/reactex/node_modules/rc-motion/es/CSSMotion.js
-var React6 = __toModule(require_react());
-var import_react6 = __toModule(require_react());
-var import_classnames = __toModule(require_classnames());
-
-// node_modules/reactex/node_modules/rc-motion/es/util/motion.js
-function makePrefixMap(styleProp, eventName) {
-  var prefixes = {};
-  prefixes[styleProp.toLowerCase()] = eventName.toLowerCase();
-  prefixes["Webkit".concat(styleProp)] = "webkit".concat(eventName);
-  prefixes["Moz".concat(styleProp)] = "moz".concat(eventName);
-  prefixes["ms".concat(styleProp)] = "MS".concat(eventName);
-  prefixes["O".concat(styleProp)] = "o".concat(eventName.toLowerCase());
-  return prefixes;
-}
-function getVendorPrefixes(domSupport, win) {
-  var prefixes = {
-    animationend: makePrefixMap("Animation", "AnimationEnd"),
-    transitionend: makePrefixMap("Transition", "TransitionEnd")
-  };
-  if (domSupport) {
-    if (!("AnimationEvent" in win)) {
-      delete prefixes.animationend.animation;
-    }
-    if (!("TransitionEvent" in win)) {
-      delete prefixes.transitionend.transition;
-    }
-  }
-  return prefixes;
-}
-var vendorPrefixes = getVendorPrefixes(canUseDom(), typeof window !== "undefined" ? window : {});
-var style = {};
-if (canUseDom()) {
-  _document$createEleme = document.createElement("div");
-  style = _document$createEleme.style;
-}
-var _document$createEleme;
-var prefixedEventNames = {};
-function getVendorPrefixedEventName(eventName) {
-  if (prefixedEventNames[eventName]) {
-    return prefixedEventNames[eventName];
-  }
-  var prefixMap = vendorPrefixes[eventName];
-  if (prefixMap) {
-    var stylePropList = Object.keys(prefixMap);
-    var len = stylePropList.length;
-    for (var i = 0; i < len; i += 1) {
-      var styleProp = stylePropList[i];
-      if (Object.prototype.hasOwnProperty.call(prefixMap, styleProp) && styleProp in style) {
-        prefixedEventNames[eventName] = prefixMap[styleProp];
-        return prefixedEventNames[eventName];
-      }
-    }
-  }
-  return "";
-}
-var internalAnimationEndName = getVendorPrefixedEventName("animationend");
-var internalTransitionEndName = getVendorPrefixedEventName("transitionend");
-var supportTransition = !!(internalAnimationEndName && internalTransitionEndName);
-var animationEndName = internalAnimationEndName || "animationend";
-var transitionEndName = internalTransitionEndName || "transitionend";
-function getTransitionName(transitionName, transitionType) {
-  if (!transitionName)
-    return null;
-  if (_typeof(transitionName) === "object") {
-    var type = transitionType.replace(/-\w/g, function(match) {
-      return match[1].toUpperCase();
-    });
-    return transitionName[type];
-  }
-  return "".concat(transitionName, "-").concat(transitionType);
-}
-
-// node_modules/reactex/node_modules/rc-motion/es/interface.js
-var STATUS_NONE = "none";
-var STATUS_APPEAR = "appear";
-var STATUS_ENTER = "enter";
-var STATUS_LEAVE = "leave";
-var STEP_NONE = "none";
-var STEP_PREPARE = "prepare";
-var STEP_START = "start";
-var STEP_ACTIVE = "active";
-var STEP_ACTIVATED = "end";
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useStatus.js
-var React4 = __toModule(require_react());
-var import_react5 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useState.js
-var import_react2 = __toModule(require_react());
-function useMountStatus(defaultValue) {
-  var destroyRef = (0, import_react2.useRef)(false);
-  var _useState = (0, import_react2.useState)(defaultValue), _useState2 = _slicedToArray(_useState, 2), val = _useState2[0], setVal = _useState2[1];
-  function setValue(next) {
-    if (!destroyRef.current) {
-      setVal(next);
-    }
-  }
-  (0, import_react2.useEffect)(function() {
-    return function() {
-      destroyRef.current = true;
-    };
-  }, []);
-  return [val, setValue];
-}
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useIsomorphicLayoutEffect.js
-var import_react3 = __toModule(require_react());
-var useIsomorphicLayoutEffect = canUseDom() ? import_react3.useLayoutEffect : import_react3.useEffect;
-var useIsomorphicLayoutEffect_default = useIsomorphicLayoutEffect;
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useStepQueue.js
-var React2 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useNextFrame.js
-var React = __toModule(require_react());
-var useNextFrame_default = function() {
-  var nextFrameRef = React.useRef(null);
-  function cancelNextFrame() {
-    wrapperRaf.cancel(nextFrameRef.current);
-  }
-  function nextFrame(callback) {
-    var delay = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 2;
-    cancelNextFrame();
-    var nextFrameId = wrapperRaf(function() {
-      if (delay <= 1) {
-        callback({
-          isCanceled: function isCanceled() {
-            return nextFrameId !== nextFrameRef.current;
-          }
-        });
-      } else {
-        nextFrame(callback, delay - 1);
-      }
-    });
-    nextFrameRef.current = nextFrameId;
-  }
-  React.useEffect(function() {
-    return function() {
-      cancelNextFrame();
-    };
-  }, []);
-  return [nextFrame, cancelNextFrame];
-};
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useStepQueue.js
-var STEP_QUEUE = [STEP_PREPARE, STEP_START, STEP_ACTIVE, STEP_ACTIVATED];
-var SkipStep = false;
-var DoStep = true;
-function isActive(step) {
-  return step === STEP_ACTIVE || step === STEP_ACTIVATED;
-}
-var useStepQueue_default = function(status, callback) {
-  var _React$useState = React2.useState(STEP_NONE), _React$useState2 = _slicedToArray(_React$useState, 2), step = _React$useState2[0], setStep = _React$useState2[1];
-  var _useNextFrame = useNextFrame_default(), _useNextFrame2 = _slicedToArray(_useNextFrame, 2), nextFrame = _useNextFrame2[0], cancelNextFrame = _useNextFrame2[1];
-  function startQueue() {
-    setStep(STEP_PREPARE);
-  }
-  useIsomorphicLayoutEffect_default(function() {
-    if (step !== STEP_NONE && step !== STEP_ACTIVATED) {
-      var index2 = STEP_QUEUE.indexOf(step);
-      var nextStep = STEP_QUEUE[index2 + 1];
-      var result = callback(step);
-      if (result === SkipStep) {
-        setStep(nextStep);
-      } else {
-        nextFrame(function(info) {
-          function doNext() {
-            if (info.isCanceled())
-              return;
-            setStep(nextStep);
-          }
-          if (result === true) {
-            doNext();
-          } else {
-            Promise.resolve(result).then(doNext);
-          }
-        });
-      }
-    }
-  }, [status, step]);
-  React2.useEffect(function() {
-    return function() {
-      cancelNextFrame();
-    };
-  }, []);
-  return [startQueue, step];
-};
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useDomMotionEvents.js
-var React3 = __toModule(require_react());
-var import_react4 = __toModule(require_react());
-var useDomMotionEvents_default = function(callback) {
-  var cacheElementRef = (0, import_react4.useRef)();
-  var callbackRef = (0, import_react4.useRef)(callback);
-  callbackRef.current = callback;
-  var onInternalMotionEnd = React3.useCallback(function(event) {
-    callbackRef.current(event);
-  }, []);
-  function removeMotionEvents(element) {
-    if (element) {
-      element.removeEventListener(transitionEndName, onInternalMotionEnd);
-      element.removeEventListener(animationEndName, onInternalMotionEnd);
-    }
-  }
-  function patchMotionEvents(element) {
-    if (cacheElementRef.current && cacheElementRef.current !== element) {
-      removeMotionEvents(cacheElementRef.current);
-    }
-    if (element && element !== cacheElementRef.current) {
-      element.addEventListener(transitionEndName, onInternalMotionEnd);
-      element.addEventListener(animationEndName, onInternalMotionEnd);
-      cacheElementRef.current = element;
-    }
-  }
-  React3.useEffect(function() {
-    return function() {
-      removeMotionEvents(cacheElementRef.current);
-    };
-  }, []);
-  return [patchMotionEvents, removeMotionEvents];
-};
-
-// node_modules/reactex/node_modules/rc-motion/es/hooks/useStatus.js
-function useStatus(supportMotion, visible, getElement2, _ref) {
-  var _ref$motionEnter = _ref.motionEnter, motionEnter = _ref$motionEnter === void 0 ? true : _ref$motionEnter, _ref$motionAppear = _ref.motionAppear, motionAppear = _ref$motionAppear === void 0 ? true : _ref$motionAppear, _ref$motionLeave = _ref.motionLeave, motionLeave = _ref$motionLeave === void 0 ? true : _ref$motionLeave, motionDeadline = _ref.motionDeadline, motionLeaveImmediately = _ref.motionLeaveImmediately, onAppearPrepare = _ref.onAppearPrepare, onEnterPrepare = _ref.onEnterPrepare, onLeavePrepare = _ref.onLeavePrepare, onAppearStart = _ref.onAppearStart, onEnterStart = _ref.onEnterStart, onLeaveStart = _ref.onLeaveStart, onAppearActive = _ref.onAppearActive, onEnterActive = _ref.onEnterActive, onLeaveActive = _ref.onLeaveActive, onAppearEnd = _ref.onAppearEnd, onEnterEnd = _ref.onEnterEnd, onLeaveEnd = _ref.onLeaveEnd, onVisibleChanged = _ref.onVisibleChanged;
-  var _useState = useMountStatus(), _useState2 = _slicedToArray(_useState, 2), asyncVisible = _useState2[0], setAsyncVisible = _useState2[1];
-  var _useState3 = useMountStatus(STATUS_NONE), _useState4 = _slicedToArray(_useState3, 2), status = _useState4[0], setStatus = _useState4[1];
-  var _useState5 = useMountStatus(null), _useState6 = _slicedToArray(_useState5, 2), style2 = _useState6[0], setStyle = _useState6[1];
-  var mountedRef = (0, import_react5.useRef)(false);
-  var deadlineRef = (0, import_react5.useRef)(null);
-  var destroyedRef = (0, import_react5.useRef)(false);
-  var cacheElementRef = (0, import_react5.useRef)(null);
-  function getDomElement() {
-    var element = getElement2();
-    return element || cacheElementRef.current;
-  }
-  var activeRef = (0, import_react5.useRef)(false);
-  function onInternalMotionEnd(event) {
-    var element = getDomElement();
-    if (event && !event.deadline && event.target !== element) {
-      return;
-    }
-    var canEnd;
-    if (status === STATUS_APPEAR && activeRef.current) {
-      canEnd = onAppearEnd === null || onAppearEnd === void 0 ? void 0 : onAppearEnd(element, event);
-    } else if (status === STATUS_ENTER && activeRef.current) {
-      canEnd = onEnterEnd === null || onEnterEnd === void 0 ? void 0 : onEnterEnd(element, event);
-    } else if (status === STATUS_LEAVE && activeRef.current) {
-      canEnd = onLeaveEnd === null || onLeaveEnd === void 0 ? void 0 : onLeaveEnd(element, event);
-    }
-    if (canEnd !== false && !destroyedRef.current) {
-      setStatus(STATUS_NONE);
-      setStyle(null);
-    }
-  }
-  var _useDomMotionEvents = useDomMotionEvents_default(onInternalMotionEnd), _useDomMotionEvents2 = _slicedToArray(_useDomMotionEvents, 1), patchMotionEvents = _useDomMotionEvents2[0];
-  var eventHandlers = React4.useMemo(function() {
-    var _ref2, _ref3, _ref4;
-    switch (status) {
-      case "appear":
-        return _ref2 = {}, _defineProperty(_ref2, STEP_PREPARE, onAppearPrepare), _defineProperty(_ref2, STEP_START, onAppearStart), _defineProperty(_ref2, STEP_ACTIVE, onAppearActive), _ref2;
-      case "enter":
-        return _ref3 = {}, _defineProperty(_ref3, STEP_PREPARE, onEnterPrepare), _defineProperty(_ref3, STEP_START, onEnterStart), _defineProperty(_ref3, STEP_ACTIVE, onEnterActive), _ref3;
-      case "leave":
-        return _ref4 = {}, _defineProperty(_ref4, STEP_PREPARE, onLeavePrepare), _defineProperty(_ref4, STEP_START, onLeaveStart), _defineProperty(_ref4, STEP_ACTIVE, onLeaveActive), _ref4;
-      default:
-        return {};
-    }
-  }, [status]);
-  var _useStepQueue = useStepQueue_default(status, function(newStep) {
-    if (newStep === STEP_PREPARE) {
-      var onPrepare = eventHandlers[STEP_PREPARE];
-      if (!onPrepare) {
-        return SkipStep;
-      }
-      return onPrepare(getDomElement());
-    }
-    if (step in eventHandlers) {
-      var _eventHandlers$step;
-      setStyle(((_eventHandlers$step = eventHandlers[step]) === null || _eventHandlers$step === void 0 ? void 0 : _eventHandlers$step.call(eventHandlers, getDomElement(), null)) || null);
-    }
-    if (step === STEP_ACTIVE) {
-      patchMotionEvents(getDomElement());
-      if (motionDeadline > 0) {
-        clearTimeout(deadlineRef.current);
-        deadlineRef.current = setTimeout(function() {
-          onInternalMotionEnd({
-            deadline: true
-          });
-        }, motionDeadline);
-      }
-    }
-    return DoStep;
-  }), _useStepQueue2 = _slicedToArray(_useStepQueue, 2), startStep = _useStepQueue2[0], step = _useStepQueue2[1];
-  var active = isActive(step);
-  activeRef.current = active;
-  useIsomorphicLayoutEffect_default(function() {
-    setAsyncVisible(visible);
-    var isMounted = mountedRef.current;
-    mountedRef.current = true;
-    if (!supportMotion) {
-      return;
-    }
-    var nextStatus;
-    if (!isMounted && visible && motionAppear) {
-      nextStatus = STATUS_APPEAR;
-    }
-    if (isMounted && visible && motionEnter) {
-      nextStatus = STATUS_ENTER;
-    }
-    if (isMounted && !visible && motionLeave || !isMounted && motionLeaveImmediately && !visible && motionLeave) {
-      nextStatus = STATUS_LEAVE;
-    }
-    if (nextStatus) {
-      setStatus(nextStatus);
-      startStep();
-    }
-  }, [visible]);
-  (0, import_react5.useEffect)(function() {
-    if (status === STATUS_APPEAR && !motionAppear || status === STATUS_ENTER && !motionEnter || status === STATUS_LEAVE && !motionLeave) {
-      setStatus(STATUS_NONE);
-    }
-  }, [motionAppear, motionEnter, motionLeave]);
-  (0, import_react5.useEffect)(function() {
-    return function() {
-      clearTimeout(deadlineRef.current);
-      destroyedRef.current = true;
-    };
-  }, []);
-  (0, import_react5.useEffect)(function() {
-    if (asyncVisible !== void 0 && status === STATUS_NONE) {
-      onVisibleChanged === null || onVisibleChanged === void 0 ? void 0 : onVisibleChanged(asyncVisible);
-    }
-  }, [asyncVisible, status]);
-  var mergedStyle = style2;
-  if (eventHandlers[STEP_PREPARE] && step === STEP_START) {
-    mergedStyle = _objectSpread2({
-      transition: "none"
-    }, mergedStyle);
-  }
-  return [status, step, mergedStyle, asyncVisible !== null && asyncVisible !== void 0 ? asyncVisible : visible];
-}
-
-// node_modules/reactex/node_modules/rc-motion/es/DomWrapper.js
-var React5 = __toModule(require_react());
-var DomWrapper = /* @__PURE__ */ function(_React$Component) {
-  _inherits(DomWrapper2, _React$Component);
-  var _super = _createSuper(DomWrapper2);
-  function DomWrapper2() {
-    _classCallCheck(this, DomWrapper2);
-    return _super.apply(this, arguments);
-  }
-  _createClass(DomWrapper2, [{
-    key: "render",
-    value: function render() {
-      return this.props.children;
-    }
-  }]);
-  return DomWrapper2;
-}(React5.Component);
-var DomWrapper_default = DomWrapper;
-
-// node_modules/reactex/node_modules/rc-motion/es/CSSMotion.js
-function genCSSMotion(config) {
-  var transitionSupport = config;
-  if (_typeof(config) === "object") {
-    transitionSupport = config.transitionSupport;
-  }
-  function isSupportTransition(props) {
-    return !!(props.motionName && transitionSupport);
-  }
-  var CSSMotion = /* @__PURE__ */ React6.forwardRef(function(props, ref) {
-    var _props$visible = props.visible, visible = _props$visible === void 0 ? true : _props$visible, _props$removeOnLeave = props.removeOnLeave, removeOnLeave = _props$removeOnLeave === void 0 ? true : _props$removeOnLeave, forceRender = props.forceRender, children = props.children, motionName = props.motionName, leavedClassName = props.leavedClassName, eventProps = props.eventProps;
-    var supportMotion = isSupportTransition(props);
-    var nodeRef = (0, import_react6.useRef)();
-    var wrapperNodeRef = (0, import_react6.useRef)();
-    function getDomElement() {
-      try {
-        return findDOMNode(nodeRef.current || wrapperNodeRef.current);
-      } catch (e) {
-        return null;
-      }
-    }
-    var _useStatus = useStatus(supportMotion, visible, getDomElement, props), _useStatus2 = _slicedToArray(_useStatus, 4), status = _useStatus2[0], statusStep = _useStatus2[1], statusStyle = _useStatus2[2], mergedVisible = _useStatus2[3];
-    var renderedRef = React6.useRef(mergedVisible);
-    if (mergedVisible) {
-      renderedRef.current = true;
-    }
-    var originRef = (0, import_react6.useRef)(ref);
-    originRef.current = ref;
-    var setNodeRef = React6.useCallback(function(node) {
-      nodeRef.current = node;
-      fillRef(originRef.current, node);
-    }, []);
-    var motionChildren;
-    var mergedProps = _objectSpread2(_objectSpread2({}, eventProps), {}, {
-      visible
-    });
-    if (!children) {
-      motionChildren = null;
-    } else if (status === STATUS_NONE || !isSupportTransition(props)) {
-      if (mergedVisible) {
-        motionChildren = children(_objectSpread2({}, mergedProps), setNodeRef);
-      } else if (!removeOnLeave && renderedRef.current) {
-        motionChildren = children(_objectSpread2(_objectSpread2({}, mergedProps), {}, {
-          className: leavedClassName
-        }), setNodeRef);
-      } else if (forceRender) {
-        motionChildren = children(_objectSpread2(_objectSpread2({}, mergedProps), {}, {
-          style: {
-            display: "none"
-          }
-        }), setNodeRef);
-      } else {
-        motionChildren = null;
-      }
-    } else {
-      var _classNames;
-      var statusSuffix;
-      if (statusStep === STEP_PREPARE) {
-        statusSuffix = "prepare";
-      } else if (isActive(statusStep)) {
-        statusSuffix = "active";
-      } else if (statusStep === STEP_START) {
-        statusSuffix = "start";
-      }
-      motionChildren = children(_objectSpread2(_objectSpread2({}, mergedProps), {}, {
-        className: (0, import_classnames.default)(getTransitionName(motionName, status), (_classNames = {}, _defineProperty(_classNames, getTransitionName(motionName, "".concat(status, "-").concat(statusSuffix)), statusSuffix), _defineProperty(_classNames, motionName, typeof motionName === "string"), _classNames)),
-        style: statusStyle
-      }), setNodeRef);
-    }
-    return /* @__PURE__ */ React6.createElement(DomWrapper_default, {
-      ref: wrapperNodeRef
-    }, motionChildren);
-  });
-  CSSMotion.displayName = "CSSMotion";
-  return CSSMotion;
-}
-var CSSMotion_default = genCSSMotion(supportTransition);
-
-// node_modules/reactex/node_modules/rc-motion/es/CSSMotionList.js
-var React7 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-motion/es/util/diff.js
-var STATUS_ADD = "add";
-var STATUS_KEEP = "keep";
-var STATUS_REMOVE = "remove";
-var STATUS_REMOVED = "removed";
-function wrapKeyToObject(key) {
-  var keyObj;
-  if (key && _typeof(key) === "object" && "key" in key) {
-    keyObj = key;
-  } else {
-    keyObj = {
-      key
-    };
-  }
-  return _objectSpread2(_objectSpread2({}, keyObj), {}, {
-    key: String(keyObj.key)
-  });
-}
-function parseKeys() {
-  var keys = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : [];
-  return keys.map(wrapKeyToObject);
-}
-function diffKeys() {
-  var prevKeys = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : [];
-  var currentKeys = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : [];
-  var list = [];
-  var currentIndex = 0;
-  var currentLen = currentKeys.length;
-  var prevKeyObjects = parseKeys(prevKeys);
-  var currentKeyObjects = parseKeys(currentKeys);
-  prevKeyObjects.forEach(function(keyObj) {
-    var hit = false;
-    for (var i = currentIndex; i < currentLen; i += 1) {
-      var currentKeyObj = currentKeyObjects[i];
-      if (currentKeyObj.key === keyObj.key) {
-        if (currentIndex < i) {
-          list = list.concat(currentKeyObjects.slice(currentIndex, i).map(function(obj) {
-            return _objectSpread2(_objectSpread2({}, obj), {}, {
-              status: STATUS_ADD
-            });
-          }));
-          currentIndex = i;
-        }
-        list.push(_objectSpread2(_objectSpread2({}, currentKeyObj), {}, {
-          status: STATUS_KEEP
-        }));
-        currentIndex += 1;
-        hit = true;
-        break;
-      }
-    }
-    if (!hit) {
-      list.push(_objectSpread2(_objectSpread2({}, keyObj), {}, {
-        status: STATUS_REMOVE
-      }));
-    }
-  });
-  if (currentIndex < currentLen) {
-    list = list.concat(currentKeyObjects.slice(currentIndex).map(function(obj) {
-      return _objectSpread2(_objectSpread2({}, obj), {}, {
-        status: STATUS_ADD
-      });
-    }));
-  }
-  var keys = {};
-  list.forEach(function(_ref) {
-    var key = _ref.key;
-    keys[key] = (keys[key] || 0) + 1;
-  });
-  var duplicatedKeys = Object.keys(keys).filter(function(key) {
-    return keys[key] > 1;
-  });
-  duplicatedKeys.forEach(function(matchKey) {
-    list = list.filter(function(_ref2) {
-      var key = _ref2.key, status = _ref2.status;
-      return key !== matchKey || status !== STATUS_REMOVE;
-    });
-    list.forEach(function(node) {
-      if (node.key === matchKey) {
-        node.status = STATUS_KEEP;
-      }
-    });
-  });
-  return list;
-}
-
-// node_modules/reactex/node_modules/rc-motion/es/CSSMotionList.js
-var MOTION_PROP_NAMES = ["eventProps", "visible", "children", "motionName", "motionAppear", "motionEnter", "motionLeave", "motionLeaveImmediately", "motionDeadline", "removeOnLeave", "leavedClassName", "onAppearStart", "onAppearActive", "onAppearEnd", "onEnterStart", "onEnterActive", "onEnterEnd", "onLeaveStart", "onLeaveActive", "onLeaveEnd"];
-function genCSSMotionList(transitionSupport) {
-  var CSSMotion = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : CSSMotion_default;
-  var CSSMotionList = /* @__PURE__ */ function(_React$Component) {
-    _inherits(CSSMotionList2, _React$Component);
-    var _super = _createSuper(CSSMotionList2);
-    function CSSMotionList2() {
-      var _this;
-      _classCallCheck(this, CSSMotionList2);
-      _this = _super.apply(this, arguments);
-      _this.state = {
-        keyEntities: []
-      };
-      _this.removeKey = function(removeKey) {
-        _this.setState(function(_ref) {
-          var keyEntities = _ref.keyEntities;
-          return {
-            keyEntities: keyEntities.map(function(entity) {
-              if (entity.key !== removeKey)
-                return entity;
-              return _objectSpread2(_objectSpread2({}, entity), {}, {
-                status: STATUS_REMOVED
-              });
-            })
-          };
-        });
-      };
-      return _this;
-    }
-    _createClass(CSSMotionList2, [{
-      key: "render",
-      value: function render() {
-        var _this2 = this;
-        var keyEntities = this.state.keyEntities;
-        var _this$props = this.props, component = _this$props.component, children = _this$props.children, _onVisibleChanged = _this$props.onVisibleChanged, restProps = _objectWithoutProperties(_this$props, ["component", "children", "onVisibleChanged"]);
-        var Component5 = component || React7.Fragment;
-        var motionProps = {};
-        MOTION_PROP_NAMES.forEach(function(prop) {
-          motionProps[prop] = restProps[prop];
-          delete restProps[prop];
-        });
-        delete restProps.keys;
-        return /* @__PURE__ */ React7.createElement(Component5, restProps, keyEntities.map(function(_ref2) {
-          var status = _ref2.status, eventProps = _objectWithoutProperties(_ref2, ["status"]);
-          var visible = status === STATUS_ADD || status === STATUS_KEEP;
-          return /* @__PURE__ */ React7.createElement(CSSMotion, _extends({}, motionProps, {
-            key: eventProps.key,
-            visible,
-            eventProps,
-            onVisibleChanged: function onVisibleChanged(changedVisible) {
-              _onVisibleChanged === null || _onVisibleChanged === void 0 ? void 0 : _onVisibleChanged(changedVisible, {
-                key: eventProps.key
-              });
-              if (!changedVisible) {
-                _this2.removeKey(eventProps.key);
-              }
-            }
-          }), children);
-        }));
-      }
-    }], [{
-      key: "getDerivedStateFromProps",
-      value: function getDerivedStateFromProps(_ref3, _ref4) {
-        var keys = _ref3.keys;
-        var keyEntities = _ref4.keyEntities;
-        var parsedKeyObjects = parseKeys(keys);
-        var mixedKeyEntities = diffKeys(keyEntities, parsedKeyObjects);
-        return {
-          keyEntities: mixedKeyEntities.filter(function(entity) {
-            var prevEntity = keyEntities.find(function(_ref5) {
-              var key = _ref5.key;
-              return entity.key === key;
-            });
-            if (prevEntity && prevEntity.status === STATUS_REMOVED && entity.status === STATUS_REMOVE) {
-              return false;
-            }
-            return true;
-          })
-        };
-      }
-    }]);
-    return CSSMotionList2;
-  }(React7.Component);
-  CSSMotionList.defaultProps = {
-    component: "div"
-  };
-  return CSSMotionList;
-}
-var CSSMotionList_default = genCSSMotionList(supportTransition);
-
-// node_modules/reactex/node_modules/rc-motion/es/index.js
-var es_default = CSSMotion_default;
-
-// node_modules/reactex/node_modules/rc-trigger/es/utils/legacyUtil.js
-function getMotion(_ref) {
-  var prefixCls = _ref.prefixCls, motion = _ref.motion, animation = _ref.animation, transitionName = _ref.transitionName;
-  if (motion) {
-    return motion;
-  }
-  if (animation) {
-    return {
-      motionName: "".concat(prefixCls, "-").concat(animation)
-    };
-  }
-  if (transitionName) {
-    return {
-      motionName: transitionName
-    };
-  }
-  return null;
-}
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/Mask.js
-function Mask(props) {
-  var prefixCls = props.prefixCls, visible = props.visible, zIndex = props.zIndex, mask = props.mask, maskMotion = props.maskMotion, maskAnimation = props.maskAnimation, maskTransitionName = props.maskTransitionName;
-  if (!mask) {
-    return null;
-  }
-  var motion = {};
-  if (maskMotion || maskTransitionName || maskAnimation) {
-    motion = _objectSpread2({
-      motionAppear: true
-    }, getMotion({
-      motion: maskMotion,
-      prefixCls,
-      transitionName: maskTransitionName,
-      animation: maskAnimation
-    }));
-  }
-  return /* @__PURE__ */ React8.createElement(es_default, _extends({}, motion, {
-    visible,
-    removeOnLeave: true
-  }), function(_ref) {
-    var className = _ref.className;
-    return /* @__PURE__ */ React8.createElement("div", {
-      style: {
-        zIndex
-      },
-      className: (0, import_classnames2.default)("".concat(prefixCls, "-mask"), className)
-    });
-  });
-}
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
-var React12 = __toModule(require_react());
-var import_react10 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-align/es/Align.js
-var import_react8 = __toModule(require_react());
-
-// node_modules/reactex/node_modules/rc-util/es/Dom/isVisible.js
-var isVisible_default = function(element) {
-  if (!element) {
-    return false;
-  }
-  if (element.offsetParent) {
-    return true;
-  }
-  if (element.getBBox) {
-    var box2 = element.getBBox();
-    if (box2.width || box2.height) {
-      return true;
-    }
-  }
-  if (element.getBoundingClientRect) {
-    var _box = element.getBoundingClientRect();
-    if (_box.width || _box.height) {
-      return true;
-    }
-  }
-  return false;
-};
-
-// node_modules/reactex/node_modules/dom-align/dist-web/index.js
-function ownKeys2(object2, enumerableOnly) {
-  var keys = Object.keys(object2);
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object2);
-    if (enumerableOnly) {
-      symbols = symbols.filter(function(sym) {
-        return Object.getOwnPropertyDescriptor(object2, sym).enumerable;
-      });
-    }
-    keys.push.apply(keys, symbols);
-  }
-  return keys;
-}
-function _objectSpread22(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    if (i % 2) {
-      ownKeys2(Object(source), true).forEach(function(key) {
-        _defineProperty2(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys2(Object(source)).forEach(function(key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-  return target;
-}
-function _typeof2(obj) {
-  "@babel/helpers - typeof";
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof2 = function(obj2) {
-      return typeof obj2;
-    };
-  } else {
-    _typeof2 = function(obj2) {
-      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-    };
-  }
-  return _typeof2(obj);
-}
-function _defineProperty2(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
-}
-var vendorPrefix;
-var jsCssMap = {
-  Webkit: "-webkit-",
-  Moz: "-moz-",
-  ms: "-ms-",
-  O: "-o-"
-};
-function getVendorPrefix() {
-  if (vendorPrefix !== void 0) {
-    return vendorPrefix;
-  }
-  vendorPrefix = "";
-  var style2 = document.createElement("p").style;
-  var testProp = "Transform";
-  for (var key in jsCssMap) {
-    if (key + testProp in style2) {
-      vendorPrefix = key;
-    }
-  }
-  return vendorPrefix;
-}
-function getTransitionName2() {
-  return getVendorPrefix() ? "".concat(getVendorPrefix(), "TransitionProperty") : "transitionProperty";
-}
-function getTransformName() {
-  return getVendorPrefix() ? "".concat(getVendorPrefix(), "Transform") : "transform";
-}
-function setTransitionProperty(node, value) {
-  var name2 = getTransitionName2();
-  if (name2) {
-    node.style[name2] = value;
-    if (name2 !== "transitionProperty") {
-      node.style.transitionProperty = value;
-    }
-  }
-}
-function setTransform(node, value) {
-  var name2 = getTransformName();
-  if (name2) {
-    node.style[name2] = value;
-    if (name2 !== "transform") {
-      node.style.transform = value;
-    }
-  }
-}
-function getTransitionProperty(node) {
-  return node.style.transitionProperty || node.style[getTransitionName2()];
-}
-function getTransformXY(node) {
-  var style2 = window.getComputedStyle(node, null);
-  var transform = style2.getPropertyValue("transform") || style2.getPropertyValue(getTransformName());
-  if (transform && transform !== "none") {
-    var matrix = transform.replace(/[^0-9\-.,]/g, "").split(",");
-    return {
-      x: parseFloat(matrix[12] || matrix[4], 0),
-      y: parseFloat(matrix[13] || matrix[5], 0)
-    };
-  }
-  return {
-    x: 0,
-    y: 0
-  };
-}
-var matrix2d = /matrix\((.*)\)/;
-var matrix3d = /matrix3d\((.*)\)/;
-function setTransformXY(node, xy) {
-  var style2 = window.getComputedStyle(node, null);
-  var transform = style2.getPropertyValue("transform") || style2.getPropertyValue(getTransformName());
-  if (transform && transform !== "none") {
-    var arr;
-    var match2d = transform.match(matrix2d);
-    if (match2d) {
-      match2d = match2d[1];
-      arr = match2d.split(",").map(function(item) {
-        return parseFloat(item, 10);
-      });
-      arr[4] = xy.x;
-      arr[5] = xy.y;
-      setTransform(node, "matrix(".concat(arr.join(","), ")"));
-    } else {
-      var match3d = transform.match(matrix3d)[1];
-      arr = match3d.split(",").map(function(item) {
-        return parseFloat(item, 10);
-      });
-      arr[12] = xy.x;
-      arr[13] = xy.y;
-      setTransform(node, "matrix3d(".concat(arr.join(","), ")"));
-    }
-  } else {
-    setTransform(node, "translateX(".concat(xy.x, "px) translateY(").concat(xy.y, "px) translateZ(0)"));
-  }
-}
-var RE_NUM = /[\-+]?(?:\d*\.|)\d+(?:[eE][\-+]?\d+|)/.source;
-var getComputedStyleX;
-function forceRelayout(elem) {
-  var originalStyle = elem.style.display;
-  elem.style.display = "none";
-  elem.offsetHeight;
-  elem.style.display = originalStyle;
-}
-function css(el, name2, v) {
-  var value = v;
-  if (_typeof2(name2) === "object") {
-    for (var i in name2) {
-      if (name2.hasOwnProperty(i)) {
-        css(el, i, name2[i]);
-      }
-    }
-    return void 0;
-  }
-  if (typeof value !== "undefined") {
-    if (typeof value === "number") {
-      value = "".concat(value, "px");
-    }
-    el.style[name2] = value;
-    return void 0;
-  }
-  return getComputedStyleX(el, name2);
-}
-function getClientPosition(elem) {
-  var box2;
-  var x;
-  var y;
-  var doc2 = elem.ownerDocument;
-  var body = doc2.body;
-  var docElem = doc2 && doc2.documentElement;
-  box2 = elem.getBoundingClientRect();
-  x = box2.left;
-  y = box2.top;
-  x -= docElem.clientLeft || body.clientLeft || 0;
-  y -= docElem.clientTop || body.clientTop || 0;
-  return {
-    left: x,
-    top: y
-  };
-}
-function getScroll(w, top2) {
-  var ret = w["page".concat(top2 ? "Y" : "X", "Offset")];
-  var method = "scroll".concat(top2 ? "Top" : "Left");
-  if (typeof ret !== "number") {
-    var d = w.document;
-    ret = d.documentElement[method];
-    if (typeof ret !== "number") {
-      ret = d.body[method];
-    }
-  }
-  return ret;
-}
-function getScrollLeft(w) {
-  return getScroll(w);
-}
-function getScrollTop(w) {
-  return getScroll(w, true);
-}
-function getOffset(el) {
-  var pos = getClientPosition(el);
-  var doc2 = el.ownerDocument;
-  var w = doc2.defaultView || doc2.parentWindow;
-  pos.left += getScrollLeft(w);
-  pos.top += getScrollTop(w);
-  return pos;
-}
-function isWindow(obj) {
-  return obj !== null && obj !== void 0 && obj == obj.window;
-}
-function getDocument(node) {
-  if (isWindow(node)) {
-    return node.document;
-  }
-  if (node.nodeType === 9) {
-    return node;
-  }
-  return node.ownerDocument;
-}
-function _getComputedStyle(elem, name2, cs) {
-  var computedStyle = cs;
-  var val = "";
-  var d = getDocument(elem);
-  computedStyle = computedStyle || d.defaultView.getComputedStyle(elem, null);
-  if (computedStyle) {
-    val = computedStyle.getPropertyValue(name2) || computedStyle[name2];
-  }
-  return val;
-}
-var _RE_NUM_NO_PX = new RegExp("^(".concat(RE_NUM, ")(?!px)[a-z%]+$"), "i");
-var RE_POS = /^(top|right|bottom|left)$/;
-var CURRENT_STYLE = "currentStyle";
-var RUNTIME_STYLE = "runtimeStyle";
-var LEFT = "left";
-var PX = "px";
-function _getComputedStyleIE(elem, name2) {
-  var ret = elem[CURRENT_STYLE] && elem[CURRENT_STYLE][name2];
-  if (_RE_NUM_NO_PX.test(ret) && !RE_POS.test(name2)) {
-    var style2 = elem.style;
-    var left = style2[LEFT];
-    var rsLeft = elem[RUNTIME_STYLE][LEFT];
-    elem[RUNTIME_STYLE][LEFT] = elem[CURRENT_STYLE][LEFT];
-    style2[LEFT] = name2 === "fontSize" ? "1em" : ret || 0;
-    ret = style2.pixelLeft + PX;
-    style2[LEFT] = left;
-    elem[RUNTIME_STYLE][LEFT] = rsLeft;
-  }
-  return ret === "" ? "auto" : ret;
-}
-if (typeof window !== "undefined") {
-  getComputedStyleX = window.getComputedStyle ? _getComputedStyle : _getComputedStyleIE;
-}
-function getOffsetDirection(dir, option) {
-  if (dir === "left") {
-    return option.useCssRight ? "right" : dir;
-  }
-  return option.useCssBottom ? "bottom" : dir;
-}
-function oppositeOffsetDirection(dir) {
-  if (dir === "left") {
-    return "right";
-  } else if (dir === "right") {
-    return "left";
-  } else if (dir === "top") {
-    return "bottom";
-  } else if (dir === "bottom") {
-    return "top";
-  }
-}
-function setLeftTop(elem, offset2, option) {
-  if (css(elem, "position") === "static") {
-    elem.style.position = "relative";
-  }
-  var presetH = -999;
-  var presetV = -999;
-  var horizontalProperty = getOffsetDirection("left", option);
-  var verticalProperty = getOffsetDirection("top", option);
-  var oppositeHorizontalProperty = oppositeOffsetDirection(horizontalProperty);
-  var oppositeVerticalProperty = oppositeOffsetDirection(verticalProperty);
-  if (horizontalProperty !== "left") {
-    presetH = 999;
-  }
-  if (verticalProperty !== "top") {
-    presetV = 999;
-  }
-  var originalTransition = "";
-  var originalOffset = getOffset(elem);
-  if ("left" in offset2 || "top" in offset2) {
-    originalTransition = getTransitionProperty(elem) || "";
-    setTransitionProperty(elem, "none");
-  }
-  if ("left" in offset2) {
-    elem.style[oppositeHorizontalProperty] = "";
-    elem.style[horizontalProperty] = "".concat(presetH, "px");
-  }
-  if ("top" in offset2) {
-    elem.style[oppositeVerticalProperty] = "";
-    elem.style[verticalProperty] = "".concat(presetV, "px");
-  }
-  forceRelayout(elem);
-  var old = getOffset(elem);
-  var originalStyle = {};
-  for (var key in offset2) {
-    if (offset2.hasOwnProperty(key)) {
-      var dir = getOffsetDirection(key, option);
-      var preset = key === "left" ? presetH : presetV;
-      var off = originalOffset[key] - old[key];
-      if (dir === key) {
-        originalStyle[dir] = preset + off;
-      } else {
-        originalStyle[dir] = preset - off;
-      }
-    }
-  }
-  css(elem, originalStyle);
-  forceRelayout(elem);
-  if ("left" in offset2 || "top" in offset2) {
-    setTransitionProperty(elem, originalTransition);
-  }
-  var ret = {};
-  for (var _key in offset2) {
-    if (offset2.hasOwnProperty(_key)) {
-      var _dir = getOffsetDirection(_key, option);
-      var _off = offset2[_key] - originalOffset[_key];
-      if (_key === _dir) {
-        ret[_dir] = originalStyle[_dir] + _off;
-      } else {
-        ret[_dir] = originalStyle[_dir] - _off;
-      }
-    }
-  }
-  css(elem, ret);
-}
-function setTransform$1(elem, offset2) {
-  var originalOffset = getOffset(elem);
-  var originalXY = getTransformXY(elem);
-  var resultXY = {
-    x: originalXY.x,
-    y: originalXY.y
-  };
-  if ("left" in offset2) {
-    resultXY.x = originalXY.x + offset2.left - originalOffset.left;
-  }
-  if ("top" in offset2) {
-    resultXY.y = originalXY.y + offset2.top - originalOffset.top;
-  }
-  setTransformXY(elem, resultXY);
-}
-function setOffset(elem, offset2, option) {
-  if (option.ignoreShake) {
-    var oriOffset = getOffset(elem);
-    var oLeft = oriOffset.left.toFixed(0);
-    var oTop = oriOffset.top.toFixed(0);
-    var tLeft = offset2.left.toFixed(0);
-    var tTop = offset2.top.toFixed(0);
-    if (oLeft === tLeft && oTop === tTop) {
-      return;
-    }
-  }
-  if (option.useCssRight || option.useCssBottom) {
-    setLeftTop(elem, offset2, option);
-  } else if (option.useCssTransform && getTransformName() in document.body.style) {
-    setTransform$1(elem, offset2);
-  } else {
-    setLeftTop(elem, offset2, option);
-  }
-}
-function each(arr, fn) {
-  for (var i = 0; i < arr.length; i++) {
-    fn(arr[i]);
-  }
-}
-function isBorderBoxFn(elem) {
-  return getComputedStyleX(elem, "boxSizing") === "border-box";
-}
-var BOX_MODELS = ["margin", "border", "padding"];
-var CONTENT_INDEX = -1;
-var PADDING_INDEX = 2;
-var BORDER_INDEX = 1;
-var MARGIN_INDEX = 0;
-function swap(elem, options, callback) {
-  var old = {};
-  var style2 = elem.style;
-  var name2;
-  for (name2 in options) {
-    if (options.hasOwnProperty(name2)) {
-      old[name2] = style2[name2];
-      style2[name2] = options[name2];
-    }
-  }
-  callback.call(elem);
-  for (name2 in options) {
-    if (options.hasOwnProperty(name2)) {
-      style2[name2] = old[name2];
-    }
-  }
-}
-function getPBMWidth(elem, props, which) {
-  var value = 0;
-  var prop;
-  var j;
-  var i;
-  for (j = 0; j < props.length; j++) {
-    prop = props[j];
-    if (prop) {
-      for (i = 0; i < which.length; i++) {
-        var cssProp = void 0;
-        if (prop === "border") {
-          cssProp = "".concat(prop).concat(which[i], "Width");
-        } else {
-          cssProp = prop + which[i];
-        }
-        value += parseFloat(getComputedStyleX(elem, cssProp)) || 0;
-      }
-    }
-  }
-  return value;
-}
-var domUtils = {
-  getParent: function getParent(element) {
-    var parent = element;
-    do {
-      if (parent.nodeType === 11 && parent.host) {
-        parent = parent.host;
-      } else {
-        parent = parent.parentNode;
-      }
-    } while (parent && parent.nodeType !== 1 && parent.nodeType !== 9);
-    return parent;
-  }
-};
-each(["Width", "Height"], function(name2) {
-  domUtils["doc".concat(name2)] = function(refWin) {
-    var d = refWin.document;
-    return Math.max(d.documentElement["scroll".concat(name2)], d.body["scroll".concat(name2)], domUtils["viewport".concat(name2)](d));
-  };
-  domUtils["viewport".concat(name2)] = function(win) {
-    var prop = "client".concat(name2);
-    var doc2 = win.document;
-    var body = doc2.body;
-    var documentElement = doc2.documentElement;
-    var documentElementProp = documentElement[prop];
-    return doc2.compatMode === "CSS1Compat" && documentElementProp || body && body[prop] || documentElementProp;
-  };
-});
-function getWH(elem, name2, ex) {
-  var extra = ex;
-  if (isWindow(elem)) {
-    return name2 === "width" ? domUtils.viewportWidth(elem) : domUtils.viewportHeight(elem);
-  } else if (elem.nodeType === 9) {
-    return name2 === "width" ? domUtils.docWidth(elem) : domUtils.docHeight(elem);
-  }
-  var which = name2 === "width" ? ["Left", "Right"] : ["Top", "Bottom"];
-  var borderBoxValue = name2 === "width" ? elem.getBoundingClientRect().width : elem.getBoundingClientRect().height;
-  var isBorderBox = isBorderBoxFn(elem);
-  var cssBoxValue = 0;
-  if (borderBoxValue === null || borderBoxValue === void 0 || borderBoxValue <= 0) {
-    borderBoxValue = void 0;
-    cssBoxValue = getComputedStyleX(elem, name2);
-    if (cssBoxValue === null || cssBoxValue === void 0 || Number(cssBoxValue) < 0) {
-      cssBoxValue = elem.style[name2] || 0;
-    }
-    cssBoxValue = parseFloat(cssBoxValue) || 0;
-  }
-  if (extra === void 0) {
-    extra = isBorderBox ? BORDER_INDEX : CONTENT_INDEX;
-  }
-  var borderBoxValueOrIsBorderBox = borderBoxValue !== void 0 || isBorderBox;
-  var val = borderBoxValue || cssBoxValue;
-  if (extra === CONTENT_INDEX) {
-    if (borderBoxValueOrIsBorderBox) {
-      return val - getPBMWidth(elem, ["border", "padding"], which);
-    }
-    return cssBoxValue;
-  } else if (borderBoxValueOrIsBorderBox) {
-    if (extra === BORDER_INDEX) {
-      return val;
-    }
-    return val + (extra === PADDING_INDEX ? -getPBMWidth(elem, ["border"], which) : getPBMWidth(elem, ["margin"], which));
-  }
-  return cssBoxValue + getPBMWidth(elem, BOX_MODELS.slice(extra), which);
-}
-var cssShow = {
-  position: "absolute",
-  visibility: "hidden",
-  display: "block"
-};
-function getWHIgnoreDisplay() {
-  for (var _len = arguments.length, args = new Array(_len), _key2 = 0; _key2 < _len; _key2++) {
-    args[_key2] = arguments[_key2];
-  }
-  var val;
-  var elem = args[0];
-  if (elem.offsetWidth !== 0) {
-    val = getWH.apply(void 0, args);
-  } else {
-    swap(elem, cssShow, function() {
-      val = getWH.apply(void 0, args);
-    });
-  }
-  return val;
-}
-each(["width", "height"], function(name2) {
-  var first = name2.charAt(0).toUpperCase() + name2.slice(1);
-  domUtils["outer".concat(first)] = function(el, includeMargin) {
-    return el && getWHIgnoreDisplay(el, name2, includeMargin ? MARGIN_INDEX : BORDER_INDEX);
-  };
-  var which = name2 === "width" ? ["Left", "Right"] : ["Top", "Bottom"];
-  domUtils[name2] = function(elem, v) {
-    var val = v;
-    if (val !== void 0) {
-      if (elem) {
-        var isBorderBox = isBorderBoxFn(elem);
-        if (isBorderBox) {
-          val += getPBMWidth(elem, ["padding", "border"], which);
-        }
-        return css(elem, name2, val);
-      }
-      return void 0;
-    }
-    return elem && getWHIgnoreDisplay(elem, name2, CONTENT_INDEX);
-  };
-});
-function mix(to, from) {
-  for (var i in from) {
-    if (from.hasOwnProperty(i)) {
-      to[i] = from[i];
-    }
-  }
-  return to;
-}
-var utils = {
-  getWindow: function getWindow(node) {
-    if (node && node.document && node.setTimeout) {
-      return node;
-    }
-    var doc2 = node.ownerDocument || node;
-    return doc2.defaultView || doc2.parentWindow;
-  },
-  getDocument,
-  offset: function offset(el, value, option) {
-    if (typeof value !== "undefined") {
-      setOffset(el, value, option || {});
-    } else {
-      return getOffset(el);
-    }
-  },
-  isWindow,
-  each,
-  css,
-  clone: function clone(obj) {
-    var i;
-    var ret = {};
-    for (i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        ret[i] = obj[i];
-      }
-    }
-    var overflow = obj.overflow;
-    if (overflow) {
-      for (i in obj) {
-        if (obj.hasOwnProperty(i)) {
-          ret.overflow[i] = obj.overflow[i];
-        }
-      }
-    }
-    return ret;
-  },
-  mix,
-  getWindowScrollLeft: function getWindowScrollLeft(w) {
-    return getScrollLeft(w);
-  },
-  getWindowScrollTop: function getWindowScrollTop(w) {
-    return getScrollTop(w);
-  },
-  merge: function merge() {
-    var ret = {};
-    for (var i = 0; i < arguments.length; i++) {
-      utils.mix(ret, i < 0 || arguments.length <= i ? void 0 : arguments[i]);
-    }
-    return ret;
-  },
-  viewportWidth: 0,
-  viewportHeight: 0
-};
-mix(utils, domUtils);
-var getParent2 = utils.getParent;
-function getOffsetParent(element) {
-  if (utils.isWindow(element) || element.nodeType === 9) {
-    return null;
-  }
-  var doc2 = utils.getDocument(element);
-  var body = doc2.body;
-  var parent;
-  var positionStyle = utils.css(element, "position");
-  var skipStatic = positionStyle === "fixed" || positionStyle === "absolute";
-  if (!skipStatic) {
-    return element.nodeName.toLowerCase() === "html" ? null : getParent2(element);
-  }
-  for (parent = getParent2(element); parent && parent !== body && parent.nodeType !== 9; parent = getParent2(parent)) {
-    positionStyle = utils.css(parent, "position");
-    if (positionStyle !== "static") {
-      return parent;
-    }
-  }
-  return null;
-}
-var getParent$1 = utils.getParent;
-function isAncestorFixed(element) {
-  if (utils.isWindow(element) || element.nodeType === 9) {
-    return false;
-  }
-  var doc2 = utils.getDocument(element);
-  var body = doc2.body;
-  var parent = null;
-  for (parent = getParent$1(element); parent && parent !== body && parent !== doc2; parent = getParent$1(parent)) {
-    var positionStyle = utils.css(parent, "position");
-    if (positionStyle === "fixed") {
-      return true;
-    }
-  }
-  return false;
-}
-function getVisibleRectForElement(element, alwaysByViewport) {
-  var visibleRect = {
-    left: 0,
-    right: Infinity,
-    top: 0,
-    bottom: Infinity
-  };
-  var el = getOffsetParent(element);
-  var doc2 = utils.getDocument(element);
-  var win = doc2.defaultView || doc2.parentWindow;
-  var body = doc2.body;
-  var documentElement = doc2.documentElement;
-  while (el) {
-    if ((navigator.userAgent.indexOf("MSIE") === -1 || el.clientWidth !== 0) && el !== body && el !== documentElement && utils.css(el, "overflow") !== "visible") {
-      var pos = utils.offset(el);
-      pos.left += el.clientLeft;
-      pos.top += el.clientTop;
-      visibleRect.top = Math.max(visibleRect.top, pos.top);
-      visibleRect.right = Math.min(visibleRect.right, pos.left + el.clientWidth);
-      visibleRect.bottom = Math.min(visibleRect.bottom, pos.top + el.clientHeight);
-      visibleRect.left = Math.max(visibleRect.left, pos.left);
-    } else if (el === body || el === documentElement) {
-      break;
-    }
-    el = getOffsetParent(el);
-  }
-  var originalPosition = null;
-  if (!utils.isWindow(element) && element.nodeType !== 9) {
-    originalPosition = element.style.position;
-    var position = utils.css(element, "position");
-    if (position === "absolute") {
-      element.style.position = "fixed";
-    }
-  }
-  var scrollX = utils.getWindowScrollLeft(win);
-  var scrollY = utils.getWindowScrollTop(win);
-  var viewportWidth = utils.viewportWidth(win);
-  var viewportHeight = utils.viewportHeight(win);
-  var documentWidth = documentElement.scrollWidth;
-  var documentHeight = documentElement.scrollHeight;
-  var bodyStyle = window.getComputedStyle(body);
-  if (bodyStyle.overflowX === "hidden") {
-    documentWidth = win.innerWidth;
-  }
-  if (bodyStyle.overflowY === "hidden") {
-    documentHeight = win.innerHeight;
-  }
-  if (element.style) {
-    element.style.position = originalPosition;
-  }
-  if (alwaysByViewport || isAncestorFixed(element)) {
-    visibleRect.left = Math.max(visibleRect.left, scrollX);
-    visibleRect.top = Math.max(visibleRect.top, scrollY);
-    visibleRect.right = Math.min(visibleRect.right, scrollX + viewportWidth);
-    visibleRect.bottom = Math.min(visibleRect.bottom, scrollY + viewportHeight);
-  } else {
-    var maxVisibleWidth = Math.max(documentWidth, scrollX + viewportWidth);
-    visibleRect.right = Math.min(visibleRect.right, maxVisibleWidth);
-    var maxVisibleHeight = Math.max(documentHeight, scrollY + viewportHeight);
-    visibleRect.bottom = Math.min(visibleRect.bottom, maxVisibleHeight);
-  }
-  return visibleRect.top >= 0 && visibleRect.left >= 0 && visibleRect.bottom > visibleRect.top && visibleRect.right > visibleRect.left ? visibleRect : null;
-}
-function adjustForViewport(elFuturePos, elRegion, visibleRect, overflow) {
-  var pos = utils.clone(elFuturePos);
-  var size = {
-    width: elRegion.width,
-    height: elRegion.height
-  };
-  if (overflow.adjustX && pos.left < visibleRect.left) {
-    pos.left = visibleRect.left;
-  }
-  if (overflow.resizeWidth && pos.left >= visibleRect.left && pos.left + size.width > visibleRect.right) {
-    size.width -= pos.left + size.width - visibleRect.right;
-  }
-  if (overflow.adjustX && pos.left + size.width > visibleRect.right) {
-    pos.left = Math.max(visibleRect.right - size.width, visibleRect.left);
-  }
-  if (overflow.adjustY && pos.top < visibleRect.top) {
-    pos.top = visibleRect.top;
-  }
-  if (overflow.resizeHeight && pos.top >= visibleRect.top && pos.top + size.height > visibleRect.bottom) {
-    size.height -= pos.top + size.height - visibleRect.bottom;
-  }
-  if (overflow.adjustY && pos.top + size.height > visibleRect.bottom) {
-    pos.top = Math.max(visibleRect.bottom - size.height, visibleRect.top);
-  }
-  return utils.mix(pos, size);
-}
-function getRegion(node) {
-  var offset2;
-  var w;
-  var h;
-  if (!utils.isWindow(node) && node.nodeType !== 9) {
-    offset2 = utils.offset(node);
-    w = utils.outerWidth(node);
-    h = utils.outerHeight(node);
-  } else {
-    var win = utils.getWindow(node);
-    offset2 = {
-      left: utils.getWindowScrollLeft(win),
-      top: utils.getWindowScrollTop(win)
-    };
-    w = utils.viewportWidth(win);
-    h = utils.viewportHeight(win);
-  }
-  offset2.width = w;
-  offset2.height = h;
-  return offset2;
-}
-function getAlignOffset(region, align) {
-  var V = align.charAt(0);
-  var H = align.charAt(1);
-  var w = region.width;
-  var h = region.height;
-  var x = region.left;
-  var y = region.top;
-  if (V === "c") {
-    y += h / 2;
-  } else if (V === "b") {
-    y += h;
-  }
-  if (H === "c") {
-    x += w / 2;
-  } else if (H === "r") {
-    x += w;
-  }
-  return {
-    left: x,
-    top: y
-  };
-}
-function getElFuturePos(elRegion, refNodeRegion, points, offset2, targetOffset2) {
-  var p1 = getAlignOffset(refNodeRegion, points[1]);
-  var p2 = getAlignOffset(elRegion, points[0]);
-  var diff = [p2.left - p1.left, p2.top - p1.top];
-  return {
-    left: Math.round(elRegion.left - diff[0] + offset2[0] - targetOffset2[0]),
-    top: Math.round(elRegion.top - diff[1] + offset2[1] - targetOffset2[1])
-  };
-}
-function isFailX(elFuturePos, elRegion, visibleRect) {
-  return elFuturePos.left < visibleRect.left || elFuturePos.left + elRegion.width > visibleRect.right;
-}
-function isFailY(elFuturePos, elRegion, visibleRect) {
-  return elFuturePos.top < visibleRect.top || elFuturePos.top + elRegion.height > visibleRect.bottom;
-}
-function isCompleteFailX(elFuturePos, elRegion, visibleRect) {
-  return elFuturePos.left > visibleRect.right || elFuturePos.left + elRegion.width < visibleRect.left;
-}
-function isCompleteFailY(elFuturePos, elRegion, visibleRect) {
-  return elFuturePos.top > visibleRect.bottom || elFuturePos.top + elRegion.height < visibleRect.top;
-}
-function flip(points, reg, map2) {
-  var ret = [];
-  utils.each(points, function(p) {
-    ret.push(p.replace(reg, function(m) {
-      return map2[m];
-    }));
-  });
-  return ret;
-}
-function flipOffset(offset2, index2) {
-  offset2[index2] = -offset2[index2];
-  return offset2;
-}
-function convertOffset(str, offsetLen) {
-  var n;
-  if (/%$/.test(str)) {
-    n = parseInt(str.substring(0, str.length - 1), 10) / 100 * offsetLen;
-  } else {
-    n = parseInt(str, 10);
-  }
-  return n || 0;
-}
-function normalizeOffset(offset2, el) {
-  offset2[0] = convertOffset(offset2[0], el.width);
-  offset2[1] = convertOffset(offset2[1], el.height);
-}
-function doAlign(el, tgtRegion, align, isTgtRegionVisible) {
-  var points = align.points;
-  var offset2 = align.offset || [0, 0];
-  var targetOffset2 = align.targetOffset || [0, 0];
-  var overflow = align.overflow;
-  var source = align.source || el;
-  offset2 = [].concat(offset2);
-  targetOffset2 = [].concat(targetOffset2);
-  overflow = overflow || {};
-  var newOverflowCfg = {};
-  var fail = 0;
-  var alwaysByViewport = !!(overflow && overflow.alwaysByViewport);
-  var visibleRect = getVisibleRectForElement(source, alwaysByViewport);
-  var elRegion = getRegion(source);
-  normalizeOffset(offset2, elRegion);
-  normalizeOffset(targetOffset2, tgtRegion);
-  var elFuturePos = getElFuturePos(elRegion, tgtRegion, points, offset2, targetOffset2);
-  var newElRegion = utils.merge(elRegion, elFuturePos);
-  if (visibleRect && (overflow.adjustX || overflow.adjustY) && isTgtRegionVisible) {
-    if (overflow.adjustX) {
-      if (isFailX(elFuturePos, elRegion, visibleRect)) {
-        var newPoints = flip(points, /[lr]/gi, {
-          l: "r",
-          r: "l"
-        });
-        var newOffset = flipOffset(offset2, 0);
-        var newTargetOffset = flipOffset(targetOffset2, 0);
-        var newElFuturePos = getElFuturePos(elRegion, tgtRegion, newPoints, newOffset, newTargetOffset);
-        if (!isCompleteFailX(newElFuturePos, elRegion, visibleRect)) {
-          fail = 1;
-          points = newPoints;
-          offset2 = newOffset;
-          targetOffset2 = newTargetOffset;
-        }
-      }
-    }
-    if (overflow.adjustY) {
-      if (isFailY(elFuturePos, elRegion, visibleRect)) {
-        var _newPoints = flip(points, /[tb]/gi, {
-          t: "b",
-          b: "t"
-        });
-        var _newOffset = flipOffset(offset2, 1);
-        var _newTargetOffset = flipOffset(targetOffset2, 1);
-        var _newElFuturePos = getElFuturePos(elRegion, tgtRegion, _newPoints, _newOffset, _newTargetOffset);
-        if (!isCompleteFailY(_newElFuturePos, elRegion, visibleRect)) {
-          fail = 1;
-          points = _newPoints;
-          offset2 = _newOffset;
-          targetOffset2 = _newTargetOffset;
-        }
-      }
-    }
-    if (fail) {
-      elFuturePos = getElFuturePos(elRegion, tgtRegion, points, offset2, targetOffset2);
-      utils.mix(newElRegion, elFuturePos);
-    }
-    var isStillFailX = isFailX(elFuturePos, elRegion, visibleRect);
-    var isStillFailY = isFailY(elFuturePos, elRegion, visibleRect);
-    if (isStillFailX || isStillFailY) {
-      var _newPoints2 = points;
-      if (isStillFailX) {
-        _newPoints2 = flip(points, /[lr]/gi, {
-          l: "r",
-          r: "l"
-        });
-      }
-      if (isStillFailY) {
-        _newPoints2 = flip(points, /[tb]/gi, {
-          t: "b",
-          b: "t"
-        });
-      }
-      points = _newPoints2;
-      offset2 = align.offset || [0, 0];
-      targetOffset2 = align.targetOffset || [0, 0];
-    }
-    newOverflowCfg.adjustX = overflow.adjustX && isStillFailX;
-    newOverflowCfg.adjustY = overflow.adjustY && isStillFailY;
-    if (newOverflowCfg.adjustX || newOverflowCfg.adjustY) {
-      newElRegion = adjustForViewport(elFuturePos, elRegion, visibleRect, newOverflowCfg);
-    }
-  }
-  if (newElRegion.width !== elRegion.width) {
-    utils.css(source, "width", utils.width(source) + newElRegion.width - elRegion.width);
-  }
-  if (newElRegion.height !== elRegion.height) {
-    utils.css(source, "height", utils.height(source) + newElRegion.height - elRegion.height);
-  }
-  utils.offset(source, {
-    left: newElRegion.left,
-    top: newElRegion.top
-  }, {
-    useCssRight: align.useCssRight,
-    useCssBottom: align.useCssBottom,
-    useCssTransform: align.useCssTransform,
-    ignoreShake: align.ignoreShake
-  });
-  return {
-    points,
-    offset: offset2,
-    targetOffset: targetOffset2,
-    overflow: newOverflowCfg
-  };
-}
-function isOutOfVisibleRect(target, alwaysByViewport) {
-  var visibleRect = getVisibleRectForElement(target, alwaysByViewport);
-  var targetRegion = getRegion(target);
-  return !visibleRect || targetRegion.left + targetRegion.width <= visibleRect.left || targetRegion.top + targetRegion.height <= visibleRect.top || targetRegion.left >= visibleRect.right || targetRegion.top >= visibleRect.bottom;
-}
-function alignElement(el, refNode, align) {
-  var target = align.target || refNode;
-  var refNodeRegion = getRegion(target);
-  var isTargetNotOutOfVisible = !isOutOfVisibleRect(target, align.overflow && align.overflow.alwaysByViewport);
-  return doAlign(el, refNodeRegion, align, isTargetNotOutOfVisible);
-}
-alignElement.__getOffsetParent = getOffsetParent;
-alignElement.__getVisibleRectForElement = getVisibleRectForElement;
-function alignPoint(el, tgtPoint, align) {
-  var pageX;
-  var pageY;
-  var doc2 = utils.getDocument(el);
-  var win = doc2.defaultView || doc2.parentWindow;
-  var scrollX = utils.getWindowScrollLeft(win);
-  var scrollY = utils.getWindowScrollTop(win);
-  var viewportWidth = utils.viewportWidth(win);
-  var viewportHeight = utils.viewportHeight(win);
-  if ("pageX" in tgtPoint) {
-    pageX = tgtPoint.pageX;
-  } else {
-    pageX = scrollX + tgtPoint.clientX;
-  }
-  if ("pageY" in tgtPoint) {
-    pageY = tgtPoint.pageY;
-  } else {
-    pageY = scrollY + tgtPoint.clientY;
-  }
-  var tgtRegion = {
-    left: pageX,
-    top: pageY,
-    width: 0,
-    height: 0
-  };
-  var pointInView = pageX >= 0 && pageX <= scrollX + viewportWidth && pageY >= 0 && pageY <= scrollY + viewportHeight;
-  var points = [align.points[0], "cc"];
-  return doAlign(el, tgtRegion, _objectSpread22(_objectSpread22({}, align), {}, {
-    points
-  }), pointInView);
-}
-
-// node_modules/reactex/node_modules/resize-observer-polyfill/dist/ResizeObserver.es.js
-var MapShim = function() {
-  if (typeof Map !== "undefined") {
-    return Map;
-  }
-  function getIndex(arr, key) {
-    var result = -1;
-    arr.some(function(entry, index2) {
-      if (entry[0] === key) {
-        result = index2;
-        return true;
-      }
-      return false;
-    });
-    return result;
-  }
-  return function() {
-    function class_1() {
-      this.__entries__ = [];
-    }
-    Object.defineProperty(class_1.prototype, "size", {
-      get: function() {
-        return this.__entries__.length;
-      },
-      enumerable: true,
-      configurable: true
-    });
-    class_1.prototype.get = function(key) {
-      var index2 = getIndex(this.__entries__, key);
-      var entry = this.__entries__[index2];
-      return entry && entry[1];
-    };
-    class_1.prototype.set = function(key, value) {
-      var index2 = getIndex(this.__entries__, key);
-      if (~index2) {
-        this.__entries__[index2][1] = value;
-      } else {
-        this.__entries__.push([key, value]);
-      }
-    };
-    class_1.prototype.delete = function(key) {
-      var entries = this.__entries__;
-      var index2 = getIndex(entries, key);
-      if (~index2) {
-        entries.splice(index2, 1);
-      }
-    };
-    class_1.prototype.has = function(key) {
-      return !!~getIndex(this.__entries__, key);
-    };
-    class_1.prototype.clear = function() {
-      this.__entries__.splice(0);
-    };
-    class_1.prototype.forEach = function(callback, ctx) {
-      if (ctx === void 0) {
-        ctx = null;
-      }
-      for (var _i = 0, _a2 = this.__entries__; _i < _a2.length; _i++) {
-        var entry = _a2[_i];
-        callback.call(ctx, entry[1], entry[0]);
-      }
-    };
-    return class_1;
-  }();
-}();
-var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && window.document === document;
-var global$1 = function() {
-  if (typeof global !== "undefined" && global.Math === Math) {
-    return global;
-  }
-  if (typeof self !== "undefined" && self.Math === Math) {
-    return self;
-  }
-  if (typeof window !== "undefined" && window.Math === Math) {
-    return window;
-  }
-  return Function("return this")();
-}();
-var requestAnimationFrame$1 = function() {
-  if (typeof requestAnimationFrame === "function") {
-    return requestAnimationFrame.bind(global$1);
-  }
-  return function(callback) {
-    return setTimeout(function() {
-      return callback(Date.now());
-    }, 1e3 / 60);
-  };
-}();
-var trailingTimeout = 2;
-function throttle(callback, delay) {
-  var leadingCall = false, trailingCall = false, lastCallTime = 0;
-  function resolvePending() {
-    if (leadingCall) {
-      leadingCall = false;
-      callback();
-    }
-    if (trailingCall) {
-      proxy();
-    }
-  }
-  function timeoutCallback() {
-    requestAnimationFrame$1(resolvePending);
-  }
-  function proxy() {
-    var timeStamp = Date.now();
-    if (leadingCall) {
-      if (timeStamp - lastCallTime < trailingTimeout) {
-        return;
-      }
-      trailingCall = true;
-    } else {
-      leadingCall = true;
-      trailingCall = false;
-      setTimeout(timeoutCallback, delay);
-    }
-    lastCallTime = timeStamp;
-  }
-  return proxy;
-}
-var REFRESH_DELAY = 20;
-var transitionKeys = ["top", "right", "bottom", "left", "width", "height", "size", "weight"];
-var mutationObserverSupported = typeof MutationObserver !== "undefined";
-var ResizeObserverController = function() {
-  function ResizeObserverController2() {
-    this.connected_ = false;
-    this.mutationEventsAdded_ = false;
-    this.mutationsObserver_ = null;
-    this.observers_ = [];
-    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
-    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
-  }
-  ResizeObserverController2.prototype.addObserver = function(observer3) {
-    if (!~this.observers_.indexOf(observer3)) {
-      this.observers_.push(observer3);
-    }
-    if (!this.connected_) {
-      this.connect_();
-    }
-  };
-  ResizeObserverController2.prototype.removeObserver = function(observer3) {
-    var observers2 = this.observers_;
-    var index2 = observers2.indexOf(observer3);
-    if (~index2) {
-      observers2.splice(index2, 1);
-    }
-    if (!observers2.length && this.connected_) {
-      this.disconnect_();
-    }
-  };
-  ResizeObserverController2.prototype.refresh = function() {
-    var changesDetected = this.updateObservers_();
-    if (changesDetected) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController2.prototype.updateObservers_ = function() {
-    var activeObservers = this.observers_.filter(function(observer3) {
-      return observer3.gatherActive(), observer3.hasActive();
-    });
-    activeObservers.forEach(function(observer3) {
-      return observer3.broadcastActive();
-    });
-    return activeObservers.length > 0;
-  };
-  ResizeObserverController2.prototype.connect_ = function() {
-    if (!isBrowser || this.connected_) {
-      return;
-    }
-    document.addEventListener("transitionend", this.onTransitionEnd_);
-    window.addEventListener("resize", this.refresh);
-    if (mutationObserverSupported) {
-      this.mutationsObserver_ = new MutationObserver(this.refresh);
-      this.mutationsObserver_.observe(document, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    } else {
-      document.addEventListener("DOMSubtreeModified", this.refresh);
-      this.mutationEventsAdded_ = true;
-    }
-    this.connected_ = true;
-  };
-  ResizeObserverController2.prototype.disconnect_ = function() {
-    if (!isBrowser || !this.connected_) {
-      return;
-    }
-    document.removeEventListener("transitionend", this.onTransitionEnd_);
-    window.removeEventListener("resize", this.refresh);
-    if (this.mutationsObserver_) {
-      this.mutationsObserver_.disconnect();
-    }
-    if (this.mutationEventsAdded_) {
-      document.removeEventListener("DOMSubtreeModified", this.refresh);
-    }
-    this.mutationsObserver_ = null;
-    this.mutationEventsAdded_ = false;
-    this.connected_ = false;
-  };
-  ResizeObserverController2.prototype.onTransitionEnd_ = function(_a2) {
-    var _b2 = _a2.propertyName, propertyName = _b2 === void 0 ? "" : _b2;
-    var isReflowProperty = transitionKeys.some(function(key) {
-      return !!~propertyName.indexOf(key);
-    });
-    if (isReflowProperty) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController2.getInstance = function() {
-    if (!this.instance_) {
-      this.instance_ = new ResizeObserverController2();
-    }
-    return this.instance_;
-  };
-  ResizeObserverController2.instance_ = null;
-  return ResizeObserverController2;
-}();
-var defineConfigurable = function(target, props) {
-  for (var _i = 0, _a2 = Object.keys(props); _i < _a2.length; _i++) {
-    var key = _a2[_i];
-    Object.defineProperty(target, key, {
-      value: props[key],
-      enumerable: false,
-      writable: false,
-      configurable: true
-    });
-  }
-  return target;
-};
-var getWindowOf = function(target) {
-  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
-  return ownerGlobal || global$1;
-};
-var emptyRect = createRectInit(0, 0, 0, 0);
-function toFloat(value) {
-  return parseFloat(value) || 0;
-}
-function getBordersSize(styles) {
-  var positions = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    positions[_i - 1] = arguments[_i];
-  }
-  return positions.reduce(function(size, position) {
-    var value = styles["border-" + position + "-width"];
-    return size + toFloat(value);
-  }, 0);
-}
-function getPaddings(styles) {
-  var positions = ["top", "right", "bottom", "left"];
-  var paddings = {};
-  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
-    var position = positions_1[_i];
-    var value = styles["padding-" + position];
-    paddings[position] = toFloat(value);
-  }
-  return paddings;
-}
-function getSVGContentRect(target) {
-  var bbox = target.getBBox();
-  return createRectInit(0, 0, bbox.width, bbox.height);
-}
-function getHTMLElementContentRect(target) {
-  var clientWidth = target.clientWidth, clientHeight = target.clientHeight;
-  if (!clientWidth && !clientHeight) {
-    return emptyRect;
-  }
-  var styles = getWindowOf(target).getComputedStyle(target);
-  var paddings = getPaddings(styles);
-  var horizPad = paddings.left + paddings.right;
-  var vertPad = paddings.top + paddings.bottom;
-  var width = toFloat(styles.width), height = toFloat(styles.height);
-  if (styles.boxSizing === "border-box") {
-    if (Math.round(width + horizPad) !== clientWidth) {
-      width -= getBordersSize(styles, "left", "right") + horizPad;
-    }
-    if (Math.round(height + vertPad) !== clientHeight) {
-      height -= getBordersSize(styles, "top", "bottom") + vertPad;
-    }
-  }
-  if (!isDocumentElement(target)) {
-    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
-    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
-    if (Math.abs(vertScrollbar) !== 1) {
-      width -= vertScrollbar;
-    }
-    if (Math.abs(horizScrollbar) !== 1) {
-      height -= horizScrollbar;
-    }
-  }
-  return createRectInit(paddings.left, paddings.top, width, height);
-}
-var isSVGGraphicsElement = function() {
-  if (typeof SVGGraphicsElement !== "undefined") {
-    return function(target) {
-      return target instanceof getWindowOf(target).SVGGraphicsElement;
-    };
-  }
-  return function(target) {
-    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === "function";
-  };
-}();
-function isDocumentElement(target) {
-  return target === getWindowOf(target).document.documentElement;
-}
-function getContentRect(target) {
-  if (!isBrowser) {
-    return emptyRect;
-  }
-  if (isSVGGraphicsElement(target)) {
-    return getSVGContentRect(target);
-  }
-  return getHTMLElementContentRect(target);
-}
-function createReadOnlyRect(_a2) {
-  var x = _a2.x, y = _a2.y, width = _a2.width, height = _a2.height;
-  var Constr = typeof DOMRectReadOnly !== "undefined" ? DOMRectReadOnly : Object;
-  var rect = Object.create(Constr.prototype);
-  defineConfigurable(rect, {
-    x,
-    y,
-    width,
-    height,
-    top: y,
-    right: x + width,
-    bottom: height + y,
-    left: x
-  });
-  return rect;
-}
-function createRectInit(x, y, width, height) {
-  return { x, y, width, height };
-}
-var ResizeObservation = function() {
-  function ResizeObservation2(target) {
-    this.broadcastWidth = 0;
-    this.broadcastHeight = 0;
-    this.contentRect_ = createRectInit(0, 0, 0, 0);
-    this.target = target;
-  }
-  ResizeObservation2.prototype.isActive = function() {
-    var rect = getContentRect(this.target);
-    this.contentRect_ = rect;
-    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
-  };
-  ResizeObservation2.prototype.broadcastRect = function() {
-    var rect = this.contentRect_;
-    this.broadcastWidth = rect.width;
-    this.broadcastHeight = rect.height;
-    return rect;
-  };
-  return ResizeObservation2;
-}();
-var ResizeObserverEntry = function() {
-  function ResizeObserverEntry2(target, rectInit) {
-    var contentRect = createReadOnlyRect(rectInit);
-    defineConfigurable(this, { target, contentRect });
-  }
-  return ResizeObserverEntry2;
-}();
-var ResizeObserverSPI = function() {
-  function ResizeObserverSPI2(callback, controller, callbackCtx) {
-    this.activeObservations_ = [];
-    this.observations_ = new MapShim();
-    if (typeof callback !== "function") {
-      throw new TypeError("The callback provided as parameter 1 is not a function.");
-    }
-    this.callback_ = callback;
-    this.controller_ = controller;
-    this.callbackCtx_ = callbackCtx;
-  }
-  ResizeObserverSPI2.prototype.observe = function(target) {
-    if (!arguments.length) {
-      throw new TypeError("1 argument required, but only 0 present.");
-    }
-    if (typeof Element === "undefined" || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (observations.has(target)) {
-      return;
-    }
-    observations.set(target, new ResizeObservation(target));
-    this.controller_.addObserver(this);
-    this.controller_.refresh();
-  };
-  ResizeObserverSPI2.prototype.unobserve = function(target) {
-    if (!arguments.length) {
-      throw new TypeError("1 argument required, but only 0 present.");
-    }
-    if (typeof Element === "undefined" || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (!observations.has(target)) {
-      return;
-    }
-    observations.delete(target);
-    if (!observations.size) {
-      this.controller_.removeObserver(this);
-    }
-  };
-  ResizeObserverSPI2.prototype.disconnect = function() {
-    this.clearActive();
-    this.observations_.clear();
-    this.controller_.removeObserver(this);
-  };
-  ResizeObserverSPI2.prototype.gatherActive = function() {
-    var _this = this;
-    this.clearActive();
-    this.observations_.forEach(function(observation) {
-      if (observation.isActive()) {
-        _this.activeObservations_.push(observation);
-      }
-    });
-  };
-  ResizeObserverSPI2.prototype.broadcastActive = function() {
-    if (!this.hasActive()) {
-      return;
-    }
-    var ctx = this.callbackCtx_;
-    var entries = this.activeObservations_.map(function(observation) {
-      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
-    });
-    this.callback_.call(ctx, entries, ctx);
-    this.clearActive();
-  };
-  ResizeObserverSPI2.prototype.clearActive = function() {
-    this.activeObservations_.splice(0);
-  };
-  ResizeObserverSPI2.prototype.hasActive = function() {
-    return this.activeObservations_.length > 0;
-  };
-  return ResizeObserverSPI2;
-}();
-var observers = typeof WeakMap !== "undefined" ? new WeakMap() : new MapShim();
-var ResizeObserver = function() {
-  function ResizeObserver2(callback) {
-    if (!(this instanceof ResizeObserver2)) {
-      throw new TypeError("Cannot call a class as a function.");
-    }
-    if (!arguments.length) {
-      throw new TypeError("1 argument required, but only 0 present.");
-    }
-    var controller = ResizeObserverController.getInstance();
-    var observer3 = new ResizeObserverSPI(callback, controller, this);
-    observers.set(this, observer3);
-  }
-  return ResizeObserver2;
-}();
-[
-  "observe",
-  "unobserve",
-  "disconnect"
-].forEach(function(method) {
-  ResizeObserver.prototype[method] = function() {
-    var _a2;
-    return (_a2 = observers.get(this))[method].apply(_a2, arguments);
-  };
-});
-var index = function() {
-  if (typeof global$1.ResizeObserver !== "undefined") {
-    return global$1.ResizeObserver;
-  }
-  return ResizeObserver;
-}();
-var ResizeObserver_es_default = index;
-
-// node_modules/reactex/node_modules/rc-align/es/util.js
-function isSamePoint(prev, next) {
-  if (prev === next)
-    return true;
-  if (!prev || !next)
-    return false;
-  if ("pageX" in next && "pageY" in next) {
-    return prev.pageX === next.pageX && prev.pageY === next.pageY;
-  }
-  if ("clientX" in next && "clientY" in next) {
-    return prev.clientX === next.clientX && prev.clientY === next.clientY;
-  }
-  return false;
-}
-function restoreFocus(activeElement, container) {
-  if (activeElement !== document.activeElement && contains(container, activeElement) && typeof activeElement.focus === "function") {
-    activeElement.focus();
-  }
-}
-function monitorResize(element, callback) {
-  var prevWidth = null;
-  var prevHeight = null;
-  function onResize(_ref) {
-    var _ref2 = _slicedToArray(_ref, 1), target = _ref2[0].target;
-    if (!document.documentElement.contains(target))
-      return;
-    var _target$getBoundingCl = target.getBoundingClientRect(), width = _target$getBoundingCl.width, height = _target$getBoundingCl.height;
-    var fixedWidth = Math.floor(width);
-    var fixedHeight = Math.floor(height);
-    if (prevWidth !== fixedWidth || prevHeight !== fixedHeight) {
-      Promise.resolve().then(function() {
-        callback({
-          width: fixedWidth,
-          height: fixedHeight
-        });
-      });
-    }
-    prevWidth = fixedWidth;
-    prevHeight = fixedHeight;
-  }
-  var resizeObserver = new ResizeObserver_es_default(onResize);
-  if (element) {
-    resizeObserver.observe(element);
-  }
-  return function() {
-    resizeObserver.disconnect();
-  };
-}
-
-// node_modules/reactex/node_modules/rc-align/es/hooks/useBuffer.js
-var import_react7 = __toModule(require_react());
-var useBuffer_default = function(callback, buffer) {
-  var calledRef = import_react7.default.useRef(false);
-  var timeoutRef = import_react7.default.useRef(null);
-  function cancelTrigger() {
-    window.clearTimeout(timeoutRef.current);
-  }
-  function trigger(force) {
-    if (!calledRef.current || force === true) {
-      if (callback() === false) {
-        return;
-      }
-      calledRef.current = true;
-      cancelTrigger();
-      timeoutRef.current = window.setTimeout(function() {
-        calledRef.current = false;
-      }, buffer);
-    } else {
-      cancelTrigger();
-      timeoutRef.current = window.setTimeout(function() {
-        calledRef.current = false;
-        trigger();
-      }, buffer);
-    }
-  }
-  return [trigger, function() {
-    calledRef.current = false;
-    cancelTrigger();
-  }];
-};
-
-// node_modules/reactex/node_modules/rc-align/es/Align.js
-function getElement(func) {
-  if (typeof func !== "function")
-    return null;
-  return func();
-}
-function getPoint(point) {
-  if (_typeof(point) !== "object" || !point)
-    return null;
-  return point;
-}
-var Align = function Align2(_ref, ref) {
-  var children = _ref.children, disabled = _ref.disabled, target = _ref.target, align = _ref.align, onAlign = _ref.onAlign, monitorWindowResize = _ref.monitorWindowResize, _ref$monitorBufferTim = _ref.monitorBufferTime, monitorBufferTime = _ref$monitorBufferTim === void 0 ? 0 : _ref$monitorBufferTim;
-  var cacheRef = import_react8.default.useRef({});
-  var nodeRef = import_react8.default.useRef();
-  var childNode = import_react8.default.Children.only(children);
-  var forceAlignPropsRef = import_react8.default.useRef({});
-  forceAlignPropsRef.current.disabled = disabled;
-  forceAlignPropsRef.current.target = target;
-  forceAlignPropsRef.current.onAlign = onAlign;
-  var _useBuffer = useBuffer_default(function() {
-    var _forceAlignPropsRef$c = forceAlignPropsRef.current, latestDisabled = _forceAlignPropsRef$c.disabled, latestTarget = _forceAlignPropsRef$c.target, latestOnAlign = _forceAlignPropsRef$c.onAlign;
-    if (!latestDisabled && latestTarget) {
-      var source = nodeRef.current;
-      var result;
-      var element = getElement(latestTarget);
-      var point = getPoint(latestTarget);
-      cacheRef.current.element = element;
-      cacheRef.current.point = point;
-      var _document = document, activeElement = _document.activeElement;
-      if (element && isVisible_default(element)) {
-        result = alignElement(source, element, align);
-      } else if (point) {
-        result = alignPoint(source, point, align);
-      }
-      restoreFocus(activeElement, source);
-      if (latestOnAlign && result) {
-        latestOnAlign(source, result);
-      }
-      return true;
-    }
-    return false;
-  }, monitorBufferTime), _useBuffer2 = _slicedToArray(_useBuffer, 2), _forceAlign = _useBuffer2[0], cancelForceAlign = _useBuffer2[1];
-  var resizeMonitor = import_react8.default.useRef({
-    cancel: function cancel() {
-    }
-  });
-  var sourceResizeMonitor = import_react8.default.useRef({
-    cancel: function cancel() {
-    }
-  });
-  import_react8.default.useEffect(function() {
-    var element = getElement(target);
-    var point = getPoint(target);
-    if (nodeRef.current !== sourceResizeMonitor.current.element) {
-      sourceResizeMonitor.current.cancel();
-      sourceResizeMonitor.current.element = nodeRef.current;
-      sourceResizeMonitor.current.cancel = monitorResize(nodeRef.current, _forceAlign);
-    }
-    if (cacheRef.current.element !== element || !isSamePoint(cacheRef.current.point, point)) {
-      _forceAlign();
-      if (resizeMonitor.current.element !== element) {
-        resizeMonitor.current.cancel();
-        resizeMonitor.current.element = element;
-        resizeMonitor.current.cancel = monitorResize(element, _forceAlign);
-      }
-    }
-  });
-  import_react8.default.useEffect(function() {
-    if (!disabled) {
-      _forceAlign();
-    } else {
-      cancelForceAlign();
-    }
-  }, [disabled]);
-  var winResizeRef = import_react8.default.useRef(null);
-  import_react8.default.useEffect(function() {
-    if (monitorWindowResize) {
-      if (!winResizeRef.current) {
-        winResizeRef.current = addEventListenerWrap(window, "resize", _forceAlign);
-      }
-    } else if (winResizeRef.current) {
-      winResizeRef.current.remove();
-      winResizeRef.current = null;
-    }
-  }, [monitorWindowResize]);
-  import_react8.default.useEffect(function() {
-    return function() {
-      resizeMonitor.current.cancel();
-      sourceResizeMonitor.current.cancel();
-      if (winResizeRef.current)
-        winResizeRef.current.remove();
-      cancelForceAlign();
-    };
-  }, []);
-  import_react8.default.useImperativeHandle(ref, function() {
-    return {
-      forceAlign: function forceAlign() {
-        return _forceAlign(true);
-      }
-    };
-  });
-  if (import_react8.default.isValidElement(childNode)) {
-    childNode = import_react8.default.cloneElement(childNode, {
-      ref: composeRef(childNode.ref, nodeRef)
-    });
-  }
-  return childNode;
-};
-var RefAlign = import_react8.default.forwardRef(Align);
-RefAlign.displayName = "Align";
-var Align_default = RefAlign;
-
-// node_modules/reactex/node_modules/rc-align/es/index.js
-var es_default2 = Align_default;
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
-var import_classnames3 = __toModule(require_classnames());
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/useVisibleStatus.js
-var import_regenerator = __toModule(require_regenerator());
-
-// node_modules/reactex/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
-  }
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
-}
-function _asyncToGenerator(fn) {
-  return function() {
-    var self2 = this, args = arguments;
-    return new Promise(function(resolve, reject) {
-      var gen = fn.apply(self2, args);
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-      }
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-      _next(void 0);
-    });
-  };
-}
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/useVisibleStatus.js
-var import_react9 = __toModule(require_react());
-var StatusQueue = ["measure", "align", null, "motion"];
-var useVisibleStatus_default = function(visible, doMeasure) {
-  var _useState = (0, import_react9.useState)(null), _useState2 = _slicedToArray(_useState, 2), status = _useState2[0], setInternalStatus = _useState2[1];
-  var rafRef = (0, import_react9.useRef)();
-  var destroyRef = (0, import_react9.useRef)(false);
-  function setStatus(nextStatus) {
-    if (!destroyRef.current) {
-      setInternalStatus(nextStatus);
-    }
-  }
-  function cancelRaf() {
-    wrapperRaf.cancel(rafRef.current);
-  }
-  function goNextStatus(callback) {
-    cancelRaf();
-    rafRef.current = wrapperRaf(function() {
-      setStatus(function(prev) {
-        switch (status) {
-          case "align":
-            return "motion";
-          case "motion":
-            return "stable";
-          default:
-        }
-        return prev;
-      });
-      callback === null || callback === void 0 ? void 0 : callback();
-    });
-  }
-  (0, import_react9.useEffect)(function() {
-    setStatus("measure");
-  }, [visible]);
-  (0, import_react9.useEffect)(function() {
-    switch (status) {
-      case "measure":
-        doMeasure();
-        break;
-      default:
-    }
-    if (status) {
-      rafRef.current = wrapperRaf(/* @__PURE__ */ _asyncToGenerator(/* @__PURE__ */ import_regenerator.default.mark(function _callee() {
-        var index2, nextStatus;
-        return import_regenerator.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                index2 = StatusQueue.indexOf(status);
-                nextStatus = StatusQueue[index2 + 1];
-                if (nextStatus && index2 !== -1) {
-                  setStatus(nextStatus);
-                }
-              case 3:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      })));
-    }
-  }, [status]);
-  (0, import_react9.useEffect)(function() {
-    return function() {
-      destroyRef.current = true;
-      cancelRaf();
-    };
-  }, []);
-  return [status, goNextStatus];
-};
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/useStretchStyle.js
-var React11 = __toModule(require_react());
-var useStretchStyle_default = function(stretch) {
-  var _React$useState = React11.useState({
-    width: 0,
-    height: 0
-  }), _React$useState2 = _slicedToArray(_React$useState, 2), targetSize = _React$useState2[0], setTargetSize = _React$useState2[1];
-  function measureStretch(element) {
-    setTargetSize({
-      width: element.offsetWidth,
-      height: element.offsetHeight
-    });
-  }
-  var style2 = React11.useMemo(function() {
-    var sizeStyle = {};
-    if (stretch) {
-      var width = targetSize.width, height = targetSize.height;
-      if (stretch.indexOf("height") !== -1 && height) {
-        sizeStyle.height = height;
-      } else if (stretch.indexOf("minHeight") !== -1 && height) {
-        sizeStyle.minHeight = height;
-      }
-      if (stretch.indexOf("width") !== -1 && width) {
-        sizeStyle.width = width;
-      } else if (stretch.indexOf("minWidth") !== -1 && width) {
-        sizeStyle.minWidth = width;
-      }
-    }
-    return sizeStyle;
-  }, [stretch, targetSize]);
-  return [style2, measureStretch];
-};
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/PopupInner.js
-var PopupInner = /* @__PURE__ */ React12.forwardRef(function(props, ref) {
-  var visible = props.visible, prefixCls = props.prefixCls, className = props.className, style2 = props.style, children = props.children, zIndex = props.zIndex, stretch = props.stretch, destroyPopupOnHide = props.destroyPopupOnHide, forceRender = props.forceRender, align = props.align, point = props.point, getRootDomNode = props.getRootDomNode, getClassNameFromAlign = props.getClassNameFromAlign, onAlign = props.onAlign, onMouseEnter = props.onMouseEnter, onMouseLeave = props.onMouseLeave, onMouseDown = props.onMouseDown, onTouchStart = props.onTouchStart;
-  var alignRef = (0, import_react10.useRef)();
-  var elementRef = (0, import_react10.useRef)();
-  var _useState = (0, import_react10.useState)(), _useState2 = _slicedToArray(_useState, 2), alignedClassName = _useState2[0], setAlignedClassName = _useState2[1];
-  var _useStretchStyle = useStretchStyle_default(stretch), _useStretchStyle2 = _slicedToArray(_useStretchStyle, 2), stretchStyle = _useStretchStyle2[0], measureStretchStyle = _useStretchStyle2[1];
-  function doMeasure() {
-    if (stretch) {
-      measureStretchStyle(getRootDomNode());
-    }
-  }
-  var _useVisibleStatus = useVisibleStatus_default(visible, doMeasure), _useVisibleStatus2 = _slicedToArray(_useVisibleStatus, 2), status = _useVisibleStatus2[0], goNextStatus = _useVisibleStatus2[1];
-  var prepareResolveRef = (0, import_react10.useRef)();
-  function getAlignTarget() {
-    if (point) {
-      return point;
-    }
-    return getRootDomNode;
-  }
-  function forceAlign() {
-    var _alignRef$current;
-    (_alignRef$current = alignRef.current) === null || _alignRef$current === void 0 ? void 0 : _alignRef$current.forceAlign();
-  }
-  function onInternalAlign(popupDomNode, matchAlign) {
-    if (status === "align") {
-      var nextAlignedClassName = getClassNameFromAlign(matchAlign);
-      setAlignedClassName(nextAlignedClassName);
-      if (alignedClassName !== nextAlignedClassName) {
-        Promise.resolve().then(function() {
-          forceAlign();
-        });
-      } else {
-        goNextStatus(function() {
-          var _prepareResolveRef$cu;
-          (_prepareResolveRef$cu = prepareResolveRef.current) === null || _prepareResolveRef$cu === void 0 ? void 0 : _prepareResolveRef$cu.call(prepareResolveRef);
-        });
-      }
-      onAlign === null || onAlign === void 0 ? void 0 : onAlign(popupDomNode, matchAlign);
-    }
-  }
-  var motion = _objectSpread2({}, getMotion(props));
-  ["onAppearEnd", "onEnterEnd", "onLeaveEnd"].forEach(function(eventName) {
-    var originHandler = motion[eventName];
-    motion[eventName] = function(element, event) {
-      goNextStatus();
-      return originHandler === null || originHandler === void 0 ? void 0 : originHandler(element, event);
-    };
-  });
-  function onShowPrepare() {
-    return new Promise(function(resolve) {
-      prepareResolveRef.current = resolve;
-    });
-  }
-  React12.useEffect(function() {
-    if (!motion.motionName && status === "motion") {
-      goNextStatus();
-    }
-  }, [motion.motionName, status]);
-  React12.useImperativeHandle(ref, function() {
-    return {
-      forceAlign,
-      getElement: function getElement2() {
-        return elementRef.current;
-      }
-    };
-  });
-  var mergedStyle = _objectSpread2(_objectSpread2({}, stretchStyle), {}, {
-    zIndex,
-    opacity: status === "motion" || status === "stable" || !visible ? void 0 : 0,
-    pointerEvents: status === "stable" ? void 0 : "none"
-  }, style2);
-  var alignDisabled = true;
-  if ((align === null || align === void 0 ? void 0 : align.points) && (status === "align" || status === "stable")) {
-    alignDisabled = false;
-  }
-  var childNode = children;
-  if (React12.Children.count(children) > 1) {
-    childNode = /* @__PURE__ */ React12.createElement("div", {
-      className: "".concat(prefixCls, "-content")
-    }, children);
-  }
-  return /* @__PURE__ */ React12.createElement(es_default, _extends({
-    visible,
-    ref: elementRef,
-    leavedClassName: "".concat(prefixCls, "-hidden")
-  }, motion, {
-    onAppearPrepare: onShowPrepare,
-    onEnterPrepare: onShowPrepare,
-    removeOnLeave: destroyPopupOnHide,
-    forceRender
-  }), function(_ref, motionRef) {
-    var motionClassName = _ref.className, motionStyle = _ref.style;
-    var mergedClassName = (0, import_classnames3.default)(prefixCls, className, alignedClassName, motionClassName);
-    return /* @__PURE__ */ React12.createElement(es_default2, {
-      target: getAlignTarget(),
-      key: "popup",
-      ref: alignRef,
-      monitorWindowResize: true,
-      disabled: alignDisabled,
-      align,
-      onAlign: onInternalAlign
-    }, /* @__PURE__ */ React12.createElement("div", {
-      ref: motionRef,
-      className: mergedClassName,
-      onMouseEnter,
-      onMouseLeave,
-      onMouseDownCapture: onMouseDown,
-      onTouchStartCapture: onTouchStart,
-      style: _objectSpread2(_objectSpread2({}, motionStyle), mergedStyle)
-    }, childNode));
-  });
-});
-PopupInner.displayName = "PopupInner";
-var PopupInner_default = PopupInner;
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/MobilePopupInner.js
-var React13 = __toModule(require_react());
-var import_classnames4 = __toModule(require_classnames());
-var MobilePopupInner = /* @__PURE__ */ React13.forwardRef(function(props, ref) {
-  var prefixCls = props.prefixCls, visible = props.visible, zIndex = props.zIndex, children = props.children, _props$mobile = props.mobile;
-  _props$mobile = _props$mobile === void 0 ? {} : _props$mobile;
-  var popupClassName = _props$mobile.popupClassName, popupStyle = _props$mobile.popupStyle, _props$mobile$popupMo = _props$mobile.popupMotion, popupMotion = _props$mobile$popupMo === void 0 ? {} : _props$mobile$popupMo, popupRender = _props$mobile.popupRender;
-  var elementRef = React13.useRef();
-  React13.useImperativeHandle(ref, function() {
-    return {
-      forceAlign: function forceAlign() {
-      },
-      getElement: function getElement2() {
-        return elementRef.current;
-      }
-    };
-  });
-  var mergedStyle = _objectSpread2({
-    zIndex
-  }, popupStyle);
-  var childNode = children;
-  if (React13.Children.count(children) > 1) {
-    childNode = /* @__PURE__ */ React13.createElement("div", {
-      className: "".concat(prefixCls, "-content")
-    }, children);
-  }
-  if (popupRender) {
-    childNode = popupRender(childNode);
-  }
-  return /* @__PURE__ */ React13.createElement(es_default, _extends({
-    visible,
-    ref: elementRef,
-    removeOnLeave: true
-  }, popupMotion), function(_ref, motionRef) {
-    var motionClassName = _ref.className, motionStyle = _ref.style;
-    var mergedClassName = (0, import_classnames4.default)(prefixCls, popupClassName, motionClassName);
-    return /* @__PURE__ */ React13.createElement("div", {
-      ref: motionRef,
-      className: mergedClassName,
-      style: _objectSpread2(_objectSpread2({}, motionStyle), mergedStyle)
-    }, childNode);
-  });
-});
-MobilePopupInner.displayName = "MobilePopupInner";
-var MobilePopupInner_default = MobilePopupInner;
-
-// node_modules/reactex/node_modules/rc-trigger/es/Popup/index.js
-var Popup = /* @__PURE__ */ React14.forwardRef(function(_ref, ref) {
-  var visible = _ref.visible, mobile = _ref.mobile, props = _objectWithoutProperties(_ref, ["visible", "mobile"]);
-  var _useState = (0, import_react11.useState)(visible), _useState2 = _slicedToArray(_useState, 2), innerVisible = _useState2[0], serInnerVisible = _useState2[1];
-  var _useState3 = (0, import_react11.useState)(false), _useState4 = _slicedToArray(_useState3, 2), inMobile = _useState4[0], setInMobile = _useState4[1];
-  var cloneProps = _objectSpread2(_objectSpread2({}, props), {}, {
-    visible: innerVisible
-  });
-  (0, import_react11.useEffect)(function() {
-    serInnerVisible(visible);
-    if (visible && mobile) {
-      setInMobile(isMobile_default());
-    }
-  }, [visible, mobile]);
-  var popupNode = inMobile ? /* @__PURE__ */ React14.createElement(MobilePopupInner_default, _extends({}, cloneProps, {
-    mobile,
-    ref
-  })) : /* @__PURE__ */ React14.createElement(PopupInner_default, _extends({}, cloneProps, {
-    ref
-  }));
-  return /* @__PURE__ */ React14.createElement("div", null, /* @__PURE__ */ React14.createElement(Mask, cloneProps), popupNode);
-});
-Popup.displayName = "Popup";
-var Popup_default = Popup;
-
-// node_modules/reactex/node_modules/rc-trigger/es/context.js
-var React15 = __toModule(require_react());
-var TriggerContext = /* @__PURE__ */ React15.createContext(null);
-var context_default = TriggerContext;
-
-// node_modules/reactex/node_modules/rc-trigger/es/index.js
-function noop() {
-}
-function returnEmptyString() {
-  return "";
-}
-function returnDocument(element) {
-  if (element) {
-    return element.ownerDocument;
-  }
-  return window.document;
-}
-var ALL_HANDLERS = ["onClick", "onMouseDown", "onTouchStart", "onMouseEnter", "onMouseLeave", "onFocus", "onBlur", "onContextMenu"];
-function generateTrigger(PortalComponent) {
-  var Trigger = /* @__PURE__ */ function(_React$Component) {
-    _inherits(Trigger2, _React$Component);
-    var _super = _createSuper(Trigger2);
-    function Trigger2(props) {
-      var _this;
-      _classCallCheck(this, Trigger2);
-      _this = _super.call(this, props);
-      _this.popupRef = /* @__PURE__ */ React16.createRef();
-      _this.triggerRef = /* @__PURE__ */ React16.createRef();
-      _this.onMouseEnter = function(e) {
-        var mouseEnterDelay = _this.props.mouseEnterDelay;
-        _this.fireEvents("onMouseEnter", e);
-        _this.delaySetPopupVisible(true, mouseEnterDelay, mouseEnterDelay ? null : e);
-      };
-      _this.onMouseMove = function(e) {
-        _this.fireEvents("onMouseMove", e);
-        _this.setPoint(e);
-      };
-      _this.onMouseLeave = function(e) {
-        _this.fireEvents("onMouseLeave", e);
-        _this.delaySetPopupVisible(false, _this.props.mouseLeaveDelay);
-      };
-      _this.onPopupMouseEnter = function() {
-        _this.clearDelayTimer();
-      };
-      _this.onPopupMouseLeave = function(e) {
-        var _this$popupRef$curren;
-        if (e.relatedTarget && !e.relatedTarget.setTimeout && contains((_this$popupRef$curren = _this.popupRef.current) === null || _this$popupRef$curren === void 0 ? void 0 : _this$popupRef$curren.getElement(), e.relatedTarget)) {
-          return;
-        }
-        _this.delaySetPopupVisible(false, _this.props.mouseLeaveDelay);
-      };
-      _this.onFocus = function(e) {
-        _this.fireEvents("onFocus", e);
-        _this.clearDelayTimer();
-        if (_this.isFocusToShow()) {
-          _this.focusTime = Date.now();
-          _this.delaySetPopupVisible(true, _this.props.focusDelay);
-        }
-      };
-      _this.onMouseDown = function(e) {
-        _this.fireEvents("onMouseDown", e);
-        _this.preClickTime = Date.now();
-      };
-      _this.onTouchStart = function(e) {
-        _this.fireEvents("onTouchStart", e);
-        _this.preTouchTime = Date.now();
-      };
-      _this.onBlur = function(e) {
-        _this.fireEvents("onBlur", e);
-        _this.clearDelayTimer();
-        if (_this.isBlurToHide()) {
-          _this.delaySetPopupVisible(false, _this.props.blurDelay);
-        }
-      };
-      _this.onContextMenu = function(e) {
-        e.preventDefault();
-        _this.fireEvents("onContextMenu", e);
-        _this.setPopupVisible(true, e);
-      };
-      _this.onContextMenuClose = function() {
-        if (_this.isContextMenuToShow()) {
-          _this.close();
-        }
-      };
-      _this.onClick = function(event) {
-        _this.fireEvents("onClick", event);
-        if (_this.focusTime) {
-          var preTime;
-          if (_this.preClickTime && _this.preTouchTime) {
-            preTime = Math.min(_this.preClickTime, _this.preTouchTime);
-          } else if (_this.preClickTime) {
-            preTime = _this.preClickTime;
-          } else if (_this.preTouchTime) {
-            preTime = _this.preTouchTime;
-          }
-          if (Math.abs(preTime - _this.focusTime) < 20) {
-            return;
-          }
-          _this.focusTime = 0;
-        }
-        _this.preClickTime = 0;
-        _this.preTouchTime = 0;
-        if (_this.isClickToShow() && (_this.isClickToHide() || _this.isBlurToHide()) && event && event.preventDefault) {
-          event.preventDefault();
-        }
-        var nextVisible = !_this.state.popupVisible;
-        if (_this.isClickToHide() && !nextVisible || nextVisible && _this.isClickToShow()) {
-          _this.setPopupVisible(!_this.state.popupVisible, event);
-        }
-      };
-      _this.onPopupMouseDown = function() {
-        _this.hasPopupMouseDown = true;
-        clearTimeout(_this.mouseDownTimeout);
-        _this.mouseDownTimeout = window.setTimeout(function() {
-          _this.hasPopupMouseDown = false;
-        }, 0);
-        if (_this.context) {
-          var _this$context;
-          (_this$context = _this.context).onPopupMouseDown.apply(_this$context, arguments);
-        }
-      };
-      _this.onDocumentClick = function(event) {
-        if (_this.props.mask && !_this.props.maskClosable) {
-          return;
-        }
-        var target = event.target;
-        var root = _this.getRootDomNode();
-        var popupNode = _this.getPopupDomNode();
-        if ((!contains(root, target) || _this.isContextMenuOnly()) && !contains(popupNode, target) && !_this.hasPopupMouseDown) {
-          _this.close();
-        }
-      };
-      _this.getRootDomNode = function() {
-        var getTriggerDOMNode = _this.props.getTriggerDOMNode;
-        if (getTriggerDOMNode) {
-          return getTriggerDOMNode(_this.triggerRef.current);
-        }
-        try {
-          var domNode = findDOMNode(_this.triggerRef.current);
-          if (domNode) {
-            return domNode;
-          }
-        } catch (err) {
-        }
-        return import_react_dom4.default.findDOMNode(_assertThisInitialized(_this));
-      };
-      _this.getPopupClassNameFromAlign = function(align) {
-        var className = [];
-        var _this$props = _this.props, popupPlacement = _this$props.popupPlacement, builtinPlacements = _this$props.builtinPlacements, prefixCls = _this$props.prefixCls, alignPoint2 = _this$props.alignPoint, getPopupClassNameFromAlign = _this$props.getPopupClassNameFromAlign;
-        if (popupPlacement && builtinPlacements) {
-          className.push(getAlignPopupClassName(builtinPlacements, prefixCls, align, alignPoint2));
-        }
-        if (getPopupClassNameFromAlign) {
-          className.push(getPopupClassNameFromAlign(align));
-        }
-        return className.join(" ");
-      };
-      _this.getComponent = function() {
-        var _this$props2 = _this.props, prefixCls = _this$props2.prefixCls, destroyPopupOnHide = _this$props2.destroyPopupOnHide, popupClassName = _this$props2.popupClassName, onPopupAlign = _this$props2.onPopupAlign, popupMotion = _this$props2.popupMotion, popupAnimation = _this$props2.popupAnimation, popupTransitionName = _this$props2.popupTransitionName, popupStyle = _this$props2.popupStyle, mask = _this$props2.mask, maskAnimation = _this$props2.maskAnimation, maskTransitionName = _this$props2.maskTransitionName, maskMotion = _this$props2.maskMotion, zIndex = _this$props2.zIndex, popup = _this$props2.popup, stretch = _this$props2.stretch, alignPoint2 = _this$props2.alignPoint, mobile = _this$props2.mobile, forceRender = _this$props2.forceRender;
-        var _this$state = _this.state, popupVisible2 = _this$state.popupVisible, point = _this$state.point;
-        var align = _this.getPopupAlign();
-        var mouseProps = {};
-        if (_this.isMouseEnterToShow()) {
-          mouseProps.onMouseEnter = _this.onPopupMouseEnter;
-        }
-        if (_this.isMouseLeaveToHide()) {
-          mouseProps.onMouseLeave = _this.onPopupMouseLeave;
-        }
-        mouseProps.onMouseDown = _this.onPopupMouseDown;
-        mouseProps.onTouchStart = _this.onPopupMouseDown;
-        return /* @__PURE__ */ React16.createElement(Popup_default, _extends({
-          prefixCls,
-          destroyPopupOnHide,
-          visible: popupVisible2,
-          point: alignPoint2 && point,
-          className: popupClassName,
-          align,
-          onAlign: onPopupAlign,
-          animation: popupAnimation,
-          getClassNameFromAlign: _this.getPopupClassNameFromAlign
-        }, mouseProps, {
-          stretch,
-          getRootDomNode: _this.getRootDomNode,
-          style: popupStyle,
-          mask,
-          zIndex,
-          transitionName: popupTransitionName,
-          maskAnimation,
-          maskTransitionName,
-          maskMotion,
-          ref: _this.popupRef,
-          motion: popupMotion,
-          mobile,
-          forceRender
-        }), typeof popup === "function" ? popup() : popup);
-      };
-      _this.attachParent = function(popupContainer) {
-        wrapperRaf.cancel(_this.attachId);
-        var _this$props3 = _this.props, getPopupContainer = _this$props3.getPopupContainer, getDocument2 = _this$props3.getDocument;
-        var domNode = _this.getRootDomNode();
-        var mountNode;
-        if (!getPopupContainer) {
-          mountNode = getDocument2(_this.getRootDomNode()).body;
-        } else if (domNode || getPopupContainer.length === 0) {
-          mountNode = getPopupContainer(domNode);
-        }
-        if (mountNode) {
-          mountNode.appendChild(popupContainer);
-        } else {
-          _this.attachId = wrapperRaf(function() {
-            _this.attachParent(popupContainer);
-          });
-        }
-      };
-      _this.getContainer = function() {
-        var getDocument2 = _this.props.getDocument;
-        var popupContainer = getDocument2(_this.getRootDomNode()).createElement("div");
-        popupContainer.style.position = "absolute";
-        popupContainer.style.top = "0";
-        popupContainer.style.left = "0";
-        popupContainer.style.width = "100%";
-        _this.attachParent(popupContainer);
-        return popupContainer;
-      };
-      _this.setPoint = function(point) {
-        var alignPoint2 = _this.props.alignPoint;
-        if (!alignPoint2 || !point)
-          return;
-        _this.setState({
-          point: {
-            pageX: point.pageX,
-            pageY: point.pageY
-          }
-        });
-      };
-      _this.handlePortalUpdate = function() {
-        if (_this.state.prevPopupVisible !== _this.state.popupVisible) {
-          _this.props.afterPopupVisibleChange(_this.state.popupVisible);
-        }
-      };
-      _this.triggerContextValue = {
-        onPopupMouseDown: _this.onPopupMouseDown
-      };
-      var popupVisible;
-      if ("popupVisible" in props) {
-        popupVisible = !!props.popupVisible;
-      } else {
-        popupVisible = !!props.defaultPopupVisible;
-      }
-      _this.state = {
-        prevPopupVisible: popupVisible,
-        popupVisible
-      };
-      ALL_HANDLERS.forEach(function(h) {
-        _this["fire".concat(h)] = function(e) {
-          _this.fireEvents(h, e);
-        };
-      });
-      return _this;
-    }
-    _createClass(Trigger2, [{
-      key: "componentDidMount",
-      value: function componentDidMount() {
-        this.componentDidUpdate();
-      }
-    }, {
-      key: "componentDidUpdate",
-      value: function componentDidUpdate() {
-        var props = this.props;
-        var state = this.state;
-        if (state.popupVisible) {
-          var currentDocument;
-          if (!this.clickOutsideHandler && (this.isClickToHide() || this.isContextMenuToShow())) {
-            currentDocument = props.getDocument(this.getRootDomNode());
-            this.clickOutsideHandler = addEventListenerWrap(currentDocument, "mousedown", this.onDocumentClick);
-          }
-          if (!this.touchOutsideHandler) {
-            currentDocument = currentDocument || props.getDocument(this.getRootDomNode());
-            this.touchOutsideHandler = addEventListenerWrap(currentDocument, "touchstart", this.onDocumentClick);
-          }
-          if (!this.contextMenuOutsideHandler1 && this.isContextMenuToShow()) {
-            currentDocument = currentDocument || props.getDocument(this.getRootDomNode());
-            this.contextMenuOutsideHandler1 = addEventListenerWrap(currentDocument, "scroll", this.onContextMenuClose);
-          }
-          if (!this.contextMenuOutsideHandler2 && this.isContextMenuToShow()) {
-            this.contextMenuOutsideHandler2 = addEventListenerWrap(window, "blur", this.onContextMenuClose);
-          }
-          return;
-        }
-        this.clearOutsideHandler();
-      }
-    }, {
-      key: "componentWillUnmount",
-      value: function componentWillUnmount() {
-        this.clearDelayTimer();
-        this.clearOutsideHandler();
-        clearTimeout(this.mouseDownTimeout);
-        wrapperRaf.cancel(this.attachId);
-      }
-    }, {
-      key: "getPopupDomNode",
-      value: function getPopupDomNode() {
-        var _this$popupRef$curren2;
-        return ((_this$popupRef$curren2 = this.popupRef.current) === null || _this$popupRef$curren2 === void 0 ? void 0 : _this$popupRef$curren2.getElement()) || null;
-      }
-    }, {
-      key: "getPopupAlign",
-      value: function getPopupAlign() {
-        var props = this.props;
-        var popupPlacement = props.popupPlacement, popupAlign = props.popupAlign, builtinPlacements = props.builtinPlacements;
-        if (popupPlacement && builtinPlacements) {
-          return getAlignFromPlacement(builtinPlacements, popupPlacement, popupAlign);
-        }
-        return popupAlign;
-      }
-    }, {
-      key: "setPopupVisible",
-      value: function setPopupVisible(popupVisible, event) {
-        var alignPoint2 = this.props.alignPoint;
-        var prevPopupVisible = this.state.popupVisible;
-        this.clearDelayTimer();
-        if (prevPopupVisible !== popupVisible) {
-          if (!("popupVisible" in this.props)) {
-            this.setState({
-              popupVisible,
-              prevPopupVisible
-            });
-          }
-          this.props.onPopupVisibleChange(popupVisible);
-        }
-        if (alignPoint2 && event && popupVisible) {
-          this.setPoint(event);
-        }
-      }
-    }, {
-      key: "delaySetPopupVisible",
-      value: function delaySetPopupVisible(visible, delayS, event) {
-        var _this2 = this;
-        var delay = delayS * 1e3;
-        this.clearDelayTimer();
-        if (delay) {
-          var point = event ? {
-            pageX: event.pageX,
-            pageY: event.pageY
-          } : null;
-          this.delayTimer = window.setTimeout(function() {
-            _this2.setPopupVisible(visible, point);
-            _this2.clearDelayTimer();
-          }, delay);
-        } else {
-          this.setPopupVisible(visible, event);
-        }
-      }
-    }, {
-      key: "clearDelayTimer",
-      value: function clearDelayTimer() {
-        if (this.delayTimer) {
-          clearTimeout(this.delayTimer);
-          this.delayTimer = null;
-        }
-      }
-    }, {
-      key: "clearOutsideHandler",
-      value: function clearOutsideHandler() {
-        if (this.clickOutsideHandler) {
-          this.clickOutsideHandler.remove();
-          this.clickOutsideHandler = null;
-        }
-        if (this.contextMenuOutsideHandler1) {
-          this.contextMenuOutsideHandler1.remove();
-          this.contextMenuOutsideHandler1 = null;
-        }
-        if (this.contextMenuOutsideHandler2) {
-          this.contextMenuOutsideHandler2.remove();
-          this.contextMenuOutsideHandler2 = null;
-        }
-        if (this.touchOutsideHandler) {
-          this.touchOutsideHandler.remove();
-          this.touchOutsideHandler = null;
-        }
-      }
-    }, {
-      key: "createTwoChains",
-      value: function createTwoChains(event) {
-        var childPros = this.props.children.props;
-        var props = this.props;
-        if (childPros[event] && props[event]) {
-          return this["fire".concat(event)];
-        }
-        return childPros[event] || props[event];
-      }
-    }, {
-      key: "isClickToShow",
-      value: function isClickToShow() {
-        var _this$props4 = this.props, action2 = _this$props4.action, showAction = _this$props4.showAction;
-        return action2.indexOf("click") !== -1 || showAction.indexOf("click") !== -1;
-      }
-    }, {
-      key: "isContextMenuOnly",
-      value: function isContextMenuOnly() {
-        var action2 = this.props.action;
-        return action2 === "contextMenu" || action2.length === 1 && action2[0] === "contextMenu";
-      }
-    }, {
-      key: "isContextMenuToShow",
-      value: function isContextMenuToShow() {
-        var _this$props5 = this.props, action2 = _this$props5.action, showAction = _this$props5.showAction;
-        return action2.indexOf("contextMenu") !== -1 || showAction.indexOf("contextMenu") !== -1;
-      }
-    }, {
-      key: "isClickToHide",
-      value: function isClickToHide() {
-        var _this$props6 = this.props, action2 = _this$props6.action, hideAction = _this$props6.hideAction;
-        return action2.indexOf("click") !== -1 || hideAction.indexOf("click") !== -1;
-      }
-    }, {
-      key: "isMouseEnterToShow",
-      value: function isMouseEnterToShow() {
-        var _this$props7 = this.props, action2 = _this$props7.action, showAction = _this$props7.showAction;
-        return action2.indexOf("hover") !== -1 || showAction.indexOf("mouseEnter") !== -1;
-      }
-    }, {
-      key: "isMouseLeaveToHide",
-      value: function isMouseLeaveToHide() {
-        var _this$props8 = this.props, action2 = _this$props8.action, hideAction = _this$props8.hideAction;
-        return action2.indexOf("hover") !== -1 || hideAction.indexOf("mouseLeave") !== -1;
-      }
-    }, {
-      key: "isFocusToShow",
-      value: function isFocusToShow() {
-        var _this$props9 = this.props, action2 = _this$props9.action, showAction = _this$props9.showAction;
-        return action2.indexOf("focus") !== -1 || showAction.indexOf("focus") !== -1;
-      }
-    }, {
-      key: "isBlurToHide",
-      value: function isBlurToHide() {
-        var _this$props10 = this.props, action2 = _this$props10.action, hideAction = _this$props10.hideAction;
-        return action2.indexOf("focus") !== -1 || hideAction.indexOf("blur") !== -1;
-      }
-    }, {
-      key: "forcePopupAlign",
-      value: function forcePopupAlign() {
-        if (this.state.popupVisible) {
-          var _this$popupRef$curren3;
-          (_this$popupRef$curren3 = this.popupRef.current) === null || _this$popupRef$curren3 === void 0 ? void 0 : _this$popupRef$curren3.forceAlign();
-        }
-      }
-    }, {
-      key: "fireEvents",
-      value: function fireEvents(type, e) {
-        var childCallback = this.props.children.props[type];
-        if (childCallback) {
-          childCallback(e);
-        }
-        var callback = this.props[type];
-        if (callback) {
-          callback(e);
-        }
-      }
-    }, {
-      key: "close",
-      value: function close() {
-        this.setPopupVisible(false);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var popupVisible = this.state.popupVisible;
-        var _this$props11 = this.props, children = _this$props11.children, forceRender = _this$props11.forceRender, alignPoint2 = _this$props11.alignPoint, className = _this$props11.className, autoDestroy = _this$props11.autoDestroy;
-        var child = React16.Children.only(children);
-        var newChildProps = {
-          key: "trigger"
-        };
-        if (this.isContextMenuToShow()) {
-          newChildProps.onContextMenu = this.onContextMenu;
-        } else {
-          newChildProps.onContextMenu = this.createTwoChains("onContextMenu");
-        }
-        if (this.isClickToHide() || this.isClickToShow()) {
-          newChildProps.onClick = this.onClick;
-          newChildProps.onMouseDown = this.onMouseDown;
-          newChildProps.onTouchStart = this.onTouchStart;
-        } else {
-          newChildProps.onClick = this.createTwoChains("onClick");
-          newChildProps.onMouseDown = this.createTwoChains("onMouseDown");
-          newChildProps.onTouchStart = this.createTwoChains("onTouchStart");
-        }
-        if (this.isMouseEnterToShow()) {
-          newChildProps.onMouseEnter = this.onMouseEnter;
-          if (alignPoint2) {
-            newChildProps.onMouseMove = this.onMouseMove;
-          }
-        } else {
-          newChildProps.onMouseEnter = this.createTwoChains("onMouseEnter");
-        }
-        if (this.isMouseLeaveToHide()) {
-          newChildProps.onMouseLeave = this.onMouseLeave;
-        } else {
-          newChildProps.onMouseLeave = this.createTwoChains("onMouseLeave");
-        }
-        if (this.isFocusToShow() || this.isBlurToHide()) {
-          newChildProps.onFocus = this.onFocus;
-          newChildProps.onBlur = this.onBlur;
-        } else {
-          newChildProps.onFocus = this.createTwoChains("onFocus");
-          newChildProps.onBlur = this.createTwoChains("onBlur");
-        }
-        var childrenClassName = (0, import_classnames5.default)(child && child.props && child.props.className, className);
-        if (childrenClassName) {
-          newChildProps.className = childrenClassName;
-        }
-        var cloneProps = _objectSpread2({}, newChildProps);
-        if (supportRef(child)) {
-          cloneProps.ref = composeRef(this.triggerRef, child.ref);
-        }
-        var trigger = /* @__PURE__ */ React16.cloneElement(child, cloneProps);
-        var portal;
-        if (popupVisible || this.popupRef.current || forceRender) {
-          portal = /* @__PURE__ */ React16.createElement(PortalComponent, {
-            key: "portal",
-            getContainer: this.getContainer,
-            didUpdate: this.handlePortalUpdate
-          }, this.getComponent());
-        }
-        if (!popupVisible && autoDestroy) {
-          portal = null;
-        }
-        return /* @__PURE__ */ React16.createElement(context_default.Provider, {
-          value: this.triggerContextValue
-        }, trigger, portal);
-      }
-    }], [{
-      key: "getDerivedStateFromProps",
-      value: function getDerivedStateFromProps(_ref, prevState) {
-        var popupVisible = _ref.popupVisible;
-        var newState = {};
-        if (popupVisible !== void 0 && prevState.popupVisible !== popupVisible) {
-          newState.popupVisible = popupVisible;
-          newState.prevPopupVisible = prevState.popupVisible;
-        }
-        return newState;
-      }
-    }]);
-    return Trigger2;
-  }(React16.Component);
-  Trigger.contextType = context_default;
-  Trigger.defaultProps = {
-    prefixCls: "rc-trigger-popup",
-    getPopupClassNameFromAlign: returnEmptyString,
-    getDocument: returnDocument,
-    onPopupVisibleChange: noop,
-    afterPopupVisibleChange: noop,
-    onPopupAlign: noop,
-    popupClassName: "",
-    mouseEnterDelay: 0,
-    mouseLeaveDelay: 0.1,
-    focusDelay: 0,
-    blurDelay: 0.15,
-    popupStyle: {},
-    destroyPopupOnHide: false,
-    popupAlign: {},
-    defaultPopupVisible: false,
-    mask: false,
-    maskClosable: true,
-    action: [],
-    showAction: [],
-    hideAction: [],
-    autoDestroy: false
-  };
-  return Trigger;
-}
-var es_default3 = generateTrigger(Portal_default);
-
-// node_modules/reactex/node_modules/rc-tooltip/es/placements.js
-var autoAdjustOverflow = {
-  adjustX: 1,
-  adjustY: 1
-};
-var targetOffset = [0, 0];
-var placements = {
-  left: {
-    points: ["cr", "cl"],
-    overflow: autoAdjustOverflow,
-    offset: [-4, 0],
-    targetOffset
-  },
-  right: {
-    points: ["cl", "cr"],
-    overflow: autoAdjustOverflow,
-    offset: [4, 0],
-    targetOffset
-  },
-  top: {
-    points: ["bc", "tc"],
-    overflow: autoAdjustOverflow,
-    offset: [0, -4],
-    targetOffset
-  },
-  bottom: {
-    points: ["tc", "bc"],
-    overflow: autoAdjustOverflow,
-    offset: [0, 4],
-    targetOffset
-  },
-  topLeft: {
-    points: ["bl", "tl"],
-    overflow: autoAdjustOverflow,
-    offset: [0, -4],
-    targetOffset
-  },
-  leftTop: {
-    points: ["tr", "tl"],
-    overflow: autoAdjustOverflow,
-    offset: [-4, 0],
-    targetOffset
-  },
-  topRight: {
-    points: ["br", "tr"],
-    overflow: autoAdjustOverflow,
-    offset: [0, -4],
-    targetOffset
-  },
-  rightTop: {
-    points: ["tl", "tr"],
-    overflow: autoAdjustOverflow,
-    offset: [4, 0],
-    targetOffset
-  },
-  bottomRight: {
-    points: ["tr", "br"],
-    overflow: autoAdjustOverflow,
-    offset: [0, 4],
-    targetOffset
-  },
-  rightBottom: {
-    points: ["bl", "br"],
-    overflow: autoAdjustOverflow,
-    offset: [4, 0],
-    targetOffset
-  },
-  bottomLeft: {
-    points: ["tl", "bl"],
-    overflow: autoAdjustOverflow,
-    offset: [0, 4],
-    targetOffset
-  },
-  leftBottom: {
-    points: ["br", "bl"],
-    overflow: autoAdjustOverflow,
-    offset: [-4, 0],
-    targetOffset
-  }
-};
-
-// node_modules/reactex/node_modules/rc-tooltip/es/Content.js
-var React17 = __toModule(require_react());
-var Content = function Content2(props) {
-  var overlay = props.overlay, prefixCls = props.prefixCls, id = props.id, overlayInnerStyle = props.overlayInnerStyle;
-  return /* @__PURE__ */ React17.createElement("div", {
-    className: "".concat(prefixCls, "-inner"),
-    id,
-    role: "tooltip",
-    style: overlayInnerStyle
-  }, typeof overlay === "function" ? overlay() : overlay);
-};
-var Content_default = Content;
-
-// node_modules/reactex/node_modules/rc-tooltip/es/Tooltip.js
-var Tooltip = function Tooltip2(props, ref) {
-  var overlayClassName = props.overlayClassName, _props$trigger = props.trigger, trigger = _props$trigger === void 0 ? ["hover"] : _props$trigger, _props$mouseEnterDela = props.mouseEnterDelay, mouseEnterDelay = _props$mouseEnterDela === void 0 ? 0 : _props$mouseEnterDela, _props$mouseLeaveDela = props.mouseLeaveDelay, mouseLeaveDelay = _props$mouseLeaveDela === void 0 ? 0.1 : _props$mouseLeaveDela, overlayStyle = props.overlayStyle, _props$prefixCls = props.prefixCls, prefixCls = _props$prefixCls === void 0 ? "rc-tooltip" : _props$prefixCls, children = props.children, onVisibleChange = props.onVisibleChange, afterVisibleChange = props.afterVisibleChange, transitionName = props.transitionName, animation = props.animation, motion = props.motion, _props$placement = props.placement, placement = _props$placement === void 0 ? "right" : _props$placement, _props$align = props.align, align = _props$align === void 0 ? {} : _props$align, _props$destroyTooltip = props.destroyTooltipOnHide, destroyTooltipOnHide = _props$destroyTooltip === void 0 ? false : _props$destroyTooltip, defaultVisible = props.defaultVisible, getTooltipContainer = props.getTooltipContainer, overlayInnerStyle = props.overlayInnerStyle, restProps = _objectWithoutProperties(props, ["overlayClassName", "trigger", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "prefixCls", "children", "onVisibleChange", "afterVisibleChange", "transitionName", "animation", "motion", "placement", "align", "destroyTooltipOnHide", "defaultVisible", "getTooltipContainer", "overlayInnerStyle"]);
-  var domRef = (0, import_react12.useRef)(null);
-  (0, import_react12.useImperativeHandle)(ref, function() {
-    return domRef.current;
-  });
-  var extraProps = _objectSpread2({}, restProps);
-  if ("visible" in props) {
-    extraProps.popupVisible = props.visible;
-  }
-  var getPopupElement = function getPopupElement2() {
-    var _props$arrowContent = props.arrowContent, arrowContent = _props$arrowContent === void 0 ? null : _props$arrowContent, overlay = props.overlay, id = props.id;
-    return [/* @__PURE__ */ React18.createElement("div", {
-      className: "".concat(prefixCls, "-arrow"),
-      key: "arrow"
-    }, arrowContent), /* @__PURE__ */ React18.createElement(Content_default, {
-      key: "content",
-      prefixCls,
-      id,
-      overlay,
-      overlayInnerStyle
-    })];
-  };
-  var destroyTooltip = false;
-  var autoDestroy = false;
-  if (typeof destroyTooltipOnHide === "boolean") {
-    destroyTooltip = destroyTooltipOnHide;
-  } else if (destroyTooltipOnHide && _typeof(destroyTooltipOnHide) === "object") {
-    var keepParent = destroyTooltipOnHide.keepParent;
-    destroyTooltip = keepParent === true;
-    autoDestroy = keepParent === false;
-  }
-  return /* @__PURE__ */ React18.createElement(es_default3, _extends({
-    popupClassName: overlayClassName,
-    prefixCls,
-    popup: getPopupElement,
-    action: trigger,
-    builtinPlacements: placements,
-    popupPlacement: placement,
-    ref: domRef,
-    popupAlign: align,
-    getPopupContainer: getTooltipContainer,
-    onPopupVisibleChange: onVisibleChange,
-    afterPopupVisibleChange: afterVisibleChange,
-    popupTransitionName: transitionName,
-    popupAnimation: animation,
-    popupMotion: motion,
-    defaultPopupVisible: defaultVisible,
-    destroyPopupOnHide: destroyTooltip,
-    autoDestroy,
-    mouseLeaveDelay,
-    popupStyle: overlayStyle,
-    mouseEnterDelay
-  }, extraProps), children);
-};
-var Tooltip_default = /* @__PURE__ */ (0, import_react12.forwardRef)(Tooltip);
-
-// node_modules/reactex/node_modules/rc-tooltip/es/index.js
-var es_default4 = Tooltip_default;
-
-// node_modules/reactex/dist/definitions.js
-var import_classnames6 = __toModule(require_classnames());
 
 // node_modules/reactex/node_modules/mobx/dist/mobx.esm.js
 var niceErrors = {
@@ -50652,10 +46105,10 @@ function once(func) {
     return func.apply(this, arguments);
   };
 }
-var noop2 = function noop3() {
+var noop = function noop2() {
 };
-function isFunction(fn) {
-  return typeof fn === "function";
+function isFunction(fn3) {
+  return typeof fn3 === "function";
 }
 function isStringish(value) {
   var t2 = typeof value;
@@ -50728,7 +46181,7 @@ function getPlainObjectKeys(object2) {
     return objectPrototype.propertyIsEnumerable.call(object2, s);
   }));
 }
-var ownKeys3 = typeof Reflect !== "undefined" && Reflect.ownKeys ? Reflect.ownKeys : hasGetOwnPropertySymbols ? function(obj) {
+var ownKeys = typeof Reflect !== "undefined" && Reflect.ownKeys ? Reflect.ownKeys : hasGetOwnPropertySymbols ? function(obj) {
   return Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
 } : Object.getOwnPropertyNames;
 function stringifyKey(key) {
@@ -50746,12 +46199,12 @@ function hasProp(target, prop) {
 }
 var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors || function getOwnPropertyDescriptors2(target) {
   var res = {};
-  ownKeys3(target).forEach(function(key) {
+  ownKeys(target).forEach(function(key) {
     res[key] = getDescriptor(target, key);
   });
   return res;
 };
-function _defineProperties2(target, props) {
+function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
     descriptor.enumerable = descriptor.enumerable || false;
@@ -50761,15 +46214,15 @@ function _defineProperties2(target, props) {
     Object.defineProperty(target, descriptor.key, descriptor);
   }
 }
-function _createClass2(Constructor, protoProps, staticProps) {
+function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps)
-    _defineProperties2(Constructor.prototype, protoProps);
+    _defineProperties(Constructor.prototype, protoProps);
   if (staticProps)
-    _defineProperties2(Constructor, staticProps);
+    _defineProperties(Constructor, staticProps);
   return Constructor;
 }
-function _extends2() {
-  _extends2 = Object.assign || function(target) {
+function _extends() {
+  _extends = Object.assign || function(target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
       for (var key in source) {
@@ -50780,33 +46233,33 @@ function _extends2() {
     }
     return target;
   };
-  return _extends2.apply(this, arguments);
+  return _extends.apply(this, arguments);
 }
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
   subClass.prototype.constructor = subClass;
   subClass.__proto__ = superClass;
 }
-function _assertThisInitialized2(self2) {
+function _assertThisInitialized(self2) {
   if (self2 === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
   }
   return self2;
 }
-function _unsupportedIterableToArray2(o, minLen) {
+function _unsupportedIterableToArray(o, minLen) {
   if (!o)
     return;
   if (typeof o === "string")
-    return _arrayLikeToArray2(o, minLen);
+    return _arrayLikeToArray(o, minLen);
   var n = Object.prototype.toString.call(o).slice(8, -1);
   if (n === "Object" && o.constructor)
     n = o.constructor.name;
   if (n === "Map" || n === "Set")
     return Array.from(o);
   if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
-    return _arrayLikeToArray2(o, minLen);
+    return _arrayLikeToArray(o, minLen);
 }
-function _arrayLikeToArray2(arr, len) {
+function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length)
     len = arr.length;
   for (var i = 0, arr2 = new Array(len); i < len; i++)
@@ -50816,7 +46269,7 @@ function _arrayLikeToArray2(arr, len) {
 function _createForOfIteratorHelperLoose(o, allowArrayLike) {
   var it;
   if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray2(o)) || allowArrayLike && o && typeof o.length === "number") {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
       if (it)
         o = it;
       var i = 0;
@@ -50845,7 +46298,7 @@ function createDecoratorAnnotation(annotation) {
 }
 function storeAnnotation(prototype, key, annotation) {
   if (!hasProp(prototype, storedAnnotationsSymbol)) {
-    addHiddenProp(prototype, storedAnnotationsSymbol, _extends2({}, prototype[storedAnnotationsSymbol]));
+    addHiddenProp(prototype, storedAnnotationsSymbol, _extends({}, prototype[storedAnnotationsSymbol]));
   }
   if (isOverride(annotation) && !hasProp(prototype[storedAnnotationsSymbol], key)) {
     var fieldName = prototype.constructor.name + ".prototype." + key.toString();
@@ -50869,7 +46322,7 @@ function collectStoredAnnotations(target) {
     if (!target[storedAnnotationsSymbol]) {
       die("No annotations were passed to makeObservable, but no decorated members have been found either");
     }
-    addHiddenProp(target, storedAnnotationsSymbol, _extends2({}, target[storedAnnotationsSymbol]));
+    addHiddenProp(target, storedAnnotationsSymbol, _extends({}, target[storedAnnotationsSymbol]));
   }
   return target[storedAnnotationsSymbol];
 }
@@ -50921,16 +46374,16 @@ var Atom = /* @__PURE__ */ function() {
 var isAtom = /* @__PURE__ */ createInstanceofPredicate("Atom", Atom);
 function createAtom(name2, onBecomeObservedHandler, onBecomeUnobservedHandler) {
   if (onBecomeObservedHandler === void 0) {
-    onBecomeObservedHandler = noop2;
+    onBecomeObservedHandler = noop;
   }
   if (onBecomeUnobservedHandler === void 0) {
-    onBecomeUnobservedHandler = noop2;
+    onBecomeUnobservedHandler = noop;
   }
   var atom = new Atom(name2);
-  if (onBecomeObservedHandler !== noop2) {
+  if (onBecomeObservedHandler !== noop) {
     onBecomeObserved(atom, onBecomeObservedHandler);
   }
-  if (onBecomeUnobservedHandler !== noop2) {
+  if (onBecomeUnobservedHandler !== noop) {
     onBecomeUnobserved(atom, onBecomeUnobservedHandler);
   }
   return atom;
@@ -51141,7 +46594,7 @@ function make_$3(adm, key, descriptor) {
 }
 function extend_$3(adm, key, descriptor, proxyTrap) {
   assertComputedDescriptor(adm, this, key, descriptor);
-  return adm.defineComputedProperty_(key, _extends2({}, this.options_, {
+  return adm.defineComputedProperty_(key, _extends({}, this.options_, {
     get: descriptor.get,
     set: descriptor.set
   }), proxyTrap);
@@ -51355,18 +46808,18 @@ var tmpNameDescriptor = {
   writable: false,
   enumerable: false
 };
-function createAction(actionName, fn, autoAction2, ref) {
+function createAction(actionName, fn3, autoAction2, ref) {
   if (autoAction2 === void 0) {
     autoAction2 = false;
   }
   if (true) {
-    if (!isFunction(fn))
+    if (!isFunction(fn3))
       die("`action` can only be invoked on functions");
     if (typeof actionName !== "string" || !actionName)
       die("actions should have valid names, got: '" + actionName + "'");
   }
   function res() {
-    return executeAction(actionName, autoAction2, fn, ref || this, arguments);
+    return executeAction(actionName, autoAction2, fn3, ref || this, arguments);
   }
   res.isMobxAction = true;
   if (isFunctionNameConfigurable) {
@@ -51375,10 +46828,10 @@ function createAction(actionName, fn, autoAction2, ref) {
   }
   return res;
 }
-function executeAction(actionName, canRunAsDerivation, fn, scope, args) {
+function executeAction(actionName, canRunAsDerivation, fn3, scope, args) {
   var runInfo = _startAction(actionName, canRunAsDerivation, scope, args);
   try {
-    return fn.apply(scope, args);
+    return fn3.apply(scope, args);
   } catch (err) {
     runInfo.error_ = err;
     throw err;
@@ -51489,7 +46942,7 @@ var ObservableValue = /* @__PURE__ */ function(_Atom) {
     if (notifySpy && isSpyEnabled()) {
       spyReport({
         type: CREATE,
-        object: _assertThisInitialized2(_this),
+        object: _assertThisInitialized(_this),
         observableKind: "value",
         debugObjectName: _this.name_,
         newValue: "" + _this.value_
@@ -52212,7 +47665,7 @@ var Reaction = /* @__PURE__ */ function() {
       endBatch();
     }
   };
-  _proto.track = function track(fn) {
+  _proto.track = function track(fn3) {
     if (this.isDisposed_) {
       return;
     }
@@ -52229,7 +47682,7 @@ var Reaction = /* @__PURE__ */ function() {
     this.isRunning_ = true;
     var prevReaction = globalState.trackingContext;
     globalState.trackingContext = this;
-    var result = trackDerivedFunction(this, fn, void 0);
+    var result = trackDerivedFunction(this, fn3, void 0);
     globalState.trackingContext = prevReaction;
     this.isRunning_ = false;
     this.isTrackPending_ = false;
@@ -52322,10 +47775,10 @@ function runReactionsHelper() {
   globalState.isRunningReactions = false;
 }
 var isReaction = /* @__PURE__ */ createInstanceofPredicate("Reaction", Reaction);
-function setReactionScheduler(fn) {
+function setReactionScheduler(fn3) {
   var baseScheduler = reactionScheduler;
   reactionScheduler = function reactionScheduler3(f) {
-    return fn(function() {
+    return fn3(function() {
       return baseScheduler(f);
     });
   };
@@ -52346,7 +47799,7 @@ function spyReport(event) {
 function spyReportStart(event) {
   if (false)
     return;
-  var change = _extends2({}, event, {
+  var change = _extends({}, event, {
     spyReportStart: true
   });
   spyReport(change);
@@ -52359,7 +47812,7 @@ function spyReportEnd(change) {
   if (false)
     return;
   if (change)
-    spyReport(_extends2({}, change, {
+    spyReport(_extends({}, change, {
       type: "report-end",
       spyReportEnd: true
     }));
@@ -52545,7 +47998,7 @@ function extendObservable(target, properties, annotations, options) {
   var adm = asObservableObject(target, options)[$mobx];
   startBatch();
   try {
-    ownKeys3(descriptors).forEach(function(key) {
+    ownKeys(descriptors).forEach(function(key) {
       adm.extend_(key, descriptors[key], !annotations ? true : key in annotations ? annotations[key] : true);
     });
   } finally {
@@ -52632,7 +48085,7 @@ var flow = /* @__PURE__ */ Object.assign(function flow2(arg1, arg2) {
           cancelPromise(pendingPromise);
         var _res = gen["return"](void 0);
         var yieldedPromise = Promise.resolve(_res.value);
-        yieldedPromise.then(noop2, noop2);
+        yieldedPromise.then(noop, noop);
         cancelPromise(yieldedPromise);
         rejector(new FlowCancellationError());
       } catch (e) {
@@ -52649,8 +48102,8 @@ function cancelPromise(promise) {
   if (isFunction(promise.cancel))
     promise.cancel();
 }
-function isFlow(fn) {
-  return (fn == null ? void 0 : fn.isMobXFlow) === true;
+function isFlow(fn3) {
+  return (fn3 == null ? void 0 : fn3.isMobXFlow) === true;
 }
 function _isObservable(value, property) {
   if (!value)
@@ -52746,7 +48199,7 @@ var objectProxyTraps = {
     }
     return (_getAdm$definePropert = getAdm(target).defineProperty_(name2, descriptor)) != null ? _getAdm$definePropert : true;
   },
-  ownKeys: function ownKeys4(target) {
+  ownKeys: function ownKeys2(target) {
     if (globalState.trackingDerivation)
       warnAboutProxyRequirement("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead.");
     return getAdm(target).ownKeys_();
@@ -52818,7 +48271,7 @@ function makeObservable(target, annotations, options) {
   try {
     var _annotations;
     (_annotations = annotations) != null ? _annotations : annotations = collectStoredAnnotations(target);
-    ownKeys3(annotations).forEach(function(key) {
+    ownKeys(annotations).forEach(function(key) {
       return adm.make_(key, annotations[key]);
     });
   } finally {
@@ -53455,7 +48908,7 @@ var ObservableMap = /* @__PURE__ */ function() {
       callback.call(thisArg, value, key, this);
     }
   };
-  _proto.merge = function merge2(other) {
+  _proto.merge = function merge(other) {
     var _this4 = this;
     if (isObservableMap(other)) {
       other = new Map(other);
@@ -53558,7 +49011,7 @@ var ObservableMap = /* @__PURE__ */ function() {
   _proto.intercept_ = function intercept_(handler) {
     return registerInterceptor(this, handler);
   };
-  _createClass2(ObservableMap2, [{
+  _createClass(ObservableMap2, [{
     key: "size",
     get: function get3() {
       this.keysAtom_.reportObserved();
@@ -53794,7 +49247,7 @@ var ObservableSet = /* @__PURE__ */ function() {
   _proto[_Symbol$iterator$1] = function() {
     return this.values();
   };
-  _createClass2(ObservableSet2, [{
+  _createClass(ObservableSet2, [{
     key: "size",
     get: function get3() {
       this.atom_.reportObserved();
@@ -53995,7 +49448,7 @@ var ObservableObjectAdministration = /* @__PURE__ */ function() {
           return null;
         var newValue = change.newValue;
         if (descriptor.value !== newValue) {
-          descriptor = _extends2({}, descriptor, {
+          descriptor = _extends({}, descriptor, {
             value: newValue
           });
         }
@@ -54199,7 +49652,7 @@ var ObservableObjectAdministration = /* @__PURE__ */ function() {
   };
   _proto.ownKeys_ = function ownKeys_() {
     this.keysAtom_.reportObserved();
-    return ownKeys3(this.target_);
+    return ownKeys(this.target_);
   };
   _proto.keys_ = function keys_() {
     this.keysAtom_.reportObserved();
@@ -54285,8 +49738,8 @@ var LegacyObservableArray = /* @__PURE__ */ function(_StubArray) {
     }
     _this = _StubArray.call(this) || this;
     var adm = new ObservableArrayAdministration(name2, enhancer, owned, true);
-    adm.proxy_ = _assertThisInitialized2(_this);
-    addHiddenFinalProp(_assertThisInitialized2(_this), $mobx, adm);
+    adm.proxy_ = _assertThisInitialized(_this);
+    addHiddenFinalProp(_assertThisInitialized(_this), $mobx, adm);
     if (initialValues && initialValues.length) {
       var prev = allowStateChangesStart(true);
       _this.spliceWithArray(0, 0, initialValues);
@@ -54319,7 +49772,7 @@ var LegacyObservableArray = /* @__PURE__ */ function(_StubArray) {
       }
     });
   };
-  _createClass2(LegacyObservableArray2, [{
+  _createClass(LegacyObservableArray2, [{
     key: "length",
     get: function get3() {
       return this[$mobx].getArrayLength_();
@@ -54336,9 +49789,9 @@ var LegacyObservableArray = /* @__PURE__ */ function(_StubArray) {
   return LegacyObservableArray2;
 }(StubArray);
 Object.entries(arrayExtensions).forEach(function(_ref) {
-  var prop = _ref[0], fn = _ref[1];
+  var prop = _ref[0], fn3 = _ref[1];
   if (prop !== "concat")
-    addHiddenProp(LegacyObservableArray.prototype, prop, fn);
+    addHiddenProp(LegacyObservableArray.prototype, prop, fn3);
 });
 function createArrayEntryDescriptor(index2) {
   return {
@@ -54355,12 +49808,12 @@ function createArrayEntryDescriptor(index2) {
 function createArrayBufferItem(index2) {
   defineProperty(LegacyObservableArray.prototype, "" + index2, createArrayEntryDescriptor(index2));
 }
-function reserveArrayBuffer(max) {
-  if (max > OBSERVABLE_ARRAY_BUFFER_SIZE) {
-    for (var index2 = OBSERVABLE_ARRAY_BUFFER_SIZE; index2 < max + 100; index2++) {
+function reserveArrayBuffer(max2) {
+  if (max2 > OBSERVABLE_ARRAY_BUFFER_SIZE) {
+    for (var index2 = OBSERVABLE_ARRAY_BUFFER_SIZE; index2 < max2 + 100; index2++) {
       createArrayBufferItem(index2);
     }
-    OBSERVABLE_ARRAY_BUFFER_SIZE = max;
+    OBSERVABLE_ARRAY_BUFFER_SIZE = max2;
   }
 }
 reserveArrayBuffer(1e3);
@@ -54554,11 +50007,11 @@ if (typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === "object") {
 }
 
 // node_modules/reactex/node_modules/mobx-react/dist/mobxreact.esm.js
-var import_react20 = __toModule(require_react());
+var import_react8 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/utils/assertEnvironment.js
-var import_react13 = __toModule(require_react());
-if (!import_react13.useState) {
+var import_react = __toModule(require_react());
+if (!import_react.useState) {
   throw new Error("mobx-react-lite requires React with Hooks support");
 }
 if (!makeObservable) {
@@ -54566,7 +50019,7 @@ if (!makeObservable) {
 }
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/utils/reactBatchedUpdates.js
-var import_react_dom5 = __toModule(require_react_dom());
+var import_react_dom = __toModule(require_react_dom());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/utils/observerBatching.js
 function defaultNoopBatch(callback) {
@@ -54583,7 +50036,7 @@ function observerBatching(reactionScheduler3) {
 }
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/utils/utils.js
-var import_react14 = __toModule(require_react());
+var import_react2 = __toModule(require_react());
 var __read = function(o, n) {
   var m = typeof Symbol === "function" && o[Symbol.iterator];
   if (!m)
@@ -54607,8 +50060,8 @@ var __read = function(o, n) {
 };
 var EMPTY_ARRAY2 = [];
 function useForceUpdate() {
-  var _a2 = __read((0, import_react14.useState)(0), 2), setTick = _a2[1];
-  var update = (0, import_react14.useCallback)(function() {
+  var _a2 = __read((0, import_react2.useState)(0), 2), setTick = _a2[1];
+  var update = (0, import_react2.useCallback)(function() {
     setTick(function(tick) {
       return tick + 1;
     });
@@ -54617,7 +50070,7 @@ function useForceUpdate() {
 }
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/useObserver.js
-var import_react15 = __toModule(require_react());
+var import_react3 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/utils/printDebugValue.js
 function printDebugValue(v) {
@@ -54811,16 +50264,16 @@ var ObjectToBeRetainedByReact = function() {
   }
   return ObjectToBeRetainedByReact2;
 }();
-function useObserver(fn, baseComponentName) {
+function useObserver(fn3, baseComponentName) {
   if (baseComponentName === void 0) {
     baseComponentName = "observed";
   }
   if (isUsingStaticRendering()) {
-    return fn();
+    return fn3();
   }
-  var _a2 = __read2(import_react15.default.useState(new ObjectToBeRetainedByReact()), 1), objectRetainedByReact = _a2[0];
+  var _a2 = __read2(import_react3.default.useState(new ObjectToBeRetainedByReact()), 1), objectRetainedByReact = _a2[0];
   var forceUpdate = useForceUpdate();
-  var reactionTrackingRef = import_react15.default.useRef(null);
+  var reactionTrackingRef = import_react3.default.useRef(null);
   if (!reactionTrackingRef.current) {
     var newReaction = new Reaction(observerComponentNameFor(baseComponentName), function() {
       if (trackingData_1.mounted) {
@@ -54832,8 +50285,8 @@ function useObserver(fn, baseComponentName) {
     var trackingData_1 = addReactionToTrack(reactionTrackingRef, newReaction, objectRetainedByReact);
   }
   var reaction = reactionTrackingRef.current.reaction;
-  import_react15.default.useDebugValue(reaction, printDebugValue);
-  import_react15.default.useEffect(function() {
+  import_react3.default.useDebugValue(reaction, printDebugValue);
+  import_react3.default.useEffect(function() {
     recordReactionAsCommitted(reactionTrackingRef);
     if (reactionTrackingRef.current) {
       reactionTrackingRef.current.mounted = true;
@@ -54861,7 +50314,7 @@ function useObserver(fn, baseComponentName) {
   var exception;
   reaction.track(function() {
     try {
-      rendering = fn();
+      rendering = fn3();
     } catch (e) {
       exception = e;
     }
@@ -54873,7 +50326,7 @@ function useObserver(fn, baseComponentName) {
 }
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/observer.js
-var import_react16 = __toModule(require_react());
+var import_react4 = __toModule(require_react());
 var __assign = function() {
   __assign = Object.assign || function(t2) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -54900,9 +50353,9 @@ function observer(baseComponent, options) {
   wrappedComponent.displayName = baseComponentName;
   var memoComponent;
   if (realOptions.forwardRef) {
-    memoComponent = (0, import_react16.memo)((0, import_react16.forwardRef)(wrappedComponent));
+    memoComponent = (0, import_react4.memo)((0, import_react4.forwardRef)(wrappedComponent));
   } else {
-    memoComponent = (0, import_react16.memo)(wrappedComponent);
+    memoComponent = (0, import_react4.memo)(wrappedComponent);
   }
   copyStaticProperties(baseComponent, memoComponent);
   memoComponent.displayName = baseComponentName;
@@ -54924,8 +50377,8 @@ function copyStaticProperties(base2, target) {
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/ObserverComponent.js
 function ObserverComponent(_a2) {
-  var children = _a2.children, render = _a2.render;
-  var component = children || render;
+  var children = _a2.children, render2 = _a2.render;
+  var component = children || render2;
   if (typeof component !== "function") {
     return null;
   }
@@ -54952,16 +50405,16 @@ function ObserverPropsCheck(props, key, componentName, location, propFullName) {
 }
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/useLocalObservable.js
-var import_react17 = __toModule(require_react());
+var import_react5 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/useLocalStore.js
-var import_react19 = __toModule(require_react());
+var import_react7 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/useAsObservableSource.js
-var import_react18 = __toModule(require_react());
+var import_react6 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/mobx-react-lite/es/index.js
-observerBatching(import_react_dom5.unstable_batchedUpdates);
+observerBatching(import_react_dom.unstable_batchedUpdates);
 
 // node_modules/reactex/node_modules/mobx-react/dist/mobxreact.esm.js
 var symbolId = 0;
@@ -55047,13 +50500,13 @@ function wrapper(realMethod, mixins) {
   }
 }
 function wrapFunction(realMethod, mixins) {
-  var fn = function fn2() {
+  var fn3 = function fn4() {
     for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
     wrapper.call.apply(wrapper, [this, realMethod, mixins].concat(args));
   };
-  return fn;
+  return fn3;
 }
 function patch(target, methodName, mixinMethod) {
   var mixins = getMixins(target, methodName);
@@ -55097,7 +50550,7 @@ function makeClassComponentObserver(componentClass) {
   }
   if (target.componentWillReact)
     throw new Error("The componentWillReact life-cycle event is no longer supported");
-  if (componentClass["__proto__"] !== import_react20.PureComponent) {
+  if (componentClass["__proto__"] !== import_react8.PureComponent) {
     if (!target.shouldComponentUpdate)
       target.shouldComponentUpdate = observerSCU;
     else if (target.shouldComponentUpdate !== observerSCU)
@@ -55125,14 +50578,14 @@ function makeClassComponentObserver(componentClass) {
 function getDisplayName(comp) {
   return comp.displayName || comp.name || comp.constructor && (comp.constructor.displayName || comp.constructor.name) || "<component>";
 }
-function makeComponentReactive(render) {
+function makeComponentReactive(render2) {
   var _this = this;
   if (isUsingStaticRendering() === true)
-    return render.call(this);
+    return render2.call(this);
   setHiddenProp(this, skipRenderKey, false);
   setHiddenProp(this, isForcingUpdateKey, false);
   var initialName = getDisplayName(this);
-  var baseRender = render.bind(this);
+  var baseRender = render2.bind(this);
   var isRenderingPending = false;
   var reaction = new Reaction(initialName + ".render()", function() {
     if (!isRenderingPending) {
@@ -55142,7 +50595,7 @@ function makeComponentReactive(render) {
         try {
           setHiddenProp(_this, isForcingUpdateKey, true);
           if (!_this[skipRenderKey])
-            import_react20.Component.prototype.forceUpdate.call(_this);
+            import_react8.Component.prototype.forceUpdate.call(_this);
           hasError = false;
         } finally {
           setHiddenProp(_this, isForcingUpdateKey, false);
@@ -55218,10 +50671,10 @@ function makeObservableProp(target, propName) {
   });
 }
 var hasSymbol = typeof Symbol === "function" && Symbol["for"];
-var ReactForwardRefSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.forward_ref") : typeof import_react20.forwardRef === "function" && (0, import_react20.forwardRef)(function(props) {
+var ReactForwardRefSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.forward_ref") : typeof import_react8.forwardRef === "function" && (0, import_react8.forwardRef)(function(props) {
   return null;
 })["$$typeof"];
-var ReactMemoSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.memo") : typeof import_react20.memo === "function" && (0, import_react20.memo)(function(props) {
+var ReactMemoSymbol = hasSymbol ? /* @__PURE__ */ Symbol["for"]("react.memo") : typeof import_react8.memo === "function" && (0, import_react8.memo)(function(props) {
   return null;
 })["$$typeof"];
 function observer2(component) {
@@ -55235,20 +50688,20 @@ function observer2(component) {
     var baseRender = component["render"];
     if (typeof baseRender !== "function")
       throw new Error("render property of ForwardRef was not a function");
-    return (0, import_react20.forwardRef)(function ObserverForwardRef() {
+    return (0, import_react8.forwardRef)(function ObserverForwardRef() {
       var args = arguments;
-      return (0, import_react20.createElement)(ObserverComponent, null, function() {
+      return (0, import_react8.createElement)(ObserverComponent, null, function() {
         return baseRender.apply(void 0, args);
       });
     });
   }
-  if (typeof component === "function" && (!component.prototype || !component.prototype.render) && !component["isReactClass"] && !Object.prototype.isPrototypeOf.call(import_react20.Component, component)) {
+  if (typeof component === "function" && (!component.prototype || !component.prototype.render) && !component["isReactClass"] && !Object.prototype.isPrototypeOf.call(import_react8.Component, component)) {
     return observer(component);
   }
   return makeClassComponentObserver(component);
 }
-function _extends3() {
-  _extends3 = Object.assign || function(target) {
+function _extends2() {
+  _extends2 = Object.assign || function(target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
       for (var key in source) {
@@ -55259,8 +50712,2793 @@ function _extends3() {
     }
     return target;
   };
-  return _extends3.apply(this, arguments);
+  return _extends2.apply(this, arguments);
 }
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null)
+    return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0)
+      continue;
+    target[key] = source[key];
+  }
+  return target;
+}
+var MobXProviderContext = /* @__PURE__ */ import_react8.default.createContext({});
+function Provider(props) {
+  var children = props.children, stores = _objectWithoutPropertiesLoose(props, ["children"]);
+  var parentValue = import_react8.default.useContext(MobXProviderContext);
+  var mutableProviderRef = import_react8.default.useRef(_extends2({}, parentValue, stores));
+  var value = mutableProviderRef.current;
+  if (true) {
+    var newValue = _extends2({}, value, stores);
+    if (!shallowEqual(value, newValue)) {
+      throw new Error("MobX Provider: The set of provided stores has changed. See: https://github.com/mobxjs/mobx-react#the-set-of-provided-stores-has-changed-error.");
+    }
+  }
+  return import_react8.default.createElement(MobXProviderContext.Provider, {
+    value
+  }, children);
+}
+Provider.displayName = "MobXProvider";
+if (!import_react8.Component)
+  throw new Error("mobx-react requires React to be available");
+if (!observable)
+  throw new Error("mobx-react requires mobx to be available");
+
+// node_modules/reactex/dist/tex.js
+var import_react13 = __toModule(require_react());
+var import_katex = __toModule(require_katex());
+var import_html_to_react = __toModule(require_html_to_react());
+var import_react_dom3 = __toModule(require_react_dom());
+
+// node_modules/reactex/dist/definitions.js
+var import_react11 = __toModule(require_react());
+var import_lodash2 = __toModule(require_lodash());
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/enums.js
+var top = "top";
+var bottom = "bottom";
+var right = "right";
+var left = "left";
+var auto = "auto";
+var basePlacements = [top, bottom, right, left];
+var start2 = "start";
+var end = "end";
+var clippingParents = "clippingParents";
+var viewport = "viewport";
+var popper = "popper";
+var reference = "reference";
+var variationPlacements = /* @__PURE__ */ basePlacements.reduce(function(acc, placement) {
+  return acc.concat([placement + "-" + start2, placement + "-" + end]);
+}, []);
+var placements = /* @__PURE__ */ [].concat(basePlacements, [auto]).reduce(function(acc, placement) {
+  return acc.concat([placement, placement + "-" + start2, placement + "-" + end]);
+}, []);
+var beforeRead = "beforeRead";
+var read = "read";
+var afterRead = "afterRead";
+var beforeMain = "beforeMain";
+var main = "main";
+var afterMain = "afterMain";
+var beforeWrite = "beforeWrite";
+var write = "write";
+var afterWrite = "afterWrite";
+var modifierPhases = [beforeRead, read, afterRead, beforeMain, main, afterMain, beforeWrite, write, afterWrite];
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getNodeName.js
+function getNodeName(element) {
+  return element ? (element.nodeName || "").toLowerCase() : null;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getWindow.js
+function getWindow(node) {
+  if (node == null) {
+    return window;
+  }
+  if (node.toString() !== "[object Window]") {
+    var ownerDocument = node.ownerDocument;
+    return ownerDocument ? ownerDocument.defaultView || window : window;
+  }
+  return node;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/instanceOf.js
+function isElement(node) {
+  var OwnElement = getWindow(node).Element;
+  return node instanceof OwnElement || node instanceof Element;
+}
+function isHTMLElement(node) {
+  var OwnElement = getWindow(node).HTMLElement;
+  return node instanceof OwnElement || node instanceof HTMLElement;
+}
+function isShadowRoot(node) {
+  if (typeof ShadowRoot === "undefined") {
+    return false;
+  }
+  var OwnElement = getWindow(node).ShadowRoot;
+  return node instanceof OwnElement || node instanceof ShadowRoot;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/applyStyles.js
+function applyStyles(_ref) {
+  var state = _ref.state;
+  Object.keys(state.elements).forEach(function(name2) {
+    var style = state.styles[name2] || {};
+    var attributes = state.attributes[name2] || {};
+    var element = state.elements[name2];
+    if (!isHTMLElement(element) || !getNodeName(element)) {
+      return;
+    }
+    Object.assign(element.style, style);
+    Object.keys(attributes).forEach(function(name3) {
+      var value = attributes[name3];
+      if (value === false) {
+        element.removeAttribute(name3);
+      } else {
+        element.setAttribute(name3, value === true ? "" : value);
+      }
+    });
+  });
+}
+function effect(_ref2) {
+  var state = _ref2.state;
+  var initialStyles = {
+    popper: {
+      position: state.options.strategy,
+      left: "0",
+      top: "0",
+      margin: "0"
+    },
+    arrow: {
+      position: "absolute"
+    },
+    reference: {}
+  };
+  Object.assign(state.elements.popper.style, initialStyles.popper);
+  state.styles = initialStyles;
+  if (state.elements.arrow) {
+    Object.assign(state.elements.arrow.style, initialStyles.arrow);
+  }
+  return function() {
+    Object.keys(state.elements).forEach(function(name2) {
+      var element = state.elements[name2];
+      var attributes = state.attributes[name2] || {};
+      var styleProperties = Object.keys(state.styles.hasOwnProperty(name2) ? state.styles[name2] : initialStyles[name2]);
+      var style = styleProperties.reduce(function(style2, property) {
+        style2[property] = "";
+        return style2;
+      }, {});
+      if (!isHTMLElement(element) || !getNodeName(element)) {
+        return;
+      }
+      Object.assign(element.style, style);
+      Object.keys(attributes).forEach(function(attribute) {
+        element.removeAttribute(attribute);
+      });
+    });
+  };
+}
+var applyStyles_default = {
+  name: "applyStyles",
+  enabled: true,
+  phase: "write",
+  fn: applyStyles,
+  effect,
+  requires: ["computeStyles"]
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getBasePlacement.js
+function getBasePlacement(placement) {
+  return placement.split("-")[0];
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getBoundingClientRect.js
+function getBoundingClientRect(element) {
+  var rect = element.getBoundingClientRect();
+  return {
+    width: rect.width,
+    height: rect.height,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+    left: rect.left,
+    x: rect.left,
+    y: rect.top
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getLayoutRect.js
+function getLayoutRect(element) {
+  var clientRect = getBoundingClientRect(element);
+  var width = element.offsetWidth;
+  var height = element.offsetHeight;
+  if (Math.abs(clientRect.width - width) <= 1) {
+    width = clientRect.width;
+  }
+  if (Math.abs(clientRect.height - height) <= 1) {
+    height = clientRect.height;
+  }
+  return {
+    x: element.offsetLeft,
+    y: element.offsetTop,
+    width,
+    height
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/contains.js
+function contains(parent, child) {
+  var rootNode = child.getRootNode && child.getRootNode();
+  if (parent.contains(child)) {
+    return true;
+  } else if (rootNode && isShadowRoot(rootNode)) {
+    var next = child;
+    do {
+      if (next && parent.isSameNode(next)) {
+        return true;
+      }
+      next = next.parentNode || next.host;
+    } while (next);
+  }
+  return false;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getComputedStyle.js
+function getComputedStyle(element) {
+  return getWindow(element).getComputedStyle(element);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/isTableElement.js
+function isTableElement(element) {
+  return ["table", "td", "th"].indexOf(getNodeName(element)) >= 0;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getDocumentElement.js
+function getDocumentElement(element) {
+  return ((isElement(element) ? element.ownerDocument : element.document) || window.document).documentElement;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getParentNode.js
+function getParentNode(element) {
+  if (getNodeName(element) === "html") {
+    return element;
+  }
+  return element.assignedSlot || element.parentNode || (isShadowRoot(element) ? element.host : null) || getDocumentElement(element);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getOffsetParent.js
+function getTrueOffsetParent(element) {
+  if (!isHTMLElement(element) || getComputedStyle(element).position === "fixed") {
+    return null;
+  }
+  return element.offsetParent;
+}
+function getContainingBlock(element) {
+  var isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") !== -1;
+  var isIE2 = navigator.userAgent.indexOf("Trident") !== -1;
+  if (isIE2 && isHTMLElement(element)) {
+    var elementCss = getComputedStyle(element);
+    if (elementCss.position === "fixed") {
+      return null;
+    }
+  }
+  var currentNode = getParentNode(element);
+  while (isHTMLElement(currentNode) && ["html", "body"].indexOf(getNodeName(currentNode)) < 0) {
+    var css = getComputedStyle(currentNode);
+    if (css.transform !== "none" || css.perspective !== "none" || css.contain === "paint" || ["transform", "perspective"].indexOf(css.willChange) !== -1 || isFirefox && css.willChange === "filter" || isFirefox && css.filter && css.filter !== "none") {
+      return currentNode;
+    } else {
+      currentNode = currentNode.parentNode;
+    }
+  }
+  return null;
+}
+function getOffsetParent(element) {
+  var window2 = getWindow(element);
+  var offsetParent = getTrueOffsetParent(element);
+  while (offsetParent && isTableElement(offsetParent) && getComputedStyle(offsetParent).position === "static") {
+    offsetParent = getTrueOffsetParent(offsetParent);
+  }
+  if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle(offsetParent).position === "static")) {
+    return window2;
+  }
+  return offsetParent || getContainingBlock(element) || window2;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getMainAxisFromPlacement.js
+function getMainAxisFromPlacement(placement) {
+  return ["top", "bottom"].indexOf(placement) >= 0 ? "x" : "y";
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/math.js
+var max = Math.max;
+var min = Math.min;
+var round = Math.round;
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/within.js
+function within(min2, value, max2) {
+  return max(min2, min(value, max2));
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getFreshSideObject.js
+function getFreshSideObject() {
+  return {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/mergePaddingObject.js
+function mergePaddingObject(paddingObject) {
+  return Object.assign({}, getFreshSideObject(), paddingObject);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/expandToHashMap.js
+function expandToHashMap(value, keys) {
+  return keys.reduce(function(hashMap, key) {
+    hashMap[key] = value;
+    return hashMap;
+  }, {});
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/arrow.js
+var toPaddingObject = function toPaddingObject2(padding, state) {
+  padding = typeof padding === "function" ? padding(Object.assign({}, state.rects, {
+    placement: state.placement
+  })) : padding;
+  return mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
+};
+function arrow(_ref) {
+  var _state$modifiersData$;
+  var state = _ref.state, name2 = _ref.name, options = _ref.options;
+  var arrowElement = state.elements.arrow;
+  var popperOffsets2 = state.modifiersData.popperOffsets;
+  var basePlacement = getBasePlacement(state.placement);
+  var axis = getMainAxisFromPlacement(basePlacement);
+  var isVertical = [left, right].indexOf(basePlacement) >= 0;
+  var len = isVertical ? "height" : "width";
+  if (!arrowElement || !popperOffsets2) {
+    return;
+  }
+  var paddingObject = toPaddingObject(options.padding, state);
+  var arrowRect = getLayoutRect(arrowElement);
+  var minProp = axis === "y" ? top : left;
+  var maxProp = axis === "y" ? bottom : right;
+  var endDiff = state.rects.reference[len] + state.rects.reference[axis] - popperOffsets2[axis] - state.rects.popper[len];
+  var startDiff = popperOffsets2[axis] - state.rects.reference[axis];
+  var arrowOffsetParent = getOffsetParent(arrowElement);
+  var clientSize = arrowOffsetParent ? axis === "y" ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
+  var centerToReference = endDiff / 2 - startDiff / 2;
+  var min2 = paddingObject[minProp];
+  var max2 = clientSize - arrowRect[len] - paddingObject[maxProp];
+  var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
+  var offset2 = within(min2, center, max2);
+  var axisProp = axis;
+  state.modifiersData[name2] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
+}
+function effect2(_ref2) {
+  var state = _ref2.state, options = _ref2.options;
+  var _options$element = options.element, arrowElement = _options$element === void 0 ? "[data-popper-arrow]" : _options$element;
+  if (arrowElement == null) {
+    return;
+  }
+  if (typeof arrowElement === "string") {
+    arrowElement = state.elements.popper.querySelector(arrowElement);
+    if (!arrowElement) {
+      return;
+    }
+  }
+  if (true) {
+    if (!isHTMLElement(arrowElement)) {
+      console.error(['Popper: "arrow" element must be an HTMLElement (not an SVGElement).', "To use an SVG arrow, wrap it in an HTMLElement that will be used as", "the arrow."].join(" "));
+    }
+  }
+  if (!contains(state.elements.popper, arrowElement)) {
+    if (true) {
+      console.error(['Popper: "arrow" modifier\'s `element` must be a child of the popper', "element."].join(" "));
+    }
+    return;
+  }
+  state.elements.arrow = arrowElement;
+}
+var arrow_default = {
+  name: "arrow",
+  enabled: true,
+  phase: "main",
+  fn: arrow,
+  effect: effect2,
+  requires: ["popperOffsets"],
+  requiresIfExists: ["preventOverflow"]
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/computeStyles.js
+var unsetSides = {
+  top: "auto",
+  right: "auto",
+  bottom: "auto",
+  left: "auto"
+};
+function roundOffsetsByDPR(_ref) {
+  var x = _ref.x, y = _ref.y;
+  var win = window;
+  var dpr = win.devicePixelRatio || 1;
+  return {
+    x: round(round(x * dpr) / dpr) || 0,
+    y: round(round(y * dpr) / dpr) || 0
+  };
+}
+function mapToStyles(_ref2) {
+  var _Object$assign2;
+  var popper2 = _ref2.popper, popperRect = _ref2.popperRect, placement = _ref2.placement, offsets = _ref2.offsets, position = _ref2.position, gpuAcceleration = _ref2.gpuAcceleration, adaptive = _ref2.adaptive, roundOffsets = _ref2.roundOffsets;
+  var _ref3 = roundOffsets === true ? roundOffsetsByDPR(offsets) : typeof roundOffsets === "function" ? roundOffsets(offsets) : offsets, _ref3$x = _ref3.x, x = _ref3$x === void 0 ? 0 : _ref3$x, _ref3$y = _ref3.y, y = _ref3$y === void 0 ? 0 : _ref3$y;
+  var hasX = offsets.hasOwnProperty("x");
+  var hasY = offsets.hasOwnProperty("y");
+  var sideX = left;
+  var sideY = top;
+  var win = window;
+  if (adaptive) {
+    var offsetParent = getOffsetParent(popper2);
+    var heightProp = "clientHeight";
+    var widthProp = "clientWidth";
+    if (offsetParent === getWindow(popper2)) {
+      offsetParent = getDocumentElement(popper2);
+      if (getComputedStyle(offsetParent).position !== "static") {
+        heightProp = "scrollHeight";
+        widthProp = "scrollWidth";
+      }
+    }
+    offsetParent = offsetParent;
+    if (placement === top) {
+      sideY = bottom;
+      y -= offsetParent[heightProp] - popperRect.height;
+      y *= gpuAcceleration ? 1 : -1;
+    }
+    if (placement === left) {
+      sideX = right;
+      x -= offsetParent[widthProp] - popperRect.width;
+      x *= gpuAcceleration ? 1 : -1;
+    }
+  }
+  var commonStyles = Object.assign({
+    position
+  }, adaptive && unsetSides);
+  if (gpuAcceleration) {
+    var _Object$assign;
+    return Object.assign({}, commonStyles, (_Object$assign = {}, _Object$assign[sideY] = hasY ? "0" : "", _Object$assign[sideX] = hasX ? "0" : "", _Object$assign.transform = (win.devicePixelRatio || 1) < 2 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
+  }
+  return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : "", _Object$assign2[sideX] = hasX ? x + "px" : "", _Object$assign2.transform = "", _Object$assign2));
+}
+function computeStyles(_ref4) {
+  var state = _ref4.state, options = _ref4.options;
+  var _options$gpuAccelerat = options.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
+  if (true) {
+    var transitionProperty = getComputedStyle(state.elements.popper).transitionProperty || "";
+    if (adaptive && ["transform", "top", "right", "bottom", "left"].some(function(property) {
+      return transitionProperty.indexOf(property) >= 0;
+    })) {
+      console.warn(["Popper: Detected CSS transitions on at least one of the following", 'CSS properties: "transform", "top", "right", "bottom", "left".', "\n\n", 'Disable the "computeStyles" modifier\'s `adaptive` option to allow', "for smooth transitions, or remove these properties from the CSS", "transition declaration on the popper element if only transitioning", "opacity or background-color for example.", "\n\n", "We recommend using the popper element as a wrapper around an inner", "element that can have any CSS property transitioned for animations."].join(" "));
+    }
+  }
+  var commonStyles = {
+    placement: getBasePlacement(state.placement),
+    popper: state.elements.popper,
+    popperRect: state.rects.popper,
+    gpuAcceleration
+  };
+  if (state.modifiersData.popperOffsets != null) {
+    state.styles.popper = Object.assign({}, state.styles.popper, mapToStyles(Object.assign({}, commonStyles, {
+      offsets: state.modifiersData.popperOffsets,
+      position: state.options.strategy,
+      adaptive,
+      roundOffsets
+    })));
+  }
+  if (state.modifiersData.arrow != null) {
+    state.styles.arrow = Object.assign({}, state.styles.arrow, mapToStyles(Object.assign({}, commonStyles, {
+      offsets: state.modifiersData.arrow,
+      position: "absolute",
+      adaptive: false,
+      roundOffsets
+    })));
+  }
+  state.attributes.popper = Object.assign({}, state.attributes.popper, {
+    "data-popper-placement": state.placement
+  });
+}
+var computeStyles_default = {
+  name: "computeStyles",
+  enabled: true,
+  phase: "beforeWrite",
+  fn: computeStyles,
+  data: {}
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/eventListeners.js
+var passive = {
+  passive: true
+};
+function effect3(_ref) {
+  var state = _ref.state, instance = _ref.instance, options = _ref.options;
+  var _options$scroll = options.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options.resize, resize = _options$resize === void 0 ? true : _options$resize;
+  var window2 = getWindow(state.elements.popper);
+  var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
+  if (scroll) {
+    scrollParents.forEach(function(scrollParent) {
+      scrollParent.addEventListener("scroll", instance.update, passive);
+    });
+  }
+  if (resize) {
+    window2.addEventListener("resize", instance.update, passive);
+  }
+  return function() {
+    if (scroll) {
+      scrollParents.forEach(function(scrollParent) {
+        scrollParent.removeEventListener("scroll", instance.update, passive);
+      });
+    }
+    if (resize) {
+      window2.removeEventListener("resize", instance.update, passive);
+    }
+  };
+}
+var eventListeners_default = {
+  name: "eventListeners",
+  enabled: true,
+  phase: "write",
+  fn: function fn() {
+  },
+  effect: effect3,
+  data: {}
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getOppositePlacement.js
+var hash = {
+  left: "right",
+  right: "left",
+  bottom: "top",
+  top: "bottom"
+};
+function getOppositePlacement(placement) {
+  return placement.replace(/left|right|bottom|top/g, function(matched) {
+    return hash[matched];
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getOppositeVariationPlacement.js
+var hash2 = {
+  start: "end",
+  end: "start"
+};
+function getOppositeVariationPlacement(placement) {
+  return placement.replace(/start|end/g, function(matched) {
+    return hash2[matched];
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getWindowScroll.js
+function getWindowScroll(node) {
+  var win = getWindow(node);
+  var scrollLeft = win.pageXOffset;
+  var scrollTop = win.pageYOffset;
+  return {
+    scrollLeft,
+    scrollTop
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getWindowScrollBarX.js
+function getWindowScrollBarX(element) {
+  return getBoundingClientRect(getDocumentElement(element)).left + getWindowScroll(element).scrollLeft;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getViewportRect.js
+function getViewportRect(element) {
+  var win = getWindow(element);
+  var html = getDocumentElement(element);
+  var visualViewport = win.visualViewport;
+  var width = html.clientWidth;
+  var height = html.clientHeight;
+  var x = 0;
+  var y = 0;
+  if (visualViewport) {
+    width = visualViewport.width;
+    height = visualViewport.height;
+    if (!/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+      x = visualViewport.offsetLeft;
+      y = visualViewport.offsetTop;
+    }
+  }
+  return {
+    width,
+    height,
+    x: x + getWindowScrollBarX(element),
+    y
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getDocumentRect.js
+function getDocumentRect(element) {
+  var _element$ownerDocumen;
+  var html = getDocumentElement(element);
+  var winScroll = getWindowScroll(element);
+  var body = (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body;
+  var width = max(html.scrollWidth, html.clientWidth, body ? body.scrollWidth : 0, body ? body.clientWidth : 0);
+  var height = max(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
+  var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
+  var y = -winScroll.scrollTop;
+  if (getComputedStyle(body || html).direction === "rtl") {
+    x += max(html.clientWidth, body ? body.clientWidth : 0) - width;
+  }
+  return {
+    width,
+    height,
+    x,
+    y
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/isScrollParent.js
+function isScrollParent(element) {
+  var _getComputedStyle = getComputedStyle(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
+  return /auto|scroll|overlay|hidden/.test(overflow + overflowY + overflowX);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getScrollParent.js
+function getScrollParent(node) {
+  if (["html", "body", "#document"].indexOf(getNodeName(node)) >= 0) {
+    return node.ownerDocument.body;
+  }
+  if (isHTMLElement(node) && isScrollParent(node)) {
+    return node;
+  }
+  return getScrollParent(getParentNode(node));
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/listScrollParents.js
+function listScrollParents(element, list) {
+  var _element$ownerDocumen;
+  if (list === void 0) {
+    list = [];
+  }
+  var scrollParent = getScrollParent(element);
+  var isBody = scrollParent === ((_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body);
+  var win = getWindow(scrollParent);
+  var target = isBody ? [win].concat(win.visualViewport || [], isScrollParent(scrollParent) ? scrollParent : []) : scrollParent;
+  var updatedList = list.concat(target);
+  return isBody ? updatedList : updatedList.concat(listScrollParents(getParentNode(target)));
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/rectToClientRect.js
+function rectToClientRect(rect) {
+  return Object.assign({}, rect, {
+    left: rect.x,
+    top: rect.y,
+    right: rect.x + rect.width,
+    bottom: rect.y + rect.height
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getClippingRect.js
+function getInnerBoundingClientRect(element) {
+  var rect = getBoundingClientRect(element);
+  rect.top = rect.top + element.clientTop;
+  rect.left = rect.left + element.clientLeft;
+  rect.bottom = rect.top + element.clientHeight;
+  rect.right = rect.left + element.clientWidth;
+  rect.width = element.clientWidth;
+  rect.height = element.clientHeight;
+  rect.x = rect.left;
+  rect.y = rect.top;
+  return rect;
+}
+function getClientRectFromMixedType(element, clippingParent) {
+  return clippingParent === viewport ? rectToClientRect(getViewportRect(element)) : isHTMLElement(clippingParent) ? getInnerBoundingClientRect(clippingParent) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+}
+function getClippingParents(element) {
+  var clippingParents2 = listScrollParents(getParentNode(element));
+  var canEscapeClipping = ["absolute", "fixed"].indexOf(getComputedStyle(element).position) >= 0;
+  var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
+  if (!isElement(clipperElement)) {
+    return [];
+  }
+  return clippingParents2.filter(function(clippingParent) {
+    return isElement(clippingParent) && contains(clippingParent, clipperElement) && getNodeName(clippingParent) !== "body";
+  });
+}
+function getClippingRect(element, boundary, rootBoundary) {
+  var mainClippingParents = boundary === "clippingParents" ? getClippingParents(element) : [].concat(boundary);
+  var clippingParents2 = [].concat(mainClippingParents, [rootBoundary]);
+  var firstClippingParent = clippingParents2[0];
+  var clippingRect = clippingParents2.reduce(function(accRect, clippingParent) {
+    var rect = getClientRectFromMixedType(element, clippingParent);
+    accRect.top = max(rect.top, accRect.top);
+    accRect.right = min(rect.right, accRect.right);
+    accRect.bottom = min(rect.bottom, accRect.bottom);
+    accRect.left = max(rect.left, accRect.left);
+    return accRect;
+  }, getClientRectFromMixedType(element, firstClippingParent));
+  clippingRect.width = clippingRect.right - clippingRect.left;
+  clippingRect.height = clippingRect.bottom - clippingRect.top;
+  clippingRect.x = clippingRect.left;
+  clippingRect.y = clippingRect.top;
+  return clippingRect;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getVariation.js
+function getVariation(placement) {
+  return placement.split("-")[1];
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/computeOffsets.js
+function computeOffsets(_ref) {
+  var reference2 = _ref.reference, element = _ref.element, placement = _ref.placement;
+  var basePlacement = placement ? getBasePlacement(placement) : null;
+  var variation = placement ? getVariation(placement) : null;
+  var commonX = reference2.x + reference2.width / 2 - element.width / 2;
+  var commonY = reference2.y + reference2.height / 2 - element.height / 2;
+  var offsets;
+  switch (basePlacement) {
+    case top:
+      offsets = {
+        x: commonX,
+        y: reference2.y - element.height
+      };
+      break;
+    case bottom:
+      offsets = {
+        x: commonX,
+        y: reference2.y + reference2.height
+      };
+      break;
+    case right:
+      offsets = {
+        x: reference2.x + reference2.width,
+        y: commonY
+      };
+      break;
+    case left:
+      offsets = {
+        x: reference2.x - element.width,
+        y: commonY
+      };
+      break;
+    default:
+      offsets = {
+        x: reference2.x,
+        y: reference2.y
+      };
+  }
+  var mainAxis = basePlacement ? getMainAxisFromPlacement(basePlacement) : null;
+  if (mainAxis != null) {
+    var len = mainAxis === "y" ? "height" : "width";
+    switch (variation) {
+      case start2:
+        offsets[mainAxis] = offsets[mainAxis] - (reference2[len] / 2 - element[len] / 2);
+        break;
+      case end:
+        offsets[mainAxis] = offsets[mainAxis] + (reference2[len] / 2 - element[len] / 2);
+        break;
+      default:
+    }
+  }
+  return offsets;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/detectOverflow.js
+function detectOverflow(state, options) {
+  if (options === void 0) {
+    options = {};
+  }
+  var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
+  var paddingObject = mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
+  var altContext = elementContext === popper ? reference : popper;
+  var referenceElement = state.elements.reference;
+  var popperRect = state.rects.popper;
+  var element = state.elements[altBoundary ? altContext : elementContext];
+  var clippingClientRect = getClippingRect(isElement(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary);
+  var referenceClientRect = getBoundingClientRect(referenceElement);
+  var popperOffsets2 = computeOffsets({
+    reference: referenceClientRect,
+    element: popperRect,
+    strategy: "absolute",
+    placement
+  });
+  var popperClientRect = rectToClientRect(Object.assign({}, popperRect, popperOffsets2));
+  var elementClientRect = elementContext === popper ? popperClientRect : referenceClientRect;
+  var overflowOffsets = {
+    top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
+    bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
+    left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
+    right: elementClientRect.right - clippingClientRect.right + paddingObject.right
+  };
+  var offsetData = state.modifiersData.offset;
+  if (elementContext === popper && offsetData) {
+    var offset2 = offsetData[placement];
+    Object.keys(overflowOffsets).forEach(function(key) {
+      var multiply = [right, bottom].indexOf(key) >= 0 ? 1 : -1;
+      var axis = [top, bottom].indexOf(key) >= 0 ? "y" : "x";
+      overflowOffsets[key] += offset2[axis] * multiply;
+    });
+  }
+  return overflowOffsets;
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/computeAutoPlacement.js
+function computeAutoPlacement(state, options) {
+  if (options === void 0) {
+    options = {};
+  }
+  var _options = options, placement = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
+  var variation = getVariation(placement);
+  var placements2 = variation ? flipVariations ? variationPlacements : variationPlacements.filter(function(placement2) {
+    return getVariation(placement2) === variation;
+  }) : basePlacements;
+  var allowedPlacements = placements2.filter(function(placement2) {
+    return allowedAutoPlacements.indexOf(placement2) >= 0;
+  });
+  if (allowedPlacements.length === 0) {
+    allowedPlacements = placements2;
+    if (true) {
+      console.error(["Popper: The `allowedAutoPlacements` option did not allow any", "placements. Ensure the `placement` option matches the variation", "of the allowed placements.", 'For example, "auto" cannot be used to allow "bottom-start".', 'Use "auto-start" instead.'].join(" "));
+    }
+  }
+  var overflows = allowedPlacements.reduce(function(acc, placement2) {
+    acc[placement2] = detectOverflow(state, {
+      placement: placement2,
+      boundary,
+      rootBoundary,
+      padding
+    })[getBasePlacement(placement2)];
+    return acc;
+  }, {});
+  return Object.keys(overflows).sort(function(a, b) {
+    return overflows[a] - overflows[b];
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/flip.js
+function getExpandedFallbackPlacements(placement) {
+  if (getBasePlacement(placement) === auto) {
+    return [];
+  }
+  var oppositePlacement = getOppositePlacement(placement);
+  return [getOppositeVariationPlacement(placement), oppositePlacement, getOppositeVariationPlacement(oppositePlacement)];
+}
+function flip(_ref) {
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
+  if (state.modifiersData[name2]._skip) {
+    return;
+  }
+  var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
+  var preferredPlacement = state.options.placement;
+  var basePlacement = getBasePlacement(preferredPlacement);
+  var isBasePlacement = basePlacement === preferredPlacement;
+  var fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipVariations ? [getOppositePlacement(preferredPlacement)] : getExpandedFallbackPlacements(preferredPlacement));
+  var placements2 = [preferredPlacement].concat(fallbackPlacements).reduce(function(acc, placement2) {
+    return acc.concat(getBasePlacement(placement2) === auto ? computeAutoPlacement(state, {
+      placement: placement2,
+      boundary,
+      rootBoundary,
+      padding,
+      flipVariations,
+      allowedAutoPlacements
+    }) : placement2);
+  }, []);
+  var referenceRect = state.rects.reference;
+  var popperRect = state.rects.popper;
+  var checksMap = new Map();
+  var makeFallbackChecks = true;
+  var firstFittingPlacement = placements2[0];
+  for (var i = 0; i < placements2.length; i++) {
+    var placement = placements2[i];
+    var _basePlacement = getBasePlacement(placement);
+    var isStartVariation = getVariation(placement) === start2;
+    var isVertical = [top, bottom].indexOf(_basePlacement) >= 0;
+    var len = isVertical ? "width" : "height";
+    var overflow = detectOverflow(state, {
+      placement,
+      boundary,
+      rootBoundary,
+      altBoundary,
+      padding
+    });
+    var mainVariationSide = isVertical ? isStartVariation ? right : left : isStartVariation ? bottom : top;
+    if (referenceRect[len] > popperRect[len]) {
+      mainVariationSide = getOppositePlacement(mainVariationSide);
+    }
+    var altVariationSide = getOppositePlacement(mainVariationSide);
+    var checks = [];
+    if (checkMainAxis) {
+      checks.push(overflow[_basePlacement] <= 0);
+    }
+    if (checkAltAxis) {
+      checks.push(overflow[mainVariationSide] <= 0, overflow[altVariationSide] <= 0);
+    }
+    if (checks.every(function(check) {
+      return check;
+    })) {
+      firstFittingPlacement = placement;
+      makeFallbackChecks = false;
+      break;
+    }
+    checksMap.set(placement, checks);
+  }
+  if (makeFallbackChecks) {
+    var numberOfChecks = flipVariations ? 3 : 1;
+    var _loop = function _loop2(_i2) {
+      var fittingPlacement = placements2.find(function(placement2) {
+        var checks2 = checksMap.get(placement2);
+        if (checks2) {
+          return checks2.slice(0, _i2).every(function(check) {
+            return check;
+          });
+        }
+      });
+      if (fittingPlacement) {
+        firstFittingPlacement = fittingPlacement;
+        return "break";
+      }
+    };
+    for (var _i = numberOfChecks; _i > 0; _i--) {
+      var _ret = _loop(_i);
+      if (_ret === "break")
+        break;
+    }
+  }
+  if (state.placement !== firstFittingPlacement) {
+    state.modifiersData[name2]._skip = true;
+    state.placement = firstFittingPlacement;
+    state.reset = true;
+  }
+}
+var flip_default = {
+  name: "flip",
+  enabled: true,
+  phase: "main",
+  fn: flip,
+  requiresIfExists: ["offset"],
+  data: {
+    _skip: false
+  }
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/hide.js
+function getSideOffsets(overflow, rect, preventedOffsets) {
+  if (preventedOffsets === void 0) {
+    preventedOffsets = {
+      x: 0,
+      y: 0
+    };
+  }
+  return {
+    top: overflow.top - rect.height - preventedOffsets.y,
+    right: overflow.right - rect.width + preventedOffsets.x,
+    bottom: overflow.bottom - rect.height + preventedOffsets.y,
+    left: overflow.left - rect.width - preventedOffsets.x
+  };
+}
+function isAnySideFullyClipped(overflow) {
+  return [top, right, bottom, left].some(function(side) {
+    return overflow[side] >= 0;
+  });
+}
+function hide(_ref) {
+  var state = _ref.state, name2 = _ref.name;
+  var referenceRect = state.rects.reference;
+  var popperRect = state.rects.popper;
+  var preventedOffsets = state.modifiersData.preventOverflow;
+  var referenceOverflow = detectOverflow(state, {
+    elementContext: "reference"
+  });
+  var popperAltOverflow = detectOverflow(state, {
+    altBoundary: true
+  });
+  var referenceClippingOffsets = getSideOffsets(referenceOverflow, referenceRect);
+  var popperEscapeOffsets = getSideOffsets(popperAltOverflow, popperRect, preventedOffsets);
+  var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
+  var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);
+  state.modifiersData[name2] = {
+    referenceClippingOffsets,
+    popperEscapeOffsets,
+    isReferenceHidden,
+    hasPopperEscaped
+  };
+  state.attributes.popper = Object.assign({}, state.attributes.popper, {
+    "data-popper-reference-hidden": isReferenceHidden,
+    "data-popper-escaped": hasPopperEscaped
+  });
+}
+var hide_default = {
+  name: "hide",
+  enabled: true,
+  phase: "main",
+  requiresIfExists: ["preventOverflow"],
+  fn: hide
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/offset.js
+function distanceAndSkiddingToXY(placement, rects, offset2) {
+  var basePlacement = getBasePlacement(placement);
+  var invertDistance = [left, top].indexOf(basePlacement) >= 0 ? -1 : 1;
+  var _ref = typeof offset2 === "function" ? offset2(Object.assign({}, rects, {
+    placement
+  })) : offset2, skidding = _ref[0], distance = _ref[1];
+  skidding = skidding || 0;
+  distance = (distance || 0) * invertDistance;
+  return [left, right].indexOf(basePlacement) >= 0 ? {
+    x: distance,
+    y: skidding
+  } : {
+    x: skidding,
+    y: distance
+  };
+}
+function offset(_ref2) {
+  var state = _ref2.state, options = _ref2.options, name2 = _ref2.name;
+  var _options$offset = options.offset, offset2 = _options$offset === void 0 ? [0, 0] : _options$offset;
+  var data = placements.reduce(function(acc, placement) {
+    acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset2);
+    return acc;
+  }, {});
+  var _data$state$placement = data[state.placement], x = _data$state$placement.x, y = _data$state$placement.y;
+  if (state.modifiersData.popperOffsets != null) {
+    state.modifiersData.popperOffsets.x += x;
+    state.modifiersData.popperOffsets.y += y;
+  }
+  state.modifiersData[name2] = data;
+}
+var offset_default = {
+  name: "offset",
+  enabled: true,
+  phase: "main",
+  requires: ["popperOffsets"],
+  fn: offset
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/popperOffsets.js
+function popperOffsets(_ref) {
+  var state = _ref.state, name2 = _ref.name;
+  state.modifiersData[name2] = computeOffsets({
+    reference: state.rects.reference,
+    element: state.rects.popper,
+    strategy: "absolute",
+    placement: state.placement
+  });
+}
+var popperOffsets_default = {
+  name: "popperOffsets",
+  enabled: true,
+  phase: "read",
+  fn: popperOffsets,
+  data: {}
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/getAltAxis.js
+function getAltAxis(axis) {
+  return axis === "x" ? "y" : "x";
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/modifiers/preventOverflow.js
+function preventOverflow(_ref) {
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
+  var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
+  var overflow = detectOverflow(state, {
+    boundary,
+    rootBoundary,
+    padding,
+    altBoundary
+  });
+  var basePlacement = getBasePlacement(state.placement);
+  var variation = getVariation(state.placement);
+  var isBasePlacement = !variation;
+  var mainAxis = getMainAxisFromPlacement(basePlacement);
+  var altAxis = getAltAxis(mainAxis);
+  var popperOffsets2 = state.modifiersData.popperOffsets;
+  var referenceRect = state.rects.reference;
+  var popperRect = state.rects.popper;
+  var tetherOffsetValue = typeof tetherOffset === "function" ? tetherOffset(Object.assign({}, state.rects, {
+    placement: state.placement
+  })) : tetherOffset;
+  var data = {
+    x: 0,
+    y: 0
+  };
+  if (!popperOffsets2) {
+    return;
+  }
+  if (checkMainAxis || checkAltAxis) {
+    var mainSide = mainAxis === "y" ? top : left;
+    var altSide = mainAxis === "y" ? bottom : right;
+    var len = mainAxis === "y" ? "height" : "width";
+    var offset2 = popperOffsets2[mainAxis];
+    var min2 = popperOffsets2[mainAxis] + overflow[mainSide];
+    var max2 = popperOffsets2[mainAxis] - overflow[altSide];
+    var additive = tether ? -popperRect[len] / 2 : 0;
+    var minLen = variation === start2 ? referenceRect[len] : popperRect[len];
+    var maxLen = variation === start2 ? -popperRect[len] : -referenceRect[len];
+    var arrowElement = state.elements.arrow;
+    var arrowRect = tether && arrowElement ? getLayoutRect(arrowElement) : {
+      width: 0,
+      height: 0
+    };
+    var arrowPaddingObject = state.modifiersData["arrow#persistent"] ? state.modifiersData["arrow#persistent"].padding : getFreshSideObject();
+    var arrowPaddingMin = arrowPaddingObject[mainSide];
+    var arrowPaddingMax = arrowPaddingObject[altSide];
+    var arrowLen = within(0, referenceRect[len], arrowRect[len]);
+    var minOffset = isBasePlacement ? referenceRect[len] / 2 - additive - arrowLen - arrowPaddingMin - tetherOffsetValue : minLen - arrowLen - arrowPaddingMin - tetherOffsetValue;
+    var maxOffset2 = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + tetherOffsetValue : maxLen + arrowLen + arrowPaddingMax + tetherOffsetValue;
+    var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
+    var clientOffset = arrowOffsetParent ? mainAxis === "y" ? arrowOffsetParent.clientTop || 0 : arrowOffsetParent.clientLeft || 0 : 0;
+    var offsetModifierValue = state.modifiersData.offset ? state.modifiersData.offset[state.placement][mainAxis] : 0;
+    var tetherMin = popperOffsets2[mainAxis] + minOffset - offsetModifierValue - clientOffset;
+    var tetherMax = popperOffsets2[mainAxis] + maxOffset2 - offsetModifierValue;
+    if (checkMainAxis) {
+      var preventedOffset = within(tether ? min(min2, tetherMin) : min2, offset2, tether ? max(max2, tetherMax) : max2);
+      popperOffsets2[mainAxis] = preventedOffset;
+      data[mainAxis] = preventedOffset - offset2;
+    }
+    if (checkAltAxis) {
+      var _mainSide = mainAxis === "x" ? top : left;
+      var _altSide = mainAxis === "x" ? bottom : right;
+      var _offset = popperOffsets2[altAxis];
+      var _min = _offset + overflow[_mainSide];
+      var _max = _offset - overflow[_altSide];
+      var _preventedOffset = within(tether ? min(_min, tetherMin) : _min, _offset, tether ? max(_max, tetherMax) : _max);
+      popperOffsets2[altAxis] = _preventedOffset;
+      data[altAxis] = _preventedOffset - _offset;
+    }
+  }
+  state.modifiersData[name2] = data;
+}
+var preventOverflow_default = {
+  name: "preventOverflow",
+  enabled: true,
+  phase: "main",
+  fn: preventOverflow,
+  requiresIfExists: ["offset"]
+};
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getHTMLElementScroll.js
+function getHTMLElementScroll(element) {
+  return {
+    scrollLeft: element.scrollLeft,
+    scrollTop: element.scrollTop
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getNodeScroll.js
+function getNodeScroll(node) {
+  if (node === getWindow(node) || !isHTMLElement(node)) {
+    return getWindowScroll(node);
+  } else {
+    return getHTMLElementScroll(node);
+  }
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/dom-utils/getCompositeRect.js
+function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
+  if (isFixed === void 0) {
+    isFixed = false;
+  }
+  var documentElement = getDocumentElement(offsetParent);
+  var rect = getBoundingClientRect(elementOrVirtualElement);
+  var isOffsetParentAnElement = isHTMLElement(offsetParent);
+  var scroll = {
+    scrollLeft: 0,
+    scrollTop: 0
+  };
+  var offsets = {
+    x: 0,
+    y: 0
+  };
+  if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
+    if (getNodeName(offsetParent) !== "body" || isScrollParent(documentElement)) {
+      scroll = getNodeScroll(offsetParent);
+    }
+    if (isHTMLElement(offsetParent)) {
+      offsets = getBoundingClientRect(offsetParent);
+      offsets.x += offsetParent.clientLeft;
+      offsets.y += offsetParent.clientTop;
+    } else if (documentElement) {
+      offsets.x = getWindowScrollBarX(documentElement);
+    }
+  }
+  return {
+    x: rect.left + scroll.scrollLeft - offsets.x,
+    y: rect.top + scroll.scrollTop - offsets.y,
+    width: rect.width,
+    height: rect.height
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/orderModifiers.js
+function order(modifiers) {
+  var map2 = new Map();
+  var visited = new Set();
+  var result = [];
+  modifiers.forEach(function(modifier) {
+    map2.set(modifier.name, modifier);
+  });
+  function sort2(modifier) {
+    visited.add(modifier.name);
+    var requires = [].concat(modifier.requires || [], modifier.requiresIfExists || []);
+    requires.forEach(function(dep) {
+      if (!visited.has(dep)) {
+        var depModifier = map2.get(dep);
+        if (depModifier) {
+          sort2(depModifier);
+        }
+      }
+    });
+    result.push(modifier);
+  }
+  modifiers.forEach(function(modifier) {
+    if (!visited.has(modifier.name)) {
+      sort2(modifier);
+    }
+  });
+  return result;
+}
+function orderModifiers(modifiers) {
+  var orderedModifiers = order(modifiers);
+  return modifierPhases.reduce(function(acc, phase) {
+    return acc.concat(orderedModifiers.filter(function(modifier) {
+      return modifier.phase === phase;
+    }));
+  }, []);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/debounce.js
+function debounce(fn3) {
+  var pending;
+  return function() {
+    if (!pending) {
+      pending = new Promise(function(resolve) {
+        Promise.resolve().then(function() {
+          pending = void 0;
+          resolve(fn3());
+        });
+      });
+    }
+    return pending;
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/format.js
+function format(str) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+  return [].concat(args).reduce(function(p, c) {
+    return p.replace(/%s/, c);
+  }, str);
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/validateModifiers.js
+var INVALID_MODIFIER_ERROR = 'Popper: modifier "%s" provided an invalid %s property, expected %s but got %s';
+var MISSING_DEPENDENCY_ERROR = 'Popper: modifier "%s" requires "%s", but "%s" modifier is not available';
+var VALID_PROPERTIES = ["name", "enabled", "phase", "fn", "effect", "requires", "options"];
+function validateModifiers(modifiers) {
+  modifiers.forEach(function(modifier) {
+    Object.keys(modifier).forEach(function(key) {
+      switch (key) {
+        case "name":
+          if (typeof modifier.name !== "string") {
+            console.error(format(INVALID_MODIFIER_ERROR, String(modifier.name), '"name"', '"string"', '"' + String(modifier.name) + '"'));
+          }
+          break;
+        case "enabled":
+          if (typeof modifier.enabled !== "boolean") {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"enabled"', '"boolean"', '"' + String(modifier.enabled) + '"'));
+          }
+        case "phase":
+          if (modifierPhases.indexOf(modifier.phase) < 0) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"phase"', "either " + modifierPhases.join(", "), '"' + String(modifier.phase) + '"'));
+          }
+          break;
+        case "fn":
+          if (typeof modifier.fn !== "function") {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"fn"', '"function"', '"' + String(modifier.fn) + '"'));
+          }
+          break;
+        case "effect":
+          if (typeof modifier.effect !== "function") {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"effect"', '"function"', '"' + String(modifier.fn) + '"'));
+          }
+          break;
+        case "requires":
+          if (!Array.isArray(modifier.requires)) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"requires"', '"array"', '"' + String(modifier.requires) + '"'));
+          }
+          break;
+        case "requiresIfExists":
+          if (!Array.isArray(modifier.requiresIfExists)) {
+            console.error(format(INVALID_MODIFIER_ERROR, modifier.name, '"requiresIfExists"', '"array"', '"' + String(modifier.requiresIfExists) + '"'));
+          }
+          break;
+        case "options":
+        case "data":
+          break;
+        default:
+          console.error('PopperJS: an invalid property has been provided to the "' + modifier.name + '" modifier, valid properties are ' + VALID_PROPERTIES.map(function(s) {
+            return '"' + s + '"';
+          }).join(", ") + '; but "' + key + '" was provided.');
+      }
+      modifier.requires && modifier.requires.forEach(function(requirement) {
+        if (modifiers.find(function(mod) {
+          return mod.name === requirement;
+        }) == null) {
+          console.error(format(MISSING_DEPENDENCY_ERROR, String(modifier.name), requirement, requirement));
+        }
+      });
+    });
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/uniqueBy.js
+function uniqueBy(arr, fn3) {
+  var identifiers = new Set();
+  return arr.filter(function(item) {
+    var identifier = fn3(item);
+    if (!identifiers.has(identifier)) {
+      identifiers.add(identifier);
+      return true;
+    }
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/utils/mergeByName.js
+function mergeByName(modifiers) {
+  var merged = modifiers.reduce(function(merged2, current) {
+    var existing = merged2[current.name];
+    merged2[current.name] = existing ? Object.assign({}, existing, current, {
+      options: Object.assign({}, existing.options, current.options),
+      data: Object.assign({}, existing.data, current.data)
+    }) : current;
+    return merged2;
+  }, {});
+  return Object.keys(merged).map(function(key) {
+    return merged[key];
+  });
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/createPopper.js
+var INVALID_ELEMENT_ERROR = "Popper: Invalid reference or popper argument provided. They must be either a DOM element or virtual element.";
+var INFINITE_LOOP_ERROR = "Popper: An infinite loop in the modifiers cycle has been detected! The cycle has been interrupted to prevent a browser crash.";
+var DEFAULT_OPTIONS = {
+  placement: "bottom",
+  modifiers: [],
+  strategy: "absolute"
+};
+function areValidElements() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+  return !args.some(function(element) {
+    return !(element && typeof element.getBoundingClientRect === "function");
+  });
+}
+function popperGenerator(generatorOptions) {
+  if (generatorOptions === void 0) {
+    generatorOptions = {};
+  }
+  var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers2 = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
+  return function createPopper2(reference2, popper2, options) {
+    if (options === void 0) {
+      options = defaultOptions;
+    }
+    var state = {
+      placement: "bottom",
+      orderedModifiers: [],
+      options: Object.assign({}, DEFAULT_OPTIONS, defaultOptions),
+      modifiersData: {},
+      elements: {
+        reference: reference2,
+        popper: popper2
+      },
+      attributes: {},
+      styles: {}
+    };
+    var effectCleanupFns = [];
+    var isDestroyed = false;
+    var instance = {
+      state,
+      setOptions: function setOptions(options2) {
+        cleanupModifierEffects();
+        state.options = Object.assign({}, defaultOptions, state.options, options2);
+        state.scrollParents = {
+          reference: isElement(reference2) ? listScrollParents(reference2) : reference2.contextElement ? listScrollParents(reference2.contextElement) : [],
+          popper: listScrollParents(popper2)
+        };
+        var orderedModifiers = orderModifiers(mergeByName([].concat(defaultModifiers2, state.options.modifiers)));
+        state.orderedModifiers = orderedModifiers.filter(function(m) {
+          return m.enabled;
+        });
+        if (true) {
+          var modifiers = uniqueBy([].concat(orderedModifiers, state.options.modifiers), function(_ref) {
+            var name2 = _ref.name;
+            return name2;
+          });
+          validateModifiers(modifiers);
+          if (getBasePlacement(state.options.placement) === auto) {
+            var flipModifier = state.orderedModifiers.find(function(_ref2) {
+              var name2 = _ref2.name;
+              return name2 === "flip";
+            });
+            if (!flipModifier) {
+              console.error(['Popper: "auto" placements require the "flip" modifier be', "present and enabled to work."].join(" "));
+            }
+          }
+          var _getComputedStyle = getComputedStyle(popper2), marginTop = _getComputedStyle.marginTop, marginRight = _getComputedStyle.marginRight, marginBottom = _getComputedStyle.marginBottom, marginLeft = _getComputedStyle.marginLeft;
+          if ([marginTop, marginRight, marginBottom, marginLeft].some(function(margin) {
+            return parseFloat(margin);
+          })) {
+            console.warn(['Popper: CSS "margin" styles cannot be used to apply padding', "between the popper and its reference element or boundary.", "To replicate margin, use the `offset` modifier, as well as", "the `padding` option in the `preventOverflow` and `flip`", "modifiers."].join(" "));
+          }
+        }
+        runModifierEffects();
+        return instance.update();
+      },
+      forceUpdate: function forceUpdate() {
+        if (isDestroyed) {
+          return;
+        }
+        var _state$elements = state.elements, reference3 = _state$elements.reference, popper3 = _state$elements.popper;
+        if (!areValidElements(reference3, popper3)) {
+          if (true) {
+            console.error(INVALID_ELEMENT_ERROR);
+          }
+          return;
+        }
+        state.rects = {
+          reference: getCompositeRect(reference3, getOffsetParent(popper3), state.options.strategy === "fixed"),
+          popper: getLayoutRect(popper3)
+        };
+        state.reset = false;
+        state.placement = state.options.placement;
+        state.orderedModifiers.forEach(function(modifier) {
+          return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
+        });
+        var __debug_loops__ = 0;
+        for (var index2 = 0; index2 < state.orderedModifiers.length; index2++) {
+          if (true) {
+            __debug_loops__ += 1;
+            if (__debug_loops__ > 100) {
+              console.error(INFINITE_LOOP_ERROR);
+              break;
+            }
+          }
+          if (state.reset === true) {
+            state.reset = false;
+            index2 = -1;
+            continue;
+          }
+          var _state$orderedModifie = state.orderedModifiers[index2], fn3 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name2 = _state$orderedModifie.name;
+          if (typeof fn3 === "function") {
+            state = fn3({
+              state,
+              options: _options,
+              name: name2,
+              instance
+            }) || state;
+          }
+        }
+      },
+      update: debounce(function() {
+        return new Promise(function(resolve) {
+          instance.forceUpdate();
+          resolve(state);
+        });
+      }),
+      destroy: function destroy() {
+        cleanupModifierEffects();
+        isDestroyed = true;
+      }
+    };
+    if (!areValidElements(reference2, popper2)) {
+      if (true) {
+        console.error(INVALID_ELEMENT_ERROR);
+      }
+      return instance;
+    }
+    instance.setOptions(options).then(function(state2) {
+      if (!isDestroyed && options.onFirstUpdate) {
+        options.onFirstUpdate(state2);
+      }
+    });
+    function runModifierEffects() {
+      state.orderedModifiers.forEach(function(_ref3) {
+        var name2 = _ref3.name, _ref3$options = _ref3.options, options2 = _ref3$options === void 0 ? {} : _ref3$options, effect5 = _ref3.effect;
+        if (typeof effect5 === "function") {
+          var cleanupFn = effect5({
+            state,
+            name: name2,
+            instance,
+            options: options2
+          });
+          var noopFn = function noopFn2() {
+          };
+          effectCleanupFns.push(cleanupFn || noopFn);
+        }
+      });
+    }
+    function cleanupModifierEffects() {
+      effectCleanupFns.forEach(function(fn3) {
+        return fn3();
+      });
+      effectCleanupFns = [];
+    }
+    return instance;
+  };
+}
+
+// node_modules/reactex/node_modules/@popperjs/core/lib/popper.js
+var defaultModifiers = [eventListeners_default, popperOffsets_default, computeStyles_default, applyStyles_default, offset_default, flip_default, preventOverflow_default, arrow_default, hide_default];
+var createPopper = /* @__PURE__ */ popperGenerator({
+  defaultModifiers
+});
+
+// node_modules/reactex/node_modules/tippy.js/dist/tippy.esm.js
+var BOX_CLASS = "tippy-box";
+var CONTENT_CLASS = "tippy-content";
+var BACKDROP_CLASS = "tippy-backdrop";
+var ARROW_CLASS = "tippy-arrow";
+var SVG_ARROW_CLASS = "tippy-svg-arrow";
+var TOUCH_OPTIONS = {
+  passive: true,
+  capture: true
+};
+function hasOwnProperty(obj, key) {
+  return {}.hasOwnProperty.call(obj, key);
+}
+function getValueAtIndexOrReturn(value, index2, defaultValue) {
+  if (Array.isArray(value)) {
+    var v = value[index2];
+    return v == null ? Array.isArray(defaultValue) ? defaultValue[index2] : defaultValue : v;
+  }
+  return value;
+}
+function isType(value, type) {
+  var str = {}.toString.call(value);
+  return str.indexOf("[object") === 0 && str.indexOf(type + "]") > -1;
+}
+function invokeWithArgsOrReturn(value, args) {
+  return typeof value === "function" ? value.apply(void 0, args) : value;
+}
+function debounce2(fn3, ms) {
+  if (ms === 0) {
+    return fn3;
+  }
+  var timeout;
+  return function(arg) {
+    clearTimeout(timeout);
+    timeout = setTimeout(function() {
+      fn3(arg);
+    }, ms);
+  };
+}
+function removeProperties(obj, keys) {
+  var clone = Object.assign({}, obj);
+  keys.forEach(function(key) {
+    delete clone[key];
+  });
+  return clone;
+}
+function splitBySpaces(value) {
+  return value.split(/\s+/).filter(Boolean);
+}
+function normalizeToArray(value) {
+  return [].concat(value);
+}
+function pushIfUnique(arr, value) {
+  if (arr.indexOf(value) === -1) {
+    arr.push(value);
+  }
+}
+function unique2(arr) {
+  return arr.filter(function(item, index2) {
+    return arr.indexOf(item) === index2;
+  });
+}
+function getBasePlacement2(placement) {
+  return placement.split("-")[0];
+}
+function arrayFrom(value) {
+  return [].slice.call(value);
+}
+function removeUndefinedProps(obj) {
+  return Object.keys(obj).reduce(function(acc, key) {
+    if (obj[key] !== void 0) {
+      acc[key] = obj[key];
+    }
+    return acc;
+  }, {});
+}
+function div() {
+  return document.createElement("div");
+}
+function isElement2(value) {
+  return ["Element", "Fragment"].some(function(type) {
+    return isType(value, type);
+  });
+}
+function isNodeList(value) {
+  return isType(value, "NodeList");
+}
+function isMouseEvent(value) {
+  return isType(value, "MouseEvent");
+}
+function isReferenceElement(value) {
+  return !!(value && value._tippy && value._tippy.reference === value);
+}
+function getArrayOfElements(value) {
+  if (isElement2(value)) {
+    return [value];
+  }
+  if (isNodeList(value)) {
+    return arrayFrom(value);
+  }
+  if (Array.isArray(value)) {
+    return value;
+  }
+  return arrayFrom(document.querySelectorAll(value));
+}
+function setTransitionDuration(els, value) {
+  els.forEach(function(el) {
+    if (el) {
+      el.style.transitionDuration = value + "ms";
+    }
+  });
+}
+function setVisibilityState(els, state) {
+  els.forEach(function(el) {
+    if (el) {
+      el.setAttribute("data-state", state);
+    }
+  });
+}
+function getOwnerDocument(elementOrElements) {
+  var _element$ownerDocumen;
+  var _normalizeToArray = normalizeToArray(elementOrElements), element = _normalizeToArray[0];
+  return (element == null ? void 0 : (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body) ? element.ownerDocument : document;
+}
+function isCursorOutsideInteractiveBorder(popperTreeData, event) {
+  var clientX = event.clientX, clientY = event.clientY;
+  return popperTreeData.every(function(_ref) {
+    var popperRect = _ref.popperRect, popperState = _ref.popperState, props = _ref.props;
+    var interactiveBorder = props.interactiveBorder;
+    var basePlacement = getBasePlacement2(popperState.placement);
+    var offsetData = popperState.modifiersData.offset;
+    if (!offsetData) {
+      return true;
+    }
+    var topDistance = basePlacement === "bottom" ? offsetData.top.y : 0;
+    var bottomDistance = basePlacement === "top" ? offsetData.bottom.y : 0;
+    var leftDistance = basePlacement === "right" ? offsetData.left.x : 0;
+    var rightDistance = basePlacement === "left" ? offsetData.right.x : 0;
+    var exceedsTop = popperRect.top - clientY + topDistance > interactiveBorder;
+    var exceedsBottom = clientY - popperRect.bottom - bottomDistance > interactiveBorder;
+    var exceedsLeft = popperRect.left - clientX + leftDistance > interactiveBorder;
+    var exceedsRight = clientX - popperRect.right - rightDistance > interactiveBorder;
+    return exceedsTop || exceedsBottom || exceedsLeft || exceedsRight;
+  });
+}
+function updateTransitionEndListener(box2, action2, listener) {
+  var method = action2 + "EventListener";
+  ["transitionend", "webkitTransitionEnd"].forEach(function(event) {
+    box2[method](event, listener);
+  });
+}
+var currentInput = {
+  isTouch: false
+};
+var lastMouseMoveTime = 0;
+function onDocumentTouchStart() {
+  if (currentInput.isTouch) {
+    return;
+  }
+  currentInput.isTouch = true;
+  if (window.performance) {
+    document.addEventListener("mousemove", onDocumentMouseMove);
+  }
+}
+function onDocumentMouseMove() {
+  var now = performance.now();
+  if (now - lastMouseMoveTime < 20) {
+    currentInput.isTouch = false;
+    document.removeEventListener("mousemove", onDocumentMouseMove);
+  }
+  lastMouseMoveTime = now;
+}
+function onWindowBlur() {
+  var activeElement = document.activeElement;
+  if (isReferenceElement(activeElement)) {
+    var instance = activeElement._tippy;
+    if (activeElement.blur && !instance.state.isVisible) {
+      activeElement.blur();
+    }
+  }
+}
+function bindGlobalEventListeners() {
+  document.addEventListener("touchstart", onDocumentTouchStart, TOUCH_OPTIONS);
+  window.addEventListener("blur", onWindowBlur);
+}
+var isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+var ua = isBrowser ? navigator.userAgent : "";
+var isIE = /MSIE |Trident\//.test(ua);
+function createMemoryLeakWarning(method) {
+  var txt = method === "destroy" ? "n already-" : " ";
+  return [method + "() was called on a" + txt + "destroyed instance. This is a no-op but", "indicates a potential memory leak."].join(" ");
+}
+function clean(value) {
+  var spacesAndTabs = /[ \t]{2,}/g;
+  var lineStartWithSpaces = /^[ \t]*/gm;
+  return value.replace(spacesAndTabs, " ").replace(lineStartWithSpaces, "").trim();
+}
+function getDevMessage(message) {
+  return clean("\n  %ctippy.js\n\n  %c" + clean(message) + "\n\n  %c\u{1F477}\u200D This is a development-only message. It will be removed in production.\n  ");
+}
+function getFormattedMessage(message) {
+  return [
+    getDevMessage(message),
+    "color: #00C584; font-size: 1.3em; font-weight: bold;",
+    "line-height: 1.5",
+    "color: #a6a095;"
+  ];
+}
+var visitedMessages;
+if (true) {
+  resetVisitedMessages();
+}
+function resetVisitedMessages() {
+  visitedMessages = new Set();
+}
+function warnWhen(condition, message) {
+  if (condition && !visitedMessages.has(message)) {
+    var _console;
+    visitedMessages.add(message);
+    (_console = console).warn.apply(_console, getFormattedMessage(message));
+  }
+}
+function errorWhen(condition, message) {
+  if (condition && !visitedMessages.has(message)) {
+    var _console2;
+    visitedMessages.add(message);
+    (_console2 = console).error.apply(_console2, getFormattedMessage(message));
+  }
+}
+function validateTargets(targets) {
+  var didPassFalsyValue = !targets;
+  var didPassPlainObject = Object.prototype.toString.call(targets) === "[object Object]" && !targets.addEventListener;
+  errorWhen(didPassFalsyValue, ["tippy() was passed", "`" + String(targets) + "`", "as its targets (first) argument. Valid types are: String, Element,", "Element[], or NodeList."].join(" "));
+  errorWhen(didPassPlainObject, ["tippy() was passed a plain object which is not supported as an argument", "for virtual positioning. Use props.getReferenceClientRect instead."].join(" "));
+}
+var pluginProps = {
+  animateFill: false,
+  followCursor: false,
+  inlinePositioning: false,
+  sticky: false
+};
+var renderProps = {
+  allowHTML: false,
+  animation: "fade",
+  arrow: true,
+  content: "",
+  inertia: false,
+  maxWidth: 350,
+  role: "tooltip",
+  theme: "",
+  zIndex: 9999
+};
+var defaultProps = Object.assign({
+  appendTo: function appendTo() {
+    return document.body;
+  },
+  aria: {
+    content: "auto",
+    expanded: "auto"
+  },
+  delay: 0,
+  duration: [300, 250],
+  getReferenceClientRect: null,
+  hideOnClick: true,
+  ignoreAttributes: false,
+  interactive: false,
+  interactiveBorder: 2,
+  interactiveDebounce: 0,
+  moveTransition: "",
+  offset: [0, 10],
+  onAfterUpdate: function onAfterUpdate() {
+  },
+  onBeforeUpdate: function onBeforeUpdate() {
+  },
+  onCreate: function onCreate() {
+  },
+  onDestroy: function onDestroy() {
+  },
+  onHidden: function onHidden() {
+  },
+  onHide: function onHide() {
+  },
+  onMount: function onMount() {
+  },
+  onShow: function onShow() {
+  },
+  onShown: function onShown() {
+  },
+  onTrigger: function onTrigger() {
+  },
+  onUntrigger: function onUntrigger() {
+  },
+  onClickOutside: function onClickOutside() {
+  },
+  placement: "top",
+  plugins: [],
+  popperOptions: {},
+  render: null,
+  showOnCreate: false,
+  touch: true,
+  trigger: "mouseenter focus",
+  triggerTarget: null
+}, pluginProps, {}, renderProps);
+var defaultKeys = Object.keys(defaultProps);
+var setDefaultProps = function setDefaultProps2(partialProps) {
+  if (true) {
+    validateProps(partialProps, []);
+  }
+  var keys = Object.keys(partialProps);
+  keys.forEach(function(key) {
+    defaultProps[key] = partialProps[key];
+  });
+};
+function getExtendedPassedProps(passedProps) {
+  var plugins = passedProps.plugins || [];
+  var pluginProps2 = plugins.reduce(function(acc, plugin) {
+    var name2 = plugin.name, defaultValue = plugin.defaultValue;
+    if (name2) {
+      acc[name2] = passedProps[name2] !== void 0 ? passedProps[name2] : defaultValue;
+    }
+    return acc;
+  }, {});
+  return Object.assign({}, passedProps, {}, pluginProps2);
+}
+function getDataAttributeProps(reference2, plugins) {
+  var propKeys = plugins ? Object.keys(getExtendedPassedProps(Object.assign({}, defaultProps, {
+    plugins
+  }))) : defaultKeys;
+  var props = propKeys.reduce(function(acc, key) {
+    var valueAsString = (reference2.getAttribute("data-tippy-" + key) || "").trim();
+    if (!valueAsString) {
+      return acc;
+    }
+    if (key === "content") {
+      acc[key] = valueAsString;
+    } else {
+      try {
+        acc[key] = JSON.parse(valueAsString);
+      } catch (e) {
+        acc[key] = valueAsString;
+      }
+    }
+    return acc;
+  }, {});
+  return props;
+}
+function evaluateProps(reference2, props) {
+  var out = Object.assign({}, props, {
+    content: invokeWithArgsOrReturn(props.content, [reference2])
+  }, props.ignoreAttributes ? {} : getDataAttributeProps(reference2, props.plugins));
+  out.aria = Object.assign({}, defaultProps.aria, {}, out.aria);
+  out.aria = {
+    expanded: out.aria.expanded === "auto" ? props.interactive : out.aria.expanded,
+    content: out.aria.content === "auto" ? props.interactive ? null : "describedby" : out.aria.content
+  };
+  return out;
+}
+function validateProps(partialProps, plugins) {
+  if (partialProps === void 0) {
+    partialProps = {};
+  }
+  if (plugins === void 0) {
+    plugins = [];
+  }
+  var keys = Object.keys(partialProps);
+  keys.forEach(function(prop) {
+    var nonPluginProps = removeProperties(defaultProps, Object.keys(pluginProps));
+    var didPassUnknownProp = !hasOwnProperty(nonPluginProps, prop);
+    if (didPassUnknownProp) {
+      didPassUnknownProp = plugins.filter(function(plugin) {
+        return plugin.name === prop;
+      }).length === 0;
+    }
+    warnWhen(didPassUnknownProp, ["`" + prop + "`", "is not a valid prop. You may have spelled it incorrectly, or if it's", "a plugin, forgot to pass it in an array as props.plugins.", "\n\n", "All props: https://atomiks.github.io/tippyjs/v6/all-props/\n", "Plugins: https://atomiks.github.io/tippyjs/v6/plugins/"].join(" "));
+  });
+}
+var innerHTML = function innerHTML2() {
+  return "innerHTML";
+};
+function dangerouslySetInnerHTML(element, html) {
+  element[innerHTML()] = html;
+}
+function createArrowElement(value) {
+  var arrow2 = div();
+  if (value === true) {
+    arrow2.className = ARROW_CLASS;
+  } else {
+    arrow2.className = SVG_ARROW_CLASS;
+    if (isElement2(value)) {
+      arrow2.appendChild(value);
+    } else {
+      dangerouslySetInnerHTML(arrow2, value);
+    }
+  }
+  return arrow2;
+}
+function setContent(content2, props) {
+  if (isElement2(props.content)) {
+    dangerouslySetInnerHTML(content2, "");
+    content2.appendChild(props.content);
+  } else if (typeof props.content !== "function") {
+    if (props.allowHTML) {
+      dangerouslySetInnerHTML(content2, props.content);
+    } else {
+      content2.textContent = props.content;
+    }
+  }
+}
+function getChildren(popper2) {
+  var box2 = popper2.firstElementChild;
+  var boxChildren = arrayFrom(box2.children);
+  return {
+    box: box2,
+    content: boxChildren.find(function(node) {
+      return node.classList.contains(CONTENT_CLASS);
+    }),
+    arrow: boxChildren.find(function(node) {
+      return node.classList.contains(ARROW_CLASS) || node.classList.contains(SVG_ARROW_CLASS);
+    }),
+    backdrop: boxChildren.find(function(node) {
+      return node.classList.contains(BACKDROP_CLASS);
+    })
+  };
+}
+function render(instance) {
+  var popper2 = div();
+  var box2 = div();
+  box2.className = BOX_CLASS;
+  box2.setAttribute("data-state", "hidden");
+  box2.setAttribute("tabindex", "-1");
+  var content2 = div();
+  content2.className = CONTENT_CLASS;
+  content2.setAttribute("data-state", "hidden");
+  setContent(content2, instance.props);
+  popper2.appendChild(box2);
+  box2.appendChild(content2);
+  onUpdate(instance.props, instance.props);
+  function onUpdate(prevProps, nextProps) {
+    var _getChildren = getChildren(popper2), box3 = _getChildren.box, content3 = _getChildren.content, arrow2 = _getChildren.arrow;
+    if (nextProps.theme) {
+      box3.setAttribute("data-theme", nextProps.theme);
+    } else {
+      box3.removeAttribute("data-theme");
+    }
+    if (typeof nextProps.animation === "string") {
+      box3.setAttribute("data-animation", nextProps.animation);
+    } else {
+      box3.removeAttribute("data-animation");
+    }
+    if (nextProps.inertia) {
+      box3.setAttribute("data-inertia", "");
+    } else {
+      box3.removeAttribute("data-inertia");
+    }
+    box3.style.maxWidth = typeof nextProps.maxWidth === "number" ? nextProps.maxWidth + "px" : nextProps.maxWidth;
+    if (nextProps.role) {
+      box3.setAttribute("role", nextProps.role);
+    } else {
+      box3.removeAttribute("role");
+    }
+    if (prevProps.content !== nextProps.content || prevProps.allowHTML !== nextProps.allowHTML) {
+      setContent(content3, instance.props);
+    }
+    if (nextProps.arrow) {
+      if (!arrow2) {
+        box3.appendChild(createArrowElement(nextProps.arrow));
+      } else if (prevProps.arrow !== nextProps.arrow) {
+        box3.removeChild(arrow2);
+        box3.appendChild(createArrowElement(nextProps.arrow));
+      }
+    } else if (arrow2) {
+      box3.removeChild(arrow2);
+    }
+  }
+  return {
+    popper: popper2,
+    onUpdate
+  };
+}
+render.$$tippy = true;
+var idCounter = 1;
+var mouseMoveListeners = [];
+var mountedInstances = [];
+function createTippy(reference2, passedProps) {
+  var props = evaluateProps(reference2, Object.assign({}, defaultProps, {}, getExtendedPassedProps(removeUndefinedProps(passedProps))));
+  var showTimeout;
+  var hideTimeout;
+  var scheduleHideAnimationFrame;
+  var isVisibleFromClick = false;
+  var didHideDueToDocumentMouseDown = false;
+  var didTouchMove = false;
+  var ignoreOnFirstUpdate = false;
+  var lastTriggerEvent;
+  var currentTransitionEndListener;
+  var onFirstUpdate;
+  var listeners = [];
+  var debouncedOnMouseMove = debounce2(onMouseMove, props.interactiveDebounce);
+  var currentTarget;
+  var id = idCounter++;
+  var popperInstance = null;
+  var plugins = unique2(props.plugins);
+  var state = {
+    isEnabled: true,
+    isVisible: false,
+    isDestroyed: false,
+    isMounted: false,
+    isShown: false
+  };
+  var instance = {
+    id,
+    reference: reference2,
+    popper: div(),
+    popperInstance,
+    props,
+    state,
+    plugins,
+    clearDelayTimeouts,
+    setProps,
+    setContent: setContent2,
+    show,
+    hide: hide2,
+    hideWithInteractivity,
+    enable,
+    disable,
+    unmount,
+    destroy
+  };
+  if (!props.render) {
+    if (true) {
+      errorWhen(true, "render() function has not been supplied.");
+    }
+    return instance;
+  }
+  var _props$render = props.render(instance), popper2 = _props$render.popper, onUpdate = _props$render.onUpdate;
+  popper2.setAttribute("data-tippy-root", "");
+  popper2.id = "tippy-" + instance.id;
+  instance.popper = popper2;
+  reference2._tippy = instance;
+  popper2._tippy = instance;
+  var pluginsHooks = plugins.map(function(plugin) {
+    return plugin.fn(instance);
+  });
+  var hasAriaExpanded = reference2.hasAttribute("aria-expanded");
+  addListeners();
+  handleAriaExpandedAttribute();
+  handleStyles();
+  invokeHook("onCreate", [instance]);
+  if (props.showOnCreate) {
+    scheduleShow();
+  }
+  popper2.addEventListener("mouseenter", function() {
+    if (instance.props.interactive && instance.state.isVisible) {
+      instance.clearDelayTimeouts();
+    }
+  });
+  popper2.addEventListener("mouseleave", function(event) {
+    if (instance.props.interactive && instance.props.trigger.indexOf("mouseenter") >= 0) {
+      getDocument().addEventListener("mousemove", debouncedOnMouseMove);
+      debouncedOnMouseMove(event);
+    }
+  });
+  return instance;
+  function getNormalizedTouchSettings() {
+    var touch = instance.props.touch;
+    return Array.isArray(touch) ? touch : [touch, 0];
+  }
+  function getIsCustomTouchBehavior() {
+    return getNormalizedTouchSettings()[0] === "hold";
+  }
+  function getIsDefaultRenderFn() {
+    var _instance$props$rende;
+    return !!((_instance$props$rende = instance.props.render) == null ? void 0 : _instance$props$rende.$$tippy);
+  }
+  function getCurrentTarget() {
+    return currentTarget || reference2;
+  }
+  function getDocument() {
+    var parent = getCurrentTarget().parentNode;
+    return parent ? getOwnerDocument(parent) : document;
+  }
+  function getDefaultTemplateChildren() {
+    return getChildren(popper2);
+  }
+  function getDelay(isShow) {
+    if (instance.state.isMounted && !instance.state.isVisible || currentInput.isTouch || lastTriggerEvent && lastTriggerEvent.type === "focus") {
+      return 0;
+    }
+    return getValueAtIndexOrReturn(instance.props.delay, isShow ? 0 : 1, defaultProps.delay);
+  }
+  function handleStyles() {
+    popper2.style.pointerEvents = instance.props.interactive && instance.state.isVisible ? "" : "none";
+    popper2.style.zIndex = "" + instance.props.zIndex;
+  }
+  function invokeHook(hook, args, shouldInvokePropsHook) {
+    if (shouldInvokePropsHook === void 0) {
+      shouldInvokePropsHook = true;
+    }
+    pluginsHooks.forEach(function(pluginHooks) {
+      if (pluginHooks[hook]) {
+        pluginHooks[hook].apply(void 0, args);
+      }
+    });
+    if (shouldInvokePropsHook) {
+      var _instance$props;
+      (_instance$props = instance.props)[hook].apply(_instance$props, args);
+    }
+  }
+  function handleAriaContentAttribute() {
+    var aria = instance.props.aria;
+    if (!aria.content) {
+      return;
+    }
+    var attr = "aria-" + aria.content;
+    var id2 = popper2.id;
+    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
+    nodes.forEach(function(node) {
+      var currentValue = node.getAttribute(attr);
+      if (instance.state.isVisible) {
+        node.setAttribute(attr, currentValue ? currentValue + " " + id2 : id2);
+      } else {
+        var nextValue = currentValue && currentValue.replace(id2, "").trim();
+        if (nextValue) {
+          node.setAttribute(attr, nextValue);
+        } else {
+          node.removeAttribute(attr);
+        }
+      }
+    });
+  }
+  function handleAriaExpandedAttribute() {
+    if (hasAriaExpanded || !instance.props.aria.expanded) {
+      return;
+    }
+    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
+    nodes.forEach(function(node) {
+      if (instance.props.interactive) {
+        node.setAttribute("aria-expanded", instance.state.isVisible && node === getCurrentTarget() ? "true" : "false");
+      } else {
+        node.removeAttribute("aria-expanded");
+      }
+    });
+  }
+  function cleanupInteractiveMouseListeners() {
+    getDocument().removeEventListener("mousemove", debouncedOnMouseMove);
+    mouseMoveListeners = mouseMoveListeners.filter(function(listener) {
+      return listener !== debouncedOnMouseMove;
+    });
+  }
+  function onDocumentPress(event) {
+    if (currentInput.isTouch) {
+      if (didTouchMove || event.type === "mousedown") {
+        return;
+      }
+    }
+    if (instance.props.interactive && popper2.contains(event.target)) {
+      return;
+    }
+    if (getCurrentTarget().contains(event.target)) {
+      if (currentInput.isTouch) {
+        return;
+      }
+      if (instance.state.isVisible && instance.props.trigger.indexOf("click") >= 0) {
+        return;
+      }
+    } else {
+      invokeHook("onClickOutside", [instance, event]);
+    }
+    if (instance.props.hideOnClick === true) {
+      instance.clearDelayTimeouts();
+      instance.hide();
+      didHideDueToDocumentMouseDown = true;
+      setTimeout(function() {
+        didHideDueToDocumentMouseDown = false;
+      });
+      if (!instance.state.isMounted) {
+        removeDocumentPress();
+      }
+    }
+  }
+  function onTouchMove() {
+    didTouchMove = true;
+  }
+  function onTouchStart() {
+    didTouchMove = false;
+  }
+  function addDocumentPress() {
+    var doc2 = getDocument();
+    doc2.addEventListener("mousedown", onDocumentPress, true);
+    doc2.addEventListener("touchend", onDocumentPress, TOUCH_OPTIONS);
+    doc2.addEventListener("touchstart", onTouchStart, TOUCH_OPTIONS);
+    doc2.addEventListener("touchmove", onTouchMove, TOUCH_OPTIONS);
+  }
+  function removeDocumentPress() {
+    var doc2 = getDocument();
+    doc2.removeEventListener("mousedown", onDocumentPress, true);
+    doc2.removeEventListener("touchend", onDocumentPress, TOUCH_OPTIONS);
+    doc2.removeEventListener("touchstart", onTouchStart, TOUCH_OPTIONS);
+    doc2.removeEventListener("touchmove", onTouchMove, TOUCH_OPTIONS);
+  }
+  function onTransitionedOut(duration, callback) {
+    onTransitionEnd(duration, function() {
+      if (!instance.state.isVisible && popper2.parentNode && popper2.parentNode.contains(popper2)) {
+        callback();
+      }
+    });
+  }
+  function onTransitionedIn(duration, callback) {
+    onTransitionEnd(duration, callback);
+  }
+  function onTransitionEnd(duration, callback) {
+    var box2 = getDefaultTemplateChildren().box;
+    function listener(event) {
+      if (event.target === box2) {
+        updateTransitionEndListener(box2, "remove", listener);
+        callback();
+      }
+    }
+    if (duration === 0) {
+      return callback();
+    }
+    updateTransitionEndListener(box2, "remove", currentTransitionEndListener);
+    updateTransitionEndListener(box2, "add", listener);
+    currentTransitionEndListener = listener;
+  }
+  function on(eventType, handler, options) {
+    if (options === void 0) {
+      options = false;
+    }
+    var nodes = normalizeToArray(instance.props.triggerTarget || reference2);
+    nodes.forEach(function(node) {
+      node.addEventListener(eventType, handler, options);
+      listeners.push({
+        node,
+        eventType,
+        handler,
+        options
+      });
+    });
+  }
+  function addListeners() {
+    if (getIsCustomTouchBehavior()) {
+      on("touchstart", onTrigger2, {
+        passive: true
+      });
+      on("touchend", onMouseLeave, {
+        passive: true
+      });
+    }
+    splitBySpaces(instance.props.trigger).forEach(function(eventType) {
+      if (eventType === "manual") {
+        return;
+      }
+      on(eventType, onTrigger2);
+      switch (eventType) {
+        case "mouseenter":
+          on("mouseleave", onMouseLeave);
+          break;
+        case "focus":
+          on(isIE ? "focusout" : "blur", onBlurOrFocusOut);
+          break;
+        case "focusin":
+          on("focusout", onBlurOrFocusOut);
+          break;
+      }
+    });
+  }
+  function removeListeners() {
+    listeners.forEach(function(_ref) {
+      var node = _ref.node, eventType = _ref.eventType, handler = _ref.handler, options = _ref.options;
+      node.removeEventListener(eventType, handler, options);
+    });
+    listeners = [];
+  }
+  function onTrigger2(event) {
+    var _lastTriggerEvent;
+    var shouldScheduleClickHide = false;
+    if (!instance.state.isEnabled || isEventListenerStopped(event) || didHideDueToDocumentMouseDown) {
+      return;
+    }
+    var wasFocused = ((_lastTriggerEvent = lastTriggerEvent) == null ? void 0 : _lastTriggerEvent.type) === "focus";
+    lastTriggerEvent = event;
+    currentTarget = event.currentTarget;
+    handleAriaExpandedAttribute();
+    if (!instance.state.isVisible && isMouseEvent(event)) {
+      mouseMoveListeners.forEach(function(listener) {
+        return listener(event);
+      });
+    }
+    if (event.type === "click" && (instance.props.trigger.indexOf("mouseenter") < 0 || isVisibleFromClick) && instance.props.hideOnClick !== false && instance.state.isVisible) {
+      shouldScheduleClickHide = true;
+    } else {
+      scheduleShow(event);
+    }
+    if (event.type === "click") {
+      isVisibleFromClick = !shouldScheduleClickHide;
+    }
+    if (shouldScheduleClickHide && !wasFocused) {
+      scheduleHide(event);
+    }
+  }
+  function onMouseMove(event) {
+    var target = event.target;
+    var isCursorOverReferenceOrPopper = getCurrentTarget().contains(target) || popper2.contains(target);
+    if (event.type === "mousemove" && isCursorOverReferenceOrPopper) {
+      return;
+    }
+    var popperTreeData = getNestedPopperTree().concat(popper2).map(function(popper3) {
+      var _instance$popperInsta;
+      var instance2 = popper3._tippy;
+      var state2 = (_instance$popperInsta = instance2.popperInstance) == null ? void 0 : _instance$popperInsta.state;
+      if (state2) {
+        return {
+          popperRect: popper3.getBoundingClientRect(),
+          popperState: state2,
+          props
+        };
+      }
+      return null;
+    }).filter(Boolean);
+    if (isCursorOutsideInteractiveBorder(popperTreeData, event)) {
+      cleanupInteractiveMouseListeners();
+      scheduleHide(event);
+    }
+  }
+  function onMouseLeave(event) {
+    var shouldBail = isEventListenerStopped(event) || instance.props.trigger.indexOf("click") >= 0 && isVisibleFromClick;
+    if (shouldBail) {
+      return;
+    }
+    if (instance.props.interactive) {
+      instance.hideWithInteractivity(event);
+      return;
+    }
+    scheduleHide(event);
+  }
+  function onBlurOrFocusOut(event) {
+    if (instance.props.trigger.indexOf("focusin") < 0 && event.target !== getCurrentTarget()) {
+      return;
+    }
+    if (instance.props.interactive && event.relatedTarget && popper2.contains(event.relatedTarget)) {
+      return;
+    }
+    scheduleHide(event);
+  }
+  function isEventListenerStopped(event) {
+    return currentInput.isTouch ? getIsCustomTouchBehavior() !== event.type.indexOf("touch") >= 0 : false;
+  }
+  function createPopperInstance() {
+    destroyPopperInstance();
+    var _instance$props2 = instance.props, popperOptions = _instance$props2.popperOptions, placement = _instance$props2.placement, offset2 = _instance$props2.offset, getReferenceClientRect = _instance$props2.getReferenceClientRect, moveTransition = _instance$props2.moveTransition;
+    var arrow2 = getIsDefaultRenderFn() ? getChildren(popper2).arrow : null;
+    var computedReference = getReferenceClientRect ? {
+      getBoundingClientRect: getReferenceClientRect,
+      contextElement: getReferenceClientRect.contextElement || getCurrentTarget()
+    } : reference2;
+    var tippyModifier = {
+      name: "$$tippy",
+      enabled: true,
+      phase: "beforeWrite",
+      requires: ["computeStyles"],
+      fn: function fn3(_ref2) {
+        var state2 = _ref2.state;
+        if (getIsDefaultRenderFn()) {
+          var _getDefaultTemplateCh = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh.box;
+          ["placement", "reference-hidden", "escaped"].forEach(function(attr) {
+            if (attr === "placement") {
+              box2.setAttribute("data-placement", state2.placement);
+            } else {
+              if (state2.attributes.popper["data-popper-" + attr]) {
+                box2.setAttribute("data-" + attr, "");
+              } else {
+                box2.removeAttribute("data-" + attr);
+              }
+            }
+          });
+          state2.attributes.popper = {};
+        }
+      }
+    };
+    var modifiers = [{
+      name: "offset",
+      options: {
+        offset: offset2
+      }
+    }, {
+      name: "preventOverflow",
+      options: {
+        padding: {
+          top: 2,
+          bottom: 2,
+          left: 5,
+          right: 5
+        }
+      }
+    }, {
+      name: "flip",
+      options: {
+        padding: 5
+      }
+    }, {
+      name: "computeStyles",
+      options: {
+        adaptive: !moveTransition
+      }
+    }, tippyModifier];
+    if (getIsDefaultRenderFn() && arrow2) {
+      modifiers.push({
+        name: "arrow",
+        options: {
+          element: arrow2,
+          padding: 3
+        }
+      });
+    }
+    modifiers.push.apply(modifiers, (popperOptions == null ? void 0 : popperOptions.modifiers) || []);
+    instance.popperInstance = createPopper(computedReference, popper2, Object.assign({}, popperOptions, {
+      placement,
+      onFirstUpdate,
+      modifiers
+    }));
+  }
+  function destroyPopperInstance() {
+    if (instance.popperInstance) {
+      instance.popperInstance.destroy();
+      instance.popperInstance = null;
+    }
+  }
+  function mount() {
+    var appendTo2 = instance.props.appendTo;
+    var parentNode;
+    var node = getCurrentTarget();
+    if (instance.props.interactive && appendTo2 === defaultProps.appendTo || appendTo2 === "parent") {
+      parentNode = node.parentNode;
+    } else {
+      parentNode = invokeWithArgsOrReturn(appendTo2, [node]);
+    }
+    if (!parentNode.contains(popper2)) {
+      parentNode.appendChild(popper2);
+    }
+    createPopperInstance();
+    if (true) {
+      warnWhen(instance.props.interactive && appendTo2 === defaultProps.appendTo && node.nextElementSibling !== popper2, ["Interactive tippy element may not be accessible via keyboard", "navigation because it is not directly after the reference element", "in the DOM source order.", "\n\n", "Using a wrapper <div> or <span> tag around the reference element", "solves this by creating a new parentNode context.", "\n\n", "Specifying `appendTo: document.body` silences this warning, but it", "assumes you are using a focus management solution to handle", "keyboard navigation.", "\n\n", "See: https://atomiks.github.io/tippyjs/v6/accessibility/#interactivity"].join(" "));
+    }
+  }
+  function getNestedPopperTree() {
+    return arrayFrom(popper2.querySelectorAll("[data-tippy-root]"));
+  }
+  function scheduleShow(event) {
+    instance.clearDelayTimeouts();
+    if (event) {
+      invokeHook("onTrigger", [instance, event]);
+    }
+    addDocumentPress();
+    var delay = getDelay(true);
+    var _getNormalizedTouchSe = getNormalizedTouchSettings(), touchValue = _getNormalizedTouchSe[0], touchDelay = _getNormalizedTouchSe[1];
+    if (currentInput.isTouch && touchValue === "hold" && touchDelay) {
+      delay = touchDelay;
+    }
+    if (delay) {
+      showTimeout = setTimeout(function() {
+        instance.show();
+      }, delay);
+    } else {
+      instance.show();
+    }
+  }
+  function scheduleHide(event) {
+    instance.clearDelayTimeouts();
+    invokeHook("onUntrigger", [instance, event]);
+    if (!instance.state.isVisible) {
+      removeDocumentPress();
+      return;
+    }
+    if (instance.props.trigger.indexOf("mouseenter") >= 0 && instance.props.trigger.indexOf("click") >= 0 && ["mouseleave", "mousemove"].indexOf(event.type) >= 0 && isVisibleFromClick) {
+      return;
+    }
+    var delay = getDelay(false);
+    if (delay) {
+      hideTimeout = setTimeout(function() {
+        if (instance.state.isVisible) {
+          instance.hide();
+        }
+      }, delay);
+    } else {
+      scheduleHideAnimationFrame = requestAnimationFrame(function() {
+        instance.hide();
+      });
+    }
+  }
+  function enable() {
+    instance.state.isEnabled = true;
+  }
+  function disable() {
+    instance.hide();
+    instance.state.isEnabled = false;
+  }
+  function clearDelayTimeouts() {
+    clearTimeout(showTimeout);
+    clearTimeout(hideTimeout);
+    cancelAnimationFrame(scheduleHideAnimationFrame);
+  }
+  function setProps(partialProps) {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("setProps"));
+    }
+    if (instance.state.isDestroyed) {
+      return;
+    }
+    invokeHook("onBeforeUpdate", [instance, partialProps]);
+    removeListeners();
+    var prevProps = instance.props;
+    var nextProps = evaluateProps(reference2, Object.assign({}, instance.props, {}, partialProps, {
+      ignoreAttributes: true
+    }));
+    instance.props = nextProps;
+    addListeners();
+    if (prevProps.interactiveDebounce !== nextProps.interactiveDebounce) {
+      cleanupInteractiveMouseListeners();
+      debouncedOnMouseMove = debounce2(onMouseMove, nextProps.interactiveDebounce);
+    }
+    if (prevProps.triggerTarget && !nextProps.triggerTarget) {
+      normalizeToArray(prevProps.triggerTarget).forEach(function(node) {
+        node.removeAttribute("aria-expanded");
+      });
+    } else if (nextProps.triggerTarget) {
+      reference2.removeAttribute("aria-expanded");
+    }
+    handleAriaExpandedAttribute();
+    handleStyles();
+    if (onUpdate) {
+      onUpdate(prevProps, nextProps);
+    }
+    if (instance.popperInstance) {
+      createPopperInstance();
+      getNestedPopperTree().forEach(function(nestedPopper) {
+        requestAnimationFrame(nestedPopper._tippy.popperInstance.forceUpdate);
+      });
+    }
+    invokeHook("onAfterUpdate", [instance, partialProps]);
+  }
+  function setContent2(content2) {
+    instance.setProps({
+      content: content2
+    });
+  }
+  function show() {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("show"));
+    }
+    var isAlreadyVisible = instance.state.isVisible;
+    var isDestroyed = instance.state.isDestroyed;
+    var isDisabled = !instance.state.isEnabled;
+    var isTouchAndTouchDisabled = currentInput.isTouch && !instance.props.touch;
+    var duration = getValueAtIndexOrReturn(instance.props.duration, 0, defaultProps.duration);
+    if (isAlreadyVisible || isDestroyed || isDisabled || isTouchAndTouchDisabled) {
+      return;
+    }
+    if (getCurrentTarget().hasAttribute("disabled")) {
+      return;
+    }
+    invokeHook("onShow", [instance], false);
+    if (instance.props.onShow(instance) === false) {
+      return;
+    }
+    instance.state.isVisible = true;
+    if (getIsDefaultRenderFn()) {
+      popper2.style.visibility = "visible";
+    }
+    handleStyles();
+    addDocumentPress();
+    if (!instance.state.isMounted) {
+      popper2.style.transition = "none";
+    }
+    if (getIsDefaultRenderFn()) {
+      var _getDefaultTemplateCh2 = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh2.box, content2 = _getDefaultTemplateCh2.content;
+      setTransitionDuration([box2, content2], 0);
+    }
+    onFirstUpdate = function onFirstUpdate2() {
+      var _instance$popperInsta2;
+      if (!instance.state.isVisible || ignoreOnFirstUpdate) {
+        return;
+      }
+      ignoreOnFirstUpdate = true;
+      void popper2.offsetHeight;
+      popper2.style.transition = instance.props.moveTransition;
+      if (getIsDefaultRenderFn() && instance.props.animation) {
+        var _getDefaultTemplateCh3 = getDefaultTemplateChildren(), _box = _getDefaultTemplateCh3.box, _content = _getDefaultTemplateCh3.content;
+        setTransitionDuration([_box, _content], duration);
+        setVisibilityState([_box, _content], "visible");
+      }
+      handleAriaContentAttribute();
+      handleAriaExpandedAttribute();
+      pushIfUnique(mountedInstances, instance);
+      (_instance$popperInsta2 = instance.popperInstance) == null ? void 0 : _instance$popperInsta2.forceUpdate();
+      instance.state.isMounted = true;
+      invokeHook("onMount", [instance]);
+      if (instance.props.animation && getIsDefaultRenderFn()) {
+        onTransitionedIn(duration, function() {
+          instance.state.isShown = true;
+          invokeHook("onShown", [instance]);
+        });
+      }
+    };
+    mount();
+  }
+  function hide2() {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("hide"));
+    }
+    var isAlreadyHidden = !instance.state.isVisible;
+    var isDestroyed = instance.state.isDestroyed;
+    var isDisabled = !instance.state.isEnabled;
+    var duration = getValueAtIndexOrReturn(instance.props.duration, 1, defaultProps.duration);
+    if (isAlreadyHidden || isDestroyed || isDisabled) {
+      return;
+    }
+    invokeHook("onHide", [instance], false);
+    if (instance.props.onHide(instance) === false) {
+      return;
+    }
+    instance.state.isVisible = false;
+    instance.state.isShown = false;
+    ignoreOnFirstUpdate = false;
+    isVisibleFromClick = false;
+    if (getIsDefaultRenderFn()) {
+      popper2.style.visibility = "hidden";
+    }
+    cleanupInteractiveMouseListeners();
+    removeDocumentPress();
+    handleStyles();
+    if (getIsDefaultRenderFn()) {
+      var _getDefaultTemplateCh4 = getDefaultTemplateChildren(), box2 = _getDefaultTemplateCh4.box, content2 = _getDefaultTemplateCh4.content;
+      if (instance.props.animation) {
+        setTransitionDuration([box2, content2], duration);
+        setVisibilityState([box2, content2], "hidden");
+      }
+    }
+    handleAriaContentAttribute();
+    handleAriaExpandedAttribute();
+    if (instance.props.animation) {
+      if (getIsDefaultRenderFn()) {
+        onTransitionedOut(duration, instance.unmount);
+      }
+    } else {
+      instance.unmount();
+    }
+  }
+  function hideWithInteractivity(event) {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("hideWithInteractivity"));
+    }
+    getDocument().addEventListener("mousemove", debouncedOnMouseMove);
+    pushIfUnique(mouseMoveListeners, debouncedOnMouseMove);
+    debouncedOnMouseMove(event);
+  }
+  function unmount() {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("unmount"));
+    }
+    if (instance.state.isVisible) {
+      instance.hide();
+    }
+    if (!instance.state.isMounted) {
+      return;
+    }
+    destroyPopperInstance();
+    getNestedPopperTree().forEach(function(nestedPopper) {
+      nestedPopper._tippy.unmount();
+    });
+    if (popper2.parentNode) {
+      popper2.parentNode.removeChild(popper2);
+    }
+    mountedInstances = mountedInstances.filter(function(i) {
+      return i !== instance;
+    });
+    instance.state.isMounted = false;
+    invokeHook("onHidden", [instance]);
+  }
+  function destroy() {
+    if (true) {
+      warnWhen(instance.state.isDestroyed, createMemoryLeakWarning("destroy"));
+    }
+    if (instance.state.isDestroyed) {
+      return;
+    }
+    instance.clearDelayTimeouts();
+    instance.unmount();
+    removeListeners();
+    delete reference2._tippy;
+    instance.state.isDestroyed = true;
+    invokeHook("onDestroy", [instance]);
+  }
+}
+function tippy(targets, optionalProps) {
+  if (optionalProps === void 0) {
+    optionalProps = {};
+  }
+  var plugins = defaultProps.plugins.concat(optionalProps.plugins || []);
+  if (true) {
+    validateTargets(targets);
+    validateProps(optionalProps, plugins);
+  }
+  bindGlobalEventListeners();
+  var passedProps = Object.assign({}, optionalProps, {
+    plugins
+  });
+  var elements = getArrayOfElements(targets);
+  if (true) {
+    var isSingleContentElement = isElement2(passedProps.content);
+    var isMoreThanOneReferenceElement = elements.length > 1;
+    warnWhen(isSingleContentElement && isMoreThanOneReferenceElement, ["tippy() was passed an Element as the `content` prop, but more than", "one tippy instance was created by this invocation. This means the", "content element will only be appended to the last tippy instance.", "\n\n", "Instead, pass the .innerHTML of the element, or use a function that", "returns a cloned version of the element instead.", "\n\n", "1) content: element.innerHTML\n", "2) content: () => element.cloneNode(true)"].join(" "));
+  }
+  var instances = elements.reduce(function(acc, reference2) {
+    var instance = reference2 && createTippy(reference2, passedProps);
+    if (instance) {
+      acc.push(instance);
+    }
+    return acc;
+  }, []);
+  return isElement2(targets) ? instances[0] : instances;
+}
+tippy.defaultProps = defaultProps;
+tippy.setDefaultProps = setDefaultProps;
+tippy.currentInput = currentInput;
+var applyStylesModifier = Object.assign({}, applyStyles_default, {
+  effect: function effect4(_ref) {
+    var state = _ref.state;
+    var initialStyles = {
+      popper: {
+        position: state.options.strategy,
+        left: "0",
+        top: "0",
+        margin: "0"
+      },
+      arrow: {
+        position: "absolute"
+      },
+      reference: {}
+    };
+    Object.assign(state.elements.popper.style, initialStyles.popper);
+    state.styles = initialStyles;
+    if (state.elements.arrow) {
+      Object.assign(state.elements.arrow.style, initialStyles.arrow);
+    }
+  }
+});
+tippy.setDefaultProps({
+  render
+});
+var tippy_esm_default = tippy;
+
+// node_modules/reactex/node_modules/@tippyjs/react/dist/tippy-react.esm.js
+var import_react9 = __toModule(require_react());
+var import_react_dom2 = __toModule(require_react_dom());
 function _objectWithoutPropertiesLoose2(source, excluded) {
   if (source == null)
     return {};
@@ -55275,30 +53513,293 @@ function _objectWithoutPropertiesLoose2(source, excluded) {
   }
   return target;
 }
-var MobXProviderContext = /* @__PURE__ */ import_react20.default.createContext({});
-function Provider(props) {
-  var children = props.children, stores = _objectWithoutPropertiesLoose2(props, ["children"]);
-  var parentValue = import_react20.default.useContext(MobXProviderContext);
-  var mutableProviderRef = import_react20.default.useRef(_extends3({}, parentValue, stores));
-  var value = mutableProviderRef.current;
-  if (true) {
-    var newValue = _extends3({}, value, stores);
-    if (!shallowEqual(value, newValue)) {
-      throw new Error("MobX Provider: The set of provided stores has changed. See: https://github.com/mobxjs/mobx-react#the-set-of-provided-stores-has-changed-error.");
+var isBrowser2 = typeof window !== "undefined" && typeof document !== "undefined";
+function preserveRef(ref, node) {
+  if (ref) {
+    if (typeof ref === "function") {
+      ref(node);
+    }
+    if ({}.hasOwnProperty.call(ref, "current")) {
+      ref.current = node;
     }
   }
-  return import_react20.default.createElement(MobXProviderContext.Provider, {
-    value
-  }, children);
 }
-Provider.displayName = "MobXProvider";
-if (!import_react20.Component)
-  throw new Error("mobx-react requires React to be available");
-if (!observable)
-  throw new Error("mobx-react requires mobx to be available");
+function ssrSafeCreateDiv() {
+  return isBrowser2 && document.createElement("div");
+}
+function toDataAttributes(attrs) {
+  var dataAttrs = {
+    "data-placement": attrs.placement
+  };
+  if (attrs.referenceHidden) {
+    dataAttrs["data-reference-hidden"] = "";
+  }
+  if (attrs.escaped) {
+    dataAttrs["data-escaped"] = "";
+  }
+  return dataAttrs;
+}
+function deepEqual2(x, y) {
+  if (x === y) {
+    return true;
+  } else if (typeof x === "object" && x != null && typeof y === "object" && y != null) {
+    if (Object.keys(x).length !== Object.keys(y).length) {
+      return false;
+    }
+    for (var prop in x) {
+      if (y.hasOwnProperty(prop)) {
+        if (!deepEqual2(x[prop], y[prop])) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+function uniqueByShape(arr) {
+  var output = [];
+  arr.forEach(function(item) {
+    if (!output.find(function(outputItem) {
+      return deepEqual2(item, outputItem);
+    })) {
+      output.push(item);
+    }
+  });
+  return output;
+}
+function deepPreserveProps(instanceProps, componentProps) {
+  var _instanceProps$popper, _componentProps$poppe;
+  return Object.assign({}, componentProps, {
+    popperOptions: Object.assign({}, instanceProps.popperOptions, componentProps.popperOptions, {
+      modifiers: uniqueByShape([].concat(((_instanceProps$popper = instanceProps.popperOptions) == null ? void 0 : _instanceProps$popper.modifiers) || [], ((_componentProps$poppe = componentProps.popperOptions) == null ? void 0 : _componentProps$poppe.modifiers) || []))
+    })
+  });
+}
+var useIsomorphicLayoutEffect = isBrowser2 ? import_react9.useLayoutEffect : import_react9.useEffect;
+function useMutableBox(initialValue) {
+  var ref = (0, import_react9.useRef)();
+  if (!ref.current) {
+    ref.current = typeof initialValue === "function" ? initialValue() : initialValue;
+  }
+  return ref.current;
+}
+function updateClassName(box2, action2, classNames3) {
+  classNames3.split(/\s+/).forEach(function(name2) {
+    if (name2) {
+      box2.classList[action2](name2);
+    }
+  });
+}
+var classNamePlugin = {
+  name: "className",
+  defaultValue: "",
+  fn: function fn2(instance) {
+    var box2 = instance.popper.firstElementChild;
+    var isDefaultRenderFn = function isDefaultRenderFn2() {
+      var _instance$props$rende;
+      return !!((_instance$props$rende = instance.props.render) == null ? void 0 : _instance$props$rende.$$tippy);
+    };
+    function add() {
+      if (instance.props.className && !isDefaultRenderFn()) {
+        if (true) {
+          console.warn(["@tippyjs/react: Cannot use `className` prop in conjunction with", "`render` prop. Place the className on the element you are", "rendering."].join(" "));
+        }
+        return;
+      }
+      updateClassName(box2, "add", instance.props.className);
+    }
+    function remove3() {
+      if (isDefaultRenderFn()) {
+        updateClassName(box2, "remove", instance.props.className);
+      }
+    }
+    return {
+      onCreate: add,
+      onBeforeUpdate: remove3,
+      onAfterUpdate: add
+    };
+  }
+};
+function TippyGenerator(tippy2) {
+  function Tippy(_ref) {
+    var children = _ref.children, content2 = _ref.content, visible = _ref.visible, singleton = _ref.singleton, render2 = _ref.render, reference2 = _ref.reference, _ref$disabled = _ref.disabled, disabled = _ref$disabled === void 0 ? false : _ref$disabled, _ref$ignoreAttributes = _ref.ignoreAttributes, ignoreAttributes = _ref$ignoreAttributes === void 0 ? true : _ref$ignoreAttributes, __source = _ref.__source, __self = _ref.__self, restOfNativeProps = _objectWithoutPropertiesLoose2(_ref, ["children", "content", "visible", "singleton", "render", "reference", "disabled", "ignoreAttributes", "__source", "__self"]);
+    var isControlledMode = visible !== void 0;
+    var isSingletonMode = singleton !== void 0;
+    var _useState = (0, import_react9.useState)(false), mounted = _useState[0], setMounted = _useState[1];
+    var _useState2 = (0, import_react9.useState)({}), attrs = _useState2[0], setAttrs = _useState2[1];
+    var _useState3 = (0, import_react9.useState)(), singletonContent = _useState3[0], setSingletonContent = _useState3[1];
+    var mutableBox = useMutableBox(function() {
+      return {
+        container: ssrSafeCreateDiv(),
+        renders: 1
+      };
+    });
+    var props = Object.assign({
+      ignoreAttributes
+    }, restOfNativeProps, {
+      content: mutableBox.container
+    });
+    if (isControlledMode) {
+      if (true) {
+        ["trigger", "hideOnClick", "showOnCreate"].forEach(function(nativeStateProp) {
+          if (props[nativeStateProp] !== void 0) {
+            console.warn(["@tippyjs/react: Cannot specify `" + nativeStateProp + "` prop in", "controlled mode (`visible` prop)"].join(" "));
+          }
+        });
+      }
+      props.trigger = "manual";
+      props.hideOnClick = false;
+    }
+    if (isSingletonMode) {
+      disabled = true;
+    }
+    var computedProps = props;
+    var plugins = props.plugins || [];
+    if (render2) {
+      computedProps = Object.assign({}, props, {
+        plugins: isSingletonMode ? [].concat(plugins, [{
+          fn: function fn3() {
+            return {
+              onTrigger: function onTrigger2(_19, event) {
+                var _singleton$data$child = singleton.data.children.find(function(_ref2) {
+                  var instance = _ref2.instance;
+                  return instance.reference === event.currentTarget;
+                }), content3 = _singleton$data$child.content;
+                setSingletonContent(content3);
+              }
+            };
+          }
+        }]) : plugins,
+        render: function render3() {
+          return {
+            popper: mutableBox.container
+          };
+        }
+      });
+    }
+    var deps = [reference2].concat(children ? [children.type] : []);
+    useIsomorphicLayoutEffect(function() {
+      var element = reference2;
+      if (reference2 && reference2.hasOwnProperty("current")) {
+        element = reference2.current;
+      }
+      var instance = tippy2(element || mutableBox.ref || ssrSafeCreateDiv(), Object.assign({}, computedProps, {
+        plugins: [classNamePlugin].concat(props.plugins || [])
+      }));
+      mutableBox.instance = instance;
+      if (disabled) {
+        instance.disable();
+      }
+      if (visible) {
+        instance.show();
+      }
+      if (isSingletonMode) {
+        singleton.hook({
+          instance,
+          content: content2,
+          props: computedProps
+        });
+      }
+      setMounted(true);
+      return function() {
+        instance.destroy();
+        singleton == null ? void 0 : singleton.cleanup(instance);
+      };
+    }, deps);
+    useIsomorphicLayoutEffect(function() {
+      var _instance$popperInsta;
+      if (mutableBox.renders === 1) {
+        mutableBox.renders++;
+        return;
+      }
+      var instance = mutableBox.instance;
+      instance.setProps(deepPreserveProps(instance.props, computedProps));
+      (_instance$popperInsta = instance.popperInstance) == null ? void 0 : _instance$popperInsta.forceUpdate();
+      if (disabled) {
+        instance.disable();
+      } else {
+        instance.enable();
+      }
+      if (isControlledMode) {
+        if (visible) {
+          instance.show();
+        } else {
+          instance.hide();
+        }
+      }
+      if (isSingletonMode) {
+        singleton.hook({
+          instance,
+          content: content2,
+          props: computedProps
+        });
+      }
+    });
+    useIsomorphicLayoutEffect(function() {
+      var _instance$props$poppe;
+      if (!render2) {
+        return;
+      }
+      var instance = mutableBox.instance;
+      instance.setProps({
+        popperOptions: Object.assign({}, instance.props.popperOptions, {
+          modifiers: [].concat((((_instance$props$poppe = instance.props.popperOptions) == null ? void 0 : _instance$props$poppe.modifiers) || []).filter(function(_ref3) {
+            var name2 = _ref3.name;
+            return name2 !== "$$tippyReact";
+          }), [{
+            name: "$$tippyReact",
+            enabled: true,
+            phase: "beforeWrite",
+            requires: ["computeStyles"],
+            fn: function fn3(_ref4) {
+              var _state$modifiersData;
+              var state = _ref4.state;
+              var hideData = (_state$modifiersData = state.modifiersData) == null ? void 0 : _state$modifiersData.hide;
+              if (attrs.placement !== state.placement || attrs.referenceHidden !== (hideData == null ? void 0 : hideData.isReferenceHidden) || attrs.escaped !== (hideData == null ? void 0 : hideData.hasPopperEscaped)) {
+                setAttrs({
+                  placement: state.placement,
+                  referenceHidden: hideData == null ? void 0 : hideData.isReferenceHidden,
+                  escaped: hideData == null ? void 0 : hideData.hasPopperEscaped
+                });
+              }
+              state.attributes.popper = {};
+            }
+          }])
+        })
+      });
+    }, [attrs.placement, attrs.referenceHidden, attrs.escaped].concat(deps));
+    return /* @__PURE__ */ import_react9.default.createElement(import_react9.default.Fragment, null, children ? /* @__PURE__ */ (0, import_react9.cloneElement)(children, {
+      ref: function ref(node) {
+        mutableBox.ref = node;
+        preserveRef(children.ref, node);
+      }
+    }) : null, mounted && /* @__PURE__ */ (0, import_react_dom2.createPortal)(render2 ? render2(toDataAttributes(attrs), singletonContent, mutableBox.instance) : content2, mutableBox.container));
+  }
+  return Tippy;
+}
+var forwardRef3 = function(Tippy, defaultProps2) {
+  return /* @__PURE__ */ (0, import_react9.forwardRef)(function TippyWrapper(_ref, _ref2) {
+    var children = _ref.children, props = _objectWithoutPropertiesLoose2(_ref, ["children"]);
+    return /* @__PURE__ */ import_react9.default.createElement(Tippy, Object.assign({}, defaultProps2, props), children ? /* @__PURE__ */ (0, import_react9.cloneElement)(children, {
+      ref: function ref(node) {
+        preserveRef(_ref2, node);
+        preserveRef(children.ref, node);
+      }
+    }) : null);
+  });
+};
+var index = /* @__PURE__ */ forwardRef3(/* @__PURE__ */ TippyGenerator(tippy_esm_default));
+var tippy_react_esm_default = index;
+
+// node_modules/reactex/dist/definitions.js
+var import_classnames = __toModule(require_classnames());
 
 // node_modules/reactex/dist/utils.js
-var import_react21 = __toModule(require_react());
+var import_react10 = __toModule(require_react());
 var import_lodash = __toModule(require_lodash());
 var zipExn = (l1, l2) => {
   if (l1.length != l2.length) {
@@ -55306,20 +53807,19 @@ var zipExn = (l1, l2) => {
   }
   return import_lodash.default.zip(l1, l2);
 };
-var AdaptiveDisplay = ({
-  block,
-  ...props
-}) => {
+var AdaptiveDisplay = (0, import_react10.forwardRef)(({ block, ...props }, ref) => {
   if (block) {
-    return /* @__PURE__ */ import_react21.default.createElement("div", {
+    return /* @__PURE__ */ import_react10.default.createElement("div", {
+      ref,
       ...props
     });
   } else {
-    return /* @__PURE__ */ import_react21.default.createElement("span", {
+    return /* @__PURE__ */ import_react10.default.createElement("span", {
+      ref,
       ...props
     });
   }
-};
+});
 
 // node_modules/reactex/dist/definitions.js
 var __defProp2 = Object.defineProperty;
@@ -55356,7 +53856,7 @@ var AllDefinitionData = class {
         this.def_mode = false;
       }
     });
-    (0, import_react22.useEffect)(() => {
+    (0, import_react11.useEffect)(() => {
       window.addEventListener("keydown", on_keydown);
       window.addEventListener("keyup", on_keyup);
       return () => {
@@ -55372,18 +53872,22 @@ __decorateClass([
 __decorateClass([
   observable
 ], AllDefinitionData.prototype, "def_mode", 2);
-var DefinitionContext = import_react22.default.createContext(new AllDefinitionData());
+var DefinitionContext = import_react11.default.createContext(new AllDefinitionData());
+var DefinitionAnchor = (props) => /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+  block: props.block,
+  id: `def-${props.name}`
+}, props.children);
 var Definition = (props) => {
-  let ctx = (0, import_react22.useContext)(DefinitionContext);
-  let [name2] = (0, import_react22.useState)(props.name || import_lodash2.default.uniqueId("def-"));
-  (0, import_react22.useEffect)(() => {
-    let Tooltip3 = typeof props.Tooltip !== "undefined" ? props.Tooltip : () => /* @__PURE__ */ import_react22.default.createElement(import_react22.default.Fragment, null, props.children);
+  let ctx = (0, import_react11.useContext)(DefinitionContext);
+  let [name2] = (0, import_react11.useState)(props.name || import_lodash2.default.uniqueId("def-"));
+  (0, import_react11.useEffect)(() => {
+    let Tooltip = typeof props.Tooltip !== "undefined" ? props.Tooltip : () => /* @__PURE__ */ import_react11.default.createElement(import_react11.default.Fragment, null, props.children);
     let Label = props.Label || null;
-    ctx.add_definition(name2, { Tooltip: Tooltip3, Label });
+    ctx.add_definition(name2, { Tooltip, Label });
   }, []);
-  return /* @__PURE__ */ import_react22.default.createElement(AdaptiveDisplay, {
+  return /* @__PURE__ */ import_react11.default.createElement(DefinitionAnchor, {
     block: props.block,
-    id: `def-${name2}`
+    name: name2
   }, props.children);
 };
 function checkVisible(elm) {
@@ -55392,10 +53896,10 @@ function checkVisible(elm) {
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
 var Ref = observer2((props) => {
-  let ctx = (0, import_react22.useContext)(DefinitionContext);
+  let ctx = (0, import_react11.useContext)(DefinitionContext);
   let def = ctx.get_definition(props.name);
   if (!def) {
-    return /* @__PURE__ */ import_react22.default.createElement("span", {
+    return /* @__PURE__ */ import_react11.default.createElement("span", {
       className: "error"
     }, props.name);
   }
@@ -55421,29 +53925,32 @@ var Ref = observer2((props) => {
       });
     }, 100);
   };
-  let inner = props.children ? /* @__PURE__ */ import_react22.default.createElement(import_react22.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react22.default.createElement(def.Label, null) : /* @__PURE__ */ import_react22.default.createElement("span", {
+  let inner = props.children ? /* @__PURE__ */ import_react11.default.createElement(import_react11.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react11.default.createElement(def.Label, null) : /* @__PURE__ */ import_react11.default.createElement("span", {
     className: "error"
   }, 'No children or label for "', props.name, '"');
-  inner = /* @__PURE__ */ import_react22.default.createElement(AdaptiveDisplay, {
+  let Inner = (0, import_react11.forwardRef)(({}, ref) => /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+    ref,
     block: props.block,
-    className: (0, import_classnames6.default)("ref", {
-      nolink: props.nolink,
-      "def-mode": ctx.def_mode
+    className: (0, import_classnames.default)("ref", {
+      nolink: props.nolink
     }),
+    onMouseEnter: (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    },
     onClick: (e) => {
       e.stopPropagation();
       e.preventDefault();
     },
     onDoubleClick: on_click
-  }, inner);
+  }, inner));
   if (def.Tooltip) {
-    return /* @__PURE__ */ import_react22.default.createElement(es_default4, {
-      placement: "top",
-      overlay: /* @__PURE__ */ import_react22.default.createElement(def.Tooltip, null),
-      trigger: ["click"]
-    }, inner);
+    return /* @__PURE__ */ import_react11.default.createElement(tippy_react_esm_default, {
+      content: "Ok",
+      trigger: ctx.def_mode ? "mouseenter" : "click"
+    }, /* @__PURE__ */ import_react11.default.createElement(Inner, null));
   } else {
-    return inner;
+    return /* @__PURE__ */ import_react11.default.createElement(Inner, null);
   }
 });
 
@@ -55460,7 +53967,7 @@ var TexContext = class {
     el.style.display = "inline-block";
     el.style.position = "absolute";
     el.style.left = "-99999px";
-    import_react_dom6.default.render(node, el);
+    import_react_dom3.default.render(node, el);
     let promise = new Promise((resolve, _22) => {
       let observer3 = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -55490,13 +53997,13 @@ var TexContext = class {
       displayMode: block
     });
     if (raw) {
-      return /* @__PURE__ */ import_react23.default.createElement(AdaptiveDisplay, {
+      return /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
         block,
         dangerouslySetInnerHTML: { __html: html },
         ...props
       });
     }
-    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react23.default);
+    let defns = new import_html_to_react.default.ProcessNodeDefinitions(import_react13.default);
     let instrs = [
       {
         replaceChildren: true,
@@ -55504,7 +54011,7 @@ var TexContext = class {
         processNode: (node2, children, index2) => {
           let def = node2.attribs["data-cmd"];
           let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react23.default.createElement(Ref, {
+          return /* @__PURE__ */ import_react13.default.createElement(Ref, {
             name: `tex:${def}`,
             nolink: true
           }, inner);
@@ -55516,9 +54023,8 @@ var TexContext = class {
         processNode: (node2, children, index2) => {
           let def = node2.attribs["data-def"];
           let inner = defns.processDefaultNode(node2, children, index2);
-          return /* @__PURE__ */ import_react23.default.createElement(Definition, {
-            name: `tex:${def}`,
-            Tooltip: null
+          return /* @__PURE__ */ import_react13.default.createElement(DefinitionAnchor, {
+            name: `tex:${def}`
           }, inner);
         }
       },
@@ -55529,26 +54035,26 @@ var TexContext = class {
     ];
     let parser2 = new import_html_to_react.default.Parser();
     let node = parser2.parseWithInstructions(html, (_22) => true, instrs);
-    return /* @__PURE__ */ import_react23.default.createElement(AdaptiveDisplay, {
+    return /* @__PURE__ */ import_react13.default.createElement(AdaptiveDisplay, {
       block,
       ...props
     }, node);
   }
 };
-var ReactTexContext = import_react23.default.createContext(new TexContext());
+var ReactTexContext = import_react13.default.createContext(new TexContext());
 var Tex = ({ children, raw, ...props }) => {
-  let ctx = (0, import_react23.useContext)(ReactTexContext);
+  let ctx = (0, import_react13.useContext)(ReactTexContext);
   return ctx.render(children, false, raw, props);
 };
 var TexBlock = ({ children, raw, ...props }) => {
-  let ctx = (0, import_react23.useContext)(ReactTexContext);
+  let ctx = (0, import_react13.useContext)(ReactTexContext);
   return ctx.render(children, true, raw, props);
 };
 var $ = Tex;
 var $$ = TexBlock;
 
 // node_modules/reactex/dist/code.js
-var import_react24 = __toModule(require_react());
+var import_react14 = __toModule(require_react());
 
 // node_modules/@codemirror/text/dist/index.js
 var extend = /* @__PURE__ */ "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,3b,f,,w,1j,,,,4,8,4,,3,7,a,2,t,,1m,,,,2,4,8,,9,,a,2,q,,2,2,1l,,4,2,4,2,2,3,3,,u,2,3,,b,2,1l,,4,5,,2,4,,k,2,m,6,,,1m,,,2,,4,8,,7,3,a,2,u,,1n,,,,c,,9,,14,,3,,1l,3,5,3,,4,7,2,b,2,t,,1m,,2,,2,,3,,5,2,7,2,b,2,s,2,1l,2,,,2,4,8,,9,,a,2,t,,20,,4,,2,3,,,8,,29,,2,7,c,8,2q,,2,9,b,6,22,2,r,,,,,,1j,e,,5,,2,5,b,,10,9,,2u,4,,6,,2,2,2,p,2,4,3,g,4,d,,2,2,6,,f,,jj,3,qa,3,t,3,t,2,u,2,1s,2,,7,8,,2,b,9,,19,3,3b,2,y,,3a,3,4,2,9,,6,3,63,2,2,,1m,,,7,,,,,2,8,6,a,2,,1c,h,1r,4,1c,7,,,5,,14,9,c,2,w,4,2,2,,3,1k,,,2,3,,,3,1m,8,2,2,48,3,,d,,7,4,,6,,3,2,5i,1m,,5,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,p,2,5,,47,2,q,i,d,,12,8,p,b,1a,3,1c,,2,4,2,2,13,,1v,6,2,2,2,2,c,,8,,1b,,1f,,,3,2,2,5,2,,,16,2,8,,6m,,2,,4,,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,ar,2,49,b,4w,,1i,f,1k,3,1d,4,2,2,1x,3,10,5,,8,1q,,c,2,1g,9,a,4,2,,2n,3,2,,,2,6,,4g,,3,8,l,2,1l,2,,,,,m,,e,7,3,5,5f,8,2,3,,,n,,29,,2,6,,,2,,,2,,2,6j,,2,4,6,2,,2,r,2,2d,8,2,,,2,2y,,,,2,6,,,2t,3,2,4,,5,77,9,,2,6t,,a,2,,,4,,40,4,2,2,4,,w,a,14,6,2,4,8,,9,6,2,3,1a,d,,2,ba,7,,6,,,2a,m,2,7,,2,,2,3e,6,3,,,2,,7,,,20,2,3,,,,9n,2,f0b,5,1n,7,t4,,1r,4,29,,f5k,2,43q,,,3,4,5,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,79,7,c5,4,15s,7,31,7,240,5,gx7k,2o,3k,6o".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -55720,10 +54226,10 @@ var TextLeaf = class extends Text {
   }
   lineInner(target, isLine, line, offset2) {
     for (let i = 0; ; i++) {
-      let string2 = this.text[i], end = offset2 + string2.length;
-      if ((isLine ? line : end) >= target)
-        return new Line(offset2, end, line, string2);
-      offset2 = end + 1;
+      let string2 = this.text[i], end2 = offset2 + string2.length;
+      if ((isLine ? line : end2) >= target)
+        return new Line(offset2, end2, line, string2);
+      offset2 = end2 + 1;
       line++;
     }
   }
@@ -55754,12 +54260,12 @@ var TextLeaf = class extends Text {
   sliceString(from, to = this.length, lineSep = "\n") {
     let result = "";
     for (let pos = 0, i = 0; pos <= to && i < this.text.length; i++) {
-      let line = this.text[i], end = pos + line.length;
+      let line = this.text[i], end2 = pos + line.length;
       if (pos > from && i)
         result += lineSep;
-      if (from < end && to > pos)
+      if (from < end2 && to > pos)
         result += line.slice(Math.max(0, from - pos), to - pos);
-      pos = end + 1;
+      pos = end2 + 1;
     }
     return result;
   }
@@ -55794,31 +54300,31 @@ var TextNode = class extends Text {
   }
   lineInner(target, isLine, line, offset2) {
     for (let i = 0; ; i++) {
-      let child = this.children[i], end = offset2 + child.length, endLine = line + child.lines - 1;
-      if ((isLine ? endLine : end) >= target)
+      let child = this.children[i], end2 = offset2 + child.length, endLine = line + child.lines - 1;
+      if ((isLine ? endLine : end2) >= target)
         return child.lineInner(target, isLine, line, offset2);
-      offset2 = end + 1;
+      offset2 = end2 + 1;
       line = endLine + 1;
     }
   }
   decompose(from, to, target, open) {
     for (let i = 0, pos = 0; pos <= to && i < this.children.length; i++) {
-      let child = this.children[i], end = pos + child.length;
-      if (from <= end && to >= pos) {
-        let childOpen = open & ((pos <= from ? 1 : 0) | (end >= to ? 2 : 0));
-        if (pos >= from && end <= to && !childOpen)
+      let child = this.children[i], end2 = pos + child.length;
+      if (from <= end2 && to >= pos) {
+        let childOpen = open & ((pos <= from ? 1 : 0) | (end2 >= to ? 2 : 0));
+        if (pos >= from && end2 <= to && !childOpen)
           target.push(child);
         else
           child.decompose(from - pos, to - pos, target, childOpen);
       }
-      pos = end + 1;
+      pos = end2 + 1;
     }
   }
   replace(from, to, text) {
     if (text.lines < this.lines)
       for (let i = 0, pos = 0; i < this.children.length; i++) {
-        let child = this.children[i], end = pos + child.length;
-        if (from >= pos && to <= end) {
+        let child = this.children[i], end2 = pos + child.length;
+        if (from >= pos && to <= end2) {
           let updated = child.replace(from - pos, to - pos, text);
           let totalLines = this.lines - child.lines + updated.lines;
           if (updated.lines < totalLines >> 5 - 1 && updated.lines > totalLines >> 5 + 1) {
@@ -55826,21 +54332,21 @@ var TextNode = class extends Text {
             copy[i] = updated;
             return new TextNode(copy, this.length - (to - from) + text.length);
           }
-          return super.replace(pos, end, updated);
+          return super.replace(pos, end2, updated);
         }
-        pos = end + 1;
+        pos = end2 + 1;
       }
     return super.replace(from, to, text);
   }
   sliceString(from, to = this.length, lineSep = "\n") {
     let result = "";
     for (let i = 0, pos = 0; i < this.children.length && pos <= to; i++) {
-      let child = this.children[i], end = pos + child.length;
+      let child = this.children[i], end2 = pos + child.length;
       if (pos > from && i)
         result += lineSep;
-      if (from < end && to > pos)
+      if (from < end2 && to > pos)
         result += child.sliceString(from - pos, to - pos, lineSep);
-      pos = end + 1;
+      pos = end2 + 1;
     }
     return result;
   }
@@ -55902,9 +54408,9 @@ function textLength(text) {
 }
 function appendText(text, target, from = 0, to = 1e9) {
   for (let pos = 0, i = 0, first = true; i < text.length && pos <= to; i++) {
-    let line = text[i], end = pos + line.length;
-    if (end >= from) {
-      if (end > to)
+    let line = text[i], end2 = pos + line.length;
+    if (end2 >= from) {
+      if (end2 > to)
         line = line.slice(0, to - pos);
       if (pos < from)
         line = line.slice(from - pos);
@@ -55914,7 +54420,7 @@ function appendText(text, target, from = 0, to = 1e9) {
       } else
         target.push(line);
     }
-    pos = end + 1;
+    pos = end2 + 1;
   }
   return target;
 }
@@ -55934,8 +54440,8 @@ var RawTextCursor = class {
     this.done = this.lineBreak = false;
     for (; ; ) {
       let last = this.nodes.length - 1;
-      let top2 = this.nodes[last], offsetValue = this.offsets[last], offset2 = offsetValue >> 1;
-      let size = top2 instanceof TextLeaf ? top2.text.length : top2.children.length;
+      let top3 = this.nodes[last], offsetValue = this.offsets[last], offset2 = offsetValue >> 1;
+      let size = top3 instanceof TextLeaf ? top3.text.length : top3.children.length;
       if (offset2 == (dir > 0 ? size : 0)) {
         if (last == 0) {
           this.done = true;
@@ -55954,8 +54460,8 @@ var RawTextCursor = class {
           return this;
         }
         skip--;
-      } else if (top2 instanceof TextLeaf) {
-        let next = top2.text[offset2 + (dir < 0 ? -1 : 0)];
+      } else if (top3 instanceof TextLeaf) {
+        let next = top3.text[offset2 + (dir < 0 ? -1 : 0)];
         this.offsets[last] += dir;
         if (next.length > Math.max(0, skip)) {
           this.value = skip == 0 ? next : dir > 0 ? next.slice(skip) : next.slice(0, next.length - skip);
@@ -55963,7 +54469,7 @@ var RawTextCursor = class {
         }
         skip -= next.length;
       } else {
-        let next = top2.children[offset2 + (dir < 0 ? -1 : 0)];
+        let next = top3.children[offset2 + (dir < 0 ? -1 : 0)];
         if (skip > next.length) {
           skip -= next.length;
           this.offsets[last] += dir;
@@ -55985,13 +54491,13 @@ var RawTextCursor = class {
   }
 };
 var PartialTextCursor = class {
-  constructor(text, start2, end) {
+  constructor(text, start3, end2) {
     this.value = "";
     this.done = false;
-    this.cursor = new RawTextCursor(text, start2 > end ? -1 : 1);
-    this.pos = start2 > end ? text.length : 0;
-    this.from = Math.min(start2, end);
-    this.to = Math.max(start2, end);
+    this.cursor = new RawTextCursor(text, start3 > end2 ? -1 : 1);
+    this.pos = start3 > end2 ? text.length : 0;
+    this.from = Math.min(start3, end2);
+    this.to = Math.max(start3, end2);
   }
   nextInner(skip, dir) {
     if (dir < 0 ? this.pos <= this.from : this.pos >= this.to) {
@@ -56118,10 +54624,10 @@ var ChangeDesc = class {
   }
   touchesRange(from, to = from) {
     for (let i = 0, pos = 0; i < this.sections.length && pos <= to; ) {
-      let len = this.sections[i++], ins = this.sections[i++], end = pos + len;
-      if (ins >= 0 && pos <= to && end >= from)
-        return pos < from && end > to ? "cover" : true;
-      pos = end;
+      let len = this.sections[i++], ins = this.sections[i++], end2 = pos + len;
+      if (ins >= 0 && pos <= to && end2 >= from)
+        return pos < from && end2 > to ? "cover" : true;
+      pos = end2;
     }
     return false;
   }
@@ -56202,11 +54708,11 @@ var ChangeSet = class extends ChangeDesc {
           iter.forward(len);
           pos += len;
         }
-        let end = ranges[i++];
-        while (pos < end) {
+        let end2 = ranges[i++];
+        while (pos < end2) {
           if (iter.done)
             break done;
-          let len = Math.min(iter.len, end - pos);
+          let len = Math.min(iter.len, end2 - pos);
           addSection(resultSections, len, -1);
           addSection(filteredSections, len, iter.ins == -1 ? -1 : iter.off == 0 ? iter.ins : 0);
           iter.forward(len);
@@ -56372,14 +54878,14 @@ function mapSet(setA, setB, before, mkSet = false) {
       posB += b.len;
       b.next();
     } else if (a.ins >= 0) {
-      let len = 0, end = posA + a.len;
+      let len = 0, end2 = posA + a.len;
       for (; ; ) {
-        if (b.ins >= 0 && posB > posA && posB + b.len < end) {
+        if (b.ins >= 0 && posB > posA && posB + b.len < end2) {
           len += b.ins;
           posB += b.len;
           b.next();
-        } else if (b.ins == -1 && posB < end) {
-          let skip = Math.min(b.len, end - posB);
+        } else if (b.ins == -1 && posB < end2) {
+          let skip = Math.min(b.len, end2 - posB);
           len += skip;
           b.forward(skip);
           posB += skip;
@@ -56390,7 +54896,7 @@ function mapSet(setA, setB, before, mkSet = false) {
       addSection(sections, len, a.ins);
       if (insert2)
         addInsert(insert2, sections, a.text);
-      posA = end;
+      posA = end2;
       a.next();
     } else if (a.done && b.done) {
       return insert2 ? new ChangeSet(sections, insert2) : new ChangeDesc(sections);
@@ -56560,8 +55066,8 @@ var EditorSelection = class {
   asSingle() {
     return this.ranges.length == 1 ? this : new EditorSelection([this.main]);
   }
-  addRange(range, main = true) {
-    return EditorSelection.create([range].concat(this.ranges), main ? 0 : this.mainIndex + 1);
+  addRange(range, main2 = true) {
+    return EditorSelection.create([range].concat(this.ranges), main2 ? 0 : this.mainIndex + 1);
   }
   replaceRange(range, which = this.mainIndex) {
     let ranges = this.ranges.slice();
@@ -56599,9 +55105,9 @@ var EditorSelection = class {
   }
 };
 function normalized(ranges, mainIndex = 0) {
-  let main = ranges[mainIndex];
+  let main2 = ranges[mainIndex];
   ranges.sort((a, b) => a.from - b.from);
-  mainIndex = ranges.indexOf(main);
+  mainIndex = ranges.indexOf(main2);
   for (let i = 1; i < ranges.length; i++) {
     let range = ranges[i], prev = ranges[i - 1];
     if (range.empty ? range.from <= prev.to : range.from < prev.to) {
@@ -56991,8 +55497,8 @@ var StateEffect = class {
     if (!effects.length)
       return effects;
     let result = [];
-    for (let effect of effects) {
-      let mapped = effect.map(mapping);
+    for (let effect5 of effects) {
+      let mapped = effect5.map(mapping);
       if (mapped)
         result.push(mapped);
     }
@@ -57228,20 +55734,20 @@ var EditorState = class {
   }
   applyTransaction(tr) {
     let conf = this.config, { base: base2, compartments } = conf;
-    for (let effect of tr.effects) {
-      if (effect.is(Compartment.reconfigure)) {
+    for (let effect5 of tr.effects) {
+      if (effect5.is(Compartment.reconfigure)) {
         if (conf) {
           compartments = new Map();
           conf.compartments.forEach((val, key) => compartments.set(key, val));
           conf = null;
         }
-        compartments.set(effect.value.compartment, effect.value.extension);
-      } else if (effect.is(StateEffect.reconfigure)) {
+        compartments.set(effect5.value.compartment, effect5.value.extension);
+      } else if (effect5.is(StateEffect.reconfigure)) {
         conf = null;
-        base2 = effect.value;
-      } else if (effect.is(StateEffect.appendConfig)) {
+        base2 = effect5.value;
+      } else if (effect5.is(StateEffect.appendConfig)) {
         conf = null;
-        base2 = asArray(base2).concat(effect.value);
+        base2 = asArray(base2).concat(effect5.value);
       }
     }
     new EditorState(conf || Configuration.resolve(base2, compartments, this), tr.newDoc, tr.newSelection, tr);
@@ -57358,20 +55864,20 @@ var EditorState = class {
   wordAt(pos) {
     let { text, from, length } = this.doc.lineAt(pos);
     let cat = this.charCategorizer(pos);
-    let start2 = pos - from, end = pos - from;
-    while (start2 > 0) {
-      let prev = findClusterBreak(text, start2, false);
-      if (cat(text.slice(prev, start2)) != CharCategory.Word)
+    let start3 = pos - from, end2 = pos - from;
+    while (start3 > 0) {
+      let prev = findClusterBreak(text, start3, false);
+      if (cat(text.slice(prev, start3)) != CharCategory.Word)
         break;
-      start2 = prev;
+      start3 = prev;
     }
-    while (end < length) {
-      let next = findClusterBreak(text, end);
-      if (cat(text.slice(end, next)) != CharCategory.Word)
+    while (end2 < length) {
+      let next = findClusterBreak(text, end2);
+      if (cat(text.slice(end2, next)) != CharCategory.Word)
         break;
-      end = next;
+      end2 = next;
     }
-    return start2 == end ? EditorSelection.range(start2 + from, end + from) : null;
+    return start3 == end2 ? EditorSelection.range(start3 + from, end2 + from) : null;
   }
 };
 EditorState.allowMultipleSelections = allowMultipleSelections;
@@ -57409,7 +55915,7 @@ function combineConfig(configs, defaults2, combine = {}) {
 var C = "\u037C";
 var COUNT = typeof Symbol == "undefined" ? "__" + C : Symbol.for(C);
 var SET = typeof Symbol == "undefined" ? "__styleSet" + Math.floor(Math.random() * 1e8) : Symbol("styleSet");
-var top = typeof globalThis != "undefined" ? globalThis : typeof window != "undefined" ? window : {};
+var top2 = typeof globalThis != "undefined" ? globalThis : typeof window != "undefined" ? window : {};
 var StyleModule = class {
   constructor(spec, options) {
     this.rules = [];
@@ -57417,18 +55923,18 @@ var StyleModule = class {
     function splitSelector(selector) {
       return /^@/.test(selector) ? [selector] : selector.split(/,\s*/);
     }
-    function render(selectors, spec2, target, isKeyframes) {
+    function render2(selectors, spec2, target, isKeyframes) {
       let local = [], isAt = /^@(\w+)\b/.exec(selectors[0]), keyframes = isAt && isAt[1] == "keyframes";
       if (isAt && spec2 == null)
         return target.push(selectors[0] + ";");
       for (let prop in spec2) {
         let value = spec2[prop];
         if (/&/.test(prop)) {
-          render(prop.split(/,\s*/).map((part) => selectors.map((sel) => part.replace(/&/, sel))).reduce((a, b) => a.concat(b)), value, target);
+          render2(prop.split(/,\s*/).map((part) => selectors.map((sel) => part.replace(/&/, sel))).reduce((a, b) => a.concat(b)), value, target);
         } else if (value && typeof value == "object") {
           if (!isAt)
             throw new RangeError("The value of a property (" + prop + ") should be a primitive value.");
-          render(splitSelector(prop), value, local, keyframes);
+          render2(splitSelector(prop), value, local, keyframes);
         } else if (value != null) {
           local.push(prop.replace(/_.*/, "").replace(/[A-Z]/g, (l) => "-" + l.toLowerCase()) + ": " + value + ";");
         }
@@ -57438,14 +55944,14 @@ var StyleModule = class {
       }
     }
     for (let prop in spec)
-      render(splitSelector(prop), spec[prop], this.rules);
+      render2(splitSelector(prop), spec[prop], this.rules);
   }
   getRules() {
     return this.rules.join("\n");
   }
   static newName() {
-    let id = top[COUNT] || 1;
-    top[COUNT] = id + 1;
+    let id = top2[COUNT] || 1;
+    top2[COUNT] = id + 1;
     return C + id.toString(36);
   }
   static mount(root, modules) {
@@ -57534,13 +56040,13 @@ var Chunk = class {
   get length() {
     return this.to[this.to.length - 1];
   }
-  findIndex(pos, side, end, startAt = 0) {
-    let arr = end ? this.to : this.from;
+  findIndex(pos, side, end2, startAt = 0) {
+    let arr = end2 ? this.to : this.from;
     for (let lo = startAt, hi = arr.length; ; ) {
       if (lo == hi)
         return lo;
       let mid = lo + hi >> 1;
-      let diff = arr[mid] - pos || (end ? this.value[mid].endSide : this.value[mid].startSide) - side;
+      let diff = arr[mid] - pos || (end2 ? this.value[mid].endSide : this.value[mid].startSide) - side;
       if (mid == lo)
         return diff >= 0 ? lo : hi;
       if (diff >= 0)
@@ -57637,14 +56143,14 @@ var RangeSet = class {
       return this;
     let chunks = [], chunkPos = [], maxPoint = -1;
     for (let i = 0; i < this.chunk.length; i++) {
-      let start2 = this.chunkPos[i], chunk = this.chunk[i];
-      let touch = changes.touchesRange(start2, start2 + chunk.length);
+      let start3 = this.chunkPos[i], chunk = this.chunk[i];
+      let touch = changes.touchesRange(start3, start3 + chunk.length);
       if (touch === false) {
         maxPoint = Math.max(maxPoint, chunk.maxPoint);
         chunks.push(chunk);
-        chunkPos.push(changes.mapPos(start2));
+        chunkPos.push(changes.mapPos(start3));
       } else if (touch === true) {
-        let { mapped, pos } = chunk.map(start2, changes);
+        let { mapped, pos } = chunk.map(start3, changes);
         if (mapped) {
           maxPoint = Math.max(maxPoint, mapped.maxPoint);
           chunks.push(mapped);
@@ -57659,8 +56165,8 @@ var RangeSet = class {
     if (this.isEmpty)
       return;
     for (let i = 0; i < this.chunk.length; i++) {
-      let start2 = this.chunkPos[i], chunk = this.chunk[i];
-      if (to >= start2 && from <= start2 + chunk.length && chunk.between(start2, from - start2, to - start2, f) === false)
+      let start3 = this.chunkPos[i], chunk = this.chunk[i];
+      if (to >= start3 && from <= start3 + chunk.length && chunk.between(start3, from - start3, to - start3, f) === false)
         return;
     }
     this.nextLayer.between(from, to, f);
@@ -57941,13 +56447,13 @@ var HeapCursor = class {
       this.value = null;
       this.rank = -1;
     } else {
-      let top2 = this.heap[0];
-      this.from = top2.from;
-      this.to = top2.to;
-      this.value = top2.value;
-      this.rank = top2.rank;
-      if (top2.value)
-        top2.next();
+      let top3 = this.heap[0];
+      this.from = top3.from;
+      this.to = top3.to;
+      this.value = top3.value;
+      this.rank = top3.rank;
+      if (top3.value)
+        top3.next();
       heapBubble(this.heap, 0);
     }
   }
@@ -58093,7 +56599,7 @@ function compare(a, startA, b, startB, length, comparator) {
   let pos = startB, dPos = startB - startA;
   for (; ; ) {
     let diff = a.to + dPos - b.to || a.endSide - b.endSide;
-    let end = diff < 0 ? a.to + dPos : b.to, clipEnd = Math.min(end, endB);
+    let end2 = diff < 0 ? a.to + dPos : b.to, clipEnd = Math.min(end2, endB);
     if (a.point || b.point) {
       if (!(a.point && b.point && (a.point == b.point || a.point.eq(b.point))))
         comparator.comparePoint(pos, clipEnd, a.point, b.point);
@@ -58101,9 +56607,9 @@ function compare(a, startA, b, startB, length, comparator) {
       if (clipEnd > pos && !sameValues(a.active, b.active))
         comparator.compareRange(pos, clipEnd, a.active, b.active);
     }
-    if (end > endB)
+    if (end2 > endB)
       break;
-    pos = end;
+    pos = end2;
     if (diff <= 0)
       a.next();
     if (diff >= 0)
@@ -58305,8 +56811,8 @@ function maxOffset(node) {
   return node.nodeType == 3 ? node.nodeValue.length : node.childNodes.length;
 }
 var Rect0 = { left: 0, right: 0, top: 0, bottom: 0 };
-function flattenRect(rect, left) {
-  let x = left ? rect.left : rect.right;
+function flattenRect(rect, left2) {
+  let x = left2 ? rect.left : rect.right;
   return { left: x, right: x, top: rect.top, bottom: rect.bottom };
 }
 function windowRect(win) {
@@ -58322,8 +56828,8 @@ function scrollRectIntoView(dom, rect) {
   let doc2 = dom.ownerDocument, win = doc2.defaultView;
   for (let cur = dom.parentNode; cur; ) {
     if (cur.nodeType == 1) {
-      let bounding, top2 = cur == document.body;
-      if (top2) {
+      let bounding, top3 = cur == document.body;
+      if (top3) {
         bounding = windowRect(win);
       } else {
         if (cur.scrollHeight <= cur.clientHeight && cur.scrollWidth <= cur.clientWidth) {
@@ -58348,18 +56854,18 @@ function scrollRectIntoView(dom, rect) {
       else if (rect.right > bounding.right)
         moveX = rect.right - bounding.right + ScrollSpace;
       if (moveX || moveY) {
-        if (top2) {
+        if (top3) {
           win.scrollBy(moveX, moveY);
         } else {
           if (moveY) {
-            let start2 = cur.scrollTop;
+            let start3 = cur.scrollTop;
             cur.scrollTop += moveY;
-            moveY = cur.scrollTop - start2;
+            moveY = cur.scrollTop - start3;
           }
           if (moveX) {
-            let start2 = cur.scrollLeft;
+            let start3 = cur.scrollLeft;
             cur.scrollLeft += moveX;
-            moveX = cur.scrollLeft - start2;
+            moveX = cur.scrollLeft - start3;
           }
           rect = {
             left: rect.left - moveX,
@@ -58369,7 +56875,7 @@ function scrollRectIntoView(dom, rect) {
           };
         }
       }
-      if (top2)
+      if (top3)
         break;
       cur = cur.assignedSlot || cur.parentNode;
     } else if (cur.nodeType == 11) {
@@ -58417,11 +56923,11 @@ function focusPreventScroll(dom) {
   if (!preventScrollSupported) {
     preventScrollSupported = false;
     for (let i = 0; i < stack.length; ) {
-      let elt = stack[i++], top2 = stack[i++], left = stack[i++];
-      if (elt.scrollTop != top2)
-        elt.scrollTop = top2;
-      if (elt.scrollLeft != left)
-        elt.scrollLeft = left;
+      let elt = stack[i++], top3 = stack[i++], left2 = stack[i++];
+      if (elt.scrollTop != top3)
+        elt.scrollTop = top3;
+      if (elt.scrollLeft != left2)
+        elt.scrollLeft = left2;
     }
   }
 }
@@ -58576,10 +57082,10 @@ var ContentView = class {
   domBoundsAround(from, to, offset2 = 0) {
     let fromI = -1, fromStart = -1, toI = -1, toEnd = -1;
     for (let i = 0, pos = offset2, prevEnd = offset2; i < this.children.length; i++) {
-      let child = this.children[i], end = pos + child.length;
-      if (pos < from && end > to)
+      let child = this.children[i], end2 = pos + child.length;
+      if (pos < from && end2 > to)
         return child.domBoundsAround(from, to, pos);
-      if (end >= from && fromI == -1) {
+      if (end2 >= from && fromI == -1) {
         fromI = i;
         fromStart = pos;
       }
@@ -58588,8 +57094,8 @@ var ContentView = class {
         toEnd = prevEnd;
         break;
       }
-      prevEnd = end;
-      pos = end + child.breakAfter;
+      prevEnd = end2;
+      pos = end2 + child.breakAfter;
     }
     return {
       from: fromStart,
@@ -58897,11 +57403,11 @@ var WidgetView = class extends InlineView {
   get overrideDOMText() {
     if (this.length == 0)
       return Text.empty;
-    let top2 = this;
-    while (top2.parent)
-      top2 = top2.parent;
-    let view = top2.editorView, text = view && view.state.doc, start2 = this.posAtStart;
-    return text ? text.slice(start2, start2 + this.length) : Text.empty;
+    let top3 = this;
+    while (top3.parent)
+      top3 = top3.parent;
+    let view = top3.editorView, text = view && view.state.doc, start3 = this.posAtStart;
+    return text ? text.slice(start3, start3 + this.length) : Text.empty;
   }
   domAtPos(pos) {
     return pos == 0 ? DOMPos.before(this.dom) : DOMPos.after(this.dom, pos == this.length);
@@ -58952,14 +57458,14 @@ function mergeInlineChildren(parent, from, to, elts, openStart, openEnd) {
   parent.length += dLen;
   let { children } = parent;
   if (fromI == toI && fromOff) {
-    let start2 = children[fromI];
-    if (elts.length == 1 && start2.merge(fromOff, toOff, elts[0], openStart, openEnd))
+    let start3 = children[fromI];
+    if (elts.length == 1 && start3.merge(fromOff, toOff, elts[0], openStart, openEnd))
       return;
     if (elts.length == 0) {
-      start2.merge(fromOff, toOff, null, openStart, openEnd);
+      start3.merge(fromOff, toOff, null, openStart, openEnd);
       return;
     }
-    let after = start2.slice(toOff);
+    let after = start3.slice(toOff);
     if (after.merge(0, 0, elts[elts.length - 1], 0, openEnd))
       elts[elts.length - 1] = after;
     else
@@ -58968,29 +57474,29 @@ function mergeInlineChildren(parent, from, to, elts, openStart, openEnd) {
     openEnd = toOff = 0;
   }
   if (toOff) {
-    let end = children[toI];
-    if (elts.length && end.merge(0, toOff, elts[elts.length - 1], 0, openEnd)) {
+    let end2 = children[toI];
+    if (elts.length && end2.merge(0, toOff, elts[elts.length - 1], 0, openEnd)) {
       elts.pop();
       openEnd = elts.length ? 0 : openStart;
     } else {
-      end.merge(0, toOff, null, 0, 0);
+      end2.merge(0, toOff, null, 0, 0);
     }
   } else if (toI < children.length && elts.length && children[toI].merge(0, 0, elts[elts.length - 1], 0, openEnd)) {
     elts.pop();
     openEnd = elts.length ? 0 : openStart;
   }
   if (fromOff) {
-    let start2 = children[fromI];
-    if (elts.length && start2.merge(fromOff, start2.length, elts[0], openStart, 0)) {
+    let start3 = children[fromI];
+    if (elts.length && start3.merge(fromOff, start3.length, elts[0], openStart, 0)) {
       elts.shift();
       openStart = elts.length ? 0 : openEnd;
     } else {
-      start2.merge(fromOff, start2.length, null, 0, 0);
+      start3.merge(fromOff, start3.length, null, 0, 0);
     }
     fromI++;
   } else if (fromI && elts.length) {
-    let end = children[fromI - 1];
-    if (end.merge(end.length, end.length, elts[0], openStart, 0)) {
+    let end2 = children[fromI - 1];
+    if (end2.merge(end2.length, end2.length, elts[0], openStart, 0)) {
       elts.shift();
       openStart = elts.length ? 0 : openEnd;
     }
@@ -59013,24 +57519,24 @@ function mergeInlineChildren(parent, from, to, elts, openStart, openEnd) {
 function sliceInlineChildren(children, from) {
   let result = [], off = 0;
   for (let elt of children) {
-    let end = off + elt.length;
-    if (end > from)
+    let end2 = off + elt.length;
+    if (end2 > from)
       result.push(off < from ? elt.slice(from - off) : elt);
-    off = end;
+    off = end2;
   }
   return result;
 }
 function inlineDOMAtPos(dom, children, pos) {
   let i = 0;
   for (let off = 0; i < children.length; i++) {
-    let child = children[i], end = off + child.length;
-    if (end == off && child.getSide() <= 0)
+    let child = children[i], end2 = off + child.length;
+    if (end2 == off && child.getSide() <= 0)
       continue;
-    if (pos > off && pos < end && child.dom.parentNode == dom)
+    if (pos > off && pos < end2 && child.dom.parentNode == dom)
       return child.domAtPos(pos - off);
     if (pos <= off)
       break;
-    off = end;
+    off = end2;
   }
   for (; i > 0; i--) {
     let before = children[i - 1].dom;
@@ -59051,12 +57557,12 @@ function joinInlineInto(parent, view, open) {
 }
 function coordsInChildren(view, pos, side) {
   for (let off = 0, i = 0; i < view.children.length; i++) {
-    let child = view.children[i], end = off + child.length;
-    if (end == off && child.getSide() <= 0)
+    let child = view.children[i], end2 = off + child.length;
+    if (end2 == off && child.getSide() <= 0)
       continue;
-    if (side <= 0 || end == view.length ? end >= pos : end > pos)
+    if (side <= 0 || end2 == view.length ? end2 >= pos : end2 > pos)
       return child.coordsAt(pos - off, side);
-    off = end;
+    off = end2;
   }
   let last = view.dom.lastChild;
   if (!last)
@@ -59150,9 +57656,9 @@ var Decoration = class extends RangeValue {
   }
   static replace(spec) {
     let block = !!spec.block;
-    let { start: start2, end } = getInclusive(spec);
-    let startSide = block ? -2e8 * (start2 ? 2 : 1) : 1e8 * (start2 ? -1 : 1);
-    let endSide = block ? 2e8 * (end ? 2 : 1) : 1e8 * (end ? 1 : -1);
+    let { start: start3, end: end2 } = getInclusive(spec);
+    let startSide = block ? -2e8 * (start3 ? 2 : 1) : 1e8 * (start3 ? -1 : 1);
+    let endSide = block ? 2e8 * (end2 ? 2 : 1) : 1e8 * (end2 ? 1 : -1);
     return new PointDecoration(spec, startSide, endSide, block, spec.widget || null, true);
   }
   static line(spec) {
@@ -59168,8 +57674,8 @@ var Decoration = class extends RangeValue {
 Decoration.none = RangeSet.empty;
 var MarkDecoration = class extends Decoration {
   constructor(spec) {
-    let { start: start2, end } = getInclusive(spec);
-    super(1e8 * (start2 ? -1 : 1), 1e8 * (end ? 1 : -1), null, spec);
+    let { start: start3, end: end2 } = getInclusive(spec);
+    super(1e8 * (start3 ? -1 : 1), 1e8 * (end2 ? 1 : -1), null, spec);
     this.tagName = spec.tagName || "span";
     this.class = spec.class || "";
     this.attrs = spec.attributes || null;
@@ -59225,12 +57731,12 @@ var PointDecoration = class extends Decoration {
 };
 PointDecoration.prototype.point = true;
 function getInclusive(spec) {
-  let { inclusiveStart: start2, inclusiveEnd: end } = spec;
-  if (start2 == null)
-    start2 = spec.inclusive;
-  if (end == null)
-    end = spec.inclusive;
-  return { start: start2 || false, end: end || false };
+  let { inclusiveStart: start3, inclusiveEnd: end2 } = spec;
+  if (start3 == null)
+    start3 = spec.inclusive;
+  if (end2 == null)
+    end2 = spec.inclusive;
+  return { start: start3 || false, end: end2 || false };
 }
 function widgetsEq(a, b) {
   return a == b || !!(a && b && a.compare(b));
@@ -59264,18 +57770,18 @@ var LineView = class extends ContentView {
     return true;
   }
   split(at) {
-    let end = new LineView();
-    end.breakAfter = this.breakAfter;
+    let end2 = new LineView();
+    end2.breakAfter = this.breakAfter;
     if (this.length == 0)
-      return end;
+      return end2;
     let { i, off } = this.childPos(at);
     if (off) {
-      end.append(this.children[i].slice(off), 0);
+      end2.append(this.children[i].slice(off), 0);
       this.children[i].merge(off, this.children[i].length, null, 0, 0);
       i++;
     }
     for (let j = i; j < this.children.length; j++)
-      end.append(this.children[j], 0);
+      end2.append(this.children[j], 0);
     while (i > 0 && this.children[i - 1].length == 0) {
       this.children[i - 1].parent = null;
       i--;
@@ -59283,7 +57789,7 @@ var LineView = class extends ContentView {
     this.children.length = i;
     this.markDirty();
     this.length = at;
-    return end;
+    return end2;
   }
   transferDOM(other) {
     if (!this.dom)
@@ -59360,14 +57866,14 @@ var LineView = class extends ContentView {
   }
   static find(docView, pos) {
     for (let i = 0, off = 0; ; i++) {
-      let block = docView.children[i], end = off + block.length;
-      if (end >= pos) {
+      let block = docView.children[i], end2 = off + block.length;
+      if (end2 >= pos) {
         if (block instanceof LineView)
           return block;
         if (block.length)
           return null;
       }
-      off = end + block.breakAfter;
+      off = end2 + block.breakAfter;
     }
   }
 };
@@ -59428,10 +57934,10 @@ var BlockWidgetView = class extends ContentView {
   }
 };
 var ContentBuilder = class {
-  constructor(doc2, pos, end) {
+  constructor(doc2, pos, end2) {
     this.doc = doc2;
     this.pos = pos;
-    this.end = end;
+    this.end = end2;
     this.content = [];
     this.curLine = null;
     this.breakAtStart = 0;
@@ -59703,13 +58209,13 @@ var ChangedRange = class {
     let result = [];
     for (let dI = 0, rI = 0, posA = 0, posB = 0; ; dI++) {
       let next = dI == diff.length ? null : diff[dI], off = posA - posB;
-      let end = next ? next.fromB : 1e9;
-      while (rI < ranges.length && ranges[rI] < end) {
+      let end2 = next ? next.fromB : 1e9;
+      while (rI < ranges.length && ranges[rI] < end2) {
         let from = ranges[rI], to = ranges[rI + 1];
-        let fromB = Math.max(posB, from), toB = Math.min(end, to);
+        let fromB = Math.max(posB, from), toB = Math.min(end2, to);
         if (fromB <= toB)
           new ChangedRange(fromB + off, toB + off, fromB, toB).addToSet(result);
-        if (to > end)
+        if (to > end2)
           break;
         else
           rI += 2;
@@ -59893,10 +58399,10 @@ var DocView = class extends ContentView {
   updateSelection(force = false, fromPointer = false) {
     if (!(fromPointer || this.mayControlSelection()) || browser.ios && this.view.inputState.rapidCompositionStart)
       return;
-    let main = this.view.state.selection.main;
-    let anchor = this.domAtPos(main.anchor);
-    let head = main.empty ? anchor : this.domAtPos(main.head);
-    if (browser.gecko && main.empty && betweenUneditable(anchor)) {
+    let main2 = this.view.state.selection.main;
+    let anchor = this.domAtPos(main2.anchor);
+    let head = main2.empty ? anchor : this.domAtPos(main2.head);
+    if (browser.gecko && main2.empty && betweenUneditable(anchor)) {
       let dummy = document.createTextNode("");
       this.view.observer.ignore(() => anchor.node.insertBefore(dummy, anchor.node.childNodes[anchor.offset] || null));
       anchor = head = new DOMPos(dummy, 0);
@@ -59906,7 +58412,7 @@ var DocView = class extends ContentView {
     if (force || !domSel.focusNode || !isEquivalentPosition(anchor.node, anchor.offset, domSel.anchorNode, domSel.anchorOffset) || !isEquivalentPosition(head.node, head.offset, domSel.focusNode, domSel.focusOffset)) {
       this.view.observer.ignore(() => {
         let rawSel = getSelection(this.root);
-        if (main.empty) {
+        if (main2.empty) {
           if (browser.gecko) {
             let nextTo = nextToUneditable(anchor.node, anchor.offset);
             if (nextTo && nextTo != (1 | 2)) {
@@ -59916,14 +58422,14 @@ var DocView = class extends ContentView {
             }
           }
           rawSel.collapse(anchor.node, anchor.offset);
-          if (main.bidiLevel != null && domSel.cursorBidiLevel != null)
-            domSel.cursorBidiLevel = main.bidiLevel;
+          if (main2.bidiLevel != null && domSel.cursorBidiLevel != null)
+            domSel.cursorBidiLevel = main2.bidiLevel;
         } else if (rawSel.extend) {
           rawSel.collapse(anchor.node, anchor.offset);
           rawSel.extend(head.node, head.offset);
         } else {
           let range = document.createRange();
-          if (main.anchor > main.head)
+          if (main2.anchor > main2.head)
             [anchor, head] = [head, anchor];
           range.setEnd(head.node, head.offset);
           range.setStart(anchor.node, anchor.offset);
@@ -59987,18 +58493,18 @@ var DocView = class extends ContentView {
   }
   coordsAt(pos, side) {
     for (let off = this.length, i = this.children.length - 1; ; i--) {
-      let child = this.children[i], start2 = off - child.breakAfter - child.length;
-      if (pos > start2 || pos == start2 && child.type != BlockType.WidgetBefore && child.type != BlockType.WidgetAfter && (!i || side == 2 || this.children[i - 1].breakAfter || this.children[i - 1].type == BlockType.WidgetBefore && side > -2))
-        return child.coordsAt(pos - start2, side);
-      off = start2;
+      let child = this.children[i], start3 = off - child.breakAfter - child.length;
+      if (pos > start3 || pos == start3 && child.type != BlockType.WidgetBefore && child.type != BlockType.WidgetAfter && (!i || side == 2 || this.children[i - 1].breakAfter || this.children[i - 1].type == BlockType.WidgetBefore && side > -2))
+        return child.coordsAt(pos - start3, side);
+      off = start3;
     }
   }
   measureVisibleLineHeights() {
     let result = [], { from, to } = this.view.viewState.viewport;
     let minWidth = Math.max(this.view.scrollDOM.clientWidth, this.minWidth) + 1;
     for (let pos = 0, i = 0; i < this.children.length; i++) {
-      let child = this.children[i], end = pos + child.length;
-      if (end > to)
+      let child = this.children[i], end2 = pos + child.length;
+      if (end2 > to)
         break;
       if (pos >= from) {
         result.push(child.dom.getBoundingClientRect().height);
@@ -60006,10 +58512,10 @@ var DocView = class extends ContentView {
         if (width > minWidth) {
           this.minWidth = minWidth = width;
           this.minWidthFrom = pos;
-          this.minWidthTo = end;
+          this.minWidthTo = end2;
         }
       }
-      pos = end + child.breakAfter;
+      pos = end2 + child.breakAfter;
     }
     return result;
   }
@@ -60043,10 +58549,10 @@ var DocView = class extends ContentView {
     let deco = [], vs = this.view.viewState;
     for (let pos = 0, i = 0; ; i++) {
       let next = i == vs.viewports.length ? null : vs.viewports[i];
-      let end = next ? next.from - 1 : this.length;
-      if (end > pos) {
-        let height = vs.lineAt(end, 0).bottom - vs.lineAt(pos, 0).top;
-        deco.push(Decoration.replace({ widget: new BlockGapWidget(height), block: true, inclusive: true }).range(pos, end));
+      let end2 = next ? next.from - 1 : this.length;
+      if (end2 > pos) {
+        let height = vs.lineAt(end2, 0).bottom - vs.lineAt(pos, 0).top;
+        deco.push(Decoration.replace({ widget: new BlockGapWidget(height), block: true, inclusive: true }).range(pos, end2));
       }
       if (!next)
         break;
@@ -60070,15 +58576,15 @@ var DocView = class extends ContentView {
     let mLeft = 0, mRight = 0, mTop = 0, mBottom = 0;
     for (let margins of this.view.pluginField(PluginField.scrollMargins))
       if (margins) {
-        let { left, right, top: top2, bottom } = margins;
-        if (left != null)
-          mLeft = Math.max(mLeft, left);
-        if (right != null)
-          mRight = Math.max(mRight, right);
-        if (top2 != null)
-          mTop = Math.max(mTop, top2);
-        if (bottom != null)
-          mBottom = Math.max(mBottom, bottom);
+        let { left: left2, right: right2, top: top3, bottom: bottom2 } = margins;
+        if (left2 != null)
+          mLeft = Math.max(mLeft, left2);
+        if (right2 != null)
+          mRight = Math.max(mRight, right2);
+        if (top3 != null)
+          mTop = Math.max(mTop, top3);
+        if (bottom2 != null)
+          mBottom = Math.max(mBottom, bottom2);
       }
     scrollRectIntoView(this.dom, {
       left: rect.left - mLeft,
@@ -60150,9 +58656,9 @@ function computeCompositionDeco(view, changes) {
   return Decoration.set(Decoration.replace({ widget: new CompositionWidget(topNode, textNode) }).range(newFrom, newTo));
 }
 var CompositionWidget = class extends WidgetType {
-  constructor(top2, text) {
+  constructor(top3, text) {
     super();
-    this.top = top2;
+    this.top = top3;
     this.text = text;
   }
   eq(other) {
@@ -60239,17 +58745,17 @@ var BidiSpan = class {
   get dir() {
     return this.level % 2 ? RTL : LTR;
   }
-  side(end, dir) {
-    return this.dir == dir == end ? this.to : this.from;
+  side(end2, dir) {
+    return this.dir == dir == end2 ? this.to : this.from;
   }
-  static find(order, index2, level, assoc) {
+  static find(order2, index2, level, assoc) {
     let maybe = -1;
-    for (let i = 0; i < order.length; i++) {
-      let span = order[i];
+    for (let i = 0; i < order2.length; i++) {
+      let span = order2[i];
       if (span.from <= index2 && span.to >= index2) {
         if (span.level == level)
           return i;
-        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index2 : span.to > index2 : order[maybe].level > span.level))
+        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index2 : span.to > index2 : order2[maybe].level > span.level))
           maybe = i;
       }
     }
@@ -60282,13 +58788,13 @@ function computeOrder(line, direction) {
       else
         types[i] = 256;
     } else if (type == 64) {
-      let end = i + 1;
-      while (end < len && types[end] == 64)
-        end++;
-      let replace2 = i && prev == 8 || end < len && types[end] == 8 ? prevStrong == 1 ? 1 : 8 : 256;
-      for (let j = i; j < end; j++)
+      let end2 = i + 1;
+      while (end2 < len && types[end2] == 64)
+        end2++;
+      let replace2 = i && prev == 8 || end2 < len && types[end2] == 8 ? prevStrong == 1 ? 1 : 8 : 256;
+      for (let j = i; j < end2; j++)
         types[j] = replace2;
-      i = end - 1;
+      i = end2 - 1;
     } else if (type == 8 && prevStrong == 1) {
       types[i] = 1;
     }
@@ -60335,72 +58841,72 @@ function computeOrder(line, direction) {
   }
   for (let i = 0; i < len; i++) {
     if (types[i] == 256) {
-      let end = i + 1;
-      while (end < len && types[end] == 256)
-        end++;
+      let end2 = i + 1;
+      while (end2 < len && types[end2] == 256)
+        end2++;
       let beforeL = (i ? types[i - 1] : outerType) == 1;
-      let afterL = (end < len ? types[end] : outerType) == 1;
+      let afterL = (end2 < len ? types[end2] : outerType) == 1;
       let replace2 = beforeL == afterL ? beforeL ? 1 : 2 : outerType;
-      for (let j = i; j < end; j++)
+      for (let j = i; j < end2; j++)
         types[j] = replace2;
-      i = end - 1;
+      i = end2 - 1;
     }
   }
-  let order = [];
+  let order2 = [];
   if (outerType == 1) {
     for (let i = 0; i < len; ) {
-      let start2 = i, rtl = types[i++] != 1;
+      let start3 = i, rtl = types[i++] != 1;
       while (i < len && rtl == (types[i] != 1))
         i++;
       if (rtl) {
-        for (let j = i; j > start2; ) {
-          let end = j, l = types[--j] != 2;
-          while (j > start2 && l == (types[j - 1] != 2))
+        for (let j = i; j > start3; ) {
+          let end2 = j, l = types[--j] != 2;
+          while (j > start3 && l == (types[j - 1] != 2))
             j--;
-          order.push(new BidiSpan(j, end, l ? 2 : 1));
+          order2.push(new BidiSpan(j, end2, l ? 2 : 1));
         }
       } else {
-        order.push(new BidiSpan(start2, i, 0));
+        order2.push(new BidiSpan(start3, i, 0));
       }
     }
   } else {
     for (let i = 0; i < len; ) {
-      let start2 = i, rtl = types[i++] == 2;
+      let start3 = i, rtl = types[i++] == 2;
       while (i < len && rtl == (types[i] == 2))
         i++;
-      order.push(new BidiSpan(start2, i, rtl ? 1 : 2));
+      order2.push(new BidiSpan(start3, i, rtl ? 1 : 2));
     }
   }
-  return order;
+  return order2;
 }
 function trivialOrder(length) {
   return [new BidiSpan(0, length, 0)];
 }
 var movedOver = "";
-function moveVisually(line, order, dir, start2, forward) {
+function moveVisually(line, order2, dir, start3, forward) {
   var _a2;
-  let startIndex = start2.head - line.from, spanI = -1;
+  let startIndex = start3.head - line.from, spanI = -1;
   if (startIndex == 0) {
     if (!forward || !line.length)
       return null;
-    if (order[0].level != dir) {
-      startIndex = order[0].side(false, dir);
+    if (order2[0].level != dir) {
+      startIndex = order2[0].side(false, dir);
       spanI = 0;
     }
   } else if (startIndex == line.length) {
     if (forward)
       return null;
-    let last = order[order.length - 1];
+    let last = order2[order2.length - 1];
     if (last.level != dir) {
       startIndex = last.side(true, dir);
-      spanI = order.length - 1;
+      spanI = order2.length - 1;
     }
   }
   if (spanI < 0)
-    spanI = BidiSpan.find(order, startIndex, (_a2 = start2.bidiLevel) !== null && _a2 !== void 0 ? _a2 : -1, start2.assoc);
-  let span = order[spanI];
+    spanI = BidiSpan.find(order2, startIndex, (_a2 = start3.bidiLevel) !== null && _a2 !== void 0 ? _a2 : -1, start3.assoc);
+  let span = order2[spanI];
   if (startIndex == span.side(forward, dir)) {
-    span = order[spanI += forward ? 1 : -1];
+    span = order2[spanI += forward ? 1 : -1];
     startIndex = span.side(!forward, dir);
   }
   let indexForward = forward == (span.dir == dir);
@@ -60408,7 +58914,7 @@ function moveVisually(line, order, dir, start2, forward) {
   movedOver = line.text.slice(Math.min(startIndex, nextIndex), Math.max(startIndex, nextIndex));
   if (nextIndex != span.side(forward, dir))
     return EditorSelection.cursor(nextIndex + line.from, indexForward ? -1 : 1, span.level);
-  let nextSpan = spanI == (forward ? order.length - 1 : 0) ? null : order[spanI + (forward ? 1 : -1)];
+  let nextSpan = spanI == (forward ? order2.length - 1 : 0) ? null : order2[spanI + (forward ? 1 : -1)];
   if (!nextSpan && span.level != dir)
     return EditorSelection.cursor(forward ? line.to : line.from, forward ? -1 : 1, dir);
   if (nextSpan && nextSpan.level < span.level)
@@ -60453,11 +58959,11 @@ function getdy(y, rect) {
 function yOverlap(a, b) {
   return a.top < b.bottom - 1 && a.bottom > b.top + 1;
 }
-function upTop(rect, top2) {
-  return top2 < rect.top ? { top: top2, left: rect.left, right: rect.right, bottom: rect.bottom } : rect;
+function upTop(rect, top3) {
+  return top3 < rect.top ? { top: top3, left: rect.left, right: rect.right, bottom: rect.bottom } : rect;
 }
-function upBot(rect, bottom) {
-  return bottom > rect.bottom ? { top: rect.top, left: rect.left, right: rect.right, bottom } : rect;
+function upBot(rect, bottom2) {
+  return bottom2 > rect.bottom ? { top: rect.top, left: rect.left, right: rect.right, bottom: bottom2 } : rect;
 }
 function domPosAtCoords(parent, x, y) {
   let closest, closestRect, closestX, closestY;
@@ -60522,11 +59028,11 @@ function domPosInText(node, x, y) {
         generalSide = x - rect.left;
       let dy = (rect.top > y ? rect.top - y : y - rect.bottom) - 1;
       if (rect.left - 1 <= x && rect.right + 1 >= x && dy < closestDY) {
-        let right = x >= (rect.left + rect.right) / 2, after = right;
+        let right2 = x >= (rect.left + rect.right) / 2, after = right2;
         if (browser.chrome || browser.gecko) {
           let rectBefore = textRange(node, i).getBoundingClientRect();
           if (rectBefore.left == rect.right)
-            after = !right;
+            after = !right2;
         }
         if (dy <= 0)
           return { node, offset: i + (after ? 1 : 0) };
@@ -60600,9 +59106,9 @@ function isSuspiciousCaretResult(node, offset2, x) {
       return false;
   return textRange(node, len - 1, len).getBoundingClientRect().left > x;
 }
-function moveToLineBoundary(view, start2, forward, includeWrap) {
-  let line = view.state.doc.lineAt(start2.head);
-  let coords = !includeWrap || !view.lineWrapping ? null : view.coordsAtPos(start2.assoc < 0 && start2.head > line.from ? start2.head - 1 : start2.head);
+function moveToLineBoundary(view, start3, forward, includeWrap) {
+  let line = view.state.doc.lineAt(start3.head);
+  let coords = !includeWrap || !view.lineWrapping ? null : view.coordsAtPos(start3.assoc < 0 && start3.head > line.from ? start3.head - 1 : start3.head);
   if (coords) {
     let editorRect = view.dom.getBoundingClientRect();
     let pos = view.posAtCoords({
@@ -60612,13 +59118,13 @@ function moveToLineBoundary(view, start2, forward, includeWrap) {
     if (pos != null)
       return EditorSelection.cursor(pos, forward ? -1 : 1);
   }
-  let lineView = LineView.find(view.docView, start2.head);
-  let end = lineView ? forward ? lineView.posAtEnd : lineView.posAtStart : forward ? line.to : line.from;
-  return EditorSelection.cursor(end, forward ? -1 : 1);
+  let lineView = LineView.find(view.docView, start3.head);
+  let end2 = lineView ? forward ? lineView.posAtEnd : lineView.posAtStart : forward ? line.to : line.from;
+  return EditorSelection.cursor(end2, forward ? -1 : 1);
 }
-function moveByChar(view, start2, forward, by) {
-  let line = view.state.doc.lineAt(start2.head), spans = view.bidiSpans(line);
-  for (let cur = start2, check = null; ; ) {
+function moveByChar(view, start3, forward, by) {
+  let line = view.state.doc.lineAt(start3.head), spans = view.bidiSpans(line);
+  for (let cur = start3, check = null; ; ) {
     let next = moveVisually(line, spans, view.textDirection, cur, forward), char = movedOver;
     if (!next) {
       if (line.number == (forward ? view.state.doc.lines : 1))
@@ -60638,9 +59144,9 @@ function moveByChar(view, start2, forward, by) {
     cur = next;
   }
 }
-function byGroup(view, pos, start2) {
+function byGroup(view, pos, start3) {
   let categorize = view.state.charCategorizer(pos);
-  let cat = categorize(start2);
+  let cat = categorize(start3);
   return (next) => {
     let nextCat = categorize(next);
     if (cat == CharCategory.Space)
@@ -60648,11 +59154,11 @@ function byGroup(view, pos, start2) {
     return cat == nextCat;
   };
 }
-function moveVertically(view, start2, forward, distance) {
-  let startPos = start2.head, dir = forward ? 1 : -1;
+function moveVertically(view, start3, forward, distance) {
+  let startPos = start3.head, dir = forward ? 1 : -1;
   if (startPos == (forward ? view.state.doc.length : 0))
     return EditorSelection.cursor(startPos);
-  let goal = start2.goalColumn, startY;
+  let goal = start3.goalColumn, startY;
   let rect = view.contentDOM.getBoundingClientRect();
   let startCoords = view.coordsAtPos(startPos);
   if (startCoords) {
@@ -60817,10 +59323,10 @@ var InputState = class {
   mustFlushObserver(event) {
     return event.type == "keydown" && event.keyCode != 229 || event.type == "compositionend" && !browser.ios;
   }
-  startMouseSelection(view, event, style2) {
+  startMouseSelection(view, event, style) {
     if (this.mouseSelection)
       this.mouseSelection.destroy();
-    this.mouseSelection = new MouseSelection(this, view, event, style2);
+    this.mouseSelection = new MouseSelection(this, view, event, style);
   }
   update(update) {
     if (this.mouseSelection)
@@ -60835,10 +59341,10 @@ var InputState = class {
 };
 var modifierCodes = [16, 17, 18, 20, 91, 92, 224, 225];
 var MouseSelection = class {
-  constructor(inputState, view, startEvent, style2) {
+  constructor(inputState, view, startEvent, style) {
     this.inputState = inputState;
     this.view = view;
-    this.style = style2;
+    this.style = style;
     this.lastEvent = startEvent;
     let doc2 = view.contentDOM.ownerDocument;
     doc2.addEventListener("mousemove", this.move = this.move.bind(this));
@@ -60897,8 +59403,8 @@ function dragMovesSelection(view, event) {
   return facet.length ? facet[0](event) : browser.mac ? !event.altKey : !event.ctrlKey;
 }
 function isInPrimarySelection(view, event) {
-  let { main } = view.state.selection;
-  if (main.empty)
+  let { main: main2 } = view.state.selection;
+  if (main2.empty)
     return false;
   let sel = getSelection(view.root);
   if (sel.rangeCount == 0)
@@ -60984,18 +59490,18 @@ handlers.mousedown = (view, event) => {
   view.observer.flush();
   if (lastTouch > Date.now() - 2e3)
     return;
-  let style2 = null;
+  let style = null;
   for (let makeStyle of view.state.facet(mouseSelectionStyle)) {
-    style2 = makeStyle(view, event);
-    if (style2)
+    style = makeStyle(view, event);
+    if (style)
       break;
   }
-  if (!style2 && event.button == 0)
-    style2 = basicMouseSelection(view, event);
-  if (style2) {
+  if (!style && event.button == 0)
+    style = basicMouseSelection(view, event);
+  if (style) {
     if (view.root.activeElement != view.contentDOM)
       view.observer.ignore(() => focusPreventScroll(view.contentDOM));
-    view.inputState.startMouseSelection(view, event, style2);
+    view.inputState.startMouseSelection(view, event, style);
   }
 };
 function rangeForClick(view, pos, bias, type) {
@@ -61047,14 +59553,14 @@ function getClickType(event) {
   return lastMouseDownCount = !last || lastTime > Date.now() - 400 && Math.abs(last.clientX - event.clientX) < 2 && Math.abs(last.clientY - event.clientY) < 2 ? (lastMouseDownCount + 1) % 3 : 1;
 }
 function basicMouseSelection(view, event) {
-  let start2 = queryPos(view, event), type = getClickType(event);
+  let start3 = queryPos(view, event), type = getClickType(event);
   let startSel = view.state.selection;
-  let last = start2, lastEvent = event;
+  let last = start3, lastEvent = event;
   return {
     update(update) {
       if (update.changes) {
-        if (start2)
-          start2.pos = update.changes.mapPos(start2.pos);
+        if (start3)
+          start3.pos = update.changes.mapPos(start3.pos);
         startSel = startSel.map(update.changes);
         lastEvent = null;
       }
@@ -61067,11 +59573,11 @@ function basicMouseSelection(view, event) {
         cur = last = queryPos(view, event2);
         lastEvent = event2;
       }
-      if (!cur || !start2)
+      if (!cur || !start3)
         return startSel;
       let range = rangeForClick(view, cur.pos, cur.bias, type);
-      if (start2.pos != cur.pos && !extend2) {
-        let startRange = rangeForClick(view, start2.pos, start2.bias, type);
+      if (start3.pos != cur.pos && !extend2) {
+        let startRange = rangeForClick(view, start3.pos, start3.bias, type);
         let from = Math.min(startRange.from, range.from), to = Math.max(startRange.to, range.to);
         range = from < range.from ? EditorSelection.range(from, to) : EditorSelection.range(to, from);
       }
@@ -61085,12 +59591,12 @@ function basicMouseSelection(view, event) {
   };
 }
 handlers.dragstart = (view, event) => {
-  let { selection: { main } } = view.state;
+  let { selection: { main: main2 } } = view.state;
   let { mouseSelection } = view.inputState;
   if (mouseSelection)
-    mouseSelection.dragging = main;
+    mouseSelection.dragging = main2;
   if (event.dataTransfer) {
-    event.dataTransfer.setData("Text", view.state.sliceDoc(main.from, main.to));
+    event.dataTransfer.setData("Text", view.state.sliceDoc(main2.from, main2.to));
     event.dataTransfer.effectAllowed = "copyMove";
   }
 };
@@ -61116,9 +59622,9 @@ handlers.drop = (view, event) => {
   let files = event.dataTransfer.files;
   if (files && files.length) {
     event.preventDefault();
-    let text = Array(files.length), read = 0;
+    let text = Array(files.length), read2 = 0;
     let finishFile = () => {
-      if (++read == files.length)
+      if (++read2 == files.length)
         dropText(view, event, text.filter((s) => s != null).join(view.state.lineBreak), false);
     };
     for (let i = 0; i < files.length; i++) {
@@ -61322,10 +59828,10 @@ var MeasuredHeights = class {
   }
 };
 var BlockInfo = class {
-  constructor(from, length, top2, height, type) {
+  constructor(from, length, top3, height, type) {
     this.from = from;
     this.length = length;
-    this.top = top2;
+    this.top = top3;
     this.height = height;
     this.type = type;
   }
@@ -61379,19 +59885,19 @@ var HeightMap = class {
     let me = this;
     for (let i = changes.length - 1; i >= 0; i--) {
       let { fromA, toA, fromB, toB } = changes[i];
-      let start2 = me.lineAt(fromA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
-      let end = start2.to >= toA ? start2 : me.lineAt(toA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
-      toB += end.to - toA;
-      toA = end.to;
-      while (i > 0 && start2.from <= changes[i - 1].toA) {
+      let start3 = me.lineAt(fromA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
+      let end2 = start3.to >= toA ? start3 : me.lineAt(toA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
+      toB += end2.to - toA;
+      toA = end2.to;
+      while (i > 0 && start3.from <= changes[i - 1].toA) {
         fromA = changes[i - 1].fromA;
         fromB = changes[i - 1].fromB;
         i--;
-        if (fromA < start2.from)
-          start2 = me.lineAt(fromA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
+        if (fromA < start3.from)
+          start3 = me.lineAt(fromA, QueryType.ByPosNoHeight, oldDoc, 0, 0);
       }
-      fromB += start2.from - fromA;
-      fromA = start2.from;
+      fromB += start3.from - fromA;
+      fromA = start3.from;
       let nodes = NodeBuilder.build(oracle, decorations2, fromB, toB);
       me = me.replace(fromA, toA, nodes);
     }
@@ -61452,14 +59958,14 @@ var HeightMapBlock = class extends HeightMap {
     super(length, height);
     this.type = type;
   }
-  blockAt(_height, _doc, top2, offset2) {
-    return new BlockInfo(offset2, this.length, top2, this.height, this.type);
+  blockAt(_height, _doc, top3, offset2) {
+    return new BlockInfo(offset2, this.length, top3, this.height, this.type);
   }
-  lineAt(_value, _type, doc2, top2, offset2) {
-    return this.blockAt(0, doc2, top2, offset2);
+  lineAt(_value, _type, doc2, top3, offset2) {
+    return this.blockAt(0, doc2, top3, offset2);
   }
-  forEachLine(_from, _to, doc2, top2, offset2, f) {
-    f(this.blockAt(0, doc2, top2, offset2));
+  forEachLine(_from, _to, doc2, top3, offset2, f) {
+    f(this.blockAt(0, doc2, top3, offset2));
   }
   updateHeight(oracle, offset2 = 0, _force = false, measured) {
     if (measured && measured.from <= offset2 && measured.more)
@@ -61511,31 +60017,31 @@ var HeightMapGap = class extends HeightMap {
     let firstLine = doc2.lineAt(offset2).number, lastLine = doc2.lineAt(offset2 + this.length).number;
     return { firstLine, lastLine, lineHeight: this.height / (lastLine - firstLine + 1) };
   }
-  blockAt(height, doc2, top2, offset2) {
+  blockAt(height, doc2, top3, offset2) {
     let { firstLine, lastLine, lineHeight } = this.lines(doc2, offset2);
-    let line = Math.max(0, Math.min(lastLine - firstLine, Math.floor((height - top2) / lineHeight)));
+    let line = Math.max(0, Math.min(lastLine - firstLine, Math.floor((height - top3) / lineHeight)));
     let { from, length } = doc2.line(firstLine + line);
-    return new BlockInfo(from, length, top2 + lineHeight * line, lineHeight, BlockType.Text);
+    return new BlockInfo(from, length, top3 + lineHeight * line, lineHeight, BlockType.Text);
   }
-  lineAt(value, type, doc2, top2, offset2) {
+  lineAt(value, type, doc2, top3, offset2) {
     if (type == QueryType.ByHeight)
-      return this.blockAt(value, doc2, top2, offset2);
+      return this.blockAt(value, doc2, top3, offset2);
     if (type == QueryType.ByPosNoHeight) {
       let { from: from2, to } = doc2.lineAt(value);
       return new BlockInfo(from2, to - from2, 0, 0, BlockType.Text);
     }
     let { firstLine, lineHeight } = this.lines(doc2, offset2);
     let { from, length, number: number2 } = doc2.lineAt(value);
-    return new BlockInfo(from, length, top2 + lineHeight * (number2 - firstLine), lineHeight, BlockType.Text);
+    return new BlockInfo(from, length, top3 + lineHeight * (number2 - firstLine), lineHeight, BlockType.Text);
   }
-  forEachLine(from, to, doc2, top2, offset2, f) {
+  forEachLine(from, to, doc2, top3, offset2, f) {
     let { firstLine, lineHeight } = this.lines(doc2, offset2);
-    for (let pos = Math.max(from, offset2), end = Math.min(offset2 + this.length, to); pos <= end; ) {
+    for (let pos = Math.max(from, offset2), end2 = Math.min(offset2 + this.length, to); pos <= end2; ) {
       let line = doc2.lineAt(pos);
       if (pos == from)
-        top2 += lineHeight * (line.number - firstLine);
-      f(new BlockInfo(line.from, line.length, top2, lineHeight, BlockType.Text));
-      top2 += lineHeight;
+        top3 += lineHeight * (line.number - firstLine);
+      f(new BlockInfo(line.from, line.length, top3, lineHeight, BlockType.Text));
+      top3 += lineHeight;
       pos = line.to + 1;
     }
   }
@@ -61564,12 +60070,12 @@ var HeightMapGap = class extends HeightMap {
     result.push(null, new HeightMapGap(this.length - from - 1));
   }
   updateHeight(oracle, offset2 = 0, force = false, measured) {
-    let end = offset2 + this.length;
+    let end2 = offset2 + this.length;
     if (measured && measured.from <= offset2 + this.length && measured.more) {
       let nodes = [], pos = Math.max(offset2, measured.from);
       if (measured.from > offset2)
         nodes.push(new HeightMapGap(measured.from - offset2 - 1).updateHeight(oracle, offset2));
-      while (pos <= end && measured.more) {
+      while (pos <= end2 && measured.more) {
         let len = oracle.doc.lineAt(pos).length;
         if (nodes.length)
           nodes.push(null);
@@ -61578,8 +60084,8 @@ var HeightMapGap = class extends HeightMap {
         nodes.push(line);
         pos += len + 1;
       }
-      if (pos <= end)
-        nodes.push(null, new HeightMapGap(end - pos).updateHeight(oracle, pos));
+      if (pos <= end2)
+        nodes.push(null, new HeightMapGap(end2 - pos).updateHeight(oracle, pos));
       oracle.heightChanged = true;
       return HeightMap.of(nodes);
     } else if (force || this.outdated) {
@@ -61593,42 +60099,42 @@ var HeightMapGap = class extends HeightMap {
   }
 };
 var HeightMapBranch = class extends HeightMap {
-  constructor(left, brk, right) {
-    super(left.length + brk + right.length, left.height + right.height, brk | (left.outdated || right.outdated ? 2 : 0));
-    this.left = left;
-    this.right = right;
-    this.size = left.size + right.size;
+  constructor(left2, brk, right2) {
+    super(left2.length + brk + right2.length, left2.height + right2.height, brk | (left2.outdated || right2.outdated ? 2 : 0));
+    this.left = left2;
+    this.right = right2;
+    this.size = left2.size + right2.size;
   }
   get break() {
     return this.flags & 1;
   }
-  blockAt(height, doc2, top2, offset2) {
-    let mid = top2 + this.left.height;
-    return height < mid || this.right.height == 0 ? this.left.blockAt(height, doc2, top2, offset2) : this.right.blockAt(height, doc2, mid, offset2 + this.left.length + this.break);
+  blockAt(height, doc2, top3, offset2) {
+    let mid = top3 + this.left.height;
+    return height < mid || this.right.height == 0 ? this.left.blockAt(height, doc2, top3, offset2) : this.right.blockAt(height, doc2, mid, offset2 + this.left.length + this.break);
   }
-  lineAt(value, type, doc2, top2, offset2) {
-    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
-    let left = type == QueryType.ByHeight ? value < rightTop || this.right.height == 0 : value < rightOffset;
-    let base2 = left ? this.left.lineAt(value, type, doc2, top2, offset2) : this.right.lineAt(value, type, doc2, rightTop, rightOffset);
-    if (this.break || (left ? base2.to < rightOffset : base2.from > rightOffset))
+  lineAt(value, type, doc2, top3, offset2) {
+    let rightTop = top3 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
+    let left2 = type == QueryType.ByHeight ? value < rightTop || this.right.height == 0 : value < rightOffset;
+    let base2 = left2 ? this.left.lineAt(value, type, doc2, top3, offset2) : this.right.lineAt(value, type, doc2, rightTop, rightOffset);
+    if (this.break || (left2 ? base2.to < rightOffset : base2.from > rightOffset))
       return base2;
     let subQuery = type == QueryType.ByPosNoHeight ? QueryType.ByPosNoHeight : QueryType.ByPos;
-    if (left)
+    if (left2)
       return base2.join(this.right.lineAt(rightOffset, subQuery, doc2, rightTop, rightOffset));
     else
-      return this.left.lineAt(rightOffset, subQuery, doc2, top2, offset2).join(base2);
+      return this.left.lineAt(rightOffset, subQuery, doc2, top3, offset2).join(base2);
   }
-  forEachLine(from, to, doc2, top2, offset2, f) {
-    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
+  forEachLine(from, to, doc2, top3, offset2, f) {
+    let rightTop = top3 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
     if (this.break) {
       if (from < rightOffset)
-        this.left.forEachLine(from, to, doc2, top2, offset2, f);
+        this.left.forEachLine(from, to, doc2, top3, offset2, f);
       if (to >= rightOffset)
         this.right.forEachLine(from, to, doc2, rightTop, rightOffset, f);
     } else {
-      let mid = this.lineAt(rightOffset, QueryType.ByPos, doc2, top2, offset2);
+      let mid = this.lineAt(rightOffset, QueryType.ByPos, doc2, top3, offset2);
       if (from < mid.from)
-        this.left.forEachLine(from, mid.from - 1, doc2, top2, offset2, f);
+        this.left.forEachLine(from, mid.from - 1, doc2, top3, offset2, f);
       if (mid.to >= from && mid.from <= to)
         f(mid);
       if (to > mid.to)
@@ -61644,64 +60150,64 @@ var HeightMapBranch = class extends HeightMap {
     let result = [];
     if (from > 0)
       this.decomposeLeft(from, result);
-    let left = result.length;
+    let left2 = result.length;
     for (let node of nodes)
       result.push(node);
     if (from > 0)
-      mergeGaps(result, left - 1);
+      mergeGaps(result, left2 - 1);
     if (to < this.length) {
-      let right = result.length;
+      let right2 = result.length;
       this.decomposeRight(to, result);
-      mergeGaps(result, right);
+      mergeGaps(result, right2);
     }
     return HeightMap.of(result);
   }
   decomposeLeft(to, result) {
-    let left = this.left.length;
-    if (to <= left)
+    let left2 = this.left.length;
+    if (to <= left2)
       return this.left.decomposeLeft(to, result);
     result.push(this.left);
     if (this.break) {
-      left++;
-      if (to >= left)
+      left2++;
+      if (to >= left2)
         result.push(null);
     }
-    if (to > left)
-      this.right.decomposeLeft(to - left, result);
+    if (to > left2)
+      this.right.decomposeLeft(to - left2, result);
   }
   decomposeRight(from, result) {
-    let left = this.left.length, right = left + this.break;
-    if (from >= right)
-      return this.right.decomposeRight(from - right, result);
-    if (from < left)
+    let left2 = this.left.length, right2 = left2 + this.break;
+    if (from >= right2)
+      return this.right.decomposeRight(from - right2, result);
+    if (from < left2)
       this.left.decomposeRight(from, result);
-    if (this.break && from < right)
+    if (this.break && from < right2)
       result.push(null);
     result.push(this.right);
   }
-  balanced(left, right) {
-    if (left.size > 2 * right.size || right.size > 2 * left.size)
-      return HeightMap.of(this.break ? [left, null, right] : [left, right]);
-    this.left = left;
-    this.right = right;
-    this.height = left.height + right.height;
-    this.outdated = left.outdated || right.outdated;
-    this.size = left.size + right.size;
-    this.length = left.length + this.break + right.length;
+  balanced(left2, right2) {
+    if (left2.size > 2 * right2.size || right2.size > 2 * left2.size)
+      return HeightMap.of(this.break ? [left2, null, right2] : [left2, right2]);
+    this.left = left2;
+    this.right = right2;
+    this.height = left2.height + right2.height;
+    this.outdated = left2.outdated || right2.outdated;
+    this.size = left2.size + right2.size;
+    this.length = left2.length + this.break + right2.length;
     return this;
   }
   updateHeight(oracle, offset2 = 0, force = false, measured) {
-    let { left, right } = this, rightStart = offset2 + left.length + this.break, rebalance = null;
-    if (measured && measured.from <= offset2 + left.length && measured.more)
-      rebalance = left = left.updateHeight(oracle, offset2, force, measured);
+    let { left: left2, right: right2 } = this, rightStart = offset2 + left2.length + this.break, rebalance = null;
+    if (measured && measured.from <= offset2 + left2.length && measured.more)
+      rebalance = left2 = left2.updateHeight(oracle, offset2, force, measured);
     else
-      left.updateHeight(oracle, offset2, force);
-    if (measured && measured.from <= rightStart + right.length && measured.more)
-      rebalance = right = right.updateHeight(oracle, rightStart, force, measured);
+      left2.updateHeight(oracle, offset2, force);
+    if (measured && measured.from <= rightStart + right2.length && measured.more)
+      rebalance = right2 = right2.updateHeight(oracle, rightStart, force, measured);
     else
-      right.updateHeight(oracle, rightStart, force);
+      right2.updateHeight(oracle, rightStart, force);
     if (rebalance)
-      return this.balanced(left, right);
+      return this.balanced(left2, right2);
     this.height = this.left.height + this.right.height;
     this.outdated = false;
     return this;
@@ -61731,13 +60237,13 @@ var NodeBuilder = class {
   }
   span(_from, to) {
     if (this.lineStart > -1) {
-      let end = Math.min(to, this.lineEnd), last = this.nodes[this.nodes.length - 1];
+      let end2 = Math.min(to, this.lineEnd), last = this.nodes[this.nodes.length - 1];
       if (last instanceof HeightMapText)
-        last.length += end - this.pos;
-      else if (end > this.pos || !this.isCovered)
-        this.nodes.push(new HeightMapText(end - this.pos, -1));
-      this.writtenTo = end;
-      if (to > end) {
+        last.length += end2 - this.pos;
+      else if (end2 > this.pos || !this.isCovered)
+        this.nodes.push(new HeightMapText(end2 - this.pos, -1));
+      this.writtenTo = end2;
+      if (to > end2) {
         this.nodes.push(null);
         this.writtenTo++;
         this.lineStart = -1;
@@ -61844,19 +60350,19 @@ var DecorationComparator = class {
 };
 function visiblePixelRange(dom, paddingTop) {
   let rect = dom.getBoundingClientRect();
-  let left = Math.max(0, rect.left), right = Math.min(innerWidth, rect.right);
-  let top2 = Math.max(0, rect.top), bottom = Math.min(innerHeight, rect.bottom);
+  let left2 = Math.max(0, rect.left), right2 = Math.min(innerWidth, rect.right);
+  let top3 = Math.max(0, rect.top), bottom2 = Math.min(innerHeight, rect.bottom);
   for (let parent = dom.parentNode; parent; ) {
     if (parent.nodeType == 1) {
-      let style2 = window.getComputedStyle(parent);
-      if ((parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) && style2.overflow != "visible") {
+      let style = window.getComputedStyle(parent);
+      if ((parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) && style.overflow != "visible") {
         let parentRect = parent.getBoundingClientRect();
-        left = Math.max(left, parentRect.left);
-        right = Math.min(right, parentRect.right);
-        top2 = Math.max(top2, parentRect.top);
-        bottom = Math.min(bottom, parentRect.bottom);
+        left2 = Math.max(left2, parentRect.left);
+        right2 = Math.min(right2, parentRect.right);
+        top3 = Math.max(top3, parentRect.top);
+        bottom2 = Math.min(bottom2, parentRect.bottom);
       }
-      parent = style2.position == "absolute" || style2.position == "fixed" ? parent.offsetParent : parent.parentNode;
+      parent = style.position == "absolute" || style.position == "fixed" ? parent.offsetParent : parent.parentNode;
     } else if (parent.nodeType == 11) {
       parent = parent.host;
     } else {
@@ -61864,10 +60370,10 @@ function visiblePixelRange(dom, paddingTop) {
     }
   }
   return {
-    left: left - rect.left,
-    right: right - rect.left,
-    top: top2 - (rect.top + paddingTop),
-    bottom: bottom - (rect.top + paddingTop)
+    left: left2 - rect.left,
+    right: right2 - rect.left,
+    top: top3 - (rect.top + paddingTop),
+    bottom: bottom2 - (rect.top + paddingTop)
   };
 }
 var LineGap = class {
@@ -61936,9 +60442,9 @@ var ViewState = class {
     this.computeVisibleRanges();
   }
   updateForViewport() {
-    let viewports = [this.viewport], { main } = this.state.selection;
+    let viewports = [this.viewport], { main: main2 } = this.state.selection;
     for (let i = 0; i <= 1; i++) {
-      let pos = i ? main.head : main.anchor;
+      let pos = i ? main2.head : main2.anchor;
       if (!viewports.some(({ from, to }) => pos >= from && pos <= to)) {
         let { from, to } = this.lineAt(pos, 0);
         viewports.push(new Viewport(from, to));
@@ -61957,11 +60463,11 @@ var ViewState = class {
     this.heightMap = this.heightMap.applyChanges(newDeco, prev.doc, this.heightOracle.setDoc(this.state.doc), heightChanges);
     if (this.heightMap.height != prevHeight)
       update.flags |= 2;
-    let viewport = heightChanges.length ? this.mapViewport(this.viewport, update.changes) : this.viewport;
-    if (scrollTo && (scrollTo.head < viewport.from || scrollTo.head > viewport.to) || !this.viewportIsAppropriate(viewport))
-      viewport = this.getViewport(0, scrollTo);
-    if (!viewport.eq(this.viewport)) {
-      this.viewport = viewport;
+    let viewport2 = heightChanges.length ? this.mapViewport(this.viewport, update.changes) : this.viewport;
+    if (scrollTo && (scrollTo.head < viewport2.from || scrollTo.head > viewport2.to) || !this.viewportIsAppropriate(viewport2))
+      viewport2 = this.getViewport(0, scrollTo);
+    if (!viewport2.eq(this.viewport)) {
+      this.viewport = viewport2;
       update.flags |= 4;
     }
     this.updateForViewport();
@@ -61976,10 +60482,10 @@ var ViewState = class {
   measure(docView, repeated) {
     let dom = docView.dom, whiteSpace = "", direction = Direction.LTR;
     if (!repeated) {
-      let style2 = window.getComputedStyle(dom);
-      whiteSpace = style2.whiteSpace, direction = style2.direction == "rtl" ? Direction.RTL : Direction.LTR;
-      this.paddingTop = parseInt(style2.paddingTop) || 0;
-      this.paddingBottom = parseInt(style2.paddingBottom) || 0;
+      let style = window.getComputedStyle(dom);
+      whiteSpace = style.whiteSpace, direction = style.direction == "rtl" ? Direction.RTL : Direction.LTR;
+      this.paddingTop = parseInt(style.paddingTop) || 0;
+      this.paddingBottom = parseInt(style.paddingBottom) || 0;
     }
     let pixelViewport = this.printing ? { top: -1e8, bottom: 1e8, left: -1e8, right: 1e8 } : visiblePixelRange(dom, this.paddingTop);
     let dTop = pixelViewport.top - this.pixelViewport.top, dBottom = pixelViewport.bottom - this.pixelViewport.bottom;
@@ -62038,27 +60544,27 @@ var ViewState = class {
   getViewport(bias, scrollTo) {
     let marginTop = 0.5 - Math.max(-0.5, Math.min(0.5, bias / 1e3 / 2));
     let map2 = this.heightMap, doc2 = this.state.doc, { visibleTop, visibleBottom } = this;
-    let viewport = new Viewport(map2.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, doc2, 0, 0).to);
+    let viewport2 = new Viewport(map2.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, doc2, 0, 0).to);
     if (scrollTo) {
-      if (scrollTo.head < viewport.from) {
+      if (scrollTo.head < viewport2.from) {
         let { top: newTop } = map2.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
-        viewport = new Viewport(map2.lineAt(newTop - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newTop + (visibleBottom - visibleTop) + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
-      } else if (scrollTo.head > viewport.to) {
+        viewport2 = new Viewport(map2.lineAt(newTop - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newTop + (visibleBottom - visibleTop) + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
+      } else if (scrollTo.head > viewport2.to) {
         let { bottom: newBottom } = map2.lineAt(scrollTo.head, QueryType.ByPos, doc2, 0, 0);
-        viewport = new Viewport(map2.lineAt(newBottom - (visibleBottom - visibleTop) - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newBottom + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
+        viewport2 = new Viewport(map2.lineAt(newBottom - (visibleBottom - visibleTop) - 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).from, map2.lineAt(newBottom + 1e3 / 2, QueryType.ByHeight, doc2, 0, 0).to);
       }
     }
-    return viewport;
+    return viewport2;
   }
-  mapViewport(viewport, changes) {
-    let from = changes.mapPos(viewport.from, -1), to = changes.mapPos(viewport.to, 1);
+  mapViewport(viewport2, changes) {
+    let from = changes.mapPos(viewport2.from, -1), to = changes.mapPos(viewport2.to, 1);
     return new Viewport(this.heightMap.lineAt(from, QueryType.ByPos, this.state.doc, 0, 0).from, this.heightMap.lineAt(to, QueryType.ByPos, this.state.doc, 0, 0).to);
   }
   viewportIsAppropriate({ from, to }, bias = 0) {
-    let { top: top2 } = this.heightMap.lineAt(from, QueryType.ByPos, this.state.doc, 0, 0);
-    let { bottom } = this.heightMap.lineAt(to, QueryType.ByPos, this.state.doc, 0, 0);
+    let { top: top3 } = this.heightMap.lineAt(from, QueryType.ByPos, this.state.doc, 0, 0);
+    let { bottom: bottom2 } = this.heightMap.lineAt(to, QueryType.ByPos, this.state.doc, 0, 0);
     let { visibleTop, visibleBottom } = this;
-    return (from == 0 || top2 <= visibleTop - Math.max(10, Math.min(-bias, 250))) && (to == this.state.doc.length || bottom >= visibleBottom + Math.max(10, Math.min(bias, 250))) && (top2 > visibleTop - 2 * 1e3 && bottom < visibleBottom + 2 * 1e3);
+    return (from == 0 || top3 <= visibleTop - Math.max(10, Math.min(-bias, 250))) && (to == this.state.doc.length || bottom2 >= visibleBottom + Math.max(10, Math.min(bias, 250))) && (top3 > visibleTop - 2 * 1e3 && bottom2 < visibleBottom + 2 * 1e3);
   }
   mapLineGaps(gaps, changes) {
     if (!gaps.length || changes.empty)
@@ -62107,13 +60613,13 @@ var ViewState = class {
     });
     return gaps;
   }
-  gapSize(line, pos, start2, structure) {
+  gapSize(line, pos, start3, structure) {
     if (this.heightOracle.lineWrapping) {
       let height = line.height * findFraction(structure, pos);
-      return start2 ? height : line.height - height;
+      return start3 ? height : line.height - height;
     } else {
       let ratio = findFraction(structure, pos);
-      return structure.total * this.heightOracle.charWidth * (start2 ? ratio : 1 - ratio);
+      return structure.total * this.heightOracle.charWidth * (start3 ? ratio : 1 - ratio);
     }
   }
   updateLineGaps(gaps) {
@@ -62232,10 +60738,10 @@ var BigScaler = class {
   constructor(doc2, heightMap, viewports) {
     let vpHeight = 0, base2 = 0, domBase = 0;
     this.viewports = viewports.map(({ from, to }) => {
-      let top2 = heightMap.lineAt(from, QueryType.ByPos, doc2, 0, 0).top;
-      let bottom = heightMap.lineAt(to, QueryType.ByPos, doc2, 0, 0).bottom;
-      vpHeight += bottom - top2;
-      return { from, to, top: top2, bottom, domTop: 0, domBottom: 0 };
+      let top3 = heightMap.lineAt(from, QueryType.ByPos, doc2, 0, 0).top;
+      let bottom2 = heightMap.lineAt(to, QueryType.ByPos, doc2, 0, 0).bottom;
+      vpHeight += bottom2 - top3;
+      return { from, to, top: top3, bottom: bottom2, domTop: 0, domBottom: 0 };
     });
     this.scale = (7e6 - vpHeight) / (heightMap.height - vpHeight);
     for (let obj of this.viewports) {
@@ -62244,36 +60750,36 @@ var BigScaler = class {
       base2 = obj.bottom;
     }
   }
-  toDOM(n, top2) {
-    n -= top2;
+  toDOM(n, top3) {
+    n -= top3;
     for (let i = 0, base2 = 0, domBase = 0; ; i++) {
       let vp = i < this.viewports.length ? this.viewports[i] : null;
       if (!vp || n < vp.top)
-        return domBase + (n - base2) * this.scale + top2;
+        return domBase + (n - base2) * this.scale + top3;
       if (n <= vp.bottom)
-        return vp.domTop + (n - vp.top) + top2;
+        return vp.domTop + (n - vp.top) + top3;
       base2 = vp.bottom;
       domBase = vp.domBottom;
     }
   }
-  fromDOM(n, top2) {
-    n -= top2;
+  fromDOM(n, top3) {
+    n -= top3;
     for (let i = 0, base2 = 0, domBase = 0; ; i++) {
       let vp = i < this.viewports.length ? this.viewports[i] : null;
       if (!vp || n < vp.domTop)
-        return base2 + (n - domBase) / this.scale + top2;
+        return base2 + (n - domBase) / this.scale + top3;
       if (n <= vp.domBottom)
-        return vp.top + (n - vp.domTop) + top2;
+        return vp.top + (n - vp.domTop) + top3;
       base2 = vp.bottom;
       domBase = vp.domBottom;
     }
   }
 };
-function scaleBlock(block, scaler, top2) {
+function scaleBlock(block, scaler, top3) {
   if (scaler.scale == 1)
     return block;
-  let bTop = scaler.toDOM(block.top, top2), bBottom = scaler.toDOM(block.bottom, top2);
-  return new BlockInfo(block.from, block.length, bTop, bBottom - bTop, Array.isArray(block.type) ? block.type.map((b) => scaleBlock(b, scaler, top2)) : block.type);
+  let bTop = scaler.toDOM(block.top, top3), bBottom = scaler.toDOM(block.bottom, top3);
+  return new BlockInfo(block.from, block.length, bTop, bBottom - bTop, Array.isArray(block.type) ? block.type.map((b) => scaleBlock(b, scaler, top3)) : block.type);
 }
 var theme = /* @__PURE__ */ Facet.define({ combine: (strs) => strs.join(" ") });
 var darkTheme = /* @__PURE__ */ Facet.define({ combine: (values) => values.indexOf(true) > -1 });
@@ -62281,16 +60787,16 @@ var baseThemeID = /* @__PURE__ */ StyleModule.newName();
 var baseLightID = /* @__PURE__ */ StyleModule.newName();
 var baseDarkID = /* @__PURE__ */ StyleModule.newName();
 var lightDarkIDs = { "&light": "." + baseLightID, "&dark": "." + baseDarkID };
-function buildTheme(main, spec, scopes) {
+function buildTheme(main2, spec, scopes) {
   return new StyleModule(spec, {
     finish(sel) {
       return /&/.test(sel) ? sel.replace(/&\w*/, (m) => {
         if (m == "&")
-          return main;
+          return main2;
         if (!scopes || !scopes[m])
           throw new RangeError(`Unsupported selector: ${m}`);
         return scopes[m];
-      }) : main + " " + sel;
+      }) : main2 + " " + sel;
     }
   });
 }
@@ -62681,14 +61187,14 @@ function findChild(cView, dom, dir) {
 }
 function safariSelectionRangeHack(view) {
   let found = null;
-  function read(event) {
+  function read2(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
     found = event.getTargetRanges()[0];
   }
-  view.contentDOM.addEventListener("beforeinput", read, true);
+  view.contentDOM.addEventListener("beforeinput", read2, true);
   document.execCommand("indent");
-  view.contentDOM.removeEventListener("beforeinput", read, true);
+  view.contentDOM.removeEventListener("beforeinput", read2, true);
   if (!found)
     return null;
   let anchorNode = found.startContainer, anchorOffset = found.startOffset;
@@ -62698,10 +61204,10 @@ function safariSelectionRangeHack(view) {
     [anchorNode, anchorOffset, focusNode, focusOffset] = [focusNode, focusOffset, anchorNode, anchorOffset];
   return { anchorNode, anchorOffset, focusNode, focusOffset };
 }
-function applyDOMChange(view, start2, end, typeOver) {
+function applyDOMChange(view, start3, end2, typeOver) {
   let change, newSel;
   let sel = view.state.selection.main, bounds;
-  if (start2 > -1 && (bounds = view.docView.domBoundsAround(start2, end, 0))) {
+  if (start3 > -1 && (bounds = view.docView.domBoundsAround(start3, end2, 0))) {
     let { from, to } = bounds;
     let selPoints = view.docView.impreciseHead || view.docView.impreciseAnchor ? [] : selectionPoints(view);
     let reader = new DOMReader(selPoints, view);
@@ -62806,22 +61312,22 @@ var DOMReader = class {
     this.text = "";
     this.lineBreak = view.state.lineBreak;
   }
-  readRange(start2, end) {
-    if (!start2)
+  readRange(start3, end2) {
+    if (!start3)
       return;
-    let parent = start2.parentNode;
-    for (let cur = start2; ; ) {
+    let parent = start3.parentNode;
+    for (let cur = start3; ; ) {
       this.findPointBefore(parent, cur);
       this.readNode(cur);
       let next = cur.nextSibling;
-      if (next == end)
+      if (next == end2)
         break;
       let view = ContentView.get(cur), nextView = ContentView.get(next);
       if ((view ? view.breakAfter : isBlockElement(cur)) || (nextView ? nextView.breakAfter : isBlockElement(next)) && !(cur.nodeName == "BR" && !cur.cmIgnore))
         this.text += this.lineBreak;
       cur = next;
     }
-    this.findPointBefore(parent, end);
+    this.findPointBefore(parent, end2);
   }
   readNode(node) {
     if (node.cmIgnore)
@@ -63114,13 +61620,13 @@ var EditorView = class {
   showAnnouncements(trs) {
     let first = true;
     for (let tr of trs)
-      for (let effect of tr.effects)
-        if (effect.is(EditorView.announce)) {
+      for (let effect5 of tr.effects)
+        if (effect5.is(EditorView.announce)) {
           if (first)
             this.announceDOM.textContent = "";
           first = false;
-          let div = this.announceDOM.appendChild(document.createElement("div"));
-          div.textContent = effect.value;
+          let div2 = this.announceDOM.appendChild(document.createElement("div"));
+          div2.textContent = effect5.value;
         }
   }
   mountStyles() {
@@ -63177,17 +61683,17 @@ var EditorView = class {
   get contentHeight() {
     return this.viewState.contentHeight;
   }
-  moveByChar(start2, forward, by) {
-    return skipAtoms(this, start2, moveByChar(this, start2, forward, by));
+  moveByChar(start3, forward, by) {
+    return skipAtoms(this, start3, moveByChar(this, start3, forward, by));
   }
-  moveByGroup(start2, forward) {
-    return skipAtoms(this, start2, moveByChar(this, start2, forward, (initial) => byGroup(this, start2.head, initial)));
+  moveByGroup(start3, forward) {
+    return skipAtoms(this, start3, moveByChar(this, start3, forward, (initial) => byGroup(this, start3.head, initial)));
   }
-  moveToLineBoundary(start2, forward, includeWrap = true) {
-    return moveToLineBoundary(this, start2, forward, includeWrap);
+  moveToLineBoundary(start3, forward, includeWrap = true) {
+    return moveToLineBoundary(this, start3, forward, includeWrap);
   }
-  moveVertically(start2, forward, distance) {
-    return skipAtoms(this, start2, moveVertically(this, start2, forward, distance));
+  moveVertically(start3, forward, distance) {
+    return skipAtoms(this, start3, moveVertically(this, start3, forward, distance));
   }
   scrollPosIntoView(pos) {
     this.viewState.scrollTo = EditorSelection.cursor(pos);
@@ -63208,8 +61714,8 @@ var EditorView = class {
     let rect = this.docView.coordsAt(pos, side);
     if (!rect || rect.left == rect.right)
       return rect;
-    let line = this.state.doc.lineAt(pos), order = this.bidiSpans(line);
-    let span = order[BidiSpan.find(order, pos - line.from, -1, side)];
+    let line = this.state.doc.lineAt(pos), order2 = this.bidiSpans(line);
+    let span = order2[BidiSpan.find(order2, pos - line.from, -1, side)];
     return flattenRect(rect, span.dir == Direction.LTR == side > 0);
   }
   get defaultCharacterWidth() {
@@ -63231,9 +61737,9 @@ var EditorView = class {
     for (let entry of this.bidiCache)
       if (entry.from == line.from && entry.dir == dir)
         return entry.order;
-    let order = computeOrder(line.text, this.textDirection);
-    this.bidiCache.push(new CachedOrder(line.from, line.to, dir, order));
-    return order;
+    let order2 = computeOrder(line.text, this.textDirection);
+    this.bidiCache.push(new CachedOrder(line.from, line.to, dir, order2));
+    return order2;
   }
   get hasFocus() {
     var _a2;
@@ -63303,11 +61809,11 @@ function handleResize() {
 }
 var BadMeasure = {};
 var CachedOrder = class {
-  constructor(from, to, dir, order) {
+  constructor(from, to, dir, order2) {
     this.from = from;
     this.to = to;
     this.dir = dir;
-    this.order = order;
+    this.order = order2;
   }
   static update(cache, changes) {
     if (changes.empty)
@@ -63516,12 +62022,12 @@ function advanceCursor(cursor, collect, pos) {
   }
 }
 var UpdateContext = class {
-  constructor(gutter2, viewport) {
+  constructor(gutter2, viewport2) {
     this.gutter = gutter2;
     this.localMarkers = [];
     this.i = 0;
     this.height = 0;
-    this.cursor = RangeSet.iter(gutter2.markers, viewport.from);
+    this.cursor = RangeSet.iter(gutter2.markers, viewport2.from);
   }
   line(view, line, extraMarkers) {
     if (this.localMarkers.length)
@@ -63668,8 +62174,8 @@ var lineNumberGutter = /* @__PURE__ */ gutter({
     return new NumberMarker(formatNumber(view, maxLineNumber(view.state.doc.lines)));
   },
   updateSpacer(spacer, update) {
-    let max = formatNumber(update.view, maxLineNumber(update.view.state.doc.lines));
-    return max == spacer.number ? spacer : new NumberMarker(max);
+    let max2 = formatNumber(update.view, maxLineNumber(update.view.state.doc.lines));
+    return max2 == spacer.number ? spacer : new NumberMarker(max2);
   }
 });
 function lineNumbers(config = {}) {
@@ -63864,9 +62370,9 @@ var Tree = class {
   }
 };
 Tree.empty = new Tree(NodeType.none, [], [], 0);
-function withHash(tree, hash) {
-  if (hash)
-    tree.contextHash = hash;
+function withHash(tree, hash3) {
+  if (hash3)
+    tree.contextHash = hash3;
   return tree;
 }
 var TreeBuffer = class {
@@ -63903,16 +62409,16 @@ var TreeBuffer = class {
     let { buffer } = this, pick = -1;
     for (let i = startIndex; i != endIndex; i = buffer[i + 3]) {
       if (after != -1e8) {
-        let start2 = buffer[i + 1], end = buffer[i + 2];
+        let start3 = buffer[i + 1], end2 = buffer[i + 2];
         if (dir > 0) {
-          if (end > after)
+          if (end2 > after)
             pick = i;
-          if (end > after)
+          if (end2 > after)
             break;
         } else {
-          if (start2 < after)
+          if (start3 < after)
             pick = i;
-          if (end >= after)
+          if (end2 >= after)
             break;
         }
       } else {
@@ -63943,15 +62449,15 @@ var TreeNode = class {
   nextChild(i, dir, after, full = false) {
     for (let parent = this; ; ) {
       for (let { children, positions } = parent.node, e = dir > 0 ? children.length : -1; i != e; i += dir) {
-        let next = children[i], start2 = positions[i] + parent.from;
-        if (after != -1e8 && (dir < 0 ? start2 >= after : start2 + next.length <= after))
+        let next = children[i], start3 = positions[i] + parent.from;
+        if (after != -1e8 && (dir < 0 ? start3 >= after : start3 + next.length <= after))
           continue;
         if (next instanceof TreeBuffer) {
-          let index2 = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start2);
+          let index2 = next.findChild(0, next.buffer.length, dir, after == -1e8 ? -1e8 : after - start3);
           if (index2 > -1)
-            return new BufferNode(new BufferContext(parent, next, i, start2), null, index2);
+            return new BufferNode(new BufferContext(parent, next, i, start3), null, index2);
         } else if (full || (!next.type.isAnonymous || hasChild(next))) {
-          let inner = new TreeNode(next, start2, i, parent);
+          let inner = new TreeNode(next, start3, i, parent);
           return full || !inner.type.isAnonymous ? inner : inner.nextChild(dir < 0 ? next.children.length - 1 : 0, dir, after);
         }
       }
@@ -63997,17 +62503,17 @@ var TreeNode = class {
     return this.cursor.moveTo(pos, side).node;
   }
   getChild(type, before = null, after = null) {
-    let r4 = getChildren(this, type, before, after);
+    let r4 = getChildren2(this, type, before, after);
     return r4.length ? r4[0] : null;
   }
   getChildren(type, before = null, after = null) {
-    return getChildren(this, type, before, after);
+    return getChildren2(this, type, before, after);
   }
   toString() {
     return this.node.toString();
   }
 };
-function getChildren(node, type, before, after) {
+function getChildren2(node, type, before, after) {
   let cur = node.cursor, result = [];
   if (!cur.firstChild())
     return result;
@@ -64026,11 +62532,11 @@ function getChildren(node, type, before, after) {
   }
 }
 var BufferContext = class {
-  constructor(parent, buffer, index2, start2) {
+  constructor(parent, buffer, index2, start3) {
     this.parent = parent;
     this.buffer = buffer;
     this.index = index2;
-    this.start = start2;
+    this.start = start3;
   }
 };
 var BufferNode = class {
@@ -64096,11 +62602,11 @@ var BufferNode = class {
     return this.context.buffer.childString(this.index);
   }
   getChild(type, before = null, after = null) {
-    let r4 = getChildren(this, type, before, after);
+    let r4 = getChildren2(this, type, before, after);
     return r4.length ? r4[0] : null;
   }
   getChildren(type, before = null, after = null) {
-    return getChildren(this, type, before, after);
+    return getChildren2(this, type, before, after);
   }
 };
 var TreeCursor = class {
@@ -64135,10 +62641,10 @@ var TreeCursor = class {
   }
   yieldBuf(index2, type) {
     this.index = index2;
-    let { start: start2, buffer } = this.buffer;
+    let { start: start3, buffer } = this.buffer;
     this.type = type || buffer.set.types[buffer.buffer[index2]];
-    this.from = start2 + buffer.buffer[index2 + 1];
-    this.to = start2 + buffer.buffer[index2 + 2];
+    this.from = start3 + buffer.buffer[index2 + 1];
+    this.to = start3 + buffer.buffer[index2 + 2];
     return true;
   }
   yield(node) {
@@ -64324,8 +62830,8 @@ function buildTree(data) {
   let types2 = nodeSet.types;
   let contextHash = 0;
   function takeNode(parentStart, minPos, children2, positions2, inRepeat) {
-    let { id, start: start2, end, size } = cursor;
-    let startPos = start2 - parentStart;
+    let { id, start: start3, end: end2, size } = cursor;
+    let startPos = start3 - parentStart;
     if (size < 0) {
       if (size == -1) {
         children2.push(reused[id]);
@@ -64337,12 +62843,12 @@ function buildTree(data) {
       return;
     }
     let type = types2[id], node, buffer2;
-    if (end - start2 <= maxBufferLength && (buffer2 = findBufferSize(cursor.pos - minPos, inRepeat))) {
+    if (end2 - start3 <= maxBufferLength && (buffer2 = findBufferSize(cursor.pos - minPos, inRepeat))) {
       let data2 = new Uint16Array(buffer2.size - buffer2.skip);
       let endPos = cursor.pos - buffer2.size, index2 = data2.length;
       while (cursor.pos > endPos)
         index2 = copyToBuffer(buffer2.start, data2, index2, inRepeat);
-      node = new TreeBuffer(data2, end - buffer2.start, nodeSet, inRepeat < 0 ? NodeType.none : types2[inRepeat]);
+      node = new TreeBuffer(data2, end2 - buffer2.start, nodeSet, inRepeat < 0 ? NodeType.none : types2[inRepeat]);
       startPos = buffer2.start - parentStart;
     } else {
       let endPos = cursor.pos - size;
@@ -64353,27 +62859,27 @@ function buildTree(data) {
         if (cursor.id == localInRepeat)
           cursor.next();
         else
-          takeNode(start2, endPos, localChildren, localPositions, localInRepeat);
+          takeNode(start3, endPos, localChildren, localPositions, localInRepeat);
       }
       localChildren.reverse();
       localPositions.reverse();
       if (localInRepeat > -1 && localChildren.length > BalanceBranchFactor)
-        node = balanceRange(type, type, localChildren, localPositions, 0, localChildren.length, 0, maxBufferLength, end - start2, contextHash);
+        node = balanceRange(type, type, localChildren, localPositions, 0, localChildren.length, 0, maxBufferLength, end2 - start3, contextHash);
       else
-        node = withHash(new Tree(type, localChildren, localPositions, end - start2), contextHash);
+        node = withHash(new Tree(type, localChildren, localPositions, end2 - start3), contextHash);
     }
     children2.push(node);
     positions2.push(startPos);
   }
   function findBufferSize(maxSize, inRepeat) {
     let fork = cursor.fork();
-    let size = 0, start2 = 0, skip = 0, minStart = fork.end - maxBufferLength;
+    let size = 0, start3 = 0, skip = 0, minStart = fork.end - maxBufferLength;
     let result = { size: 0, start: 0, skip: 0 };
     scan:
       for (let minPos = fork.pos - maxSize; fork.pos > minPos; ) {
         if (fork.id == inRepeat) {
           result.size = size;
-          result.start = start2;
+          result.start = start3;
           result.skip = skip;
           skip += 4;
           size += 4;
@@ -64393,19 +62899,19 @@ function buildTree(data) {
             localSkipped += 4;
           fork.next();
         }
-        start2 = nodeStart;
+        start3 = nodeStart;
         size += nodeSize;
         skip += localSkipped;
       }
     if (inRepeat < 0 || size == maxSize) {
       result.size = size;
-      result.start = start2;
+      result.start = start3;
       result.skip = skip;
     }
     return result.size > 4 ? result : void 0;
   }
   function copyToBuffer(bufferStart, buffer2, index2, inRepeat) {
-    let { id, start: start2, end, size } = cursor;
+    let { id, start: start3, end: end2, size } = cursor;
     cursor.next();
     if (id == inRepeat)
       return index2;
@@ -64417,8 +62923,8 @@ function buildTree(data) {
     }
     if (id < minRepeatType) {
       buffer2[--index2] = startIndex;
-      buffer2[--index2] = end - bufferStart;
-      buffer2[--index2] = start2 - bufferStart;
+      buffer2[--index2] = end2 - bufferStart;
+      buffer2[--index2] = start3 - bufferStart;
       buffer2[--index2] = id;
     }
     return index2;
@@ -64429,12 +62935,12 @@ function buildTree(data) {
   let length = (_a2 = data.length) !== null && _a2 !== void 0 ? _a2 : children.length ? positions[0] + children[0].length : 0;
   return new Tree(types2[topID], children.reverse(), positions.reverse(), length);
 }
-function balanceRange(outerType, innerType, children, positions, from, to, start2, maxBufferLength, length, contextHash) {
+function balanceRange(outerType, innerType, children, positions, from, to, start3, maxBufferLength, length, contextHash) {
   let localChildren = [], localPositions = [];
   if (length <= maxBufferLength) {
     for (let i = from; i < to; i++) {
       localChildren.push(children[i]);
-      localPositions.push(positions[i] - start2);
+      localPositions.push(positions[i] - start3);
     }
   } else {
     let maxChild = Math.max(maxBufferLength, Math.ceil(length * 1.5 / BalanceBranchFactor));
@@ -64451,7 +62957,7 @@ function balanceRange(outerType, innerType, children, positions, from, to, start
         if (only instanceof Tree && only.type == innerType && only.length > maxChild << 1) {
           for (let j = 0; j < only.children.length; j++) {
             localChildren.push(only.children[j]);
-            localPositions.push(only.positions[j] + groupStart - start2);
+            localPositions.push(only.positions[j] + groupStart - start3);
           }
           continue;
         }
@@ -64464,7 +62970,7 @@ function balanceRange(outerType, innerType, children, positions, from, to, start
           inner = withHash(new Tree(NodeType.none, inner.children, inner.positions, inner.length), contextHash);
         localChildren.push(inner);
       }
-      localPositions.push(groupStart - start2);
+      localPositions.push(groupStart - start3);
     }
   }
   return withHash(new Tree(outerType, localChildren, localPositions, length), contextHash);
@@ -64540,8 +63046,8 @@ var StringInput = class {
   lineAfter(pos) {
     if (pos < 0)
       return "";
-    let end = this.string.indexOf("\n", pos);
-    return this.string.slice(pos, end < 0 ? this.length : Math.min(end, this.length));
+    let end2 = this.string.indexOf("\n", pos);
+    return this.string.slice(pos, end2 < 0 ? this.length : Math.min(end2, this.length));
   }
   read(from, to) {
     return this.string.slice(from, Math.min(this.length, to));
@@ -64694,12 +63200,12 @@ var DocInput = class {
   }
 };
 var EditorParseContext = class {
-  constructor(parser2, state, fragments = [], tree, viewport, skipped, scheduleOn) {
+  constructor(parser2, state, fragments = [], tree, viewport2, skipped, scheduleOn) {
     this.parser = parser2;
     this.state = state;
     this.fragments = fragments;
     this.tree = tree;
-    this.viewport = viewport;
+    this.viewport = viewport2;
     this.skipped = skipped;
     this.scheduleOn = scheduleOn;
     this.parse = null;
@@ -64740,14 +63246,14 @@ var EditorParseContext = class {
     return fragments;
   }
   changes(changes, newState) {
-    let { fragments, tree, viewport, skipped } = this;
+    let { fragments, tree, viewport: viewport2, skipped } = this;
     this.takeTree();
     if (!changes.empty) {
       let ranges = [];
       changes.iterChangedRanges((fromA, toA, fromB, toB) => ranges.push({ fromA, toA, fromB, toB }));
       fragments = TreeFragment.applyChanges(fragments, ranges);
       tree = Tree.empty;
-      viewport = { from: changes.mapPos(viewport.from, -1), to: changes.mapPos(viewport.to, 1) };
+      viewport2 = { from: changes.mapPos(viewport2.from, -1), to: changes.mapPos(viewport2.to, 1) };
       if (this.skipped.length) {
         skipped = [];
         for (let r4 of this.skipped) {
@@ -64757,14 +63263,14 @@ var EditorParseContext = class {
         }
       }
     }
-    return new EditorParseContext(this.parser, newState, fragments, tree, viewport, skipped, this.scheduleOn);
+    return new EditorParseContext(this.parser, newState, fragments, tree, viewport2, skipped, this.scheduleOn);
   }
-  updateViewport(viewport) {
-    this.viewport = viewport;
+  updateViewport(viewport2) {
+    this.viewport = viewport2;
     let startLen = this.skipped.length;
     for (let i = 0; i < this.skipped.length; i++) {
       let { from, to } = this.skipped[i];
-      if (from < viewport.to && to > viewport.from) {
+      if (from < viewport2.to && to > viewport2.from) {
         this.fragments = cutFragments(this.fragments, from, to);
         this.skipped.splice(i--, 1);
       }
@@ -65081,9 +63587,9 @@ var HighlightStyle = class {
       return cls;
     }
     this.all = typeof options.all == "string" ? options.all : options.all ? def(options.all) : null;
-    for (let style2 of spec) {
-      let cls = (style2.class || def(Object.assign({}, style2, { tag: null }))) + (this.all ? " " + this.all : "");
-      let tags2 = style2.tag;
+    for (let style of spec) {
+      let cls = (style.class || def(Object.assign({}, style, { tag: null }))) + (this.all ? " " + this.all : "");
+      let tags2 = style.tag;
       if (!Array.isArray(tags2))
         this.map[tags2.id] = cls;
       else
@@ -65121,8 +63627,8 @@ var HighlightStyle = class {
       if (cached !== void 0)
         return cached;
       let result = null;
-      for (let style2 of styles) {
-        let value = style2.match(tag, scope);
+      for (let style of styles) {
+        let value = style.match(tag, scope);
         if (value)
           result = result ? result + " " + value : value;
       }
@@ -65135,8 +63641,8 @@ var HighlightStyle = class {
     return new HighlightStyle(specs, options || {});
   }
   static get(state, tag, scope) {
-    let style2 = getHighlightStyle(state);
-    return style2 && style2(tag, scope || NodeType.none);
+    let style = getHighlightStyle(state);
+    return style && style(tag, scope || NodeType.none);
   }
 };
 var TreeHighlighter = class {
@@ -65146,13 +63652,13 @@ var TreeHighlighter = class {
     this.decorations = this.buildDeco(view, getHighlightStyle(view.state));
   }
   update(update) {
-    let tree = syntaxTree(update.state), style2 = getHighlightStyle(update.state);
-    let styleChange = style2 != update.startState.facet(highlightStyle);
+    let tree = syntaxTree(update.state), style = getHighlightStyle(update.state);
+    let styleChange = style != update.startState.facet(highlightStyle);
     if (tree.length < update.view.viewport.to && !styleChange) {
       this.decorations = this.decorations.map(update.changes);
     } else if (tree != this.tree || update.viewportChanged || styleChange) {
       this.tree = tree;
-      this.decorations = this.buildDeco(update.view, style2);
+      this.decorations = this.buildDeco(update.view, style);
     }
   }
   buildDeco(view, match) {
@@ -65160,8 +63666,8 @@ var TreeHighlighter = class {
       return Decoration.none;
     let builder = new RangeSetBuilder();
     for (let { from, to } of view.visibleRanges) {
-      highlightTreeRange(this.tree, from, to, match, (from2, to2, style2) => {
-        builder.add(from2, to2, this.markCache[style2] || (this.markCache[style2] = Decoration.mark({ class: style2 })));
+      highlightTreeRange(this.tree, from, to, match, (from2, to2, style) => {
+        builder.add(from2, to2, this.markCache[style] || (this.markCache[style] = Decoration.mark({ class: style })));
       });
     }
     return builder.finish();
@@ -65171,7 +63677,7 @@ var treeHighlighter = /* @__PURE__ */ Prec.fallback(/* @__PURE__ */ ViewPlugin.f
   decorations: (v) => v.decorations
 }));
 var nodeStack = [""];
-function highlightTreeRange(tree, from, to, style2, span) {
+function highlightTreeRange(tree, from, to, style, span) {
   let spanStart = from, spanClass = "";
   let cursor = tree.topNode.cursor;
   function flush(at, newClass) {
@@ -65181,8 +63687,8 @@ function highlightTreeRange(tree, from, to, style2, span) {
     spanClass = newClass;
   }
   function node(inheritedClass, depth, scope) {
-    let { type, from: start2, to: end } = cursor;
-    if (start2 >= to || end <= from)
+    let { type, from: start3, to: end2 } = cursor;
+    if (start3 >= to || end2 <= from)
       return;
     nodeStack[depth] = type.name;
     if (type.isTop)
@@ -65192,7 +63698,7 @@ function highlightTreeRange(tree, from, to, style2, span) {
     while (rule) {
       if (!rule.context || matchContext(rule.context, nodeStack, depth)) {
         for (let tag of rule.tags) {
-          let st = style2(tag, scope);
+          let st = style(tag, scope);
           if (st) {
             if (cls)
               cls += " ";
@@ -65207,7 +63713,7 @@ function highlightTreeRange(tree, from, to, style2, span) {
       }
       rule = rule.next;
     }
-    let upto = start2;
+    let upto = start3;
     if (!opaque && cursor.firstChild()) {
       do {
         if (cursor.from > upto && spanClass != cls)
@@ -65217,7 +63723,7 @@ function highlightTreeRange(tree, from, to, style2, span) {
       } while (cursor.nextSibling());
       cursor.parent();
     }
-    if (end > upto && spanClass != cls)
+    if (end2 > upto && spanClass != cls)
       flush(upto, cls);
   }
   node("", 0, tree.type);
@@ -65500,11 +64006,11 @@ var pos_to_linecol = (editor, pos) => {
 };
 var ListingData = class {
 };
-var ListingContext = import_react24.default.createContext(new ListingData());
+var ListingContext = import_react14.default.createContext(new ListingData());
 var ListingConfigure = ({
   language: language2
 }) => {
-  let ctx = (0, import_react24.useContext)(ListingContext);
+  let ctx = (0, import_react14.useContext)(ListingContext);
   ctx.language = language2;
   return null;
 };
@@ -65547,10 +64053,10 @@ var parse_with_delimiters = (code, delimiters) => {
   return { output_code: output_code.join(""), ranges };
 };
 var Listing = (props) => {
-  let [editor, set_editor] = (0, import_react24.useState)(null);
-  let ctx = (0, import_react24.useContext)(ListingContext);
-  let ref = (0, import_react24.useRef)(null);
-  (0, import_react24.useEffect)(() => {
+  let [editor, set_editor] = (0, import_react14.useState)(null);
+  let ctx = (0, import_react14.useContext)(ListingContext);
+  let ref = (0, import_react14.useRef)(null);
+  (0, import_react14.useEffect)(() => {
     let language2 = props.language || ctx.language;
     if (!language2) {
       throw "Language not specified";
@@ -65587,7 +64093,7 @@ var Listing = (props) => {
     }
     set_editor(editor2);
   }, []);
-  return /* @__PURE__ */ import_react24.default.createElement("div", {
+  return /* @__PURE__ */ import_react14.default.createElement("div", {
     ref
   });
 };
@@ -65611,26 +64117,26 @@ var DocumentData = class {
     }
   }
 };
-var DocumentContext = import_react25.default.createContext(new DocumentData());
+var DocumentContext = import_react15.default.createContext(new DocumentData());
 var SectionTitle = ({
   level,
   children
 }) => {
   let Header;
   if (!level || level == 0) {
-    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h2", {
+    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h2", {
       ...props
     });
   } else if (level == 1) {
-    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h3", {
+    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h3", {
       ...props
     });
   } else {
-    Header = (props) => /* @__PURE__ */ import_react25.default.createElement("h4", {
+    Header = (props) => /* @__PURE__ */ import_react15.default.createElement("h4", {
       ...props
     });
   }
-  return /* @__PURE__ */ import_react25.default.createElement(Header, {
+  return /* @__PURE__ */ import_react15.default.createElement(Header, {
     className: "section-title"
   }, children);
 };
@@ -65639,8 +64145,8 @@ var Section = ({
   title,
   children
 }) => {
-  let doc_ctx = (0, import_react25.useContext)(DocumentContext);
-  let def_ctx = (0, import_react25.useContext)(DefinitionContext);
+  let doc_ctx = (0, import_react15.useContext)(DocumentContext);
+  let def_ctx = (0, import_react15.useContext)(DefinitionContext);
   if (doc_ctx.section_contexts.length == 0) {
     doc_ctx.sections += 1;
   } else {
@@ -65657,25 +64163,25 @@ var Section = ({
     doc_ctx.section_contexts.pop();
     return null;
   };
-  return /* @__PURE__ */ import_react25.default.createElement(Definition, {
+  return /* @__PURE__ */ import_react15.default.createElement(Definition, {
     name: name2,
-    Label: () => /* @__PURE__ */ import_react25.default.createElement(import_react25.default.Fragment, null, "Section ", sec_num),
+    Label: () => /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, "Section ", sec_num),
     Tooltip: null,
     block: true
-  }, /* @__PURE__ */ import_react25.default.createElement("section", null, /* @__PURE__ */ import_react25.default.createElement(SectionTitle, {
+  }, /* @__PURE__ */ import_react15.default.createElement("section", null, /* @__PURE__ */ import_react15.default.createElement(SectionTitle, {
     level
-  }, /* @__PURE__ */ import_react25.default.createElement("span", {
+  }, /* @__PURE__ */ import_react15.default.createElement("span", {
     className: "section-number"
-  }, sec_num), " ", title), children, /* @__PURE__ */ import_react25.default.createElement(Cleanup, null)));
+  }, sec_num), " ", title), children, /* @__PURE__ */ import_react15.default.createElement(Cleanup, null)));
 };
 var Footnote = ({ children }) => {
-  let ctx = (0, import_react25.useContext)(DocumentContext);
+  let ctx = (0, import_react15.useContext)(DocumentContext);
   ctx.footnotes.push(children);
   let i = ctx.footnotes.length;
-  return /* @__PURE__ */ import_react25.default.createElement("a", {
+  return /* @__PURE__ */ import_react15.default.createElement("a", {
     href: `#footnote-${i}`,
     id: `footnote-ref-${i}`
-  }, /* @__PURE__ */ import_react25.default.createElement("sup", {
+  }, /* @__PURE__ */ import_react15.default.createElement("sup", {
     className: "footnote-marker"
   }, i));
 };
@@ -65684,63 +64190,63 @@ var Wrap = ({
   children
 }) => {
   let margin = "1rem";
-  let style2;
+  let style;
   if (align == "left") {
-    style2 = { marginRight: margin };
+    style = { marginRight: margin };
   } else if (align == "right") {
-    style2 = { marginLeft: margin };
+    style = { marginLeft: margin };
   } else {
-    style2 = {};
+    style = {};
   }
-  return /* @__PURE__ */ import_react25.default.createElement("div", {
-    style: { float: align, ...style2 }
+  return /* @__PURE__ */ import_react15.default.createElement("div", {
+    style: { float: align, ...style }
   }, children);
 };
 var Row = ({ children }) => {
-  return /* @__PURE__ */ import_react25.default.createElement("div", {
+  return /* @__PURE__ */ import_react15.default.createElement("div", {
     className: "row"
   }, children);
 };
-var Document = ({ children, bibtex }) => {
-  let [def_ctx] = (0, import_react25.useState)(new AllDefinitionData());
+var Document = observer2(({ children, bibtex }) => {
+  let [def_ctx] = (0, import_react15.useState)(new AllDefinitionData());
   def_ctx.add_mode_listeners();
   let Footnotes = (_22) => {
-    let ctx = (0, import_react25.useContext)(DocumentContext);
-    return /* @__PURE__ */ import_react25.default.createElement("div", {
+    let ctx = (0, import_react15.useContext)(DocumentContext);
+    return /* @__PURE__ */ import_react15.default.createElement("div", {
       className: "footnotes"
     }, ctx.footnotes.map((footnote, i) => {
-      let top2 = {};
+      let top3 = {};
       i += 1;
-      return /* @__PURE__ */ import_react25.default.createElement("div", {
+      return /* @__PURE__ */ import_react15.default.createElement("div", {
         className: "footnote",
         id: `footnote-${i}`,
         key: i
-      }, /* @__PURE__ */ import_react25.default.createElement("a", {
+      }, /* @__PURE__ */ import_react15.default.createElement("a", {
         className: "backlink",
         href: `#footnote-ref-${i}`
-      }, "\u2B05"), /* @__PURE__ */ import_react25.default.createElement("span", {
+      }, "\u2B05"), /* @__PURE__ */ import_react15.default.createElement("span", {
         className: "footnote-number"
       }, i), footnote);
     }));
   };
-  return /* @__PURE__ */ import_react25.default.createElement(DefinitionContext.Provider, {
+  return /* @__PURE__ */ import_react15.default.createElement(DefinitionContext.Provider, {
     value: def_ctx
-  }, /* @__PURE__ */ import_react25.default.createElement(DocumentContext.Provider, {
+  }, /* @__PURE__ */ import_react15.default.createElement(DocumentContext.Provider, {
     value: new DocumentData()
-  }, /* @__PURE__ */ import_react25.default.createElement(ReactTexContext.Provider, {
+  }, /* @__PURE__ */ import_react15.default.createElement(ReactTexContext.Provider, {
     value: new TexContext()
-  }, /* @__PURE__ */ import_react25.default.createElement(ReactBibliographyContext.Provider, {
+  }, /* @__PURE__ */ import_react15.default.createElement(ReactBibliographyContext.Provider, {
     value: new BibliographyContext(bibtex || "")
-  }, /* @__PURE__ */ import_react25.default.createElement(ListingContext.Provider, {
+  }, /* @__PURE__ */ import_react15.default.createElement(ListingContext.Provider, {
     value: new ListingData()
-  }, /* @__PURE__ */ import_react25.default.createElement("div", {
-    className: (0, import_classnames7.default)("document-wrapper", {
+  }, /* @__PURE__ */ import_react15.default.createElement("div", {
+    className: (0, import_classnames2.default)("document-wrapper", {
       "def-mode": def_ctx.def_mode
     })
-  }, /* @__PURE__ */ import_react25.default.createElement("div", {
+  }, /* @__PURE__ */ import_react15.default.createElement("div", {
     className: "document"
-  }, children), /* @__PURE__ */ import_react25.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react25.default.createElement(Footnotes, null)))))));
-};
+  }, children), /* @__PURE__ */ import_react15.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react15.default.createElement(Footnotes, null)))))));
+});
 
 // node_modules/reactex/dist/bibliography.js
 function isString(x) {
@@ -65778,9 +64284,9 @@ var BibliographyEntry = class {
   }
   bib_cite() {
     let names = this.authors?.map((author) => [...author.slice(1), author[0]].join(" "));
-    return /* @__PURE__ */ import_react26.default.createElement("div", {
+    return /* @__PURE__ */ import_react16.default.createElement("div", {
       className: "bib-reference"
-    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react26.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
+    }, names ? (names.length > 1 ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1] : names[0]) + ". " : null, this.year ? this.year + ". " : null, this.title ? this.title + ". " : null, /* @__PURE__ */ import_react16.default.createElement("i", null, this.tags.journal || this.tags.booktitle, "."));
   }
 };
 function intersperse(arr, Sep) {
@@ -65788,7 +64294,7 @@ function intersperse(arr, Sep) {
     return [];
   }
   return arr.slice(1).reduce(function(xs, x, i) {
-    return xs.concat([/* @__PURE__ */ import_react26.default.createElement(Sep, {
+    return xs.concat([/* @__PURE__ */ import_react16.default.createElement(Sep, {
       key: i
     }), x]);
   }, [arr[0]]);
@@ -65806,117 +64312,117 @@ var BibliographyContext = class {
     return full ? intersperse(keys.map((key) => {
       let entry = this.citations[key];
       let author = entry.display_author();
-      return /* @__PURE__ */ import_react26.default.createElement(Ref, {
+      return /* @__PURE__ */ import_react16.default.createElement(Ref, {
         key,
         name: key
       }, `${author} [${entry.year}]`);
-    }), (props) => /* @__PURE__ */ import_react26.default.createElement("span", {
+    }), (props) => /* @__PURE__ */ import_react16.default.createElement("span", {
       ...props
-    }, "; ")) : /* @__PURE__ */ import_react26.default.createElement("span", null, "[", intersperse(keys.map((key) => {
+    }, "; ")) : /* @__PURE__ */ import_react16.default.createElement("span", null, "[", intersperse(keys.map((key) => {
       let entry = this.citations[key];
       if (yearonly) {
-        return /* @__PURE__ */ import_react26.default.createElement("span", {
+        return /* @__PURE__ */ import_react16.default.createElement("span", {
           key
         }, "entry.year");
       } else {
         let author = entry.display_author();
-        return /* @__PURE__ */ import_react26.default.createElement(Ref, {
+        return /* @__PURE__ */ import_react16.default.createElement(Ref, {
           key,
           name: key
         }, `${author} ${entry.year}`);
       }
-    }), (props) => /* @__PURE__ */ import_react26.default.createElement("span", {
+    }), (props) => /* @__PURE__ */ import_react16.default.createElement("span", {
       ...props
     }, "; ")), "]");
   }
 };
-var ReactBibliographyContext = import_react26.default.createContext(null);
+var ReactBibliographyContext = import_react16.default.createContext(null);
 var ReferencesSection = (_22) => {
-  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react26.default.createElement("section", null, /* @__PURE__ */ import_react26.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react26.default.createElement(References, {
+  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react16.default.createElement("section", null, /* @__PURE__ */ import_react16.default.createElement(SectionTitle, null, "References"), /* @__PURE__ */ import_react16.default.createElement(References, {
     keys: Object.keys(ctx.used_citations)
   }));
 };
 var References = ({ keys }) => {
-  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
-  return /* @__PURE__ */ import_react26.default.createElement("div", {
+  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
+  return /* @__PURE__ */ import_react16.default.createElement("div", {
     className: "bib-references"
-  }, keys.map((key) => /* @__PURE__ */ import_react26.default.createElement(Definition, {
+  }, keys.map((key) => /* @__PURE__ */ import_react16.default.createElement(Definition, {
     key,
     name: key,
     block: true
   }, ctx.citations[key].bib_cite())));
 };
 var Cite = ({ v, f, y }) => {
-  let ctx = (0, import_react26.useContext)(ReactBibliographyContext);
+  let ctx = (0, import_react16.useContext)(ReactBibliographyContext);
   let keys = typeof v === "string" ? [v] : v;
-  return /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, ctx.cite(keys, f || false, y || false));
+  return /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, ctx.cite(keys, f || false, y || false));
 };
 
 // node_modules/reactex/dist/header.js
-var import_react27 = __toModule(require_react());
-var import_react28 = __toModule(require_react());
-var AffiliationContext = (0, import_react28.createContext)({});
-var InlineError = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("span", {
+var import_react17 = __toModule(require_react());
+var import_react18 = __toModule(require_react());
+var AffiliationContext = (0, import_react18.createContext)({});
+var InlineError = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("span", {
   className: "inline-error"
 }, children);
-var AuthorContext = (0, import_react28.createContext)({});
+var AuthorContext = (0, import_react18.createContext)({});
 var Institution = ({ value }) => {
-  let ctx = (0, import_react28.useContext)(AffiliationContext);
+  let ctx = (0, import_react18.useContext)(AffiliationContext);
   ctx.institution = value;
-  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
+  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
 };
 var Affiliation = ({ children }) => {
-  let auth_ctx = (0, import_react28.useContext)(AuthorContext);
+  let auth_ctx = (0, import_react18.useContext)(AuthorContext);
   let aff_ctx = {};
   let Inner = () => {
     if (!auth_ctx.affiliations) {
       auth_ctx.affiliations = [];
     }
     auth_ctx.affiliations.push(aff_ctx);
-    return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
+    return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
   };
-  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(AffiliationContext.Provider, {
+  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(AffiliationContext.Provider, {
     value: aff_ctx
-  }, children), /* @__PURE__ */ import_react27.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react17.default.createElement(Inner, null));
 };
 var Name = ({ value }) => {
-  let ctx = (0, import_react28.useContext)(AuthorContext);
+  let ctx = (0, import_react18.useContext)(AuthorContext);
   ctx.name = value;
-  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null);
+  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null);
 };
 var Author = ({ children }) => {
   let ctx = {};
-  let Inner = () => /* @__PURE__ */ import_react27.default.createElement("div", {
+  let Inner = () => /* @__PURE__ */ import_react17.default.createElement("div", {
     className: "author"
-  }, ctx.name ? /* @__PURE__ */ import_react27.default.createElement("span", {
+  }, ctx.name ? /* @__PURE__ */ import_react17.default.createElement("span", {
     className: "author-name"
-  }, ctx.name) : /* @__PURE__ */ import_react27.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react27.default.createElement("span", {
+  }, ctx.name) : /* @__PURE__ */ import_react17.default.createElement(InlineError, null, "No author name!"), ctx.affiliations ? /* @__PURE__ */ import_react17.default.createElement("span", {
     className: "author-affiliation"
-  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react27.default.createElement("span", {
+  }, ",", " ", ctx.affiliations.map((affiliation, i) => /* @__PURE__ */ import_react17.default.createElement("span", {
     key: i
-  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, ", ", affiliation.country) : null))) : null);
-  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(AuthorContext.Provider, {
+  }, affiliation.institution ? affiliation.institution : null, affiliation.country ? /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, ", ", affiliation.country) : null))) : null);
+  return /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(AuthorContext.Provider, {
     value: ctx
-  }, children), /* @__PURE__ */ import_react27.default.createElement(Inner, null));
+  }, children), /* @__PURE__ */ import_react17.default.createElement(Inner, null));
 };
 var Authors = ({ children }) => {
-  return /* @__PURE__ */ import_react27.default.createElement("div", {
+  return /* @__PURE__ */ import_react17.default.createElement("div", {
     className: "authors"
   }, children);
 };
-var Title = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("h1", {
+var Title = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("h1", {
   className: "document-title"
 }, children);
-var Abstract = ({ children }) => /* @__PURE__ */ import_react27.default.createElement("div", {
+var Abstract = ({ children }) => /* @__PURE__ */ import_react17.default.createElement("div", {
   className: "abstract"
 }, children);
 
 // node_modules/reactex/dist/language.js
-var import_react30 = __toModule(require_react());
+var import_react20 = __toModule(require_react());
 
 // node_modules/reactex/node_modules/react-async/dist-web/index.js
-var import_react29 = __toModule(require_react());
+var import_react19 = __toModule(require_react());
 var globalScope = (() => {
   if (typeof self === "object" && self.self === self)
     return self;
@@ -65927,11 +64433,11 @@ var globalScope = (() => {
   return {};
 })();
 globalScope.__REACT_ASYNC__ = globalScope.__REACT_ASYNC__ || {};
-var noop4 = () => {
+var noop3 = () => {
 };
 var MockAbortController = class {
   constructor() {
-    this.abort = noop4;
+    this.abort = noop3;
     this.signal = {};
   }
 };
@@ -66008,16 +64514,16 @@ var propTypes = PropTypes && {
 };
 var renderFn = (children, ...args) => {
   if (typeof children === "function") {
-    const render = children;
-    return render(...args);
+    const render2 = children;
+    return render2(...args);
   }
   return children;
 };
-var IfInitial = ({ children, persist, state = {} }) => import_react29.default.createElement(import_react29.default.Fragment, null, state.isInitial || persist && !state.data ? renderFn(children, state) : null);
-var IfPending = ({ children, initial, state = {} }) => import_react29.default.createElement(import_react29.default.Fragment, null, state.isPending && (!initial || !state.value) ? renderFn(children, state) : null);
-var IfFulfilled = ({ children, persist, state = {} }) => import_react29.default.createElement(import_react29.default.Fragment, null, state.isFulfilled || persist && state.data ? renderFn(children, state.data, state) : null);
-var IfRejected = ({ children, persist, state = {} }) => import_react29.default.createElement(import_react29.default.Fragment, null, state.isRejected || persist && state.error ? renderFn(children, state.error, state) : null);
-var IfSettled = ({ children, persist, state = {} }) => import_react29.default.createElement(import_react29.default.Fragment, null, state.isSettled || persist && state.value ? renderFn(children, state) : null);
+var IfInitial = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isInitial || persist && !state.data ? renderFn(children, state) : null);
+var IfPending = ({ children, initial, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isPending && (!initial || !state.value) ? renderFn(children, state) : null);
+var IfFulfilled = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isFulfilled || persist && state.data ? renderFn(children, state.data, state) : null);
+var IfRejected = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isRejected || persist && state.error ? renderFn(children, state.error, state) : null);
+var IfSettled = ({ children, persist, state = {} }) => import_react19.default.createElement(import_react19.default.Fragment, null, state.isSettled || persist && state.value ? renderFn(children, state) : null);
 if (propTypes) {
   IfInitial.propTypes = propTypes.Initial;
   IfPending.propTypes = propTypes.Pending;
@@ -66144,19 +64650,19 @@ var dispatchMiddleware = (dispatch) => (action2, ...args) => {
     action2.payload();
   }
 };
-var Async = class extends import_react29.default.Component {
+var Async = class extends import_react19.default.Component {
 };
 function createInstance(defaultOptions = {}, displayName = "Async") {
-  const { Consumer: UnguardedConsumer, Provider: Provider2 } = import_react29.default.createContext(void 0);
+  const { Consumer: UnguardedConsumer, Provider: Provider2 } = import_react19.default.createContext(void 0);
   function Consumer({ children }) {
-    return import_react29.default.createElement(UnguardedConsumer, null, (value) => {
+    return import_react19.default.createElement(UnguardedConsumer, null, (value) => {
       if (!value) {
         throw new Error("this component should only be used within an associated <Async> component!");
       }
       return children(value);
     });
   }
-  class Async2 extends import_react29.default.Component {
+  class Async2 extends import_react19.default.Component {
     constructor(props) {
       super(props);
       this.mounted = false;
@@ -66309,22 +64815,22 @@ function createInstance(defaultOptions = {}, displayName = "Async") {
         throw this.promise;
       }
       if (typeof children === "function") {
-        const render = children;
-        return import_react29.default.createElement(Provider2, { value: this.state }, render(this.state));
+        const render2 = children;
+        return import_react19.default.createElement(Provider2, { value: this.state }, render2(this.state));
       }
       if (children !== void 0 && children !== null) {
-        return import_react29.default.createElement(Provider2, { value: this.state }, children);
+        return import_react19.default.createElement(Provider2, { value: this.state }, children);
       }
       return null;
     }
   }
   if (propTypes)
     Async2.propTypes = propTypes.Async;
-  const AsyncInitial = (props) => import_react29.default.createElement(Consumer, null, (st) => import_react29.default.createElement(IfInitial, Object.assign({}, props, { state: st })));
-  const AsyncPending = (props) => import_react29.default.createElement(Consumer, null, (st) => import_react29.default.createElement(IfPending, Object.assign({}, props, { state: st })));
-  const AsyncFulfilled = (props) => import_react29.default.createElement(Consumer, null, (st) => import_react29.default.createElement(IfFulfilled, Object.assign({}, props, { state: st })));
-  const AsyncRejected = (props) => import_react29.default.createElement(Consumer, null, (st) => import_react29.default.createElement(IfRejected, Object.assign({}, props, { state: st })));
-  const AsyncSettled = (props) => import_react29.default.createElement(Consumer, null, (st) => import_react29.default.createElement(IfSettled, Object.assign({}, props, { state: st })));
+  const AsyncInitial = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfInitial, Object.assign({}, props, { state: st })));
+  const AsyncPending = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfPending, Object.assign({}, props, { state: st })));
+  const AsyncFulfilled = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfFulfilled, Object.assign({}, props, { state: st })));
+  const AsyncRejected = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfRejected, Object.assign({}, props, { state: st })));
+  const AsyncSettled = (props) => import_react19.default.createElement(Consumer, null, (st) => import_react19.default.createElement(IfSettled, Object.assign({}, props, { state: st })));
   AsyncInitial.displayName = `${displayName}.Initial`;
   AsyncPending.displayName = `${displayName}.Pending`;
   AsyncFulfilled.displayName = `${displayName}.Fulfilled`;
@@ -66347,24 +64853,24 @@ function useAsync(arg1, arg2) {
     ...arg2,
     promiseFn: arg1
   } : arg1;
-  const counter = (0, import_react29.useRef)(0);
-  const isMounted = (0, import_react29.useRef)(true);
-  const lastArgs = (0, import_react29.useRef)(void 0);
-  const lastOptions = (0, import_react29.useRef)(options);
-  const lastPromise = (0, import_react29.useRef)(neverSettle);
-  const abortController = (0, import_react29.useRef)(new MockAbortController());
+  const counter = (0, import_react19.useRef)(0);
+  const isMounted = (0, import_react19.useRef)(true);
+  const lastArgs = (0, import_react19.useRef)(void 0);
+  const lastOptions = (0, import_react19.useRef)(options);
+  const lastPromise = (0, import_react19.useRef)(neverSettle);
+  const abortController = (0, import_react19.useRef)(new MockAbortController());
   const { devToolsDispatcher } = globalScope.__REACT_ASYNC__;
   const { reducer: reducer$1, dispatcher = devToolsDispatcher } = options;
-  const [state, _dispatch] = (0, import_react29.useReducer)(reducer$1 ? (state2, action2) => reducer$1(state2, action2, reducer) : reducer, options, init);
-  const dispatch = (0, import_react29.useCallback)(dispatcher ? (action2) => dispatcher(action2, dispatchMiddleware(_dispatch), lastOptions.current) : dispatchMiddleware(_dispatch), [dispatcher]);
+  const [state, _dispatch] = (0, import_react19.useReducer)(reducer$1 ? (state2, action2) => reducer$1(state2, action2, reducer) : reducer, options, init);
+  const dispatch = (0, import_react19.useCallback)(dispatcher ? (action2) => dispatcher(action2, dispatchMiddleware(_dispatch), lastOptions.current) : dispatchMiddleware(_dispatch), [dispatcher]);
   const { debugLabel } = options;
-  const getMeta = (0, import_react29.useCallback)((meta2) => ({
+  const getMeta = (0, import_react19.useCallback)((meta2) => ({
     counter: counter.current,
     promise: lastPromise.current,
     debugLabel,
     ...meta2
   }), [debugLabel]);
-  const setData = (0, import_react29.useCallback)((data, callback = noop4) => {
+  const setData = (0, import_react19.useCallback)((data, callback = noop3) => {
     if (isMounted.current) {
       dispatch({
         type: ActionTypes.fulfill,
@@ -66375,7 +64881,7 @@ function useAsync(arg1, arg2) {
     }
     return data;
   }, [dispatch, getMeta]);
-  const setError = (0, import_react29.useCallback)((error, callback = noop4) => {
+  const setError = (0, import_react19.useCallback)((error, callback = noop3) => {
     if (isMounted.current) {
       dispatch({
         type: ActionTypes.reject,
@@ -66388,9 +64894,9 @@ function useAsync(arg1, arg2) {
     return error;
   }, [dispatch, getMeta]);
   const { onResolve, onReject } = options;
-  const handleResolve = (0, import_react29.useCallback)((count) => (data) => count === counter.current && setData(data, () => onResolve && onResolve(data)), [setData, onResolve]);
-  const handleReject = (0, import_react29.useCallback)((count) => (err) => count === counter.current && setError(err, () => onReject && onReject(err)), [setError, onReject]);
-  const start2 = (0, import_react29.useCallback)((promiseFn2) => {
+  const handleResolve = (0, import_react19.useCallback)((count) => (data) => count === counter.current && setData(data, () => onResolve && onResolve(data)), [setData, onResolve]);
+  const handleReject = (0, import_react19.useCallback)((count) => (err) => count === counter.current && setError(err, () => onReject && onReject(err)), [setError, onReject]);
+  const start3 = (0, import_react19.useCallback)((promiseFn2) => {
     if ("AbortController" in globalScope) {
       abortController.current.abort();
       abortController.current = new globalScope.AbortController();
@@ -66408,26 +64914,26 @@ function useAsync(arg1, arg2) {
     });
   }, [dispatch, getMeta]);
   const { promise, promiseFn, initialValue } = options;
-  const load = (0, import_react29.useCallback)(() => {
+  const load = (0, import_react19.useCallback)(() => {
     const isPreInitialized = initialValue && counter.current === 0;
     if (promise) {
-      start2(() => promise).then(handleResolve(counter.current)).catch(handleReject(counter.current));
+      start3(() => promise).then(handleResolve(counter.current)).catch(handleReject(counter.current));
     } else if (promiseFn && !isPreInitialized) {
-      start2(() => promiseFn(lastOptions.current, abortController.current)).then(handleResolve(counter.current)).catch(handleReject(counter.current));
+      start3(() => promiseFn(lastOptions.current, abortController.current)).then(handleResolve(counter.current)).catch(handleReject(counter.current));
     }
-  }, [start2, promise, promiseFn, initialValue, handleResolve, handleReject]);
+  }, [start3, promise, promiseFn, initialValue, handleResolve, handleReject]);
   const { deferFn } = options;
-  const run3 = (0, import_react29.useCallback)((...args) => {
+  const run3 = (0, import_react19.useCallback)((...args) => {
     if (deferFn) {
       lastArgs.current = args;
-      start2(() => deferFn(args, lastOptions.current, abortController.current)).then(handleResolve(counter.current)).catch(handleReject(counter.current));
+      start3(() => deferFn(args, lastOptions.current, abortController.current)).then(handleResolve(counter.current)).catch(handleReject(counter.current));
     }
-  }, [start2, deferFn, handleResolve, handleReject]);
-  const reload = (0, import_react29.useCallback)(() => {
+  }, [start3, deferFn, handleResolve, handleReject]);
+  const reload = (0, import_react19.useCallback)(() => {
     lastArgs.current ? run3(...lastArgs.current) : load();
   }, [run3, load]);
   const { onCancel } = options;
-  const cancel = (0, import_react29.useCallback)(() => {
+  const cancel = (0, import_react19.useCallback)(() => {
     onCancel && onCancel();
     counter.current++;
     abortController.current.abort();
@@ -66437,30 +64943,30 @@ function useAsync(arg1, arg2) {
     });
   }, [onCancel, dispatch, getMeta]);
   const { watch, watchFn } = options;
-  (0, import_react29.useEffect)(() => {
+  (0, import_react19.useEffect)(() => {
     if (watchFn && lastOptions.current && watchFn(options, lastOptions.current)) {
       lastOptions.current = options;
       load();
     }
   });
-  (0, import_react29.useEffect)(() => {
+  (0, import_react19.useEffect)(() => {
     lastOptions.current = options;
   }, [options]);
-  (0, import_react29.useEffect)(() => {
+  (0, import_react19.useEffect)(() => {
     if (counter.current)
       cancel();
     if (promise || promiseFn)
       load();
   }, [promise, promiseFn, watch]);
-  (0, import_react29.useEffect)(() => () => {
+  (0, import_react19.useEffect)(() => () => {
     isMounted.current = false;
   }, []);
-  (0, import_react29.useEffect)(() => () => cancel(), []);
-  (0, import_react29.useDebugValue)(state, ({ status }) => `[${counter.current}] ${status}`);
+  (0, import_react19.useEffect)(() => () => cancel(), []);
+  (0, import_react19.useDebugValue)(state, ({ status }) => `[${counter.current}] ${status}`);
   if (options.suspense && state.isPending && lastPromise.current !== neverSettle) {
     throw lastPromise.current;
   }
-  return (0, import_react29.useMemo)(() => ({
+  return (0, import_react19.useMemo)(() => ({
     ...state,
     run: run3,
     reload,
@@ -66472,7 +64978,7 @@ function useAsync(arg1, arg2) {
 var unsupported = () => {
   throw new Error("useAsync requires React v16.8 or up. Upgrade your React version or use the <Async> component instead.");
 };
-var useAsync$1 = import_react29.useEffect ? useAsync : unsupported;
+var useAsync$1 = import_react19.useEffect ? useAsync : unsupported;
 
 // node_modules/reactex/dist/language.js
 var r2 = String.raw;
@@ -66484,11 +64990,11 @@ var Language2 = class {
         let branch_cmds = branches.map(({ subcmd, nargs, body }) => newcommand(cmd + subcmd, nargs, body));
         return [mv_cmd].concat(branch_cmds).join("\n");
       }).join("\n");
-      return /* @__PURE__ */ import_react30.default.createElement($$, null, commands);
+      return /* @__PURE__ */ import_react20.default.createElement($$, null, commands);
     };
     this.BnfInner = ({ container_ref }) => {
-      let def_ctx = (0, import_react30.useContext)(DefinitionContext);
-      let tex_ctx = (0, import_react30.useContext)(ReactTexContext);
+      let def_ctx = (0, import_react20.useContext)(DefinitionContext);
+      let tex_ctx = (0, import_react20.useContext)(ReactTexContext);
       let branch_to_tex = (cmd) => ({ subcmd, args }) => {
         let arg_str = args.map((arg) => `{${arg}}`).join("");
         return r2`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
@@ -66497,12 +65003,12 @@ var Language2 = class {
         data: branch_dims,
         isPending,
         error
-      } = useAsync$1((0, import_react30.useCallback)(async ({}, { signal }) => {
+      } = useAsync$1((0, import_react20.useCallback)(async ({}, { signal }) => {
         let branch_dims2 = await Promise.all(this.grammar.map(({ cmd, branches }) => Promise.all(branches.map(branch_to_tex(cmd)).map((tex2) => tex_ctx.dimensions(tex2, false, container_ref)))));
         return branch_dims2;
       }, []));
       let defs = [];
-      (0, import_react30.useEffect)(() => {
+      (0, import_react20.useEffect)(() => {
         if (branch_dims) {
           defs.forEach(([name2, def]) => def_ctx.add_definition(name2, def));
         }
@@ -66537,29 +65043,29 @@ var Language2 = class {
         kind = kind.replace(` `, r2`\ `);
         branches.forEach(({ subcmd }) => {
           defs.push([`tex:${cmd}${subcmd}`, {
-            Tooltip: () => /* @__PURE__ */ import_react30.default.createElement($$, {
+            Tooltip: () => /* @__PURE__ */ import_react20.default.createElement($$, {
               className: "nomargin"
             }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
             Label: null
           }]);
         });
         defs.push([`tex:${cmd}`, {
-          Tooltip: () => /* @__PURE__ */ import_react30.default.createElement($$, {
+          Tooltip: () => /* @__PURE__ */ import_react20.default.createElement($$, {
             className: "nomargin"
           }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
           Label: null
         }]);
         return r2`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
       }).join(r2`\\`);
-      return /* @__PURE__ */ import_react30.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
+      return /* @__PURE__ */ import_react20.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
     };
     this.Bnf = () => {
-      let ref = (0, import_react30.useRef)(null);
-      let [_19, rerender] = (0, import_react30.useState)(false);
-      (0, import_react30.useEffect)(() => rerender(true), []);
-      return /* @__PURE__ */ import_react30.default.createElement("div", {
+      let ref = (0, import_react20.useRef)(null);
+      let [_19, rerender] = (0, import_react20.useState)(false);
+      (0, import_react20.useEffect)(() => rerender(true), []);
+      return /* @__PURE__ */ import_react20.default.createElement("div", {
         ref
-      }, ref.current ? /* @__PURE__ */ import_react30.default.createElement(this.BnfInner, {
+      }, ref.current ? /* @__PURE__ */ import_react20.default.createElement(this.BnfInner, {
         container_ref: ref.current
       }) : null);
     };
@@ -66599,8 +65105,8 @@ var Stack = class {
   get context() {
     return this.curContext ? this.curContext.context : null;
   }
-  pushState(state, start2) {
-    this.stack.push(this.state, start2, this.bufferBase + this.buffer.length);
+  pushState(state, start3) {
+    this.stack.push(this.state, start3, this.bufferBase + this.buffer.length);
     this.state = state;
   }
   reduce(action2) {
@@ -66617,11 +65123,11 @@ var Stack = class {
       return;
     }
     let base2 = this.stack.length - (depth - 1) * 3 - (action2 & 262144 ? 6 : 0);
-    let start2 = this.stack[base2 - 2];
+    let start3 = this.stack[base2 - 2];
     let bufferBase = this.stack[base2 - 1], count = this.bufferBase + this.buffer.length - bufferBase;
     if (type < parser2.minRepeatTerm || action2 & 131072) {
       let pos = parser2.stateFlag(this.state, 1) ? this.pos : this.reducePos;
-      this.storeNode(type, start2, pos, count + 4, true);
+      this.storeNode(type, start3, pos, count + 4, true);
     }
     if (action2 & 262144) {
       this.state = this.stack[base2];
@@ -66633,28 +65139,28 @@ var Stack = class {
       this.stack.pop();
     this.reduceContext(type);
   }
-  storeNode(term, start2, end, size = 4, isReduce = false) {
+  storeNode(term, start3, end2, size = 4, isReduce = false) {
     if (term == 0) {
-      let cur = this, top2 = this.buffer.length;
-      if (top2 == 0 && cur.parent) {
-        top2 = cur.bufferBase - cur.parent.bufferBase;
+      let cur = this, top3 = this.buffer.length;
+      if (top3 == 0 && cur.parent) {
+        top3 = cur.bufferBase - cur.parent.bufferBase;
         cur = cur.parent;
       }
-      if (top2 > 0 && cur.buffer[top2 - 4] == 0 && cur.buffer[top2 - 1] > -1) {
-        if (start2 == end)
+      if (top3 > 0 && cur.buffer[top3 - 4] == 0 && cur.buffer[top3 - 1] > -1) {
+        if (start3 == end2)
           return;
-        if (cur.buffer[top2 - 2] >= start2) {
-          cur.buffer[top2 - 2] = end;
+        if (cur.buffer[top3 - 2] >= start3) {
+          cur.buffer[top3 - 2] = end2;
           return;
         }
       }
     }
-    if (!isReduce || this.pos == end) {
-      this.buffer.push(term, start2, end, size);
+    if (!isReduce || this.pos == end2) {
+      this.buffer.push(term, start3, end2, size);
     } else {
       let index2 = this.buffer.length;
       if (index2 > 0 && this.buffer[index2 - 4] != 0)
-        while (index2 > 0 && this.buffer[index2 - 2] > end) {
+        while (index2 > 0 && this.buffer[index2 - 2] > end2) {
           this.buffer[index2] = this.buffer[index2 - 4];
           this.buffer[index2 + 1] = this.buffer[index2 - 3];
           this.buffer[index2 + 2] = this.buffer[index2 - 2];
@@ -66664,8 +65170,8 @@ var Stack = class {
             size -= 4;
         }
       this.buffer[index2] = term;
-      this.buffer[index2 + 1] = start2;
-      this.buffer[index2 + 2] = end;
+      this.buffer[index2 + 1] = start3;
+      this.buffer[index2 + 2] = end2;
       this.buffer[index2 + 3] = size;
     }
   }
@@ -66673,15 +65179,15 @@ var Stack = class {
     if (action2 & 131072) {
       this.pushState(action2 & 65535, this.pos);
     } else if ((action2 & 262144) == 0) {
-      let start2 = this.pos, nextState = action2, { parser: parser2 } = this.p;
+      let start3 = this.pos, nextState = action2, { parser: parser2 } = this.p;
       if (nextEnd > this.pos || next <= parser2.maxNode) {
         this.pos = nextEnd;
         if (!parser2.stateFlag(nextState, 1))
           this.reducePos = nextEnd;
       }
-      this.pushState(nextState, start2);
+      this.pushState(nextState, start3);
       if (next <= parser2.maxNode)
-        this.buffer.push(next, start2, nextEnd, 4);
+        this.buffer.push(next, start3, nextEnd, 4);
       this.shiftContext(next);
     } else {
       if (next <= this.p.parser.maxNode)
@@ -66701,10 +65207,10 @@ var Stack = class {
       this.p.reused.push(value);
       index2++;
     }
-    let start2 = this.pos;
-    this.reducePos = this.pos = start2 + value.length;
-    this.pushState(next, start2);
-    this.buffer.push(index2, start2, this.reducePos, -1);
+    let start3 = this.pos;
+    this.reducePos = this.pos = start3 + value.length;
+    this.pushState(next, start3);
+    this.buffer.push(index2, start3, this.reducePos, -1);
     if (this.curContext)
       this.updateContext(this.curContext.tracker.reuse(this.curContext.context, value, this.p.input, this));
   }
@@ -66949,9 +65455,9 @@ var Token = class {
     this.value = -1;
     this.end = -1;
   }
-  accept(value, end) {
+  accept(value, end2) {
     this.value = value;
-    this.end = end;
+    this.end = end2;
   }
 };
 var TokenGroup = class {
@@ -67096,29 +65602,29 @@ var FragmentCursor = class {
         this.nextFragment();
         return null;
       }
-      let top2 = this.trees[last], index2 = this.index[last];
-      if (index2 == top2.children.length) {
+      let top3 = this.trees[last], index2 = this.index[last];
+      if (index2 == top3.children.length) {
         this.trees.pop();
         this.start.pop();
         this.index.pop();
         continue;
       }
-      let next = top2.children[index2];
-      let start2 = this.start[last] + top2.positions[index2];
-      if (start2 > pos) {
-        this.nextStart = start2;
+      let next = top3.children[index2];
+      let start3 = this.start[last] + top3.positions[index2];
+      if (start3 > pos) {
+        this.nextStart = start3;
         return null;
-      } else if (start2 == pos && start2 + next.length <= this.safeTo) {
-        return start2 == pos && start2 >= this.safeFrom ? next : null;
+      } else if (start3 == pos && start3 + next.length <= this.safeTo) {
+        return start3 == pos && start3 >= this.safeFrom ? next : null;
       }
       if (next instanceof TreeBuffer) {
         this.index[last]++;
-        this.nextStart = start2 + next.length;
+        this.nextStart = start3 + next.length;
       } else {
         this.index[last]++;
-        if (start2 + next.length >= pos) {
+        if (start3 + next.length >= pos) {
           this.trees.push(next);
-          this.start.push(start2);
+          this.start.push(start3);
           this.index.push(0);
         }
       }
@@ -67132,8 +65638,8 @@ var CachedToken = class extends Token {
     this.mask = 0;
     this.context = 0;
   }
-  clear(start2) {
-    this.start = start2;
+  clear(start3) {
+    this.start = start3;
     this.value = this.extended = -1;
   }
 };
@@ -67147,7 +65653,7 @@ var TokenCache = class {
   }
   getActions(stack, input) {
     let actionIndex = 0;
-    let main = null;
+    let main2 = null;
     let { parser: parser2 } = stack.p, { tokenizers } = parser2;
     let mask = parser2.stateSlot(stack.state, 3);
     let context = stack.curContext ? stack.curContext.hash : 0;
@@ -67155,7 +65661,7 @@ var TokenCache = class {
       if ((1 << i & mask) == 0)
         continue;
       let tokenizer = tokenizers[i], token = this.tokens[i];
-      if (main && !tokenizer.fallback)
+      if (main2 && !tokenizer.fallback)
         continue;
       if (tokenizer.contextual || token.start != stack.pos || token.mask != mask || token.context != context) {
         this.updateCachedToken(token, tokenizer, stack, input);
@@ -67168,7 +65674,7 @@ var TokenCache = class {
           actionIndex = this.addActions(stack, token.extended, token.end, actionIndex);
         actionIndex = this.addActions(stack, token.value, token.end, actionIndex);
         if (!tokenizer.extend) {
-          main = token;
+          main2 = token;
           if (actionIndex > startIndex)
             break;
         }
@@ -67176,15 +65682,15 @@ var TokenCache = class {
     }
     while (this.actions.length > actionIndex)
       this.actions.pop();
-    if (!main) {
-      main = dummyToken;
-      main.start = stack.pos;
+    if (!main2) {
+      main2 = dummyToken;
+      main2.start = stack.pos;
       if (stack.pos == input.length)
-        main.accept(stack.p.parser.eofTerm, stack.pos);
+        main2.accept(stack.p.parser.eofTerm, stack.pos);
       else
-        main.accept(0, stack.pos + 1);
+        main2.accept(0, stack.pos + 1);
     }
-    this.mainToken = main;
+    this.mainToken = main2;
     return this.actions;
   }
   updateCachedToken(token, tokenizer, stack, input) {
@@ -67209,16 +65715,16 @@ var TokenCache = class {
       token.accept(0, stack.pos + 1);
     }
   }
-  putAction(action2, token, end, index2) {
+  putAction(action2, token, end2, index2) {
     for (let i = 0; i < index2; i += 3)
       if (this.actions[i] == action2)
         return index2;
     this.actions[index2++] = action2;
     this.actions[index2++] = token;
-    this.actions[index2++] = end;
+    this.actions[index2++] = end2;
     return index2;
   }
-  addActions(stack, token, end, index2) {
+  addActions(stack, token, end2, index2) {
     let { state } = stack, { parser: parser2 } = stack.p, { data } = parser2;
     for (let set4 = 0; set4 < 2; set4++) {
       for (let i = parser2.stateSlot(state, set4 ? 2 : 1); ; i += 3) {
@@ -67227,12 +65733,12 @@ var TokenCache = class {
             i = pair(data, i + 2);
           } else {
             if (index2 == 0 && data[i + 1] == 2)
-              index2 = this.putAction(pair(data, i + 1), token, end, index2);
+              index2 = this.putAction(pair(data, i + 1), token, end2, index2);
             break;
           }
         }
         if (data[i] == token)
-          index2 = this.putAction(pair(data, i + 1), token, end, index2);
+          index2 = this.putAction(pair(data, i + 1), token, end2, index2);
       }
     }
     return index2;
@@ -67354,11 +65860,11 @@ var Parse = class {
     return null;
   }
   advanceStack(stack, stacks, split) {
-    let start2 = stack.pos, { input, parser: parser2 } = this;
+    let start3 = stack.pos, { input, parser: parser2 } = this;
     let base2 = verbose ? this.stackID(stack) + " -> " : "";
     if (this.fragments) {
       let strictCx = stack.curContext && stack.curContext.tracker.strict, cxHash = strictCx ? stack.curContext.hash : 0;
-      for (let cached = this.fragments.nodeAt(start2); cached; ) {
+      for (let cached = this.fragments.nodeAt(start3); cached; ) {
         let match = this.parser.nodeSet.types[cached.type.id] == cached.type ? parser2.getGoto(stack.state, cached.type.id) : -1;
         if (match > -1 && cached.length && (!strictCx || (cached.contextHash || 0) == cxHash)) {
           stack.useNode(cached, match);
@@ -67384,15 +65890,15 @@ var Parse = class {
     }
     let actions = this.tokens.getActions(stack, input);
     for (let i = 0; i < actions.length; ) {
-      let action2 = actions[i++], term = actions[i++], end = actions[i++];
+      let action2 = actions[i++], term = actions[i++], end2 = actions[i++];
       let last = i == actions.length || !split;
       let localStack = last ? stack : stack.split();
-      localStack.apply(action2, term, end);
+      localStack.apply(action2, term, end2);
       if (verbose)
-        console.log(base2 + this.stackID(localStack) + ` (via ${(action2 & 65536) == 0 ? "shift" : `reduce of ${parser2.getName(action2 & 65535)}`} for ${parser2.getName(term)} @ ${start2}${localStack == stack ? "" : ", split"})`);
+        console.log(base2 + this.stackID(localStack) + ` (via ${(action2 & 65536) == 0 ? "shift" : `reduce of ${parser2.getName(action2 & 65535)}`} for ${parser2.getName(term)} @ ${start3}${localStack == stack ? "" : ", split"})`);
       if (last)
         return true;
-      else if (localStack.pos > start2)
+      else if (localStack.pos > start3)
         stacks.push(localStack);
       else
         split.push(localStack);
@@ -67656,7 +66162,7 @@ var Parser = class {
       let target = table[pos++];
       if (last && loose)
         return target;
-      for (let end = pos + (groupTag >> 1); pos < end; pos++)
+      for (let end2 = pos + (groupTag >> 1); pos < end2; pos++)
         if (table[pos] == state)
           return target;
       if (last)
@@ -67796,10 +66302,10 @@ var Parser = class {
 function pair(data, off) {
   return data[off] | data[off + 1] << 16;
 }
-function findOffset(data, start2, term) {
-  for (let i = start2, next; (next = data[i]) != 65535; i++)
+function findOffset(data, start3, term) {
+  for (let i = start3, next; (next = data[i]) != 65535; i++)
     if (next == term)
-      return i - start2;
+      return i - start3;
   return -1;
 }
 function findFinished(stacks) {
@@ -68006,24 +66512,24 @@ function rust() {
 }
 
 // src/slicer.tsx
-var import_react31 = __toModule(require_react());
+var import_react21 = __toModule(require_react());
 var import_axios = __toModule(require_axios2());
 var SliceListing = ({
   code,
   prelude
 }) => {
-  let [editor, set_editor] = (0, import_react31.useState)(null);
+  let [editor, set_editor] = (0, import_react21.useState)(null);
   let get_slice = async (range) => {
     editor.dispatch({ effects: clear_highlights.of(null) });
     let program = [prelude || ""].concat(editor.state.doc.toJSON()).join("\n");
-    let start2 = pos_to_linecol(editor, range[0]);
-    let end = pos_to_linecol(editor, range[1]);
-    start2.line += 1;
-    end.line += 1;
-    if (start2.line != end.line) {
+    let start3 = pos_to_linecol(editor, range[0]);
+    let end2 = pos_to_linecol(editor, range[1]);
+    start3.line += 1;
+    end2.line += 1;
+    if (start3.line != end2.line) {
       throw "Start line different from end line";
     }
-    let request = { program, line: start2.line, start: start2.col, end: end.col };
+    let request = { program, line: start3.line, start: start3.col, end: end2.col };
     let response = await import_axios.default.post("http://mindover.computer:8888", request);
     if (response.data.error) {
       console.error(response.data.error);
@@ -68053,7 +66559,7 @@ var SliceListing = ({
       ]
     });
   };
-  return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Listing, {
+  return /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement(Listing, {
     editable: true,
     code,
     extensions: [
@@ -68073,7 +66579,7 @@ var SliceListing = ({
         get_slice(range);
       }
     }
-  }), /* @__PURE__ */ import_react31.default.createElement("button", {
+  }), /* @__PURE__ */ import_react21.default.createElement("button", {
     onClick: () => {
       let selection = editor.state.selection;
       let range = selection.main;
@@ -68487,12 +66993,12 @@ var example_default = `@inproceedings{horwitz1988interprocedural,
 
 // src/index.tsx
 var r3 = String.raw;
-var C2 = (props) => /* @__PURE__ */ import_react32.default.createElement("code", {
+var C2 = (props) => /* @__PURE__ */ import_react22.default.createElement("code", {
   ...props
 });
-var Principle = ({ type, text }) => /* @__PURE__ */ import_react32.default.createElement("p", {
+var Principle = ({ type, text }) => /* @__PURE__ */ import_react22.default.createElement("p", {
   style: { margin: "1rem" }
-}, /* @__PURE__ */ import_react32.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react32.default.createElement("em", null, text));
+}, /* @__PURE__ */ import_react22.default.createElement("strong", null, "Principle 1"), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react22.default.createElement("em", null, text));
 var Oxide = new Language2([
   ["Variable", "vr", "x", []],
   ["Function", "fname", "f", []],
@@ -68584,184 +67090,184 @@ var Oxide = new Language2([
     ["with", 2, r3`{#1}, {#2}`, [r3`\fenv`, r3`\fdef`]]
   ]]
 ]);
-var App = (_19) => /* @__PURE__ */ import_react32.default.createElement(Document, {
+var App = (_19) => /* @__PURE__ */ import_react22.default.createElement(Document, {
   bibtex: example_default
-}, /* @__PURE__ */ import_react32.default.createElement(ListingConfigure, {
+}, /* @__PURE__ */ import_react22.default.createElement(ListingConfigure, {
   language: rust()
-}), /* @__PURE__ */ import_react32.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react32.default.createElement(Authors, null, /* @__PURE__ */ import_react32.default.createElement(Author, null, /* @__PURE__ */ import_react32.default.createElement(Name, {
+}), /* @__PURE__ */ import_react22.default.createElement(Title, null, "Modular Program Slicing Through Ownership"), /* @__PURE__ */ import_react22.default.createElement(Authors, null, /* @__PURE__ */ import_react22.default.createElement(Author, null, /* @__PURE__ */ import_react22.default.createElement(Name, {
   value: "Will Crichton"
-}), /* @__PURE__ */ import_react32.default.createElement(Affiliation, null, /* @__PURE__ */ import_react32.default.createElement(Institution, {
+}), /* @__PURE__ */ import_react22.default.createElement(Affiliation, null, /* @__PURE__ */ import_react22.default.createElement(Institution, {
   value: "Stanford University"
-})))), /* @__PURE__ */ import_react32.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react32.default.createElement($$, null, r3`
+})))), /* @__PURE__ */ import_react22.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react22.default.createElement($$, null, r3`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
-    `), /* @__PURE__ */ import_react32.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react32.default.createElement(Section, {
+    `), /* @__PURE__ */ import_react22.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Introduction",
   name: "sec:intro"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: ["xu2005brief", "silva2012vocabulary"]
-}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "parnin2011automated"
-}), /* @__PURE__ */ import_react32.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "cuoq2012frama"
-}), " and dg ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " and dg ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "llvmslicer"
-}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "jayaraman2005kaveri"
-}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "balakrishnan2005codesurfer"
-}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react32.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react32.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react32.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react32.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react32.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react32.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react32.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react32.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react32.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react32.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react32.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react32.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react32.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react32.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react32.default.createElement("ul", null, /* @__PURE__ */ import_react32.default.createElement("li", null, /* @__PURE__ */ import_react32.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react22.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react22.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react22.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "might2010resolving"
-}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "zhao2018parallel"
-}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react32.default.createElement("li", null, /* @__PURE__ */ import_react32.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react32.default.createElement("li", null, /* @__PURE__ */ import_react32.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react32.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react32.default.createElement("p", null), /* @__PURE__ */ import_react32.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react22.default.createElement("li", null, /* @__PURE__ */ import_react22.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react22.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react22.default.createElement("p", null), /* @__PURE__ */ import_react22.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "rountev1999data",
   f: true
-}), " and", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "cousot2002modular",
   f: true
-}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react32.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), "."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react32.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react32.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "girard1987linear"
-}), ", class-based alias management", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ", class-based alias management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "clarke1998ownership"
-}), ", and region-based memory management", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ", and region-based memory management", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "grossman2002region"
-}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react32.default.createElement("ol", null, /* @__PURE__ */ import_react32.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), ". Generally, ownership refers to a system where values are owned by an entity, which can temporarily or permanently transfer ownership to other entities. The type system then statically tracks the flow of ownership between entities. Ownership-based type systems enforce the invariant that values are not simultaneously aliased and mutated, either for the purposes of avoiding memory errors, data races, or abstraction violations."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Our thesis is that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of the necessary dataflow information. We build this thesis in five parts:"), /* @__PURE__ */ import_react22.default.createElement("ol", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "We provide an intuition for the relationship between ownership and slicing by describing how ownership works in Rust, the only industrial-grade ownership-based programming language today (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:background"
-}), ")."), /* @__PURE__ */ import_react32.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We formalize an algorithm for modular static slicing as an extension to the type system of Oxide ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "weiss2019oxide"
-}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), ", a formal model of Rust's static and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:model"
-}), " and ", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:algorithm"
-}), ")."), /* @__PURE__ */ import_react32.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "abadi1999core",
   f: true
-}), " (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:soundness"
-}), " and ", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " and ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:appendix"
-}), ")."), /* @__PURE__ */ import_react32.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), ")."), /* @__PURE__ */ import_react22.default.createElement("li", null, "We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:implementation"
-}), ")"), /* @__PURE__ */ import_react32.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), ")"), /* @__PURE__ */ import_react22.default.createElement("li", null, "We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:evaluation"
-}), ")."))), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), ")."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Principles",
   name: "sec:background"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, "A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:places"
-}), "), references (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "), references (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:pointers"
-}), "), function calls (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "), function calls (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:funcalls"
-}), "), and interior mutability (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "), and interior mutability (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:intmut"
-}), ").", " "), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), ").", " "), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Places",
   name: "sec:places"
-}, /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let y = 2;
 let z = 3;
 x = y;
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react32.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react22.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: `let mut x = 1;
 let mut y = 2;
 if y > 0 { x = 3; } 
 else     { y = 4; }
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react32.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react32.default.createElement(Row, null, /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react22.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{:?}", @t@);`
-}), /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.0@);`
-}), /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.2@);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react32.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
   type: "places",
   text: "A mutation to a place is a mutation to all conflicting places."
-}), /* @__PURE__ */ import_react32.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "References",
   name: "sec:pointers"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "right"
-}, /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   code: r3`let mut x = 1;
 let y = &mut x;
 *y = 2;
 let z = &x;
 println!("{}", @*z@);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react32.default.createElement(Ref, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:intmut"
-}), "). For a given type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react32.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react32.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), "). For a given type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react22.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react22.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   v: "smaragdakis2015pointer"
-}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react32.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react32.default.createElement(Row, null, /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`// Dangling reference
 let p = {
   let x = 1; &x
 };
 let y = *p;`
-}), /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`// Use-after-free
 let d = tempdir();
 let d2 = &d;
 d.close();
 let p = d2.path();`
-}), /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}), /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`// Iterator invalidation
 let mut v = vec![1,2];
 for x in v.iter() {
   v.push(*x);
 }`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react32.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`let mut x: i32 = 1;
 let y: &'1 i32 = &'0 mut x;
 *y = 2;
 let z: &'3 i32 = &'2 x;
 println!("{}", *z);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react32.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "tofte1997region"
-}), " and", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "grossman2002region"
-}), " use this model."), /* @__PURE__ */ import_react32.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " use this model."), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "polonius"
-}), " and", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}), " and", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`let mut x = 1;
 let mut y = 2;
 let z: &'2 mut i32 = if true {
@@ -68771,93 +67277,93 @@ let z: &'2 mut i32 = if true {
 };
 let w: &'4 mut i32 = &'3 mut *z;
 *w = 1;`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react32.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
   type: "references",
   text: "The lifetime of a reference contains all potential aliases of what the reference points-to."
-}), /* @__PURE__ */ import_react32.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), /* @__PURE__ */ import_react22.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Function calls",
   name: "sec:funcalls"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react32.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react32.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react22.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{} {} {}", y, z, w);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:intro"
-}), ".", " "), /* @__PURE__ */ import_react32.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react32.default.createElement("ul", null, /* @__PURE__ */ import_react32.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react32.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react32.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react32.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react32.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react32.default.createElement(Row, null, /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}), ".", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react22.default.createElement("ul", null, /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react22.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react22.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react22.default.createElement(Row, null, /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @y@);`
-}), /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @z@);`
-}), /* @__PURE__ */ import_react32.default.createElement(SliceListing, {
+}), /* @__PURE__ */ import_react22.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @w@);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react32.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react32.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react22.default.createElement(Principle, {
   type: "function calls",
   text: "When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
-}), /* @__PURE__ */ import_react32.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react32.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), /* @__PURE__ */ import_react22.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react32.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react32.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react32.default.createElement("center", {
+}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react22.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react22.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react22.default.createElement("center", {
   style: { margin: "1rem 0" }
-}, /* @__PURE__ */ import_react32.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react32.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}, /* @__PURE__ */ import_react22.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react22.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Interior mutability",
   name: "sec:intmut"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react32.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react32.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react22.default.createElement(Wrap, {
   align: "left"
-}, /* @__PURE__ */ import_react32.default.createElement(Listing, {
+}, /* @__PURE__ */ import_react22.default.createElement(Listing, {
   code: r3`let value = Arc::new(Mutex::new(0));
 let value_ref = value.clone();
 thread::spawn(move || { 
   *value_ref.lock().unwrap() += 1; 
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`
-})), /* @__PURE__ */ import_react32.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react32.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react32.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react32.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react32.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react32.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react22.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react22.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react22.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react22.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react22.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react22.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "astrauskas2020programmers"
-}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react32.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react22.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:whole-vs-mod"
-}), "."))), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), "."))), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Formal Model",
   name: "sec:model"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react32.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react22.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react32.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react22.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:syn"
-}), "), static semantics (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "), static semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:statsem"
-}), ") and dynamic semantics (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), ") and dynamic semantics (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:dynsem"
-}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}), "), and then apply these concepts to formalize the slicing principles of the previous section (", /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "sec:formal_principles"
-}), ")."), /* @__PURE__ */ import_react32.default.createElement(Section, {
+}), ")."), /* @__PURE__ */ import_react22.default.createElement(Section, {
   title: "Syntax",
   name: "sec:syn"
-}, /* @__PURE__ */ import_react32.default.createElement("p", null, /* @__PURE__ */ import_react32.default.createElement(Ref, {
+}, /* @__PURE__ */ import_react22.default.createElement("p", null, /* @__PURE__ */ import_react22.default.createElement(Ref, {
   name: "fig:oxide_syntax"
-}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react32.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react32.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react32.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react32.default.createElement("p", null, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react32.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))));
-import_react_dom7.default.render(/* @__PURE__ */ import_react32.default.createElement(App, null), document.getElementById("container"));
+}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react22.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react22.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react22.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react22.default.createElement("p", null, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react22.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))));
+import_react_dom4.default.render(/* @__PURE__ */ import_react22.default.createElement(App, null), document.getElementById("container"));
 export {
   App
 };
@@ -68902,14 +67408,6 @@ object-assign
  */
 /** @license React v0.20.2
  * scheduler.development.js
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-/** @license React v16.13.1
- * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
