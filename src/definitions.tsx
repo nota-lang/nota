@@ -1,11 +1,12 @@
 import React, { useState, useContext, useEffect, forwardRef } from "react";
 import _ from "lodash";
-import Tippy from "@tippyjs/react";
+import { usePopper } from "react-popper";
 import classNames from "classnames";
 import { autorun, makeObservable, observable, action, runInAction } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 
-import { AdaptiveDisplay } from "./utils";
+import { ToplevelElem } from "./document";
+import { AdaptiveDisplay, HTMLAttributes } from "./utils";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;
@@ -109,6 +110,48 @@ function checkVisible(elm: any): boolean {
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
 
+interface TooltipProps {
+  Inner: React.FC<HTMLAttributes & { ref: any }>;
+  Popup: React.FC;
+}
+
+let Tooltip = ({ Inner, Popup }: TooltipProps) => {
+  const [referenceElement, setReferenceElement] = useState(null);
+  const [popperElement, setPopperElement] = useState(null);
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: "top",
+    modifiers: [{ name: "offset", options: { offset: [0, 10] } }],
+  });
+  let [init, set_init] = useState(false);
+  let [show, set_show] = useState(false);
+
+  let on_click = () => {
+    if (!init) {
+      set_init(true);
+    }
+    set_show(!show);
+  };
+
+  return (
+    <>
+      <Inner ref={setReferenceElement} onClick={on_click} />
+
+      {init ? (
+        <ToplevelElem>
+          <div
+            className="tooltip"
+            ref={setPopperElement as any}
+            style={{ ...styles.popper, display: show ? "block" : "none" }}
+            {...attributes.popper}
+          >
+            <Popup />
+          </div>
+        </ToplevelElem>
+      ) : null}
+    </>
+  );
+};
+
 export let Ref: React.FC<RefProps> = observer((props) => {
   let ctx = useContext(DefinitionContext);
   let def = ctx.get_definition(props.name);
@@ -162,21 +205,14 @@ export let Ref: React.FC<RefProps> = observer((props) => {
     <span className="error">No children or label for "{props.name}"</span>
   );
 
-  let Inner = forwardRef<HTMLDivElement>(({}, ref) => (
+  let Inner = forwardRef<HTMLDivElement>((inner_props, ref) => (
     <AdaptiveDisplay
       ref={ref}
       block={props.block}
       className={classNames("ref", {
         nolink: props.nolink,
       })}
-      onMouseEnter={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
+      {...inner_props}
       onDoubleClick={on_click}
     >
       {inner}
@@ -184,14 +220,7 @@ export let Ref: React.FC<RefProps> = observer((props) => {
   ));
 
   if (def.Tooltip) {
-    return (
-      <Tippy
-        content={/* <def.Tooltip /> */ "Ok"}
-        trigger={ctx.def_mode ? "mouseenter" : "click"}
-      >
-        <Inner />
-      </Tippy>
-    );
+    return <Tooltip Inner={Inner} Popup={def.Tooltip} />;
   } else {
     return <Inner />;
   }

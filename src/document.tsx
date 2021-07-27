@@ -1,8 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useRef, useEffect, useCallback } from "react";
+import ReactDOM from "react-dom";
 import _ from "lodash";
 import CSS from "csstype";
 import classNames from "classnames";
-import {observer} from "mobx-react";
+import { observer, Observer } from "mobx-react";
+import { makeObservable, observable } from "mobx";
 
 import { ReactTexContext, TexContext } from "./tex";
 import {
@@ -10,7 +12,11 @@ import {
   ReferencesSection,
   BibliographyContext,
 } from "./bibliography";
-import { DefinitionContext, AllDefinitionData, Definition } from "./definitions";
+import {
+  DefinitionContext,
+  AllDefinitionData,
+  Definition,
+} from "./definitions";
 import { ListingContext, ListingData } from "./code";
 
 class SectionData {
@@ -20,17 +26,15 @@ class SectionData {
 class DocumentData {
   sections: number = 0;
   footnotes: React.ReactNode[] = [];
-  labels: { [key: string]: string } = {};
   section_contexts: SectionData[] = [];
+  toplevel_portal: Element | null;
 
-  add_label(key: string, value: string) {
-    if (!this.labels[key]) {
-      this.labels[key] = value;
-    }
+  constructor(toplevel_portal: Element | null) {
+    this.toplevel_portal = toplevel_portal;
   }
 }
 
-let DocumentContext = React.createContext<DocumentData>(new DocumentData());
+let DocumentContext = React.createContext<DocumentData>(new DocumentData(null));
 
 export let SectionTitle: React.FC<{ level?: number }> = ({
   level,
@@ -130,56 +134,79 @@ export let Row: React.FC = ({ children }) => {
   return <div className="row">{children}</div>;
 };
 
+export let ToplevelElem: React.FC = ({ children }) => {
+  let ctx = useContext(DocumentContext);
+  return ReactDOM.createPortal(children, ctx.toplevel_portal!);
+};
+
 interface DocumentProps {
   bibtex?: string;
 }
 
-export let Document: React.FC<DocumentProps> = observer(({ children, bibtex }) => {
+let Footnotes: React.FC = (_) => {
+  let ctx = useContext(DocumentContext);
+  return (
+    <div className="footnotes">
+      {ctx.footnotes.map((footnote, i) => {
+        let top = {};
+        i += 1;
+        return (
+          <div className="footnote" id={`footnote-${i}`} key={i}>
+            <a className="backlink" href={`#footnote-ref-${i}`}>
+              ⬅
+            </a>
+            <span className="footnote-number">{i}</span>
+            {footnote}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export let DocumentInner: React.FC = observer(({ children }) => {
+  let def_ctx = useContext(DefinitionContext);
+
+  return (
+    <div
+      className={classNames("document-wrapper", {
+        "def-mode": def_ctx.def_mode,
+      })}
+    >
+      <div className="document">{children}</div>
+      <ReferencesSection />
+      <Footnotes />
+    </div>
+  );
+});
+
+export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
   let [def_ctx] = useState(new AllDefinitionData());
   def_ctx.add_mode_listeners();
 
-  let Footnotes: React.FC = (_) => {
-    let ctx = useContext(DocumentContext);
-    return (
-      <div className="footnotes">
-        {ctx.footnotes.map((footnote, i) => {
-          let top = {};
-          i += 1;
-          return (
-            <div className="footnote" id={`footnote-${i}`} key={i}>
-              <a className="backlink" href={`#footnote-ref-${i}`}>
-                ⬅
-              </a>
-              <span className="footnote-number">{i}</span>
-              {footnote}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  let [toplevel_portal, set_toplevel_portal] = useState(null);
+  let on_portal_mount = useCallback(node => {
+    set_toplevel_portal(node);
+  }, []);
 
   return (
     <DefinitionContext.Provider value={def_ctx}>
-      <DocumentContext.Provider value={new DocumentData()}>
+      <DocumentContext.Provider value={new DocumentData(toplevel_portal)}>
         <ReactTexContext.Provider value={new TexContext()}>
           <ReactBibliographyContext.Provider
             value={new BibliographyContext(bibtex || "")}
           >
             <ListingContext.Provider value={new ListingData()}>
-              <div
-                className={classNames("document-wrapper", {
-                  "def-mode": def_ctx.def_mode,
-                })}
-              >
-                <div className="document">{children}</div>
-                <ReferencesSection />
-                <Footnotes />
-              </div>
+              {toplevel_portal != null ? (
+                <DocumentInner>
+                  {children}
+                </DocumentInner>
+              ) : null}
+              <div ref={on_portal_mount} />
             </ListingContext.Provider>
           </ReactBibliographyContext.Provider>
         </ReactTexContext.Provider>
       </DocumentContext.Provider>
     </DefinitionContext.Provider>
   );
-});
+};

@@ -271,21 +271,9 @@ sup.footnote-marker {
 }
 
 .tooltip {
-  border: 1px solid #ccc !important;
-  font-family: $serif;
-
-  &::after {
-    border: none !important;
-  }
-}
-
-.rc-tooltip {
-  opacity: 1;
-  background-color: white;
-  font-size: $size-small;
-}
-
-.rc-tooltip-inner {
-  min-height: auto;
-  max-width: 760px;
+  border: 1px solid #aaa;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
