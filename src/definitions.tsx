@@ -1,12 +1,22 @@
-import React, { useState, useContext, useEffect, forwardRef } from "react";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  forwardRef,
+  useLayoutEffect,
+} from "react";
 import _ from "lodash";
-import { usePopper } from "react-popper";
+import ReactDOM from "react-dom";
+// import { usePopper } from "react-popper";
+import { createPopper, Instance  } from "@popperjs/core";
 import classNames from "classnames";
 import { autorun, makeObservable, observable, action, runInAction } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 
 import { ToplevelElem } from "./document";
 import { AdaptiveDisplay, HTMLAttributes } from "./utils";
+import { useRef } from "react";
+import { end } from "@popperjs/core";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;
@@ -115,34 +125,112 @@ interface TooltipProps {
   Popup: React.FC;
 }
 
-let Tooltip = ({ Inner, Popup }: TooltipProps) => {
-  const [referenceElement, setReferenceElement] = useState(null);
-  const [popperElement, setPopperElement] = useState(null);
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: "top",
-    modifiers: [{ name: "offset", options: { offset: [0, 10] } }],
+// TODO
+// * Immediately:
+//   - wrap this logic into a context
+//   - document weird state machine bits about flushing / being in an event
+// * Long term:
+//   - better architecture for this??
+let elts: any = {};
+let queue: string[] = [];
+let flushed = false;
+let in_event = false;
+let queue_update = (id: string) => {
+  console.log('queueing', id);
+  queue.push(id);
+};
+
+let check_queue = () => {
+  if (!_.every(queue, (id) => id in elts)) {
+    return;
+  }
+
+  console.log('flushing', queue);
+  let last_el: Element | null = null;
+  queue.forEach((id) => {
+    let { popperElement, referenceElement, instance, set_show } =
+      elts[id];
+    let ref_el = last_el === null ? referenceElement : last_el;
+    instance.state.elements.reference = ref_el;
+    instance.forceUpdate();
+    set_show(true);
+    last_el = popperElement;
   });
-  let [init, set_init] = useState(false);
+
+  Object.keys(elts).forEach((id) => {
+    if (queue.indexOf(id) == -1) {
+      elts[id].set_show(false);
+    }
+  });
+
+  queue = [];
+  if (in_event) {
+    flushed = true;
+  }
+};
+
+window.addEventListener("click", () => {
+  in_event = true;
+}, true);
+
+window.addEventListener("click", () => {
+  if (!flushed) {
+    check_queue();
+  }
+
+  flushed = false;
+  in_event = false;
+});
+
+let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
+  const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+  const [instance, set_instance] = useState<Instance | null>(null);
+
+  let def_ctx = useContext(DefinitionContext);
+
+  let [id] = useState(_.uniqueId());
+  let [stage, set_stage] = useState("start");
   let [show, set_show] = useState(false);
 
-  let on_click = () => {
-    if (!init) {
-      set_init(true);
+  let trigger = () => {
+    if (stage == "start") {
+      set_stage("mount");
     }
-    set_show(!show);
+    queue_update(id);
   };
+
+  useEffect(() => {
+    if (stage == "mount" && referenceElement && popperElement) {
+      set_stage("done");
+      let instance = createPopper(referenceElement, popperElement, {
+        placement: "top",
+        modifiers: [{ name: "offset", options: { offset: [0, 10] } }],
+      });
+      set_instance(instance);
+      elts[id] = {
+        popperElement,
+        referenceElement,
+        instance,
+        set_show,
+      };
+      check_queue();
+    }
+  }, [stage, referenceElement, popperElement]);  
 
   return (
     <>
-      <Inner ref={setReferenceElement} onClick={on_click} />
-
-      {init ? (
+      <Inner ref={setReferenceElement} onClick={trigger} />
+      {stage != "start" ? (
         <ToplevelElem>
           <div
             className="tooltip"
-            ref={setPopperElement as any}
-            style={{ ...styles.popper, display: show ? "block" : "none" }}
-            {...attributes.popper}
+            ref={setPopperElement}
+            style={{
+              ...(stage == "done" ? instance!.state.styles.popper : {}),
+              visibility: show ? "visible" : "hidden",
+            } as any}
+            {...(stage == "done" ? instance!.state.attributes.popper : {})}
           >
             <Popup />
           </div>
@@ -150,7 +238,7 @@ let Tooltip = ({ Inner, Popup }: TooltipProps) => {
       ) : null}
     </>
   );
-};
+});
 
 export let Ref: React.FC<RefProps> = observer((props) => {
   let ctx = useContext(DefinitionContext);

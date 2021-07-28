@@ -867,7 +867,7 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <Oxide.Bnf />
 
-        <p>Here's an example expression in this custom syntax:</p>
+        <p style={{marginBottom: '200px'}}>Here's an example expression in this custom syntax:</p>
 
         <$$>{r`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`}</$$>
       </Section>

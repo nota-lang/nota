@@ -91,7 +91,7 @@ export class Language {
       }, [])
     );
 
-    // Have to pull out add_definition calls into an effect to avoid 
+    // Have to pull out add_definition calls into an effect to avoid
     // "setState while rendering component" errors
     let defs: [string, DefinitionData][] = [];
     useEffect(() => {
@@ -113,8 +113,11 @@ export class Language {
 
     let tex = zipExn(this.grammar, branch_dims)
       .map(([{ kind, cmd, metavar, branches }, bdims]) => {
-        let rhs: string;
-        if (branches.length > 0) {
+        let make_rhs = (hl?: string) => {
+          if (branches.length == 0) {
+            return "";
+          }
+
           let [rows] = zipExn(branches, bdims).reduce(
             ([rows, cur_width], [branch, dims]) => {
               let last_row = rows[rows.length - 1];
@@ -133,34 +136,49 @@ export class Language {
             [[[]] as SyntaxBranch[][], 0]
           );
           let str = rows
-            .map((row) => row.map(branch_to_tex(cmd)).join(r` \mid `))
+            .map((row) =>
+              row
+                .map((branch) => {
+                  let tex = branch_to_tex(cmd)(branch);
+                  if (hl && branch.subcmd == hl) {
+                    tex = r`\htmlClass{tex-highlight}{${tex}}`;
+                  }
+                  return tex;
+                })
+                .join(r` \mid `)
+            )
             .join(r`\\& & & && &&\mid`);
-          rhs = `::= ~ &&${str}`;
-        } else {
-          rhs = ``;
-        }
+          return `::= ~ &&${str}`;
+        };
 
         kind = kind.replace(` `, r`\ `);
 
         branches.forEach(({ subcmd }) => {
-          defs.push([`tex:${cmd}${subcmd}`, {
+          let rhs = make_rhs(subcmd);
+          defs.push([
+            `tex:${cmd}${subcmd}`,
+            {
+              Tooltip: () => (
+                <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
+              ),
+              Label: null,
+            },
+          ]);
+        });
+
+        let rhs = make_rhs();
+        defs.push([
+          `tex:${cmd}`,
+          {
             Tooltip: () => (
               <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
             ),
             Label: null,
-            }]);
-        });
-
-        defs.push([`tex:${cmd}`, {
-          Tooltip: () => (
-            <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
-          ),
-          Label: null,
-        }]);
+          },
+        ]);
         return r`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
       })
-      .join(r`\\`); 
-
+      .join(r`\\`);
 
     return <$$>{r`\begin{aligned}${tex}\end{aligned}`}</$$>;
   };

@@ -49,6 +49,7 @@ $colors: (
   peach: rgb(250, 223, 203),
   forest-green: rgb(186, 220, 199),
   error: rgb(190, 34, 34),
+  highlight: rgb(255, 249, 172)
 );
 
 @each $name, $color in $colors {
@@ -233,11 +234,23 @@ section {
   margin: 0;
 }
 
+// HACK: for making latex BNF tooltips look aligned correctly
+// is there a better way to do this? either in latex or css
+.tooltip .mtable {
+  vertical-align: middle;
+}
+
 // Fix overlapping span elements in align environments
 // See: https://github.com/KaTeX/KaTeX/issues/2815
 .katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
   pointer-events: none;
+  height: 0px!important;
 }
+
+.tex-highlight {
+  background: color("highlight");
+}
+
 
 .bib-references {
   text-align: justify;

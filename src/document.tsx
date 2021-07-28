@@ -1,4 +1,10 @@
-import React, { useState, useContext, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useContext,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 import CSS from "csstype";
@@ -185,7 +191,7 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
   def_ctx.add_mode_listeners();
 
   let [toplevel_portal, set_toplevel_portal] = useState(null);
-  let on_portal_mount = useCallback(node => {
+  let on_portal_mount = useCallback((node) => {
     set_toplevel_portal(node);
   }, []);
 
@@ -198,9 +204,7 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
           >
             <ListingContext.Provider value={new ListingData()}>
               {toplevel_portal != null ? (
-                <DocumentInner>
-                  {children}
-                </DocumentInner>
+                <DocumentInner>{children}</DocumentInner>
               ) : null}
               <div ref={on_portal_mount} />
             </ListingContext.Provider>
