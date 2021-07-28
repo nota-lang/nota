@@ -1188,6 +1188,12 @@ body {
 .bgcolor-error {
   background: #be2222;
 }
+.textcolor-highlight {
+  color: #fff9ac;
+}
+.bgcolor-highlight {
+  background: #fff9ac;
+}
 body {
   font-family: "Linux Libertine O", serif;
   font-size: 18px;
@@ -1318,8 +1324,15 @@ section {
 .nomargin .katex-display {
   margin: 0;
 }
+.tooltip .mtable {
+  vertical-align: middle;
+}
 .katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
   pointer-events: none;
+  height: 0px !important;
+}
+.tex-highlight {
+  background: #fff9ac;
 }
 .bib-references {
   text-align: justify;
