@@ -1056,11 +1056,11 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer2, initialArg, init2);
         }
-        function useRef4(initialValue) {
+        function useRef5(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect5(create, deps) {
+        function useEffect6(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1630,12 +1630,12 @@ var require_react_development = __commonJS({
         exports.useCallback = useCallback5;
         exports.useContext = useContext8;
         exports.useDebugValue = useDebugValue2;
-        exports.useEffect = useEffect5;
+        exports.useEffect = useEffect6;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useLayoutEffect = useLayoutEffect;
         exports.useMemo = useMemo2;
         exports.useReducer = useReducer2;
-        exports.useRef = useRef4;
+        exports.useRef = useRef5;
         exports.useState = useState11;
         exports.version = ReactVersion;
       })();
@@ -4148,7 +4148,7 @@ var require_react_dom_development = __commonJS({
           var warnedForNaNValue = false;
           var warnedForInfinityValue = false;
           var camelize = function(string2) {
-            return string2.replace(hyphenPattern, function(_19, character) {
+            return string2.replace(hyphenPattern, function(_20, character) {
               return character.toUpperCase();
             });
           };
@@ -21428,7 +21428,7 @@ var require_lodash = __commonJS({
         return string2.match(reUnicodeWord) || [];
       }
       var runInContext = function runInContext2(context) {
-        context = context == null ? root : _19.defaults(root.Object(), context, _19.pick(root, contextProps));
+        context = context == null ? root : _20.defaults(root.Object(), context, _20.pick(root, contextProps));
         var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
@@ -26135,17 +26135,17 @@ var require_lodash = __commonJS({
         }
         return lodash;
       };
-      var _19 = runInContext();
+      var _20 = runInContext();
       if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
-        root._ = _19;
+        root._ = _20;
         define(function() {
-          return _19;
+          return _20;
         });
       } else if (freeModule) {
-        (freeModule.exports = _19)._ = _19;
-        freeExports._ = _19;
+        (freeModule.exports = _20)._ = _20;
+        freeExports._ = _20;
       } else {
-        root._ = _19;
+        root._ = _20;
       }
     }).call(exports);
   }
@@ -46407,7 +46407,7 @@ var comparer = {
   "default": defaultComparer,
   shallow: shallowComparer
 };
-function deepEnhancer(v, _19, name2) {
+function deepEnhancer(v, _20, name2) {
   if (isObservable(v))
     return v;
   if (Array.isArray(v))
@@ -46435,7 +46435,7 @@ function deepEnhancer(v, _19, name2) {
   }
   return v;
 }
-function shallowEnhancer(v, _19, name2) {
+function shallowEnhancer(v, _20, name2) {
   if (v === void 0 || v === null)
     return v;
   if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v) || isObservableSet(v))
@@ -52272,6 +52272,53 @@ var AdaptiveDisplay = (0, import_react9.forwardRef)(({ block, ...props }, ref) =
   }
 });
 
+// node_modules/reactex/dist/scroll.js
+function checkVisible(elm) {
+  var rect = elm.getBoundingClientRect();
+  var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+  return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+}
+var scroll_hooks = {};
+var register_scroll_hook = (id, cb) => {
+  scroll_hooks[id] = cb;
+  console.log(scroll_hooks);
+};
+var get_ancestors = (el) => {
+  let nodes = [];
+  while (el.parentNode) {
+    nodes.push(el.parentNode);
+    el = el.parentNode;
+  }
+  return nodes;
+};
+var scroll_to = (anchor_id) => {
+  let anchor_elem = document.getElementById(anchor_id);
+  let anchor_hash = "#" + anchor_id;
+  if (window.location.hash == anchor_hash) {
+  }
+  window.history.pushState(null, "", anchor_hash);
+  window.history.pushState(null, "", "#" + anchor_hash);
+  window.history.back();
+  let ancestors = get_ancestors(anchor_elem);
+  let expanded = false;
+  ancestors.forEach((node) => {
+    if (node instanceof HTMLElement && node.id in scroll_hooks) {
+      scroll_hooks[node.id]();
+      expanded = true;
+    }
+  });
+  if (!expanded && checkVisible(anchor_elem)) {
+    return;
+  }
+  setTimeout(() => {
+    let block = anchor_elem.offsetHeight > window.innerHeight ? "start" : "center";
+    anchor_elem.scrollIntoView({
+      block,
+      inline: "center"
+    });
+  }, 100);
+};
+
 // node_modules/reactex/dist/definitions.js
 var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
@@ -52341,11 +52388,6 @@ var Definition = (props) => {
     name: name2
   }, props.children);
 };
-function checkVisible(elm) {
-  var rect = elm.getBoundingClientRect();
-  var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-  return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
-}
 var elts = {};
 var queue = [];
 var flushed = false;
@@ -52358,7 +52400,6 @@ var check_queue = () => {
   if (!import_lodash2.default.every(queue, (id) => id in elts)) {
     return;
   }
-  console.log("flushing", queue);
   let last_el = null;
   queue.forEach((id) => {
     let { popperElement, referenceElement, instance, set_show } = elts[id];
@@ -52391,8 +52432,8 @@ window.addEventListener("click", () => {
 var Tooltip = observer2(({ Inner, Popup }) => {
   const [referenceElement, setReferenceElement] = (0, import_react10.useState)(null);
   const [popperElement, setPopperElement] = (0, import_react10.useState)(null);
+  const [arrowElement, setArrowElement] = (0, import_react10.useState)(null);
   const [instance, set_instance] = (0, import_react10.useState)(null);
-  let def_ctx = (0, import_react10.useContext)(DefinitionContext);
   let [id] = (0, import_react10.useState)(import_lodash2.default.uniqueId());
   let [stage, set_stage] = (0, import_react10.useState)("start");
   let [show, set_show] = (0, import_react10.useState)(false);
@@ -52407,7 +52448,10 @@ var Tooltip = observer2(({ Inner, Popup }) => {
       set_stage("done");
       let instance2 = createPopper(referenceElement, popperElement, {
         placement: "top",
-        modifiers: [{ name: "offset", options: { offset: [0, 10] } }]
+        modifiers: [
+          { name: "offset", options: { offset: [0, 10] } },
+          { name: "arrow", options: { element: arrowElement } }
+        ]
       });
       set_instance(instance2);
       elts[id] = {
@@ -52430,7 +52474,13 @@ var Tooltip = observer2(({ Inner, Popup }) => {
       visibility: show ? "visible" : "hidden"
     },
     ...stage == "done" ? instance.state.attributes.popper : {}
-  }, /* @__PURE__ */ import_react10.default.createElement(Popup, null))) : null);
+  }, /* @__PURE__ */ import_react10.default.createElement("div", {
+    className: "arrow",
+    ref: setArrowElement,
+    style: {
+      display: show ? "block" : "none"
+    }
+  }), /* @__PURE__ */ import_react10.default.createElement(Popup, null))) : null);
 });
 var Ref = observer2((props) => {
   let ctx = (0, import_react10.useContext)(DefinitionContext);
@@ -52443,28 +52493,13 @@ var Ref = observer2((props) => {
   let on_click = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    let anchor_id = `def-${props.name}`;
-    let anchor_elem = document.getElementById(anchor_id);
-    let anchor_hash = "#" + anchor_id;
-    if (window.location.hash == anchor_hash) {
-    }
-    window.history.pushState(null, "", anchor_hash);
-    window.history.pushState(null, "", "#" + anchor_hash);
-    window.history.back();
-    if (checkVisible(anchor_elem)) {
-      return;
-    }
-    setTimeout(() => {
-      let block = anchor_elem.offsetHeight > window.innerHeight ? "start" : "center";
-      anchor_elem.scrollIntoView({
-        block,
-        inline: "center"
-      });
-    }, 100);
+    scroll_to(`def-${props.name}`);
   };
   let inner = props.children ? /* @__PURE__ */ import_react10.default.createElement(import_react10.default.Fragment, null, props.children) : def.Label ? /* @__PURE__ */ import_react10.default.createElement(def.Label, null) : /* @__PURE__ */ import_react10.default.createElement("span", {
     className: "error"
   }, 'No children or label for "', props.name, '"');
+  let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";
+  let event_props = { [scroll_event]: on_click };
   let Inner = (0, import_react10.forwardRef)((inner_props, ref) => /* @__PURE__ */ import_react10.default.createElement(AdaptiveDisplay, {
     ref,
     block: props.block,
@@ -52472,7 +52507,7 @@ var Ref = observer2((props) => {
       nolink: props.nolink
     }),
     ...inner_props,
-    onDoubleClick: on_click
+    ...event_props
   }, inner));
   if (def.Tooltip) {
     return /* @__PURE__ */ import_react10.default.createElement(Tooltip, {
@@ -52518,14 +52553,29 @@ var TexContext = class {
     return rect;
   }
   render(contents, block = false, raw = false, props = {}) {
-    let html = import_katex.default.renderToString(contents, {
-      macros: this.macros,
-      globalGroup: true,
-      trust: true,
-      strict: false,
-      output: "html",
-      displayMode: block
-    });
+    let html;
+    try {
+      html = import_katex.default.renderToString(contents, {
+        macros: this.macros,
+        globalGroup: true,
+        trust: true,
+        strict: false,
+        output: "html",
+        displayMode: block
+      });
+    } catch (e) {
+      if (e instanceof import_katex.default.ParseError) {
+        console.error(e);
+        return /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+          className: "error",
+          block
+        }, /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
+          block
+        }, e.message), block ? /* @__PURE__ */ import_react11.default.createElement("pre", null, contents) : null);
+      } else {
+        throw e;
+      }
+    }
     if (raw) {
       return /* @__PURE__ */ import_react11.default.createElement(AdaptiveDisplay, {
         block,
@@ -54200,7 +54250,7 @@ var nonASCIISingleCaseWordChar = /[\u00df\u0587\u0590-\u05f4\u0600-\u06ff\u3040-
 var wordChar;
 try {
   wordChar = /* @__PURE__ */ new RegExp("[\\p{Alphabetic}\\p{Number}_]", "u");
-} catch (_19) {
+} catch (_20) {
 }
 function hasWordChar(str) {
   if (wordChar)
@@ -54234,7 +54284,7 @@ var EditorState = class {
     if (tr && tr.startState.config == config) {
       this.values = tr.startState.values.slice();
     } else {
-      this.values = config.dynamicSlots.map((_19) => null);
+      this.values = config.dynamicSlots.map((_20) => null);
       if (tr)
         for (let id in config.address) {
           let cur = config.address[id], prev = tr.startState.config.address[id];
@@ -55293,7 +55343,7 @@ function hasSelection(dom, selection) {
     return false;
   try {
     return contains2(dom, selection.anchorNode);
-  } catch (_19) {
+  } catch (_20) {
     return false;
   }
 }
@@ -55486,7 +55536,7 @@ function contentEditablePlainTextSupported() {
     try {
       dummy.contentEditable = "plaintext-only";
       _plainTextSupported = dummy.contentEditable == "plaintext-only";
-    } catch (_19) {
+    } catch (_20) {
     }
   }
   return _plainTextSupported;
@@ -56682,7 +56732,7 @@ var PluginInstance = class {
         if (this.value.destroy)
           try {
             this.value.destroy();
-          } catch (_19) {
+          } catch (_20) {
           }
         return PluginInstance.dummy;
       }
@@ -62639,14 +62689,12 @@ var DocumentData = class {
     this.sections = 0;
     this.footnotes = [];
     this.section_contexts = [];
+    this.figures = 0;
     this.toplevel_portal = toplevel_portal;
   }
 };
 var DocumentContext = import_react13.default.createContext(new DocumentData(null));
-var SectionTitle = ({
-  level,
-  children
-}) => {
+var SectionTitle = ({ level, children }) => {
   let Header;
   if (!level || level == 0) {
     Header = (props) => /* @__PURE__ */ import_react13.default.createElement("h2", {
@@ -62665,11 +62713,7 @@ var SectionTitle = ({
     className: "section-title"
   }, children);
 };
-var Section = ({
-  name: name2,
-  title,
-  children
-}) => {
+var Section = ({ name: name2, title, children }) => {
   let doc_ctx = (0, import_react13.useContext)(DocumentContext);
   let def_ctx = (0, import_react13.useContext)(DefinitionContext);
   if (doc_ctx.section_contexts.length == 0) {
@@ -62678,10 +62722,7 @@ var Section = ({
     import_lodash4.default.last(doc_ctx.section_contexts).subsections += 1;
   }
   let level = doc_ctx.section_contexts.length;
-  let sec_num = [
-    doc_ctx.sections,
-    ...doc_ctx.section_contexts.map((ctx) => ctx.subsections)
-  ].join(".");
+  let sec_num = [doc_ctx.sections, ...doc_ctx.section_contexts.map((ctx) => ctx.subsections)].join(".");
   let sec_ctx = new SectionData();
   doc_ctx.section_contexts.push(sec_ctx);
   let Cleanup = (_22) => {
@@ -62699,6 +62740,34 @@ var Section = ({
     className: "section-number"
   }, sec_num), " ", title), children, /* @__PURE__ */ import_react13.default.createElement(Cleanup, null)));
 };
+var FigureData = class {
+};
+var FigureContext = import_react13.default.createContext(new FigureData());
+var Figure = (props) => {
+  let doc_ctx = (0, import_react13.useContext)(DocumentContext);
+  doc_ctx.figures += 1;
+  let fig_num = doc_ctx.figures;
+  let label = `Figure ${fig_num}`;
+  let fig_ctx = new FigureData();
+  let Caption2 = () => /* @__PURE__ */ import_react13.default.createElement(Definition, {
+    name: props.name,
+    Label: () => /* @__PURE__ */ import_react13.default.createElement(import_react13.default.Fragment, null, label),
+    Tooltip: null,
+    block: true
+  }, /* @__PURE__ */ import_react13.default.createElement("div", {
+    className: "caption"
+  }, label, ": ", fig_ctx.caption));
+  return /* @__PURE__ */ import_react13.default.createElement(FigureContext.Provider, {
+    value: fig_ctx
+  }, /* @__PURE__ */ import_react13.default.createElement("div", {
+    className: "figure"
+  }, props.children, /* @__PURE__ */ import_react13.default.createElement(Caption2, null)));
+};
+var Caption = (props) => {
+  let ctx = (0, import_react13.useContext)(FigureContext);
+  ctx.caption = /* @__PURE__ */ import_react13.default.createElement(import_react13.default.Fragment, null, props.children);
+  return null;
+};
 var Footnote = ({ children }) => {
   let ctx = (0, import_react13.useContext)(DocumentContext);
   ctx.footnotes.push(children);
@@ -62710,10 +62779,7 @@ var Footnote = ({ children }) => {
     className: "footnote-marker"
   }, i));
 };
-var Wrap = ({
-  align,
-  children
-}) => {
+var Wrap = ({ align, children }) => {
   let margin = "1rem";
   let style;
   if (align == "left") {
@@ -62735,6 +62801,39 @@ var Row = ({ children }) => {
 var ToplevelElem = ({ children }) => {
   let ctx = (0, import_react13.useContext)(DocumentContext);
   return import_react_dom3.default.createPortal(children, ctx.toplevel_portal);
+};
+var Expandable = ({ children, prompt }) => {
+  let ref = (0, import_react13.useRef)(null);
+  let [show, set_show] = (0, import_react13.useState)(false);
+  let [height, set_height] = (0, import_react13.useState)(0);
+  let [id] = (0, import_react13.useState)(() => import_lodash4.default.uniqueId());
+  (0, import_react13.useEffect)(() => {
+    let observer22 = new ResizeObserver((entries) => {
+      let height2 = entries[0].borderBoxSize[0].blockSize;
+      set_height(height2);
+      console.log(entries);
+    });
+    observer22.observe(ref.current);
+    register_scroll_hook(id, () => {
+      set_show(true);
+    });
+  }, []);
+  return /* @__PURE__ */ import_react13.default.createElement("div", {
+    className: (0, import_classnames2.default)("expandable", { expanded: show })
+  }, /* @__PURE__ */ import_react13.default.createElement("div", {
+    style: { textAlign: "center" }
+  }, /* @__PURE__ */ import_react13.default.createElement("span", {
+    className: "expand",
+    onClick: () => set_show(!show)
+  }, show ? "Hide..." : prompt, /* @__PURE__ */ import_react13.default.createElement("span", {
+    style: { fontSize: "0.7em" }
+  }, "\xA0 ", show ? "\u2B06" : "\u2B07"))), /* @__PURE__ */ import_react13.default.createElement("div", {
+    className: "inner nomargin",
+    style: { height: show ? height : 0 }
+  }, /* @__PURE__ */ import_react13.default.createElement("div", {
+    id,
+    ref
+  }, children)));
 };
 var Footnotes = (_22) => {
   let ctx = (0, import_react13.useContext)(DocumentContext);
@@ -62844,17 +62943,18 @@ var BibliographyContext = class {
     this.citations = import_lodash5.default.chain(entries).map((entry) => [entry.citationKey, new BibliographyEntry(entry)]).fromPairs().value();
     this.used_citations = {};
   }
-  cite(keys, full, yearonly) {
+  cite(keys, full, yearonly, ex) {
     keys.forEach((key) => {
       this.used_citations[key] = true;
     });
+    let suffix = ex ? `, ${ex}` : "";
     return full ? intersperse(keys.map((key) => {
       let entry = this.citations[key];
       let author = entry.display_author();
       return /* @__PURE__ */ import_react14.default.createElement(Ref, {
         key,
         name: key
-      }, `${author} [${entry.year}]`);
+      }, `${author} [${entry.year}${suffix}]`);
     }), (props) => /* @__PURE__ */ import_react14.default.createElement("span", {
       ...props
     }, "; ")) : /* @__PURE__ */ import_react14.default.createElement("span", null, "[", intersperse(keys.map((key) => {
@@ -62868,7 +62968,7 @@ var BibliographyContext = class {
         return /* @__PURE__ */ import_react14.default.createElement(Ref, {
           key,
           name: key
-        }, `${author} ${entry.year}`);
+        }, `${author} ${entry.year}${suffix}`);
       }
     }), (props) => /* @__PURE__ */ import_react14.default.createElement("span", {
       ...props
@@ -62892,10 +62992,10 @@ var References = ({ keys }) => {
     block: true
   }, ctx.citations[key].bib_cite())));
 };
-var Cite = ({ v, f, y }) => {
+var Cite = ({ v, f, y, ex }) => {
   let ctx = (0, import_react14.useContext)(ReactBibliographyContext);
   let keys = typeof v === "string" ? [v] : v;
-  return /* @__PURE__ */ import_react14.default.createElement(import_react14.default.Fragment, null, ctx.cite(keys, f || false, y || false));
+  return /* @__PURE__ */ import_react14.default.createElement(import_react14.default.Fragment, null, ctx.cite(keys, f || false, y || false, ex));
 };
 
 // node_modules/reactex/dist/header.js
@@ -63520,6 +63620,7 @@ var unsupported = () => {
 var useAsync$1 = import_react17.useEffect ? useAsync : unsupported;
 
 // node_modules/reactex/dist/language.js
+var import_lodash6 = __toModule(require_lodash());
 var r2 = String.raw;
 var Language2 = class {
   constructor(grammar) {
@@ -63531,7 +63632,7 @@ var Language2 = class {
       }).join("\n");
       return /* @__PURE__ */ import_react18.default.createElement($$, null, commands);
     };
-    this.BnfInner = ({ container_ref }) => {
+    this.BnfInner = (props) => {
       let def_ctx = (0, import_react18.useContext)(DefinitionContext);
       let tex_ctx = (0, import_react18.useContext)(ReactTexContext);
       let branch_to_tex = (cmd) => ({ subcmd, args }) => {
@@ -63543,7 +63644,7 @@ var Language2 = class {
         isPending,
         error
       } = useAsync$1((0, import_react18.useCallback)(async ({}, { signal }) => {
-        let branch_dims2 = await Promise.all(this.grammar.map(({ cmd, branches }) => Promise.all(branches.map(branch_to_tex(cmd)).map((tex2) => tex_ctx.dimensions(tex2, false, container_ref)))));
+        let branch_dims2 = await Promise.all(this.grammar.map(({ cmd, branches }) => Promise.all(branches.map(branch_to_tex(cmd)).map((tex) => tex_ctx.dimensions(tex, false, props.container_ref)))));
         return branch_dims2;
       }, []));
       let defs = [];
@@ -63560,7 +63661,7 @@ var Language2 = class {
         return null;
       }
       const MAX_ROW_WIDTH = 350;
-      let tex = zipExn(this.grammar, branch_dims).map(([{ kind, cmd, metavar, branches }, bdims]) => {
+      let rules = zipExn(this.grammar, branch_dims).map(([{ kind, cmd, metavar, branches }, bdims]) => {
         let make_rhs = (hl) => {
           if (branches.length == 0) {
             return "";
@@ -63577,15 +63678,16 @@ var Language2 = class {
             return [rows2, cur_width];
           }, [[[]], 0]);
           let str = rows.map((row) => row.map((branch) => {
-            let tex2 = branch_to_tex(cmd)(branch);
+            let tex = branch_to_tex(cmd)(branch);
             if (hl && branch.subcmd == hl) {
-              tex2 = r2`\htmlClass{tex-highlight}{${tex2}}`;
+              tex = r2`\htmlClass{tex-highlight}{${tex}}`;
             }
-            return tex2;
-          }).join(r2` \mid `)).join(r2`\\& & & && &&\mid`);
+            return tex;
+          }).join(r2`
+  \mid `)).join(r2`\\& & & && &&\mid`);
           return `::= ~ &&${str}`;
         };
-        kind = kind.replace(` `, r2`\ `);
+        kind = kind.replace(/ /g, r2`\ `);
         branches.forEach(({ subcmd }) => {
           let rhs2 = make_rhs(subcmd);
           defs.push([
@@ -63604,22 +63706,34 @@ var Language2 = class {
           {
             Tooltip: () => /* @__PURE__ */ import_react18.default.createElement($$, {
               className: "nomargin"
-            }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`),
+            }, r2`\begin{aligned}&\mathsf{${kind}}& ~ &\htmlClass{tex-highlight}{${metavar}} &&${rhs}\end{aligned}`),
             Label: null
           }
         ]);
         return r2`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
-      }).join(r2`\\`);
-      return /* @__PURE__ */ import_react18.default.createElement($$, null, r2`\begin{aligned}${tex}\end{aligned}`);
+      });
+      let layout = props.layout || {
+        columns: 1,
+        cutoff: 0
+      };
+      let columns = layout.columns > 1 ? import_lodash6.default.chunk(rules, layout.cutoff) : [rules];
+      let sep = r2`
+%
+\hspace{2em}
+%
+`;
+      let final_tex = columns.map((col) => r2`\begin{aligned}${col.join(r2`\\`)}\end{aligned}`).join(sep);
+      return /* @__PURE__ */ import_react18.default.createElement($$, null, final_tex);
     };
-    this.Bnf = () => {
+    this.Bnf = (props) => {
       let ref = (0, import_react18.useRef)(null);
-      let [_19, rerender] = (0, import_react18.useState)(false);
+      let [_22, rerender] = (0, import_react18.useState)(false);
       (0, import_react18.useEffect)(() => rerender(true), []);
       return /* @__PURE__ */ import_react18.default.createElement("div", {
         ref
       }, ref.current ? /* @__PURE__ */ import_react18.default.createElement(this.BnfInner, {
-        container_ref: ref.current
+        container_ref: ref.current,
+        ...props
       }) : null);
     };
     this.grammar = grammar.map(([kind, cmd, metavar, in_branches]) => {
@@ -63649,7 +63763,7 @@ var Stack = class {
     this.parent = parent;
   }
   toString() {
-    return `[${this.stack.filter((_19, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
+    return `[${this.stack.filter((_20, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
   }
   static start(p, state, pos = 0) {
     let cx = p.parser.context;
@@ -64202,7 +64316,7 @@ var TokenCache = class {
     this.tokens = [];
     this.mainToken = dummyToken;
     this.actions = [];
-    this.tokens = parser2.tokenizers.map((_19) => new CachedToken());
+    this.tokens = parser2.tokenizers.map((_20) => new CachedToken());
   }
   getActions(stack, input) {
     let actionIndex = 0;
@@ -65643,7 +65757,57 @@ var Oxide = new Language2([
     ["with", 2, r3`{#1}, {#2}`, [r3`\fenv`, r3`\fdef`]]
   ]]
 ]);
-var App = (_19) => /* @__PURE__ */ import_react20.default.createElement(Document, {
+var OxideExtra = new Language2([
+  ["Dead Types", "tyd", r3`\tau^\textsc{SD}`, [
+    ["s", 1, r3`{#1}^\dagger`, [r3`\tys`]],
+    ["tup", 1, r3`({#1})`, [r3`\tyd_1, \ldots, \tyd_n`]]
+  ]],
+  ["Maybe Unsized Type", "tyx", r3`\tau^\textsc{XI}`, [
+    ["s", 1, "{#1}", [r3`\tys`]],
+    ["a", 1, "[{#1}]", [r3`\tys`]]
+  ]],
+  ["Maybe Dead Types", "tysx", r3`\tau^\textsc{SX}`, [
+    ["s", 1, "{#1}", [r3`\tys`]],
+    ["d", 1, "{#1}", [r3`\tyd`]],
+    ["tup", 1, "({#1})", [r3`\tysx_1, \ldots, \tysx_n`]]
+  ]],
+  ["Type", "ty", r3`\tau`, [
+    ["tyx", 1, "{#1}", [r3`\tyx`]],
+    ["tysx", 1, "{#1}", [r3`\tysx`]]
+  ]],
+  ["Loan", "loan", r3`\ell`, [
+    [`form`, 2, r3`\,^{#1}{#2}`, [r3`\ownq`, r3`\pexp`]]
+  ]],
+  ["Frame Var", "frmvar", r3`\varphi`, []],
+  ["Frame Typing", "ft", r3`\mathcal{F}`, [
+    ["empty", 0, r3`\bullet`, []],
+    ["wty", 3, "{#1}, {#2} : {#3}", [r3`\ft`, r3`\vr`, r3`\tyx`]],
+    [
+      "wlf",
+      3,
+      r3`{#1}, {#2} \mapsto {#3}`,
+      [r3`\ft`, r3`\concrprov`, r3`\setof{\loan}`]
+    ]
+  ]],
+  ["Stack Typing", "stackenv", r3`\Gamma`, [
+    ["empty", 0, r3`\bullet`, []],
+    ["wfr", 2, r3`{#1} \mathrel{\natural} {#2}`, [r3`\stackenv`, r3`\ft`]]
+  ]],
+  ["Kind", "kind", r3`\kappa`, [
+    ["base", 0, r3`\bigstar`, []],
+    ["prv", 0, r3`\msf{PRV}`, []],
+    ["frm", 0, r3`\msf{FRM}`, []]
+  ]],
+  ["Type Var", "tyvar", r3`\alpha`, []],
+  ["Type Environment", "tyenv", r3`\Delta`, [
+    ["empty", 0, r3`\bullet`, []],
+    ["wtvar", 2, r3`{#1}, {#2} : \kindbase`, [r3`\tyenv`, r3`\tyvar`]],
+    ["wprv", 2, r3`{#1}, {#2} : \kindprv`, [r3`\tyenv`, r3`\abstrprov`]],
+    ["wfrm", 2, r3`{#1}, {#2} : \kindfrm`, [r3`\tyenv`, r3`\frmvar`]],
+    ["wconstr", 3, r3`{#1}, {#2} \mathrel{:>} {#3}`, [r3`\tyenv`, r3`\abstrprov`, r3`\abstrprov'`]]
+  ]]
+]);
+var App = (_20) => /* @__PURE__ */ import_react20.default.createElement(Document, {
   bibtex: example_default
 }, /* @__PURE__ */ import_react20.default.createElement(ListingConfigure, {
   language: rust()
@@ -65654,42 +65818,51 @@ var App = (_19) => /* @__PURE__ */ import_react20.default.createElement(Document
 })))), /* @__PURE__ */ import_react20.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react20.default.createElement($$, null, r3`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
-    `), /* @__PURE__ */ import_react20.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react20.default.createElement(Section, {
+    ${newcommand("tc", 6, r3`{#1}; {#2}; {#3} \vdash {#4} : {#5} \Rightarrow {#6}`)}
+    \newcommand{\setof}[1]{\{\overline{#1}\}}
+    `), /* @__PURE__ */ import_react20.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react20.default.createElement(OxideExtra.Commands, null), /* @__PURE__ */ import_react20.default.createElement($$, null, r3`
+    % Aliases to make it easier to port paper
+    \newcommand{\uty}{\tybnum}
+    \newcommand{\eref}[3]{\tysref{#2}{#1}{#3}}
+    \newcommand{\uniq}{\ownquniq}
+    \newcommand{\shrd}{\ownqshrd}
+    \renewcommand{\r}{\concrprov}
+    `), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Introduction",
   name: "sec:intro"
-}, /* @__PURE__ */ import_react20.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " ", "demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: ["xu2005brief", "silva2012vocabulary"]
-}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" ', /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), '. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice"', " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "parnin2011automated"
-}), /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "The only open-source, functioning slicers the authors could find are Frama-C", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "cuoq2012frama"
 }), " and dg ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "llvmslicer"
 }), ". Slicing tools for Java like Kaveri ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "jayaraman2005kaveri"
-}), " no longer work. The most industrial-strength slicing tool, CodeSurfer", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " no longer work. The most industrial-strength slicing tool, CodeSurfer ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "balakrishnan2005codesurfer"
-}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if", " ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " ", "are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " ", "which calls a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could possibly have in ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is ", /* @__PURE__ */ import_react20.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " was GrammaTech's proprietary technology and appears to no longer exist."), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " is relevant, then any means by which data flows into ", /* @__PURE__ */ import_react20.default.createElement($, null, "x"), " are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " which calls a function ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ". In a language without side-effects, then the only relevance ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could possibly have in", " ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is its return value. But in a language that allows effects such as mutation on pointers, ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could modify data used within ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), ", requiring a pointer analysis. Moreover, if ", /* @__PURE__ */ import_react20.default.createElement($, null, "f"), " is a higher-order function parameterized on ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), ", then the slice must consider all the possible functions that ", /* @__PURE__ */ import_react20.default.createElement($, null, "g"), " could be, i.e. control-flow analysis."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard solution for analyzing programs with pointers and functions is", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "whole-program analysis"), ". That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:"), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis time scales with the size of the whole program:"), " the time complexity of whole-program analysis scales either polynomially or exponentially with the number of call sites in the program, depending on context-sensitivity ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "might2010resolving"
 }), ". In practice, this means more complex codebases can take substantially longer to analyze. For instance, the recent PSEGPT pointer analysis tool ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "zhao2018parallel"
-}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " ", "an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias ", /* @__PURE__ */ import_react20.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react20.default.createElement("p", null), /* @__PURE__ */ import_react20.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " takes 1 second on a codebase of 282,000 lines of code and 3 minutes on a codebase of 2.2 million lines of code."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis requires access to source code for the whole program:"), " an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property."), /* @__PURE__ */ import_react20.default.createElement("li", null, /* @__PURE__ */ import_react20.default.createElement("em", null, "Analysis results are anti-modular:"), " when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "in the context of the broader codebase"), ", so alias analysis results can change due to modifications in code far away from the current module.")), /* @__PURE__ */ import_react20.default.createElement("p", null), /* @__PURE__ */ import_react20.default.createElement("p", null, "These issues are not new --- ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "rountev1999data",
   f: true
 }), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "cousot2002modular",
   f: true
-}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing ", /* @__PURE__ */ import_react20.default.createElement("em", null, "symbolic procedure summaries"), ". For instance,", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
 }), " show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "yorsh2008generating",
   f: true
-}), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Our work begins with the observation:", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "function type signatures are symbolic procedure summaries"), ". The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Today, the primary technique for managing dataflow with types is ", /* @__PURE__ */ import_react20.default.createElement("em", null, "ownership"), ". Ownership is a concept that has emerged from several intersecting lines of research on linear logic ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "girard1987linear"
 }), ", class-based alias management", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "clarke1998ownership"
@@ -65703,7 +65876,7 @@ var App = (_19) => /* @__PURE__ */ import_react20.default.createElement(Document
   name: "sec:model"
 }), " and ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:algorithm"
-}), ")."), /* @__PURE__ */ import_react20.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), ")."), /* @__PURE__ */ import_react20.default.createElement("li", null, "We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "abadi1999core",
   f: true
 }), " (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
@@ -65736,7 +65909,7 @@ let y = 2;
 let z = 3;
 x = y;
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react20.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " is not used in the computation of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " overwrites the previous value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "A place is a reference to a concrete piece of data in memory, like a variable ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " or path into a data structure ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x.field"), ". Slices on places are defined by bindings, mutation, and control flow."), /* @__PURE__ */ import_react20.default.createElement("p", null, "For instance, the Rust snippet on the right shows the slice in orange of a place in green. The assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " means ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant for the slice, so the statement", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let y = 2"), " is relevant as well. Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " is not used in the computation of", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "let z = 3"), ". is not relevant. Additionally, because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = y"), " ", "overwrites the previous value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the original assignment ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 1"), " is not relevant either."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
 }, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: `let mut x = 1;
@@ -65744,7 +65917,7 @@ let mut y = 2;
 if y > 0 { x = 3; } 
 else     { y = 4; }
 println!("{}", @x@);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 3"), " is only executed if", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react20.default.createElement($, null, "n"), "-th field of the tuple ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "If a mutation is conditioned on a predicate (as in line 3 in the snippet on the left) then the predicate is relevant to the mutated place. In this example, because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x = 3"), " is only executed if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y > 0"), ", then the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (at the time-of-check) is relevant to the value of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), "."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Slices on composite data structures are defined by whether a mutation conflicts with a particular path into the data structure. For example, consider slicing on a tuple as in the three snippets below (note that ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.n"), " gets the ", /* @__PURE__ */ import_react20.default.createElement($, null, "n"), "-th field of the tuple", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), "):"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   code: r3`let mut t = (0, 1, 2);
 t = (3, 4, 5);
 t.0 = 6;
@@ -65762,10 +65935,10 @@ t = (3, 4, 5);
 t.0 = 6;
 t.1 = 7;
 println!("{}", @t.2@);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " is disjoint from the path", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.2"), ", the only relevant assignment is", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance,", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this program, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ", changing the value of a field of a structure changes the value of the whole structure, so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is part of the slice on", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), ". However, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ", the path ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " is disjoint from the path ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ", so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1 = 7"), " is not part of the slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), ". Similarly, when slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.2"), ", the only relevant assignment is ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t = (3, 4, 5)"), ". More generally, a place conflicts with another place if either's path is a prefix of the other's. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0"), " conflicts with both ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " (parent) and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.0.1"), " ", "(child) but not ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " (sibling). This leads to the first slicing principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "places",
   text: "A mutation to a place is a mutation to all conflicting places."
-}), /* @__PURE__ */ import_react20.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
+}), /* @__PURE__ */ import_react20.default.createElement("p", null, "This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), " is mutated, that mutation is registered as part of the slice on every conflicting place, specifically", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "t.1"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "References",
   name: "sec:pointers"
 }, /* @__PURE__ */ import_react20.default.createElement("p", null, "Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer is a mutation to any place that is possibly pointed-to, so such places must be known to the slicer. For example:"), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
@@ -65778,7 +65951,7 @@ let z = &x;
 println!("{}", @*z@);`
 })), /* @__PURE__ */ import_react20.default.createElement("p", null, 'Rust has two distinct types of pointers, which are called "references" to distinguish them from "raw pointers" with C-like behavior (discussed in ', /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:intmut"
-}), "). For a given type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ", there are immutable references of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the mutation through", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react20.default.createElement("p", null, "The task of determining what a reference can point-to is called", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "pointer analysis"), " . While many methods exist for pointer analysis ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), "). For a given type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ", there are immutable references of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ", and mutable references of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), " which correspond respectively to the expressions", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut x"), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " points to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ", then the mutation through ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " is relevant to the read of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ". We refer to the left-hand side of assignment statements like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*y"), ' as "place expressions", since they could include dereferences.'), /* @__PURE__ */ import_react20.default.createElement("p", null, "The task of determining what a reference can point-to is called ", /* @__PURE__ */ import_react20.default.createElement("em", null, "pointer analysis"), " ", ". While many methods exist for pointer analysis ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   v: "smaragdakis2015pointer"
 }), ", our first key insight is that Rust's ownership types implicitly perform a kind of modular pointer analysis that we can leverage for slicing. To understand why, we first need to describe two ingredients: the goal, i.e. what ownership is trying to accomplish, and the mechanism, i.e. how ownership-checking is implemented in the type system."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The core goal of ownership is eliminating simultaneous aliasing and mutation. In Rust, achieving this goal enables the use of references without garbage collection while retaining memory safety. For instance, these three classes of errors are all caught at compile-time:"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`// Dangling reference
@@ -65798,7 +65971,7 @@ let mut v = vec![1,2];
 for x in v.iter() {
   v.push(*x);
 }`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " ", "is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler: ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " could resize ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "From left-to-right: the dangling references is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " is deallocated at the end of scope on line 4, which is a mutation, conflicting with the alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&x"), ". The use-after-free is caught because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d.close()"), " requires ownership of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d"), ", which prevents an alias ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "d2"), " from being live. The iterator invalidation case is subtler:", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " is a pointer to data within ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". However, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " could resize", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " which would copy/deallocate all vector elements to a new heap location, invalidating all pointers to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), ". Hence ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v.push(*x)"), " is a simultaneous mutation and alias of the vector."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Catching these errors requires understanding which places are pointed by which references. For instance, knowing that ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " points to an element of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "v"), " and not just any arbitrary ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "i32"), ". The key mechanism behind these ownership checks is", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetimes"), "."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
 }, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let mut x: i32 = 1;
@@ -65806,7 +65979,7 @@ let y: &'1 i32 = &'0 mut x;
 *y = 2;
 let z: &'3 i32 = &'2 x;
 println!("{}", *z);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), " ", 'is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react20.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Each reference expression and type has a corresponding lifetime, written explicitly in the syntax ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n"), " on the left, where ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), ' is an arbitrary and unique number. The name "lifetime" implies a model of lifetimes as the live range of the reference. Prior work on region-based memory management like ', /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "tofte1997region"
 }), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
@@ -65815,10 +65988,10 @@ println!("{}", *z);`
 }), " use this model."), /* @__PURE__ */ import_react20.default.createElement("p", null, "However, recent work from ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "polonius"
-}), " and", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}), " and ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
-}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be', " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n = x "), " for all ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), ", because each reference points to", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
+}), ' have devised an alternative model of lifetimes as "provenances" or "origins" that more directly correspond to a pointer analysis. In essence, a lifetime is the set of places that a reference could point-to. For the above example, that would be ', /* @__PURE__ */ import_react20.default.createElement(C2, null, "'n = x "), " for all", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "n"), ", because each reference points to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), ". As a more interesting example, consider the code on the left."), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
 }, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let mut x = 1;
@@ -65830,13 +66003,13 @@ let z: &'2 mut i32 = if true {
 };
 let w: &'4 mut i32 = &'3 mut *z;
 *w = 1;`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " ", "could be assigned to either reference, then", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so', " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "There, lifetimes for borrow expressions are assigned to the place being borrowed, so", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'0 = x "), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'1 = y "), ". Because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " could be assigned to either reference, then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `'2 = '0 \u222A '1 = {x, y}`), ". An expression of the form ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "& *p"), ' is called a "reborrow", as the underlying address is being passed from one reference to another. To register that a reference is reborrowed, the reborrowed place is also added to the lifetime, so ', /* @__PURE__ */ import_react20.default.createElement(C2, null, `'3 = '4 = {x, y, *z}`), ". More generally:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "references",
   text: "The lifetime of a reference contains all potential aliases of what the reference points-to."
-}), /* @__PURE__ */ import_react20.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*w = 1"), " ", "would be part of a slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ", because ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
+}), /* @__PURE__ */ import_react20.default.createElement("p", null, "In the context of slicing, then to determine which places could be modified by a particular assignment, one only needs to look up the aliases in the lifetime of references. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*w = 1"), " would be part of a slice on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), ", because", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*z"), " is in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'4"), " of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Function calls",
   name: "sec:funcalls"
-}, /* @__PURE__ */ import_react20.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react20.default.createElement(C2, null, '"Hello world"'), " ", "has type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "The other major challenge for slicing is function calls. For instance, consider slicing a call to an arbitrary function ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " with various kinds of inputs:", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Why is ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " needed? The literal ", /* @__PURE__ */ import_react20.default.createElement(C2, null, '"Hello world"'), " has type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'static str"), ", meaning an immutable reference to the binary's string pool which lives forever. The function ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String::from"), " converts the immutable reference into a value of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), ", which stores its contents on the heap and allows the string to be mutated.")), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
 }, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let x = String::from("x");
@@ -65844,12 +66017,12 @@ let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{} {} {}", y, z, w);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "The standard approach to slicing ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " would be to inspect the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", and recursively slice it by translating the slicing criteria from caller to callee (e.g. see ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiser1982programmers"
-}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in", " ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
+}), " for an example). However, our goal is to avoid using the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " (i.e. a whole-program analysis) for the reasons described in ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:intro"
-}), ".", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), " (or generally of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " cannot change in ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "b = &mut a"), " and", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut String"), " (or", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react20.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
+}), ".", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "To modularly slice through function calls, we need to approximate the effects of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " ", "in a manner that is sound, but also as precise as possible. Put another way, what mutations could possibly occur as a result of calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "? Consider the three cases that arise in the code above."), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "String"), " (or generally of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "T"), ") moves the value into ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Therefore it is an ownership error to refer to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after calling ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " and we do not need to consider slices on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "x"), " after ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), "."), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&String"), " (or ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&T"), ") passes an immutable reference. Immutable references cannot be mutated, therefore ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " cannot change in", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ".", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "A notable detail to the safety of immutable references is that immutability is transitive. For instance, if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "b = &mut a"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c = &b"), ", then ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "a"), " is guaranteed not to be mutated through ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "c"), ". This stands in contrast to other languages with pointers like C and C++ where the ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "const"), " keyword only protects values from mutation at the top-level, and not into the interior fields.")), /* @__PURE__ */ import_react20.default.createElement("li", null, "Passing a value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " of type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut String"), " (or ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut T"), ") passes a mutable reference, which could possibly be mutated. This case is therefore the only observable of effect ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " apart from its return value.")), /* @__PURE__ */ import_react20.default.createElement("p", null, "Without inspecting ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ", we cannot know how a mutable reference is modified, so we have to conservatively assume that every argument was used as input to a mutation. Therefore the modular slice of each variable looks as in the snippets below:"), /* @__PURE__ */ import_react20.default.createElement(Row, null, /* @__PURE__ */ import_react20.default.createElement(SliceListing, {
   prelude: "let f = |x: String, y: &String, z: &mut String| -> usize { 0 };",
   code: r3`let x = String::from("x");
 let y = String::from("y");
@@ -65870,19 +66043,19 @@ let y = String::from("y");
 let mut z = String::from("z");
 let w = f(x, &y, &mut z);
 println!("{}", @w@);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " could mutate ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "Note that like ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "z"), " (middle), the return value ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "w"), " (right) is also assumed to be influenced by every input to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". Implicit in these slices are additional assumptions about the limitations of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), ". For example, in C, a function could manufacture a pointer to the stack frame above it and mutate the values, meaning ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "f"), " could mutate", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " (even if ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "y"), " was not an input!). Similarly, functions could potentially read arbitrary data (e.g. global variables) that would influence mutations apart from just the arguments.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "However, allowing such pointer manipulation would easily break ownership safety, since fundamentally it permits unchecked aliasing. Hence, our principle:"), /* @__PURE__ */ import_react20.default.createElement(Principle, {
   type: "function calls",
   text: "When calling a function, (a) only mutable references in the arguments can be mutated, and (b) the mutations and return value are only influenced by the arguments."
 }), /* @__PURE__ */ import_react20.default.createElement("p", null, "This principle is essentially a worst-case approximation to the function's effects. It is the core of how we can modularly slice programs, because a function's definition does not have to be inspected to analyze what it can mutate.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "A caveat to this principle is global variables: (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "prin:slice-procs"
 }), "-a) is not true with mutable globals, and (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "prin:slice-procs"
-}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetime parameters"), " . Consider the function", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react20.default.createElement("center", {
+}), "-b) is not true with read-only globals. Mutable globals are disallowed by the rules of ownership, as they are implicitly aliased and hence disallowed from being mutable. However, read-only globals are ownership-safe (and hence permitted in Rust). For simplicity we do not consider read-only globals in this work."), /* @__PURE__ */ import_react20.default.createElement("p", null, "Another notable detail is the interaction of function calls and lifetimes. Pointer analysis, like slicing, has historically been done via whole-program analysis for maximum precision. However, Rust can analyze lifetimes (and subsequently what references point-to) modularly just by looking at the type signature of a called function using", " ", /* @__PURE__ */ import_react20.default.createElement("em", null, "lifetime parameters"), " . Consider the function ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Vec::get_mut"), " that returns a mutable reference to an element of a vector. For instance, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "vec![5, 6].get_mut(0)"), " ", "returns a mutable reference to the value 5. This function has the type signature:"), /* @__PURE__ */ import_react20.default.createElement("center", {
   style: { margin: "1rem 0" }
-}, /* @__PURE__ */ import_react20.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react20.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
+}, /* @__PURE__ */ import_react20.default.createElement(C2, null, `Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`)), /* @__PURE__ */ import_react20.default.createElement("p", null, "Because this type signature is parametric in the lifetime ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "'a"), ", it can express the constraint that the output reference ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'a mut T"), " must have the same lifetime as the input reference ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&'a mut Vec<T>`), ". Therefore the returned pointer is known to point to the same data as the input pointer, but without inspecting the definition of", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "get_mut"), ".")), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Interior mutability",
   name: "sec:intmut"
-}, /* @__PURE__ */ import_react20.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " ", "feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, 'The previous sections describe a slicing strategy for the subset of Rust known as "safe Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust also has the ', /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " feature that gives users access to raw pointers, or pointers with similar unchecked behavior to C. Most commonly, ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "unsafe"), " code is used to implement APIs that satisfy ownership, but not in a manner that is deducible by the type system. For example, shared mutable state between threads:"), /* @__PURE__ */ import_react20.default.createElement(Wrap, {
   align: "left"
 }, /* @__PURE__ */ import_react20.default.createElement(Listing, {
   code: r3`let value = Arc::new(Mutex::new(0));
@@ -65891,15 +66064,15 @@ thread::spawn(move || {
   *value_ref.lock().unwrap() += 1; 
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`
-})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&Mutex<i32>`), " and returns a mutable reference", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Technically the returned type is a", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react20.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react20.default.createElement("em", null, "not"), " include mutations to ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " ", "and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react20.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java. ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+})), /* @__PURE__ */ import_react20.default.createElement("p", null, "In this snippet, two threads have ownership over two values of type", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `Arc<Mutex<i32>>`), " which internally point to the same number. Both threads can call ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex::lock"), " which takes an immutable reference to an ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `&Mutex<i32>`), " ", "and returns a mutable reference ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&mut i32"), " to the data inside.", /* @__PURE__ */ import_react20.default.createElement(Footnote, null, "Technically the returned type is a ", /* @__PURE__ */ import_react20.default.createElement(C2, null, `LockResult<MutexGuard<'a, i32>>`), " but the distinction isn't relevant here."), " ", "This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate)."), /* @__PURE__ */ import_react20.default.createElement("p", null, "The mutex is ownership-safe only because its implementation ensures that both threads cannot ", /* @__PURE__ */ import_react20.default.createElement("em", null, "simultaneously"), " access the underlying value in accordance with the system mutex's semantics. For our purposes, the aliasing between ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " and", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " is not possible to observe using the type system alone. For example, in our algorithm, slicing on ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " would ", /* @__PURE__ */ import_react20.default.createElement("em", null, "not"), " include mutations to", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), ". This is because the data inside the mutex has type ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*mut i32"), " (a raw pointer), and without a lifetime attached, our algorithm has no way to determine whether ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value"), " and ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "value_ref"), " are aliases just by inspecting their types."), /* @__PURE__ */ import_react20.default.createElement("p", null, "More broadly, modular slicing is only sound for safe Rust. The point of this work is to say: when a program can be statically determined to satisfy the rules of ownership, then modular slicing is sound. The principles above help clarify the specific assumptions made possible by ownership, which are otherwise impossible to make in languages like C or Java.", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "astrauskas2020programmers"
-}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
+}), " found that 76.4% of published Rust projects contain no unsafe code, suggesting that safe Rust is more common than not. However, their study does not account for safe Rust built on internally-unsafe abstractions like", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "Mutex"), ", so it is difficult to estimate the true likelihood of soundness in practice. We discuss the issue of slicing with unsafe code further in", " ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "sec:whole-vs-mod"
 }), "."))), /* @__PURE__ */ import_react20.default.createElement(Section, {
   title: "Formal Model",
   name: "sec:model"
-}, /* @__PURE__ */ import_react20.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, "To build an algorithm from these principles, we first need a formal model to describe and reason about the underlying language. Rather than devise our own, we build on the work of", " ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
   f: true,
   v: "weiss2019oxide"
 }), " : Oxide is a model of (safe) Rust's surface language with a formal static and dynamic semantics, along with a proof of syntactic type soundness. Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing algorithm.", " "), /* @__PURE__ */ import_react20.default.createElement("p", null, "We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (", /* @__PURE__ */ import_react20.default.createElement(Ref, {
@@ -65915,9 +66088,24 @@ assert!(*value.lock().unwrap() == 1);`
   name: "sec:syn"
 }, /* @__PURE__ */ import_react20.default.createElement("p", null, /* @__PURE__ */ import_react20.default.createElement(Ref, {
   name: "fig:oxide_syntax"
-}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react20.default.createElement($, null, "\\Sigma"), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react20.default.createElement($, null, "[]"), " . The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react20.default.createElement(Oxide.Bnf, null), /* @__PURE__ */ import_react20.default.createElement("p", {
-  style: { marginBottom: "200px" }
-}, "Here's an example expression in this custom syntax:"), /* @__PURE__ */ import_react20.default.createElement($$, null, r3`\tysref{\provabstr{\abstrprov}}{\ownqshrd}{\tybnum}`))));
+}), " shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\fenv`), ' (the "global environment"), where each function body is an expression ', /* @__PURE__ */ import_react20.default.createElement($, null, r3`\expr`), " ."), /* @__PURE__ */ import_react20.default.createElement(Figure, {
+  name: "fig:oxide_syntax"
+}, /* @__PURE__ */ import_react20.default.createElement(Oxide.Bnf, {
+  layout: { columns: 2, cutoff: 9 }
+}), /* @__PURE__ */ import_react20.default.createElement(Expandable, {
+  prompt: /* @__PURE__ */ import_react20.default.createElement(import_react20.default.Fragment, null, "Rest of the grammar...")
+}, /* @__PURE__ */ import_react20.default.createElement(OxideExtra.Bnf, null)), /* @__PURE__ */ import_react20.default.createElement(Caption, null, "Subset of Oxide syntax, reproduced from ", /* @__PURE__ */ import_react20.default.createElement(Cite, {
+  v: "weiss2019oxide",
+  f: true,
+  ex: "p. 8"
+}), ". The only difference in this subset is that closures are eliminated and functions are simplified to take one argument.")), /* @__PURE__ */ import_react20.default.createElement("p", null, "The syntax is largely the same as Rust's with a few exceptions:"), /* @__PURE__ */ import_react20.default.createElement("ul", null, /* @__PURE__ */ import_react20.default.createElement("li", null, 'Lifetimes are called "provenances", and they are both explicit in expressions and types throughout the program, and initially bound via ', /* @__PURE__ */ import_react20.default.createElement($, null, r3`\msf{letprov}`), " expressions or as function parameters."), /* @__PURE__ */ import_react20.default.createElement("li", null, "Rather than having immutable references ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'a \u03C4"), " and mutable references", " ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "&'a mut \u03C4"), ', Oxide calls them "shared" references', " ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\tysref{\ownqshrd}{\prov}{\ty}`), ' and "unique" references', " ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\tysref{\ownquniq}{\prov}{\ty}`), " ."), /* @__PURE__ */ import_react20.default.createElement("li", null, 'Provenances are divided into "concrete" (', /* @__PURE__ */ import_react20.default.createElement($, null, r3`\concrprov`), ') and "abstract" (', /* @__PURE__ */ import_react20.default.createElement($, null, r3`\abstrprov`), "). Concrete provenances are used by borrow expressions, and abstract provenances are function parameters used for inputs with reference type.")), /* @__PURE__ */ import_react20.default.createElement(Section, {
+  title: "Static semantics",
+  name: "sec:statsem"
+}, /* @__PURE__ */ import_react20.default.createElement("p", null, /* @__PURE__ */ import_react20.default.createElement(Definition, {
+  name: "tex:tc"
+}, "Expressions are typechecked via the judgment ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}`), ', read as: "', /* @__PURE__ */ import_react20.default.createElement($, null, r3`\expr`), " has type ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\ty`), " under contexts ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\fenv, \tyenv, \stackenv`), " producing new context ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\stackenv'`), '."'), " ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\tyenv`), " contains function-level type and provenance variables. ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\stackenv`), " maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking ", /* @__PURE__ */ import_react20.default.createElement(C2, null, "*b := a.1"), " in ", /* @__PURE__ */ import_react20.default.createElement(Ref, {
+  name: "fig:oxide_syntax_example"
+}), " , the inputs would be ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\tyenv = \tyenvempty`), " (empty) and ", /* @__PURE__ */ import_react20.default.createElement($, null, r3`\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}`), ".")))));
 import_react_dom4.default.render(/* @__PURE__ */ import_react20.default.createElement(App, null), document.getElementById("container"));
 export {
   App

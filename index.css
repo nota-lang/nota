@@ -1324,8 +1324,8 @@ section {
 .nomargin .katex-display {
   margin: 0;
 }
-.tooltip .mtable {
-  vertical-align: middle;
+.katex-display .base {
+  margin-bottom: -0.33em;
 }
 .katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
   pointer-events: none;
@@ -1354,15 +1354,76 @@ section {
 .row > *:last-child {
   margin-right: 0;
 }
+.figure {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem 0;
+  margin: 2rem 0;
+}
+.caption {
+  font-family: "Linux Biolinum O", serif;
+  font-size: 16px;
+}
 sup.footnote-marker {
   vertical-align: top;
   position: relative;
   bottom: 0.25em;
 }
 .tooltip {
-  border: 1px solid #aaa;
+  border: 2px solid #aaa;
   background: white;
   padding: 6px 10px;
   border-radius: 4px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+}
+.tooltip .arrow {
+  visibility: hidden;
+}
+.tooltip .arrow,
+.tooltip .arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-radius: 2px;
+  border: 2px solid transparent;
+}
+.tooltip .arrow::before {
+  visibility: visible;
+  content: "";
+  transform: rotate(45deg);
+}
+.tooltip[data-popper-placement^=top] .arrow {
+  bottom: -4px;
+}
+.tooltip[data-popper-placement^=top] .arrow::before {
+  border-bottom-color: #aaa;
+  border-right-color: #aaa;
+}
+.expandable {
+  margin: 1rem 0;
+}
+.expandable .expand {
+  cursor: pointer;
+  font-family: "Linux Biolinum O", serif;
+  border: 1px solid #652b7e;
+  color: #652b7e;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.expandable > .inner {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+.expandable > .inner > div {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+.expandable.expanded > .inner {
+  margin-top: 10px;
 }
