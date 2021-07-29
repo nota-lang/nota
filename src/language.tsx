@@ -1,21 +1,16 @@
-import React, {
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useContext, useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 
 import { zipExn } from "./utils";
 import { DefinitionContext, DefinitionData } from "./definitions";
 import { $, $$, newcommand, ReactTexContext, Dimensions } from "./tex";
+import _ from "lodash";
 
 const r = String.raw;
 
-type InputSyntaxBranch = [string, number, string, string[]];
-type InputSyntaxSort = [string, string, string, InputSyntaxBranch[]];
-type InputGrammar = InputSyntaxSort[];
+export type InputSyntaxBranch = [string, number, string, string[]];
+export type InputSyntaxSort = [string, string, string, InputSyntaxBranch[]];
+export type InputGrammar = InputSyntaxSort[];
 
 type SyntaxBranch = {
   subcmd: string;
@@ -30,6 +25,13 @@ type SyntaxSort = {
   branches: SyntaxBranch[];
 };
 type Grammar = SyntaxSort[];
+
+export interface BnfProps {
+  layout?: {
+    columns: number;
+    cutoff: number;
+  };
+}
 
 export class Language {
   grammar: Grammar;
@@ -59,17 +61,15 @@ export class Language {
     return <$$>{commands}</$$>;
   };
 
-  BnfInner = ({ container_ref }: { container_ref: HTMLDivElement }) => {
+  BnfInner: React.FC<BnfProps & { container_ref: HTMLDivElement }> = props => {
     let def_ctx = useContext(DefinitionContext);
     let tex_ctx = useContext(ReactTexContext);
 
     let branch_to_tex =
       (cmd: string) =>
       ({ subcmd, args }: SyntaxBranch): string => {
-        let arg_str = args.map((arg) => `{${arg}}`).join("");
-        return r`\htmlData{def=${cmd}${subcmd}}{${
-          `\\` + cmd
-        }${subcmd}${arg_str}}`;
+        let arg_str = args.map(arg => `{${arg}}`).join("");
+        return r`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
       };
 
     let {
@@ -83,7 +83,7 @@ export class Language {
             Promise.all(
               branches
                 .map(branch_to_tex(cmd))
-                .map((tex) => tex_ctx.dimensions(tex, false, container_ref))
+                .map(tex => tex_ctx.dimensions(tex, false, props.container_ref))
             )
           )
         );
@@ -111,8 +111,8 @@ export class Language {
 
     const MAX_ROW_WIDTH = 350;
 
-    let tex = zipExn(this.grammar, branch_dims)
-      .map(([{ kind, cmd, metavar, branches }, bdims]) => {
+    let rules = zipExn(this.grammar, branch_dims).map(
+      ([{ kind, cmd, metavar, branches }, bdims]) => {
         let make_rhs = (hl?: string) => {
           if (branches.length == 0) {
             return "";
@@ -121,10 +121,7 @@ export class Language {
           let [rows] = zipExn(branches, bdims).reduce(
             ([rows, cur_width], [branch, dims]) => {
               let last_row = rows[rows.length - 1];
-              if (
-                cur_width + dims.width > MAX_ROW_WIDTH &&
-                last_row.length > 0
-              ) {
+              if (cur_width + dims.width > MAX_ROW_WIDTH && last_row.length > 0) {
                 rows.push([branch]);
                 cur_width = dims.width;
               } else {
@@ -136,22 +133,21 @@ export class Language {
             [[[]] as SyntaxBranch[][], 0]
           );
           let str = rows
-            .map((row) =>
-              row
-                .map((branch) => {
-                  let tex = branch_to_tex(cmd)(branch);
-                  if (hl && branch.subcmd == hl) {
-                    tex = r`\htmlClass{tex-highlight}{${tex}}`;
-                  }
-                  return tex;
-                })
-                .join(r` \mid `)
+            .map(row =>
+              row.map(branch => {
+                let tex = branch_to_tex(cmd)(branch);
+                if (hl && branch.subcmd == hl) {
+                  tex = r`\htmlClass{tex-highlight}{${tex}}`;
+                }
+                return tex;
+              }).join(r`
+  \mid `)
             )
             .join(r`\\& & & && &&\mid`);
           return `::= ~ &&${str}`;
         };
 
-        kind = kind.replace(` `, r`\ `);
+        kind = kind.replace(/ /g, r`\ `);
 
         branches.forEach(({ subcmd }) => {
           let rhs = make_rhs(subcmd);
@@ -171,19 +167,32 @@ export class Language {
           `tex:${cmd}`,
           {
             Tooltip: () => (
-              <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &${metavar} &&${rhs}\end{aligned}`}</$$>
+              <$$ className="nomargin">{r`\begin{aligned}&\mathsf{${kind}}& ~ &\htmlClass{tex-highlight}{${metavar}} &&${rhs}\end{aligned}`}</$$>
             ),
             Label: null,
           },
         ]);
         return r`&\htmlData{def=${cmd}}{\mathsf{${kind}}}& ~ &${metavar} &&${rhs}`;
-      })
-      .join(r`\\`);
+      }
+    );
 
-    return <$$>{r`\begin{aligned}${tex}\end{aligned}`}</$$>;
+    let layout = props.layout || {
+      columns: 1,
+      cutoff: 0,
+    };
+
+    let columns = layout.columns > 1 ? _.chunk(rules, layout.cutoff) : [rules];
+    let sep = r`
+%
+\hspace{2em}
+%
+`;
+    let final_tex = columns.map(col => r`\begin{aligned}${col.join(r`\\`)}\end{aligned}`).join(sep);
+
+    return <$$>{final_tex}</$$>;
   };
 
-  Bnf = () => {
+  Bnf: React.FC<BnfProps> = props => {
     let ref = useRef<HTMLDivElement>(null);
 
     // Needed for BnfInner to render once ref.current !== null
@@ -192,7 +201,7 @@ export class Language {
 
     return (
       <div ref={ref}>
-        {ref.current ? <this.BnfInner container_ref={ref.current} /> : null}
+        {ref.current ? <this.BnfInner container_ref={ref.current} {...props} /> : null}
       </div>
     );
   };

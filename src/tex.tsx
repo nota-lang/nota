@@ -24,11 +24,7 @@ export class TexContext {
     this.macros = {};
   }
 
-  async dimensions(
-    contents: string,
-    block: boolean,
-    container: HTMLElement
-  ): Promise<Dimensions> {
+  async dimensions(contents: string, block: boolean, container: HTMLElement): Promise<Dimensions> {
     let node = this.render(contents, block, true);
     let el = document.createElement("div");
     el.style.display = "inline-block";
@@ -37,9 +33,9 @@ export class TexContext {
     ReactDOM.render(node, el);
 
     let promise = new Promise((resolve, _) => {
-      let observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          Array.from(mutation.addedNodes).forEach((added_node) => {
+      let observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          Array.from(mutation.addedNodes).forEach(added_node => {
             if (added_node == el) {
               observer.disconnect();
               resolve(undefined);
@@ -61,25 +57,36 @@ export class TexContext {
   }
 
   render(contents: string, block: boolean = false, raw: boolean = false, props: any = {}) {
-    let html = katex.renderToString(contents, {
-      // these two options ensure macros persist across invocations
-      macros: this.macros,
-      globalGroup: true,
+    let html;
+    try {
+      html = katex.renderToString(contents, {
+        // these two options ensure macros persist across invocations
+        macros: this.macros,
+        globalGroup: true,
 
-      trust: true,
-      strict: false,
-      output: "html",
+        trust: true,
+        strict: false,
+        output: "html",
 
-      displayMode: block,
-    });
+        displayMode: block,
+      });
+    } catch (e) {
+      if (e instanceof katex.ParseError) {
+        console.error(e);
+        return (
+          <AdaptiveDisplay className="error" block={block}>
+            <AdaptiveDisplay block={block}>{e.message}</AdaptiveDisplay>
+            {block ? <pre>{contents}</pre> : null}
+          </AdaptiveDisplay>
+        );
+      } else {
+        throw e;
+      }
+    }
 
     if (raw) {
       return (
-        <AdaptiveDisplay
-          block={block}
-          dangerouslySetInnerHTML={{ __html: html }}
-          {...props}
-        />
+        <AdaptiveDisplay block={block} dangerouslySetInnerHTML={{ __html: html }} {...props} />
       );
     }
 
@@ -87,8 +94,7 @@ export class TexContext {
     let instrs = [
       {
         replaceChildren: true,
-        shouldProcessNode: (node: any) =>
-          node.attribs && "data-cmd" in node.attribs,
+        shouldProcessNode: (node: any) => node.attribs && "data-cmd" in node.attribs,
         processNode: (node: any, children: any, index: any) => {
           let def = node.attribs["data-cmd"];
           let inner = defns.processDefaultNode(node, children, index);
@@ -101,16 +107,11 @@ export class TexContext {
       },
       {
         replaceChildren: true,
-        shouldProcessNode: (node: any) =>
-          node.attribs && "data-def" in node.attribs,
+        shouldProcessNode: (node: any) => node.attribs && "data-def" in node.attribs,
         processNode: (node: any, children: any, index: any) => {
           let def = node.attribs["data-def"];
           let inner = defns.processDefaultNode(node, children, index);
-          return (
-            <DefinitionAnchor name={`tex:${def}`}>
-              {inner}
-            </DefinitionAnchor>
-          );
+          return <DefinitionAnchor name={`tex:${def}`}>{inner}</DefinitionAnchor>;
         },
       },
       {
@@ -121,7 +122,11 @@ export class TexContext {
     let parser = new H2R.Parser();
     let node = parser.parseWithInstructions(html, (_: any) => true, instrs);
 
-    return <AdaptiveDisplay block={block} {...props}>{node}</AdaptiveDisplay>;
+    return (
+      <AdaptiveDisplay block={block} {...props}>
+        {node}
+      </AdaptiveDisplay>
+    );
   }
 }
 
@@ -129,7 +134,7 @@ export let ReactTexContext = React.createContext<TexContext>(new TexContext());
 
 export interface TexProps {
   raw?: boolean;
-};
+}
 
 export let Tex: React.FC<TexProps & HTMLAttributes> = ({ children, raw, ...props }) => {
   let ctx = useContext(ReactTexContext);

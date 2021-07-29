@@ -34,7 +34,7 @@ def translate_one(elem):
     elif elem.name == 'rust' or elem.name == 'Verb':
       return f'<C>{args}</C>'
     elif elem.name == 'Cref' or elem.name == 'ref':
-      return f'<Ref label="{args}" />'
+      return f'<Ref name="{args}" />'
     elif elem.name == 'cite':
       return f'<Cite v="{args}" />'
     elif elem.name == 'citet':
@@ -51,16 +51,16 @@ def translate_one(elem):
     elif elem.name == 'lstlisting':
       return f'<Listing code={{r`{translate(elem.all)}`}} />'
     elif elem.name == 'wrapfigure':
-      dir = 'right' if elem.args[1].all[0] == 'r' else 'left'
-      return f'<Wrap align="{dir}">{translate(elem.children)}</Wrap>'
+      direc = 'right' if elem.args[1].all[0] == 'r' else 'left'
+      return f'<Wrap align="{direc}">{translate(elem.children)}</Wrap>'
     elif elem.name == 'itemize':
       children = "\n".join([
         f'<li>{translate_one(child)}</li>'
         for child in elem.children
       ])
-      return f'<ul>{children}</ul>'
+      return f'<ul>\n{children}</ul>'
     elif elem.name == '$':
-      return f'<$>{elem.children}</$>'
+      return f'<$>{{r`{elem.string}`}}</$>'
     else:
       raise Exception("env", type(elem), elem.name)
   else:
