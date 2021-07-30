@@ -5,11 +5,11 @@ function checkVisible(elm: any): boolean {
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
 
+// TODO: put this in a context object
 let scroll_hooks: {[id: string]: () => void} = {};
 
 export let register_scroll_hook = (id: string, cb: () => void) => {
   scroll_hooks[id] = cb;
-  console.log(scroll_hooks);
 };
 
 let get_ancestors = (el: Node): Node[] => {

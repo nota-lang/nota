@@ -1,6 +1,5 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import _ from "lodash";
-import { Section } from "./document";
 
 export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
   if (l1.length != l2.length) {
@@ -12,13 +11,27 @@ export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
 
 export type HTMLAttributes = React.HTMLAttributes<HTMLElement>;
 
-export let AdaptiveDisplay = forwardRef<
-  HTMLDivElement,
-  { block?: boolean } & HTMLAttributes
->(({ block, ...props }, ref) => {
-  if (block) {
-    return <div ref={ref} {...props} />;
-  } else {
-    return <span ref={ref} {...props} />;
+export let AdaptiveDisplay = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
+  ({ block, ...props }, ref) => {
+    if (block) {
+      return <div ref={ref} {...props} />;
+    } else {
+      return <span ref={ref} {...props} />;
+    }
   }
-});
+);
+
+export function useMutationObserver<T extends HTMLElement = HTMLDivElement>(
+  callback: MutationCallback,
+  options: MutationObserverInit
+): React.RefObject<T> {
+  let ref = useRef<T>(null);
+
+  useEffect(() => {
+    let observer = new MutationObserver(callback);
+    observer.observe(ref.current!, options);
+    return () => observer.disconnect();
+  }, [ref, callback]);
+
+  return ref;
+}

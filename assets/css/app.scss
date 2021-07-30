@@ -130,7 +130,7 @@ a[href],
     color: inherit;
 
     &:hover {
-      background: rgba(19, 92, 202, 0.2);
+      background: rgba(19, 92, 202, 0.1);
     }
   }
 }
@@ -227,13 +227,23 @@ section {
 
 .katex {
   font-size: 1em;
-  line-height: 1;
+  line-height: 1.3em;
+
+  .newline {
+    display: inline;
+  }
+
+  .newline::before {
+    content: "\a";    
+    white-space: pre;
+  }
 }
 
 .nomargin .katex-display {
   margin: 0;
 }
 
+// Height of tex blocks seems to be getting consistently underestimated
 .katex-display .base {
   margin-bottom: -0.33em;
 }

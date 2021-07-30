@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
-import { AdaptiveDisplay, HTMLAttributes } from "./utils";
+import { AdaptiveDisplay, HTMLAttributes, useMutationObserver } from "./utils";
 
 const r = String.raw;
 
@@ -56,7 +56,13 @@ export class TexContext {
     return rect;
   }
 
-  render(contents: string, block: boolean = false, raw: boolean = false, props: any = {}) {
+  render(
+    contents: string,
+    block: boolean = false,
+    raw: boolean = false,
+    props: any = {},
+    ref?: React.RefObject<HTMLDivElement>
+  ) {
     let html;
     try {
       html = katex.renderToString(contents, {
@@ -74,7 +80,7 @@ export class TexContext {
       if (e instanceof katex.ParseError) {
         console.error(e);
         return (
-          <AdaptiveDisplay className="error" block={block}>
+          <AdaptiveDisplay ref={ref} className="error" block={block}>
             <AdaptiveDisplay block={block}>{e.message}</AdaptiveDisplay>
             {block ? <pre>{contents}</pre> : null}
           </AdaptiveDisplay>
@@ -86,7 +92,12 @@ export class TexContext {
 
     if (raw) {
       return (
-        <AdaptiveDisplay block={block} dangerouslySetInnerHTML={{ __html: html }} {...props} />
+        <AdaptiveDisplay
+          ref={ref}
+          block={block}
+          dangerouslySetInnerHTML={{ __html: html }}
+          {...props}
+        />
       );
     }
 
@@ -123,7 +134,7 @@ export class TexContext {
     let node = parser.parseWithInstructions(html, (_: any) => true, instrs);
 
     return (
-      <AdaptiveDisplay block={block} {...props}>
+      <AdaptiveDisplay ref={ref} block={block} {...props}>
         {node}
       </AdaptiveDisplay>
     );
@@ -134,17 +145,38 @@ export let ReactTexContext = React.createContext<TexContext>(new TexContext());
 
 export interface TexProps {
   raw?: boolean;
+  block?: boolean;
+  onLoad?: () => void;
 }
 
-export let Tex: React.FC<TexProps & HTMLAttributes> = ({ children, raw, ...props }) => {
-  let ctx = useContext(ReactTexContext);
-  return ctx.render(children as string, false, raw, props);
-};
+// memo is important to avoid re-renders that include macro definitions
+export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
+  ({ children, raw, onLoad, ...props }) => {
+    let ctx = useContext(ReactTexContext);
 
-export let TexBlock: React.FC<TexProps & HTMLAttributes> = ({ children, raw, ...props }) => {
-  let ctx = useContext(ReactTexContext);
-  return ctx.render(children as string, true, raw, props);
-};
+    // Have to use MutationObserver to observe elements loaded via dangerouslySetInnerHtml
+    // See: https://stackoverflow.com/questions/44550462/reactjs-callback-for-dangerouslysetinnerhtml-complete
+    let ref;
+    if (onLoad) {
+      let loaded = false;
+      ref = useMutationObserver(
+        changes => {
+          if (!loaded) {
+            onLoad();
+            loaded = true;
+          }
+        },
+        {
+          childList: true,
+          subtree: true,
+        }
+      );
+    }
 
-export let $ = Tex;
-export let $$ = TexBlock;
+    return ctx.render(children as string, false, raw, props, ref);
+  },
+  (prev, next) => prev.children == next.children
+);
+
+export let $: React.FC<TexProps & HTMLAttributes> = props => <Tex block={false} {...props} />;
+export let $$: React.FC<TexProps & HTMLAttributes> = props => <Tex block={true} {...props} />;

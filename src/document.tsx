@@ -161,7 +161,6 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
     let observer = new ResizeObserver(entries => {
       let height = entries[0].borderBoxSize[0].blockSize;
       set_height(height);
-      console.log(entries);
     });
     observer.observe(ref.current!);
 

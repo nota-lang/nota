@@ -110,7 +110,7 @@ let queue: string[] = [];
 let flushed = false;
 let in_event = false;
 let queue_update = (id: string) => {
-  console.log("queueing", id);
+  // console.log("queueing", id);
   queue.push(id);
 };
 
