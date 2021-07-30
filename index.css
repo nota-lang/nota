@@ -1252,7 +1252,7 @@ a[href].nolink,
 }
 a[href].nolink:hover,
 .ref.nolink:hover {
-  background: rgba(19, 92, 202, 0.2);
+  background: rgba(19, 92, 202, 0.1);
 }
 .def-mode .ref.nolink {
   border: 1px solid rgba(19, 92, 202, 0.2);
@@ -1319,7 +1319,14 @@ section {
 }
 .katex {
   font-size: 1em;
-  line-height: 1;
+  line-height: 1.3em;
+}
+.katex .newline {
+  display: inline;
+}
+.katex .newline::before {
+  content: "\a";
+  white-space: pre;
 }
 .nomargin .katex-display {
   margin: 0;
