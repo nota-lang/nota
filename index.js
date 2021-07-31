@@ -1048,7 +1048,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context, unstable_observedBits);
         }
-        function useState13(initialState) {
+        function useState14(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1056,11 +1056,11 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer2, initialArg, init2);
         }
-        function useRef8(initialValue) {
+        function useRef9(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect10(create, deps) {
+        function useEffect11(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1630,13 +1630,13 @@ var require_react_development = __commonJS({
         exports.useCallback = useCallback6;
         exports.useContext = useContext9;
         exports.useDebugValue = useDebugValue2;
-        exports.useEffect = useEffect10;
+        exports.useEffect = useEffect11;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useLayoutEffect = useLayoutEffect;
         exports.useMemo = useMemo2;
         exports.useReducer = useReducer2;
-        exports.useRef = useRef8;
-        exports.useState = useState13;
+        exports.useRef = useRef9;
+        exports.useState = useState14;
         exports.version = ReactVersion;
       })();
     }
@@ -4148,7 +4148,7 @@ var require_react_dom_development = __commonJS({
           var warnedForNaNValue = false;
           var warnedForInfinityValue = false;
           var camelize = function(string2) {
-            return string2.replace(hyphenPattern, function(_21, character) {
+            return string2.replace(hyphenPattern, function(_22, character) {
               return character.toUpperCase();
             });
           };
@@ -21428,7 +21428,7 @@ var require_lodash = __commonJS({
         return string2.match(reUnicodeWord) || [];
       }
       var runInContext = function runInContext2(context) {
-        context = context == null ? root : _21.defaults(root.Object(), context, _21.pick(root, contextProps));
+        context = context == null ? root : _22.defaults(root.Object(), context, _22.pick(root, contextProps));
         var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
@@ -26135,17 +26135,17 @@ var require_lodash = __commonJS({
         }
         return lodash;
       };
-      var _21 = runInContext();
+      var _22 = runInContext();
       if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
-        root._ = _21;
+        root._ = _22;
         define(function() {
-          return _21;
+          return _22;
         });
       } else if (freeModule) {
-        (freeModule.exports = _21)._ = _21;
-        freeExports._ = _21;
+        (freeModule.exports = _22)._ = _22;
+        freeExports._ = _22;
       } else {
-        root._ = _21;
+        root._ = _22;
       }
     }).call(exports);
   }
@@ -26157,7 +26157,7 @@ var require_classnames = __commonJS({
     (function() {
       "use strict";
       var hasOwn = {}.hasOwnProperty;
-      function classNames4() {
+      function classNames5() {
         var classes = [];
         for (var i = 0; i < arguments.length; i++) {
           var arg = arguments[i];
@@ -26168,7 +26168,7 @@ var require_classnames = __commonJS({
             classes.push(arg);
           } else if (Array.isArray(arg)) {
             if (arg.length) {
-              var inner = classNames4.apply(null, arg);
+              var inner = classNames5.apply(null, arg);
               if (inner) {
                 classes.push(inner);
               }
@@ -26188,14 +26188,14 @@ var require_classnames = __commonJS({
         return classes.join(" ");
       }
       if (typeof module !== "undefined" && module.exports) {
-        classNames4.default = classNames4;
-        module.exports = classNames4;
+        classNames5.default = classNames5;
+        module.exports = classNames5;
       } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
         define("classnames", [], function() {
-          return classNames4;
+          return classNames5;
         });
       } else {
-        window.classNames = classNames4;
+        window.classNames = classNames5;
       }
     })();
   }
@@ -46652,7 +46652,7 @@ var require_lodash3 = __commonJS({
         return string2.match(reUnicodeWord) || [];
       }
       var runInContext = function runInContext2(context) {
-        context = context == null ? root : _21.defaults(root.Object(), context, _21.pick(root, contextProps));
+        context = context == null ? root : _22.defaults(root.Object(), context, _22.pick(root, contextProps));
         var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
         var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
         var coreJsData = context["__core-js_shared__"];
@@ -51359,17 +51359,17 @@ var require_lodash3 = __commonJS({
         }
         return lodash;
       };
-      var _21 = runInContext();
+      var _22 = runInContext();
       if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
-        root._ = _21;
+        root._ = _22;
         define(function() {
-          return _21;
+          return _22;
         });
       } else if (freeModule) {
-        (freeModule.exports = _21)._ = _21;
-        freeExports._ = _21;
+        (freeModule.exports = _22)._ = _22;
+        freeExports._ = _22;
       } else {
-        root._ = _21;
+        root._ = _22;
       }
     }).call(exports);
   }
@@ -51812,7 +51812,7 @@ var comparer = {
   "default": defaultComparer,
   shallow: shallowComparer
 };
-function deepEnhancer(v, _21, name2) {
+function deepEnhancer(v, _22, name2) {
   if (isObservable(v))
     return v;
   if (Array.isArray(v))
@@ -51840,7 +51840,7 @@ function deepEnhancer(v, _21, name2) {
   }
   return v;
 }
-function shallowEnhancer(v, _21, name2) {
+function shallowEnhancer(v, _22, name2) {
   if (v === void 0 || v === null)
     return v;
   if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v) || isObservableSet(v))
@@ -57816,10 +57816,10 @@ var Definition = (props) => {
     let Label = props.Label || null;
     ctx.add_definition(name2, { Tooltip: Tooltip2, Label });
   }, []);
-  return /* @__PURE__ */ import_react10.default.createElement(DefinitionAnchor, {
+  return props.children ? /* @__PURE__ */ import_react10.default.createElement(DefinitionAnchor, {
     block: props.block,
     name: name2
-  }, props.children);
+  }, props.children) : null;
 };
 var elts = {};
 var queue = [];
@@ -57956,7 +57956,13 @@ var Ref = observer2((props) => {
 
 // node_modules/reactex/dist/tex.js
 var r = String.raw;
-var newcommand = (cmd, nargs, body) => r`\newcommand{${"\\" + cmd}}[${nargs}]{\htmlData{cmd=${cmd}}{${body}}}`;
+var newcommand = (cmd, nargs, body, defaults2 = []) => {
+  if (defaults2.length > 0) {
+    throw `KaTeX currently doesn't support default arguments to newcommand. Check on this issue: https://github.com/KaTeX/KaTeX/issues/2228`;
+  }
+  let ds = defaults2.map((s) => `[${s}]`).join("");
+  return r`\newcommand{${"\\" + cmd}}[${nargs}]${ds}{\htmlData{cmd=${cmd}}{${body}}}`;
+};
 var TexContext = class {
   constructor() {
     this.macros = {};
@@ -58060,7 +58066,7 @@ var TexContext = class {
   }
 };
 var ReactTexContext = import_react11.default.createContext(new TexContext());
-var Tex = import_react11.default.memo(({ children, raw, onLoad, ...props }) => {
+var Tex = import_react11.default.memo(({ children, raw, onLoad, block, ...props }) => {
   let ctx = (0, import_react11.useContext)(ReactTexContext);
   if (onLoad) {
     (0, import_react11.useEffect)(() => {
@@ -58071,7 +58077,7 @@ var Tex = import_react11.default.memo(({ children, raw, onLoad, ...props }) => {
       }
     }, []);
   }
-  return ctx.render(children, false, raw, props);
+  return ctx.render(children, block, raw, props);
 }, (prev, next) => prev.children == next.children);
 var $ = (props) => /* @__PURE__ */ import_react11.default.createElement(Tex, {
   block: false,
@@ -59699,7 +59705,7 @@ var nonASCIISingleCaseWordChar = /[\u00df\u0587\u0590-\u05f4\u0600-\u06ff\u3040-
 var wordChar;
 try {
   wordChar = /* @__PURE__ */ new RegExp("[\\p{Alphabetic}\\p{Number}_]", "u");
-} catch (_21) {
+} catch (_22) {
 }
 function hasWordChar(str) {
   if (wordChar)
@@ -59733,7 +59739,7 @@ var EditorState = class {
     if (tr && tr.startState.config == config) {
       this.values = tr.startState.values.slice();
     } else {
-      this.values = config.dynamicSlots.map((_21) => null);
+      this.values = config.dynamicSlots.map((_22) => null);
       if (tr)
         for (let id in config.address) {
           let cur = config.address[id], prev = tr.startState.config.address[id];
@@ -60792,7 +60798,7 @@ function hasSelection(dom, selection) {
     return false;
   try {
     return contains2(dom, selection.anchorNode);
-  } catch (_21) {
+  } catch (_22) {
     return false;
   }
 }
@@ -60985,7 +60991,7 @@ function contentEditablePlainTextSupported() {
     try {
       dummy.contentEditable = "plaintext-only";
       _plainTextSupported = dummy.contentEditable == "plaintext-only";
-    } catch (_21) {
+    } catch (_22) {
     }
   }
   return _plainTextSupported;
@@ -62181,7 +62187,7 @@ var PluginInstance = class {
         if (this.value.destroy)
           try {
             this.value.destroy();
-          } catch (_21) {
+          } catch (_22) {
           }
         return PluginInstance.dummy;
       }
@@ -68583,30 +68589,55 @@ var Togglebox = ({ Inside, Outside, resize, registerToggle }) => {
 
 // node_modules/reactex/dist/math.js
 var import_react18 = __toModule(require_react());
-var Theorem = ({ name: name2, children }) => {
+var Theorem = ({ name: name2, title, children }) => {
   let ctx = (0, import_react18.useContext)(DocumentContext);
   let thm_num = ctx.theorems.push().join(".");
   let label = `Theorem ${thm_num}`;
+  let suffix = title ? `: ${title}` : "";
   return /* @__PURE__ */ import_react18.default.createElement(Definition, {
     name: name2,
-    Label: () => /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, label)
+    Label: () => /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, label, suffix)
   }, /* @__PURE__ */ import_react18.default.createElement("div", {
     className: "theorem"
-  }, /* @__PURE__ */ import_react18.default.createElement(Smallcaps, null, label, "."), /* @__PURE__ */ import_react18.default.createElement("div", {
+  }, /* @__PURE__ */ import_react18.default.createElement(Smallcaps, null, label, suffix), /* @__PURE__ */ import_react18.default.createElement("div", {
     className: "theorem-body"
-  }, children)));
+  }, children)), /* @__PURE__ */ import_react18.default.createElement(ctx.theorems.Pop, null));
 };
 
 // node_modules/reactex/dist/correspondence.js
 var import_react19 = __toModule(require_react());
+var import_classnames4 = __toModule(require_classnames());
+var import_lodash6 = __toModule(require_lodash());
 var Correspondence = ({ children }) => {
+  let ref = (0, import_react19.useRef)(null);
+  let [hover, set_hover] = (0, import_react19.useState)(null);
+  (0, import_react19.useEffect)(() => {
+    let links = ref.current.querySelectorAll(".link");
+    let cbs = Array.from(links).map((el) => {
+      let cls = import_lodash6.default.find(el.className.split(" "), (s) => s.startsWith("type"));
+      let on_enter = () => {
+        set_hover(`hover-${cls}`);
+      };
+      let on_leave = () => {
+        set_hover(null);
+      };
+      el.addEventListener("mouseenter", on_enter);
+      el.addEventListener("mouseleave", on_leave);
+      return () => {
+        el.removeEventListener("mouseenter", on_enter);
+        el.removeEventListener("mouseleave", on_leave);
+      };
+    });
+    return () => cbs.forEach((cb) => cb());
+  }, []);
   return /* @__PURE__ */ import_react19.default.createElement("div", {
-    className: "correspondence"
+    ref,
+    className: (0, import_classnames4.default)("correspondence", hover)
   }, children);
 };
 var Link = ({ name: name2, block, children }) => {
   return /* @__PURE__ */ import_react19.default.createElement(Container, {
-    className: `link type-${name2}`,
+    className: (0, import_classnames4.default)("link", `type-${name2}`),
     block
   }, children);
 };
@@ -68626,7 +68657,7 @@ var Stack = class {
     this.parent = parent;
   }
   toString() {
-    return `[${this.stack.filter((_21, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
+    return `[${this.stack.filter((_22, i) => i % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
   }
   static start(p, state, pos = 0) {
     let cx = p.parser.context;
@@ -69179,7 +69210,7 @@ var TokenCache = class {
     this.tokens = [];
     this.mainToken = dummyToken;
     this.actions = [];
-    this.tokens = parser2.tokenizers.map((_21) => new CachedToken());
+    this.tokens = parser2.tokenizers.map((_22) => new CachedToken());
   }
   getActions(stack, input) {
     let actionIndex = 0;
@@ -70122,7 +70153,7 @@ var SliceListing = ({
 
 // src/diagram.tsx
 var import_react21 = __toModule(require_react());
-var import_lodash6 = __toModule(require_lodash3());
+var import_lodash7 = __toModule(require_lodash3());
 var import_react22 = __toModule(require_react());
 var r2 = String.raw;
 var get_relative_midpoint = (container, el, top3) => {
@@ -70162,7 +70193,7 @@ var SyntaxDiagram = () => {
   let on_all_load = () => {
     let container = container_ref.current;
     let elems = container.querySelectorAll("[data-index]");
-    let elems_arr = import_lodash6.default.sortBy(Array.from(elems), (elem) => {
+    let elems_arr = import_lodash7.default.sortBy(Array.from(elems), (elem) => {
       let index = parseInt(elem.dataset.index);
       return index;
     });
@@ -70896,7 +70927,7 @@ var unsupported = () => {
 var useAsync$1 = import_react23.useEffect ? useAsync : unsupported;
 
 // node_modules/reactex/dist/language.js
-var import_lodash7 = __toModule(require_lodash());
+var import_lodash8 = __toModule(require_lodash());
 var r3 = String.raw;
 var Language2 = class {
   constructor(grammar) {
@@ -70953,7 +70984,7 @@ var Language2 = class {
             }
             return [rows2, cur_width];
           }, [[[]], 0]);
-          let str = rows.filter((row) => !hl || import_lodash7.default.some(row, (branch) => branch.subcmd == hl)).map((row) => row.map((branch) => {
+          let str = rows.filter((row) => !hl || import_lodash8.default.some(row, (branch) => branch.subcmd == hl)).map((row) => row.map((branch) => {
             let tex = branch_to_tex(cmd)(branch);
             if (hl && branch.subcmd == hl) {
               tex = r3`\htmlClass{tex-highlight}{${tex}}`;
@@ -70992,7 +71023,7 @@ var Language2 = class {
         columns: 1,
         cutoff: 0
       };
-      let columns = layout.columns > 1 ? import_lodash7.default.chunk(rules, layout.cutoff) : [rules];
+      let columns = layout.columns > 1 ? import_lodash8.default.chunk(rules, layout.cutoff) : [rules];
       let sep = r3`
 %
 \hspace{2em}
@@ -71576,7 +71607,7 @@ var r5 = String.raw;
 var C2 = (props) => /* @__PURE__ */ import_react25.default.createElement("code", {
   ...props
 });
-var App = (_21) => {
+var App = (_22) => {
   let num_principles = 0;
   let Principle = ({ type, text }) => {
     num_principles += 1;
@@ -71603,19 +71634,27 @@ var App = (_21) => {
   })))), /* @__PURE__ */ import_react25.default.createElement(Abstract, null, "Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases."), /* @__PURE__ */ import_react25.default.createElement($$, null, r5`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
+    \newcommand{\cmddef}[2]{\htmlData{def=#1}{#2}}
     ${newcommand("tc", 6, r5`{#1}; {#2}; {#3} \vdash {#4} : {#5} \Rightarrow {#6}`)}
     ${newcommand("ownsafe", 5, r5`{#1}; {#2} \vdash_{#3} {#4} \Rightarrow {#5}`)}
     ${newcommand("subtype", 5, r5`{#1}; {#2} \vdash {#3} \mathrel{\footnotesize \lesssim} {#4} \Rightarrow {#5}`)}
     ${newcommand("stepsto", 5, r5`{#1} \vdash ({#2};~{#3}) \rightarrow ({#4};~{#5})`)}
+    \newcommand{\evalsto}[5]{{#1} \vdash ({#2};~{#3}) \overset{\footnotesize\ast}{\rightarrow} ({#4};~{#5})}
     ${newcommand("stack", 0, r5`\sigma`)}
     ${newcommand("pctx", 2, r5`{#1}^{\tiny\square}[{#2}]`)}
     ${newcommand("valuectx", 0, r5`\mathcal{V}`)}
     ${newcommand("valueplug", 2, r5`{#1}[{#2}]`)}
     ${newcommand("pointsto", 4, r5`{#1} \vdash {#2} \Downarrow {#3} \times {#4}`)}
     ${newcommand("notdisjoint", 2, r5`{#1} \sqcap {#2}`)}
+    ${newcommand("disjoint", 2, r5`{#1} \mathrel{\#} {#2}`)}
+    ${newcommand("refs", 2, r5`{#1}\text{-}\mathsf{refs}({#2})`)}
+    ${newcommand("ownqleq", 2, r5`{#1} \lesssim {#2}`)}
+    ${newcommand("stackeq", 3, r5`{#1} \mathrel{\overset{#3}{\sim}} {#2}`)}
+    ${newcommand("allplaces", 2, r5`\msf{all}\text{-}\msf{places}({#1}, {#2})`)}
     \newcommand{\setof}[1]{\{\overline{#1}\}}
     \newcommand{\stepped}[1]{\vec{#1}}
     \newcommand{\link}[2]{\htmlClass{link type-#1}{#2}}
+    \newcommand{\eqdef}{~\mathrel{\overset{\msf{def}}{=}}~}
     `), /* @__PURE__ */ import_react25.default.createElement(Oxide.Commands, null), /* @__PURE__ */ import_react25.default.createElement(OxideExtra.Commands, null), /* @__PURE__ */ import_react25.default.createElement($$, null, r5`
     % Aliases to make it easier to port paper
     \newcommand{\uty}{\tybnum}
@@ -71627,6 +71666,8 @@ var App = (_21) => {
     \newcommand{\sty}{\msf{String}}
     \newcommand{\mut}{\msf{mut}}
     \newcommand{\any}{\msf{any}}
+    \newcommand{\arrg}{\msf{arg}}
+    \newcommand{\reff}{\msf{ref}}
     `), /* @__PURE__ */ import_react25.default.createElement(Section, {
     title: "Introduction",
     name: "sec:intro"
@@ -71960,11 +72001,13 @@ assert!(*value.lock().unwrap() == 1);`
     title: "Formalized principles"
   }, /* @__PURE__ */ import_react25.default.createElement("p", null, "Now, we have enough of the language formalized to give a precise statement of each slicing principle from ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
     name: "sec:background"
-  }), ". Each principle will be presented with the corresponding theorem, using underlining in color to highlight correspondences."), /* @__PURE__ */ import_react25.default.createElement("p", null, "In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp`), " or ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack`), ", and add a sans-serif subscript for distinct roles where needed, e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\mut`), " for a mutated place and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\any`), " for an arbitrary place. We generally use a superscript ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`i`), " for an object that varies between two executions of a program, like ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^i`), " or ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`v^i`), " . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^i`), " versus ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stepped{\stack}^i`), "."), /* @__PURE__ */ import_react25.default.createElement(Correspondence, null, /* @__PURE__ */ import_react25.default.createElement(Row, null, /* @__PURE__ */ import_react25.default.createElement("div", {
+  }), ". Each principle will be presented with the corresponding theorem, using underlining in color to highlight correspondences."), /* @__PURE__ */ import_react25.default.createElement("p", null, "In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp`), " or ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack`), ", and add a sans-serif subscript for distinct roles where needed, e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\mut`), " for a mutated place and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\any`), " for an arbitrary place. We generally use a superscript ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`i`), " for an object that varies between two executions of a program, like ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^i`), " or ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`v^i`), " . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^i`), " versus ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stepped{\stack}^i`), "."), /* @__PURE__ */ import_react25.default.createElement("hr", null), /* @__PURE__ */ import_react25.default.createElement(Correspondence, null, /* @__PURE__ */ import_react25.default.createElement(Row, null, /* @__PURE__ */ import_react25.default.createElement("div", {
     style: { width: "300px", marginRight: "3rem" }
   }, /* @__PURE__ */ import_react25.default.createElement(Smallcaps, null, /* @__PURE__ */ import_react25.default.createElement(Ref, {
     name: "prin:places"
-  })), /* @__PURE__ */ import_react25.default.createElement("br", null), /* @__PURE__ */ import_react25.default.createElement("em", null, "A ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+  })), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { fontStyle: "italic" }
+  }, "A ", /* @__PURE__ */ import_react25.default.createElement(Link, {
     name: "1"
   }, "mutation"), " to a ", /* @__PURE__ */ import_react25.default.createElement(Link, {
     name: "2"
@@ -71980,9 +72023,114 @@ assert!(*value.lock().unwrap() == 1);`
     style: { margin: "0" }
   }, /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{2}{\plc_\mut = \pctx{\plc_\mut}{\vr}}, \stack`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pointsto{\stack}{\plc_\mut}{\_}{\valuectx}`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`v, \link{1}{\stepped{\stack} =\stack[\vr \mapsto \valueplug{\valuectx}{v}]}`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement(Link, {
     name: "4"
-  }, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\any`), " be any place"))), "Then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}`), ".")))), /* @__PURE__ */ import_react25.default.createElement(Definition, {
+  }, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\any`), " be any place"))), "Then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}`), ".")))), /* @__PURE__ */ import_react25.default.createElement("p", null, "As described in ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "sec:dynsem"
+  }), ", a mutation to a place is represented by updating a variable ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\vr`), " in a stack ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack`), " by plugging a value ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`v`), " into a value context ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\valuectx`), ". To denote a conflict,we reuse the notation from Oxide that ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\disjoint{\plc_1}{\plc_2}`), ' means " ', /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_1`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_2`), ' do not conflict", or more formally:'), /* @__PURE__ */ import_react25.default.createElement(Definition, {
+    name: "tex:disjoint"
+  }, /* @__PURE__ */ import_react25.default.createElement($$, null, r5`\disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee ((q_1 \text{ is not a prefix of } q_2) \wedge (q_2 \text{ is not a prefix of } q_1))`)), /* @__PURE__ */ import_react25.default.createElement("p", {
+    className: "noindent"
+  }, "Conversely, we use the shorthand ", /* @__PURE__ */ import_react25.default.createElement(Definition, {
     name: "tex:notdisjoint"
-  }, "TODO"))));
+  }, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\notdisjoint{\pi_1}{\pi_2} \eqdef \neg(\disjoint{\pi_1}{\pi_2})`)), ". So if a place ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\any`), " is changed when ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\mut`), " is mutated, then it must be that ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\notdisjoint{\plc_\any}{\plc_\mut}`), "."), /* @__PURE__ */ import_react25.default.createElement("hr", null), /* @__PURE__ */ import_react25.default.createElement(Correspondence, null, /* @__PURE__ */ import_react25.default.createElement(Row, null, /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "400px", marginRight: "3rem" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Smallcaps, null, /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "prin:references"
+  })), /* @__PURE__ */ import_react25.default.createElement("br", null), /* @__PURE__ */ import_react25.default.createElement("em", null, "The ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "1"
+  }, "lifetime"), " of a ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "2"
+  }, "reference"), " contains all potential ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "3"
+  }, "aliases"), " of what the reference ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "4"
+  }, "points-to."))), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "max-content", textAlign: "left" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Theorem, {
+    name: "thm:slice-refs"
+  }, "Let: ", /* @__PURE__ */ import_react25.default.createElement("ul", {
+    style: { margin: "0" }
+  }, /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fenv \vdash \stack : \stackenv`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{2}{\pexp_\mut}`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{1}{\ownsafe{\tyenvempty}{\stackenv}{\uniq}{\pexp_\mut}{\loanset}}`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pointsto{\stack}{\pexp_\mut}{\link{4}{\plc_\mut}}{\_}`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{3}{\pexp_\any}`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pointsto{\stack}{\pexp_\any}{\plc_\any}{\_}`))), "Then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\notdisjoint{\plc_\any}{\plc_\mut} \implies \link{3}{\exists \loanform{\uniq}{\pexp_\msf{loan}}} ~ . ~ \notdisjoint{\pexp_\any}{\pexp_\msf{loan}}`), ".")))), /* @__PURE__ */ import_react25.default.createElement("p", null, "Rather than referring to a lifetime directly, we instead use Oxide's ownership safety judgment described in ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "sec:statsem"
+  }), " to get the corresponding loan set for a mutated place expression ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), ". If ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), " includes a dereference, then the loan set should include potential aliases."), /* @__PURE__ */ import_react25.default.createElement("p", null, "A notable detail is that we do not compare the loan sets of ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\any`), " to see if they contain conflicting places, but rather compare ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\any`), " just against the loan set of ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), ". This works because the loan set contains not just the set of places ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc`), " that ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), " could point-to, but also the set of other references to the places ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp_\mut`), " points-to (via reborrows)."), /* @__PURE__ */ import_react25.default.createElement("hr", null), /* @__PURE__ */ import_react25.default.createElement(Correspondence, null, /* @__PURE__ */ import_react25.default.createElement(Row, null, /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "340px", marginRight: "2.5rem", textAlign: "left" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Smallcaps, null, /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "prin:function calls"
+  })), /* @__PURE__ */ import_react25.default.createElement("br", null), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { fontStyle: "italic" }
+  }, "When ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "1"
+  }, "calling a function:"), /* @__PURE__ */ import_react25.default.createElement("ol", {
+    className: "parenkey"
+  }, /* @__PURE__ */ import_react25.default.createElement("li", null, "only ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "2"
+  }, "mutable references in the arguments"), " ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "3"
+  }, "can be mutated"), ", and...")))), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "max-content", textAlign: "left" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Theorem, {
+    name: "thm:proc_mutrefs"
+  }, "Let: ", /* @__PURE__ */ import_react25.default.createElement("ul", {
+    style: { margin: "0" }
+  }, /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stackenv, \plc_\arrg, \stack`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stackenv(\plc_\arrg) = \tys`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fenv \vdash \stack : \stackenv`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fname`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{\_}}`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stepped{\stack}' = \stepped{\stack}[\link{2}{\forall \pexp_\reff \in \refs{\uniq}{\plc_\arrg, \tys}} ~ . ~ \link{3}{\pexp_\reff \mapsto \stack(\pexp_\reff)}]`))), "Then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack = \stepped{\stack}'`), ".")))), /* @__PURE__ */ import_react25.default.createElement("p", null, "First, ", /* @__PURE__ */ import_react25.default.createElement(Definition, {
+    name: "tex:refs"
+  }, 'we define "mutable references in the arguments" as ', /* @__PURE__ */ import_react25.default.createElement($, null, r5`\refs{\ownq}{\pexp, \tys}`), " that returns the ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\ownq`), "-safe place expressions of references inside of ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\pexp`), " of type ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\tys`)), ". For instance, if ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`x = 0`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`y = (0, \tysref{\uniq}{\concrprov}{x})`), " then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\refs{\uniq}{y, (\uty, \tysref{\uniq}{\concrprov}{\uty})} = \{\pexpderef{y.1}\}`), " . The full definition is:"), /* @__PURE__ */ import_react25.default.createElement($$, null, r5`
+        \begin{align*}
+          \refs{\ownq}{\pexp, \tyb} &=
+              \varnothing
+          \hspace{32pt}
+          \refs{\ownq}{\pexp, \tystup{\tys_1, \ldots, \tys_n}} = 
+              \bigcup_i \refs{\ownq}{\pexp.i, \tys_i}
+          \\ 
+          \refs{\ownq}{p, \tysref{\ownq'}{\prov}{\tyx}} &= \begin{cases}
+            \{\pexpderef{\pexp}\} \cup \refs{\ownq}{\pexpderef{p}, \tyx} & \text{if $\ownqleq{\ownq'}{\ownq}$} \\
+            \varnothing & \text{otherwise}
+          \end{cases}
+        \end{align*}
+        `), /* @__PURE__ */ import_react25.default.createElement("p", {
+    className: "noindent"
+  }, "Here, ", /* @__PURE__ */ import_react25.default.createElement(Definition, {
+    name: "tex:ownqleq"
+  }, "the relation ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\ownqleq{\ownq'}{\ownq}`), " is defined as ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\uniq \not\lesssim \shrd`), " and otherwise ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\ownqleq{\ownq'}{\ownq}`), ".")), /* @__PURE__ */ import_react25.default.createElement("p", null, "Then we define ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "thm:proc_mutrefs"
+  }), " in the theme of a transaction: if all the changes to unique references in ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\arrg`), " are rolled back, then the new stack is the same as the one before the function call. This means implicitly that no other values could have been mutated."), /* @__PURE__ */ import_react25.default.createElement("hr", null), /* @__PURE__ */ import_react25.default.createElement(Correspondence, null, /* @__PURE__ */ import_react25.default.createElement(Row, null, /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "330px", marginRight: "2rem", textAlign: "left" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Smallcaps, null, /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "prin:function calls"
+  })), /* @__PURE__ */ import_react25.default.createElement("br", null), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { fontStyle: "italic" }
+  }, "When ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "1"
+  }, "calling a function:"), /* @__PURE__ */ import_react25.default.createElement("ol", {
+    className: "parenkey",
+    start: 2
+  }, /* @__PURE__ */ import_react25.default.createElement("li", null, "...the ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "2"
+  }, "mutations"), " and ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "3"
+  }, "return value"), " are only ", /* @__PURE__ */ import_react25.default.createElement(Link, {
+    name: "4"
+  }, "influenced by the arguments."))))), /* @__PURE__ */ import_react25.default.createElement("div", {
+    style: { width: "max-content", textAlign: "left" }
+  }, /* @__PURE__ */ import_react25.default.createElement(Theorem, {
+    name: "thm:proc_eqarg"
+  }, "Let: ", /* @__PURE__ */ import_react25.default.createElement("ul", {
+    style: { margin: "0" }
+  }, /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stackenv, \plc_\arrg, \stack^i`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stackenv(\plc_\arrg) = \tys`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`i \in \{1, 2\}, \fenv \vdash \stack^i : \stackenv`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fname`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{v^i}}`)), /* @__PURE__ */ import_react25.default.createElement("li", null, /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{4}{P = \allplaces{\plc_\arrg}{\tys}}`))), "Then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\link{4}{\stackeq{\stack^1}{\stack^2}{P}} \implies \link{2}{\stackeq{\stepped{\stack}^1}{\stepped{\stack}^2}{P}} \wedge \link{3}{v^1 = v^2}`))))), /* @__PURE__ */ import_react25.default.createElement("p", null, "The idea behind ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "thm:proc_eqarg"
+  }), ' is that "influence" is translated into a form of noninterference: if the input to a function is the same under any two stacks ', /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^1`), " and ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^2`), ", then the mutations to that input must be the same. The rest of the stack is allowed to vary, but because the function ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fname`), " cannot read it, that variation cannot influence the final value. "), /* @__PURE__ */ import_react25.default.createElement("p", null, 'To formalize "the input being the same", we introduce another auxiliary function for transitive equality. For instance, if we only required that ', /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^1(\plc_\arrg) = \stack^2(\plc_\arrg)`), " where ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\arrg = \msf{ptr}~x`), ", then if ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stack^1(x) \neq \stack^2(x)`), " the theorem would not be true. Hence, transitive equality is defined as equality including all pointed places. We define this concept through two pieces: a function for generating the set of places (denoted by ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`P`), "), and a relation defining the equivalence of stacks for a set of places."), /* @__PURE__ */ import_react25.default.createElement($$, null, r5`
+          \begin{align*}
+            \cmddef{allplaces}{\allplaces{\pexp}{\tys}} &\eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys} \\
+            \cmddef{stackeq}{\stackeq{\stack^1}{\stack^2}{P}} &\eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)
+          \end{align*}
+        `), /* @__PURE__ */ import_react25.default.createElement(Definition, {
+    name: "tex:allplaces",
+    Tooltip: () => /* @__PURE__ */ import_react25.default.createElement($, null, r5`\allplaces{\pexp}{\tys} \eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys}`)
+  }), /* @__PURE__ */ import_react25.default.createElement(Definition, {
+    name: "tex:stackeq",
+    Tooltip: () => /* @__PURE__ */ import_react25.default.createElement($, null, r5`\stackeq{\stack^1}{\stack^2}{P} \eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)`)
+  }), /* @__PURE__ */ import_react25.default.createElement("p", null, "Therefore ", /* @__PURE__ */ import_react25.default.createElement(Ref, {
+    name: "thm:proc_eqarg"
+  }), " states that if ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\arrg`), " is transitively equal under two otherwise arbitrary stacks, then ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\plc_\arrg`), " is still transitively equal after evaluating ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fname(\plc_\arrg)`), " , and the output of ", /* @__PURE__ */ import_react25.default.createElement($, null, r5`\fname(\plc_\arrg)`), " is also equal."))));
 };
 import_react_dom4.default.render(/* @__PURE__ */ import_react25.default.createElement(App, null), document.getElementById("container"));
 export {
