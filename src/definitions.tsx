@@ -6,7 +6,7 @@ import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
 
 import { ToplevelElem } from "./document";
-import { AdaptiveDisplay, HTMLAttributes } from "./utils";
+import { Container, HTMLAttributes } from "./utils";
 import { scroll_to } from "./scroll";
 
 export interface DefinitionData {
@@ -17,13 +17,19 @@ export interface DefinitionData {
 export class AllDefinitionData {
   @observable defs: { [name: string]: DefinitionData } = {};
   @observable def_mode: boolean = false;
-  // @observable second_pass: boolean = false;
+  @observable used_definitions: Set<string> = new Set();
 
   constructor() {
     makeObservable(this);
   }
 
-  get_definition = (name: string): DefinitionData | undefined => this.defs[name];
+  register_use = action((name: string) => {
+    this.used_definitions.add(name);
+  })
+
+  get_definition = (name: string): DefinitionData | undefined => {
+    return this.defs[name];
+  };
 
   add_definition = action((name: string, def: DefinitionData) => {
     if (!(name in this.defs)) {
@@ -65,9 +71,9 @@ interface DefinitionProps {
 }
 
 export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = props => (
-  <AdaptiveDisplay block={props.block} id={`def-${props.name}`}>
+  <Container block={props.block} id={`def-${props.name}`}>
     {props.children}
-  </AdaptiveDisplay>
+  </Container>
 );
 
 export let Definition: React.FC<DefinitionProps> = props => {
@@ -235,7 +241,11 @@ let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
 
 export let Ref: React.FC<RefProps> = observer(props => {
   let ctx = useContext(DefinitionContext);
-  let def = ctx.get_definition(props.name);
+  useEffect(() => {
+    ctx.register_use(props.name);
+  }, []);
+  
+  let def = ctx.get_definition(props.name);  
   if (!def) {
     return <span className="error">{props.name}</span>;
   }
@@ -259,7 +269,7 @@ export let Ref: React.FC<RefProps> = observer(props => {
   let event_props = { [scroll_event]: on_click };
 
   let Inner = forwardRef<HTMLDivElement>((inner_props, ref) => (
-    <AdaptiveDisplay
+    <Container
       ref={ref}
       block={props.block}
       className={classNames("ref", {
@@ -269,7 +279,7 @@ export let Ref: React.FC<RefProps> = observer(props => {
       {...event_props}
     >
       {inner}
-    </AdaptiveDisplay>
+    </Container>
   ));
 
   if (def.Tooltip) {

@@ -133,6 +133,8 @@ export class Language {
             [[[]] as SyntaxBranch[][], 0]
           );
           let str = rows
+            // if we're highlighting a specific branch, then remove other rows
+            .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
             .map(row =>
               row.map(branch => {
                 let tex = branch_to_tex(cmd)(branch);
@@ -141,7 +143,7 @@ export class Language {
                 }
                 return tex;
               }).join(r`
-  \mid `)
+  \mid `) + (hl && rows.length > 1 ? r`\mid \ldots` : '')
             )
             .join(r`\\& & & && &&\mid`);
           return `::= ~ &&${str}`;

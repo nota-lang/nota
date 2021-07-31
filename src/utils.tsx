@@ -11,7 +11,7 @@ export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
 
 export type HTMLAttributes = React.HTMLAttributes<HTMLElement>;
 
-export let AdaptiveDisplay = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
+export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
   ({ block, ...props }, ref) => {
     if (block) {
       return <div ref={ref} {...props} />;
@@ -29,9 +29,29 @@ export function useMutationObserver<T extends HTMLElement = HTMLDivElement>(
 
   useEffect(() => {
     let observer = new MutationObserver(callback);
-    observer.observe(ref.current!, options);
+    if (!ref.current) {
+      throw `Invalid ref in useMutationObserver`;
+    }
+
+    observer.observe(ref.current, options);
     return () => observer.disconnect();
   }, [ref, callback]);
 
   return ref;
 }
+
+export let useSynchronizer = (callback: () => void): (() => () => void) => {
+  let promises: Promise<null>[] = [];
+  useEffect(() => {
+    Promise.all(promises).then(callback);
+  }, [callback]);
+
+  return () => {
+    let resolve: () => void;
+    let promise: Promise<null> = new Promise((r, _) => {
+      resolve = () => r(null);
+    });
+    promises.push(promise);
+    return resolve!;
+  };
+};

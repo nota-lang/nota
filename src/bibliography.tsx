@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
 import _ from "lodash";
+import {observer} from "mobx-react";
+
 import { Section, SectionTitle } from "./document";
 import { Definition, Ref, DefinitionContext } from "./definitions";
 
@@ -89,7 +91,6 @@ function intersperse<T>(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
 
 export class BibliographyContext {
   citations: { [key: string]: BibliographyEntry };
-  used_citations: { [key: string]: boolean };
 
   constructor(bibtex: string) {
     let entries = bibtexParse.toJSON(bibtex);
@@ -97,14 +98,9 @@ export class BibliographyContext {
       .map(entry => [entry.citationKey, new BibliographyEntry(entry)])
       .fromPairs()
       .value();
-    this.used_citations = {};
   }
 
   cite(keys: string[], full: boolean, yearonly: boolean, ex?: string) {
-    keys.forEach(key => {
-      this.used_citations[key] = true;
-    });
-
     let suffix = ex ? `, ${ex}` : "";
 
     return full ? (
@@ -123,7 +119,7 @@ export class BibliographyContext {
           keys.map(key => {
             let entry = this.citations[key];
             if (yearonly) {
-              return <span key={key}>entry.year</span>;
+              return <Ref key={key} name={key}>{entry.year}{suffix}</Ref>;
             } else {
               let author = entry.display_author();
               return <Ref key={key} name={key}>{`${author} ${entry.year}${suffix}`}</Ref>;
@@ -141,25 +137,28 @@ export class BibliographyContext {
 
 export let ReactBibliographyContext = React.createContext<BibliographyContext | null>(null);
 
-export let ReferencesSection: React.FC = _ => {
+export let ReferencesSection: React.FC = observer(_ => {
   let ctx = useContext(ReactBibliographyContext)!;
+  let def_ctx = useContext(DefinitionContext);
   return (
     <section>
       <SectionTitle>References</SectionTitle>
-      <References keys={Object.keys(ctx.used_citations)} />
+      <References keys={Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key))} />
     </section>
   );
-};
+});
 
 export let References: React.FC<{ keys: string[] }> = ({ keys }) => {
   let ctx = useContext(ReactBibliographyContext)!;
   return (
     <div className="bib-references">
-      {keys.map(key => (
-        <Definition key={key} name={key} block>
-          {ctx.citations[key].bib_cite()}
-        </Definition>
-      ))}
+      {keys
+        .filter(key => key in ctx.citations)
+        .map(key => (
+          <Definition key={key} name={key} block>
+            {ctx.citations[key].bib_cite()}
+          </Definition>
+        ))}
     </div>
   );
 };

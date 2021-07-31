@@ -7,6 +7,8 @@ import {
   Ref,
   Footnote,
   Section,
+  SubSection,
+  SubSubSection,
   Title,
   Authors,
   Author,
@@ -20,15 +22,20 @@ import {
   Listing,
   ListingConfigure,
   Figure,
+  Subfigure,
   Caption,
-  Definition
+  Definition,
+  Smallcaps
 } from "reactex";
 import {newcommand} from "reactex/dist/tex";
 import {Expandable} from "reactex/dist/document";
+import {ToggleButton} from "reactex/dist/togglebox";
+import {Theorem} from "reactex/dist/math";
+import {Correspondence, Link} from "reactex/dist/correspondence";
 import { rust } from "@codemirror/lang-rust";
 
 import { SliceListing } from "./slicer";
-import {SyntaxDiagram} from "./diagram";
+import {SyntaxDiagram, AssignStaticRule, AssignDynamicRule} from "./diagram";
 import {Oxide, OxideExtra} from "./language";
 
 // @ts-ignore
@@ -39,16 +46,25 @@ import "../node_modules/reactex/dist/assets.css";
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
 
-// TODO: abstract out a "counter" context
-let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => (
-  <p style={{ margin: "1rem" }}>
-    <strong>Principle 1</strong> (Slicing principle for {type}). <em>{text}</em>
-  </p>
-);
 
 
-export let App: React.FC = _ => (
-  <Document bibtex={bibtex}>
+
+export let App: React.FC = _ => {
+  let num_principles = 0;
+  let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => {
+    num_principles += 1;
+    let num = num_principles;
+    let Label = () => <>{`Principle ${num} (Slicing principle for ${type})`}</>;
+    let Text = () => <>{text}</>;
+
+    return <Definition name={`prin:${type}`} Label={Label} Tooltip={Text} block>
+      <p style={{ margin: "1rem" }}>
+        <strong>Principle {num}</strong> (Slicing principle for {type}). <em><Text /></em>
+      </p>
+    </Definition>;
+  };
+
+  return <Document bibtex={bibtex}>
     <ListingConfigure language={rust()} />
     <Title>Modular Program Slicing Through Ownership</Title>
     <Authors>
@@ -77,7 +93,18 @@ export let App: React.FC = _ => (
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
     ${newcommand("tc", 6, r`{#1}; {#2}; {#3} \vdash {#4} : {#5} \Rightarrow {#6}`)}
+    ${newcommand("ownsafe", 5, r`{#1}; {#2} \vdash_{#3} {#4} \Rightarrow {#5}`)}
+    ${newcommand("subtype", 5, r`{#1}; {#2} \vdash {#3} \mathrel{\footnotesize \lesssim} {#4} \Rightarrow {#5}`)}
+    ${newcommand("stepsto", 5, r`{#1} \vdash ({#2};~{#3}) \rightarrow ({#4};~{#5})`)}
+    ${newcommand("stack", 0, r`\sigma`)}
+    ${newcommand("pctx", 2, r`{#1}^{\tiny\square}[{#2}]`)}
+    ${newcommand("valuectx", 0, r`\mathcal{V}`)}
+    ${newcommand("valueplug", 2, r`{#1}[{#2}]`)}
+    ${newcommand("pointsto", 4, r`{#1} \vdash {#2} \Downarrow {#3} \times {#4}`)}
+    ${newcommand("notdisjoint", 2, r`{#1} \sqcap {#2}`)}
     \newcommand{\setof}[1]{\{\overline{#1}\}}
+    \newcommand{\stepped}[1]{\vec{#1}}
+    \newcommand{\link}[2]{\htmlClass{link type-#1}{#2}}
     `}</$$>
     <Oxide.Commands />
     <OxideExtra.Commands />
@@ -88,6 +115,10 @@ export let App: React.FC = _ => (
     \newcommand{\uniq}{\ownquniq}
     \newcommand{\shrd}{\ownqshrd}
     \renewcommand{\r}{\concrprov}
+    \newcommand{\loanset}{\setof{\loan}}
+    \newcommand{\sty}{\msf{String}}
+    \newcommand{\mut}{\msf{mut}}
+    \newcommand{\any}{\msf{any}}
     `}</$$>
 
     <Section title="Introduction" name="sec:intro">
@@ -251,7 +282,7 @@ export let App: React.FC = _ => (
         ).{" "}
       </p>
 
-      <Section title="Places" name="sec:places">
+      <SubSection title="Places" name="sec:places">
         <Wrap align="right">
           <SliceListing
             code={`let mut x = 1;
@@ -346,9 +377,9 @@ println!("{}", @t.2@);`}
           that mutation is registered as part of the slice on every conflicting place, specifically{" "}
           <C>t</C> and <C>t.1</C>.
         </p>
-      </Section>
+      </SubSection>
 
-      <Section title="References" name="sec:pointers">
+      <SubSection title="References" name="sec:pointers">
         <p>
           Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer
           is a mutation to any place that is possibly pointed-to, so such places must be known to
@@ -497,9 +528,9 @@ let w: &'4 mut i32 = &'3 mut *z;
           references. For instance, <C>*w = 1</C> would be part of a slice on <C>*z</C>, because{" "}
           <C>*z</C> is in the lifetime <C>'4</C> of <C>w</C>.
         </p>
-      </Section>
+      </SubSection>
 
-      <Section title="Function calls" name="sec:funcalls">
+      <SubSection title="Function calls" name="sec:funcalls">
         <p>
           The other major challenge for slicing is function calls. For instance, consider slicing a
           call to an arbitrary function <C>f</C> with various kinds of inputs:
@@ -623,9 +654,9 @@ println!("{}", @w@);`}
 
         <p>
           A caveat to this principle is global variables: (
-          <Ref name="prin:slice-procs" />
+          <Ref name="prin:function calls" />
           -a) is not true with mutable globals, and (
-          <Ref name="prin:slice-procs" />
+          <Ref name="prin:function calls" />
           -b) is not true with read-only globals. Mutable globals are disallowed by the rules of
           ownership, as they are implicitly aliased and hence disallowed from being mutable.
           However, read-only globals are ownership-safe (and hence permitted in Rust). For
@@ -653,9 +684,9 @@ println!("{}", @w@);`}
           point to the same data as the input pointer, but without inspecting the definition of{" "}
           <C>get_mut</C>.
         </p>
-      </Section>
+      </SubSection>
 
-      <Section title="Interior mutability" name="sec:intmut">
+      <SubSection title="Interior mutability" name="sec:intmut">
         <p>
           The previous sections describe a slicing strategy for the subset of Rust known as "safe
           Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust
@@ -712,7 +743,7 @@ assert!(*value.lock().unwrap() == 1);`}
           We discuss the issue of slicing with unsafe code further in{" "}
           <Ref name="sec:whole-vs-mod" />.
         </p>
-      </Section>
+      </SubSection>
     </Section>
     <Section title="Formal Model" name="sec:model">
       <p>
@@ -734,7 +765,7 @@ assert!(*value.lock().unwrap() == 1);`}
         ).
       </p>
 
-      <Section title="Syntax" name="sec:syn">
+      <SubSection title="Syntax" name="sec:syn">
         <p>
           <Ref name="fig:oxide_syntax" /> shows a subset of Oxide's syntax along with a labeled
           example. An Oxide program consists of a set of functions <$>{r`\fenv`}</$> (the "global
@@ -742,16 +773,22 @@ assert!(*value.lock().unwrap() == 1);`}
         </p>
 
         <Figure name="fig:oxide_syntax">
-          <Oxide.Bnf layout={{ columns: 2, cutoff: 9 }} />
-          <Expandable prompt={<>Rest of the grammar...</>}>
-            <OxideExtra.Bnf />
-          </Expandable>
-          <SyntaxDiagram />
-          <Caption>
-            Subset of Oxide syntax, reproduced from <Cite v="weiss2019oxide" f ex="p. 8" />. The
-            only difference in this subset is that closures are eliminated and functions are
-            simplified to take one argument.
-          </Caption>
+          <Subfigure name="fig:oxide_syntax">
+            <Oxide.Bnf layout={{ columns: 2, cutoff: 9 }} />
+            <Expandable prompt={<>Rest of the grammar...</>}>
+              <OxideExtra.Bnf />
+            </Expandable>
+            <Caption>
+              Subset of Oxide syntax, reproduced from <Cite v="weiss2019oxide" f ex="p. 8" />. The
+              only difference in this subset is that closures are eliminated and functions are
+              simplified to take one argument.
+            </Caption>
+          </Subfigure>
+          <Subfigure name="fig:oxide_syntax_example">
+            <SyntaxDiagram />
+            <Caption>Syntactic forms and corresponding metavariables labeled in context of an example</Caption>
+          </Subfigure>
+          <Caption>Formal elements of Oxide and their explanation (excerpts).</Caption>
         </Figure>
 
 
@@ -775,16 +812,78 @@ assert!(*value.lock().unwrap() == 1);`}
             abstract provenances are function parameters used for inputs with reference type.
           </li>
         </ul>
+      </SubSection>
+      <SubSection title="Static semantics" name="sec:statsem">
+        <p>
+          <Definition name="tex:tc">Expressions are typechecked via the judgment <$>{r`\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}`}</$>, read as: "<$>{r`\expr`}</$> has type <$>{r`\ty`}</$> under contexts <$>{r`\fenv, \tyenv, \stackenv`}</$> producing new context <$>{r`\stackenv'`}</$>."</Definition> 
+          {" "}<$>{r`\tyenv`}</$> contains function-level type and provenance variables. <$>{r`\stackenv`}</$> maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking <C>*b := a.1</C> in <Ref name="fig:oxide_syntax_example" /> , the inputs would be <$>{r`\tyenv = \tyenvempty`}</$> (empty) and <$>{r`\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}`}</$>.
+        </p>
 
-        <Section title="Static semantics" name="sec:statsem">
-          <p>
-            <Definition name="tex:tc">Expressions are typechecked via the judgment <$>{r`\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}`}</$>, read as: "<$>{r`\expr`}</$> has type <$>{r`\ty`}</$> under contexts <$>{r`\fenv, \tyenv, \stackenv`}</$> producing new context <$>{r`\stackenv'`}</$>."</Definition> 
-            {" "}<$>{r`\tyenv`}</$> contains function-level type and provenance variables. <$>{r`\stackenv`}</$> maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking <C>*b := a.1</C> in <Ref name="fig:oxide_syntax_example" /> , the inputs would be <$>{r`\tyenv = \tyenvempty`}</$> (empty) and <$>{r`\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}`}</$>.
-          </p>
-        </Section>
-      </Section>
+        <p>Typechecking relies on a number of auxiliary judgments, such as subtyping (<Definition name="tex:subtype" Tooltip={null}><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$></Definition>) and ownership-safety (<Definition name="tex:ownsafe"><$>{r`\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}`}</$>, read as "<$>{r`\pexp`}</$> has <$>{r`\ownq\text{-loans}`}</$> <$>{r`\loanset`}</$> in the contexts <$>{r`\Delta, \Gamma`}</$>"</Definition>). As an example, consider <Smallcaps>T-Assign</Smallcaps> <Cite v="weiss2019oxide" y ex="p. 11" /> for the assignment expression <$>{r`\exprplcasgn{\plc}{\expr}`}</$>:</p>
+
+        <center>
+          <AssignStaticRule />    
+        </center>
+
+        <p className="noindent" style={{color: "#444"}}>[Note: Each section of the rule has a natural language explanation, shown by default. Click on the <span style={{marginLeft: '-0.5rem'}}><ToggleButton big on={false} onClick={()=>{}} /></span> button to see corresponding mathematical formula. You can also click on the right-most button to toggle all sections at once.]</p>
+
+        <p>
+          A valid assignment must be type-safe and ownership-safe. To be type-safe, the type of the expression <$>{r`\tys`}</$> must be a subtype of the place's type <$>{r`\stackenv_1(\plc)`}</$>. To be ownership-safe, the type must either be dead<Footnote>
+            Oxide uses the metavariables <$>{r`\tyd`}</$> to mean ``dead types'' and <$>{r`\tysx`}</$> to mean ``possibly dead types''. A place becomes dead when it is moved, e.g. see <Smallcaps>T-Move</Smallcaps> in <Cite v="weiss2019oxide" y ex="p. 11" />. <Smallcaps>T-Assign</Smallcaps> allows a dead place to be revived. For instance, consider the program:
+
+            <$$>{r`\exprlet{\vr}{\sty}{"a"}{\exprseq{\msf{print}(\vr)}{\exprplcasgn{\vr}{"b"}}}`}</$$>
+
+            When <$>{r`\msf{print}(\vr)`}</$> moves <$>{r`\vr`}</$>, its type is updated to <$>{r`\tyds{\sty}`}</$> in <$>{r`\stackenv`}</$>. Then the <Smallcaps>T-Assign</Smallcaps> rule permits <$>{r`\vr`}</$> to be assigned again to ``revive'' that place, setting its type back to <$>{r`\sty`}</$>.
+          </Footnote>, or <$>{r`\plc`}</$> must have unique ownership over itself, i.e. there should be no live references to <$>{r`\plc`}</$>. If so, then the type of <$>{r`\plc`}</$> is updated to <$>{r`\tys`}</$>.
+        </p>
+      </SubSection>
+
+      <SubSection name="sec:dynsem" title="Dynamic semantics">
+        <p>Expressions are executed via a small-step operational semantics, and the program state is a pair of a stack and an expression. <Definition name="tex:stepsto">A single step is represented by the judgment <$>{r`\stepsto{\fenv}{\stack}{\expr}{\stepped{\stack}}{\expr'}`}</$>.</Definition> <Definition name="tex:stack">A stack <$>{r`\stack`}</$> is a list of stack frames <$>{r`\varsigma ::= \setof{\vr \mapsto v}`}</$> that map variables to values.</Definition> For example, consider <Smallcaps>E-Assign</Smallcaps> <Cite v="weiss2019oxide" y ex="p. 16" /> that covers <$>{r`\exprplcasgn{\plc}{\expr}`}</$> and <$>{r`\exprpexpasgn{\pexp}{\expr}`}</$> expressions:<Footnote>
+          This <Smallcaps>E-Assign</Smallcaps> rule is not the exact same rule that appears in <Cite f v="weiss2019oxide" ex="p. 16" /> , as the published version is incorrect. In correspondence with the authors, we determined that the rule presented here has the intended semantics. Additionally, we do not use the referent <$>{r`\mathcal{R}`}</$> construct of Oxide since we do not consider arrays in this paper, so we use <$>{r`\plc`}</$> anywhere <$>{r`\mathcal{R}`}</$> would otherwise appear.
+        </Footnote></p>
+
+        <center>
+          <AssignDynamicRule />    
+        </center>
+
+        <p>This rule introduces several new shorthands and administrative forms:</p>
+        <ul>
+          <li><Definition name="tex:pctx">The syntax <$>{r`\pctx{\plc}{\vr}`}</$> means the decomposition of a place <$>{r`\plc`}</$> into a root variable <$>{r`\vr`}</$> and context <$>{r`\plc^\square`}</$>.</Definition> For example, if <$>{r`\plc = a.0`}</$> then <$>{r`\plc^\square = \square.0`}</$> and <$>{r`x = a`}</$> .</li>
+          <li><Definition name="tex:valuectx">A value context <$>{r`\valuectx`}</$> is a form to handle mutation of compound objects.</Definition> For instance, if <$>{r`a = (0, 1)`}</$> , when evaluating <$>{r`\exprplcasgn{a.0}{2}`}</$> , then <$>{r`\valuectx = (\square, 1)`}</$>. <$>{r`\valuectx`}</$> copies all the old values, leaving a hole for the one value to be updated. Then the syntax <Definition name="tex:valueplug"><$>{r`\valueplug{\valuectx}{v}`}</$> means plugging <$>{r`v`}</$> into the hole.</Definition> Hence, mutating a place is represented as <$>{r`\stack[x \mapsto \valueplug{\valuectx}{v}]`}</$>.</li>
+          <li><Definition name="tex:pointsto">The judgment <$>{r`\pointsto{\stack}{\pexp}{\pctx{\plc}{\vr}}{\valuectx}`}</$> evaluates a place expression <$>{r`\pexp`}</$> under the current stack <$>{r`\stack`}</$> into a place <$>{r`\plc`}</$> and value context <$>{r`\valuectx`}</$>.</Definition> For instance, if <$>{r`\pexp`}</$> is a dereference of a reference, then this judgment resolves <$>{r`\pexp`}</$> to the concrete memory location <$>{r`\plc`}</$> it points-to under <$>{r`\stack`}</$>.</li>
+        </ul>
+      </SubSection>
+
+      <SubSection name="sec:formal_princples" title="Formalized principles">
+        <p>Now, we have enough of the language formalized to give a precise statement of each slicing principle from <Ref name="sec:background" />. Each principle will be presented with the corresponding theorem, using underlining in color to highlight correspondences.</p>
+
+        <p>In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. <$>{r`\pexp`}</$> or <$>{r`\stack`}</$>, and add a sans-serif subscript for distinct roles where needed, e.g. <$>{r`\plc_\mut`}</$> for a mutated place and <$>{r`\plc_\any`}</$> for an arbitrary place. We generally use a superscript <$>{r`i`}</$> for an object that varies between two executions of a program, like <$>{r`\stack^i`}</$> or <$>{r`v^i`}</$> . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. <$>{r`\stack^i`}</$> versus <$>{r`\stepped{\stack}^i`}</$>.</p>
+
+        <Correspondence>
+          <Row>
+            <div style={{width: '300px', marginRight: '3rem'}}>
+              <Smallcaps><Ref name="prin:places" /></Smallcaps><br />
+              <em>A <Link name="1">mutation</Link> to a <Link name="2">place</Link> is a <Link name="3">mutation</Link> to <Link name="4">all conflicting places.</Link></em>
+            </div>
+
+            <div style={{width: 'max-content'}}>
+              <Theorem name="thm:slice-places">
+                Let: <ul style={{margin: '0'}}>
+                  <li><$>{r`\link{2}{\plc_\mut = \pctx{\plc_\mut}{\vr}}, \stack`}</$> where <$>{r`\pointsto{\stack}{\plc_\mut}{\_}{\valuectx}`}</$></li>
+                  <li><$>{r`v, \link{1}{\stepped{\stack} =\stack[\vr \mapsto \valueplug{\valuectx}{v}]}`}</$></li>
+                  <li><Link name="4"><$>{r`\plc_\any`}</$> be any place</Link></li>
+                </ul>
+                Then <$>{r`\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}`}</$>.
+              </Theorem>
+            </div>
+          </Row>
+        </Correspondence>
+
+        <Definition name="tex:notdisjoint">TODO</Definition>
+      </SubSection>
     </Section>
   </Document>
-);
+};
 
 ReactDOM.render(<App />, document.getElementById("container"));

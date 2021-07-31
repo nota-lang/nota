@@ -1,7 +1,8 @@
 import React, {useRef, useState, useCallback} from 'react';
 import {$, $$} from 'reactex';
-import {zipExn} from 'reactex/dist/utils';
-import _ from 'lodash';
+import {zipExn, useSynchronizer} from 'reactex/dist/utils';
+import {Togglebox, ToggleButton} from "reactex/dist/togglebox";
+import _, { countBy } from 'lodash';
 import { useEffect } from 'react';
 
 const r = String.raw;
@@ -21,32 +22,23 @@ let get_relative_midpoint = (container: HTMLElement, el: HTMLElement, top: boole
 export let SyntaxDiagram = () => {
   let container_ref = useRef<HTMLDivElement>(null);
   let [overlay, set_overlay] = useState<JSX.Element | null>(null);
+  let add_sync_point = useSynchronizer(useCallback(() => on_all_load(), []));
 
   let label_texts = [
     r`Variable $\vr$`, r`Sized Type $\tys$`, r`Expression $\expr$`, r`Place $\plc$`, 
     r`Place Expr $\pexp$`, r`Ownership Qual. $\ownq$`, r`Provenance $\prov$`
   ];
 
-  let promises = [];
-  let add_promise = () => {
-    let resolve;
-    let promise = new Promise((r, _) => { resolve = r; });
-    promises.push(promise);
-    return resolve;
-  };
-
   let labels = label_texts.map((text, i) => {
     let ref = useRef(null);
     let pos = i < 4 ? "top" : "bottom"; 
     let label = <span ref={ref} key={i} className="diagram-label">
-      <$ onLoad={add_promise()}>{r`\text{${text}}`}</$>
+      <$ onLoad={add_sync_point()}>{r`\text{${text}}`}</$>
     </span>;
     return {label, ref, pos};
   });
 
   let on_all_load = () => {
-    console.log('ok');
-
     let container = container_ref.current!;
     let elems = container.querySelectorAll<HTMLSpanElement>('[data-index]');
     let elems_arr = _.sortBy(Array.from(elems), elem => {
@@ -72,11 +64,6 @@ export let SyntaxDiagram = () => {
     </svg>);
   };
 
-  useEffect(() => {
-    // TODO: setTimeout is a hack b/c something isn't rendering in time
-    Promise.all(promises).then(() => setTimeout(on_all_load, 100));
-  }, []);
-
   return <div id="syntax-diagram" ref={container_ref} style={{textAlign: 'center', position: 'relative'}}>
     <style>{`
     .diagram-label { padding: 2px 4px; margin: 5px 10px; }
@@ -99,7 +86,7 @@ export let SyntaxDiagram = () => {
       {labels.filter(({pos}) => pos == "top").map(({label}) => label)}
     </div>
 
-    <$$ onLoad={add_promise()} style={{height: '7rem', marginTop: '3rem'}}>{r`
+    <$$ onLoad={add_sync_point()} style={{height: '7rem', marginTop: '3rem'}}>{r`
     \newcommand{\lbl}[2]{\htmlClass{diagram-hl}{\htmlData{index=#1}{#2}}}
     \begin{aligned}
     &\exprlet
@@ -119,3 +106,112 @@ export let SyntaxDiagram = () => {
     </div>
   </div>;
 }
+
+let $T = tex => props => <$ {...props}>{r`\text{${tex}}`}</$>;
+
+let Premise = ({children}) => <div className="premise">{children}</div>;
+let PremiseRow = ({children}) => <div className="premise-row">{children}</div>;
+
+let IR = ({Top, Bot, Right}) => {
+  let [right_height, set_right_height] = useState(0);
+  let right_ref = useRef(null);
+  if (Right) {
+    useEffect(() => {
+      let right_el = right_ref.current!;
+      set_right_height(right_el.getBoundingClientRect().height);
+    }, []);
+  }
+ 
+  return <table className="inferrule"><tbody>  
+    <tr><td>{Top}</td></tr>
+    <tr>
+      <td><div className="divider" /></td>
+      <td><div className="right"><div style={{bottom: right_height/2}} ref={right_ref}>{Right || null}</div></div></td>
+    </tr>
+    <tr><td>{Bot}</td></tr>
+  </tbody></table>;
+};
+
+let IRToggle = ({Top, Bot}) => {
+  let [toggles] = useState([]);
+  let reg = (cb) => { toggles.push(cb); };
+  let [show_all, set_show_all] = useState(false);
+
+  let on_click = () => {
+    toggles.forEach(cb => cb(!show_all));
+    set_show_all(!show_all);
+  };
+
+  return <IR 
+    Right={<ToggleButton big on={show_all} onClick={on_click} />}
+    Top={<Top reg={reg} />} 
+    Bot={<Bot reg={reg} />} />;
+};
+
+export let AssignStaticRule = () => 
+  <IRToggle
+    Top={({reg}) => <>
+      <PremiseRow>
+        <Premise>
+          <Togglebox
+            registerToggle={reg}
+            Outside={$T(r`$\expr$ has sized type $\tys$, making $\stackenv_1$`)}
+            Inside={$T(r`$\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\tys}{\stackenv'}$`)} />
+        </Premise>
+        <Premise>
+          <Togglebox
+            registerToggle={reg}
+            Outside={$T(r`$\plc$ has maybe-dead type $\tysx$ in $\stackenv_1$`)}
+            Inside={$T(r`$\stackenv_1(\plc) = \tysx$`)} />
+        </Premise>
+      </PremiseRow>
+      <PremiseRow>
+        <Premise>
+          (
+            <Togglebox
+              registerToggle={reg}
+              Outside={$T(r`$\plc$ is dead`)}
+              Inside={$T(r`$\tysx = \tyd$`)} />
+          <$ style={{margin: '0 0.5rem'}}>{r`\vee`}</$>
+          <Togglebox
+            // resize
+            registerToggle={reg}
+            Outside={$T(r`$\plc$ is $\uniq$-safe`)}
+            Inside={$T(r`$\ownsafe{\tyenv}{\stackenv_1}{\uniq}{\plc}{\{\loanform{\uniq}{\plc}\}}$`)} />
+          )
+        </Premise>
+        <Premise>
+          <Togglebox 
+            registerToggle={reg}
+            Outside={$T(r`$\tys$ is a subtype of $\tysx$, making $\stackenv'$`)}
+            Inside={$T(r`$\subtype{\tyenv}{\stackenv_1}{\tys}{\tysx}{\stackenv'}$`)} />
+        </Premise>
+      </PremiseRow>
+      </>
+    }
+    Bot={({reg}) =>            
+      <Togglebox
+        registerToggle={reg}
+        Outside={$T(r`$\exprplcasgn{\plc}{\expr}$ has type $\tysbase{\tybunit}$ and adds $\plc : \tys$ to $\stackenv'$`)}
+        Inside={$T(r`
+        $\tc{\fenv}{\tyenv}{\stackenv}
+          {\exprplcasgn{\plc}{\expr}}
+          {\tysbase{\tybunit}}
+          {\stackenv'[\plc \mapsto \tys] \triangleright \plc}$
+        `)} />
+    } />;
+
+export let AssignDynamicRule = () =>
+  <IRToggle
+    Top={({reg}) =>   
+      <Togglebox 
+        registerToggle={reg}
+        Outside={$T(r`$\pexp$ points to $\plc$ in $\stack$ with root $\vr$ and context $\valuectx$`)}
+        Inside={$T(r`$\pointsto{\stack}{\pexp}{\plc}{\vr}{\valuectx}$`)} />
+    }
+    Bot={({reg}) => 
+      <Togglebox
+        registerToggle={reg}
+        Outside={$T(r`$\exprpexpasgn{\pexp}{v}$ sets $\plc$ to $v$ in $\stack$ by setting $x$ to $\valueplug{\valuectx}{v}$`)}
+        Inside={$T(r`$\stepsto{\fenv}{\stack}{\exprpexpasgn{\pexp}{v}}{\stack[\vr \mapsto \valueplug{\valuectx}{v}]}{\exprconst{\constunit}}$`)} />
+    } />

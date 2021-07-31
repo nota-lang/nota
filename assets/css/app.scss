@@ -96,8 +96,12 @@ body {
   }
 
   .footnote-number {
-    font-size: $size-normal;
-    margin-right: 5px;
+    font-size: $size-small;
+    margin-right: 10px;
+  }
+
+  .footnote {
+    margin-bottom: 1rem;
   }
 }
 
@@ -164,6 +168,10 @@ p {
   margin: 0;
 
   .section-title + & {
+    text-indent: 0;
+  }
+
+  &.noindent {
     text-indent: 0;
   }
 }
@@ -285,14 +293,20 @@ section {
 }
 
 .figure {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  &.level-1 {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  padding: 1rem 0;
-  margin: 2rem 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 1rem 0;
+    margin: 2rem 0;
+  }
+
+  &.level-2 {
+    margin: 1rem 0;
+  }
 }
 
 .caption {
@@ -376,5 +390,99 @@ sup.footnote-marker {
     > .inner {
       margin-top: 10px;
     }
+  }
+}
+
+.smallcaps {
+  font-variant: small-caps;
+}
+
+.togglebox-parent, .togglebox-grandparent {
+  display: inline-block;  
+}
+
+.toggle-button {
+  font-size: 0.65rem;
+  position: relative;
+  bottom: 2px;
+  margin-left: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 0 2px;
+  vertical-align: middle;
+  color: #555;
+  cursor: pointer;
+
+  &.big {
+    font-size: 1rem;
+  }
+}
+
+.togglebox {
+  display: flex;
+  justify-content: center;
+  
+  > div {
+    display: inline-block;
+  }
+}
+
+.inferrule {
+  display: inline-block;
+  text-align: center;
+
+  .divider {
+    width: 100%;
+    height: 2px;
+    background: black;
+    margin: 6px 0;
+  }
+
+  .premise {
+    margin-right: 2rem;
+    display: inline-block;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .premise-row {
+    display: block;
+    line-height: 2rem;
+  }
+
+  .right {    
+    height: 0;
+
+    >div {
+      position: relative;
+    }
+  }
+}
+
+.theorem-body {
+  font-style: italic;
+}
+
+// \definecolor{pred}{RGB}{214,39,40}
+// \definecolor{pgrn}{RGB}{44,160,44}
+// \definecolor{pblu}{RGB}{31,119,180}
+// \definecolor{ppnk}{RGB}{227,119,194} 
+// \definecolor{ppur}{RGB}{148,103,189}
+// \definecolor{porg}{RGB}{255,127,14}
+ 
+
+.correspondence {
+  .link {
+    border-bottom: 2px solid black;
+    padding-bottom: 1px;
+
+    &.type-1 { border-color:rgb(214, 39, 40); }
+    &.type-2 { border-color: rgb(44, 160, 44); }
+    &.type-3 { border-color: rgb(31, 119, 180); }
+    &.type-4 { border-color: rgb(227, 119, 194); }
+    &.type-5 { border-color: rgb(148, 103, 189); }
+    &.type-6 { border-color: rgb(225, 127, 14); }
   }
 }

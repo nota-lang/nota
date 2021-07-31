@@ -23,7 +23,7 @@ def translate_one(elem):
       return elem.strip()
   elif isinstance(elem, TexCmd):
     args = translate(elem.args)
-    if elem.name in ['noindent', 'textwidth', 'vspace']:
+    if elem.name in ['noindent', 'textwidth', 'vspace', 'footnotemark']:
       return ''
     elif elem.name in ['hbox', 'mbox']:
       return args
@@ -39,8 +39,12 @@ def translate_one(elem):
       return f'<Cite v="{args}" />'
     elif elem.name == 'citet':
       return f'<Cite f v="{args}" />'
+    elif elem.name == 'citeyearpar':
+      return f'<Cite v="{args}" y />'
     elif elem.name == 'footnote':
       return f'<Footnote>{args}</Footnote>'
+    elif elem.name == 'textsc':
+      return f'<Smallcaps>{args}</Smallcaps>'
     else:
       raise Exception("cmd", type(elem), elem.name)
   elif isinstance(elem, (BraceGroup, BracketGroup)):

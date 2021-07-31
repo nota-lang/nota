@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
-import { AdaptiveDisplay, HTMLAttributes, useMutationObserver } from "./utils";
+import { Container, HTMLAttributes } from "./utils";
 
 const r = String.raw;
 
@@ -80,10 +80,10 @@ export class TexContext {
       if (e instanceof katex.ParseError) {
         console.error(e);
         return (
-          <AdaptiveDisplay ref={ref} className="error" block={block}>
-            <AdaptiveDisplay block={block}>{e.message}</AdaptiveDisplay>
+          <Container ref={ref} className="error" block={block}>
+            <Container block={block}>{e.message}</Container>
             {block ? <pre>{contents}</pre> : null}
-          </AdaptiveDisplay>
+          </Container>
         );
       } else {
         throw e;
@@ -92,12 +92,7 @@ export class TexContext {
 
     if (raw) {
       return (
-        <AdaptiveDisplay
-          ref={ref}
-          block={block}
-          dangerouslySetInnerHTML={{ __html: html }}
-          {...props}
-        />
+        <Container ref={ref} block={block} dangerouslySetInnerHTML={{ __html: html }} {...props} />
       );
     }
 
@@ -134,9 +129,9 @@ export class TexContext {
     let node = parser.parseWithInstructions(html, (_: any) => true, instrs);
 
     return (
-      <AdaptiveDisplay ref={ref} block={block} {...props}>
+      <Container ref={ref} block={block} {...props}>
         {node}
-      </AdaptiveDisplay>
+      </Container>
     );
   }
 }
@@ -154,29 +149,20 @@ export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   ({ children, raw, onLoad, ...props }) => {
     let ctx = useContext(ReactTexContext);
 
-    // Have to use MutationObserver to observe elements loaded via dangerouslySetInnerHtml
-    // See: https://stackoverflow.com/questions/44550462/reactjs-callback-for-dangerouslysetinnerhtml-complete
-    let ref;
     if (onLoad) {
-      let loaded = false;
-      ref = useMutationObserver(
-        changes => {
-          if (!loaded) {
-            onLoad();
-            loaded = true;
-          }
-        },
-        {
-          childList: true,
-          subtree: true,
+      useEffect(() => {
+        if (document.readyState === "complete") {
+          onLoad();
+        } else {
+          window.addEventListener("load", onLoad);
         }
-      );
+      }, []);
     }
 
-    return ctx.render(children as string, false, raw, props, ref);
+    return ctx.render(children as string, false, raw, props);
   },
   (prev, next) => prev.children == next.children
 );
 
-export let $: React.FC<TexProps & HTMLAttributes> = props => <Tex block={false} {...props} />;
-export let $$: React.FC<TexProps & HTMLAttributes> = props => <Tex block={true} {...props} />;
+export let $: typeof Tex = props => <Tex block={false} {...props} />;
+export let $$: typeof Tex = props => <Tex block={true} {...props} />;

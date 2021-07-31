@@ -7,35 +7,68 @@ import { observer } from "mobx-react";
 
 import { ReactTexContext, TexContext } from "./tex";
 import { ReactBibliographyContext, ReferencesSection, BibliographyContext } from "./bibliography";
-import { DefinitionContext, AllDefinitionData, Definition } from "./definitions";
+import { DefinitionContext, AllDefinitionData, Definition, Ref } from "./definitions";
 import { ListingContext, ListingData } from "./code";
 import { register_scroll_hook } from "./scroll";
 
-class SectionData {
-  subsections: number = 0;
+export type NumberStyle = "1" | "a";
+
+export class NestedCounter {
+  stack: number[];
+  styles: NumberStyle[];
+
+  constructor(styles: NumberStyle[] = ["1"]) {
+    this.stack = [0];
+    this.styles = styles;
+  }
+
+  stylize = (n: number, style: NumberStyle): string => {
+    if (style == "1") {
+      return n.toString();
+    } else if (style == "a") {
+      let char_code = "a".charCodeAt(0) + n - 1;
+      return String.fromCharCode(char_code);
+    } else {
+      throw `Bad style ${style}`;
+    }
+  };
+
+  push = (): string[] => {
+    this.stack[this.stack.length - 1] += 1;
+    this.stack.push(0);
+    return this.stack
+      .slice(0, -1)
+      .map((n, i) => this.stylize(n, this.styles[i % this.styles.length]));
+  };
+
+  Pop: React.FC = () => {
+    this.stack.pop();
+    return null;
+  };
 }
 
 class DocumentData {
-  sections: number = 0;
+  sections: NestedCounter = new NestedCounter();
+  figures: NestedCounter = new NestedCounter(["1", "a"]);
+  theorems: NestedCounter = new NestedCounter();
+
   footnotes: React.ReactNode[] = [];
-  section_contexts: SectionData[] = [];
   toplevel_portal: Element | null;
-  figures: number = 0;
 
   constructor(toplevel_portal: Element | null) {
     this.toplevel_portal = toplevel_portal;
   }
 }
 
-let DocumentContext = React.createContext<DocumentData>(new DocumentData(null));
+export let DocumentContext = React.createContext<DocumentData>(new DocumentData(null));
 
 export let SectionTitle: React.FC<{ level?: number }> = ({ level, children }) => {
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
   >;
-  if (!level || level == 0) {
+  if (!level || level == 1) {
     Header = props => <h2 {...props} />;
-  } else if (level == 1) {
+  } else if (level == 2) {
     Header = props => <h3 {...props} />;
   } else {
     Header = props => <h4 {...props} />;
@@ -45,26 +78,15 @@ export let SectionTitle: React.FC<{ level?: number }> = ({ level, children }) =>
 
 export let Section: React.FC<{ title: string; name?: string }> = ({ name, title, children }) => {
   let doc_ctx = useContext(DocumentContext);
-  let def_ctx = useContext(DefinitionContext);
-  if (doc_ctx.section_contexts.length == 0) {
-    doc_ctx.sections += 1;
-  } else {
-    _.last(doc_ctx.section_contexts)!.subsections += 1;
+  let incr_thm = doc_ctx.sections.stack.length == 1;
+  if (incr_thm) {
+    doc_ctx.theorems.push();
   }
+  let sec_stack = doc_ctx.sections.push();
+  let level = sec_stack.length;
+  let sec_num = sec_stack.join(".");
 
-  let level = doc_ctx.section_contexts.length;
-
-  let sec_num = [doc_ctx.sections, ...doc_ctx.section_contexts.map(ctx => ctx.subsections)].join(
-    "."
-  );
-
-  let sec_ctx = new SectionData();
-  doc_ctx.section_contexts.push(sec_ctx);
-
-  let Cleanup: React.FC = _ => {
-    doc_ctx.section_contexts.pop();
-    return null;
-  };
+  // TODO: section level-specific styles!
 
   return (
     <Definition name={name} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
@@ -73,11 +95,15 @@ export let Section: React.FC<{ title: string; name?: string }> = ({ name, title,
           <span className="section-number">{sec_num}</span> {title}
         </SectionTitle>
         {children}
-        <Cleanup />
+        <doc_ctx.sections.Pop />
+        {incr_thm ? <doc_ctx.theorems.Pop /> : null}
       </section>
     </Definition>
   );
 };
+
+export let SubSection: typeof Section = Section;
+export let SubSubSection: typeof Section = Section;
 
 class FigureData {
   caption?: JSX.Element;
@@ -87,29 +113,33 @@ let FigureContext = React.createContext<FigureData>(new FigureData());
 
 export let Figure: React.FC<{ name?: string }> = props => {
   let doc_ctx = useContext(DocumentContext);
-  doc_ctx.figures += 1;
-  let fig_num = doc_ctx.figures;
-  let label = `Figure ${fig_num}`;
+  let fig_stack = doc_ctx.figures.push();
+  let level = fig_stack.length;
+  let fig_num = fig_stack.join("-");
 
   let fig_ctx = new FigureData();
 
   let Caption = () => (
-    <Definition name={props.name} Label={() => <>{label}</>} Tooltip={null} block>
+    <Definition name={props.name} Label={() => <>{`Figure ${fig_num}`}</>} Tooltip={null} block>
       <div className="caption">
-        {label}: {fig_ctx.caption}
+        {level > 1 ? `(${fig_stack[fig_stack.length - 1]})` : `Figure ${fig_num}:`}{" "}
+        {fig_ctx.caption}
       </div>
     </Definition>
   );
 
   return (
     <FigureContext.Provider value={fig_ctx}>
-      <div className="figure">
+      <div className={`figure level-${level}`}>
         {props.children}
         <Caption />
       </div>
+      <doc_ctx.figures.Pop />
     </FigureContext.Provider>
   );
 };
+
+export let Subfigure: typeof Figure = Figure;
 
 export let Caption: React.FC = props => {
   let ctx = useContext(FigureContext);
@@ -117,16 +147,6 @@ export let Caption: React.FC = props => {
   return null;
 };
 
-export let Footnote: React.FC = ({ children }) => {
-  let ctx = useContext(DocumentContext);
-  ctx.footnotes.push(children);
-  let i = ctx.footnotes.length;
-  return (
-    <a href={`#footnote-${i}`} id={`footnote-ref-${i}`}>
-      <sup className="footnote-marker">{i}</sup>
-    </a>
-  );
-};
 
 export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children }) => {
   let margin = "1rem";
@@ -141,6 +161,8 @@ export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children })
 
   return <div style={{ float: align, ...style }}>{children}</div>;
 };
+
+export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{children}</span>;
 
 export let Row: React.FC = ({ children }) => {
   return <div className="row">{children}</div>;
@@ -186,6 +208,13 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   );
 };
 
+export let Footnote: React.FC = ({ children }) => {  
+  let ctx = useContext(DocumentContext);
+  ctx.footnotes.push(children);
+  let i = ctx.footnotes.length;
+  return <Ref name={`footnote:${i}`} />;
+};
+
 let Footnotes: React.FC = _ => {
   let ctx = useContext(DocumentContext);
   return (
@@ -195,11 +224,10 @@ let Footnotes: React.FC = _ => {
         i += 1;
         return (
           <div className="footnote" id={`footnote-${i}`} key={i}>
-            <a className="backlink" href={`#footnote-ref-${i}`}>
-              ⬅
-            </a>
             <span className="footnote-number">{i}</span>
-            {footnote}
+            <Definition name={`footnote:${i}`} Label={() => <sup className="footnote">{i}</sup>}>
+              {footnote}
+            </Definition>
           </div>
         );
       })}
@@ -212,6 +240,7 @@ interface DocumentProps {
 }
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = useContext(DefinitionContext);
+  let [show, set_show] = useState(false);
 
   return (
     <div
