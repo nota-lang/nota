@@ -1220,8 +1220,11 @@ body {
   font-size: 10px;
 }
 .footnotes .footnote-number {
-  font-size: 18px;
-  margin-right: 5px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+.footnotes .footnote {
+  margin-bottom: 1rem;
 }
 .error {
   color: #be2222;
@@ -1278,6 +1281,9 @@ p {
   margin: 0;
 }
 .section-title + p {
+  text-indent: 0;
+}
+p.noindent {
   text-indent: 0;
 }
 .document-title {
@@ -1361,7 +1367,7 @@ section {
 .row > *:last-child {
   margin-right: 0;
 }
-.figure {
+.figure.level-1 {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -1369,6 +1375,9 @@ section {
   border-bottom: 1px solid #ddd;
   padding: 1rem 0;
   margin: 2rem 0;
+}
+.figure.level-2 {
+  margin: 1rem 0;
 }
 .caption {
   font-family: "Linux Biolinum O", serif;
@@ -1433,4 +1442,85 @@ sup.footnote-marker {
 }
 .expandable.expanded > .inner {
   margin-top: 10px;
+}
+.smallcaps {
+  font-variant: small-caps;
+}
+.togglebox-parent,
+.togglebox-grandparent {
+  display: inline-block;
+}
+.toggle-button {
+  font-size: 0.65rem;
+  position: relative;
+  bottom: 2px;
+  margin-left: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 0 2px;
+  vertical-align: middle;
+  color: #555;
+  cursor: pointer;
+}
+.toggle-button.big {
+  font-size: 1rem;
+}
+.togglebox {
+  display: flex;
+  justify-content: center;
+}
+.togglebox > div {
+  display: inline-block;
+}
+.inferrule {
+  display: inline-block;
+  text-align: center;
+}
+.inferrule .divider {
+  width: 100%;
+  height: 2px;
+  background: black;
+  margin: 6px 0;
+}
+.inferrule .premise {
+  margin-right: 2rem;
+  display: inline-block;
+}
+.inferrule .premise:last-child {
+  margin-right: 0;
+}
+.inferrule .premise-row {
+  display: block;
+  line-height: 2rem;
+}
+.inferrule .right {
+  height: 0;
+}
+.inferrule .right > div {
+  position: relative;
+}
+.theorem-body {
+  font-style: italic;
+}
+.correspondence .link {
+  border-bottom: 2px solid black;
+  padding-bottom: 1px;
+}
+.correspondence .link.type-1 {
+  border-color: #d62728;
+}
+.correspondence .link.type-2 {
+  border-color: #2ca02c;
+}
+.correspondence .link.type-3 {
+  border-color: #1f77b4;
+}
+.correspondence .link.type-4 {
+  border-color: #e377c2;
+}
+.correspondence .link.type-5 {
+  border-color: #9467bd;
+}
+.correspondence .link.type-6 {
+  border-color: #e17f0e;
 }
