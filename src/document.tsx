@@ -62,7 +62,7 @@ class DocumentData {
   }
 }
 
-export let DocumentContext = React.createContext<DocumentData>(new DocumentData(null));
+export let DocumentContext = React.createContext<DocumentData>(new DocumentData(false, null));
 
 export let SectionTitle: React.FC<{ level?: number }> = ({ level, children }) => {
   let Header: React.FC<
@@ -269,7 +269,7 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous })
 
   return (
     <DefinitionContext.Provider value={def_ctx}>
-      <DocumentContext.Provider value={new DocumentData(anonymous, toplevel_portal)}>
+      <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
         <ReactTexContext.Provider value={new TexContext()}>
           <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || "")}>
             <ListingContext.Provider value={new ListingData()}>
