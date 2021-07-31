@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @mixin loadserif($suffix) {
   font-family: "Linux Libertine O";
   src: url("../fonts/LinLibertine_#{$suffix}.otf");
@@ -430,10 +432,11 @@ sup.footnote-marker {
 .inferrule {
   display: inline-block;
   text-align: center;
+  margin: 1rem 0;
 
   .divider {
     width: 100%;
-    height: 2px;
+    height: 1px;
     background: black;
     margin: 6px 0;
   }
@@ -465,24 +468,45 @@ sup.footnote-marker {
   font-style: italic;
 }
 
-// \definecolor{pred}{RGB}{214,39,40}
-// \definecolor{pgrn}{RGB}{44,160,44}
-// \definecolor{pblu}{RGB}{31,119,180}
-// \definecolor{ppnk}{RGB}{227,119,194} 
-// \definecolor{ppur}{RGB}{148,103,189}
-// \definecolor{porg}{RGB}{255,127,14}
- 
-
 .correspondence {
   .link {
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
     padding-bottom: 1px;
 
-    &.type-1 { border-color:rgb(214, 39, 40); }
-    &.type-2 { border-color: rgb(44, 160, 44); }
-    &.type-3 { border-color: rgb(31, 119, 180); }
-    &.type-4 { border-color: rgb(227, 119, 194); }
-    &.type-5 { border-color: rgb(148, 103, 189); }
-    &.type-6 { border-color: rgb(225, 127, 14); }
+    
+  }
+  @mixin type($num, $color) {
+    .link.type-#{$num} { border-color: $color; }
+    &.hover-type-#{$num} .link.type-#{$num} { background: color.scale($color, $lightness: 90%); }
+  }    
+  @include type(1, rgb(214, 39, 40));
+  @include type(2, rgb(44, 160, 44));
+  @include type(3, rgb(31, 119, 180));
+  @include type(4, rgb(227, 119, 194));
+  @include type(5, rgb(148, 103, 189));
+  @include type(6, rgb(225, 127, 14));
+}
+
+hr {
+  border-color: #eee;
+  margin: 1rem 2rem;
+}
+
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+ol.parenkey {
+  counter-reset: list;
+
+  &[start="2"] {
+    counter-increment: list;
+  }
+
+  > li { list-style: none; }
+  > li:before {
+    content: "(" counter(list, lower-alpha) ") ";
+    counter-increment: list;
+    margin-left: -1.5rem;
   }
 }

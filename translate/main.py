@@ -23,7 +23,7 @@ def translate_one(elem):
       return elem.strip()
   elif isinstance(elem, TexCmd):
     args = translate(elem.args)
-    if elem.name in ['noindent', 'textwidth', 'vspace', 'footnotemark']:
+    if elem.name in ['noindent', 'textwidth', 'vspace', 'footnotemark', 'label']:
       return ''
     elif elem.name in ['hbox', 'mbox']:
       return args
@@ -65,6 +65,8 @@ def translate_one(elem):
       return f'<ul>\n{children}</ul>'
     elif elem.name == '$':
       return f'<$>{{r`{elem.string}`}}</$>'
+    elif elem.name == 'displaymath':
+      return f'<$$>{{r`{elem.string}`}}</$$>'
     else:
       raise Exception("env", type(elem), elem.name)
   else:

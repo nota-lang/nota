@@ -87,11 +87,11 @@ export let Definition: React.FC<DefinitionProps> = props => {
     ctx.add_definition(name, { Tooltip, Label });
   }, []);
 
-  return (
+  return props.children ? (
     <DefinitionAnchor block={props.block} name={name}>
       {props.children}
     </DefinitionAnchor>
-  );
+  ) : null;
 };
 
 interface RefProps {

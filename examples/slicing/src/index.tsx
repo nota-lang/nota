@@ -92,19 +92,27 @@ export let App: React.FC = _ => {
     <$$>{r`
     \newcommand{\textsc}[1]{\text{\tiny #1}}
     \newcommand{\msf}[1]{\mathsf{#1}}
+    \newcommand{\cmddef}[2]{\htmlData{def=#1}{#2}}
     ${newcommand("tc", 6, r`{#1}; {#2}; {#3} \vdash {#4} : {#5} \Rightarrow {#6}`)}
     ${newcommand("ownsafe", 5, r`{#1}; {#2} \vdash_{#3} {#4} \Rightarrow {#5}`)}
     ${newcommand("subtype", 5, r`{#1}; {#2} \vdash {#3} \mathrel{\footnotesize \lesssim} {#4} \Rightarrow {#5}`)}
     ${newcommand("stepsto", 5, r`{#1} \vdash ({#2};~{#3}) \rightarrow ({#4};~{#5})`)}
+    \newcommand{\evalsto}[5]{{#1} \vdash ({#2};~{#3}) \overset{\footnotesize\ast}{\rightarrow} ({#4};~{#5})}
     ${newcommand("stack", 0, r`\sigma`)}
     ${newcommand("pctx", 2, r`{#1}^{\tiny\square}[{#2}]`)}
     ${newcommand("valuectx", 0, r`\mathcal{V}`)}
     ${newcommand("valueplug", 2, r`{#1}[{#2}]`)}
     ${newcommand("pointsto", 4, r`{#1} \vdash {#2} \Downarrow {#3} \times {#4}`)}
     ${newcommand("notdisjoint", 2, r`{#1} \sqcap {#2}`)}
+    ${newcommand("disjoint", 2, r`{#1} \mathrel{\#} {#2}`)}
+    ${newcommand("refs", 2, r`{#1}\text{-}\mathsf{refs}({#2})`)}
+    ${newcommand("ownqleq", 2, r`{#1} \lesssim {#2}`)}
+    ${newcommand("stackeq", 3, r`{#1} \mathrel{\overset{#3}{\sim}} {#2}`)}
+    ${newcommand("allplaces", 2, r`\msf{all}\text{-}\msf{places}({#1}, {#2})`)}
     \newcommand{\setof}[1]{\{\overline{#1}\}}
     \newcommand{\stepped}[1]{\vec{#1}}
     \newcommand{\link}[2]{\htmlClass{link type-#1}{#2}}
+    \newcommand{\eqdef}{~\mathrel{\overset{\msf{def}}{=}}~}
     `}</$$>
     <Oxide.Commands />
     <OxideExtra.Commands />
@@ -119,6 +127,8 @@ export let App: React.FC = _ => {
     \newcommand{\sty}{\msf{String}}
     \newcommand{\mut}{\msf{mut}}
     \newcommand{\any}{\msf{any}}
+    \newcommand{\arrg}{\msf{arg}}
+    \newcommand{\reff}{\msf{ref}}
     `}</$$>
 
     <Section title="Introduction" name="sec:intro">
@@ -860,11 +870,15 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <p>In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. <$>{r`\pexp`}</$> or <$>{r`\stack`}</$>, and add a sans-serif subscript for distinct roles where needed, e.g. <$>{r`\plc_\mut`}</$> for a mutated place and <$>{r`\plc_\any`}</$> for an arbitrary place. We generally use a superscript <$>{r`i`}</$> for an object that varies between two executions of a program, like <$>{r`\stack^i`}</$> or <$>{r`v^i`}</$> . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. <$>{r`\stack^i`}</$> versus <$>{r`\stepped{\stack}^i`}</$>.</p>
 
+        <hr />
+
         <Correspondence>
           <Row>
             <div style={{width: '300px', marginRight: '3rem'}}>
-              <Smallcaps><Ref name="prin:places" /></Smallcaps><br />
-              <em>A <Link name="1">mutation</Link> to a <Link name="2">place</Link> is a <Link name="3">mutation</Link> to <Link name="4">all conflicting places.</Link></em>
+              <Smallcaps><Ref name="prin:places" /></Smallcaps>
+              <div style={{fontStyle: 'italic'}}>
+                A <Link name="1">mutation</Link> to a <Link name="2">place</Link> is a <Link name="3">mutation</Link> to <Link name="4">all conflicting places.</Link>
+              </div>
             </div>
 
             <div style={{width: 'max-content'}}>
@@ -880,7 +894,130 @@ assert!(*value.lock().unwrap() == 1);`}
           </Row>
         </Correspondence>
 
-        <Definition name="tex:notdisjoint">TODO</Definition>
+        <p>As described in <Ref name="sec:dynsem" />, a mutation to a place is represented by updating a variable <$>{r`\vr`}</$> in a stack <$>{r`\stack`}</$> by plugging a value <$>{r`v`}</$> into a value context <$>{r`\valuectx`}</$>. To denote a conflict,we reuse the notation from Oxide that <$>{r`\disjoint{\plc_1}{\plc_2}`}</$> means " <$>{r`\plc_1`}</$> and <$>{r`\plc_2`}</$> do not conflict", or more formally:</p>
+        
+         <Definition name="tex:disjoint"><$$>{r`\disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee ((q_1 \text{ is not a prefix of } q_2) \wedge (q_2 \text{ is not a prefix of } q_1))`}</$$></Definition>
+        
+        <p className="noindent">Conversely, we use the shorthand <Definition name="tex:notdisjoint"><$>{r`\notdisjoint{\pi_1}{\pi_2} \eqdef \neg(\disjoint{\pi_1}{\pi_2})`}</$></Definition>. So if a place <$>{r`\plc_\any`}</$> is changed when <$>{r`\plc_\mut`}</$> is mutated, then it must be that <$>{r`\notdisjoint{\plc_\any}{\plc_\mut}`}</$>.</p>      
+
+        <hr />
+
+        <Correspondence>
+          <Row>
+            <div style={{width: '400px', marginRight: '3rem'}}>
+              <Smallcaps><Ref name="prin:references" /></Smallcaps><br />
+              <em>The <Link name="1">lifetime</Link> of a <Link name="2">reference</Link> contains all potential <Link name="3">aliases</Link> of what the reference <Link name="4">points-to.</Link></em>
+            </div>
+
+            <div style={{width: 'max-content', textAlign: 'left'}}>
+              <Theorem name="thm:slice-refs">
+                Let: <ul style={{margin: '0'}}>
+                  <li><$>{r`\stack`}</$> where <$>{r`\fenv \vdash \stack : \stackenv`}</$></li>
+                  <li><$>{r`\link{2}{\pexp_\mut}`}</$> where <$>{r`\link{1}{\ownsafe{\tyenvempty}{\stackenv}{\uniq}{\pexp_\mut}{\loanset}}`}</$> and <$>{r`\pointsto{\stack}{\pexp_\mut}{\link{4}{\plc_\mut}}{\_}`}</$></li>
+                  <li><$>{r`\link{3}{\pexp_\any}`}</$> where <$>{r`\pointsto{\stack}{\pexp_\any}{\plc_\any}{\_}`}</$></li>
+                </ul>
+                Then <$>{r`\notdisjoint{\plc_\any}{\plc_\mut} \implies \link{3}{\exists \loanform{\uniq}{\pexp_\msf{loan}}} ~ . ~ \notdisjoint{\pexp_\any}{\pexp_\msf{loan}}`}</$>.
+              </Theorem>
+            </div>
+          </Row>
+        </Correspondence>
+
+        <p>Rather than referring to a lifetime directly, we instead use Oxide's ownership safety judgment described in <Ref name="sec:statsem" /> to get the corresponding loan set for a mutated place expression <$>{r`\pexp_\mut`}</$>. If <$>{r`\pexp_\mut`}</$> includes a dereference, then the loan set should include potential aliases.</p>
+
+        <p>A notable detail is that we do not compare the loan sets of <$>{r`\pexp_\mut`}</$> and <$>{r`\pexp_\any`}</$> to see if they contain conflicting places, but rather compare <$>{r`\pexp_\any`}</$> just against the loan set of <$>{r`\pexp_\mut`}</$>. This works because the loan set contains not just the set of places <$>{r`\plc`}</$> that <$>{r`\pexp_\mut`}</$> could point-to, but also the set of other references to the places <$>{r`\pexp_\mut`}</$> points-to (via reborrows).</p>
+
+        <hr />
+
+        <Correspondence>
+          <Row>
+            <div style={{width: '340px', marginRight: '2.5rem', textAlign: 'left'}}>
+              <Smallcaps><Ref name="prin:function calls" /></Smallcaps><br />
+              <div style={{fontStyle: 'italic'}}>
+                When <Link name="1">calling a function:</Link>
+                <ol className="parenkey">
+                  <li>only <Link name="2">mutable references in the arguments</Link> <Link name="3">can be mutated</Link>, and...</li>
+                </ol>
+              </div>
+            </div>
+
+            <div style={{width: 'max-content', textAlign: 'left'}}>
+              <Theorem name="thm:proc_mutrefs">
+                Let: <ul style={{margin: '0'}}>
+                  <li><$>{r`\stackenv, \plc_\arrg, \stack`}</$> where <$>{r`\stackenv(\plc_\arrg) = \tys`}</$> and <$>{r`\fenv \vdash \stack : \stackenv`}</$></li>
+                  <li><$>{r`\fname`}</$> where <$>{r`\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{\_}}`}</$></li>
+                  <li><$>{r`\stepped{\stack}' = \stepped{\stack}[\link{2}{\forall \pexp_\reff \in \refs{\uniq}{\plc_\arrg, \tys}} ~ . ~ \link{3}{\pexp_\reff \mapsto \stack(\pexp_\reff)}]`}</$></li>
+                </ul>
+                Then <$>{r`\stack = \stepped{\stack}'`}</$>.
+              </Theorem>
+            </div>
+          </Row>
+        </Correspondence>
+
+        <p>First, <Definition name="tex:refs">we define "mutable references in the arguments" as <$>{r`\refs{\ownq}{\pexp, \tys}`}</$> that returns the <$>{r`\ownq`}</$>-safe place expressions of references inside of <$>{r`\pexp`}</$> of type <$>{r`\tys`}</$></Definition>. For instance, if <$>{r`x = 0`}</$> and <$>{r`y = (0, \tysref{\uniq}{\concrprov}{x})`}</$> then <$>{r`\refs{\uniq}{y, (\uty, \tysref{\uniq}{\concrprov}{\uty})} = \{\pexpderef{y.1}\}`}</$> . The full definition is:</p>  
+
+        <$$>{r`
+        \begin{align*}
+          \refs{\ownq}{\pexp, \tyb} &=
+              \varnothing
+          \hspace{32pt}
+          \refs{\ownq}{\pexp, \tystup{\tys_1, \ldots, \tys_n}} = 
+              \bigcup_i \refs{\ownq}{\pexp.i, \tys_i}
+          \\ 
+          \refs{\ownq}{p, \tysref{\ownq'}{\prov}{\tyx}} &= \begin{cases}
+            \{\pexpderef{\pexp}\} \cup \refs{\ownq}{\pexpderef{p}, \tyx} & \text{if $\ownqleq{\ownq'}{\ownq}$} \\
+            \varnothing & \text{otherwise}
+          \end{cases}
+        \end{align*}
+        `}</$$>
+
+        <p className="noindent">Here, <Definition name="tex:ownqleq">the relation <$>{r`\ownqleq{\ownq'}{\ownq}`}</$> is defined as <$>{r`\uniq \not\lesssim \shrd`}</$> and otherwise <$>{r`\ownqleq{\ownq'}{\ownq}`}</$>.</Definition></p>
+
+        <p>Then we define <Ref name="thm:proc_mutrefs" /> in the theme of a transaction: if all the changes to unique references in <$>{r`\plc_\arrg`}</$> are rolled back, then the new stack is the same as the one before the function call. This means implicitly that no other values could have been mutated.</p>
+
+        <hr />
+
+        <Correspondence>
+          <Row>
+            <div style={{width: '330px', marginRight: '2rem', textAlign: 'left'}}>
+              <Smallcaps><Ref name="prin:function calls" /></Smallcaps><br />
+              <div style={{fontStyle: 'italic'}}>
+                When <Link name="1">calling a function:</Link>
+                <ol className="parenkey" start={2}>
+                  <li>...the <Link name="2">mutations</Link> and <Link name="3">return value</Link> are only <Link name="4">influenced by the arguments.</Link></li>
+                </ol>
+              </div>
+            </div>
+
+            <div style={{width: 'max-content', textAlign: 'left'}}>
+              <Theorem name="thm:proc_eqarg">
+                Let: <ul style={{margin: '0'}}>
+                  <li><$>{r`\stackenv, \plc_\arrg, \stack^i`}</$> where <$>{r`\stackenv(\plc_\arrg) = \tys`}</$> and <$>{r`i \in \{1, 2\}, \fenv \vdash \stack^i : \stackenv`}</$></li>
+                  <li><$>{r`\fname`}</$> where <$>{r`\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{v^i}}`}</$></li>
+                  <li><$>{r`\link{4}{P = \allplaces{\plc_\arrg}{\tys}}`}</$></li>
+                </ul>
+                Then <$>{r`\link{4}{\stackeq{\stack^1}{\stack^2}{P}} \implies \link{2}{\stackeq{\stepped{\stack}^1}{\stepped{\stack}^2}{P}} \wedge \link{3}{v^1 = v^2}`}</$>
+              </Theorem>
+            </div>
+          </Row>
+        </Correspondence>
+
+        <p>The idea behind <Ref name="thm:proc_eqarg" /> is that "influence" is translated into a form of noninterference: if the input to a function is the same under any two stacks <$>{r`\stack^1`}</$> and <$>{r`\stack^2`}</$>, then the mutations to that input must be the same. The rest of the stack is allowed to vary, but because the function <$>{r`\fname`}</$> cannot read it, that variation cannot influence the final value. </p>
+
+        <p>To formalize "the input being the same", we introduce another auxiliary function for transitive equality. For instance, if we only required that <$>{r`\stack^1(\plc_\arrg) = \stack^2(\plc_\arrg)`}</$> where <$>{r`\plc_\arrg = \msf{ptr}~x`}</$>, then if <$>{r`\stack^1(x) \neq \stack^2(x)`}</$> the theorem would not be true. Hence, transitive equality is defined as equality including all pointed places. We define this concept through two pieces: a function for generating the set of places (denoted by <$>{r`P`}</$>), and a relation defining the equivalence of stacks for a set of places.</p>
+
+        <$$>{r`
+          \begin{align*}
+            \cmddef{allplaces}{\allplaces{\pexp}{\tys}} &\eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys} \\
+            \cmddef{stackeq}{\stackeq{\stack^1}{\stack^2}{P}} &\eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)
+          \end{align*}
+        `}</$$>
+
+        <Definition name="tex:allplaces" Tooltip={() => 
+          <$>{r`\allplaces{\pexp}{\tys} \eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys}`}</$>} />
+        <Definition name="tex:stackeq" Tooltip={() => 
+          <$>{r`\stackeq{\stack^1}{\stack^2}{P} \eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)`}</$>}/>
+
+        <p>Therefore <Ref name="thm:proc_eqarg" /> states that if <$>{r`\plc_\arrg`}</$> is transitively equal under two otherwise arbitrary stacks, then <$>{r`\plc_\arrg`}</$> is still transitively equal after evaluating <$>{r`\fname(\plc_\arrg)`}</$> , and the output of <$>{r`\fname(\plc_\arrg)`}</$> is also equal.</p>
       </SubSection>
     </Section>
   </Document>
