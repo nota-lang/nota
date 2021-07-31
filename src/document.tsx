@@ -54,9 +54,11 @@ class DocumentData {
 
   footnotes: React.ReactNode[] = [];
   toplevel_portal: Element | null;
+  anonymous: boolean;
 
-  constructor(toplevel_portal: Element | null) {
+  constructor(anonymous: boolean, toplevel_portal: Element | null) {
     this.toplevel_portal = toplevel_portal;
+    this.anonymous = anonymous;
   }
 }
 
@@ -237,6 +239,7 @@ let Footnotes: React.FC = _ => {
 
 interface DocumentProps {
   bibtex?: string;
+  anonymous?: boolean;
 }
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = useContext(DefinitionContext);
@@ -255,7 +258,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   );
 });
 
-export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
+export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous }) => {
   let [def_ctx] = useState(new AllDefinitionData());
   def_ctx.add_mode_listeners();
 
@@ -266,7 +269,7 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex }) => {
 
   return (
     <DefinitionContext.Provider value={def_ctx}>
-      <DocumentContext.Provider value={new DocumentData(toplevel_portal)}>
+      <DocumentContext.Provider value={new DocumentData(anonymous, toplevel_portal)}>
         <ReactTexContext.Provider value={new TexContext()}>
           <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || "")}>
             <ListingContext.Provider value={new ListingData()}>

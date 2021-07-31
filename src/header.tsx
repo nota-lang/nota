@@ -1,6 +1,8 @@
 import React from "react";
 import { createContext, useContext } from "react";
 
+import { DocumentContext } from "./document";
+
 interface AuthorAffiliation {
   institution?: string;
   country?: string;
@@ -13,9 +15,7 @@ interface AuthorData {
   affiliations?: AuthorAffiliation[];
 }
 
-let InlineError: React.FC = ({ children }) => (
-  <span className="inline-error">{children}</span>
-);
+let InlineError: React.FC = ({ children }) => <span className="inline-error">{children}</span>;
 
 let AuthorContext = createContext<AuthorData>({});
 
@@ -37,9 +37,7 @@ export let Affiliation: React.FC = ({ children }) => {
   };
   return (
     <>
-      <AffiliationContext.Provider value={aff_ctx}>
-        {children}
-      </AffiliationContext.Provider>
+      <AffiliationContext.Provider value={aff_ctx}>{children}</AffiliationContext.Provider>
       <Inner />
     </>
   );
@@ -82,13 +80,20 @@ export let Author: React.FC = ({ children }) => {
 };
 
 export let Authors: React.FC = ({ children }) => {
-  return <div className="authors">{children}</div>;
+  let ctx = useContext(DocumentContext);
+  return (
+    <div className="authors">
+      {ctx.anonymous ? (
+        <div className="author">
+          <span className="author-name">Anonymous author(s)</span>
+        </div>
+      ) : (
+        children
+      )}
+    </div>
+  );
 };
 
-export let Title: React.FC = ({ children }) => (
-  <h1 className="document-title">{children}</h1>
-);
+export let Title: React.FC = ({ children }) => <h1 className="document-title">{children}</h1>;
 
-export let Abstract: React.FC = ({ children }) => (
-  <div className="abstract">{children}</div>
-);
+export let Abstract: React.FC = ({ children }) => <div className="abstract">{children}</div>;

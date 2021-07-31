@@ -64,7 +64,7 @@ export let App: React.FC = _ => {
     </Definition>;
   };
 
-  return <Document bibtex={bibtex}>
+  return <Document anonymous bibtex={bibtex}>
     <ListingConfigure language={rust()} />
     <Title>Modular Program Slicing Through Ownership</Title>
     <Authors>
