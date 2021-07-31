@@ -68160,15 +68160,16 @@ var NestedCounter = class {
   }
 };
 var DocumentData = class {
-  constructor(toplevel_portal) {
+  constructor(anonymous, toplevel_portal) {
     this.sections = new NestedCounter();
     this.figures = new NestedCounter(["1", "a"]);
     this.theorems = new NestedCounter();
     this.footnotes = [];
     this.toplevel_portal = toplevel_portal;
+    this.anonymous = anonymous;
   }
 };
-var DocumentContext = import_react13.default.createContext(new DocumentData(null));
+var DocumentContext = import_react13.default.createContext(new DocumentData(false, null));
 var SectionTitle = ({ level, children }) => {
   let Header;
   if (!level || level == 1) {
@@ -68336,7 +68337,7 @@ var DocumentInner = observer2(({ children }) => {
     className: "document"
   }, children), /* @__PURE__ */ import_react13.default.createElement(ReferencesSection, null), /* @__PURE__ */ import_react13.default.createElement(Footnotes, null));
 });
-var Document = ({ children, bibtex }) => {
+var Document = ({ children, bibtex, anonymous }) => {
   let [def_ctx] = (0, import_react13.useState)(new AllDefinitionData());
   def_ctx.add_mode_listeners();
   let [toplevel_portal, set_toplevel_portal] = (0, import_react13.useState)(null);
@@ -68346,7 +68347,7 @@ var Document = ({ children, bibtex }) => {
   return /* @__PURE__ */ import_react13.default.createElement(DefinitionContext.Provider, {
     value: def_ctx
   }, /* @__PURE__ */ import_react13.default.createElement(DocumentContext.Provider, {
-    value: new DocumentData(toplevel_portal)
+    value: new DocumentData(anonymous || false, toplevel_portal)
   }, /* @__PURE__ */ import_react13.default.createElement(ReactTexContext.Provider, {
     value: new TexContext()
   }, /* @__PURE__ */ import_react13.default.createElement(ReactBibliographyContext.Provider, {
@@ -68516,9 +68517,14 @@ var Author = ({ children }) => {
   }, children), /* @__PURE__ */ import_react15.default.createElement(Inner, null));
 };
 var Authors = ({ children }) => {
+  let ctx = (0, import_react16.useContext)(DocumentContext);
   return /* @__PURE__ */ import_react15.default.createElement("div", {
     className: "authors"
-  }, children);
+  }, ctx.anonymous ? /* @__PURE__ */ import_react15.default.createElement("div", {
+    className: "author"
+  }, /* @__PURE__ */ import_react15.default.createElement("span", {
+    className: "author-name"
+  }, "Anonymous author(s)")) : children);
 };
 var Title = ({ children }) => /* @__PURE__ */ import_react15.default.createElement("h1", {
   className: "document-title"
@@ -71624,6 +71630,7 @@ var App = (_22) => {
     }, /* @__PURE__ */ import_react25.default.createElement("strong", null, "Principle ", num), " (Slicing principle for ", type, "). ", /* @__PURE__ */ import_react25.default.createElement("em", null, /* @__PURE__ */ import_react25.default.createElement(Text2, null))));
   };
   return /* @__PURE__ */ import_react25.default.createElement(Document, {
+    anonymous: true,
     bibtex: example_default
   }, /* @__PURE__ */ import_react25.default.createElement(ListingConfigure, {
     language: rust()
