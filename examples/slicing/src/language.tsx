@@ -1,4 +1,4 @@
-import { Language } from "reactex/dist/language";
+import { Language } from "nota/dist/language";
 
 const r = String.raw;
 

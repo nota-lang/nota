@@ -26,12 +26,12 @@ import {
   Caption,
   Definition,
   Smallcaps
-} from "reactex";
-import {newcommand} from "reactex/dist/tex";
-import {Expandable} from "reactex/dist/document";
-import {ToggleButton} from "reactex/dist/togglebox";
-import {Theorem} from "reactex/dist/math";
-import {Correspondence, Link} from "reactex/dist/correspondence";
+} from "nota";
+import {newcommand} from "nota/dist/tex";
+import {Expandable} from "nota/dist/document";
+import {ToggleButton} from "nota/dist/togglebox";
+import {Theorem} from "nota/dist/math";
+import {Correspondence, Link} from "nota/dist/correspondence";
 import { rust } from "@codemirror/lang-rust";
 
 import { SliceListing } from "./slicer";
@@ -41,7 +41,7 @@ import {Oxide, OxideExtra} from "./language";
 // @ts-ignore
 import bibtex from "./example.bib";
 
-import "../node_modules/reactex/dist/assets.css";
+import "../node_modules/nota/dist/assets.css";
 
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
@@ -865,7 +865,7 @@ assert!(*value.lock().unwrap() == 1);`}
         </ul>
       </SubSection>
 
-      <SubSection name="sec:formal_princples" title="Formalized principles">
+      <SubSection name="sec:formal_principles" title="Formalized principles">
         <p>Now, we have enough of the language formalized to give a precise statement of each slicing principle from <Ref name="sec:background" />. Each principle will be presented with the corresponding theorem, using underlining in color to highlight correspondences.</p>
 
         <p>In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. <$>{r`\pexp`}</$> or <$>{r`\stack`}</$>, and add a sans-serif subscript for distinct roles where needed, e.g. <$>{r`\plc_\mut`}</$> for a mutated place and <$>{r`\plc_\any`}</$> for an arbitrary place. We generally use a superscript <$>{r`i`}</$> for an object that varies between two executions of a program, like <$>{r`\stack^i`}</$> or <$>{r`v^i`}</$> . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. <$>{r`\stack^i`}</$> versus <$>{r`\stepped{\stack}^i`}</$>.</p>

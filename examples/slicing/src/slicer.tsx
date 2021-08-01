@@ -5,7 +5,7 @@ import {
   clear_highlights,
   linecol_to_pos,
   pos_to_linecol,
-} from "reactex/dist/code";
+} from "nota/dist/code";
 import { EditorView } from "@codemirror/view";
 import axios from "axios";
 

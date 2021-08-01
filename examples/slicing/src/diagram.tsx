@@ -1,7 +1,8 @@
 import React, {useRef, useState, useCallback} from 'react';
-import {$, $$} from 'reactex';
-import {zipExn, useSynchronizer} from 'reactex/dist/utils';
-import {Togglebox, ToggleButton} from "reactex/dist/togglebox";
+import {$, $$} from 'nota';
+import {zipExn, useSynchronizer} from 'nota/dist/utils';
+import {Togglebox, ToggleButton} from "nota/dist/togglebox";
+import {IRToggle, Premise, PremiseRow} from "nota/dist/math";
 import _, { countBy } from 'lodash';
 import { useEffect } from 'react';
 
@@ -109,44 +110,6 @@ export let SyntaxDiagram = () => {
 
 let $T = tex => props => <$ {...props}>{r`\text{${tex}}`}</$>;
 
-let Premise = ({children}) => <div className="premise">{children}</div>;
-let PremiseRow = ({children}) => <div className="premise-row">{children}</div>;
-
-let IR = ({Top, Bot, Right}) => {
-  let [right_height, set_right_height] = useState(0);
-  let right_ref = useRef(null);
-  if (Right) {
-    useEffect(() => {
-      let right_el = right_ref.current!;
-      set_right_height(right_el.getBoundingClientRect().height);
-    }, []);
-  }
- 
-  return <table className="inferrule"><tbody>  
-    <tr><td>{Top}</td></tr>
-    <tr>
-      <td><div className="divider" /></td>
-      <td><div className="right"><div style={{bottom: right_height/2}} ref={right_ref}>{Right || null}</div></div></td>
-    </tr>
-    <tr><td>{Bot}</td></tr>
-  </tbody></table>;
-};
-
-let IRToggle = ({Top, Bot}) => {
-  let [toggles] = useState([]);
-  let reg = (cb) => { toggles.push(cb); };
-  let [show_all, set_show_all] = useState(false);
-
-  let on_click = () => {
-    toggles.forEach(cb => cb(!show_all));
-    set_show_all(!show_all);
-  };
-
-  return <IR 
-    Right={<ToggleButton big on={show_all} onClick={on_click} />}
-    Top={<Top reg={reg} />} 
-    Bot={<Bot reg={reg} />} />;
-};
 
 export let AssignStaticRule = () => 
   <IRToggle
@@ -207,7 +170,7 @@ export let AssignDynamicRule = () =>
       <Togglebox 
         registerToggle={reg}
         Outside={$T(r`$\pexp$ points to $\plc$ in $\stack$ with root $\vr$ and context $\valuectx$`)}
-        Inside={$T(r`$\pointsto{\stack}{\pexp}{\plc}{\vr}{\valuectx}$`)} />
+        Inside={$T(r`$\pointsto{\stack}{\pexp}{\pctx{\plc}{\vr}}{\valuectx}$`)} />
     }
     Bot={({reg}) => 
       <Togglebox

@@ -10,14 +10,14 @@ program.parse(process.argv);
 const options = program.opts();
 
 let esbuild_opts = {
-  sourcemap: !options.prod,
+  sourcemap: true, //!options.prod,
   minify: options.prod,
   watch: options.watch,
   outdir: "dist",
 }
 
 let build_js = esbuild.build({
-  entryPoints: glob.sync("src/*.tsx"),  
+  entryPoints: glob.sync("src/*.tsx"),
   format: "esm",
   ...esbuild_opts
 });
