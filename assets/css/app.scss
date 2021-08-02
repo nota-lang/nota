@@ -245,7 +245,7 @@ section {
   }
 
   .newline::before {
-    content: "\a";    
+    content: "\a";
     white-space: pre;
   }
 }
@@ -400,8 +400,9 @@ sup.footnote-marker {
   font-variant: small-caps;
 }
 
-.togglebox-parent, .togglebox-grandparent {
-  display: inline-block;  
+.togglebox-parent,
+.togglebox-grandparent {
+  display: inline-block;
 }
 
 .toggle-button {
@@ -424,7 +425,7 @@ sup.footnote-marker {
 .togglebox {
   display: flex;
   justify-content: center;
-  
+
   > div {
     display: inline-block;
   }
@@ -456,10 +457,10 @@ sup.footnote-marker {
     line-height: 2rem;
   }
 
-  .right {    
+  .right {
     height: 0;
 
-    >div {
+    > div {
       position: relative;
     }
   }
@@ -470,16 +471,20 @@ sup.footnote-marker {
 }
 
 .correspondence {
+  line-height: 1.5em;
+
   .link {
     border-bottom: 1px solid black;
     padding-bottom: 1px;
-
-    
   }
   @mixin type($num, $color) {
-    .link.type-#{$num} { border-color: $color; }
-    &.hover-type-#{$num} .link.type-#{$num} { background: color.scale($color, $lightness: 90%); }
-  }    
+    .link.type-#{$num} {
+      border-color: $color;
+    }
+    &.hover-type-#{$num} .link.type-#{$num} {
+      border-width: 3px;
+    }
+  }
   @include type(1, rgb(214, 39, 40));
   @include type(2, rgb(44, 160, 44));
   @include type(3, rgb(31, 119, 180));
@@ -493,7 +498,8 @@ hr {
   margin: 1rem 2rem;
 }
 
-ul, ol {
+ul,
+ol {
   padding-left: 1.5rem;
 }
 
@@ -504,7 +510,9 @@ ol.parenkey {
     counter-increment: list;
   }
 
-  > li { list-style: none; }
+  > li {
+    list-style: none;
+  }
   > li:before {
     content: "(" counter(list, lower-alpha) ") ";
     counter-increment: list;
@@ -529,4 +537,8 @@ ol.parenkey {
   display: inline-block;
   position: absolute;
   left: 0;
+
+  > p:first-child {
+    text-indent: 0;
+  }
 }

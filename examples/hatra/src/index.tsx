@@ -123,14 +123,50 @@ export let Paper: React.FC = _ => {
       <p>We have two objectives in this paper. First, to demonstrate the capabilities of the browser in improving PL papers. And second, to show that writing Nota is close enough to LaTeX that researchers could plausibly adopt it without a significant learning curve. To start with the first objective, we have re-implemented one of the authors' PL papers in Nota. We will present the first three sections of that paper with commentary to draw attention to usage of Nota features.</p> 
     </Section>
     <Section title="demo" name="sec:demo">
-      <Commentary Document={SlicerPaper} comment_width={300}>
+      <Commentary Document={SlicerPaper} comment_width={350}>
         <Comment selector={'h1'}>
-          Hello world!
+          <p>The left column contains a draft of a PL paper currently under submission. The white bubbles in the right column contain commentary about the usage of Nota. You can compare against the original LaTeX/PDF version <a href="#TODO">here</a>, and read the Nota version in a standalone page <a href="#TODO">here</a>.</p>
+          <p>
+            The general style (fonts, spacing, etc.) was designed to mimic the ACM Primary template as closely as possible. This demonstrates that the core visual style of a LaTeX-generated paper can still be represented in the browser.
+          </p>
         </Comment>
         <Comment selector={'#def-sec-intro section:first-child h2 ~ p'}>
-          Ok.
+          <p>Try clicking on one of the purple citations. One click brings up a tooltip with the corresponding citation. (Click anywhere on the page to close it.) Then try double-clicking on a citation. You can use the browser's "back" function to jump back to where you were. Also note that the object you jump to is briefly highlighted in yellow to draw your attention after jumping.</p>
+          <p>Some foundational concepts in Nota are definitions and references. For example, a bibliography defines sources, which can be referenced inline as a citation. A footnote defines asides, which can be referenced as a number. Try clicking on the footnote at the end of the first paragraph. Notice that the same tooltip mechanism can be used as with the citation.</p>
+        </Comment>        
+        <Comment selector={'#def-sec-intro ol'}>
+          Unimplemented references are replaced with placeholders, rather than preventing the document from compiling.
+        </Comment>
+        <Comment selector={'#def-sec-places h3 ~ p'}>
+          <p>Examples don't have to be static in the browser! Try editing this code example to say <code>x = z;</code>. then select <code>x</code> on line 5 and click "Slice". </p>
+          <p>Interactive examples allow readers to engage with the material by forming and testing hypotheses, or checking edge cases of an algorithm.</p>
+        </Comment>
+        <Comment selector={'#multi-snippets'}>
+          Note that the browser allows for flexible layouts. If a figure needs to extend beyond page boundaries, then no problem &mdash; a monitors is wide enough. 
+        </Comment>
+        <Comment selector={'#def-sec-model'}>
+          This section demonstrates the core features of Nota. Here, the paper needs to describe a large language, Oxide, imported from another paper (Weiss et al.). This language contains a large syntax and a semantics with a number of judgments. The goal of Nota is to simplify the definition, referencing, and explaining of formal systems like Oxide.
+        </Comment>
+        <Comment selector={'#def-sec-syn'}>
+          This grammar defines dozens of syntax kinds, metavariables, and syntactic forms. Using Nota, every instance is linked to its definition. For example, try hovering over the form <$>{r`\&\rho\,\omega\,\tau^{\tiny\text{XI}}`}</$> under Sized Type. Click on each metavariable, then click on the ampersand. As before, you can double click to jump to the definition. The stack of tooltips indicate nested references, e.g. <$>\omega</$> within the broader reference form.
+        </Comment>
+        <Comment selector={'#syntax-diagram'}>
+          This diagram doesn't have to be drawn in Illustrator! It uses HTML for the layout and boxes, and SVG to draw the lines. That means the underlying structure is still preserved, so the syntax elements are inspectable (as oppposed to a static image).
+        </Comment>
+        <Comment selector={'#def-sec-statsem'}>
+          When describing a large formal system, some elements are less important than others. For instance, the context <$>\Delta</$> is necessary for the typing judgment, but isn't relevant to most of the paper. Rather than having a giant syntax figure or punting <$>\Delta</$> to the appendix, we can introduce <em>expandable elements.</em> Try double-clicking the <$>\Delta</$>. It will jump to the "extra" grammar hidden by the "Show grammar" button.
+        </Comment>
+        <Comment selector={'#static-rule'}>
+          A common pattern in PL papers is to present a formal rule full of symbols, then accompany that rule with a separate paragraph explaining it. The rule on the left shows a possible enhancement of this pattern: co-locating natural language explanations with the corresponding symbolic expressions. Try clicking the <$>\Sigma</$> buttons. 
+        </Comment>
+        <Comment selector={'#correspondence-principle-1'}>
+          <p>Part of Nota's inspiration was our attempts to visually encode correspondences between objects (see page 10 of the <a href="#TODO">PDF</a>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as "draw a colored underline beneath a piece of math".</p>
+          <p>By contrast, implementing this feature was trivial in HTML/CSS/Javascript. And we could extend the idea with interactions like drawing attention to corresponding objects on hover.</p>
         </Comment>
       </Commentary>
+    </Section>
+    <Section title="Implementation">
+      TODO!
     </Section>
   </Document>
 };

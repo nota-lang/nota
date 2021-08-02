@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 
 export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
@@ -54,4 +54,18 @@ export let useSynchronizer = (callback: () => void): (() => () => void) => {
     promises.push(promise);
     return resolve!;
   };
+};
+
+export let useStateOnInterval = <T,>(init: T, interval: number, callback: () => T) => {
+  let [state, set_state] = useState(init);
+  useEffect(() => {
+    let instance = setInterval(() => {
+      let new_state = callback();
+      if (new_state != state) {
+        set_state(callback);
+      }
+    }, interval);
+    return () => clearInterval(instance);
+  }, [callback, interval]);
+  return state;    
 };

@@ -192,7 +192,7 @@ export let FullWidthContainer: React.FC<{ inner_width: number } & HTMLAttributes
 
 export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) => {
   return (
-    <div {...props} className={`row ${className}`}>
+    <div {...props} className={classNames("row", className)}>
       {children}
     </div>
   );
@@ -288,31 +288,58 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   );
 });
 
-let wait_for_ready = (): Promise<any> => {
-  let wait_doc;
-  if (document.readyState !== "complete") {
-    wait_doc = new Promise((resolve, _) => window.addEventListener("load", resolve));
+let wait_for_fonts = (): Promise<any> | null => {
+  let fonts = [
+    ["Inconsolata", ["normal"]],
+    ["Linux Libertine O", ["normal", "italic", "bold", "italic bold"]],
+    ["Linux Biolinum O", ["normal", "italic", "bold", "italic bold"]],
+    ["KaTeX_AMS", ["normal"]],
+    ["KaTeX_Caligraphic", ["normal", "bold"]],
+    ["KaTeX_Fraktur", ["normal", "bold"]],
+    ["KaTeX_Main", ["normal", "italic", "bold", "italic bold"]],
+    ["KaTeX_Math", ["normal", "italic", "italic bold"]],
+    ["KaTeX_SansSerif", ["normal", "italic", "bold"]],
+    ["KaTeX_Script", ["normal"]],
+    ["KaTeX_Size1", ["normal"]],
+    ["KaTeX_Size2", ["normal"]],
+    ["KaTeX_Size3", ["normal"]],
+    ["KaTeX_Size4", ["normal"]],
+    ["KaTeX_Typewriter", ["normal"]],
+  ];
+
+  let font_strs = ["normal", "italic", "bold", "italic bold"].map(
+    variant =>
+      `${variant} 12px ` +
+      fonts
+        .filter(([_1, variants]) => _.some(variants, v => v == variant))
+        .map(([face, _]) => face)
+        .join(", ")
+  );
+
+  if (_.every(font_strs, s => document.fonts.check(s))) {
+    return null;
   } else {
-    wait_doc = Promise.resolve(true);
+    return Promise.all([font_strs.map(s => document.fonts.load(s))]);
   }
-
-  let fonts = ["Linux Libertine O", "Linux Biolinum O"];
-  let wait_font = document.fonts.load("12px " + fonts.join(", "));
-
-  return Promise.all([wait_font, wait_doc]);
 };
 
 export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous, onLoad }) => {
-  let [loaded, set_loaded] = useState(false);
-  let is_ready = wait_for_ready();
+  let [fonts_promise] = useState(wait_for_fonts());
+  let [loaded, set_loaded] = useState(fonts_promise === null);
 
   useEffect(() => {
-    is_ready.then(() => {
-      set_loaded(true);
+    if (fonts_promise !== null) {
+      fonts_promise.then(() => {
+        set_loaded(true);
+        if (onLoad) {
+          onLoad();
+        }
+      });
+    } else {
       if (onLoad) {
         onLoad();
       }
-    });
+    }
   }, []);
 
   let [def_ctx] = useState(new AllDefinitionData());

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { FullWidthContainer, Row } from "./document";
+import { useStateOnInterval } from "./utils";
 
 // TODO: relate this to CSS somehow
 let DOCUMENT_WIDTH = 800;
@@ -18,7 +19,15 @@ let CommentaryContext = React.createContext<CommentaryData | null>(null);
 
 export let Comment: React.FC<{ selector: string }> = ({ selector, children }) => {
   let ctx = useContext(CommentaryContext);
-  let [top, set_top] = useState(0);
+  let [node, set_node] = useState<Element | null>(null);
+  let top = useStateOnInterval(0, 1000, () => {
+    if (node) {
+      let container = ctx!.document.current!;
+      let container_rect = container.getBoundingClientRect();
+      let node_rect = node.getBoundingClientRect();
+      return node_rect.top - container_rect.top;
+    }
+  });
 
   useEffect(() => {
     if (!ctx) {
@@ -36,10 +45,7 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
       throw `Missing selector "${selector}"`;
     }
 
-    let container_rect = container.getBoundingClientRect();
-    let node_rect = node.getBoundingClientRect();
-
-    set_top(node_rect.top - container_rect.top);
+    set_node(node);
   }, [selector, ctx!.document_ready]);
 
   return (
@@ -59,7 +65,7 @@ export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commen
       <FullWidthContainer
         className="commentary"
         inner_width={inner_width}
-        style={{ background: "#fafafa" }}
+        style={{ background: "#f4f4f4" }}
       >
         <Row>
           <div ref={document_ref} className="object" style={{ width: DOCUMENT_WIDTH }}>

@@ -49,7 +49,7 @@ export let Paper: React.FC = props => {
   let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => {
     num_principles += 1;
     let num = num_principles;
-    let Label = () => <>{`Principle ${num} (Slicing principle for ${type})`}</>;
+    let Label = () => <>Principle {num}</>;
     let Text = () => <>{text}</>;
 
     return <Definition name={`prin:${type}`} Label={Label} Tooltip={Text} block>
@@ -631,7 +631,7 @@ println!("{}", @w@);`}
           />
         </Row>
 
-        <p>
+        <p id="multi-snippets">
           Note that like <C>z</C> (middle), the return value <C>w</C> (right) is also assumed to be
           influenced by every input to <C>f</C>. Implicit in these slices are additional assumptions
           about the limitations of <C>f</C>. For example, in C, a function could manufacture a
@@ -824,13 +824,13 @@ assert!(*value.lock().unwrap() == 1);`}
           {" "}<$>{r`\tyenv`}</$> contains function-level type and provenance variables. <$>{r`\stackenv`}</$> maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking <C>*b := a.1</C> in <Ref name="fig:oxide_syntax_example" /> , the inputs would be <$>{r`\tyenv = \tyenvempty`}</$> (empty) and <$>{r`\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}`}</$>.
         </p>
 
-        <p>Typechecking relies on a number of auxiliary judgments, such as subtyping (<Definition name="tex:subtype" Tooltip={null}><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$></Definition>) and ownership-safety (<Definition name="tex:ownsafe"><$>{r`\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}`}</$>, read as "<$>{r`\pexp`}</$> has <$>{r`\ownq\text{-loans}`}</$> <$>{r`\loanset`}</$> in the contexts <$>{r`\Delta, \Gamma`}</$>"</Definition>). As an example, consider <Smallcaps>T-Assign</Smallcaps> <Cite v="weiss2019oxide" y ex="p. 11" /> for the assignment expression <$>{r`\exprplcasgn{\plc}{\expr}`}</$>:</p>
+        <p>Typechecking relies on a number of auxiliary judgments, such as subtyping (<Definition name="tex:subtype" Tooltip={() => <><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$> means <$>\tau_1</$> is a subtype of <$>\tau_2</$></>}><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$></Definition>) and ownership-safety (<Definition name="tex:ownsafe"><$>{r`\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}`}</$>, read as "<$>{r`\pexp`}</$> has <$>{r`\ownq\text{-loans}`}</$> <$>{r`\loanset`}</$> in the contexts <$>{r`\Delta, \Gamma`}</$>"</Definition>). As an example, consider <Smallcaps>T-Assign</Smallcaps> <Cite v="weiss2019oxide" y ex="p. 11" /> for the assignment expression <$>{r`\exprplcasgn{\plc}{\expr}`}</$>:</p>
 
         <center>
           <AssignStaticRule />    
         </center>
 
-        <p className="noindent" style={{color: "#444"}}>[Note: Each section of the rule has a natural language explanation, shown by default. Click on the <span style={{marginLeft: '-0.5rem'}}><ToggleButton big on={false} onClick={()=>{}} /></span> button to see corresponding mathematical formula. You can also click on the right-most button to toggle all sections at once.]</p>
+        <p id="static-rule" className="noindent" style={{color: "#444"}}>[Note: Each section of the rule has a natural language explanation, shown by default. Click on the <span style={{marginLeft: '-0.5rem'}}><ToggleButton big on={false} onClick={()=>{}} /></span> button to see corresponding mathematical formula. You can also click on the right-most button to toggle all sections at once.]</p>
 
         <p>
           A valid assignment must be type-safe and ownership-safe. To be type-safe, the type of the expression <$>{r`\tys`}</$> must be a subtype of the place's type <$>{r`\stackenv_1(\plc)`}</$>. To be ownership-safe, the type must either be dead<Footnote>
@@ -867,7 +867,7 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <hr />
 
-        <Correspondence>
+        <Correspondence id="correspondence-principle-1">
           <Row>
             <div style={{width: '300px', marginRight: '3rem'}}>
               <Smallcaps><Ref name="prin:places" /></Smallcaps>

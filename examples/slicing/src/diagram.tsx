@@ -23,7 +23,9 @@ let get_relative_midpoint = (container: HTMLElement, el: HTMLElement, top: boole
 export let SyntaxDiagram = () => {
   let container_ref = useRef<HTMLDivElement>(null);
   let [overlay, set_overlay] = useState<JSX.Element | null>(null);
-  let add_sync_point = useSynchronizer(useCallback(() => on_all_load(), []));
+  
+  // TODO: setTimeout layout hack
+  let add_sync_point = useSynchronizer(useCallback(() => setTimeout(on_all_load, 3000), []));
 
   let label_texts = [
     r`Variable $\vr$`, r`Sized Type $\tys$`, r`Expression $\expr$`, r`Place $\plc$`, 
@@ -65,7 +67,7 @@ export let SyntaxDiagram = () => {
     </svg>);
   };
 
-  return <div id="syntax-diagram" ref={container_ref} style={{textAlign: 'center', position: 'relative'}}>
+  return <div id="syntax-diagram" ref={container_ref} style={{textAlign: 'center', position: 'relative', marginBottom: '1rem'}}>
     <style>{`
     .diagram-label { padding: 2px 4px; margin: 5px 10px; }
     .diagram-hl {
@@ -77,8 +79,7 @@ export let SyntaxDiagram = () => {
     }
     .gutter.bottom {
       margin-top: 30px;
-    }
-    
+    }  
     `}</style>
 
     {overlay}
@@ -87,7 +88,7 @@ export let SyntaxDiagram = () => {
       {labels.filter(({pos}) => pos == "top").map(({label}) => label)}
     </div>
 
-    <$$ onLoad={add_sync_point()} style={{height: '7rem', marginTop: '3rem'}}>{r`
+    <$$ onLoad={add_sync_point()} style={{height: '5rem', marginTop: '3rem'}}>{r`
     \newcommand{\lbl}[2]{\htmlClass{diagram-hl}{\htmlData{index=#1}{#2}}}
     \begin{aligned}
     &\exprlet
