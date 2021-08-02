@@ -29,7 +29,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({
     }
 
     let request = { program, line: start.line, start: start.col, end: end.col };
-    let response = await axios.post("http://mindover.computer:8888", request);
+    let response = await axios.post("https://mindover.computer:3443", request);
 
     if (response.data.error) {
       console.error(response.data.error);
