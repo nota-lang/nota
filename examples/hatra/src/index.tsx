@@ -27,7 +27,10 @@ import {
   Definition,
   Smallcaps
 } from "nota";
+import {Commentary, Comment} from "nota/dist/commentary";
 import {IR, Premise, PremiseRow} from "nota/dist/math";
+
+import {Paper as SlicerPaper} from "slicing";
 
 // @ts-ignore
 import bibtex from "./bib.bib";
@@ -37,7 +40,7 @@ import "../node_modules/nota/dist/assets.css";
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
 
-export let App: React.FC = _ => {  
+export let Paper: React.FC = _ => {  
   return <Document anonymous bibtex={bibtex}>
     <Title>A New Medium for Communicating Research on Programming Languages</Title>
     <Authors>
@@ -119,7 +122,17 @@ export let App: React.FC = _ => {
 
       <p>We have two objectives in this paper. First, to demonstrate the capabilities of the browser in improving PL papers. And second, to show that writing Nota is close enough to LaTeX that researchers could plausibly adopt it without a significant learning curve. To start with the first objective, we have re-implemented one of the authors' PL papers in Nota. We will present the first three sections of that paper with commentary to draw attention to usage of Nota features.</p> 
     </Section>
+    <Section title="demo" name="sec:demo">
+      <Commentary Document={SlicerPaper} comment_width={300}>
+        <Comment selector={'h1'}>
+          Hello world!
+        </Comment>
+        <Comment selector={'#def-sec-intro section:first-child h2 ~ p'}>
+          Ok.
+        </Comment>
+      </Commentary>
+    </Section>
   </Document>
 };
 
-ReactDOM.render(<App />, document.getElementById("container"));
+ReactDOM.render(<Paper />, document.getElementById("container"));

@@ -341,6 +341,15 @@ scheduler@^0.20.2:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+"slicing@file:../slicing":
+  version "0.1.0"
+  dependencies:
+    "@codemirror/lang-rust" "^0.18.0"
+    "@types/react" "^17.0.14"
+    "@types/react-dom" "^17.0.9"
+    axios "^0.21.1"
+    nota "file:../../../../Library/Caches/Yarn/v6/npm-slicing-0.1.0-785c6b7b-30f1-4c86-a3c0-25378844212d-1627843184311"
+
 style-mod@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-4.0.0.tgz#97e7c2d68b592975f2ca7a63d0dd6fcacfe35a01"

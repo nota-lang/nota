@@ -5,17 +5,22 @@ import ReactDOM from "react-dom";
 import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
-import { Container, HTMLAttributes } from "./utils";
+import { Container, HTMLAttributes, useMutationObserver } from "./utils";
 
 const r = String.raw;
 
-export let newcommand = (cmd: string, nargs: number, body: string, defaults: string[] = []): string => {
+export let newcommand = (
+  cmd: string,
+  nargs: number,
+  body: string,
+  defaults: string[] = []
+): string => {
   if (defaults.length > 0) {
-    throw `KaTeX currently doesn't support default arguments to newcommand. Check on this issue: https://github.com/KaTeX/KaTeX/issues/2228`
+    throw `KaTeX currently doesn't support default arguments to newcommand. Check on this issue: https://github.com/KaTeX/KaTeX/issues/2228`;
   }
-  let ds = defaults.map(s => `[${s}]`).join('');
+  let ds = defaults.map(s => `[${s}]`).join("");
   return r`\newcommand{${"\\" + cmd}}[${nargs}]${ds}{\htmlData{cmd=${cmd}}{${body}}}`;
-}
+};
 
 export interface Dimensions {
   width: number;
@@ -153,18 +158,17 @@ export interface TexProps {
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   ({ children, raw, onLoad, block, ...props }) => {
     let ctx = useContext(ReactTexContext);
-
+    let ref;
     if (onLoad) {
-      useEffect(() => {
-        if (document.readyState === "complete") {
+      ref = useMutationObserver(
+        _ => {
           onLoad();
-        } else {
-          window.addEventListener("load", onLoad);
-        }
-      }, []);
+        },
+        { childList: true, subtree: true }
+      );
     }
 
-    return ctx.render(children as string, block, raw, props);
+    return ctx.render(children as string, block, raw, props, ref);
   },
   (prev, next) => prev.children == next.children
 );

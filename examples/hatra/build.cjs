@@ -1,6 +1,7 @@
 const esbuild = require("esbuild");
 const fs = require("fs");
 const path = require("path");
+const pkg = require("./package.json");
 const { program } = require("commander");
 
 program.option("-w, --watch");
@@ -8,16 +9,16 @@ program.option("-p, --prod");
 program.parse(process.argv);
 const options = program.opts();
 
-// TODO: find better way to avoid imports on peerDependencies resolving to
-//    nota/node_modules
-const plugin = {
+const avoid_peerdep_conflicts_plugin = {
   name: "test",
   setup(build) {
-    build.onResolve({ filter: /^@codemirror/ }, (args) => ({
-      path: `${path.resolve(__dirname)}/node_modules/${
-        args.path
-      }/dist/index.js`,
-    }));
+    Object.keys(pkg.peerDependencies).forEach(k => {
+      let peer_pkg = require(`./node_modules/${k}/package.json`);
+      let filter = new RegExp(`^${k}$`);
+      build.onResolve({ filter }, args => ({
+        path: `${path.resolve(__dirname)}/node_modules/${args.path}/${peer_pkg.main}`,
+      }));
+    });
   },
 };
 
@@ -25,7 +26,7 @@ esbuild
   .build({
     entryPoints: ["src/index.tsx"],
     bundle: true,
-    sourcemap: true, //!options.prod,
+    sourcemap: !options.prod,
     minify: options.prod,
     watch: options.watch,
     preserveSymlinks: true,
@@ -38,7 +39,7 @@ esbuild
       ".bib": "text",
     },
     outdir: "dist",
-    plugins: [plugin],
+    plugins: [avoid_peerdep_conflicts_plugin],
   })
   .then(() => {
     fs.copyFileSync("src/index.html", "dist/index.html");

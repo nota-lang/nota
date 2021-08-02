@@ -10,6 +10,7 @@ import { ReactBibliographyContext, ReferencesSection, BibliographyContext } from
 import { DefinitionContext, AllDefinitionData, Definition, Ref } from "./definitions";
 import { ListingContext, ListingData } from "./code";
 import { register_scroll_hook } from "./scroll";
+import { HTMLAttributes } from "./utils";
 
 export type NumberStyle = "1" | "a";
 
@@ -149,7 +150,6 @@ export let Caption: React.FC = props => {
   return null;
 };
 
-
 export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children }) => {
   let margin = "1rem";
   let style;
@@ -166,8 +166,36 @@ export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children })
 
 export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{children}</span>;
 
-export let Row: React.FC = ({ children }) => {
-  return <div className="row">{children}</div>;
+export let FullWidthContainer: React.FC<{ inner_width: number } & HTMLAttributes> = ({
+  inner_width,
+  style,
+  className,
+  ...props
+}) => {
+  let ref = useRef<HTMLDivElement>(null);
+  let [left, set_left] = useState(0);
+
+  useEffect(() => {
+    let { left } = ref.current!.getBoundingClientRect();
+    set_left(-left);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`full-width-container ${className}`}
+      style={{ width: window.innerWidth, left, ...style }}
+      {...props}
+    />
+  );
+};
+
+export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) => {
+  return (
+    <div {...props} className={`row ${className}`}>
+      {children}
+    </div>
+  );
 };
 
 export let ToplevelElem: React.FC = ({ children }) => {
@@ -210,7 +238,7 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   );
 };
 
-export let Footnote: React.FC = ({ children }) => {  
+export let Footnote: React.FC = ({ children }) => {
   let ctx = useContext(DocumentContext);
   ctx.footnotes.push(children);
   let i = ctx.footnotes.length;
@@ -219,7 +247,7 @@ export let Footnote: React.FC = ({ children }) => {
 
 let Footnotes: React.FC = _ => {
   let ctx = useContext(DocumentContext);
-  return (
+  return ctx.footnotes.length == 0 ? null : (
     <div className="footnotes">
       {ctx.footnotes.map((footnote, i) => {
         let top = {};
@@ -240,7 +268,9 @@ let Footnotes: React.FC = _ => {
 interface DocumentProps {
   bibtex?: string;
   anonymous?: boolean;
+  onLoad?: () => void;
 }
+
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = useContext(DefinitionContext);
   let [show, set_show] = useState(false);
@@ -258,7 +288,33 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   );
 });
 
-export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous }) => {
+let wait_for_ready = (): Promise<any> => {
+  let wait_doc;
+  if (document.readyState !== "complete") {
+    wait_doc = new Promise((resolve, _) => window.addEventListener("load", resolve));
+  } else {
+    wait_doc = Promise.resolve(true);
+  }
+
+  let fonts = ["Linux Libertine O", "Linux Biolinum O"];
+  let wait_font = document.fonts.load("12px " + fonts.join(", "));
+
+  return Promise.all([wait_font, wait_doc]);
+};
+
+export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous, onLoad }) => {
+  let [loaded, set_loaded] = useState(false);
+  let is_ready = wait_for_ready();
+
+  useEffect(() => {
+    is_ready.then(() => {
+      set_loaded(true);
+      if (onLoad) {
+        onLoad();
+      }
+    });
+  }, []);
+
   let [def_ctx] = useState(new AllDefinitionData());
   def_ctx.add_mode_listeners();
 
@@ -267,7 +323,7 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous })
     set_toplevel_portal(node);
   }, []);
 
-  return (
+  return !loaded ? null : (
     <DefinitionContext.Provider value={def_ctx}>
       <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
         <ReactTexContext.Provider value={new TexContext()}>

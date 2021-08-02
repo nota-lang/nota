@@ -68,12 +68,6 @@ $colors: (
   @return map-get($colors, $key);
 }
 
-body {
-  font-family: $serif;
-  font-size: $size-normal;
-  overflow-wrap: anywhere;
-}
-
 .document-wrapper {
   width: 800px;
   margin: 0 auto;
@@ -83,6 +77,9 @@ body {
 .document {
   text-align: justify;
   line-height: 1.3em;
+  font-family: $serif;
+  font-size: $size-normal;
+  overflow-wrap: anywhere;
 }
 
 .footnotes {
@@ -124,6 +121,10 @@ h6 {
   margin: 0;
   text-align: left;
   line-height: 1em;
+}
+
+h1 {
+  font-size: 2em !important;
 }
 
 a[href],
@@ -509,4 +510,23 @@ ol.parenkey {
     counter-increment: list;
     margin-left: -1.5rem;
   }
+}
+
+.full-width-container {
+  position: relative;
+}
+
+.comments {
+  position: relative;
+  height: 100%;
+}
+
+.comment {
+  border: 1px solid #999;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  position: absolute;
+  left: 0;
 }

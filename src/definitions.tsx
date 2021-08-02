@@ -70,15 +70,17 @@ interface DefinitionProps {
   Label?: React.FC;
 }
 
+let name_to_id = (name: string): string => `def-${name.replace(':', '-')}`;
+
 export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = props => (
-  <Container block={props.block} id={`def-${props.name}`}>
+  <Container block={props.block} id={name_to_id(props.name)}>
     {props.children}
   </Container>
 );
 
 export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = useContext(DefinitionContext);
-  let [name] = useState(props.name || _.uniqueId("def-"));
+  let [name] = useState(props.name || _.uniqueId());
 
   useEffect(() => {
     let Tooltip =
@@ -254,7 +256,7 @@ export let Ref: React.FC<RefProps> = observer(props => {
     e.preventDefault();
     e.stopPropagation();
 
-    scroll_to(`def-${props.name}`);
+    scroll_to(name_to_id(props.name));
   };
 
   let inner: JSX.Element = props.children ? (

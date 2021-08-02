@@ -2,26 +2,37 @@
   "name": "slicing",
   "version": "0.1.0",
   "license": "MIT",
+  "main": "dist/paper.js",
   "scripts": {
     "build": "node build.cjs",
     "tc": "tsc -noEmit"
   },
   "dependencies": {
+    "@types/react": "^17.0.14",
+    "@types/react-dom": "^17.0.9",
+    "@codemirror/lang-rust": "^0.18.0",
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "commander": "^8.0.0",
+    "esbuild": "^0.12.15",
     "@codemirror/gutter": "^0.18.0",
     "@codemirror/highlight": "^0.18.0",
-    "@codemirror/lang-rust": "^0.18.0",
     "@codemirror/language": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
-    "@types/react": "^17.0.14",
-    "@types/react-dom": "^17.0.9",
-    "axios": "^0.21.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "nota": "file:../.."
   },
-  "devDependencies": {
-    "commander": "^8.0.0",
-    "esbuild": "^0.12.15"
+  "peerDependencies": {
+    "@codemirror/gutter": "^0.18.0",
+    "@codemirror/highlight": "^0.18.0",
+    "@codemirror/language": "^0.18.0",
+    "@codemirror/state": "^0.18.0",
+    "@codemirror/view": "^0.18.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "nota": "file:../.."
   }
 }
