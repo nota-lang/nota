@@ -1,4 +1,4 @@
-/* node_modules/reactex/dist/assets.css */
+/* node_modules/nota/dist/assets.css */
 @font-face {
   font-family: KaTeX_AMS;
   font-style: normal;
@@ -1194,11 +1194,6 @@ body {
 .bgcolor-highlight {
   background: #fff9ac;
 }
-body {
-  font-family: "Linux Libertine O", serif;
-  font-size: 18px;
-  overflow-wrap: anywhere;
-}
 .document-wrapper {
   width: 800px;
   margin: 0 auto;
@@ -1206,7 +1201,10 @@ body {
 }
 .document {
   text-align: justify;
-  line-height: 1.25em;
+  line-height: 1.3em;
+  font-family: "Linux Libertine O", serif;
+  font-size: 18px;
+  overflow-wrap: anywhere;
 }
 .footnotes {
   font-size: 14px;
@@ -1242,6 +1240,9 @@ h6 {
   margin: 0;
   text-align: left;
   line-height: 1em;
+}
+h1 {
+  font-size: 2em !important;
 }
 a[href],
 .ref {
@@ -1325,7 +1326,6 @@ section {
 }
 .katex {
   font-size: 1em;
-  line-height: 1.3em;
 }
 .katex .newline {
   display: inline;
@@ -1564,4 +1564,20 @@ ol.parenkey > li:before {
   content: "(" counter(list, lower-alpha) ") ";
   counter-increment: list;
   margin-left: -1.5rem;
+}
+.full-width-container {
+  position: relative;
+}
+.comments {
+  position: relative;
+  height: 100%;
+}
+.comment {
+  border: 1px solid #999;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  position: absolute;
+  left: 0;
 }
