@@ -8,11 +8,14 @@ jobs:
           sudo npm install -g yarn
           yarn install          
           yarn tc
-          yarn build
+          yarn build -p
           cd examples/slicing
           yarn install
-          yarn build
+          yarn build -p
+          cd ../hatra
+          yarn install
+          yarn build -p
       - uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: examples/slicing/dist
+          folder: examples/hatra/dist
