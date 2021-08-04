@@ -71,7 +71,7 @@ export let Paper: React.FC = _ => {
     `}</$$>
 
     <Section title="Introduction" name="sec:intro">
-      <p>Programming languages research is conveyed through the medium of <em>academic papers.</em> These papers use a combination of natural language and symbols to communicate ideas about languages, algorithms, and proofs. For example, an explanation of a typing rule for the simply-typed lambda calculus might look like this:</p>
+      <p>Programming languages research is conveyed through the medium of <em>academic papers.</em> These papers use a combination of natural language and mathematical notation to communicate ideas about languages, algorithms, and proofs. For example, an explanation of a typing rule for the simply-typed lambda calculus might look like this:</p>
  
       <div style={{border: '1px solid #ccc', borderRadius: '4px', padding: '1rem', margin: '1rem 2rem'}}>
         To type-check a function, we need to check that the body is well-typed given its argument. This is formally written as:
@@ -82,10 +82,12 @@ export let Paper: React.FC = _ => {
           Right={<Smallcaps>(T-Lambda)</Smallcaps>}
           />
         </Center>
-        Here, the syntax "<$>{r`\Gamma, x : \tau_x`}</$>" means "add <$>x : \tau_x</$> to the type environment <$>\Gamma</$>." Therefore we recursively check that <$>e</$> is well-typed assuming <$>x : \tau_x</$>. If so, then the type of the function is <$>\tau_x \rightarrow \tau_e</$> because it takes a value of type <$>\tau_x</$> as input and returns a value of type <$>\tau_e</$> as output.
+        Here, the syntax <q><$>{r`\Gamma, x : \tau_x`}</$></q> means <q>add <$>x : \tau_x</$> to the type environment <$>\Gamma</$>.</q> Therefore we recursively check that <$>e</$> is well-typed assuming <$>x : \tau_x</$>. If so, then the type of the function is <$>\tau_x \rightarrow \tau_e</$> because it takes a value of type <$>\tau_x</$> as input and returns a value of type <$>\tau_e</$> as output.
       </div>
 
-      <p>The principle question underlying our work is: <em>how much work does it take to understand a PL paper?</em> In the example above, a key challenge is dealing with the notation. For a formal system as small as the simply-typed lambda calculus, these explanations only need to reference a few symbols. The <Smallcaps>T-Lambda</Smallcaps> rule uses 10 distinct symbols to reference 7 distinct kinds of formal objects: variables, types, functions, function types, typing contexts, typing judgments, and inference rules. However, PL has come a long way since the lambda calculus. Consider this rule reproduced from <Cite f v="cavallo2019higher" ex="p. 24"/>, a recent POPL paper about cubical type theory:</p>
+      <p>The principle question underlying our work is: <em>how much effort does it take to understand a PL paper?</em> In the example above, a key challenge is understanding the notation and the concepts they represent. For a formal system as small as the simply-typed lambda calculus, such an explanation only needs to reference a few symbols. The <Smallcaps>T-Lambda</Smallcaps> rule uses 11 distinct symbols (<$>x</$>, <$>e</$>, <$>\tau</$>,  <$>\lambda</$>,  <$>.</$>,  <$>\rightarrow</$>,  <$>\Gamma</$>, <$>\vdash</$>, <$>{r`\text{\textemdash}`}</$>)  to reference 8 distinct concepts (variables, expressions, types, functions, function types, typing contexts, typing judgments, and inference rules).</p>
+      
+      <p>However, PL has come a long way since the lambda calculus. Consider this rule reproduced from <Cite f v="cavallo2019higher" ex="p. 24"/>, a recent POPL paper about cubical type theory:</p>
 
       <div style={{border: '1px solid #ccc', borderRadius: '4px', margin: '1rem 2rem', textAlign: 'center'}}>
       <IR
@@ -113,14 +115,14 @@ export let Paper: React.FC = _ => {
           \text{ht}, ||, :=, H, \eta, \lBrace, \text{ind}, \rho, \gg, \in, R, \text{intro}, /, \forall, \doteq, (|, ^_, 
        */}
 
-      <p>This rule uses about 40 distinct symbols to communicate a significant number of formal objects. Some symbols, such as "<$>\forall</$>", are expected background for the reader. But most are defined solely within the context of the paper. Remembering and applying these paper-specific symbols is a known challenge in reading scientific papers <Cite v="head2021augmenting" />. And comprehension challenges also go beyond individual symbols: a person reading a complex expression may want to know, how do I mentally parse this string? Where is the nearby text that explains this particular part of the rule? What kind of related work defines rules similar to this one?</p>
+      <p className="noindent">This rule uses about 40 distinct symbols to communicate a significant number of concepts. Some symbols, such as <q><$>\forall</$></q>, are expected background for the reader. But most are defined solely within the context of the paper. Remembering and applying these paper-specific symbols is a known challenge in reading scientific papers <Cite v="head2021augmenting" />. And comprehension challenges go beyond individual symbols. A person reading a complex expression may want to know, how do I mentally parse this string? Where is the nearby text that explains this particular part of the rule? What kind of related work defines rules similar to this one?</p>
 
-      <p>The difficulty of these tasks is compounded by the two technologies underlying the modern academic paper: PDF and LaTeX. PDFs are designed to be static documents, and so the only forms of interaction they usually offer are internal hyperlinks and text search along with structuring mechanisms like a table of contents. LaTeX, a system designed in the 1980s, uses an archaic programming language where the only abstraction mechanism is a macro. Combined, these factors make certain visualizations and interactions nigh impossible to implement.</p>
+      <p>The difficulty of these tasks is compounded by the two technologies underlying the modern academic paper: PDF and LaTeX. PDFs are designed to be static documents, and so the only forms of interaction they usually offer are internal hyperlinks and text search, along with structuring mechanisms like a table of contents. LaTeX, a system designed in the 1980s, uses an archaic programming language where the only abstraction mechanism is a macro. Combined, these factors make certain visualizations and interactions nigh impossible to implement.</p>
 
       <p>On the SIGPLAN blog, <Cite v="placcessible" f /> argued for a new PL journal motivated by these challenges: to make PL research more accessible. Greenberg cited <AEx href="https://distill.pub/">Distill</AEx> as a primary inspiration for similar efforts in machine learning research. However, only three months after Greenberg's post, the Distill editors announced a potentially indefinite hiatus <Cite v="team2021distill" y />. A key reason was:</p>
 
       <blockquote>
-        "We believed that many valuable scientific contributions — such as explanations, interactive articles, and visualizations — were held back by not being seen as “real scientific publications.” Our theory was that if a journal were to publish such artifacts, it would allow authors to benefit from the traditional academic incentive system and enable more of this kind of work. After four years, we no longer believe this theory of impact. [...] Instead, we believe the primary bottleneck is the amount of effort it takes to produce these articles and the unusual combination of scientific and design expertise required."
+        <q>We believed that many valuable scientific contributions — such as explanations, interactive articles, and visualizations — were held back by not being seen as “real scientific publications.” Our theory was that if a journal were to publish such artifacts, it would allow authors to benefit from the traditional academic incentive system and enable more of this kind of work. After four years, we no longer believe this theory of impact. [...] Instead, we believe the primary bottleneck is the amount of effort it takes to produce these articles and the unusual combination of scientific and design expertise required.</q>
       </blockquote>
 
       <p className="noindent">In this way, Distill presents both an inspiration and a cautionary tale. We know papers can be improved to help readers better understand their concepts. But we cannot train every researcher to be an expert in graphic design or frontend web development. Part of the success of LaTeX is that so many CS researchers are able to use it to create papers without significant training (and despite its many flaws).</p>
@@ -138,14 +140,14 @@ export let Paper: React.FC = _ => {
           </p>
         </Comment>
         <Comment selector={'#def-sec-intro section:first-child h2 ~ p'}>
-          <p>Try clicking on one of the purple citations. One click brings up a tooltip with the corresponding citation. (Click anywhere on the page to close it.) Then try double-clicking on a citation. You can use the browser's "back" function to jump back to where you were. Also note that the object you jump to is briefly highlighted in yellow to draw your attention after jumping.</p>
+          <p>Try clicking on one of the purple citations. One click brings up a tooltip with the corresponding citation. (Click anywhere on the page to close it.) Then try double-clicking on a citation. You can use the browser's <q>back</q> function to jump back to where you were. Also note that the object you jump to is briefly highlighted in yellow to draw your attention after jumping.</p>
           <p>Some foundational concepts in Nota are definitions and references. For example, a bibliography defines sources, which can be referenced inline as a citation. A footnote defines asides, which can be referenced as a number. Try clicking on the footnote at the end of the first paragraph. Notice that the same tooltip mechanism can be used as with the citation.</p>
         </Comment>        
         <Comment selector={'#def-sec-intro ol'}>
           Unimplemented references are replaced with placeholders, rather than preventing the document from compiling.
         </Comment>
         <Comment selector={'#def-sec-places h3 ~ p'}>
-          <p>Examples don't have to be static in the browser! Try editing this code example to say <code>x = z;</code>. then select <code>x</code> on line 5 and click "Slice". </p>
+          <p>Examples don't have to be static in the browser! Try editing this code example to say <code>x = z;</code>. then select <code>x</code> on line 5 and click <q>Slice</q>. </p>
           <p>Interactive examples allow readers to engage with the material by forming and testing hypotheses, or checking edge cases of an algorithm.</p>
         </Comment>
         <Comment selector={'#multi-snippets'}>
@@ -161,13 +163,13 @@ export let Paper: React.FC = _ => {
           This diagram doesn't have to be drawn in Illustrator! It uses HTML for the layout and boxes, and SVG to draw the lines. That means the underlying structure is still preserved, so the syntax elements are inspectable (as oppposed to a static image).
         </Comment>
         <Comment selector={'#def-sec-statsem'}>
-          When describing a large formal system, some elements are less important than others. For instance, the context <$>\Delta</$> is necessary for the typing judgment, but isn't relevant to most of the paper. Rather than having a giant syntax figure or punting <$>\Delta</$> to the appendix, we can introduce <em>expandable elements.</em> Try double-clicking the <$>\Delta</$>. It will jump to the "extra" grammar hidden by the "Show grammar" button.
+          When describing a large formal system, some elements are less important than others. For instance, the context <$>\Delta</$> is necessary for the typing judgment, but isn't relevant to most of the paper. Rather than having a giant syntax figure or punting <$>\Delta</$> to the appendix, we can introduce <em>expandable elements.</em> Try double-clicking the <$>\Delta</$>. It will jump to the <q>extra</q> grammar hidden by the <q>Show grammar</q> button.
         </Comment>
         <Comment selector={'#static-rule'}>
           A common pattern in PL papers is to present a formal rule full of symbols, then accompany that rule with a separate paragraph explaining it. The rule on the left shows a possible enhancement of this pattern: co-locating natural language explanations with the corresponding symbolic expressions. Try clicking the <$>\Sigma</$> buttons. 
         </Comment>
         <Comment selector={'#correspondence-principle-1'}>
-          <p>Part of Nota's inspiration was our attempts to visually encode correspondences between objects (see page 10 of the <AEx href="slicing_paper.pdf#page=10">PDF</AEx>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as "draw a colored underline beneath a piece of math".</p>
+          <p>Part of Nota's inspiration was our attempts to visually encode correspondences between objects (see page 10 of the <AEx href="slicing_paper.pdf#page=10">PDF</AEx>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as <q>draw a colored underline beneath a piece of math.</q></p>
           <p>By contrast, implementing this feature was trivial in HTML/CSS/Javascript. And we could extend the idea with interactions like drawing attention to corresponding objects on hover.</p>
         </Comment>
       </Commentary>
@@ -296,12 +298,12 @@ export let Paper: React.FC = _ => {
       <ul>
         <li><em>Notebooks:</em> mixed text/code media like <AEx href="https://jupyter.org/">Jupyter</AEx>, <AEx href="https://observablehq.com/">Observable</AEx>, and <AEx href="https://rmarkdown.rstudio.com/">R Markdown</AEx> have grown in popularity especially in the non-computer sciences. The goal of a notebook is to put the explanation of an object as close as possible to the code that generated it. In fields like psychology, this usually means analyzing datasets and generating graphs. Perhaps the future for PL is literate Agda/Lean/Coq programs.</li>
         <li><em>Enhanced PDFs:</em> creating a new browser-based medium will inevitably require reinventing a number of wheels that already exist for LaTeX/PDFs: IDEs (like <AEx href="https://www.overleaf.com/">Overleaf</AEx>), documentation, accessibility features, and so on. A far simpler approach would be to make LaTeX and PDFs as powerful as possible, like <Cite v="head2021augmenting" f /> recently explored.</li>
-        <li><em>Beyond papers:</em> the academic paper is a concept extending back hundreds of years. It persists with the momentum of history, millions of adherents, and the myriad incentives of academia. Perhaps systems like Nota merely prolong the lifespan of this outdated practice, and academic contributions should be reimagined outside the frame of "a new kind of paper."</li>
+        <li><em>Beyond papers:</em> the academic paper is a concept extending back hundreds of years. It persists with the momentum of history, millions of adherents, and the myriad incentive structures of academia. Perhaps systems like Nota merely prolong the lifespan of this outdated practice, and academic contributions should be reimagined outside the frame of <q>a new kind of paper.</q></li>
       </ul>
 
-      <p>Nota itself also has drawbacks for academic communication. The web ecosystem changes rapidly, meaning what works today may not work tomorrow. While some <AEx href="https://www.spacejam.com/1996/">venerable websites</AEx> survive the test of time, would a Nota paper still work properly in 100 or 1,000 years? Such longevity is arguably much more likely for a PDF than a website. Moreover, important infrastructure for Nota like KaTeX would need feature-parity with existing TeX engines like pdfTeX to match the wide range of symbols needed for PL notation.</p>
+      <p>Nota itself also has drawbacks for academic communication. The web ecosystem changes rapidly, meaning what works today may not work tomorrow. While some <AEx href="https://www.spacejam.com/1996/">venerable websites</AEx> survive the test of time, would a Nota paper still work properly in 100 or 1,000 years? Such longevity is arguably much more likely for a PDF than a website. Moreover, important infrastructure for Nota like KaTeX would need feature-parity with existing TeX engines like pdfTeX to match the wide range of notation needed for PL research.</p>
 
-      <p>Regardless, we hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. New mediums like Nota can provide cognitive support for understanding such ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could design a medium so great that everyone else adopts it... 30 years later.</p>
+      <p>Regardless, we hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.</p>
     </Section>
   </Document>
 };

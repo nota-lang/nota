@@ -184,7 +184,7 @@ export let FullWidthContainer: React.FC<{ inner_width: number } & HTMLAttributes
     <div
       ref={ref}
       className={`full-width-container ${className}`}
-      style={{ width: window.innerWidth, left, ...style }}
+      style={{ width: document.documentElement.clientWidth, left, ...style }}
       {...props}
     />
   );

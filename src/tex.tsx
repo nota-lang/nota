@@ -106,8 +106,6 @@ export class TexContext {
       );
     }
 
-    // console.log(html);
-
     let defns = new H2R.ProcessNodeDefinitions(React);
     let instrs = [
       {

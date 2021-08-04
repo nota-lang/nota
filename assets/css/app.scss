@@ -555,3 +555,8 @@ ol.parenkey {
     text-indent: 0;
   }
 }
+
+// https://css-tricks.com/almanac/properties/q/quotes/
+q {
+  quotes: "“" "”" "‘" "’";
+}

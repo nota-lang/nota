@@ -135,7 +135,7 @@ export let Paper: React.FC = props => {
         while debugging. Since then, hundreds of papers have been published on implementing
         automated program slice, as surveyed by{" "}
         <Cite f v={["xu2005brief", "silva2012vocabulary"]} />. Despite these efforts, a review of
-        slicers found "slicing-based debugging techniques are rarely used in practice"{" "}
+        slicers found <q>slicing-based debugging techniques are rarely used in practice</q>{" "}
         <Cite v="parnin2011automated" />
         <Footnote>
           The only open-source, functioning slicers the authors could find are Frama-C{" "}
@@ -403,13 +403,13 @@ println!("{}", @*z@);`}
         </Wrap>
 
         <p>
-          Rust has two distinct types of pointers, which are called "references" to distinguish them
-          from "raw pointers" with C-like behavior (discussed in <Ref name="sec:intmut" />
+          Rust has two distinct types of pointers, which are called <q>references</q> to distinguish them
+          from <q>raw pointers</q> with C-like behavior (discussed in <Ref name="sec:intmut" />
           ). For a given type <C>T</C>, there are immutable references of type <C>&T</C>, and
           mutable references of type <C>&mut T</C> which correspond respectively to the expressions{" "}
           <C>&x</C> and <C>&mut x</C>. Because <C>y</C> points to <C>x</C>, then the mutation
           through <C>y</C> is relevant to the read of <C>*z</C>. We refer to the left-hand side of
-          assignment statements like <C>*y</C> as "place expressions", since they could include
+          assignment statements like <C>*y</C> as <q>place expressions</q>, since they could include
           dereferences.
         </p>
 

@@ -23,6 +23,7 @@
     "@codemirror/view": "^0.18.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "katex": "0.13.11",
     "nota": "file:../.."
   },
   "peerDependencies": {
@@ -33,6 +34,7 @@
     "@codemirror/view": "^0.18.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "nota": "0.1.0"
+    "nota": "0.1.0",
+    "katex": "0.13.11"
   }
 }
