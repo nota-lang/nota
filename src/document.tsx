@@ -7,7 +7,14 @@ import { observer } from "mobx-react";
 
 import { ReactTexContext, TexContext } from "./tex";
 import { ReactBibliographyContext, ReferencesSection, BibliographyContext } from "./bibliography";
-import { DefinitionContext, AllDefinitionData, Definition, Ref } from "./definitions";
+import {
+  DefinitionContext,
+  AllDefinitionData,
+  Definition,
+  Ref,
+  TooltipContext,
+  TooltipData,
+} from "./definitions";
 import { ListingContext, ListingData } from "./code";
 import { register_scroll_hook } from "./scroll";
 import { HTMLAttributes } from "./utils";
@@ -203,8 +210,8 @@ export let ToplevelElem: React.FC = ({ children }) => {
   return ReactDOM.createPortal(children, ctx.toplevel_portal!);
 };
 
-export let Center: React.FC = ({children}) => {
-  return <div style={{margin: '0 auto', width: 'max-content'}}>{children}</div>;
+export let Center: React.FC = ({ children }) => {
+  return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
 };
 
 export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
@@ -347,7 +354,10 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous, o
   }, []);
 
   let [def_ctx] = useState(new AllDefinitionData());
-  def_ctx.add_mode_listeners();
+  def_ctx.add_listeners();
+
+  let [tooltip_ctx] = useState(new TooltipData());
+  tooltip_ctx.add_listeners();
 
   let [toplevel_portal, set_toplevel_portal] = useState(null);
   let on_portal_mount = useCallback(node => {
@@ -356,16 +366,18 @@ export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous, o
 
   return !loaded ? null : (
     <DefinitionContext.Provider value={def_ctx}>
-      <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
-        <ReactTexContext.Provider value={new TexContext()}>
-          <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || "")}>
-            <ListingContext.Provider value={new ListingData()}>
-              {toplevel_portal != null ? <DocumentInner>{children}</DocumentInner> : null}
-              <div ref={on_portal_mount} />
-            </ListingContext.Provider>
-          </ReactBibliographyContext.Provider>
-        </ReactTexContext.Provider>
-      </DocumentContext.Provider>
+      <TooltipContext.Provider value={tooltip_ctx}>
+        <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
+          <ReactTexContext.Provider value={new TexContext()}>
+            <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || "")}>
+              <ListingContext.Provider value={new ListingData()}>
+                {toplevel_portal != null ? <DocumentInner>{children}</DocumentInner> : null}
+                <div ref={on_portal_mount} />
+              </ListingContext.Provider>
+            </ReactBibliographyContext.Provider>
+          </ReactTexContext.Provider>
+        </DocumentContext.Provider>
+      </TooltipContext.Provider>
     </DefinitionContext.Provider>
   );
 };

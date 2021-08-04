@@ -37,7 +37,7 @@ export class AllDefinitionData {
     }
   });
 
-  add_mode_listeners() {
+  add_listeners() {
     let on_keydown = action(({ key }: KeyboardEvent) => {
       if (key === "Alt") {
         this.def_mode = true;
@@ -49,7 +49,7 @@ export class AllDefinitionData {
         this.def_mode = false;
       }
     });
-
+  
     useEffect(() => {
       window.addEventListener("keydown", on_keydown);
       window.addEventListener("keyup", on_keyup);
@@ -109,62 +109,73 @@ interface TooltipProps {
 
 // TODO
 // * Immediately:
-//   - wrap this logic into a context
 //   - document weird state machine bits about flushing / being in an event
 // * Long term:
 //   - better architecture for this??
-let elts: any = {};
-let queue: string[] = [];
-let flushed = false;
-let in_event = false;
-let queue_update = (id: string) => {
-  // console.log("queueing", id);
-  queue.push(id);
-};
 
-let check_queue = () => {
-  if (!_.every(queue, id => id in elts)) {
-    return;
-  }
-
-  let last_el: Element | null = null;
-  queue.forEach(id => {
-    let { popperElement, referenceElement, instance, set_show } = elts[id];
-    let ref_el = last_el === null ? referenceElement : last_el;
-    instance.state.elements.reference = ref_el;
-    instance.forceUpdate();
-    set_show(true);
-    last_el = popperElement;
-  });
-
-  Object.keys(elts).forEach(id => {
-    if (queue.indexOf(id) == -1) {
-      elts[id].set_show(false);
-    }
-  });
-
-  queue = [];
-  if (in_event) {
-    flushed = true;
-  }
-};
-
-window.addEventListener(
-  "click",
-  () => {
-    in_event = true;
-  },
-  true
-);
-
-window.addEventListener("click", () => {
-  if (!flushed) {
-    check_queue();
-  }
-
+export class TooltipData {
+  elts: any = {};
+  queue: string[] = [];
   flushed = false;
   in_event = false;
-});
+
+  queue_update = (id: string) => {
+    this.queue.push(id);
+  };
+  
+  check_queue = () => {
+    if (!_.every(this.queue, id => id in this.elts)) {
+      return;
+    }
+  
+    let last_el: Element | null = null;
+    this.queue.forEach(id => {
+      let { popperElement, referenceElement, instance, set_show } = this.elts[id];
+      let ref_el = last_el === null ? referenceElement : last_el;
+      instance.state.elements.reference = ref_el;
+      instance.forceUpdate();
+      set_show(true);
+      last_el = popperElement;
+    });
+  
+    Object.keys(this.elts).forEach(id => {
+      if (this.queue.indexOf(id) == -1) {
+        this.elts[id].set_show(false);
+      }
+    });
+  
+    this.queue = [];
+    if (this.in_event) {
+      this.flushed = true;
+    }
+  };
+
+  on_click = () => {
+    if (!this.flushed) {
+      this.check_queue();
+    }
+  
+    this.flushed = false;
+    this.in_event = false;
+  };
+
+  on_click_capture = () => {
+    this.in_event = true;
+  }
+
+  add_listeners = () => {  
+    useEffect(() => {
+      window.addEventListener("click", this.on_click);
+      window.addEventListener("click", this.on_click_capture, true);
+      return () => {
+        window.removeEventListener("click", this.on_click);
+        window.removeEventListener("click", this.on_click_capture, true);
+      };
+    }, []);
+  }
+}
+
+export let TooltipContext = React.createContext<TooltipData>(new TooltipData());
 
 let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
@@ -172,6 +183,7 @@ let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
   const [instance, set_instance] = useState<Instance | null>(null);
 
+  let ctx = useContext(TooltipContext);
   let [id] = useState(_.uniqueId());
   let [stage, set_stage] = useState("start");
   let [show, set_show] = useState(false);
@@ -180,7 +192,7 @@ let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
     if (stage == "start") {
       set_stage("mount");
     }
-    queue_update(id);
+    ctx.queue_update(id);
   };
 
   useEffect(() => {
@@ -197,13 +209,13 @@ let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
         ],
       });
       set_instance(instance);
-      elts[id] = {
+      ctx.elts[id] = {
         popperElement,
         referenceElement,
         instance,
         set_show,
       };
-      check_queue();
+      ctx.check_queue();
     }
   }, [stage, referenceElement, popperElement]);
 
