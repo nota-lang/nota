@@ -581,3 +581,4 @@ assert!(*value.lock().unwrap() == 1);`})),i.createElement("p",null,"In this snip
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  */
+//# sourceMappingURL=paper.js.map
