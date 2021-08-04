@@ -1,6 +1,6 @@
 import React, {useRef, useState, useCallback} from 'react';
 import {$, $$} from 'nota';
-import {zipExn, useSynchronizer} from 'nota/dist/utils';
+import {zipExn, useStateOnInterval} from 'nota/dist/utils';
 import {Togglebox, ToggleButton} from "nota/dist/togglebox";
 import {IRToggle, Premise, PremiseRow} from "nota/dist/math";
 import _, { countBy } from 'lodash';
@@ -22,10 +22,6 @@ let get_relative_midpoint = (container: HTMLElement, el: HTMLElement, top: boole
 
 export let SyntaxDiagram = () => {
   let container_ref = useRef<HTMLDivElement>(null);
-  let [overlay, set_overlay] = useState<JSX.Element | null>(null);
-  
-  // TODO: setTimeout layout hack
-  let add_sync_point = useSynchronizer(useCallback(() => setTimeout(on_all_load, 3000), []));
 
   let label_texts = [
     r`Variable $\vr$`, r`Sized Type $\tys$`, r`Expression $\expr$`, r`Place $\plc$`, 
@@ -36,12 +32,12 @@ export let SyntaxDiagram = () => {
     let ref = useRef(null);
     let pos = i < 4 ? "top" : "bottom"; 
     let label = <span ref={ref} key={i} className="diagram-label">
-      <$ onLoad={add_sync_point()}>{r`\text{${text}}`}</$>
+      <$>{r`\text{${text}}`}</$>
     </span>;
     return {label, ref, pos};
   });
 
-  let on_all_load = () => {
+  let overlay = useStateOnInterval(null, 1000, () => {
     let container = container_ref.current!;
     let elems = container.querySelectorAll<HTMLSpanElement>('[data-index]');
     let elems_arr = _.sortBy(Array.from(elems), elem => {
@@ -57,15 +53,15 @@ export let SyntaxDiagram = () => {
       return <path key={i} d={path} style={{stroke: '#ccc', strokeWidth: '1.25px', /*markerEnd: 'url(#arrow)'*/}} />
     });
 
-    set_overlay(<svg width="700" height="300" style={{position: 'absolute', left: 0, top: 0}}>
+    return <svg width="700" height="300" style={{position: 'absolute', left: 0, top: 0}}>
       <defs>
         <marker id="arrow" markerWidth="13" markerHeight="13" orient="auto" refX="2" refY="6">
           <path d="M2,2 L2,11 L10,6 L2,2" style={{fill: "#ccc"}} />
         </marker>
       </defs>
       {arrows}
-    </svg>);
-  };
+    </svg>;
+  });
 
   return <div id="syntax-diagram" ref={container_ref} style={{textAlign: 'center', position: 'relative', marginBottom: '1rem'}}>
     <style>{`
@@ -88,7 +84,7 @@ export let SyntaxDiagram = () => {
       {labels.filter(({pos}) => pos == "top").map(({label}) => label)}
     </div>
 
-    <$$ onLoad={add_sync_point()} style={{height: '5rem', marginTop: '3rem'}}>{r`
+    <$$ style={{height: '5rem', marginTop: '3rem'}}>{r`
     \newcommand{\lbl}[2]{\htmlClass{diagram-hl}{\htmlData{index=#1}{#2}}}
     \begin{aligned}
     &\exprlet
@@ -114,6 +110,7 @@ let $T = tex => props => <$ {...props}>{r`\text{${tex}}`}</$>;
 
 export let AssignStaticRule = () => 
   <IRToggle
+    id="assign-static-rule"
     Top={({reg}) => <>
       <PremiseRow>
         <Premise>

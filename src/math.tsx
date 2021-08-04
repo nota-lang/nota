@@ -2,14 +2,16 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { DocumentContext, Smallcaps } from "./document";
 import { Definition } from "./definitions";
 import { ToggleButton } from "./togglebox";
+import { HTMLAttributes } from "./utils";
 
 export let Premise: React.FC = ({ children }) => <div className="premise">{children}</div>;
 export let PremiseRow: React.FC = ({ children }) => <div className="premise-row">{children}</div>;
 
-export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right: JSX.Element }> = ({
+export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right?: JSX.Element } & HTMLAttributes> = ({
   Top,
   Bot,
   Right,
+  ...props
 }) => {
   let [right_height, set_right_height] = useState(0);
   let right_ref = useRef<HTMLDivElement>(null);
@@ -21,7 +23,7 @@ export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right: JSX.Element
   }
 
   return (
-    <table className="inferrule">
+    <table className="inferrule" {...props}>
       <tbody>
         <tr>
           <td>{Top}</td>
@@ -54,7 +56,7 @@ interface IRToggleComponentProps {
 export let IRToggle: React.FC<{
   Top: React.FC<IRToggleComponentProps>;
   Bot: React.FC<IRToggleComponentProps>;
-}> = ({ Top, Bot }) => {
+} & HTMLAttributes> = ({ Top, Bot, ...props }) => {
   let [toggles] = useState<ToggleCallback[]>([]);
   let reg = (cb: ToggleCallback) => {
     toggles.push(cb);
@@ -71,6 +73,7 @@ export let IRToggle: React.FC<{
       Right={<ToggleButton big on={show_all} onClick={on_click} />}
       Top={<Top reg={reg} />}
       Bot={<Bot reg={reg} />}
+      {...props}
     />
   );
 };

@@ -106,6 +106,8 @@ export class TexContext {
       );
     }
 
+    // console.log(html);
+
     let defns = new H2R.ProcessNodeDefinitions(React);
     let instrs = [
       {
@@ -151,24 +153,13 @@ export let ReactTexContext = React.createContext<TexContext>(new TexContext());
 export interface TexProps {
   raw?: boolean;
   block?: boolean;
-  onLoad?: () => void;
 }
 
 // memo is important to avoid re-renders that include macro definitions
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
-  ({ children, raw, onLoad, block, ...props }) => {
+  ({ children, raw, block, ...props }) => {
     let ctx = useContext(ReactTexContext);
-    let ref;
-    if (onLoad) {
-      ref = useMutationObserver(
-        _ => {
-          onLoad();
-        },
-        { childList: true, subtree: true }
-      );
-    }
-
-    return ctx.render(children as string, block, raw, props, ref);
+    return ctx.render(children as string, block, raw, props);
   },
   (prev, next) => prev.children == next.children
 );

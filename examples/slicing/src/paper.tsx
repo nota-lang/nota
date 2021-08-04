@@ -24,7 +24,8 @@ import {
   Subfigure,
   Caption,
   Definition,
-  Smallcaps
+  Smallcaps,
+  Center
 } from "nota";
 import {newcommand} from "nota/dist/tex";
 import {Expandable} from "nota/dist/document";
@@ -678,9 +679,9 @@ println!("{}", @w@);`}
           returns a mutable reference to the value 5. This function has the type signature:
         </p>
 
-        <center style={{ margin: "1rem 0" }}>
+        <Center style={{ margin: "1rem 0" }}>
           <C>{`Vec::get_mut   :   forall 'a, T . (&'a mut Vec<T>, usize) -> &'a mut T`}</C>
-        </center>
+        </Center>
 
         <p>
           Because this type signature is parametric in the lifetime <C>'a</C>, it can express the
@@ -826,9 +827,9 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <p>Typechecking relies on a number of auxiliary judgments, such as subtyping (<Definition name="tex:subtype" Tooltip={() => <><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$> means <$>\tau_1</$> is a subtype of <$>\tau_2</$></>}><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$></Definition>) and ownership-safety (<Definition name="tex:ownsafe"><$>{r`\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}`}</$>, read as "<$>{r`\pexp`}</$> has <$>{r`\ownq\text{-loans}`}</$> <$>{r`\loanset`}</$> in the contexts <$>{r`\Delta, \Gamma`}</$>"</Definition>). As an example, consider <Smallcaps>T-Assign</Smallcaps> <Cite v="weiss2019oxide" y ex="p. 11" /> for the assignment expression <$>{r`\exprplcasgn{\plc}{\expr}`}</$>:</p>
 
-        <center>
+        <Center>
           <AssignStaticRule />    
-        </center>
+        </Center>
 
         <p id="static-rule" className="noindent" style={{color: "#444"}}>[Note: Each section of the rule has a natural language explanation, shown by default. Click on the <span style={{marginLeft: '-0.5rem'}}><ToggleButton big on={false} onClick={()=>{}} /></span> button to see corresponding mathematical formula. You can also click on the right-most button to toggle all sections at once.]</p>
 
@@ -848,9 +849,9 @@ assert!(*value.lock().unwrap() == 1);`}
           This <Smallcaps>E-Assign</Smallcaps> rule is not the exact same rule that appears in <Cite f v="weiss2019oxide" ex="p. 16" /> , as the published version is incorrect. In correspondence with the authors, we determined that the rule presented here has the intended semantics. Additionally, we do not use the referent <$>{r`\mathcal{R}`}</$> construct of Oxide since we do not consider arrays in this paper, so we use <$>{r`\plc`}</$> anywhere <$>{r`\mathcal{R}`}</$> would otherwise appear.
         </Footnote></p>
 
-        <center>
+        <Center>
           <AssignDynamicRule />    
-        </center>
+        </Center>
 
         <p>This rule introduces several new shorthands and administrative forms:</p>
         <ul>

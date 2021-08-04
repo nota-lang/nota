@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const pkg = require("./package.json");
 const { program } = require("commander");
+const fse = require("fs-extra");
 
 program.option("-w, --watch");
 program.option("-p, --prod");
@@ -42,5 +43,7 @@ esbuild
     plugins: [avoid_peerdep_conflicts_plugin],
   })
   .then(() => {
-    fs.copyFileSync("src/index.html", "dist/index.html");
+    fse.copy("src/index.html", "dist/index.html");
+    fse.copy("slicing_paper.pdf", "dist/slicing_paper.pdf");
+    fse.copy("node_modules/slicing/dist", "dist/slicing");
   });

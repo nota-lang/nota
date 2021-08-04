@@ -203,6 +203,10 @@ export let ToplevelElem: React.FC = ({ children }) => {
   return ReactDOM.createPortal(children, ctx.toplevel_portal!);
 };
 
+export let Center: React.FC = ({children}) => {
+  return <div style={{margin: '0 auto', width: 'max-content'}}>{children}</div>;
+};
+
 export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
   let ref = useRef(null);
   let [show, set_show] = useState(false);

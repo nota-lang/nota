@@ -7,21 +7,23 @@
     "tc": "tsc -noEmit"
   },
   "dependencies": {
-
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
     "axios": "^0.21.1",
+    "codemirror": "^5.62.2",
     "nota": "file:../..",
+    "react-codemirror": "^1.0.0",
     "slicing": "file:../slicing"
   },
   "devDependencies": {
-    "commander": "^8.0.0",
-    "esbuild": "^0.12.15",
     "@codemirror/gutter": "^0.18.0",
     "@codemirror/highlight": "^0.18.0",
     "@codemirror/language": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
+    "commander": "^8.0.0",
+    "esbuild": "^0.12.15",
+    "fs-extra": "^10.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },

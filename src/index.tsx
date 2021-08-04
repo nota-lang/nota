@@ -15,5 +15,6 @@ export {
   Subfigure,
   Caption,
   Smallcaps,
+  Center
 } from "./document";
 export { Definition, Ref } from "./definitions";
