@@ -25,7 +25,7 @@ const avoid_peerdep_conflicts_plugin = {
 };
 
 let esbuild_opts = {
-  sourcemap: !options.prod,
+  sourcemap: true,
   minify: options.prod,
   watch: options.watch,
   bundle: true,

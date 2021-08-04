@@ -15,7 +15,7 @@ export interface DefinitionData {
 }
 
 export class AllDefinitionData {
-  @observable defs: { [name: string]: DefinitionData } = {};
+  @observable.shallow defs: { [name: string]: DefinitionData } = {};
   @observable def_mode: boolean = false;
   @observable used_definitions: Set<string> = new Set();
 

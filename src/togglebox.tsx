@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback, forwardRef, CSSPropert
 import { useSynchronizer, useStateOnInterval } from "./utils";
 import classNames from "classnames";
 
-
 interface ToggleboxProps {
   Inside: React.FC;
   Outside: React.FC;
@@ -27,8 +26,8 @@ export let Togglebox: React.FC<ToggleboxProps> = ({ Inside, Outside, resize, reg
 
   if (registerToggle) {
     useEffect(() => {
-      registerToggle((show: boolean) => set_show_inside(show));
-    }, []);
+      registerToggle(set_show_inside);
+    }, [registerToggle]);
   }
 
   let style = useStateOnInterval({}, 1000, () => {

@@ -109,7 +109,6 @@ export class TexContext {
     let defns = new H2R.ProcessNodeDefinitions(React);
     let instrs = [
       {
-        replaceChildren: true,
         shouldProcessNode: (node: any) => node.attribs && "data-cmd" in node.attribs,
         processNode: (node: any, children: any, index: any) => {
           let def = node.attribs["data-cmd"];
@@ -122,7 +121,6 @@ export class TexContext {
         },
       },
       {
-        replaceChildren: true,
         shouldProcessNode: (node: any) => node.attribs && "data-def" in node.attribs,
         processNode: (node: any, children: any, index: any) => {
           let def = node.attribs["data-def"];

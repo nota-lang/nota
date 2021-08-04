@@ -27,7 +27,7 @@ esbuild
   .build({
     entryPoints: ["src/index.tsx"],
     bundle: true,
-    sourcemap: !options.prod,
+    sourcemap: true,
     minify: options.prod,
     watch: options.watch,
     preserveSymlinks: true,

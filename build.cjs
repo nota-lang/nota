@@ -10,7 +10,7 @@ program.parse(process.argv);
 const options = program.opts();
 
 let esbuild_opts = {
-  sourcemap: !options.prod,
+  sourcemap: true,
   minify: options.prod,
   watch: options.watch,
   outdir: "dist",
