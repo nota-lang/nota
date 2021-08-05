@@ -66,7 +66,7 @@ export let Paper: React.FC = _ => {
       </Author>
     </Authors>
     <Abstract>
-      Papers about programming languages involve complex notations, systems, and proofs. Static PDFs offer little support in understanding such concepts. We describe Nota, a framework for academic papers that uses the browser's interactive capabilities to support understanding in context. Nota uses hover effects, tooltips, expandable sections, toggle-able explanations, and other interactions to help readers understand a language's syntax and semantics. We demonstrate the use of Nota by rewriting a PL paper using its primitives, and also by writing this paper in Nota.
+      Papers about programming languages involve complex notations, systems, and proofs. Static PDFs offer little support in understanding such concepts. We describe Nota, a framework for academic papers that uses the browser's interactive capabilities to support comprehension in context. Nota uses hover effects, tooltips, expandable sections, toggle-able explanations, and other interactions to help readers understand a language's syntax and semantics. We demonstrate the use of Nota by rewriting a PL paper using its primitives, and also by writing this paper in Nota.
     </Abstract>
     
     <$$>{r`

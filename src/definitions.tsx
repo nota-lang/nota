@@ -5,7 +5,7 @@ import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
 
 import { Container } from "./utils";
-import { scroll_to } from "./scroll";
+import { ScrollPlugin } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 
@@ -107,6 +107,7 @@ interface RefProps {
 
 export let Ref: React.FC<RefProps> = observer(props => {
   let ctx = usePlugin(DefinitionsPlugin);
+  let scroll_plugin = usePlugin(ScrollPlugin);
   useEffect(() => {
     ctx.register_use(props.name);
   }, []);
@@ -120,7 +121,7 @@ export let Ref: React.FC<RefProps> = observer(props => {
     e.preventDefault();
     e.stopPropagation();
 
-    scroll_to(name_to_id(props.name));
+    scroll_plugin.scroll_to(name_to_id(props.name));
   };
 
   let inner: JSX.Element = props.children ? (

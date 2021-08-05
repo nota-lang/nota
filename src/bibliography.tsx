@@ -57,6 +57,7 @@ class BibliographyEntry {
 
   bib_cite() {
     let names = this.authors?.map(author => [...author.slice(1), author[0]].join(" "));
+    let location = this.tags.journal || this.tags.booktitle;
     return (
       <div className="bib-reference">
         {names
@@ -66,7 +67,12 @@ class BibliographyEntry {
           : null}
         {this.year ? this.year + ". " : null}
         {this.title ? this.title + ". " : null}
-        <i>{this.tags.journal || this.tags.booktitle}.</i>
+        {location ? <i>
+          {location}
+          {this.tags.number ? ` (${this.tags.number})` : null}
+          {". "}
+        </i> : null}
+        {this.tags.note}
       </div>
     );
   }
