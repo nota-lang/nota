@@ -10,7 +10,7 @@ import { BibliographyPlugin } from "./bibliography";
 import { DefinitionsPlugin, Definition, Ref } from "./definitions";
 import { TooltipPlugin } from "./tooltip";
 import { ListingPlugin } from "./code";
-import { register_scroll_hook } from "./scroll";
+import { ScrollPlugin } from "./scroll";
 import { HTMLAttributes } from "./utils";
 import { Plugin, usePlugin } from "./plugin";
 
@@ -210,6 +210,7 @@ export let Center: React.FC = ({ children }) => {
 };
 
 export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
+  let scroll_plugin = usePlugin(ScrollPlugin);
   let ref = useRef(null);
   let [show, set_show] = useState(false);
   let [height, set_height] = useState(0);
@@ -222,7 +223,7 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
     });
     observer.observe(ref.current!);
 
-    register_scroll_hook(id, () => {
+    scroll_plugin.register_scroll_hook(id, () => {
       set_show(true);
     });
   }, []);
@@ -333,13 +334,13 @@ const PLUGINS = (): Plugin<any>[] => [
   BibliographyPlugin,
   TooltipPlugin,
   ListingPlugin,
+  ScrollPlugin,
 ];
 
 export let Document: React.FC<DocumentProps> = ({ children, anonymous, onLoad }) => {
   let [fonts_promise] = useState(wait_for_fonts());
   let [loaded, set_loaded] = useState(fonts_promise === null);
 
-  
   useEffect(() => {
     if (fonts_promise !== null) {
       fonts_promise.then(() => {
