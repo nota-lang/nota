@@ -26,12 +26,16 @@ import {
   Caption,
   Definition,
   Smallcaps,
-  Center
-} from "nota";
-import {Commentary, Comment} from "nota/dist/commentary";
-import {IR, Premise, PremiseRow} from "nota/dist/math";
-import {Togglebox} from "nota/dist/togglebox";
+  Center,
+  Commentary,
+  Comment,  
+  IR, 
+  Premise, 
+  PremiseRow,
+  Togglebox,
+  References
 
+} from "nota";
 import {Paper as SlicerPaper} from "slicing";
 
 import {TsxViewer} from "./tsx_viewer";
@@ -39,7 +43,8 @@ import {TsxViewer} from "./tsx_viewer";
 // @ts-ignore
 import bibtex from "./bib.bib";
 
-import "../node_modules/nota/dist/assets.css";
+import "katex/dist/katex.min.css";
+import "nota/dist/index.css";
 
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
@@ -50,7 +55,7 @@ let CenterSep = ({children}) => <div style={{margin: '1rem 0'}}><Center>{childre
 let AEx = ({children, ...props}) => <a target="_blank" {...props}>{children}</a>
 
 export let Paper: React.FC = _ => {  
-  return <Document anonymous bibtex={bibtex}>
+  return <Document anonymous>
     <Title>A New Medium for Communicating Research on Programming Languages</Title>
     <Authors>
       <Author>
@@ -305,6 +310,7 @@ export let Paper: React.FC = _ => {
 
       <p>Regardless, we hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.</p>
     </Section>
+    <References bibtex={bibtex} />
   </Document>
 };
 

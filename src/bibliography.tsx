@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
+import React, { useEffect } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
 import _ from "lodash";
-import {observer} from "mobx-react";
+import { observer } from "mobx-react";
 
-import { Section, SectionTitle } from "./document";
-import { Definition, Ref, DefinitionContext } from "./definitions";
+import { SectionTitle } from "./document";
+import { Definition, Ref, DefinitionsPlugin } from "./definitions";
+import { Plugin, Pluggable, usePlugin } from "./plugin";
+import { action, makeObservable, observable } from "mobx";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -89,19 +91,30 @@ function intersperse<T>(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
   );
 }
 
-export class BibliographyContext {
-  citations: { [key: string]: BibliographyEntry };
+class BibliographyData extends Pluggable {
+  @observable citations: { [key: string]: BibliographyEntry } = {};
+  stateful = true;
 
-  constructor(bibtex: string) {
-    let entries = bibtexParse.toJSON(bibtex);
-    this.citations = _.chain(entries)
-      .map(entry => [entry.citationKey, new BibliographyEntry(entry)])
-      .fromPairs()
-      .value();
+  constructor() {
+    super();
+    makeObservable(this);
   }
+
+  import_bibtex = action((bibtex: string) => {
+    let entries = bibtexParse.toJSON(bibtex);
+    entries.forEach((entry: any) => {
+      this.citations[entry.citationKey] = new BibliographyEntry(entry);
+    });
+  });
 
   cite(keys: string[], full: boolean, yearonly: boolean, ex?: string) {
     let suffix = ex ? `, ${ex}` : "";
+
+    for (let key of keys) {
+      if (!this.citations[key]) {
+        return <span className="error">{key}</span>;
+      }
+    }
 
     return full ? (
       intersperse(
@@ -119,7 +132,12 @@ export class BibliographyContext {
           keys.map(key => {
             let entry = this.citations[key];
             if (yearonly) {
-              return <Ref key={key} name={key}>{entry.year}{suffix}</Ref>;
+              return (
+                <Ref key={key} name={key}>
+                  {entry.year}
+                  {suffix}
+                </Ref>
+              );
             } else {
               let author = entry.display_author();
               return <Ref key={key} name={key}>{`${author} ${entry.year}${suffix}`}</Ref>;
@@ -135,33 +153,33 @@ export class BibliographyContext {
   }
 }
 
-export let ReactBibliographyContext = React.createContext<BibliographyContext | null>(null);
+export let BibliographyPlugin = new Plugin(BibliographyData);
 
-export let ReferencesSection: React.FC = observer(_ => {
-  let ctx = useContext(ReactBibliographyContext)!;
-  let def_ctx = useContext(DefinitionContext);
+export let References: React.FC<{ bibtex: string }> = observer(({ bibtex }) => {
+  let ctx = usePlugin(BibliographyPlugin);
+  let def_ctx = usePlugin(DefinitionsPlugin);
+
+  useEffect(() => {
+    ctx.import_bibtex(bibtex);
+  }, []);
+
+  let keys = Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key));
+
   return (
     <section>
       <SectionTitle>References</SectionTitle>
-      <References keys={Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key))} />
+      <div className="bib-references">
+        {keys
+          .filter(key => key in ctx.citations)
+          .map(key => (
+            <Definition key={key} name={key} block>
+              {ctx.citations[key].bib_cite()}
+            </Definition>
+          ))}
+      </div>
     </section>
   );
 });
-
-export let References: React.FC<{ keys: string[] }> = ({ keys }) => {
-  let ctx = useContext(ReactBibliographyContext)!;
-  return (
-    <div className="bib-references">
-      {keys
-        .filter(key => key in ctx.citations)
-        .map(key => (
-          <Definition key={key} name={key} block>
-            {ctx.citations[key].bib_cite()}
-          </Definition>
-        ))}
-    </div>
-  );
-};
 
 export interface CiteProps {
   v: string | string[];
@@ -170,8 +188,8 @@ export interface CiteProps {
   ex?: string;
 }
 
-export let Cite: React.FC<CiteProps> = ({ v, f, y, ex }) => {
-  let ctx = useContext(ReactBibliographyContext)!;
+export let Cite: React.FC<CiteProps> = observer(({ v, f, y, ex }) => {
+  let ctx = usePlugin(BibliographyPlugin);
   let keys = typeof v === "string" ? [v] : v;
   return <>{ctx.cite(keys, f || false, y || false, ex)}</>;
-};
+});

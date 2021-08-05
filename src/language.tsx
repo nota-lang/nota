@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
+import _ from "lodash";
 
 import { zipExn } from "./utils";
-import { DefinitionContext, DefinitionData } from "./definitions";
-import { $, $$, newcommand, ReactTexContext, Dimensions } from "./tex";
-import _ from "lodash";
+import { DefinitionsPlugin, DefinitionData } from "./definitions";
+import { $, $$, newcommand, TexPlugin, Dimensions } from "./tex";
+import { usePlugin } from "./plugin";
 
 const r = String.raw;
 
@@ -62,8 +63,8 @@ export class Language {
   };
 
   BnfInner: React.FC<BnfProps & { container_ref: HTMLDivElement }> = props => {
-    let def_ctx = useContext(DefinitionContext);
-    let tex_ctx = useContext(ReactTexContext);
+    let def_ctx = usePlugin(DefinitionsPlugin);
+    let tex_ctx = usePlugin(TexPlugin);
 
     let branch_to_tex =
       (cmd: string) =>
@@ -135,15 +136,16 @@ export class Language {
           let str = rows
             // if we're highlighting a specific branch, then remove other rows
             .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
-            .map(row =>
-              row.map(branch => {
-                let tex = branch_to_tex(cmd)(branch);
-                if (hl && branch.subcmd == hl) {
-                  tex = r`\htmlClass{tex-highlight}{${tex}}`;
-                }
-                return tex;
-              }).join(r`
-  \mid `) + (hl && rows.length > 1 ? r`\mid \ldots` : '')
+            .map(
+              row =>
+                row.map(branch => {
+                  let tex = branch_to_tex(cmd)(branch);
+                  if (hl && branch.subcmd == hl) {
+                    tex = r`\htmlClass{tex-highlight}{${tex}}`;
+                  }
+                  return tex;
+                }).join(r`
+  \mid `) + (hl && rows.length > 1 ? r`\mid \ldots` : "")
             )
             .join(r`\\& & & && &&\mid`);
           return `::= ~ &&${str}`;

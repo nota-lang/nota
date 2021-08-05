@@ -61,7 +61,7 @@ export let useStateOnInterval = <T,>(init: T, interval: number, callback: () => 
   useEffect(() => {
     let instance = setInterval(() => {
       let new_state = callback();
-      if (new_state != state) {
+      if (!_.isEqual(new_state, state)) {
         set_state(callback);
       }
     }, interval);

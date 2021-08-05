@@ -1,4 +1,4 @@
-import { Language } from "nota/dist/language";
+import { Language } from "nota";
 
 const r = String.raw;
 

@@ -1,23 +1,13 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
-import {
-  EditorView,
-  Decoration,
-  DecorationSet,
-  ViewPlugin,
-} from "@codemirror/view";
+import { EditorView, Decoration, DecorationSet, ViewPlugin } from "@codemirror/view";
 import { lineNumbers } from "@codemirror/gutter";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
-import {
-  EditorState,
-  StateField,
-  StateEffect,
-  Extension,
-} from "@codemirror/state";
+import { EditorState, StateField, StateEffect, Extension } from "@codemirror/state";
+import { Plugin, usePlugin, Pluggable } from "./plugin";
 import _ from "lodash";
 
-export const add_highlight =
-  StateEffect.define<{ from: number; to: number; color: string }>();
+export const add_highlight = StateEffect.define<{ from: number; to: number; color: string }>();
 
 export const clear_highlights = StateEffect.define();
 
@@ -37,12 +27,12 @@ const highlight_field = StateField.define<DecorationSet>({
           add: [mark.range(from, to)],
         });
       } else if (e.is(clear_highlights)) {
-        return highlights.update({ filter: (_) => false });
+        return highlights.update({ filter: _ => false });
       }
     }
     return highlights;
   },
-  provide: (f) => EditorView.decorations.from(f),
+  provide: f => EditorView.decorations.from(f),
 });
 
 let theme = EditorView.theme({
@@ -71,10 +61,7 @@ interface Linecol {
   col: number;
 }
 
-export let linecol_to_pos = (
-  editor: EditorView,
-  { line, col }: Linecol
-): number => {
+export let linecol_to_pos = (editor: EditorView, { line, col }: Linecol): number => {
   let line_obj = editor.state.doc.line(line);
   return line_obj.from + col;
 };
@@ -87,16 +74,14 @@ export let pos_to_linecol = (editor: EditorView, pos: number): Linecol => {
   };
 };
 
-export class ListingData {
-  language?: LanguageSupport;
-}
+export let ListingPlugin = new Plugin(
+  class extends Pluggable {
+    language?: LanguageSupport;
+  }
+);
 
-export let ListingContext = React.createContext<ListingData>(new ListingData());
-
-export let ListingConfigure: React.FC<{ language?: LanguageSupport }> = ({
-  language,
-}) => {
-  let ctx = useContext(ListingContext);
+export let ListingConfigure: React.FC<{ language?: LanguageSupport }> = ({ language }) => {
+  let ctx = usePlugin(ListingPlugin);
   ctx.language = language;
   return null;
 };
@@ -160,9 +145,9 @@ export interface ListingProps {
   extensions?: Extension[];
 }
 
-export let Listing: React.FC<ListingProps> = (props) => {
+export let Listing: React.FC<ListingProps> = props => {
   let [editor, set_editor] = useState<EditorView | null>(null);
-  let ctx = useContext(ListingContext);
+  let ctx = usePlugin(ListingPlugin);
   let ref = useRef(null);
 
   useEffect(() => {

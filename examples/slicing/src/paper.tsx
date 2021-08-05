@@ -25,13 +25,16 @@ import {
   Caption,
   Definition,
   Smallcaps,
-  Center
+  Center,
+  newcommand,
+  Theorem,
+  Togglebox,
+  Correspondence, 
+  Link,
+  Expandable,
+  ToggleButton,
+  References
 } from "nota";
-import {newcommand} from "nota/dist/tex";
-import {Expandable} from "nota/dist/document";
-import {ToggleButton} from "nota/dist/togglebox";
-import {Theorem} from "nota/dist/math";
-import {Correspondence, Link} from "nota/dist/correspondence";
 import { rust } from "@codemirror/lang-rust";
 
 import { SliceListing } from "./slicer";
@@ -60,7 +63,7 @@ export let Paper: React.FC = props => {
     </Definition>;
   };
 
-  return <Document anonymous bibtex={bibtex} {...props}>
+  return <Document anonymous {...props}>
     <ListingConfigure language={rust()} />
     <Title>Modular Program Slicing Through Ownership</Title>
     <Authors>
@@ -1016,5 +1019,6 @@ assert!(*value.lock().unwrap() == 1);`}
         <p>Therefore <Ref name="thm:proc_eqarg" /> states that if <$>{r`\plc_\arrg`}</$> is transitively equal under two otherwise arbitrary stacks, then <$>{r`\plc_\arrg`}</$> is still transitively equal after evaluating <$>{r`\fname(\plc_\arrg)`}</$> , and the output of <$>{r`\fname(\plc_\arrg)`}</$> is also equal.</p>
       </SubSection>
     </Section>
+    <References bibtex={bibtex} />
   </Document>
 };

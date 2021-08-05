@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { FullWidthContainer, Row } from "./document";
 import { useStateOnInterval } from "./utils";
 
@@ -69,7 +69,7 @@ export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commen
       >
         <Row>
           <div ref={document_ref} className="object" style={{ width: DOCUMENT_WIDTH }}>
-            <Document onLoad={() => set_document_ready(true)} />
+            <Document onLoad={useCallback(() => set_document_ready(true), [])} />
           </div>
           <div className="comments" style={{ width: comment_width }}>
             {document_ready ? children : null}

@@ -5,19 +5,14 @@ import CSS from "csstype";
 import classNames from "classnames";
 import { observer } from "mobx-react";
 
-import { ReactTexContext, TexContext } from "./tex";
-import { ReactBibliographyContext, ReferencesSection, BibliographyContext } from "./bibliography";
-import {
-  DefinitionContext,
-  AllDefinitionData,
-  Definition,
-  Ref,
-  TooltipContext,
-  TooltipData,
-} from "./definitions";
-import { ListingContext, ListingData } from "./code";
+import { TexPlugin } from "./tex";
+import { BibliographyPlugin } from "./bibliography";
+import { DefinitionsPlugin, Definition, Ref } from "./definitions";
+import { TooltipPlugin } from "./tooltip";
+import { ListingPlugin } from "./code";
 import { register_scroll_hook } from "./scroll";
 import { HTMLAttributes } from "./utils";
+import { Plugin, usePlugin } from "./plugin";
 
 export type NumberStyle = "1" | "a";
 
@@ -276,14 +271,8 @@ let Footnotes: React.FC = _ => {
   );
 };
 
-interface DocumentProps {
-  bibtex?: string;
-  anonymous?: boolean;
-  onLoad?: () => void;
-}
-
 export let DocumentInner: React.FC = observer(({ children }) => {
-  let def_ctx = useContext(DefinitionContext);
+  let def_ctx = usePlugin(DefinitionsPlugin);
   let [show, set_show] = useState(false);
 
   return (
@@ -293,7 +282,6 @@ export let DocumentInner: React.FC = observer(({ children }) => {
       })}
     >
       <div className="document">{children}</div>
-      <ReferencesSection />
       <Footnotes />
     </div>
   );
@@ -334,50 +322,60 @@ let wait_for_fonts = (): Promise<any> | null => {
   }
 };
 
-export let Document: React.FC<DocumentProps> = ({ children, bibtex, anonymous, onLoad }) => {
+interface DocumentProps {
+  anonymous?: boolean;
+  onLoad?: () => void;
+}
+
+const PLUGINS = (): Plugin<any>[] => [
+  DefinitionsPlugin,
+  TexPlugin,
+  BibliographyPlugin,
+  TooltipPlugin,
+  ListingPlugin,
+];
+
+export let Document: React.FC<DocumentProps> = ({ children, anonymous, onLoad }) => {
   let [fonts_promise] = useState(wait_for_fonts());
   let [loaded, set_loaded] = useState(fonts_promise === null);
 
+  
   useEffect(() => {
     if (fonts_promise !== null) {
       fonts_promise.then(() => {
         set_loaded(true);
-        if (onLoad) {
-          onLoad();
-        }
       });
-    } else {
-      if (onLoad) {
-        onLoad();
-      }
     }
   }, []);
-
-  let [def_ctx] = useState(new AllDefinitionData());
-  def_ctx.add_listeners();
-
-  let [tooltip_ctx] = useState(new TooltipData());
-  tooltip_ctx.add_listeners();
 
   let [toplevel_portal, set_toplevel_portal] = useState(null);
   let on_portal_mount = useCallback(node => {
     set_toplevel_portal(node);
   }, []);
 
-  return !loaded ? null : (
-    <DefinitionContext.Provider value={def_ctx}>
-      <TooltipContext.Provider value={tooltip_ctx}>
-        <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
-          <ReactTexContext.Provider value={new TexContext()}>
-            <ReactBibliographyContext.Provider value={new BibliographyContext(bibtex || "")}>
-              <ListingContext.Provider value={new ListingData()}>
-                {toplevel_portal != null ? <DocumentInner>{children}</DocumentInner> : null}
-                <div ref={on_portal_mount} />
-              </ListingContext.Provider>
-            </ReactBibliographyContext.Provider>
-          </ReactTexContext.Provider>
-        </DocumentContext.Provider>
-      </TooltipContext.Provider>
-    </DefinitionContext.Provider>
+  useEffect(() => {
+    if (loaded && toplevel_portal && onLoad) {
+      onLoad();
+    }
+  }, [loaded, toplevel_portal]);
+
+  let inner = null;
+  if (toplevel_portal && loaded) {
+    inner = PLUGINS().reduce(
+      (el, plugin) => <plugin.Provide>{el}</plugin.Provide>,
+      <DocumentInner>{children}</DocumentInner>
+    );
+    inner = (
+      <DocumentContext.Provider value={new DocumentData(anonymous || false, toplevel_portal)}>
+        {inner}
+      </DocumentContext.Provider>
+    );
+  }
+
+  return (
+    <>
+      {inner}
+      <div className="portal" ref={on_portal_mount} />
+    </>
   );
 };

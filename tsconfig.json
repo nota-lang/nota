@@ -17,5 +17,5 @@
         "experimentalDecorators": true
     },
 
-    "include": ["src/**/*"]
+    "include": ["src/index.tsx", "src/bindings/**/*.d.ts"]
 }

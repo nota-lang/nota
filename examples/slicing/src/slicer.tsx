@@ -5,7 +5,7 @@ import {
   clear_highlights,
   linecol_to_pos,
   pos_to_linecol,
-} from "nota/dist/code";
+} from "nota";
 import { EditorView } from "@codemirror/view";
 import axios from "axios";
 

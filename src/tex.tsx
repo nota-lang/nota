@@ -6,6 +6,7 @@ import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes, useMutationObserver } from "./utils";
+import {Plugin, Pluggable, usePlugin} from "./plugin";
 
 const r = String.raw;
 
@@ -27,10 +28,11 @@ export interface Dimensions {
   height: number;
 }
 
-export class TexContext {
+export let TexPlugin = new Plugin(class extends Pluggable {
   macros: any;
 
   constructor() {
+    super();
     this.macros = {};
   }
 
@@ -90,7 +92,7 @@ export class TexContext {
       if (e instanceof katex.ParseError) {
         console.error(e);
         return (
-          <Container ref={ref} className="error" block={block}>
+          <Container ref={ref} className="error" block={block} {...props}>
             <Container block={block}>{e.message}</Container>
             {block ? <pre>{contents}</pre> : null}
           </Container>
@@ -142,9 +144,7 @@ export class TexContext {
       </Container>
     );
   }
-}
-
-export let ReactTexContext = React.createContext<TexContext>(new TexContext());
+});
 
 export interface TexProps {
   raw?: boolean;
@@ -154,7 +154,7 @@ export interface TexProps {
 // memo is important to avoid re-renders that include macro definitions
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   ({ children, raw, block, ...props }) => {
-    let ctx = useContext(ReactTexContext);
+    let ctx = usePlugin(TexPlugin);
     return ctx.render(children as string, block, raw, props);
   },
   (prev, next) => prev.children == next.children

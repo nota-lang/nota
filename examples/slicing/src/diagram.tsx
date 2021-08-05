@@ -1,8 +1,5 @@
 import React, {useRef, useState, useCallback} from 'react';
-import {$, $$} from 'nota';
-import {zipExn, useStateOnInterval} from 'nota/dist/utils';
-import {Togglebox, ToggleButton} from "nota/dist/togglebox";
-import {IRToggle, Premise, PremiseRow} from "nota/dist/math";
+import {$, $$, zipExn, useStateOnInterval, Togglebox, IRToggle, Premise, PremiseRow} from 'nota';
 import _, { countBy } from 'lodash';
 import { useEffect } from 'react';
 
