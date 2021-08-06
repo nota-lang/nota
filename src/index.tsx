@@ -26,6 +26,7 @@ export { Correspondence, Link } from "./correspondence";
 export {
   Listing,
   ListingConfigure,
+  ListingPlugin,
   add_highlight,
   clear_highlights,
   linecol_to_pos,

@@ -32,10 +32,9 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({ code,
         });
 
         let program = [prelude || ""].concat(editor.state.doc.toJSON()).join("\n");
+        program = `fn main() { ${program} }`
         let start = pos_to_linecol(editor, range[0]);
         let end = pos_to_linecol(editor, range[1]);
-        start.line += 1;
-        end.line += 1;
 
         if (start.line != end.line) {
           throw "Start line different from end line";
@@ -76,17 +75,17 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({ code,
                 (
                   (range.start_line == request.line && range.start_col == request.start) ||
                   // Exclude slices in prelude
-                  range.start_line == 1
+                  range.start_line == 0
                 )
               )
           )
           .map(range => {
             let from = linecol_to_pos(editor!, {
-              line: range.start_line - 1,
+              line: range.start_line,
               col: range.start_col,
             });
             let to = linecol_to_pos(editor!, {
-              line: range.end_line - 1,
+              line: range.end_line,
               col: range.end_col,
             });
             return add_highlight.of({ from, to, color: "peach" });
