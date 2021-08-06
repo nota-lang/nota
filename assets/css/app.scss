@@ -598,7 +598,6 @@ q {
   }
 }
 
-
 @keyframes fade {
   from {
     opacity: 1;
@@ -615,6 +614,7 @@ q {
   position: fixed;
   bottom: 20px;
   right: 20px;
+  z-index: 1000;
 
   .log {
     border: 1px solid #ccc;
