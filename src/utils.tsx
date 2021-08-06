@@ -10,6 +10,7 @@ export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
 };
 
 export type HTMLAttributes = React.HTMLAttributes<HTMLElement>;
+export type ReactReturn = React.ReactElement<any, any> | null;
 
 export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
   ({ block, ...props }, ref) => {

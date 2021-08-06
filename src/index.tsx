@@ -32,5 +32,8 @@ export {
   pos_to_linecol,
 } from "./code";
 export { Commentary, Comment } from "./commentary";
+export { Loader, LoaderContext } from "./loader";
+export { LoggerPlugin } from "./logger";
+export { usePlugin, Plugin, Pluggable } from "./plugin";
 
 import "../assets/css/app.scss";

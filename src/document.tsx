@@ -12,6 +12,7 @@ import { TooltipPlugin } from "./tooltip";
 import { ListingPlugin } from "./code";
 import { ScrollPlugin } from "./scroll";
 import { HTMLAttributes } from "./utils";
+import { Logger, LoggerPlugin } from "./logger";
 import { Plugin, usePlugin } from "./plugin";
 
 export type NumberStyle = "1" | "a";
@@ -226,6 +227,8 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
     scroll_plugin.register_scroll_hook(id, () => {
       set_show(true);
     });
+
+    return () => { observer.disconnect(); };
   }, []);
 
   return (
@@ -284,6 +287,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
     >
       <div className="document">{children}</div>
       <Footnotes />
+      <Logger />
     </div>
   );
 });
@@ -335,6 +339,7 @@ const PLUGINS = (): Plugin<any>[] => [
   TooltipPlugin,
   ListingPlugin,
   ScrollPlugin,
+  LoggerPlugin,
 ];
 
 export let Document: React.FC<DocumentProps> = ({ children, anonymous, onLoad }) => {

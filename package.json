@@ -20,7 +20,8 @@
     "csstype": "^3.0.8",
     "html-to-react": "^1.4.5",
     "lodash": "^4.17.21",
-    "react-async": "^10.0.1"
+    "react-async": "^10.0.1",
+    "react-loader-spinner": "^4.0.0"
   },
   "devDependencies": {
     "@codemirror/gutter": "^0.18.4",
@@ -32,10 +33,10 @@
     "esbuild": "^0.12.14",
     "esbuild-sass-plugin": "^1.4.8",
     "katex": "0.13.11",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "sass": "^1.35.2",
     "typescript": "^4.3.5"
   },
@@ -46,9 +47,9 @@
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
     "katex": "0.13.11",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "mobx": "^6.3.2",
-    "mobx-react": "^7.2.0"
+    "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }
