@@ -11,7 +11,6 @@
     "@types/react-dom": "^17.0.9",
     "axios": "^0.21.1",
     "codemirror": "^5.62.2",
-    "nota": "file:../..",
     "react-codemirror": "^1.0.0",
     "slicing": "file:../slicing"
   },
@@ -29,7 +28,8 @@
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "nota": "file:../.."
   },
   "peerDependencies": {
     "@codemirror/gutter": "^0.18.0",
@@ -41,6 +41,7 @@
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "nota": "^0.1.0"
   }
 }

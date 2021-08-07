@@ -12,8 +12,6 @@ esbuild
     entryPoints: ["src/index.tsx"],
     bundle: true,
     sourcemap: true,
-    minify: options.prod,
-    watch: options.watch,
     preserveSymlinks: true,
     format: "esm",
     loader: {
@@ -25,6 +23,7 @@ esbuild
     },
     outdir: "dist",
     plugins: [avoidSymlinkConflictsPlugin({ pkg }), copyPlugin({ extensions: [".html", ".pdf"] })],
+    ...options
   })
   .then(() => {
     fse.copy("node_modules/slicing/dist", "dist/slicing");
