@@ -34,13 +34,13 @@ class TooltipData extends Pluggable {
       let { popperElement, referenceElement, instance, set_show } = this.elts[id];
       let ref_el = last_el === null ? referenceElement : last_el;
       instance.state.elements.reference = ref_el;
-      instance.forceUpdate();
+      instance.update();
       set_show(true);
       last_el = popperElement;
     });
 
     Object.keys(this.elts).forEach(id => {
-      if (this.queue.indexOf(id) == -1) {        
+      if (this.queue.indexOf(id) == -1) {
         this.elts[id].set_show(false);
       }
     });
@@ -89,7 +89,7 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
   const [instance, set_instance] = useState<Instance | null>(null);
 
-  let ctx = usePlugin(TooltipPlugin);  
+  let ctx = usePlugin(TooltipPlugin);
   let [id] = useState(_.uniqueId());
   let [stage, set_stage] = useState("start");
   let [show, set_show] = useState(false);
@@ -104,7 +104,21 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   useEffect(() => {
     if (stage == "mount" && referenceElement && popperElement) {
       set_stage("done");
-      let instance = createPopper(referenceElement, popperElement, {
+
+      // TODO: I noticed that when embedding a document within another,
+      //   the nested-document tooltips on math elements would be misaligned.
+      //   Unclear why, but a fix was to use the popperjs "virtual element"
+      //   feature that manually calls getBoundingClientRect(). Probably an issue
+      //   with whatever their getBoundingClientRect alternative is?
+      let popper_ref_el = {
+        getBoundingClientRect: () => {
+          let r = referenceElement.getBoundingClientRect();
+          console.log(referenceElement, r);
+          return r;
+        },
+      };
+            
+      let instance = createPopper(popper_ref_el, popperElement, {
         placement: "top",
         modifiers: [
           // Push tooltip farther away from content
@@ -115,9 +129,10 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
         ],
       });
       set_instance(instance);
+
       ctx.elts[id] = {
         popperElement,
-        referenceElement,
+        referenceElement: popper_ref_el,
         instance,
         set_show,
       };

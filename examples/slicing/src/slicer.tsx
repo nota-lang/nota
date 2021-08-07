@@ -14,6 +14,9 @@ import { EditorView } from "@codemirror/view";
 import { EditorSelection } from "@codemirror/state";
 import axios from "axios";
 
+const SLICER_ENDPOINT: string = "https://mindover.computer:3443";
+// const SLICER_ENDPOINT: string = "http://charlotte.stanford.edu:8889";
+
 export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({ code, prelude }) => (
   <Loader>
     {() => {
@@ -42,7 +45,7 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({ code,
 
         let request = { program, line: start.line, start: start.col, end: end.col };
         loader.set_loaded(false);
-        let response = await axios.post("https://mindover.computer:3443", request);
+        let response = await axios.post(SLICER_ENDPOINT, request);
         loader.set_loaded(true);
 
         if (response.data.error) {

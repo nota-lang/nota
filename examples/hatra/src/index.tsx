@@ -46,6 +46,9 @@ import bibtex from "./bib.bib";
 import "katex/dist/katex.min.css";
 import "nota/dist/index.css";
 
+import "./index.html"
+import "./slicing_paper.pdf"
+
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
 const bt = "`";

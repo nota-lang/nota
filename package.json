@@ -29,7 +29,7 @@
     "@codemirror/language": "^0.18.2",
     "@codemirror/state": "^0.18.7",
     "@codemirror/view": "^0.18.19",
-    "commander": "^8.0.0",
+    "@wcrichto/esbuild-utils": "^0.2.0",
     "esbuild": "^0.12.14",
     "esbuild-sass-plugin": "^1.4.8",
     "katex": "0.13.11",

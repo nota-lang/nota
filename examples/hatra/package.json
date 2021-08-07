@@ -21,14 +21,15 @@
     "@codemirror/language": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
+    "@wcrichto/esbuild-utils": "^0.2.0",
     "commander": "^8.0.0",
     "esbuild": "^0.12.15",
     "fs-extra": "^10.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "katex": "0.13.11",
     "mobx": "^6.3.2",
-    "mobx-react": "^7.2.0"
+    "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "peerDependencies": {
     "@codemirror/gutter": "^0.18.0",
@@ -36,10 +37,10 @@
     "@codemirror/language": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "katex": "0.13.11",
     "mobx": "^6.3.2",
-    "mobx-react": "^7.2.0"
+    "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

@@ -1,12 +1,9 @@
 const esbuild = require("esbuild");
 const { sassPlugin } = require("esbuild-sass-plugin");
-const { program } = require("commander");
 const pkg = require("./package.json");
+const { cli } = require("@wcrichto/esbuild-utils");
 
-program.option("-w, --watch");
-program.option("-p, --prod");
-program.parse(process.argv);
-const options = program.opts();
+const options = cli();
 
 esbuild
   .build({
@@ -22,9 +19,8 @@ esbuild
       ".ttf": "file",
     },
     sourcemap: true,
-    minify: options.prod,
-    watch: options.watch,
     outdir: "dist",
+    ...options,
   })
   .then(() => console.log("Build complete."))
   .catch(() => process.exit(1));
