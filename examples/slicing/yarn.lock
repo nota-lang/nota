@@ -124,10 +124,10 @@
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@wcrichto/esbuild-utils@^0.2.0":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@wcrichto/esbuild-utils/-/esbuild-utils-0.2.1.tgz#9113d1f88b7f17c6f4f81f0a9c730cdba55ab464"
-  integrity sha512-w3EshHkk9WGgf5PBEx2gGyOQD+m3EAt/HD9vStTiTjvsIPnt63fKjiyKPSPfHpcnjsXE9R8MkCrDe+hTIttbuA==
+"@wcrichto/esbuild-utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@wcrichto/esbuild-utils/-/esbuild-utils-0.3.0.tgz#9d4dbaa2bfb1886f293b8e748e02138b61cb9828"
+  integrity sha512-0PB5KUdQXnt66FushEbMGoWNucLuySPXMrNDIWfbt5ILdYqqwFIBH2LHhgjc5oyDeU4YIOvkpCGOavj7g3XBQQ==
   dependencies:
     commander "^8.1.0"
     lodash "^4.17.21"

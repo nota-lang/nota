@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const pkg = require("./package.json");
 const fse = require("fs-extra");
-const { cli, avoidSymlinkConflictsPlugin, copyPlugin } = require("@wcrichto/esbuild-utils");
+const { cli, avoidDevPeerConflicts, copyPlugin } = require("@wcrichto/esbuild-utils");
 
 const options = cli();
 
@@ -22,8 +22,8 @@ esbuild
       ".bib": "text",
     },
     outdir: "dist",
-    plugins: [avoidSymlinkConflictsPlugin({ pkg }), copyPlugin({ extensions: [".html", ".pdf"] })],
-    ...options
+    plugins: [avoidDevPeerConflicts({ pkg }), copyPlugin({ extensions: [".html", ".pdf"] })],
+    ...options,
   })
   .then(() => {
     fse.copy("node_modules/slicing/dist", "dist/slicing");

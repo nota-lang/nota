@@ -2,7 +2,7 @@ const esbuild = require("esbuild");
 const fs = require("fs");
 const path = require("path");
 const pkg = require("./package.json");
-const { cli, avoidSymlinkConflictsPlugin, copyPlugin } = require("@wcrichto/esbuild-utils");
+const { cli, avoidDevPeerConflicts, copyPlugin } = require("@wcrichto/esbuild-utils");
 
 const options = cli();
 
@@ -29,7 +29,7 @@ let build_paper = esbuild.build({
 
 let build_page = esbuild.build({
   entryPoints: ["src/index.tsx"],
-  plugins: [avoidSymlinkConflictsPlugin({ pkg }), copyPlugin({ extensions: [".html"] })],
+  plugins: [avoidDevPeerConflicts({ pkg }), copyPlugin({ extensions: [".html"] })],
   ...esbuild_opts,
 });
 
