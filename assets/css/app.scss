@@ -188,11 +188,13 @@ p {
 
 .authors {
   .author {
+    margin-bottom: 0.25rem;
+
     .author-name {
       text-transform: uppercase;
       font-family: $sans-serif;
       font-size: $size-large;
-    }
+    }    
   }
 }
 

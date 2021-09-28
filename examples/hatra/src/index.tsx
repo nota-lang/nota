@@ -4,11 +4,7 @@ import {
   $,
   $$,
   Cite,
-  Ref,
-  Footnote,
   Section,
-  SubSection,
-  SubSubSection,
   Title,
   Authors,
   Author,
@@ -17,14 +13,6 @@ import {
   Institution,
   Abstract,
   Document,
-  Wrap,
-  Row,
-  Listing,
-  ListingConfigure,
-  Figure,
-  Subfigure,
-  Caption,
-  Definition,
   Smallcaps,
   Center,
   Commentary,
@@ -34,7 +22,6 @@ import {
   PremiseRow,
   Togglebox,
   References
-
 } from "nota";
 import {Paper as SlicerPaper} from "slicing";
 
@@ -58,7 +45,7 @@ let CenterSep = ({children}) => <div style={{margin: '1rem 0'}}><Center>{childre
 let AEx = ({children, ...props}) => <a target="_blank" {...props}>{children}</a>
 
 export let Paper: React.FC = _ => {  
-  return <Document anonymous>
+  return <Document>
     <Title>A New Medium for Communicating Research on Programming Languages</Title>
     <Authors>
       <Author>
@@ -69,7 +56,7 @@ export let Paper: React.FC = _ => {
       </Author>
     </Authors>
     <Abstract>
-      Papers about programming languages involve complex notations, systems, and proofs. Static PDFs offer little support in understanding such concepts. We describe Nota, a framework for academic papers that uses the browser's interactive capabilities to support comprehension in context. Nota uses hover effects, tooltips, expandable sections, toggle-able explanations, and other interactions to help readers understand a language's syntax and semantics. We demonstrate the use of Nota by rewriting a PL paper using its primitives, and also by writing this paper in Nota.
+      Papers about programming languages involve complex notations, systems, and proofs. Static PDFs offer little support in understanding such concepts. I describe Nota, a framework for academic papers that uses the browser's interactive capabilities to support comprehension in context. Nota uses hover effects, tooltips, expandable sections, toggleable explanations, and other interactions to help readers understand a language's syntax and semantics. I demonstrate the use of Nota by rewriting a PL paper using its primitives, and also by writing this paper in Nota.
     </Abstract>
     
     <$$>{r`
@@ -93,7 +80,7 @@ export let Paper: React.FC = _ => {
         Here, the syntax <q><$>{r`\Gamma, x : \tau_x`}</$></q> means <q>add <$>x : \tau_x</$> to the type environment <$>\Gamma</$>.</q> Therefore we recursively check that <$>e</$> is well-typed assuming <$>x : \tau_x</$>. If so, then the type of the function is <$>\tau_x \rightarrow \tau_e</$> because it takes a value of type <$>\tau_x</$> as input and returns a value of type <$>\tau_e</$> as output.
       </div>
 
-      <p>The principle question underlying our work is: <em>how much effort does it take to understand a PL paper?</em> In the example above, a key challenge is understanding the notation and the concepts they represent. For a formal system as small as the simply-typed lambda calculus, such an explanation only needs to reference a few symbols. The <Smallcaps>T-Lambda</Smallcaps> rule uses 11 distinct symbols (<$>x</$>, <$>e</$>, <$>\tau</$>,  <$>\lambda</$>,  <$>.</$>,  <$>\rightarrow</$>,  <$>\Gamma</$>, <$>\vdash</$>, <$>{r`\text{\textemdash}`}</$>)  to reference 8 distinct concepts (variables, expressions, types, functions, function types, typing contexts, typing judgments, and inference rules).</p>
+      <p>The principle question underlying this work is: <em>how much effort does it take to understand a PL paper?</em> In the example above, a key challenge is understanding the notation and the concepts they represent. For a formal system as small as the simply-typed lambda calculus, such an explanation only needs to reference a few symbols. The <Smallcaps>T-Lambda</Smallcaps> rule uses 11 distinct symbols (<$>x</$>, <$>e</$>, <$>\tau</$>,  <$>\lambda</$>,  <$>.</$>,  <$>\rightarrow</$>,  <$>\Gamma</$>, <$>\vdash</$>, <$>{r`\text{\textemdash}`}</$>)  to reference 8 distinct concepts (variables, expressions, types, functions, function types, typing contexts, typing judgments, and inference rules).</p>
       
       <p>However, PL has come a long way since the lambda calculus. Consider this rule reproduced from <Cite f v="cavallo2019higher" ex="p. 24"/>, a recent POPL paper about cubical type theory:</p>
 
@@ -135,14 +122,19 @@ export let Paper: React.FC = _ => {
 
       <p className="noindent">In this way, Distill presents both an inspiration and a cautionary tale. We know papers can be improved to help readers better understand their concepts. But we cannot train every researcher to be an expert in graphic design or frontend web development. Part of the success of LaTeX is that so many CS researchers are able to use it to create papers without significant training (and despite its many flaws).</p>
 
-      <p>Hence, our goal is to create a system for writing PL papers that (a) provides features for more effective reading, and (b) requires no special design knowledge to use. To that end, we designed Nota (as in <i>nota bene</i>), a web framework for writing academic papers. Its primitives closely mirror LaTeX's to provide a similar authoring experience. Nota improves the reading experience by taking advantage of the browser's powerful rendering engine as well as the abstraction capabilities of Javascript.</p>
-
-      <p>We have two objectives in this paper. First, to demonstrate the capabilities of the browser in improving PL papers. And second, to show that writing Nota is close enough to LaTeX that researchers could plausibly adopt it without a significant learning curve. To start with the first objective, we have re-implemented one of the authors' PL papers in Nota. We will present the first three sections of that paper with commentary to draw attention to usage of Nota features.</p> 
+      <p>Hence, my goal is to create a system for writing PL papers that (a) provides features for more effective reading, and (b) requires no special design knowledge to use. To that end, I designed Nota (as in <i>nota bene</i>), a web framework for writing academic papers. The core principle of Nota is <em>bridging the gap between definition and use.</em> Specifically:</p>
+      <ol>
+        <li>A reader should always be able to access the definition of a symbol.</li>
+        <li>Jumping around is bad &mdash; definitions should be visible in context.</li>
+        <li>A static display is preferable to an interactive one, all else being equal.</li>
+      </ol>      
+      
+      <p>I apply these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal &mdash; Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible.</p> 
     </Section>
     <Section title="demo" name="sec:demo">
       <Commentary Document={SlicerPaper} comment_width={350}>
         <Comment selector={'h1'}>
-          <p>The left column contains a draft of a PL paper currently under submission. The white bubbles in the right column contain commentary about the usage of Nota. You can compare against the original LaTeX/PDF version <AEx href="slicing_paper.pdf">here</AEx>, and read the Nota version in a standalone page <AEx href="slicing">here</AEx>.</p>
+          <p>The left column contains a draft of an unpublished paper about <AEx href="https://en.wikipedia.org/wiki/Program_slicing">program slicing</AEx>. The white bubbles in the right column contain commentary about the usage of Nota. You can compare against the original LaTeX/PDF version <AEx href="slicing_paper.pdf">here</AEx>, and read the Nota version in a standalone page <AEx href="slicing">here</AEx>. If you want to just skim the uses of Nota features, you don't have to read all the text -- just skip to the next white discussion bubble.</p>
           <p>
             The general style (fonts, spacing, etc.) was designed to mimic the ACM Primary template as closely as possible. This demonstrates that the core visual style of a LaTeX-generated paper can still be represented in the browser.
           </p>
@@ -159,7 +151,7 @@ export let Paper: React.FC = _ => {
           <p>Interactive examples allow readers to engage with the material by forming and testing hypotheses, or checking edge cases of an algorithm.</p>
         </Comment>
         <Comment selector={'#multi-snippets'}>
-          Note that the browser allows for flexible layouts. If a figure needs to extend beyond page boundaries, then no problem &mdash; a monitors is wide enough. 
+          Note that the browser allows for flexible layouts. If a figure needs to extend beyond page boundaries, then no problem &mdash; a monitor is wide enough. 
         </Comment>
         <Comment selector={'#def-sec-model'}>
           This section demonstrates the core features of Nota. Here, the paper needs to describe a large language, Oxide, imported from another paper (Weiss et al.). This language contains a large syntax and a semantics with a number of judgments. The goal of Nota is to simplify the definition, referencing, and explaining of formal systems like Oxide.
@@ -177,7 +169,7 @@ export let Paper: React.FC = _ => {
           A common pattern in PL papers is to present a formal rule full of symbols, then accompany that rule with a separate paragraph explaining it. The rule on the left shows a possible enhancement of this pattern: co-locating natural language explanations with the corresponding symbolic expressions. Try clicking the <$>\Sigma</$> buttons. 
         </Comment>
         <Comment selector={'#correspondence-principle-1'}>
-          <p>Part of Nota's inspiration was our attempts to visually encode correspondences between objects (see page 10 of the <AEx href="slicing_paper.pdf#page=10">PDF</AEx>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as <q>draw a colored underline beneath a piece of math.</q></p>
+          <p>Part of Nota's inspiration was my attempts to visually encode correspondences between objects (see page 10 of the <AEx href="slicing_paper.pdf#page=10">PDF</AEx>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as <q>draw a colored underline beneath a piece of math.</q></p>
           <p>By contrast, implementing this feature was trivial in HTML/CSS/Javascript. And we could extend the idea with interactions like drawing attention to corresponding objects on hover.</p>
         </Comment>
       </Commentary>
@@ -297,10 +289,10 @@ export let Paper: React.FC = _ => {
 <Oxide.BNF layout={{columns: 2}} />`} />
       </CenterSep>
       
-      <p>In our experience writing Nota features, it is far easier to define new components in Javascript than in TeX. Abstraction boundaries are less fragile, and orthogonal features are more likely to work together.</p>
+      <p>In my experience writing Nota features, it is far easier to define new components in Javascript than in TeX. Abstraction boundaries are less fragile, and orthogonal features are more likely to work together. The full source code for Nota and this paper are available on Github at <AEx href="https://github.com/willcrichton/nota">willcrichton/nota</AEx>.</p>
     </Section>
     <Section title="Discussion">
-      <p>What will be the academic paper of the future? Our goal with Nota is to show what's already possible today. We believe adopting Nota, or a system like it, could help make PL papers more readable to both novices and experts alike. It does not require any special design skills from authors, mostly just additional metadata around pieces of the document to enable rich references.</p>
+      <p>What will be the academic paper of the future? My goal with Nota is to show what's already possible today. I believe adopting Nota, or a system like it, could help make PL papers more readable to both novices and experts alike. It does not require any special design skills from authors, mostly just additional metadata around pieces of the document to enable rich references.</p>
 
       <p>Of course, Nota is one of many possible visions for the future. Alternatives include:</p>
       <ul>

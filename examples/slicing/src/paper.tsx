@@ -63,12 +63,30 @@ export let Paper: React.FC = props => {
     </Definition>;
   };
 
-  return <Document anonymous {...props}>
+  return <Document {...props}>
     <ListingConfigure language={rust()} />
     <Title>Modular Program Slicing Through Ownership</Title>
     <Authors>
       <Author>
         <Name value="Will Crichton" />
+        <Affiliation>
+          <Institution value="Stanford University" />
+        </Affiliation>
+      </Author>
+      <Author>
+        <Name value="Marco Patrignani" />
+        <Affiliation>
+          <Institution value="CISPA Helmholtz Center for Information Security" />
+        </Affiliation>
+      </Author>
+      <Author>
+        <Name value="Maneesh Agrawala" />
+        <Affiliation>
+          <Institution value="Stanford University" />
+        </Affiliation>
+      </Author>
+      <Author>
+        <Name value="Pat Hanrahan" />
         <Affiliation>
           <Institution value="Stanford University" />
         </Affiliation>
@@ -782,7 +800,7 @@ assert!(*value.lock().unwrap() == 1);`}
         </p>
 
         <Figure name="fig:oxide_syntax">
-          <Subfigure name="fig:oxide_syntax">
+          <Subfigure name="fig:oxide_syntax_bnf">
             <Oxide.Bnf layout={{ columns: 2, cutoff: 9 }} />
             <Expandable prompt={<>Rest of the grammar...</>}>
               <OxideExtra.Bnf />
