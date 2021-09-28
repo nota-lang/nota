@@ -65,7 +65,7 @@ export let Paper: React.FC = _ => {
     \newcommand{\nl}{\hspace{2em}}
     `}</$$>
 
-    <Section title="Introduction" name="sec:intro">
+    <Section title="Introduction">
       <p>Programming languages research is conveyed through the medium of <em>academic papers.</em> These papers use a combination of natural language and mathematical notation to communicate ideas about languages, algorithms, and proofs. For example, an explanation of a typing rule for the simply-typed lambda calculus might look like this:</p>
  
       <div style={{border: '1px solid #ccc', borderRadius: '4px', padding: '1rem', margin: '1rem 2rem'}}>
