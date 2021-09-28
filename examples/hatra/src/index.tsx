@@ -130,6 +130,10 @@ export let Paper: React.FC = _ => {
       </ol>      
       
       <p>I applied these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal &mdash; Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible.</p> 
+
+      <div style={{marginTop: '1rem', textAlign: 'center', fontVariant: 'small-caps'}}>
+        This demo has only been tested in Chrome &mdash; use other browsers at your own peril!
+      </div>
     </Section>
     <Section title="demo" name="sec:demo">
       <Commentary Document={SlicerPaper} comment_width={350}>
@@ -303,7 +307,7 @@ export let Paper: React.FC = _ => {
 
       <p>Nota itself also has drawbacks for academic communication. The web ecosystem changes rapidly, meaning what works today may not work tomorrow. While some <AEx href="https://www.spacejam.com/1996/">venerable websites</AEx> survive the test of time, would a Nota paper still work properly in 100 or 1,000 years? Such longevity is arguably much more likely for a PDF than a website. Moreover, important infrastructure for Nota like KaTeX would need feature-parity with existing TeX engines like pdfTeX to match the wide range of notation needed for PL research.</p>
 
-      <p>Regardless, we hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.</p>
+      <p>Regardless, I hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.</p>
     </Section>
     <References bibtex={bibtex} />
   </Document>

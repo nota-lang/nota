@@ -112,9 +112,7 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
       //   with whatever their getBoundingClientRect alternative is?
       let popper_ref_el = {
         getBoundingClientRect: () => {
-          let r = referenceElement.getBoundingClientRect();
-          console.log(referenceElement, r);
-          return r;
+          return referenceElement.getBoundingClientRect();
         },
       };
             

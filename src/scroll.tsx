@@ -18,6 +18,7 @@ let get_ancestors = (el: Node): Node[] => {
 
 export let ScrollPlugin = new Plugin(class extends Pluggable {
   scroll_hooks: {[id: string]: () => void} = {};
+  stateful = true;
 
   register_scroll_hook = (id: string, cb: () => void) => {
     this.scroll_hooks[id] = cb;
@@ -60,7 +61,6 @@ export let ScrollPlugin = new Plugin(class extends Pluggable {
       let block: ScrollLogicalPosition =
         anchor_elem!.offsetHeight > window.innerHeight ? "start" : "center";
       anchor_elem!.scrollIntoView({
-        // behavior: "smooth",
         block,
         inline: "center",
       });

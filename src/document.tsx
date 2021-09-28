@@ -224,7 +224,8 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
     });
     observer.observe(ref.current!);
 
-    scroll_plugin.register_scroll_hook(id, () => {
+    console.log('registering', id, 'to', scroll_plugin);
+    scroll_plugin.register_scroll_hook(id, () => {      
       set_show(true);
     });
 
