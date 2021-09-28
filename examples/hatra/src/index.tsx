@@ -129,7 +129,7 @@ export let Paper: React.FC = _ => {
         <li>A static display is preferable to an interactive one, all else being equal.</li>
       </ol>      
       
-      <p>I apply these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal &mdash; Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible.</p> 
+      <p>I applied these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal &mdash; Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible.</p> 
     </Section>
     <Section title="demo" name="sec:demo">
       <Commentary Document={SlicerPaper} comment_width={350}>
