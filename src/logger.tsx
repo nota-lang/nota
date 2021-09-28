@@ -37,7 +37,7 @@ export let Logger: React.FC = observer(() => {
   return (
     <div className="logger">
       {logger.queue.map(({ Message, duration, id }) => (
-        <div className="log" key={id} style={{ animation: `fade ${duration}ms, yellowflash 0.5s` }}>
+        <div className="log" key={id} style={{ animation: `fade ${duration}ms` }}>
           <Message />
         </div>
       ))}
