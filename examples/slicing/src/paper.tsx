@@ -911,7 +911,7 @@ assert!(*value.lock().unwrap() == 1);`}
           </Row>
         </Correspondence>
 
-        <p>As described in <Ref name="sec:dynsem" />, a mutation to a place is represented by updating a variable <$>{r`\vr`}</$> in a stack <$>{r`\stack`}</$> by plugging a value <$>{r`v`}</$> into a value context <$>{r`\valuectx`}</$>. To denote a conflict,we reuse the notation from Oxide that <$>{r`\disjoint{\plc_1}{\plc_2}`}</$> means " <$>{r`\plc_1`}</$> and <$>{r`\plc_2`}</$> do not conflict", or more formally:</p>
+        <p>As described in <Ref name="sec:dynsem" />, a mutation to a place is represented by updating a variable <$>{r`\vr`}</$> in a stack <$>{r`\stack`}</$> by plugging a value <$>{r`v`}</$> into a value context <$>{r`\valuectx`}</$>. To denote a conflict, we reuse the notation from Oxide that <$>{r`\disjoint{\plc_1}{\plc_2}`}</$> means "<$>{r`\plc_1`}</$> and <$>{r`\plc_2`}</$> do not conflict", or more formally:</p>
         
          <Definition name="tex:disjoint"><$$>{r`\disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee ((q_1 \text{ is not a prefix of } q_2) \wedge (q_2 \text{ is not a prefix of } q_1))`}</$$></Definition>
         
