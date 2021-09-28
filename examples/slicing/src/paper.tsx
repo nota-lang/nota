@@ -47,6 +47,7 @@ import bibtex from "./example.bib";
 
 const r = String.raw;
 const C: React.FC = props => <code {...props} />;
+const bt = "`";
 
 export let Paper: React.FC = props => {
   let num_principles = 0;
@@ -856,11 +857,11 @@ assert!(*value.lock().unwrap() == 1);`}
 
         <p>
           A valid assignment must be type-safe and ownership-safe. To be type-safe, the type of the expression <$>{r`\tys`}</$> must be a subtype of the place's type <$>{r`\stackenv_1(\plc)`}</$>. To be ownership-safe, the type must either be dead<Footnote>
-            Oxide uses the metavariables <$>{r`\tyd`}</$> to mean ``dead types'' and <$>{r`\tysx`}</$> to mean ``possibly dead types''. A place becomes dead when it is moved, e.g. see <Smallcaps>T-Move</Smallcaps> in <Cite v="weiss2019oxide" y ex="p. 11" />. <Smallcaps>T-Assign</Smallcaps> allows a dead place to be revived. For instance, consider the program:
+            Oxide uses the metavariables <$>{r`\tyd`}</$> to mean "dead types" and <$>{r`\tysx`}</$> to mean "possibly dead types". A place becomes dead when it is moved, e.g. see <Smallcaps>T-Move</Smallcaps> in <Cite v="weiss2019oxide" y ex="p. 11" />. <Smallcaps>T-Assign</Smallcaps> allows a dead place to be revived. For instance, consider the program:
 
-            <$$>{r`\exprlet{\vr}{\sty}{"a"}{\exprseq{\msf{print}(\vr)}{\exprplcasgn{\vr}{"b"}}}`}</$$>
+            <$$>{r`\exprlet{\vr}{\sty}{\text{\textquotedblleft}a"}{\exprseq{\msf{print}(\vr)}{\exprplcasgn{\vr}{\text{\textquotedblleft}b"}}}`}</$$>
 
-            When <$>{r`\msf{print}(\vr)`}</$> moves <$>{r`\vr`}</$>, its type is updated to <$>{r`\tyds{\sty}`}</$> in <$>{r`\stackenv`}</$>. Then the <Smallcaps>T-Assign</Smallcaps> rule permits <$>{r`\vr`}</$> to be assigned again to ``revive'' that place, setting its type back to <$>{r`\sty`}</$>.
+            When <$>{r`\msf{print}(\vr)`}</$> moves <$>{r`\vr`}</$>, its type is updated to <$>{r`\tyds{\sty}`}</$> in <$>{r`\stackenv`}</$>. Then the <Smallcaps>T-Assign</Smallcaps> rule permits <$>{r`\vr`}</$> to be assigned again to "revive" that place, setting its type back to <$>{r`\sty`}</$>.
           </Footnote>, or <$>{r`\plc`}</$> must have unique ownership over itself, i.e. there should be no live references to <$>{r`\plc`}</$>. If so, then the type of <$>{r`\plc`}</$> is updated to <$>{r`\tys`}</$>.
         </p>
       </SubSection>
