@@ -1,0 +1,55 @@
+import { Document, Cite, Footnote, Title, Authors, Author, Affiliation, Institution, Abstract, Name, References, Section, Definition } from "@wcrichto/nota";
+import "@wcrichto/nota/dist/nota.css";
+import "@wcrichto/nota-theme-acm/dist/nota-theme-acm.css";
+import bibtex from "./slicing-paper.bib";
+
+<Document>
+<Title>Modular Program Slicing Through Ownership</Title>
+<Authors>
+  <Author>
+    <Name value="Will Crichton" />
+    <Affiliation>
+      <Institution value="Stanford University" />
+    </Affiliation>
+  </Author>
+  <Author>
+    <Name value="Marco Patrignani" />
+    <Affiliation>
+      <Institution value="CISPA Helmholtz Center for Information Security" />
+    </Affiliation>
+  </Author>
+  <Author>
+    <Name value="Maneesh Agrawala" />
+    <Affiliation>
+      <Institution value="Stanford University" />
+    </Affiliation>
+  </Author>
+  <Author>
+    <Name value="Pat Hanrahan" />
+    <Affiliation>
+      <Institution value="Stanford University" />
+    </Affiliation>
+  </Author>
+</Authors>
+<Abstract>
+  Program slicing, or identifying the subset of a program relevant to a value, relies on
+  understanding the dataflow of a program. In languages with mutable pointers and functions like
+  C or Java, tracking dataflow has historically required whole-program analysis, which can be be
+  slow and challenging to integrate in practice. Advances in type systems have shown how to
+  modularly track dataflow through the concept of ownership. We demonstrate that ownership can
+  modularize program slicing by using types to compute a provably sound and reasonably precise
+  approximation of mutation. We present an algorithm for slicing Oxide, a formalized
+  ownership-based language, and prove the algorithm's soundness as a form of noninterference.
+  Then we describe an implementation of the algorithm for the Rust programming language, and
+  show empirically that modular slices are the same as whole-program slices in 95.4% of slices
+  drawn from large Rust codebases.
+</Abstract>
+
+<Section title="Introduction" name="sec:intro">  
+  Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when <Cite f v="weiser1982programmers" /> demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by <Cite f v={["xu2005brief", "silva2012vocabulary"]} />. Despite these efforts, a review of slicers found <q>slicing-based debugging techniques are rarely used in practice</q> <Cite v="parnin2011automated" /> 
+  <Footnote>The only open-source, functioning slicers the authors could find are Frama-C <Cite v="cuoq2012frama" /> and dg <Cite v="llvmslicer" />. Slicing tools for Java like Kaveri <Cite v="jayaraman2005kaveri" /> no longer work. The most industrial-strength slicing tool, CodeSurfer <Cite v="balakrishnan2005codesurfer" /> was GrammaTech's proprietary technology and appears to no longer exist.</Footnote>.
+</Section>
+
+<References bibtex={bibtex} />
+
+</Document>

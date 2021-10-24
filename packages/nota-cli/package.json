@@ -1,0 +1,47 @@
+{
+  "name": "@wcrichto/nota-cli",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "Will Crichton <wcrichto@cs.stanford.edu>",
+  "homepage": "https://github.com/willcrichton/nota#readme",
+  "license": "MIT",
+  "main": "lib/nota-cli.ts",
+  "bin": {
+    "nota": "dist/nota-cli.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willcrichton/nota.git"
+  },
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "@types/commander": "^2.12.2",
+    "commander": "^8.3.0",
+    "module-from-string": "^3.1.1"
+  },
+  "bugs": {
+    "url": "https://github.com/willcrichton/nota/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.4"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "esbuild": "^0.13.8",
+    "esbuild-sass-plugin": "^1.6.3"
+  }
+}

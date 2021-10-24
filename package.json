@@ -1,55 +1,18 @@
 {
-  "name": "nota",
-  "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "license": "MIT",
-  "scripts": {
-    "build": "node build.cjs",
-    "tc": "tsc"
-  },
-  "dependencies": {
-    "@orcid/bibtex-parse-js": "^0.0.25",
-    "@popperjs/core": "^2.9.2",
-    "@types/css-font-loading-module": "^0.0.6",
-    "@types/katex": "^0.11.0",
-    "@types/lodash": "^4.14.170",
-    "@types/react": "^17.0.13",
-    "@types/react-dom": "^17.0.9",
-    "classnames": "^2.3.1",
-    "csstype": "^3.0.8",
-    "html-to-react": "^1.4.5",
-    "lodash": "^4.17.21",
-    "react-async": "^10.0.1",
-    "react-loader-spinner": "^4.0.0"
-  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
-    "@codemirror/gutter": "^0.18.4",
-    "@codemirror/highlight": "^0.18.4",
-    "@codemirror/language": "^0.18.2",
-    "@codemirror/state": "^0.18.7",
-    "@codemirror/view": "^0.18.19",
-    "@wcrichto/esbuild-utils": "^0.3.0",
-    "esbuild": "^0.12.14",
-    "esbuild-sass-plugin": "^1.4.8",
-    "katex": "0.13.11",
-    "mobx": "^6.3.2",
-    "mobx-react": "^7.2.0",
+    "@codemirror/basic-setup": "^0.19.0",
+    "esbuild-sass-plugin": "^1.6.3",
+    "estrella": "^1.4.1",
+    "katex": "^0.13.18",
+    "lerna": "^4.0.0",
+    "mobx": "^6.3.5",
+    "mobx-react": "^7.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "sass": "^1.35.2",
-    "typescript": "^4.3.5"
-  },
-  "peerDependencies": {
-    "@codemirror/gutter": "^0.18.0",
-    "@codemirror/highlight": "^0.18.0",
-    "@codemirror/language": "^0.18.0",
-    "@codemirror/state": "^0.18.0",
-    "@codemirror/view": "^0.18.0",
-    "katex": "0.13.11",
-    "mobx": "^6.3.2",
-    "mobx-react": "^7.2.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "typescript": "^4.4.4"
   }
 }

@@ -1,0 +1,67 @@
+@mixin loadserif($suffix) {
+  font-family: "Linux Libertine O";
+  src: url("../assets/LinLibertine_#{$suffix}.otf");
+}
+
+@mixin loadsans($suffix) {
+  font-family: "Linux Biolinum O";
+  src: url("../assets/LinBiolinum_#{$suffix}.otf");
+}
+
+@font-face {
+  @include loadserif("R");
+}
+@font-face {
+  @include loadserif("RB");
+  font-weight: bold;
+}
+@font-face {
+  @include loadserif("RI");
+  font-style: italic;
+}
+
+@font-face {
+  @include loadsans("R");
+}
+@font-face {
+  @include loadsans("RB");
+  font-weight: bold;
+}
+@font-face {
+  @include loadsans("RI");
+  font-style: italic;
+}
+
+$serif: "Linux Libertine O", serif;
+$sans-serif: "Linux Biolinum O", serif;
+
+.document {
+  font-family: $serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $sans-serif;
+}
+
+a[href],
+.ref {
+  color: rgb(101, 43, 126);
+}
+
+.authors {
+  .author {
+    .author-name {
+      text-transform: uppercase;
+      font-family: $sans-serif;
+    }
+  }
+}
+
+.caption {
+  font-family: $sans-serif;
+}

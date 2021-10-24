@@ -1,0 +1,57 @@
+{
+  "name": "@wcrichto/nota",
+  "version": "0.1.0",
+  "description": "TODO",
+  "author": "Will Crichton <wcrichto@cs.stanford.edu>",
+  "homepage": "https://github.com/willcrichton/nota",
+  "license": "MIT",
+  "main": "dist/nota.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willcrichton/nota.git"
+  },
+  "scripts": {
+    "build": "node build.cjs",
+    "tsc": "tsc -emitDeclarationOnly",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/willcrichton/nota/issues"
+  },
+  "dependencies": {
+    "@orcid/bibtex-parse-js": "^0.0.25",
+    "@popperjs/core": "^2.9.2",
+    "classnames": "^2.3.1",
+    "exenv": "^1.2.2",
+    "html-to-react": "^1.4.5",
+    "lodash": "^4.17.21",
+    "react-async": "^10.0.1",
+    "react-loader-spinner": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/exenv": "^1.2.0",
+    "@types/katex": "^0.11.0",
+    "@types/lodash": "^4.14.170",
+    "@types/react": "^17.0.13",
+    "@types/react-dom": "^17.0.9",
+    "csstype": "^3.0.8"
+  },
+  "peerDependencies": {
+    "@codemirror/basic-setup": "^0.18.0",
+    "katex": "0.13.11",
+    "mobx": "^6.3.2",
+    "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

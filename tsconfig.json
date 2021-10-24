@@ -1,21 +1,18 @@
 {
-    "compilerOptions": {
-        // Type-checker options
-        "strict": true,
+  "compilerOptions": {
+      // Type-checker options
+      "strict": true,
 
-        // Codegen options
-        "sourceMap": true,
-        "esModuleInterop": true,
-        "jsx": "react",
-        "lib": ["es2018", "dom"],
+      // Codegen options
+      "sourceMap": true,
+      "esModuleInterop": true,
+      "jsx": "react",
+      "lib": ["es2018", "dom"],
 
-        // Output file options
-        "outDir": "dist",
-        "declaration": true,
-        "emitDeclarationOnly": true,
+      // Output file options
+      "outDir": "dist",
+      "declaration": true,
 
-        "experimentalDecorators": true
-    },
-
-    "include": ["src/index.tsx", "src/bindings/**/*.d.ts"]
+      "experimentalDecorators": true
+  }
 }
