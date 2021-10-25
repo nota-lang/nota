@@ -152,9 +152,6 @@ export let Listing: React.FC<ListingProps> = props => {
 
   useEffect(() => {
     let language = props.language || ctx.language;
-    if (!language) {
-      throw "Language not specified";
-    }
 
     let code = props.code;
     let parse_result = null;
@@ -173,11 +170,12 @@ export let Listing: React.FC<ListingProps> = props => {
         extensions: [
           lineNumbers(),
           defaultHighlightStyle,
-          language,
           theme,
           EditorView.editable.of(props.editable || false),
           highlight_field,
-        ].concat(props.extensions || []),
+        ]
+          .concat(language ? [language] : [])
+          .concat(props.extensions || []),
       }),
       parent: ref.current!,
     });

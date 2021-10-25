@@ -5,6 +5,7 @@ import CSS from "csstype";
 import classNames from "classnames";
 import { observer } from "mobx-react";
 import exenv from "exenv";
+import { IObservable, observable } from "mobx";
 
 import { TexPlugin } from "./tex";
 import { BibliographyPlugin } from "./bibliography";
@@ -198,12 +199,15 @@ export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) =
   );
 };
 
-let PortalContext = React.createContext<HTMLDivElement | null>(null);
+class PortalData {
+  @observable portal: HTMLDivElement | null = null;
+}
+let PortalContext = React.createContext<PortalData>(new PortalData());
 
-export let ToplevelElem: React.FC = ({ children }) => {
+export let ToplevelElem: React.FC = observer(({ children }) => {
   let portal = useContext(PortalContext);
-  return portal !== null ? ReactDOM.createPortal(children, portal) : null;
-};
+  return portal.portal !== null ? ReactDOM.createPortal(children, portal.portal) : null;
+});
 
 export let Center: React.FC = ({ children }) => {
   return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
@@ -262,7 +266,6 @@ let Footnotes: React.FC = _ => {
   return ctx.footnotes.length == 0 ? null : (
     <div className="footnotes">
       {ctx.footnotes.map((footnote, i) => {
-        let top = {};
         i += 1;
         return (
           <div className="footnote" id={`footnote-${i}`} key={i}>
@@ -310,7 +313,7 @@ const PLUGINS = (): Plugin<any>[] => [
 ];
 
 export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
-  let portal = useRef<HTMLDivElement | null>(null);
+  let portal = new PortalData();
 
   if (onLoad) {
     useEffect(onLoad, []);
@@ -324,9 +327,9 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
   return (
     <>
       <DocumentContext.Provider value={new DocumentData()}>
-        <PortalContext.Provider value={portal.current}>{inner}</PortalContext.Provider>
+        <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
       </DocumentContext.Provider>
-      <div className="portal" ref={portal} />
+      <div className="portal" ref={el => {portal.portal = el;}} />
     </>
   );
 };

@@ -28,6 +28,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "@mdx-js/react": "^1.6.22",
     "@types/commander": "^2.12.2",
     "commander": "^8.3.0",
     "module-from-string": "^3.1.1"
@@ -39,9 +40,9 @@
     "@types/node": "^16.11.4"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "esbuild": "^0.13.8",
-    "esbuild-sass-plugin": "^1.6.3"
+    "esbuild-sass-plugin": "^1.6.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

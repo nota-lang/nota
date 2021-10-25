@@ -5,6 +5,7 @@
   ],
   "devDependencies": {
     "@codemirror/basic-setup": "^0.19.0",
+    "esbuild": "^0.13.9",
     "esbuild-sass-plugin": "^1.6.3",
     "estrella": "^1.4.1",
     "katex": "^0.13.18",
@@ -14,5 +15,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@codemirror/lang-rust": "^0.19.1"
   }
 }

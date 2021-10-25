@@ -295,6 +295,7 @@ sup.footnote-marker {
   border-radius: 4px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   max-width: 600px;
+  width: max-content;
 
   .arrow {
     visibility: hidden;
@@ -524,6 +525,7 @@ q {
 }
 
 .portal {
+  position: fixed;
   width: 0;
   height: 0;
 }

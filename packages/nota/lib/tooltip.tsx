@@ -128,6 +128,8 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
       });
       set_instance(instance);
 
+      console.log(popperElement, referenceElement);
+
       ctx.elts[id] = {
         popperElement,
         referenceElement: popper_ref_el,
