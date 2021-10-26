@@ -168,7 +168,7 @@ export let References: React.FC<{ bibtex: string }> = observer(({ bibtex }) => {
 
   return (
     <section>
-      <SectionTitle>References</SectionTitle>
+      <SectionTitle plain>References</SectionTitle>
       <div className="bib-references">
         {keys
           .filter(key => key in ctx.citations)

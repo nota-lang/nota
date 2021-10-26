@@ -81,7 +81,8 @@ $$
 \newcommand{\reff}{\msf{ref}}
 $$
 
-<Section title="Introduction" name="sec:intro">  
+#[sec:intro] Introduction
+
 Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when @[weiser1982programmers; full] demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by @[xu2005brief; full] and @[silva2012vocabulary; full]. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" @[parnin2011automated]@[footnote:1].
 
 [^1]: The only open-source, functioning slicers the authors could find are Frama-C @[cuoq2012frama] and dg @[llvmslicer]. Slicing tools for Java like Kaveri @[jayaraman2005kaveri] no longer work. The most industrial-strength slicing tool, CodeSurfer @[balakrishnan2005codesurfer] was GrammaTech's proprietary technology and appears to no longer exist.
@@ -109,12 +110,13 @@ Our thesis is that ownership can modularize program slicing by using types to co
 3. We prove the soundness of this algorithm as a form of noninterference, building on the connection between slicing and information flow established by @[abadi1999core; full] (@[sec:soundness] and @[sec:appendix]).
 4. We describe an implementation of the slicing algorithm for Rust, translating the core insights of the algorithm to work on a lower-level control-flow graph (@[sec:implementation])
 5. We evaluate the precision of the modular Rust slicer against a whole-program slicer on a dataset of 10 codebases with a total of 280k LOC. We find that modular slices are the same size as whole-program slices 95.4% of the time, and are on average 7.6% larger in the remaining 4.6% of cases (@[sec:evaluation]).
-</Section>
 
-<Section title="Principles" name="sec:background">
+#[sec:background] Principles
+
 A backwards static slice is the subset of a program that could influence a particular value (backwards) under any possible execution (static). A slice is defined with respect to a slicing criterion, which is a variable at a particular point in a program. In this section, we provide an intuition for how slices interact with different features of the Rust programming language, namely: places (@[sec:places]), references (@[sec:pointers]), function calls (@[sec:funcalls]), and interior mutability (@[sec:intmut]).
 
-<SubSection title="Places" name="sec:places">
+##[sec:places] Places
+
 <Wrap align="right">
 <SliceListing
   code={`let mut x = 1;
@@ -176,9 +178,8 @@ In this program, when slicing on `t`, changing the value of a field of a structu
 
 This principle provides an intuition for making an algorithm that constructs slices. For instance, take the last example above on the left. On line 4, when `t.1` is mutated, that mutation is registered as part of the slice on every conflicting place, specifically `t` and `t.1`.
 
-</SubSection>
+##[sec:pointers] References
 
-<SubSection title="References" name="sec:pointers">
 Pointers are the first major challenge for slicing. A mutation to a dereferenced pointer
 is a mutation to any place that is possibly pointed-to, so such places must be known to
 the slicer. For example:
@@ -193,9 +194,7 @@ println!("{}", @*z@);`}
   />
 </Wrap>
 
-Rust has two distinct types of pointers, which are called <q>references</q> to distinguish them
-from <q>raw pointers</q> with C-like behavior (discussed in @[sec:intmut]
-). For a given type `T`, there are immutable references of type `&T`, and
+Rust has two distinct types of pointers, which are called <q>references</q> to distinguish them from <q>raw pointers</q> with C-like behavior (discussed in @[sec:intmut]). For a given type `T`, there are immutable references of type `&T`, and
 mutable references of type `&mut T` which correspond respectively to the expressions
 `&x` and `&mut x`. Because `y` points to `x`, then the mutation
 through `y` is relevant to the read of `*z`. We refer to the left-hand side of
@@ -307,12 +306,12 @@ particular assignment, one only needs to look up the aliases in the lifetime of
 references. For instance, `*w = 1` would be part of a slice on `*z`, because
 `*z` is in the lifetime `'4` of `w`.
 
-</SubSection>
-
-<SubSection title="Function calls" name="sec:funcalls">
+##[sec:funcalls] Function calls
 
 The other major challenge for slicing is function calls. For instance, consider slicing a
-call to an arbitrary function `f` with various kinds of inputs: <Footnote> Why is `String::from` needed? The literal `"Hello world"` has type `&'static st`, meaning an immutable reference to the binary's string pool which lives forever. The function `String::from` converts the immutable reference into a value of type `String`, which stores its contents on the heap and allows the string to be mutated. </Footnote>
+call to an arbitrary function `f` with various kinds of inputs:[^2]
+
+[^2]: Why is `String::from` needed? The literal `"Hello world"` has type `&'static str`, meaning an immutable reference to the binary's string pool which lives forever. The function `String::from` converts the immutable reference into a value of type `String`, which stores its contents on the heap and allows the string to be mutated.
 
 <Wrap align="left">
   <Listing
@@ -339,16 +338,12 @@ that arise in the code above.
   Therefore it is an ownership error to refer to `x` after calling `f` and we do not need to
   consider slices on `x` after `f`.
 - Passing a value `y` of type `&String` (or `&T`) passes an immutable reference. Immutable
-  references cannot be mutated, therefore `y` cannot change in `f`.
-  <Footnote>
-    A notable detail to the safety of immutable references is that immutability is transitive. For
-    instance, if `b = &mut a` and `c = &b`, then `a` is guaranteed not to be mutated through `c`.
-    This stands in contrast to other languages with pointers like C and C++ where the `const`
-    keyword only protects values from mutation at the top-level, and not into the interior fields.
-  </Footnote>
+  references cannot be mutated, therefore `y` cannot change in `f`.[^3]
 - Passing a value `z` of type `&mut String` (or `&mut T`) passes a mutable reference, which could
   possibly be mutated. This case is therefore the only observable of effect `f` apart from its
   return value.
+
+[^3]:  A notable detail to the safety of immutable references is that immutability is transitive. For instance, if `b = &mut a` and `c = &b`, then `a` is guaranteed not to be mutated through `c`. This stands in contrast to other languages with pointers like C and C++ where the `const` keyword only protects values from mutation at the top-level, and not into the interior fields.
 
 Without inspecting `f`, we cannot know how a mutable reference is modified, so we
 have to conservatively assume that every argument was used as input to a mutation.
@@ -423,9 +418,7 @@ input reference `&'a mut Vec<T>`. Therefore the returned pointer is known to
 point to the same data as the input pointer, but without inspecting the definition of
 `get_mut`.
 
-</SubSection>
-
-<SubSection title="Interior mutability" name="sec:intmut">
+##[sec:intmut] Interior mutability
 
 The previous sections describe a slicing strategy for the subset of Rust known as "safe
 Rust", that is programs which strictly adhere to the rules of ownership. Importantly, Rust
@@ -446,8 +439,9 @@ assert!(*value.lock().unwrap() == 1);`}
 </Wrap>
 
 In this snippet, two threads have ownership over two values of type `Arc<Mutex<i32>>` which internally point to the same number. Both threads can call
-`Mutex::lock` which takes an immutable reference to an `&Mutex<i32>` and returns a mutable reference `&mut i32` to the data inside. <Footnote>Technically the returned type is a `LockResult<MutexGuard<'a, i32>>` but the distinction isn't relevant here. </Footnote> This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both
-can mutate).
+`Mutex::lock` which takes an immutable reference to an `&Mutex<i32>` and returns a mutable reference `&mut i32` to the data inside.[^4] This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate).
+  
+[^4]: Technically the returned type is a {/*`LockResult<MutexGuard<'a, i32>>`*/} but the distinction isn't relevant here. 
 
 The mutex is ownership-safe only because its implementation ensures that both threads
 cannot _simultaneously_ access the underlying value in accordance with the system
@@ -469,11 +463,8 @@ Rust built on internally-unsafe abstractions like `Mutex`, so it is difficult to
 of soundness in practice. We discuss the issue of slicing with unsafe code further in
 @[sec:whole-vs-mod].
 
-</SubSection>
+#[sec:model] Formal Model
 
-</Section>
-
-<Section title="Formal Model" name="sec:model">
 To build an algorithm from these principles, we first need a formal model to describe and
 reason about the underlying language. Rather than devise our own, we build on the work of
 @[weiss2019oxide; full] : Oxide is a model of (safe) Rust's surface language with a
@@ -481,32 +472,29 @@ formal static and dynamic semantics, along with a proof of syntactic type soundn
 Importantly, Oxide uses a provenance model of lifetimes which we leverage for our slicing
 algorithm.
 
-We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to
-understand our principles and algorithm. We describe Oxide's syntax (@[sec:syn]), static semantics (@[sec:statsem]) and dynamic semantics (@[sec:dynsem]), and then apply these concepts to formalize the slicing principles of the previous section
+We will incrementally introduce the aspects of Oxide's syntax and semantics as necessary to understand our principles and algorithm. We describe Oxide's syntax (@[sec:syn]), static semantics (@[sec:statsem]) and dynamic semantics (@[sec:dynsem]), and then apply these concepts to formalize the slicing principles of the previous section
 (@[sec:formal_principles]).
 
-<SubSection title="Syntax" name="sec:syn">
+##[sec:syn] Syntax
+
 @[fig:oxide_syntax] shows a subset of Oxide's syntax along with a labeled
 example. An Oxide program consists of a set of functions $\fenv$ (the "global
 environment"), where each function body is an expression $\expr$.
 
 <Figure name="fig:oxide_syntax">
-<Subfigure name="fig:oxide_syntax_bnf">
-  <Oxide.Bnf layout={{ columns: 2, cutoff: 9 }} />
-  <Expandable prompt={<>Rest of the grammar...</>}>
-    <OxideExtra.Bnf />
-  </Expandable>
-  <Caption>Subset of Oxide syntax, reproduced from @[weiss2019oxide; full]. The only difference in this subset is that closures are eliminated and functions are simplified to take one argument.</Caption>
-</Subfigure>
-<Subfigure name="fig:oxide_syntax_example">
-  <SyntaxDiagram />
-  <Caption>Syntactic forms and corresponding metavariables labeled in context of an example</Caption>
-</Subfigure>
-<Caption>Formal elements of Oxide and their explanation (excerpts).</Caption>
+  <Subfigure name="fig:oxide_syntax_bnf">
+    <Oxide.Bnf layout={{ columns: 2, cutoff: 9 }} />
+    <Expandable prompt={<>Rest of the grammar...</>}>
+      <OxideExtra.Bnf />
+    </Expandable>
+    <Caption>Subset of Oxide syntax, reproduced from @[weiss2019oxide; full]. The only difference in this subset is that closures are eliminated and functions are simplified to take one argument.</Caption>
+  </Subfigure>
+  <Subfigure name="fig:oxide_syntax_example">
+    <SyntaxDiagram />
+    <Caption>Syntactic forms and corresponding metavariables labeled in context of an example</Caption>
+  </Subfigure>
+  <Caption>Formal elements of Oxide and their explanation (excerpts).</Caption>
 </Figure>
-</SubSection>
-
-</Section>
 
 <References bibtex={bibtex} />
 

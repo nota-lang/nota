@@ -32,10 +32,14 @@
     "@mdx-js/esbuild": "^2.0.0-rc.1",
     "astring": "^1.7.5",
     "hast-util-to-text": "^3.1.1",
+    "lodash": "^4.17.21",
     "mdast-util-from-markdown": "^1.0.4",
     "mdast-util-mdx-jsx": "^1.1.1",
     "micromark-extension-gfm-footnote": "^1.0.2",
     "micromark-extension-math": "^2.0.2",
+    "micromark-factory-space": "^1.0.0",
+    "micromark-util-character": "^1.1.0",
+    "micromark-util-chunked": "^1.0.0",
     "micromark-util-symbol": "^1.0.0",
     "micromark-util-types": "^1.0.1",
     "rehype-format": "^4.0.0",
@@ -44,6 +48,7 @@
     "remark-math": "^5.1.0",
     "remark-mdx": "^2.0.0-rc.1",
     "unified": "^10.1.0",
+    "unist-util-find": "^1.0.2",
     "unist-util-visit": "^4.1.0"
   },
   "devDependencies": {

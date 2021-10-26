@@ -41,12 +41,16 @@ export class NestedCounter {
     }
   };
 
-  push = (): string[] => {
-    this.stack[this.stack.length - 1] += 1;
-    this.stack.push(0);
+  top = (): string[] => {
     return this.stack
       .slice(0, -1)
       .map((n, i) => this.stylize(n, this.styles[i % this.styles.length]));
+  };
+
+  push = (): string[] => {
+    this.stack[this.stack.length - 1] += 1;
+    this.stack.push(0);
+    return this.top();
   };
 
   Pop: React.FC = () => {
@@ -66,7 +70,12 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
-export let SectionTitle: React.FC<{ level?: number }> = ({ level, children }) => {
+export let SectionTitle: React.FC<{plain?: boolean}> = ({ children, plain }) => {
+  let doc_ctx = useContext(DocumentContext);
+  let sec_stack = doc_ctx.sections.top();
+  let level = sec_stack.length;
+  let sec_num = sec_stack.join(".");
+
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
   >;
@@ -77,27 +86,24 @@ export let SectionTitle: React.FC<{ level?: number }> = ({ level, children }) =>
   } else {
     Header = props => <h4 {...props} />;
   }
-  return <Header className="section-title">{children}</Header>;
+  return <Header className="section-title">
+    {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
+  </Header>;
 };
 
-export let Section: React.FC<{ title: string; name?: string }> = ({ name, title, children }) => {
+export let Section: React.FC<{ name?: string }> = ({ name, children }) => {
   let doc_ctx = useContext(DocumentContext);
   let incr_thm = doc_ctx.sections.stack.length == 1;
   if (incr_thm) {
     doc_ctx.theorems.push();
   }
   let sec_stack = doc_ctx.sections.push();
-  let level = sec_stack.length;
   let sec_num = sec_stack.join(".");
 
   // TODO: section level-specific styles!
-
   return (
     <Definition name={name} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
       <section>
-        <SectionTitle level={level}>
-          <span className="section-number">{sec_num}</span> {title}
-        </SectionTitle>
         {children}
         <doc_ctx.sections.Pop />
         {incr_thm ? <doc_ctx.theorems.Pop /> : null}
@@ -254,19 +260,21 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   );
 };
 
-export let FootnoteDef: React.FC<{name?: string}> = ({children}) => {
+export let FootnoteDef: React.FC<{ name?: string }> = ({ children }) => {
   let ctx = useContext(DocumentContext);
   ctx.footnotes.push(children);
   return null;
-}
+};
 
 export let Footnote: React.FC = ({ children }) => {
   let ctx = useContext(DocumentContext);
   let i = ctx.footnotes.length;
-  return <>
-    <FootnoteDef>{children}</FootnoteDef>
-    <Ref name={`footnote:${i}`} />
-  </>;
+  return (
+    <>
+      <FootnoteDef>{children}</FootnoteDef>
+      <Ref name={`footnote:${i}`} />
+    </>
+  );
 };
 
 let Footnotes: React.FC = _ => {
@@ -278,10 +286,12 @@ let Footnotes: React.FC = _ => {
         return (
           <div className="footnote" id={`footnote-${i}`} key={i}>
             <div className="footnote-number">{i}</div>
-            <Definition name={`footnote:${i}`} Label={() => <sup className="footnote">{i}</sup>} block>
-              <div className="footnote-body">
-                {footnote}
-              </div>
+            <Definition
+              name={`footnote:${i}`}
+              Label={() => <sup className="footnote">{i}</sup>}
+              block
+            >
+              <div className="footnote-body">{footnote}</div>
             </Definition>
           </div>
         );
@@ -339,7 +349,12 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
       <DocumentContext.Provider value={new DocumentData()}>
         <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
       </DocumentContext.Provider>
-      <div className="portal" ref={el => {portal.portal = el;}} />
+      <div
+        className="portal"
+        ref={el => {
+          portal.portal = el;
+        }}
+      />
     </>
   );
 };
