@@ -3,8 +3,7 @@ import {Plugin, Pluggable} from "./plugin";
 // https://stackoverflow.com/questions/5353934/check-if-element-is-visible-on-screen
 function checkVisible(elm: any): boolean {
   var rect = elm.getBoundingClientRect();
-  var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-  return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+  return !(rect.bottom < 0 || rect.top - window.innerHeight >= 0);
 }
 
 let get_ancestors = (el: Node): Node[] => {
@@ -48,7 +47,7 @@ export let ScrollPlugin = new Plugin(class extends Pluggable {
         expanded = true;
       }
     });
-  
+
     // Don't scroll if element is visible
     // See: https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (!expanded && checkVisible(anchor_elem)) {

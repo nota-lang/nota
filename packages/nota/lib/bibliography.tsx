@@ -127,7 +127,7 @@ class BibliographyData extends Pluggable {
         keys.map(key => {
           let entry = this.citations[key];
           let author = entry.display_author();
-          return <Ref key={key} name={key}>{`${author} [${entry.year}${suffix}]`}</Ref>;
+          return <span key={key}>{`${author} [${entry.year}${suffix}]`}</span>;
         }),
         props => <span {...props}>{"; "}</span>
       )
@@ -138,15 +138,10 @@ class BibliographyData extends Pluggable {
           keys.map(key => {
             let entry = this.citations[key];
             if (yearonly) {
-              return (
-                <Ref key={key} name={key}>
-                  {entry.year}
-                  {suffix}
-                </Ref>
-              );
+              return <span key={key}>{`${entry.year}${suffix}`}</span>;
             } else {
               let author = entry.display_author();
-              return <Ref key={key} name={key}>{`${author} ${entry.year}${suffix}`}</Ref>;
+              return <span key={key}>{`${author} ${entry.year}${suffix}`}</span>;
             }
           }),
           props => (
@@ -178,7 +173,7 @@ export let References: React.FC<{ bibtex: string }> = observer(({ bibtex }) => {
         {keys
           .filter(key => key in ctx.citations)
           .map(key => (
-            <Definition key={key} name={key} block>
+            <Definition key={key} name={key} Label={Cite} block>
               {ctx.citations[key].bib_cite()}
             </Definition>
           ))}
@@ -188,14 +183,14 @@ export let References: React.FC<{ bibtex: string }> = observer(({ bibtex }) => {
 });
 
 export interface CiteProps {
-  v: string | string[];
-  f?: boolean;
-  y?: boolean;
-  ex?: string;
+  name: string | string[];
+  full?: boolean;
+  year?: boolean;
+  extra?: string;
 }
 
-export let Cite: React.FC<CiteProps> = observer(({ v, f, y, ex }) => {
+export let Cite: React.FC<CiteProps> = observer(({ name, full, year, extra }) => {
   let ctx = usePlugin(BibliographyPlugin);
-  let keys = typeof v === "string" ? [v] : v;
-  return <>{ctx.cite(keys, f || false, y || false, ex)}</>;
+  let keys = typeof name === "string" ? [name] : name;
+  return <>{ctx.cite(keys, full || false, year || false, extra)}</>;
 });

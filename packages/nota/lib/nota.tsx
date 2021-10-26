@@ -9,6 +9,7 @@ export {
   SubSubSection,
   SectionTitle,
   Footnote,
+  FootnoteDef,
   Wrap,
   Row,
   Document,

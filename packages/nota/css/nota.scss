@@ -53,7 +53,7 @@ $sans-serif: "Helvetica", sans-serif;
   .backlink {
     color: black;
     font-size: 10px;
-  }
+  }  
 
   .footnote-number {
     font-size: $size-small;
@@ -62,6 +62,13 @@ $sans-serif: "Helvetica", sans-serif;
 
   .footnote {
     margin-bottom: 1rem;
+    display: flex;
+  }
+}
+
+.footnote-body {
+  p {
+    text-indent: 0;
   }
 }
 

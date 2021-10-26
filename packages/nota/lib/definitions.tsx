@@ -27,7 +27,7 @@ class DefinitionsData extends Pluggable {
 
   register_use = action((name: string) => {
     this.used_definitions.add(name);
-  })
+  });
 
   get_definition = (name: string): DefinitionData | undefined => {
     return this.defs[name];
@@ -38,6 +38,14 @@ class DefinitionsData extends Pluggable {
       this.defs[name] = def;
     }
   });
+
+  all_definitions = (namespace?: string): { [name: string]: DefinitionData } => {
+    return _.fromPairs(
+      Object.keys(this.defs)
+        .filter(name => (namespace ? name.startsWith(namespace) : true))
+        .map(name => [name, this.defs[name]])
+    );
+  };
 
   init() {
     let on_keydown = action(({ key }: KeyboardEvent) => {
@@ -51,7 +59,7 @@ class DefinitionsData extends Pluggable {
         this.def_mode = false;
       }
     });
-  
+
     useEffect(() => {
       window.addEventListener("keydown", on_keydown);
       window.addEventListener("keyup", on_keyup);
@@ -69,10 +77,10 @@ interface DefinitionProps {
   name?: string;
   block?: boolean;
   Tooltip?: React.FC | null;
-  Label?: React.FC;
+  Label?: React.FC<any>;
 }
 
-let name_to_id = (name: string): string => `def-${name.replace(':', '-')}`;
+let name_to_id = (name: string): string => `def-${name.replace(":", "-")}`;
 
 export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = props => (
   <Container block={props.block} id={name_to_id(props.name)}>
@@ -104,32 +112,32 @@ interface RefProps {
   nolink?: boolean;
 }
 
-
-export let Ref: React.FC<RefProps> = observer(props => {
+export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...props }) => {
+  let name = props.name;
   let ctx = usePlugin(DefinitionsPlugin);
   let scroll_plugin = usePlugin(ScrollPlugin);
   useEffect(() => {
-    ctx.register_use(props.name);
+    ctx.register_use(name);
   }, []);
-  
-  let def = ctx.get_definition(props.name);  
+
+  let def = ctx.get_definition(name);
   if (!def) {
-    return <span className="error">{props.name}</span>;
+    return <span className="error">{name}</span>;
   }
 
   let on_click: React.MouseEventHandler = e => {
     e.preventDefault();
     e.stopPropagation();
 
-    scroll_plugin.scroll_to(name_to_id(props.name));
+    scroll_plugin.scroll_to(name_to_id(name));
   };
 
-  let inner: JSX.Element = props.children ? (
-    <>{props.children}</>
+  let inner: JSX.Element = children ? (
+    <>{children}</>
   ) : def.Label ? (
-    <def.Label />
+    <def.Label {...props} />
   ) : (
-    <span className="error">No children or label for "{props.name}"</span>
+    <span className="error">No children or label for "{name}"</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";
@@ -138,10 +146,8 @@ export let Ref: React.FC<RefProps> = observer(props => {
   let Inner = forwardRef<HTMLDivElement>((inner_props, ref) => (
     <Container
       ref={ref}
-      block={props.block}
-      className={classNames("ref", {
-        nolink: props.nolink,
-      })}
+      block={block}
+      className={classNames("ref", { nolink })}
       {...inner_props}
       {...event_props}
     >

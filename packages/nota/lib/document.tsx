@@ -254,11 +254,19 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   );
 };
 
-export let Footnote: React.FC = ({ children }) => {
+export let FootnoteDef: React.FC<{name?: string}> = ({children}) => {
   let ctx = useContext(DocumentContext);
   ctx.footnotes.push(children);
+  return null;
+}
+
+export let Footnote: React.FC = ({ children }) => {
+  let ctx = useContext(DocumentContext);
   let i = ctx.footnotes.length;
-  return <Ref name={`footnote:${i}`} />;
+  return <>
+    <FootnoteDef>{children}</FootnoteDef>
+    <Ref name={`footnote:${i}`} />
+  </>;
 };
 
 let Footnotes: React.FC = _ => {
@@ -269,9 +277,11 @@ let Footnotes: React.FC = _ => {
         i += 1;
         return (
           <div className="footnote" id={`footnote-${i}`} key={i}>
-            <span className="footnote-number">{i}</span>
-            <Definition name={`footnote:${i}`} Label={() => <sup className="footnote">{i}</sup>}>
-              {footnote}
+            <div className="footnote-number">{i}</div>
+            <Definition name={`footnote:${i}`} Label={() => <sup className="footnote">{i}</sup>} block>
+              <div className="footnote-body">
+                {footnote}
+              </div>
             </Definition>
           </div>
         );
