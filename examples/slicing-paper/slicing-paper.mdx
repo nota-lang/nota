@@ -9,32 +9,25 @@ import { rust } from "@codemirror/lang-rust";
 <Document>
 <ListingConfigure language={rust()} />
 <Title>Modular Program Slicing Through Ownership</Title>
+
 <Authors>
-  <Author>
-    <Name value="Will Crichton" />
-    <Affiliation>
-      <Institution value="Stanford University" />
-    </Affiliation>
-  </Author>
-  <Author>
-    <Name value="Marco Patrignani" />
-    <Affiliation>
-      <Institution value="CISPA Helmholtz Center for Information Security" />
-    </Affiliation>
-  </Author>
-  <Author>
-    <Name value="Maneesh Agrawala" />
-    <Affiliation>
-      <Institution value="Stanford University" />
-    </Affiliation>
-  </Author>
-  <Author>
-    <Name value="Pat Hanrahan" />
-    <Affiliation>
-      <Institution value="Stanford University" />
-    </Affiliation>
-  </Author>
+  {(() => {
+  let stanford = <Affiliation>
+    <Institution value="Stanford University" />
+  </Affiliation>;
+  let cispa = <Affiliation>
+    <Institution value="CISPA Helmholtz Center for Information Security" />
+  </Affiliation>;
+
+  return <>
+    <Author><Name value="Will Crichton" />{stanford}</Author>
+    <Author><Name value="Marco Patrignani" />{cispa}</Author>
+    <Author><Name value="Maneesh Agrawala" />{stanford}</Author>
+    <Author><Name value="Pat Hanrahan" />{stanford}</Author>
+  </>;   
+  })()}
 </Authors>
+
 <Abstract>
   Program slicing, or identifying the subset of a program relevant to a value, relies on understanding the dataflow of a program. In languages with mutable pointers and functions like C or Java, tracking dataflow has historically required whole-program analysis, which can be be slow and challenging to integrate in practice. Advances in type systems have shown how to modularly track dataflow through the concept of ownership. We demonstrate that ownership can modularize program slicing by using types to compute a provably sound and reasonably precise approximation of mutation. We present an algorithm for slicing Oxide, a formalized ownership-based language, and prove the algorithm's soundness as a form of noninterference. Then we describe an implementation of the algorithm for the Rust programming language, and show empirically that modular slices are the same as whole-program slices in 95.4% of slices drawn from large Rust codebases.
 </Abstract>
