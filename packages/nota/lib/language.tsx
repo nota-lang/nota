@@ -1,10 +1,10 @@
-import React, { useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 import _ from "lodash";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
-import { $, $$, newcommand, TexPlugin, Dimensions } from "./tex";
+import { $$, newcommand, TexPlugin } from "./tex";
 import { usePlugin } from "./plugin";
 
 const r = String.raw;
@@ -49,7 +49,7 @@ export class Language {
     });
   }
 
-  Commands = () => {
+  Commands: React.FC = () => {
     let commands = this.grammar
       .map(({ cmd, metavar, branches }) => {
         let mv_cmd = newcommand(`${cmd}`, 0, metavar);
@@ -78,7 +78,7 @@ export class Language {
       isPending,
       error,
     } = useAsync(
-      useCallback(async ({}, { signal }) => {
+      useCallback(async () => {
         let branch_dims = await Promise.all(
           this.grammar.map(({ cmd, branches }) =>
             Promise.all(
@@ -203,6 +203,7 @@ export class Language {
     let [_, rerender] = useState(false);
     useEffect(() => rerender(true), []);
 
+    /* eslint no-undef: off */
     return (
       <div ref={ref}>
         {ref.current ? <this.BnfInner container_ref={ref.current} {...props} /> : null}

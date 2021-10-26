@@ -2,6 +2,7 @@
   "compilerOptions": {
       // Type-checker options
       "strict": true,
+      "skipLibCheck": true,
 
       // Codegen options
       "sourceMap": true,

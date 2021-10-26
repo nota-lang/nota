@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import _ from "lodash";
 import classNames from "classnames";
 import { makeObservable, observable, action } from "mobx";
@@ -11,7 +11,7 @@ import { Plugin, Pluggable, usePlugin } from "./plugin";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;
-  Label: React.FC | null;
+  Label: React.FC<any> | null;
 }
 
 class DefinitionsData extends Pluggable {
@@ -137,14 +137,14 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
   ) : def.Label ? (
     <def.Label {...props} />
   ) : (
-    <span className="error">No children or label for "{name}"</span>
+    <span className="error">No children or label for &ldquo;{name}&rdquo;</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";
   let event_props = { [scroll_event]: on_click };
 
-  let Inner = forwardRef<HTMLDivElement>((inner_props, ref) => (
-    <Container
+  let Inner = forwardRef<HTMLDivElement>(function Inner(inner_props, ref) {
+    return <Container
       ref={ref}
       block={block}
       className={classNames("ref", { nolink })}
@@ -153,7 +153,7 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
     >
       {inner}
     </Container>
-  ));
+  });
 
   if (def.Tooltip) {
     return <Tooltip Inner={Inner} Popup={def.Tooltip} />;

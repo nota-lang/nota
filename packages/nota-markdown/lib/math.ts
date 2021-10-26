@@ -1,6 +1,7 @@
 import { math } from "micromark-extension-math";
 import * as fromMarkdown from "mdast-util-from-markdown";
 import { MDXJsxTextElement, MDXJsxFlowElement } from "mdast-util-mdx-jsx";
+import type {Plugin} from "unified";
 
 function mathFromMarkdown(): fromMarkdown.Extension {
   let enterMathFlow: fromMarkdown.Handle = function (token) {
@@ -8,20 +9,20 @@ function mathFromMarkdown(): fromMarkdown.Extension {
       type: "mdxJsxFlowElement",
       name: "$$",
       attributes: [],
-      children: [{ type: "text", value: "" }],
+      children: [{ type: "text", value: "" } as any],
     };
     this.enter(element, token);
   };
 
-  let enterMathFlowMeta: fromMarkdown.Handle = function () {
-    this.buffer();
-  };
+  // let enterMathFlowMeta: fromMarkdown.Handle = function () {
+  //   this.buffer();
+  // };
 
-  let exitMathFlowMeta: fromMarkdown.Handle = function () {
-    const data = this.resume();
-    const node = this.stack[this.stack.length - 1];
-    // node.meta = data;
-  };
+  // let exitMathFlowMeta: fromMarkdown.Handle = function () {
+  //   const data = this.resume();
+  //   const node = this.stack[this.stack.length - 1];
+  //   // node.meta = data;
+  // };
 
   let exitMathFlowFence: fromMarkdown.Handle = function () {
     // Exit if this is the closing fence.
@@ -62,13 +63,13 @@ function mathFromMarkdown(): fromMarkdown.Extension {
   return {
     enter: {
       mathFlow: enterMathFlow,
-      mathFlowFenceMeta: enterMathFlowMeta,
+      // mathFlowFenceMeta: enterMathFlowMeta,
       mathText: enterMathText,
     },
     exit: {
       mathFlow: exitMathFlow,
       mathFlowFence: exitMathFlowFence,
-      mathFlowFenceMeta: exitMathFlowMeta,
+      // mathFlowFenceMeta: exitMathFlowMeta,
       mathFlowValue: exitMathData,
       mathText: exitMathText,
       mathTextData: exitMathData,
@@ -76,8 +77,8 @@ function mathFromMarkdown(): fromMarkdown.Extension {
   };
 }
 
-export default function() {
-  const data = this.data();
+export let math_plugin: Plugin = function() {
+  const data: Record<string, any> = this.data();
   data.micromarkExtensions.push(math());
   data.fromMarkdownExtensions.push(mathFromMarkdown());
 }

@@ -13,7 +13,7 @@ export type HTMLAttributes = React.HTMLAttributes<HTMLElement>;
 export type ReactReturn = React.ReactElement<any, any> | null;
 
 export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
-  ({ block, ...props }, ref) => {
+  function Container({ block, ...props }, ref) {
     if (block) {
       return <div ref={ref} {...props} />;
     } else {
@@ -49,7 +49,7 @@ export let useSynchronizer = (callback: () => void): (() => () => void) => {
 
   return () => {
     let resolve: () => void;
-    let promise: Promise<null> = new Promise((r, _) => {
+    let promise: Promise<null> = new Promise(r => {
       resolve = () => r(null);
     });
     promises.push(promise);
@@ -68,5 +68,5 @@ export let useStateOnInterval = <T,>(init: T, interval: number, callback: () => 
     }, interval);
     return () => clearInterval(instance);
   }, [callback, interval]);
-  return state;    
+  return state;
 };

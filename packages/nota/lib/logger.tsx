@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { action, autorun, observable, makeObservable } from "mobx";
+import React from "react";
+import { action, observable, makeObservable } from "mobx";
 import { observer } from "mobx-react";
 import _ from "lodash";
 

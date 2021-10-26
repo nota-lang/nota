@@ -1,35 +1,23 @@
-/**
- * @typedef {import('micromark-util-types').Construct} Construct
- * @typedef {import('micromark-util-types').Resolver} Resolver
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-util-types').Token} Token
- * @typedef {import('micromark-util-types').State} State
- */
-
 import { codes } from "micromark-util-symbol/codes.js";
 import type * as mm from "micromark-util-types";
 import type * as fromMarkdown from "mdast-util-from-markdown";
-import { MDXJsxFlowElement, MDXJsxAttribute } from "mdast-util-mdx-jsx";
 import {
   markdownLineEnding,
   markdownLineEndingOrSpace,
   markdownSpace,
 } from "micromark-util-character";
 import { factorySpace } from "micromark-factory-space";
-
 import { types } from "micromark-util-symbol/types.js";
 import { constants } from "micromark-util-symbol/constants.js";
 import { splice } from "micromark-util-chunked";
+import type { Plugin } from "unified";
 
 function labeled_header_flow(): mm.Construct {
-  /** @type {Resolver} */
-  function resolveHeadingAtx(events, context) {
+  let resolveHeadingAtx: mm.Resolver = function (events, context) {
     let contentEnd = events.length - 2;
     let contentStart = 5; // originally 3, added 2 for enter/exit of label event
-    /** @type {Token} */
-    let content;
-    /** @type {Token} */
-    let text;
+    let content: mm.Token;
+    let text: mm.Token;
 
     // Prefix whitespace, part of the opening.
     if (events[contentStart][1].type === types.whitespace) {
@@ -72,23 +60,18 @@ function labeled_header_flow(): mm.Construct {
     }
 
     return events;
-  }
+  };
 
-  function tokenizeHeadingAtx(effects, ok, nok) {
-    const self = this;
+  let tokenizeHeadingAtx: mm.Tokenizer = function (effects, ok, nok) {
     let size = 0;
 
-    return start;
-
-    /** @type {State} */
-    function start(code) {
+    let start: mm.State = function (code) {
       effects.enter(types.atxHeading);
       effects.enter(types.atxHeadingSequence);
       return fenceOpenInside(code);
-    }
+    };
 
-    /** @type {State} */
-    function fenceOpenInside(code) {
+    let fenceOpenInside: mm.State = function (code) {
       if (code === codes.numberSign && size++ < constants.atxHeadingOpeningFenceSizeMax) {
         effects.consume(code);
         return fenceOpenInside;
@@ -102,9 +85,9 @@ function labeled_header_flow(): mm.Construct {
       }
 
       return nok(code);
-    }
+    };
 
-    function label(code) {
+    let label: mm.State = function (code) {
       if (code === codes.rightSquareBracket) {
         effects.exit("atxHeadingLabel");
         effects.consume(code);
@@ -113,10 +96,9 @@ function labeled_header_flow(): mm.Construct {
 
       effects.consume(code);
       return label;
-    }
+    };
 
-    /** @type {State} */
-    function headingBreak(code) {
+    let headingBreak: mm.State = function (code) {
       if (code === codes.numberSign) {
         effects.enter(types.atxHeadingSequence);
         return sequence(code);
@@ -133,10 +115,9 @@ function labeled_header_flow(): mm.Construct {
 
       effects.enter(types.atxHeadingText);
       return data(code);
-    }
+    };
 
-    /** @type {State} */
-    function sequence(code) {
+    let sequence: mm.State = function (code) {
       if (code === codes.numberSign) {
         effects.consume(code);
         return sequence;
@@ -144,10 +125,9 @@ function labeled_header_flow(): mm.Construct {
 
       effects.exit(types.atxHeadingSequence);
       return headingBreak(code);
-    }
+    };
 
-    /** @type {State} */
-    function data(code) {
+    let data: mm.State = function (code) {
       if (code === codes.eof || code === codes.numberSign || markdownLineEndingOrSpace(code)) {
         effects.exit(types.atxHeadingText);
         return headingBreak(code);
@@ -155,8 +135,10 @@ function labeled_header_flow(): mm.Construct {
 
       effects.consume(code);
       return data;
-    }
-  }
+    };
+
+    return start;
+  };
 
   return {
     tokenize: tokenizeHeadingAtx,
@@ -173,16 +155,16 @@ function labeled_header_micromark(): mm.Extension {
 function labeled_header_from_markdown(): fromMarkdown.Extension {
   return {
     exit: {
-      atxHeadingLabel: function(token) {
+      atxHeadingLabel: function (token) {
         const heading = this.stack[this.stack.length - 1];
-        heading.label = this.sliceSerialize(token);
-      }
+        (heading as any).label = this.sliceSerialize(token);
+      },
     },
   };
 }
 
-export default function () {
-  const data = this.data();
+export let labeled_headers_plugin: Plugin = function () {
+  const data: Record<string, any> = this.data();
   data.micromarkExtensions.push(labeled_header_micromark());
   data.fromMarkdownExtensions.push(labeled_header_from_markdown());
-}
+};

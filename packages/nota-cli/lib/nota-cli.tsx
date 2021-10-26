@@ -16,7 +16,7 @@ let input_path = path.resolve(program.args[0]);
 let injected_document_plugin: esbuild.Plugin = {
   name: "injected_document_plugin",
   setup(build) {
-    build.onResolve({ filter: /injected-document/ }, args => ({
+    build.onResolve({ filter: /injected-document/ }, _args => ({
       path: input_path,
     }));
   },

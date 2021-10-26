@@ -22,7 +22,8 @@
   },
   "scripts": {
     "build": "node build.cjs",
-    "tsc": "tsc -emitDeclarationOnly",
+    "tc": "tsc -emitDeclarationOnly",
+    "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
@@ -50,9 +51,5 @@
     "unified": "^10.1.0",
     "unist-util-find": "^1.0.2",
     "unist-util-visit": "^4.1.0"
-  },
-  "devDependencies": {
-    "@types/hast": "^2.3.4",
-    "@types/unist": "^2.0.6"
   }
 }

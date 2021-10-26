@@ -22,7 +22,8 @@
   },
   "scripts": {
     "build": "node build.cjs",
-    "tsc": "tsc -emitDeclarationOnly",
+    "tc": "tsc -emitDeclarationOnly",
+    "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {

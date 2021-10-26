@@ -1,11 +1,10 @@
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
-import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
-import { Container, HTMLAttributes, useMutationObserver } from "./utils";
+import { Container, HTMLAttributes } from "./utils";
 import {Plugin, Pluggable, usePlugin} from "./plugin";
 
 const r = String.raw;
@@ -153,7 +152,7 @@ export interface TexProps {
 
 // memo is important to avoid re-renders that include macro definitions
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
-  ({ children, raw, block, ...props }) => {
+  function Tex({ children, raw, block, ...props }) {
     let ctx = usePlugin(TexPlugin);
     return ctx.render(children as string, block, raw, props);
   },

@@ -57,14 +57,12 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
 
 export let Commentary: React.FC<CommentaryProps> = ({ Document, children, comment_width }) => {
   let document_ref = useRef<HTMLDivElement>(null);
-  let inner_width = DOCUMENT_WIDTH + comment_width;
   let [document_ready, set_document_ready] = useState(false);
 
   return (
     <CommentaryContext.Provider value={{ document: document_ref, document_ready }}>
       <FullWidthContainer
         className="commentary"
-        inner_width={inner_width}
         style={{ background: "#f4f4f4" }}
       >
         <Row>

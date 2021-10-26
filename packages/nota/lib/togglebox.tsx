@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback, forwardRef, CSSProperties } from "react";
-import { useSynchronizer, useStateOnInterval } from "./utils";
+import React, { useState, useRef, useEffect } from "react";
+import { useStateOnInterval } from "./utils";
 import classNames from "classnames";
 
 interface ToggleboxProps {
   Inside: React.FC;
   Outside: React.FC;
   resize?: boolean;
-  registerToggle?: (toggle: (show: boolean) => void) => void;
+  registerToggle?: (_toggle: (_show: boolean) => void) => void;
 }
 
 export let ToggleButton: React.FC<{ on: boolean; onClick: () => void; big?: boolean }> = ({

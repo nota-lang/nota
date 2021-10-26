@@ -1,11 +1,10 @@
-import React, { useState, useContext, useRef, useEffect, useCallback } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 import CSS from "csstype";
 import classNames from "classnames";
 import { observer } from "mobx-react";
-import exenv from "exenv";
-import { IObservable, observable } from "mobx";
+import { observable } from "mobx";
 
 import { TexPlugin } from "./tex";
 import { BibliographyPlugin } from "./bibliography";
@@ -16,8 +15,6 @@ import { ScrollPlugin } from "./scroll";
 import { HTMLAttributes } from "./utils";
 import { Logger, LoggerPlugin } from "./logger";
 import { Plugin, usePlugin } from "./plugin";
-
-const ON_SERVER: boolean = !exenv.canUseDOM;
 
 export type NumberStyle = "1" | "a";
 
@@ -79,6 +76,7 @@ export let SectionTitle: React.FC<{plain?: boolean}> = ({ children, plain }) => 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
   >;
+  /* eslint react/display-name: off */
   if (!level || level == 1) {
     Header = props => <h2 {...props} />;
   } else if (level == 2) {
@@ -86,6 +84,8 @@ export let SectionTitle: React.FC<{plain?: boolean}> = ({ children, plain }) => 
   } else {
     Header = props => <h4 {...props} />;
   }
+  Header.displayName = 'Header';
+
   return <Header className="section-title">
     {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
   </Header>;
@@ -173,8 +173,7 @@ export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children })
 
 export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{children}</span>;
 
-export let FullWidthContainer: React.FC<{ inner_width: number } & HTMLAttributes> = ({
-  inner_width,
+export let FullWidthContainer: React.FC<HTMLAttributes> = ({
   style,
   className,
   ...props

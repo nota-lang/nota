@@ -48,9 +48,9 @@ export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right?: JSX.Elemen
   );
 };
 
-type ToggleCallback = (toggle: boolean) => void;
+type ToggleCallback = (_toggle: boolean) => void;
 interface IRToggleComponentProps {
-  reg: (cb: ToggleCallback) => void;
+  reg: (_cb: ToggleCallback) => void;
 }
 
 export let IRToggle: React.FC<{

@@ -1,19 +1,20 @@
 0 silly argv {
-0 silly argv   _: [ 'create' ],
-0 silly argv   bin: 'nota',
+0 silly argv   _: [ 'link' ],
 0 silly argv   lernaVersion: '4.0.0',
-0 silly argv   '$0': 'node_modules/.bin/lerna',
-0 silly argv   name: '@wcrichto/nota-cli'
+0 silly argv   '$0': '/Users/will/.node_modules/bin/lerna'
 0 silly argv }
 1 notice cli v4.0.0
 2 verbose rootPath /Users/will/Code/nota2
-3 error Error: canceled
-3 error     at Interface.<anonymous> (/Users/will/Code/nota2/node_modules/read/lib/read.js:66:13)
-3 error     at Interface.emit (node:events:394:28)
-3 error     at Interface._ttyWrite (node:readline:1081:16)
-3 error     at ReadStream.onkeypress (node:readline:288:10)
-3 error     at ReadStream.emit (node:events:394:28)
-3 error     at emitKeys (node:internal/readline/utils:358:14)
-3 error     at emitKeys.next (<anonymous>)
-3 error     at ReadStream.onData (node:internal/readline/emitKeypressEvents:61:36)
-3 error     at ReadStream.emit (node:events:394:28)
+3 error JSONError: Unexpected token "}" (0x7D) in JSON at position 201 while parsing near "...xios\": \"^0.23.0\",\n  },\n  \"devDependencie..." in examples/slicing-paper/package.json
+3 error
+3 error [0m [90m  8 |[39m     [32m"@codemirror/lang-rust"[39m[33m:[39m [32m"^0.19.1"[39m[33m,[39m[0m
+3 error [0m [90m  9 |[39m     [32m"axios"[39m[33m:[39m [32m"^0.23.0"[39m[33m,[39m[0m
+3 error [0m[31m[1m>[22m[39m[90m 10 |[39m   }[33m,[39m[0m
+3 error [0m [90m    |[39m   [31m[1m^[22m[39m[0m
+3 error [0m [90m 11 |[39m   [32m"devDependencies"[39m[33m:[39m {}[0m
+3 error [0m [90m 12 |[39m }[0m
+3 error [0m [90m 13 |[39m[0m
+3 error
+3 error     at parseJson (/Users/will/Code/nota2/node_modules/parse-json/index.js:29:21)
+3 error     at parse (/Users/will/Code/nota2/node_modules/load-json-file/index.js:15:9)
+3 error     at module.exports (/Users/will/Code/nota2/node_modules/load-json-file/index.js:18:47)

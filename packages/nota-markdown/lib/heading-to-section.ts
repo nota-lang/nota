@@ -2,10 +2,15 @@ import find from "unist-util-find";
 import type { MDXJsxAttribute, MDXJsxFlowElement } from "mdast-util-mdx-jsx";
 import type mdast from "mdast";
 import _ from "lodash";
+import type {Plugin} from 'unified';
 
-export default function () {
-  return (tree: mdast.Root, _file) => {
-    let doc: MDXJsxFlowElement = find(tree, { name: "Document" });
+export let heading_to_section_plugin: Plugin<any[], mdast.Root> = function() {
+  return (tree, _file) => {
+    let doc = find(tree, { name: "Document" }) as MDXJsxFlowElement | undefined;
+    if (!doc) {
+      throw "Could not find document";
+    }
+
     let new_doc: mdast.BlockContent[] = [];
     let section_stack: MDXJsxFlowElement[] = [];
     
@@ -22,7 +27,7 @@ export default function () {
           type: "mdxJsxFlowElement",
           name: "SectionTitle",
           attributes: [],
-          children: child.children
+          children: child.children as any
         };
 
         let label: string | undefined = (child as any).label;
@@ -43,7 +48,7 @@ export default function () {
         };
 
         if (section_stack.length > 0) {
-          _.last(section_stack).children.push(section);
+          _.last(section_stack)!.children.push(section);
         }
 
         section_stack.push(section);
@@ -51,7 +56,7 @@ export default function () {
         if (section_stack.length == 0) {
           new_doc.push(child);
         } else {
-          _.last(section_stack).children.push(child);
+          _.last(section_stack)!.children.push(child);
         }
       }
     });

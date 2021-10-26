@@ -4,7 +4,7 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 
 import { SectionTitle } from "./document";
-import { Definition, Ref, DefinitionsPlugin } from "./definitions";
+import { Definition, DefinitionsPlugin } from "./definitions";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { action, makeObservable, observable } from "mobx";
 
@@ -84,7 +84,7 @@ class BibliographyEntry {
  * > _([1,2,3]).intersperse(0)
  * [1,0,2,0,3]
  */
-function intersperse<T>(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
+function intersperse(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
   if (arr.length === 0) {
     return [];
   }

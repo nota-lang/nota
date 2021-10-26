@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useContext, useState } from "react";
-import { EditorView, Decoration, DecorationSet, ViewPlugin } from "@codemirror/view";
+import React, { useRef, useEffect } from "react";
+import { EditorView, Decoration, DecorationSet } from "@codemirror/view";
 import { lineNumbers } from "@codemirror/gutter";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
@@ -133,20 +133,19 @@ let parse_with_delimiters = (
 
 export interface ListingDelimiterProps {
   delimiters: string[][];
-  onParse: (ranges: number[][]) => void;
+  onParse: (_ranges: number[][]) => void;
 }
 
 export interface ListingProps {
   code: string;
   editable?: boolean;
   language?: LanguageSupport;
-  onLoad?: (editor: EditorView) => void;
+  onLoad?: (_editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
   extensions?: Extension[];
 }
 
 export let Listing: React.FC<ListingProps> = props => {
-  let [editor, set_editor] = useState<EditorView | null>(null);
   let ctx = usePlugin(ListingPlugin);
   let ref = useRef(null);
 
@@ -187,8 +186,6 @@ export let Listing: React.FC<ListingProps> = props => {
     if (props.delimiters) {
       props.delimiters.onParse(parse_result!.ranges!);
     }
-
-    set_editor(editor);
   }, []);
 
   return <div ref={ref} />;

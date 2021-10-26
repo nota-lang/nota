@@ -2,6 +2,7 @@ import { codes } from "micromark-util-symbol/codes.js";
 import type * as mm from "micromark-util-types";
 import type * as fromMarkdown from "mdast-util-from-markdown";
 import { MDXJsxTextElement, MDXJsxAttribute } from "mdast-util-mdx-jsx";
+import type {Plugin} from "unified";
 
 function ref_text(): mm.Construct {
   let tokenize: mm.Tokenizer = function (effects, ok, nok) {
@@ -49,7 +50,7 @@ function ref_text(): mm.Construct {
     return start;
   };
 
-  let resolve: mm.Resolver = function (events, context) {
+  let resolve: mm.Resolver = function (events, _context) {
     return events;
   };
 
@@ -91,25 +92,14 @@ function ref_from_markdown(): fromMarkdown.Extension {
     this.exit(token);
   };
 
-  let enter_ref_field: fromMarkdown.Handle = function (token) {
-    this.buffer();
-  };
-
-  let exit_ref_field = function (token) {
-    this.config.enter.data.call(this, token);
-    this.config.exit.data.call(this, token);
-
-    return this.resume();
-  };
-
   let exit_ref_name: fromMarkdown.Handle = function (token) {
-    const data = exit_ref_field.bind(this)(token);
+    const data = this.sliceSerialize(token);
     const node = this.stack[this.stack.length - 1] as MDXJsxTextElement;
     node.attributes[0].value = data;
   };
 
   let exit_ref_attrs: fromMarkdown.Handle = function (token) {
-    const data = exit_ref_field.bind(this)(token);
+    const data = this.sliceSerialize(token);
     const node = this.stack[this.stack.length - 1] as MDXJsxTextElement;
     const attrs: MDXJsxAttribute[] = data
       .trim()
@@ -125,8 +115,6 @@ function ref_from_markdown(): fromMarkdown.Extension {
   return {
     enter: {
       ref: enter_ref,
-      ref_name: enter_ref_field,
-      ref_attrs: enter_ref_field,
     },
     exit: {
       ref: exit_ref,
@@ -136,8 +124,8 @@ function ref_from_markdown(): fromMarkdown.Extension {
   };
 }
 
-export default function () {
-  const data = this.data();
+export let ref_plugin: Plugin = function () {
+  const data: Record<string, any> = this.data();
   data.micromarkExtensions.push(ref_micromark());
   data.fromMarkdownExtensions.push(ref_from_markdown());
 }
