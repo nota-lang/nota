@@ -1,12 +1,9 @@
-import "@wcrichto/nota/dist/nota.css";
-import "@wcrichto/nota-theme-acm/dist/nota-theme-acm.css";
+import { rust } from "@codemirror/lang-rust";
 import bibtex from "./slicing-paper.bib";
 import { SliceListing, Principle } from "./components";
-import { SyntaxDiagram } from "./diagrams";
+import { SyntaxDiagram, AssignStaticRule, AssignDynamicRule } from "./diagrams";
 import { Oxide, OxideExtra } from "./language";
-import { rust } from "@codemirror/lang-rust";
 
-<Document>
 <ListingConfigure language={rust()} />
 <Title>Modular Program Slicing Through Ownership</Title>
 
@@ -33,6 +30,7 @@ import { rust } from "@codemirror/lang-rust";
 </Abstract>
 
 $$
+\newcommand{\cmddef}[2]{\htmlData{def=#1}{#2}}
 \newcommand{\textsc}[1]{\text{\tiny #1}}
 \newcommand{\msf}[1]{\mathsf{#1}}
 \newcommand{\tc}[6]{{#1}; {#2}; {#3} \vdash {#4} : {#5} \Rightarrow {#6}}
@@ -271,9 +269,9 @@ consider the code on the left.
     code={`let mut x = 1;
 let mut y = 2;
 let z: &'2 mut i32 = if true {
-&'0 mut x
+  &'0 mut x
 } else {
-&'1 mut y
+  &'1 mut y
 };
 let w: &'4 mut i32 = &'3 mut *z;
 *w = 1;`}
@@ -342,7 +340,7 @@ Without inspecting `f`, we cannot know how a mutable reference is modified, so w
 have to conservatively assume that every argument was used as input to a mutation.
 Therefore the modular slice of each variable looks as in the snippets below:
 
-<Row>
+<Row id="multi-snippets">
   <SliceListing
     prelude={"let f = |x: String, y: &String, z: &mut String| -> usize { 0 };"}
     code={`let x = String::from("x");
@@ -489,6 +487,226 @@ environment"), where each function body is an expression $\expr$.
   <Caption>Formal elements of Oxide and their explanation (excerpts).</Caption>
 </Figure>
 
-<References bibtex={bibtex} />
+The syntax is largely the same as Rust's with a few exceptions:
 
-</Document>
+* Lifetimes are called "provenances", and they are both explicit in expressions and types throughout the program, and initially bound via $\msf{letprov}$ expressions or as function parameters.
+* Rather than having immutable references `&'a τ` and mutable references `&'a mut τ`, Oxide calls them "shared" references $\tysref{\ownqshrd}{\prov}{\ty}$ and "unique" references $\tysref{\ownquniq}{\prov}{\ty}$
+* Provenances are divided into "concrete" ($\concrprov$) and "abstract" ($\abstrprov$). Concrete provenances are used by borrow expressions, and abstract provenances are function parameters used for inputs with reference type.
+
+##[sec:statsem] Static semantics
+
+<Definition name="tex:tc">
+  Expressions are typechecked via the judgment $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$, read as: "$\expr$ has type $\ty$ under contexts $\fenv, \tyenv, \stackenv$ producing new context $\stackenv'$."
+</Definition> 
+$\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking `*b := a.1` in @[fig:oxide_syntax_example] , the inputs would be $\tyenv = \tyenvempty$ (empty) and $\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.
+
+
+Typechecking relies on a number of auxiliary judgments, such as subtyping 
+  (<Definition name="tex:subtype" Tooltip={() => <><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$> means <$>{r`\tau_1`}</$> is a subtype of <$>{r`\tau_2`}</$></>}>
+    $\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}$
+  </Definition>)
+and ownership-safety 
+  (<Definition name="tex:ownsafe">
+    $\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}$, read as "$\pexp$ has $\ownq\text{-loans}$ $\loanset$ in the contexts $\Delta, \Gamma$"
+  </Definition>). 
+As an example, consider <Smallcaps>T-Assign</Smallcaps> for the assignment expression $\exprplcasgn{\plc}{\expr}$:
+
+<Center>
+  <AssignStaticRule />    
+</Center>
+
+<p id="static-rule" className="noindent" style={{color: "#444"}}>
+  [Note: Each section of the rule has a natural language explanation, shown by default. Click on the <span style={{marginLeft: '-0.5rem'}}><ToggleButton big on={false} onClick={()=>{}} /></span> button to see corresponding mathematical formula. You can also click on the right-most button to toggle all sections at once.]
+</p>
+
+A valid assignment must be type-safe and ownership-safe. To be type-safe, the type of the expression $\tys$ must be a subtype of the place's type $\stackenv_1(\plc)$. To be ownership-safe, the type must either be dead[^dead], or $\plc$ must have unique ownership over itself, i.e. there should be no live references to $\plc$. If so, then the type of $\plc$ is updated to $\tys$.
+
+[^dead]: Oxide uses the metavariables $\tyd$ to mean "dead types" and $\tysx$ to mean "possibly dead types". A place becomes dead when it is moved, e.g. see <Smallcaps>T-Move</Smallcaps> in @[weiss2019oxide]. <Smallcaps>T-Assign</Smallcaps> allows a dead place to be revived. For instance, consider the program:
+
+    $$\exprlet{\vr}{\sty}{\text{\textquotedblleft}a"}{\exprseq{\msf{print}(\vr)}{\exprplcasgn{\vr}{\text{\textquotedblleft}b"}}}$$
+
+    When $\msf{print}(\vr)$ moves $\vr$, its type is updated to $\tyds{\sty}$ in $\stackenv$. Then the <Smallcaps>T-Assign</Smallcaps> rule permits $\vr$ to be assigned again to "revive" that place, setting its type back to $\sty$.
+
+##[sec:dynsem] Dynamic semantics
+
+Expressions are executed via a small-step operational semantics, and the program state is a pair of a stack and an expression. 
+<Definition name="tex:stepsto">A single step is represented by the judgment $\stepsto{\fenv}{\stack}{\expr}{\stepped{\stack}}{\expr'}$.</Definition> 
+<Definition name="tex:stack">A stack $\stack$ is a list of stack frames $\varsigma ::= \setof{\vr \mapsto v}$ that map variables to values.</Definition> 
+For example, consider <Smallcaps>E-Assign</Smallcaps> @[weiss2019oxide] that covers $\exprplcasgn{\plc}{\expr}$ and $\exprpexpasgn{\pexp}{\expr}$ expressions:[^fix]
+
+[^fix]: This <Smallcaps>E-Assign</Smallcaps> rule is not the exact same rule that appears in @[weiss2019oxide], as the published version is incorrect. In correspondence with the authors, we determined that the rule presented here has the intended semantics. Additionally, we do not use the referent $\mathcal{R}$ construct of Oxide since we do not consider arrays in this paper, so we use $\plc$ anywhere $\mathcal{R}$ would otherwise appear.
+
+<Center>
+  <AssignDynamicRule />    
+</Center>
+
+This rule introduces several new shorthands and administrative forms:
+
+* <Definition name="tex:pctx">The syntax $\pctx{\plc}{\vr}$ means the decomposition of a place $\plc$ into a root variable $\vr$ and context $\plc^\square$.</Definition> For example, if $\plc = a.0$ then $\plc^\square = \square.0$ and $x = a$ .
+* <Definition name="tex:valuectx">A value context $\valuectx$ is a form to handle mutation of compound objects.</Definition> For instance, if $a = (0, 1)$ , when evaluating $\exprplcasgn{a.0}{2}$ , then $\valuectx = (\square, 1)$. $\valuectx$ copies all the old values, leaving a hole for the one value to be updated. Then the syntax <Definition name="tex:valueplug">$\valueplug{\valuectx}{v}$ means plugging $v$ into the hole.</Definition> Hence, mutating a place is represented as $\stack[x \mapsto \valueplug{\valuectx}{v}]$.
+* <Definition name="tex:pointsto">The judgment $\pointsto{\stack}{\pexp}{\pctx{\plc}{\vr}}{\valuectx}$ evaluates a place expression $\pexp$ under the current stack $\stack$ into a place $\plc$ and value context $\valuectx$.</Definition> For instance, if $\pexp$ is a dereference of a reference, then this judgment resolves $\pexp$ to the concrete memory location $\plc$ it points-to under $\stack$.
+
+##[sec:formal_principles] Formalized principles
+
+Now, we have enough of the language formalized to give a precise statement of each slicing principle from @[sec:background]. Each principle will be presented with the corresponding theorem, using underlining in color to highlight correspondences.
+
+In the principles and corresponding algorithm/proofs, there are many concepts which we  distinguish by notational convention. We denote objects by their metavariable, e.g. $\pexp$ or $\stack$, and add a sans-serif subscript for distinct roles where needed, e.g. $\plc_\mut$ for a mutated place and $\plc_\any$ for an arbitrary place. We generally use a superscript $i$ for an object that varies between two executions of a program, like $\stack^i$ or $v^i$ . And we use right arrows to indicate changes to an object after stepping (instead of primes, to avoid polluting the superscript), e.g. $\stack^i$ versus $\stepped{\stack}^i$.
+
+<hr />
+
+<Correspondence id="correspondence-principle-1">
+  <Row>
+    <div style={{width: '300px', marginRight: '3rem'}}>
+      <Smallcaps>@[prin:places]</Smallcaps>
+      <div style={{fontStyle: 'italic'}}>
+        A <Link name="1">mutation</Link> to a <Link name="2">place</Link> is a <Link name="3">mutation</Link> to <Link name="4">all conflicting places.</Link>
+      </div>
+    </div>
+    <div style={{width: 'max-content'}}>
+      <Theorem name="thm:slice-places">
+        Let: 
+
+        * $\link{2}{\plc_\mut = \pctx{\plc_\mut}{\vr}}, \stack$ where $\pointsto{\stack}{\plc_\mut}{\_}{\valuectx}$
+        * $v, \link{1}{\stepped{\stack} =\stack[\vr \mapsto \valueplug{\valuectx}{v}]}$
+        * <Link name="4">$\plc_\any$ be any place</Link>
+
+        Then $\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}$.        
+      </Theorem>
+    </div>
+  </Row>
+</Correspondence>
+
+As described in @[sec:dynsem], a mutation to a place is represented by updating a variable $\vr$ in a stack $\stack$ by plugging a value $v$ into a value context $\valuectx$. To denote a conflict, we reuse the notation from Oxide that $\disjoint{\plc_1}{\plc_2}$ means "$\plc_1$ and $\plc_2$ do not conflict", or more formally:
+
+<Definition name="tex:disjoint">
+  $$
+  \disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee 
+  ((q_1 \text{ is not a prefix of } q_2) \wedge (q_2 \text{ is not a prefix of } q_1))
+  $$
+</Definition>
+
+Conversely, we use the shorthand <Definition name="tex:notdisjoint">
+  $\notdisjoint{\pi_1}{\pi_2} \eqdef \neg(\disjoint{\pi_1}{\pi_2})$
+</Definition>. So if a place $\plc_\any$ is changed when $\plc_\mut$ is mutated, then it must be that $\notdisjoint{\plc_\any}{\plc_\mut}$.
+
+<hr />
+
+
+<Correspondence>
+  <Row>
+    <div style={{width: '400px', marginRight: '3rem'}}>
+      <Smallcaps>@[prin:references]</Smallcaps><br />
+      <em>The <Link name="1">lifetime</Link> of a <Link name="2">reference</Link> contains all potential <Link name="3">aliases</Link> of what the reference <Link name="4">points-to.</Link></em>
+    </div>
+    <div style={{width: 'max-content', textAlign: 'left'}}>
+      <Theorem name="thm:slice-refs">
+        Let: 
+        
+        * $\stack$ where $\fenv \vdash \stack : \stackenv$
+        * $\link{2}{\pexp_\mut}$ where $\link{1}{\ownsafe{\tyenvempty}{\stackenv}{\uniq}{\pexp_\mut}{\loanset}}$ and $\pointsto{\stack}{\pexp_\mut}{\link{4}{\plc_\mut}}{\_}$
+        * $\link{3}{\pexp_\any}$ where $\pointsto{\stack}{\pexp_\any}{\plc_\any}{\_}$
+
+        Then $\notdisjoint{\plc_\any}{\plc_\mut} \implies \link{3}{\exists \loanform{\uniq}{\pexp_\msf{loan}}} ~ . ~ \notdisjoint{\pexp_\any}{\pexp_\msf{loan}}$.
+      </Theorem>
+    </div>
+  </Row>
+</Correspondence>
+
+Rather than referring to a lifetime directly, we instead use Oxide's ownership safety judgment described in @[sec:statsem] to get the corresponding loan set for a mutated place expression $\pexp_\mut$. If $\pexp_\mut$ includes a dereference, then the loan set should include potential aliases.
+
+A notable detail is that we do not compare the loan sets of $\pexp_\mut$ and $\pexp_\any$ to see if they contain conflicting places, but rather compare $\pexp_\any$ just against the loan set of $\pexp_\mut$. This works because the loan set contains not just the set of places $\plc$ that $\pexp_\mut$ could point-to, but also the set of other references to the places $\pexp_\mut$ points-to (via reborrows).
+
+<hr />
+
+<Correspondence>
+  <Row>
+    <div style={{width: '340px', marginRight: '2.5rem', textAlign: 'left'}}>
+      <Smallcaps>@[prin:function calls]</Smallcaps><br />
+      <div style={{fontStyle: 'italic'}}>
+        When <Link name="1">calling a function:</Link>
+        <ol className="parenkey">
+          <li>only <Link name="2">mutable references in the arguments</Link> <Link name="3">can be mutated</Link>, and...</li>
+        </ol>
+      </div>
+    </div>
+    <div style={{width: 'max-content', textAlign: 'left'}}>
+      <Theorem name="thm:proc_mutrefs">
+        Let: 
+        
+        * $\stackenv, \plc_\arrg, \stack$ where $\stackenv(\plc_\arrg) = \tys$ and $\fenv \vdash \stack : \stackenv$
+        * $\fname$ where $\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{\_}}$
+        * $\stepped{\stack}' = \stepped{\stack}[\link{2}{\forall \pexp_\reff \in \refs{\uniq}{\plc_\arrg, \tys}} ~ . ~ \link{3}{\pexp_\reff \mapsto \stack(\pexp_\reff)}]$
+
+        Then $\stack = \stepped{\stack}'$.
+      </Theorem>
+    </div>
+  </Row>
+</Correspondence>
+
+
+First, <Definition name="tex:refs">we define "mutable references in the arguments" as $\refs{\ownq}{\pexp, \tys}$ that returns the $\ownq$-safe place expressions of references inside of $\pexp$ of type $\tys$</Definition>. For instance, if $x = 0$ and $y = (0, \tysref{\uniq}{\concrprov}{x})$ then $\refs{\uniq}{y, (\uty, \tysref{\uniq}{\concrprov}{\uty})} = \{\pexpderef{y.1}\}$ . The full definition is:  
+
+$$
+\begin{align*}
+  \refs{\ownq}{\pexp, \tyb} &=
+      \varnothing
+  \hspace{32pt}
+  \refs{\ownq}{\pexp, \tystup{\tys_1, \ldots, \tys_n}} = 
+      \bigcup_i \refs{\ownq}{\pexp.i, \tys_i}
+  \\ 
+  \refs{\ownq}{p, \tysref{\ownq'}{\prov}{\tyx}} &= \begin{cases}
+    \{\pexpderef{\pexp}\} \cup \refs{\ownq}{\pexpderef{p}, \tyx} & \text{if $\ownqleq{\ownq'}{\ownq}$} \\
+    \varnothing & \text{otherwise}
+  \end{cases}
+\end{align*}
+$$
+
+<p className="noindent">Here, <Definition name="tex:ownqleq">the relation $\ownqleq{\ownq'}{\ownq}$ is defined as $\uniq \not\lesssim \shrd$ and otherwise $\ownqleq{\ownq'}{\ownq}$.</Definition></p>
+
+Then we define @[thm:proc_mutrefs] in the theme of a transaction: if all the changes to unique references in $\plc_\arrg$ are rolled back, then the new stack is the same as the one before the function call. This means implicitly that no other values could have been mutated.
+
+<hr />
+
+
+<Correspondence>
+  <Row>
+    <div style={{width: '330px', marginRight: '2rem', textAlign: 'left'}}>
+      <Smallcaps>@[prin:function calls]</Smallcaps><br />
+      <div style={{fontStyle: 'italic'}}>
+        When <Link name="1">calling a function:</Link>
+        <ol className="parenkey" start={2}>
+          <li>...the <Link name="2">mutations</Link> and <Link name="3">return value</Link> are only <Link name="4">influenced by the arguments.</Link></li>
+        </ol>
+      </div>
+    </div>
+    <div style={{width: 'max-content', textAlign: 'left'}}>
+      <Theorem name="thm:proc_eqarg">
+        Let: 
+          
+        * $\stackenv, \plc_\arrg, \stack^i$ where $\stackenv(\plc_\arrg) = \tys$ and $i \in \{1, 2\}, \fenv \vdash \stack^i : \stackenv$
+        * $\fname$ where $\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{v^i}}$
+        * $\link{4}{P = \allplaces{\plc_\arrg}{\tys}}$
+        
+        Then $\link{4}{\stackeq{\stack^1}{\stack^2}{P}} \implies \link{2}{\stackeq{\stepped{\stack}^1}{\stepped{\stack}^2}{P}} \wedge \link{3}{v^1 = v^2}$
+      </Theorem>
+    </div>
+  </Row>
+</Correspondence>
+
+The idea behind @[thm:proc_eqarg] is that "influence" is translated into a form of noninterference: if the input to a function is the same under any two stacks $\stack^1$ and $\stack^2$, then the mutations to that input must be the same. The rest of the stack is allowed to vary, but because the function $\fname$ cannot read it, that variation cannot influence the final value. 
+
+To formalize "the input being the same", we introduce another auxiliary function for transitive equality. For instance, if we only required that $\stack^1(\plc_\arrg) = \stack^2(\plc_\arrg)$ where $\plc_\arrg = \msf{ptr}~x$, then if $\stack^1(x) \neq \stack^2(x)$ the theorem would not be true. Hence, transitive equality is defined as equality including all pointed places. We define this concept through two pieces: a function for generating the set of places (denoted by $P$), and a relation defining the equivalence of stacks for a set of places.
+
+$$
+\begin{align*}
+  \cmddef{allplaces}{\allplaces{\pexp}{\tys}} &\eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys} \\
+  \cmddef{stackeq}{\stackeq{\stack^1}{\stack^2}{P}} &\eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)
+\end{align*}
+$$
+
+<Definition name="tex:allplaces" Tooltip={() => <$>{r`\allplaces{\pexp}{\tys} \eqdef \{\pexp\} \cup \refs{\shrd}{\pexp, \tys}`}</$>} />
+<Definition name="tex:stackeq" Tooltip={() => <$>{r`\stackeq{\stack^1}{\stack^2}{P} \eqdef \forall \pexp \in P ~ . ~ \stack^1(\pexp) = \stack^2(\pexp)`}</$>} />
+
+Therefore @[thm:proc_eqarg] states that if $\plc_\arrg$ is transitively equal under two otherwise arbitrary stacks, then $\plc_\arrg$ is still transitively equal after evaluating $\fname(\plc_\arrg)$ , and the output of $\fname(\plc_\arrg)$ is also equal.
+
+<References bibtex={bibtex} />

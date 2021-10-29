@@ -1,17 +1,11 @@
-import find from "unist-util-find";
 import type { MDXJsxAttribute, MDXJsxFlowElement } from "mdast-util-mdx-jsx";
 import type mdast from "mdast";
 import _ from "lodash";
 import type {Plugin} from 'unified';
 
 export let heading_to_section_plugin: Plugin<any[], mdast.Root> = function() {
-  return (tree, _file) => {
-    let doc = find(tree, { name: "Document" }) as MDXJsxFlowElement | undefined;
-    if (!doc) {
-      throw "Could not find document";
-    }
-
-    let new_doc: mdast.BlockContent[] = [];
+  return (doc, _file) => {
+    let new_doc: mdast.Content[] = [];
     let section_stack: MDXJsxFlowElement[] = [];
     
     doc.children.forEach(child => {
@@ -56,7 +50,7 @@ export let heading_to_section_plugin: Plugin<any[], mdast.Root> = function() {
         if (section_stack.length == 0) {
           new_doc.push(child);
         } else {
-          _.last(section_stack)!.children.push(child);
+          _.last(section_stack)!.children.push(child as any);
         }
       }
     });

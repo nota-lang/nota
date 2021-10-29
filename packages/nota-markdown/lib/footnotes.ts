@@ -18,8 +18,12 @@ function gfmFootnoteFromMarkdown() {
     this.exit(token);
   };
 
-  let exit_definition_label: fromMarkdown.Handle = function (token) {
-    const label = this.sliceSerialize(token);
+  let enter_definition_label: fromMarkdown.Handle = function(_token) {
+    this.buffer();
+  }
+
+  let exit_definition_label: fromMarkdown.Handle = function (_token) {
+    const label = this.resume();
     const el = this.stack[this.stack.length - 1] as MDXJsxTextElement;
     el.attributes.push({
       type: "mdxJsxAttribute",
@@ -31,6 +35,8 @@ function gfmFootnoteFromMarkdown() {
   return {
     enter: {
       gfmFootnoteDefinition: enter_definition,
+      gfmFootnoteDefinitionLabelString: enter_definition_label,
+
     },
     exit: {
       gfmFootnoteDefinition: exit_definition,

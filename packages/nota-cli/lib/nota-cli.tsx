@@ -7,6 +7,9 @@ import { promises as fs } from "fs";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { notaMarkdown } from "@wcrichto/nota-markdown";
 
+//@ts-ignore
+import notaPeers from "@wcrichto/nota/dist/peer-dependencies.js";
+
 program.version("0.1.0").option("-w, --watch").argument("<input>");
 
 program.parse(process.argv);
@@ -23,34 +26,51 @@ let injected_document_plugin: esbuild.Plugin = {
 };
 let page_path = path.resolve(path.join(__dirname, "..", "lib", "page.tsx"));
 
-esbuild
-  .build({
-    entryPoints: [page_path],
-    outdir: "dist",
-    bundle: true,
-    plugins: [notaMarkdown(), sassPlugin() as any, injected_document_plugin],
-    sourcemap: true,
-    loader: {
-      ".otf": "file",
-      ".woff": "file",
-      ".woff2": "file",
-      ".ttf": "file",
-      ".bib": "text",
-    },
+let common_opts: Partial<esbuild.BuildOptions> = {
+  watch: opts.watch,
+  sourcemap: true,
+  bundle: true,
+  plugins: [notaMarkdown(), sassPlugin()],
+  loader: {
+    ".otf": "file",
+    ".woff": "file",
+    ".woff2": "file",
+    ".ttf": "file",
+    ".bib": "text",
+  },
+};
 
-    watch: opts.watch,
-  })
+let doc_build = esbuild.build({
+  ...common_opts,
+  entryPoints: [input_path],
+  format: 'esm',
+  outfile: "dist/document/document.js",
+  external: [...notaPeers, "@mdx-js/react", "@wcrichto/nota"]
+});
+
+let page_build = esbuild.build({
+  ...common_opts,
+  entryPoints: [page_path],
+  outfile: "dist/page/index.js",
+  plugins: [...common_opts.plugins!, injected_document_plugin],
+});
+
+Promise.all([doc_build, page_build])
   .then(() => {
     let index_html = `
   <html>
     <head>
-      <link href="page.css" rel="stylesheet" />
+      <link href="index.css" rel="stylesheet" />
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
       <div id="page-container"></div>
-      <script src="page.js"></script>
+      <script src="index.js"></script>
     </body>
   </html>`;
 
-    fs.writeFile("dist/index.html", index_html);
-  });
+    fs.writeFile("dist/page/index.html", index_html);
+  })
+  .then(_ => console.log("Build succeeded."))
+  .catch(_ => console.error("Build failed."));

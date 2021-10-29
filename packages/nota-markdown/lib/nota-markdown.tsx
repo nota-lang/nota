@@ -18,6 +18,8 @@ import {heading_to_section_plugin} from "./heading-to-section";
 
 export let notaMarkdown = (): esbuild.Plugin => {
   let mdx_plugin = mdx({
+    // allow MDXProvider to be used for passing components
+    providerImportSource: '@mdx-js/react',
     remarkPlugins: [
       math_plugin,
       ref_plugin,

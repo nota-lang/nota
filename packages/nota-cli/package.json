@@ -29,12 +29,13 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "@mdx-js/react": "^1.6.22",
     "@types/commander": "^2.12.2",
-    "commander": "^8.3.0",
-    "module-from-string": "^3.1.1",
     "@wcrichto/nota": "^0.1.0",
     "@wcrichto/nota-markdown": "^0.1.0",
-    "@wcrichto/nota-theme-acm": "^0.1.0"
+    "@wcrichto/nota-theme-acm": "^0.1.0",
+    "commander": "^8.3.0",
+    "module-from-string": "^3.1.1"
   },
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
@@ -44,5 +45,8 @@
     "esbuild-sass-plugin": "^1.6.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/mdx-js__react": "^1.5.5"
   }
 }
