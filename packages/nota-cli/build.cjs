@@ -7,5 +7,5 @@ estrella.build({
   platform: "node",
   bundle: true,
   sourcemap: true,
-  external: ['esbuild', 'fs', 'path']
+  external: ['esbuild', 'fs', 'path', 'esbuild-sass-plugin']
 });

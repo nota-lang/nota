@@ -40,7 +40,8 @@
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "esbuild-sass-plugin": "^1.6.3"
   },
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
@@ -49,7 +50,6 @@
     "@types/commander": "^2.12.2",
     "@types/mdx-js__react": "^1.5.5",
     "@wcrichto/nota-markdown": "^0.1.3",
-    "commander": "^8.3.0",
-    "esbuild-sass-plugin": "^1.6.3"
+    "commander": "^8.3.0"
   }
 }
