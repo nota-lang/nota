@@ -7,6 +7,7 @@ jobs:
       - run: |
           sudo npm install -g yarn lerna
           lerna bootstrap
+          lerna link
           lerna run tc
           lerna run build
           lerna run lint
