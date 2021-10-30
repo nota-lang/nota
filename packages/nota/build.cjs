@@ -25,12 +25,12 @@ estrella.build({
   // TODO: not getting picked up by nota-cli?
   fs.writeFileSync(
     "dist/peer-dependencies.d.ts",
-    `declare module '@wcrichto/nota/dist/peer-dependencies.mjs' {
+    `declare module '@wcrichto/nota/dist/peer-dependencies.js' {
       const peerDependencies: string[]; export default peerDependencies;
     }`
   );
   fs.writeFileSync(
-    "dist/peer-dependencies.mjs", 
+    "dist/peer-dependencies.js", 
     `export default ${JSON.stringify(external)};`
   );
 })

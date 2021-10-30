@@ -7,8 +7,8 @@ jobs:
       - run: |
           sudo npm install -g yarn lerna
           lerna bootstrap
-          lerna run build
           lerna run tc
+          lerna run build
           lerna run lint
       - uses: JamesIves/github-pages-deploy-action@4.1.4
         with:

@@ -3,13 +3,10 @@
 import { program } from "commander";
 import esbuild from "esbuild";
 import path from "path";
-import { fileURLToPath } from 'url';
 import { promises as fs } from "fs";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { notaMarkdown } from "@wcrichto/nota-markdown";
-
-//@ts-ignore
-import notaPeers from "@wcrichto/nota/dist/peer-dependencies.mjs";
+import notaPeers from "@wcrichto/nota/dist/peer-dependencies.js";
 
 program.version("0.1.0").option("-w, --watch").argument("<input>");
 
@@ -26,8 +23,7 @@ let injected_document_plugin: esbuild.Plugin = {
   },
 };
 
-let script_dir = path.dirname(fileURLToPath(import.meta.url));
-let page_path = path.resolve(path.join(script_dir, "..", "lib", "page.tsx"));
+let page_path = path.resolve(path.join(__dirname, "..", "lib", "page.tsx"));
 
 let common_opts: Partial<esbuild.BuildOptions> = {
   watch: opts.watch,
