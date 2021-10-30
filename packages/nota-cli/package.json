@@ -1,6 +1,6 @@
 {
   "name": "@wcrichto/nota-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -32,9 +32,9 @@
   "dependencies": {
     "@mdx-js/react": "^1.6.22",
     "@types/commander": "^2.12.2",
-    "@wcrichto/nota": "^0.1.0",
-    "@wcrichto/nota-markdown": "^0.1.0",
-    "@wcrichto/nota-theme-acm": "^0.1.0",
+    "@wcrichto/nota": "^0.1.1",
+    "@wcrichto/nota-markdown": "^0.1.1",
+    "@wcrichto/nota-theme-acm": "^0.1.1",
     "commander": "^8.3.0",
     "module-from-string": "^3.1.1"
   },

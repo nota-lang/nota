@@ -1,6 +1,6 @@
 {
   "name": "@wcrichto/nota",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TODO",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota",
@@ -34,10 +34,10 @@
     "@popperjs/core": "^2.9.2",
     "classnames": "^2.3.1",
     "html-to-react": "^1.4.5",
+    "katex": "^0.13.20",
     "lodash": "^4.17.21",
     "react-async": "^10.0.1",
-    "react-loader-spinner": "^4.0.0",
-    "katex": "^0.13.20"
+    "react-loader-spinner": "^4.0.0"
   },
   "peerDependencies": {
     "@codemirror/gutter": "^0.19.0",
