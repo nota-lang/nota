@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/document/document.js",
+  "private": true,
   "scripts": {
     "build": "nota slicing-paper.mdx"
   },

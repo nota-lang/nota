@@ -10,7 +10,7 @@ jobs:
           lerna run build
           lerna run tc
           lerna run lint
-      # - uses: JamesIves/github-pages-deploy-action@4.1.4
-      #   with:
-      #     branch: gh-pages
-      #     folder: examples/hatra/dist
+      - uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: examples/hatra-paper/dist/page
