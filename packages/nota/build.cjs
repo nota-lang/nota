@@ -22,15 +22,15 @@ estrella.build({
     ".ttf": "file",    
   }
 }).then(_ => {
-  // TODO: the type decls aren't being read by nota-cli
+  // TODO: not getting picked up by nota-cli?
   fs.writeFileSync(
     "dist/peer-dependencies.d.ts",
-    `declare module '@wcrichto/nota/dist/peer-dependencies.js' {
+    `declare module '@wcrichto/nota/dist/peer-dependencies.mjs' {
       const peerDependencies: string[]; export default peerDependencies;
     }`
   );
   fs.writeFileSync(
-    "dist/peer-dependencies.js", 
+    "dist/peer-dependencies.mjs", 
     `export default ${JSON.stringify(external)};`
   );
 })

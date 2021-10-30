@@ -3,12 +3,13 @@
 import { program } from "commander";
 import esbuild from "esbuild";
 import path from "path";
+import { fileURLToPath } from 'url';
 import { promises as fs } from "fs";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { notaMarkdown } from "@wcrichto/nota-markdown";
 
 //@ts-ignore
-import notaPeers from "@wcrichto/nota/dist/peer-dependencies.js";
+import notaPeers from "@wcrichto/nota/dist/peer-dependencies.mjs";
 
 program.version("0.1.0").option("-w, --watch").argument("<input>");
 
@@ -24,7 +25,9 @@ let injected_document_plugin: esbuild.Plugin = {
     }));
   },
 };
-let page_path = path.resolve(path.join(__dirname, "..", "lib", "page.tsx"));
+
+let script_dir = path.dirname(fileURLToPath(import.meta.url));
+let page_path = path.resolve(path.join(script_dir, "..", "lib", "page.tsx"));
 
 let common_opts: Partial<esbuild.BuildOptions> = {
   watch: opts.watch,
@@ -57,18 +60,18 @@ let page_build = esbuild.build({
 
 Promise.all([doc_build, page_build])
   .then(() => {
-    let index_html = `
-  <html>
-    <head>
-      <link href="index.css" rel="stylesheet" />
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-      <div id="page-container"></div>
-      <script src="index.js"></script>
-    </body>
-  </html>`;
+    let index_html = `<!DOCTYPE html>
+<html>
+  <head>
+    <link href="index.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div id="page-container"></div>
+    <script src="index.js"></script>
+  </body>
+</html>`;
 
     fs.writeFile("dist/page/index.html", index_html);
   })
