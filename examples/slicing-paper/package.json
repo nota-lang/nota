@@ -1,6 +1,6 @@
 {
   "name": "slicing-paper",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "main": "dist/document/document.js",
   "private": true,
@@ -10,7 +10,7 @@
   "dependencies": {
     "@codemirror/basic-setup": "^0.19.0",
     "@codemirror/lang-rust": "^0.19.1",
-    "@wcrichto/nota": "^0.1.1",
+    "@wcrichto/nota": "^0.1.2",
     "axios": "^0.23.0",
     "katex": "^0.13.19",
     "mobx": "^6.3.5",
@@ -19,6 +19,6 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@wcrichto/nota-cli": "^0.1.1"
+    "@wcrichto/nota-cli": "^0.1.2"
   }
 }
