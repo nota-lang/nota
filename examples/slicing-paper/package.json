@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/document/document.js",
+  "scripts": {
+    "build": "nota slicing-paper.mdx"
+  },
   "dependencies": {
     "@codemirror/basic-setup": "^0.19.0",
     "@codemirror/lang-rust": "^0.19.1",
@@ -14,5 +17,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@wcrichto/nota-cli": "^0.1.0"
+  }
 }

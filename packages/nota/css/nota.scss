@@ -138,8 +138,11 @@ a[href],
 }
 
 p {
-  text-indent: 1em;
   margin: 0;
+
+  &:not(:first-child) {
+    text-indent: 1em;
+  }
 
   .section-title + & {
     text-indent: 0;
@@ -443,6 +446,16 @@ sup.footnote-marker {
 
 .theorem-body {
   font-style: italic;
+
+  p {
+    text-indent: 0;    
+  }
+
+  ul, ol {
+    margin: 0;
+
+    li { margin: 0; }
+  }
 }
 
 .correspondence {

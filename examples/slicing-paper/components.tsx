@@ -153,8 +153,10 @@ export let SliceListing: React.FC<{ code: string; prelude?: string }> = ({ code,
 
 let num_principles = 0;
 export let Principle: React.FC<{ type: string; text: string }> = ({ type, text }) => {
-  num_principles += 1;
-  let num = num_principles;
+  let [num] = useState(() => {
+    num_principles += 1;
+    return num_principles;
+  });
   let Label = () => <>Principle {num}</>;
   let Text = () => <>{text}</>;
 

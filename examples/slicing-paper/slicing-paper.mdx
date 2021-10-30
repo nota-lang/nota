@@ -208,7 +208,7 @@ compile-time:
   <Listing
     code={`// Dangling reference
 let p = {
-let x = 1; &x
+  let x = 1; &x
 };
 let y = *p;`}
   />
@@ -223,7 +223,7 @@ let p = d2.path();`}
     code={`// Iterator invalidation
 let mut v = vec![1,2];
 for x in v.iter() {
-v.push(*x);
+  v.push(*x);
 }`}
   />
 </Row>
@@ -329,18 +329,18 @@ that arise in the code above.
   Therefore it is an ownership error to refer to `x` after calling `f` and we do not need to
   consider slices on `x` after `f`.
 - Passing a value `y` of type `&String` (or `&T`) passes an immutable reference. Immutable
-  references cannot be mutated, therefore `y` cannot change in `f`.[^3]
+  references cannot be mutated, therefore `y` cannot change in `f`[^3].
 - Passing a value `z` of type `&mut String` (or `&mut T`) passes a mutable reference, which could
   possibly be mutated. This case is therefore the only observable of effect `f` apart from its
   return value.
 
 [^3]:  A notable detail to the safety of immutable references is that immutability is transitive. For instance, if `b = &mut a` and `c = &b`, then `a` is guaranteed not to be mutated through `c`. This stands in contrast to other languages with pointers like C and C++ where the `const` keyword only protects values from mutation at the top-level, and not into the interior fields.
 
-Without inspecting `f`, we cannot know how a mutable reference is modified, so we
+<p id="multi-snippets">Without inspecting `f`, we cannot know how a mutable reference is modified, so we
 have to conservatively assume that every argument was used as input to a mutation.
-Therefore the modular slice of each variable looks as in the snippets below:
+Therefore the modular slice of each variable looks as in the snippets below:</p>
 
-<Row id="multi-snippets">
+<Row>
   <SliceListing
     prelude={"let f = |x: String, y: &String, z: &mut String| -> usize { 0 };"}
     code={`let x = String::from("x");
@@ -495,10 +495,7 @@ The syntax is largely the same as Rust's with a few exceptions:
 
 ##[sec:statsem] Static semantics
 
-<Definition name="tex:tc">
-  Expressions are typechecked via the judgment $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$, read as: "$\expr$ has type $\ty$ under contexts $\fenv, \tyenv, \stackenv$ producing new context $\stackenv'$."
-</Definition> 
-$\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking `*b := a.1` in @[fig:oxide_syntax_example] , the inputs would be $\tyenv = \tyenvempty$ (empty) and $\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.
+<Definition name="tex:tc">Expressions are typechecked via the judgment $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$, read as: "$\expr$ has type $\ty$ under contexts $\fenv, \tyenv, \stackenv$ producing new context $\stackenv'$."</Definition> $\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking `*b := a.1` in @[fig:oxide_syntax_example] , the inputs would be $\tyenv = \tyenvempty$ (empty) and $\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.
 
 
 Typechecking relies on a number of auxiliary judgments, such as subtyping 

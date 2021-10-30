@@ -63,7 +63,7 @@ export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commen
     <CommentaryContext.Provider value={{ document: document_ref, document_ready }}>
       <FullWidthContainer
         className="commentary"
-        style={{ background: "#f4f4f4" }}
+        style={{ background: "#f4f4f4", padding: "1rem 0" }}
       >
         <Row>
           <div ref={document_ref} className="object" style={{ width: DOCUMENT_WIDTH }}>
