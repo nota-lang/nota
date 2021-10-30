@@ -1,0 +1,32 @@
+{
+  "name": "@wcrichto/nota-theme-acm",
+  "version": "0.1.3",
+  "description": "> TODO: description",
+  "author": "Will Crichton <wcrichto@cs.stanford.edu>",
+  "homepage": "https://github.com/willcrichton/nota#readme",
+  "license": "MIT",
+  "main": "dist/nota-theme-acm.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willcrichton/nota.git"
+  },
+  "scripts": {
+    "build": "node build.cjs",
+    "tc": "tsc -emitDeclarationOnly",
+    "lint": "eslint --ext js,ts,tsx lib",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/willcrichton/nota/issues"
+  }
+}

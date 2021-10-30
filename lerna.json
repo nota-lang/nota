@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "packages/*",
+    "examples/*"
+  ],
+  "version": "0.1.5",
+  "npmClient": "yarn",
+  "useWorkspaces": true
+}
