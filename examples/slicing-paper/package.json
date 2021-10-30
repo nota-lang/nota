@@ -1,6 +1,6 @@
 {
   "name": "slicing-paper",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "main": "dist/document/document.js",
   "private": true,
@@ -19,6 +19,6 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@wcrichto/nota-cli": "^0.1.4"
+    "@wcrichto/nota-cli": "^0.1.5"
   }
 }
