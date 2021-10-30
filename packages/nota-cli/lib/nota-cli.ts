@@ -1,4 +1,4 @@
-#!/usr/bin/env node --enable-source-maps
+#!/usr/bin/env node
 
 import esbuild from "esbuild";
 import path from "path";
