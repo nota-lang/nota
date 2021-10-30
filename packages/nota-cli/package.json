@@ -15,6 +15,7 @@
   },
   "files": [
     "lib",
+    "css",
     "dist"
   ],
   "publishConfig": {
@@ -34,11 +35,8 @@
     "@codemirror/basic-setup": "^0.19.0",
     "@mdx-js/react": "^1.6.22",
     "@wcrichto/nota": "^0.1.3",
-    "@wcrichto/nota-markdown": "^0.1.3",
     "@wcrichto/nota-theme-acm": "^0.1.3",
-    "commander": "^8.3.0",
     "esbuild": "^0.13.8",
-    "esbuild-sass-plugin": "^1.6.3",
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",
@@ -49,6 +47,9 @@
   },
   "devDependencies": {
     "@types/commander": "^2.12.2",
-    "@types/mdx-js__react": "^1.5.5"
+    "@types/mdx-js__react": "^1.5.5",
+    "commander": "^8.3.0",
+    "esbuild-sass-plugin": "^1.6.3",
+    "@wcrichto/nota-markdown": "^0.1.3"
   }
 }

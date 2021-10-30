@@ -1,9 +1,9 @@
 #!/usr/bin/env node --enable-source-maps
 
-import { program } from "commander";
 import esbuild from "esbuild";
 import path from "path";
 import { promises as fs } from "fs";
+import { program } from "commander";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { notaMarkdown } from "@wcrichto/nota-markdown";
 import notaPeers from "@wcrichto/nota/dist/peer-dependencies.js";
