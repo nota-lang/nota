@@ -75391,7 +75391,7 @@ assert!(*value.lock().unwrap() == 1);`
             children: [(0, import_jsx_runtime2.jsxs)("p", {
               children: ["Examples don't have to be static in the browser! Try editing this code example to say ", (0, import_jsx_runtime2.jsx)("code", {
                 children: "x = z;"
-              }), " on line 4. then select ", (0, import_jsx_runtime2.jsx)("code", {
+              }), " on line 4. Then select ", (0, import_jsx_runtime2.jsx)("code", {
                 children: "x"
               }), " on line 5 and click ", (0, import_jsx_runtime2.jsx)("q", {
                 children: "Slice"
