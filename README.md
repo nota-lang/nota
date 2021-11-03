@@ -1,5 +1,7 @@
 # Nota: A Web Framework for Documents
 
+[![.github/workflows/ci.yaml](https://github.com/willcrichton/nota/actions/workflows/ci.yaml/badge.svg)](https://github.com/willcrichton/nota/actions/workflows/ci.yaml)
+
 Nota is a framework for writing documents, like LaTeX. It uses the browser's document layout engine and interactive capabilities to make documents easier to both write and read.
 
 To see an example, or to read about Nota's design philosophy, please check out my [HATRA '21](https://2021.splashcon.org/home/hatra-2021) paper: ["A New Medium for Communicating Research on Programming Languages"](https://willcrichton.net/nota/)
