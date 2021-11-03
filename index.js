@@ -73579,7 +73579,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             }), " was GrammaTech's proprietary technology and appears to no longer exist."]
           })
         }), (0, import_jsx_runtime.jsxs)(_components.p, {
-          children: ["A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if ", (0, import_jsx_runtime.jsx)($2, {
+          children: ["A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow \u2014 if ", (0, import_jsx_runtime.jsx)($2, {
             children: "x"
           }), " is relevant, then any means by which data flows into ", (0, import_jsx_runtime.jsx)($2, {
             children: "x"
@@ -73627,7 +73627,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             }), ", so alias analysis results can change due to modifications in code far away from the current module."]
           }), "\n"]
         }), (0, import_jsx_runtime.jsxs)(_components.p, {
-          children: ["These issues are not new --- ", (0, import_jsx_runtime.jsx)(Ref, {
+          children: ["These issues are not new \u2014 ", (0, import_jsx_runtime.jsx)(Ref, {
             name: "rountev1999data",
             full: "true"
           }), " and ", (0, import_jsx_runtime.jsx)(Ref, {
@@ -73748,7 +73748,7 @@ println!("{}", @x@);`
             children: (0, import_jsx_runtime.jsx)(SliceListing, {
               code: `let mut x = 1;
 let mut y = 2;
-if y > 0 { x = 3; } 
+if y > 0 { x = 3; }
 else     { y = 4; }
 println!("{}", @x@);`
             })
@@ -74225,8 +74225,8 @@ println!("{}", @w@);`
             children: (0, import_jsx_runtime.jsx)(Listing2, {
               code: `let value = Arc::new(Mutex::new(0));
 let value_ref = value.clone();
-thread::spawn(move || { 
-*value_ref.lock().unwrap() += 1; 
+thread::spawn(move || {
+*value_ref.lock().unwrap() += 1;
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`
             })
@@ -75322,7 +75322,7 @@ assert!(*value.lock().unwrap() == 1);`
           children: ["\n", (0, import_jsx_runtime2.jsx)(_components.li, {
             children: "A reader should always be able to access the definition of a symbol."
           }), "\n", (0, import_jsx_runtime2.jsx)(_components.li, {
-            children: "Jumping around is bad --- definitions should be visible in context."
+            children: "Jumping around is bad \u2014 definitions should be visible in context."
           }), "\n", (0, import_jsx_runtime2.jsx)(_components.li, {
             children: "A static display is preferable to an interactive one, all else being equal."
           }), "\n"]
@@ -75336,7 +75336,7 @@ assert!(*value.lock().unwrap() == 1);`
           }), ", and ", (0, import_jsx_runtime2.jsx)("a", {
             href: "#correspondence-principle-1",
             children: "theorems"
-          }), ". To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal --- Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible."]
+          }), ". To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal \u2014 Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible."]
         }), (0, import_jsx_runtime2.jsx)("div", {
           style: {
             marginTop: "1rem",
@@ -75344,7 +75344,7 @@ assert!(*value.lock().unwrap() == 1);`
             fontVariant: "small-caps"
           },
           children: (0, import_jsx_runtime2.jsx)(_components.p, {
-            children: "This demo has only been tested in Chrome --- use other browsers at your own peril!"
+            children: "This demo has only been tested in Chrome \u2014 use other browsers at your own peril!"
           })
         })]
       }), "\n", (0, import_jsx_runtime2.jsxs)(Section, {
@@ -75391,7 +75391,7 @@ assert!(*value.lock().unwrap() == 1);`
             children: [(0, import_jsx_runtime2.jsxs)("p", {
               children: ["Examples don't have to be static in the browser! Try editing this code example to say ", (0, import_jsx_runtime2.jsx)("code", {
                 children: "x = z;"
-              }), ". then select ", (0, import_jsx_runtime2.jsx)("code", {
+              }), " on line 4. then select ", (0, import_jsx_runtime2.jsx)("code", {
                 children: "x"
               }), " on line 5 and click ", (0, import_jsx_runtime2.jsx)("q", {
                 children: "Slice"
@@ -75477,23 +75477,23 @@ assert!(*value.lock().unwrap() == 1);`
             code: r4`<SubSection title="Static semantics" name="sec:statsem">
 <p>
   <Definition name="tex:tc">
-    Expressions are typechecked via the judgment 
-    <$>{r${bt2}\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}${bt2}}</$>, 
-    read as: "<$>\expr</$> has type <$>\ty</$> under contexts 
+    Expressions are typechecked via the judgment
+    <$>{r${bt2}\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}${bt2}}</$>,
+    read as: "<$>\expr</$> has type <$>\ty</$> under contexts
     <$>{\fenv, \tyenv, \stackenv}</$> producing new context <$>\stackenv'</$>."
-  </Definition> 
-  <$>\tyenv</$> contains function-level type and provenance variables. 
-  <$>\stackenv</$> maps variables to types and provenances to pointed-to 
-  place expressions with ownership qualifiers. For instance, when type checking 
-  <code>*b := a.1</code> in <Ref name="fig:oxide_syntax_example" />, the inputs would be 
-  <$>\tyenv = \tyenvempty</$> (empty) and 
+  </Definition>
+  <$>\tyenv</$> contains function-level type and provenance variables.
+  <$>\stackenv</$> maps variables to types and provenances to pointed-to
+  place expressions with ownership qualifiers. For instance, when type checking
+  <code>*b := a.1</code> in <Ref name="fig:oxide_syntax_example" />, the inputs would be
+  <$>\tyenv = \tyenvempty</$> (empty) and
   <$>{r${bt2}\stackenv = \{
-    a \mapsto (\uty, \uty), ~ 
-    b \mapsto \eref{\uniq}{\r_2}{\uty}, ~ 
-    \r_1 \mapsto \{\loanform{\uniq}{a.0}\}, ~ 
+    a \mapsto (\uty, \uty), ~
+    b \mapsto \eref{\uniq}{\r_2}{\uty}, ~
+    \r_1 \mapsto \{\loanform{\uniq}{a.0}\}, ~
     \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}
   ${bt2}}</$>.
-</p> 
+</p>
 {/* ... */}`
           })
         }), (0, import_jsx_runtime2.jsxs)(_components.p, {
@@ -75578,7 +75578,7 @@ assert!(*value.lock().unwrap() == 1);`
   // Set the box's dimensions to the maximum size of both input elements
   let style = useStateOnInterval({}, 1000, () => {
     if (outside_ref.current || !inside_ref.current) { return {}; }
-    let get_dims = (ref: React.RefObject<HTMLDivElement>) => 
+    let get_dims = (ref: React.RefObject<HTMLDivElement>) =>
       ref.current!.getBoundingClientRect();
     let outside_dims = get_dims(outside_ref);
     let inside_dims = get_dims(inside_ref);
@@ -75616,15 +75616,15 @@ assert!(*value.lock().unwrap() == 1);`
             code: r4`export let Oxide = new Language([
   ["Variable", "vr", "x", []],
   ["Function", "fname", "f", []],
-  ["Number", "num", "n", []],  
+  ["Number", "num", "n", []],
   ["Path", "path", "q", [
-    [r${bt2}empty${bt2}, 0, r${bt2}\varepsilon${bt2}, []], 
+    [r${bt2}empty${bt2}, 0, r${bt2}\varepsilon${bt2}, []],
     [r${bt2}elem${bt2}, 2, r${bt2}{#1}.{#2}${bt2}, [r${bt2}\num${bt2}, r${bt2}\path${bt2}]]]],
   ["Place", "plc", r${bt2}\pi${bt2}, [
     [r${bt2}form${bt2}, 2, r${bt2}{#1}.{#2}${bt2}, [r${bt2}\vr${bt2}, r${bt2}\path${bt2}]]]],
   ["Place Expression", "pexp", "p", [
-    [${bt2}var${bt2}, 1, r${bt2}#1${bt2}, [r${bt2}\vr${bt2}]], 
-    [${bt2}elem${bt2}, 2, r${bt2}{#1}.{#2}${bt2}, [r${bt2}\pexp${bt2}, r${bt2}\num${bt2}]], 
+    [${bt2}var${bt2}, 1, r${bt2}#1${bt2}, [r${bt2}\vr${bt2}]],
+    [${bt2}elem${bt2}, 2, r${bt2}{#1}.{#2}${bt2}, [r${bt2}\pexp${bt2}, r${bt2}\num${bt2}]],
     [${bt2}deref${bt2}, 1, r${bt2}\ast {#1}${bt2}, [r${bt2}\pexp${bt2}]]]],
   ...
   ]);`
@@ -75686,7 +75686,7 @@ assert!(*value.lock().unwrap() == 1);`
             children: "venerable websites"
           }), " survive the test of time, would a Nota paper still work properly in 100 or 1,000 years? Such longevity is arguably much more likely for a PDF than a website. Moreover, important infrastructure for Nota like KaTeX would need feature-parity with existing TeX engines like pdfTeX to match the wide range of notation needed for PL research."]
         }), (0, import_jsx_runtime2.jsx)(_components.p, {
-          children: "Regardless, I hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level --- a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years."
+          children: "Regardless, I hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level \u2014 a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years."
         }), (0, import_jsx_runtime2.jsx)(References, {
           bibtex: hatra_paper_default
         })]
