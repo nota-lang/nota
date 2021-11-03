@@ -21,7 +21,7 @@ import { Oxide, OxideExtra } from "./language";
     <Author><Name value="Marco Patrignani" />{cispa}</Author>
     <Author><Name value="Maneesh Agrawala" />{stanford}</Author>
     <Author><Name value="Pat Hanrahan" />{stanford}</Author>
-  </>;   
+  </>;
   })()}
 </Authors>
 
@@ -78,7 +78,7 @@ Program slicing is the task of identifying the subset of a program relevant to c
 
 [^1]: The only open-source, functioning slicers the authors could find are Frama-C @[cuoq2012frama] and dg @[llvmslicer]. Slicing tools for Java like Kaveri @[jayaraman2005kaveri] no longer work. The most industrial-strength slicing tool, CodeSurfer @[balakrishnan2005codesurfer] was GrammaTech's proprietary technology and appears to no longer exist.
 
-A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow --- if $x$ is relevant, then any means by which data flows into $x$ are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function $f$ which calls a function $g$. In a language without side-effects, then the only relevance $g$ could possibly have in $f$ is its return value. But in a language that allows effects such as mutation on pointers, $g$ could modify data used within $f$, requiring a pointer analysis. Moreover, if $f$ is a higher-order function parameterized on $g$, then the slice must consider all the possible functions that $g$ could be, i.e. control-flow analysis.
+A major challenge for slicing is addressing the underlying program analysis problems. At a high level, slicing is about dataflow &mdash; if $x$ is relevant, then any means by which data flows into $x$ are also relevant. In today's programming languages, analyzing dataflow is difficult because of the interaction of two features: functions and pointers. For example, imagine slicing a value in a function $f$ which calls a function $g$. In a language without side-effects, then the only relevance $g$ could possibly have in $f$ is its return value. But in a language that allows effects such as mutation on pointers, $g$ could modify data used within $f$, requiring a pointer analysis. Moreover, if $f$ is a higher-order function parameterized on $g$, then the slice must consider all the possible functions that $g$ could be, i.e. control-flow analysis.
 
 The standard solution for analyzing programs with pointers and functions is _whole-program analysis_. That is, for a given function of interest, analyze the definitions of all of the function's callers and callees in the current codebase. However, whole-program analysis suffers from a few logistical and conceptual issues:
 
@@ -87,7 +87,7 @@ The standard solution for analyzing programs with pointers and functions is _who
 * _Analysis requires access to source code for the whole program:_ an assumption of analyzing a whole program is that a whole program is actually accessible. However, many programs use libraries that are shipped as pre-compiled objects with no source code, either for reasons of efficiency or intellectual property.
 * _Analysis results are anti-modular:_ when analyzing a particular function, relying on calling contexts to analyze the function's inputs means that any results are not universal. Calling-context-sensitive analysis determine whether two pointers alias _in the context of the broader codebase_, so alias analysis results can change due to modifications in code far away from the current module.
 
-These issues are not new --- @[rountev1999data; full] and @[cousot2002modular; full] observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing _symbolic procedure summaries_. For instance, @[yorsh2008generating; full] show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of @[yorsh2008generating; full].
+These issues are not new &mdash; @[rountev1999data; full] and @[cousot2002modular; full] observed the same two decades ago when arguing for modular static analysis. The key insight arising from their research is that static analysis can be modularized by computing _symbolic procedure summaries_. For instance, @[yorsh2008generating; full] show how to automatically summarize which inputs and outputs are possibly null for a given Java function. The analysis is modular because a function's summary can be computed only given the summaries, and not definitions, of callees in the function. In such prior work, the language of symbolic procedure summaries has been defined in a separate formal system from the programming language being analyzed, such as the micro-transformer framework of @[yorsh2008generating; full].
 
 Our work begins with the observation: _function type signatures are symbolic procedure summaries_. The more expressive a language's type system, the more behavior that can be summarized by a type. Nearly all work on program slicing, dataflow analysis, and procedure summaries has operated on C, Java, or equivalents. These languages have impoverished type systems, and so any interesting static analysis requires a standalone abstract interpreter. However, if a language's type system were expressive enough to encode information about dataflow, then a function's type signature could be used to reason about the aliasing and side effects needed for slicing. Moreover, a function's type signature is required information for a compiler to export when
 building a library. Using the type system for dataflow analysis therefore obviates the logistical challenge of integrating an external analysis tool into a complex build system.
@@ -126,7 +126,7 @@ For instance, the Rust snippet on the right shows the slice in orange of a place
   <SliceListing
     code={`let mut x = 1;
 let mut y = 2;
-if y > 0 { x = 3; } 
+if y > 0 { x = 3; }
 else     { y = 4; }
 println!("{}", @x@);`}
   />
@@ -422,8 +422,8 @@ system. For example, shared mutable state between threads:
   <Listing
     code={`let value = Arc::new(Mutex::new(0));
 let value_ref = value.clone();
-thread::spawn(move || { 
-*value_ref.lock().unwrap() += 1; 
+thread::spawn(move || {
+*value_ref.lock().unwrap() += 1;
 }).join().unwrap();
 assert!(*value.lock().unwrap() == 1);`}
   />
@@ -431,8 +431,8 @@ assert!(*value.lock().unwrap() == 1);`}
 
 In this snippet, two threads have ownership over two values of type `Arc<Mutex<i32>>` which internally point to the same number. Both threads can call
 `Mutex::lock` which takes an immutable reference to an `&Mutex<i32>` and returns a mutable reference `&mut i32` to the data inside.[^4] This nominally violates ownership, as the data is aliased (shared by two threads) and mutable (both can mutate).
-  
-[^4]: Technically the returned type is a {/*`LockResult<MutexGuard<'a, i32>>`*/} but the distinction isn't relevant here. 
+
+[^4]: Technically the returned type is a {/*`LockResult<MutexGuard<'a, i32>>`*/} but the distinction isn't relevant here.
 
 The mutex is ownership-safe only because its implementation ensures that both threads
 cannot _simultaneously_ access the underlying value in accordance with the system
@@ -498,18 +498,18 @@ The syntax is largely the same as Rust's with a few exceptions:
 <Definition name="tex:tc">Expressions are typechecked via the judgment $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$, read as: "$\expr$ has type $\ty$ under contexts $\fenv, \tyenv, \stackenv$ producing new context $\stackenv'$."</Definition> $\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking `*b := a.1` in @[fig:oxide_syntax_example] , the inputs would be $\tyenv = \tyenvempty$ (empty) and $\stackenv = \{a \mapsto (\uty, \uty),~ b \mapsto \eref{\uniq}{\r_2}{\uty},~ r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.
 
 
-Typechecking relies on a number of auxiliary judgments, such as subtyping 
+Typechecking relies on a number of auxiliary judgments, such as subtyping
   (<Definition name="tex:subtype" Tooltip={() => <><$>{r`\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}`}</$> means <$>{r`\tau_1`}</$> is a subtype of <$>{r`\tau_2`}</$></>}>
     $\subtype{\tyenv}{\stackenv}{\tau_1}{\tau_2}{\stackenv'}$
   </Definition>)
-and ownership-safety 
+and ownership-safety
   (<Definition name="tex:ownsafe">
     $\ownsafe{\tyenv}{\stackenv}{\ownq}{\pexp}{\loanset}$, read as "$\pexp$ has $\ownq\text{-loans}$ $\loanset$ in the contexts $\Delta, \Gamma$"
-  </Definition>). 
+  </Definition>).
 As an example, consider <Smallcaps>T-Assign</Smallcaps> for the assignment expression $\exprplcasgn{\plc}{\expr}$:
 
 <Center>
-  <AssignStaticRule />    
+  <AssignStaticRule />
 </Center>
 
 <p id="static-rule" className="noindent" style={{color: "#444"}}>
@@ -526,15 +526,15 @@ A valid assignment must be type-safe and ownership-safe. To be type-safe, the ty
 
 ##[sec:dynsem] Dynamic semantics
 
-Expressions are executed via a small-step operational semantics, and the program state is a pair of a stack and an expression. 
-<Definition name="tex:stepsto">A single step is represented by the judgment $\stepsto{\fenv}{\stack}{\expr}{\stepped{\stack}}{\expr'}$.</Definition> 
-<Definition name="tex:stack">A stack $\stack$ is a list of stack frames $\varsigma ::= \setof{\vr \mapsto v}$ that map variables to values.</Definition> 
+Expressions are executed via a small-step operational semantics, and the program state is a pair of a stack and an expression.
+<Definition name="tex:stepsto">A single step is represented by the judgment $\stepsto{\fenv}{\stack}{\expr}{\stepped{\stack}}{\expr'}$.</Definition>
+<Definition name="tex:stack">A stack $\stack$ is a list of stack frames $\varsigma ::= \setof{\vr \mapsto v}$ that map variables to values.</Definition>
 For example, consider <Smallcaps>E-Assign</Smallcaps> @[weiss2019oxide] that covers $\exprplcasgn{\plc}{\expr}$ and $\exprpexpasgn{\pexp}{\expr}$ expressions:[^fix]
 
 [^fix]: This <Smallcaps>E-Assign</Smallcaps> rule is not the exact same rule that appears in @[weiss2019oxide], as the published version is incorrect. In correspondence with the authors, we determined that the rule presented here has the intended semantics. Additionally, we do not use the referent $\mathcal{R}$ construct of Oxide since we do not consider arrays in this paper, so we use $\plc$ anywhere $\mathcal{R}$ would otherwise appear.
 
 <Center>
-  <AssignDynamicRule />    
+  <AssignDynamicRule />
 </Center>
 
 This rule introduces several new shorthands and administrative forms:
@@ -561,13 +561,13 @@ In the principles and corresponding algorithm/proofs, there are many concepts wh
     </div>
     <div style={{width: 'max-content'}}>
       <Theorem name="thm:slice-places">
-        Let: 
+        Let:
 
         * $\link{2}{\plc_\mut = \pctx{\plc_\mut}{\vr}}, \stack$ where $\pointsto{\stack}{\plc_\mut}{\_}{\valuectx}$
         * $v, \link{1}{\stepped{\stack} =\stack[\vr \mapsto \valueplug{\valuectx}{v}]}$
         * <Link name="4">$\plc_\any$ be any place</Link>
 
-        Then $\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}$.        
+        Then $\link{3}{\stack(\plc_\any) \neq \stepped{\stack}(\plc_\any)} \implies \link{4}{\notdisjoint{\plc_\any}{\plc_\mut}}$.
       </Theorem>
     </div>
   </Row>
@@ -577,7 +577,7 @@ As described in @[sec:dynsem], a mutation to a place is represented by updating 
 
 <Definition name="tex:disjoint">
   $$
-  \disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee 
+  \disjoint{x_1.q_1}{x_2.q_2} \eqdef x_1 \neq x_2 \vee
   ((q_1 \text{ is not a prefix of } q_2) \wedge (q_2 \text{ is not a prefix of } q_1))
   $$
 </Definition>
@@ -597,8 +597,8 @@ Conversely, we use the shorthand <Definition name="tex:notdisjoint">
     </div>
     <div style={{width: 'max-content', textAlign: 'left'}}>
       <Theorem name="thm:slice-refs">
-        Let: 
-        
+        Let:
+
         * $\stack$ where $\fenv \vdash \stack : \stackenv$
         * $\link{2}{\pexp_\mut}$ where $\link{1}{\ownsafe{\tyenvempty}{\stackenv}{\uniq}{\pexp_\mut}{\loanset}}$ and $\pointsto{\stack}{\pexp_\mut}{\link{4}{\plc_\mut}}{\_}$
         * $\link{3}{\pexp_\any}$ where $\pointsto{\stack}{\pexp_\any}{\plc_\any}{\_}$
@@ -628,8 +628,8 @@ A notable detail is that we do not compare the loan sets of $\pexp_\mut$ and $\p
     </div>
     <div style={{width: 'max-content', textAlign: 'left'}}>
       <Theorem name="thm:proc_mutrefs">
-        Let: 
-        
+        Let:
+
         * $\stackenv, \plc_\arrg, \stack$ where $\stackenv(\plc_\arrg) = \tys$ and $\fenv \vdash \stack : \stackenv$
         * $\fname$ where $\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{\_}}$
         * $\stepped{\stack}' = \stepped{\stack}[\link{2}{\forall \pexp_\reff \in \refs{\uniq}{\plc_\arrg, \tys}} ~ . ~ \link{3}{\pexp_\reff \mapsto \stack(\pexp_\reff)}]$
@@ -641,16 +641,16 @@ A notable detail is that we do not compare the loan sets of $\pexp_\mut$ and $\p
 </Correspondence>
 
 
-First, <Definition name="tex:refs">we define "mutable references in the arguments" as $\refs{\ownq}{\pexp, \tys}$ that returns the $\ownq$-safe place expressions of references inside of $\pexp$ of type $\tys$</Definition>. For instance, if $x = 0$ and $y = (0, \tysref{\uniq}{\concrprov}{x})$ then $\refs{\uniq}{y, (\uty, \tysref{\uniq}{\concrprov}{\uty})} = \{\pexpderef{y.1}\}$ . The full definition is:  
+First, <Definition name="tex:refs">we define "mutable references in the arguments" as $\refs{\ownq}{\pexp, \tys}$ that returns the $\ownq$-safe place expressions of references inside of $\pexp$ of type $\tys$</Definition>. For instance, if $x = 0$ and $y = (0, \tysref{\uniq}{\concrprov}{x})$ then $\refs{\uniq}{y, (\uty, \tysref{\uniq}{\concrprov}{\uty})} = \{\pexpderef{y.1}\}$ . The full definition is:
 
 $$
 \begin{align*}
   \refs{\ownq}{\pexp, \tyb} &=
       \varnothing
   \hspace{32pt}
-  \refs{\ownq}{\pexp, \tystup{\tys_1, \ldots, \tys_n}} = 
+  \refs{\ownq}{\pexp, \tystup{\tys_1, \ldots, \tys_n}} =
       \bigcup_i \refs{\ownq}{\pexp.i, \tys_i}
-  \\ 
+  \\
   \refs{\ownq}{p, \tysref{\ownq'}{\prov}{\tyx}} &= \begin{cases}
     \{\pexpderef{\pexp}\} \cup \refs{\ownq}{\pexpderef{p}, \tyx} & \text{if $\ownqleq{\ownq'}{\ownq}$} \\
     \varnothing & \text{otherwise}
@@ -678,19 +678,19 @@ Then we define @[thm:proc_mutrefs] in the theme of a transaction: if all the cha
     </div>
     <div style={{width: 'max-content', textAlign: 'left'}}>
       <Theorem name="thm:proc_eqarg">
-        Let: 
-          
+        Let:
+
         * $\stackenv, \plc_\arrg, \stack^i$ where $\stackenv(\plc_\arrg) = \tys$ and $i \in \{1, 2\}, \fenv \vdash \stack^i : \stackenv$
         * $\fname$ where $\link{1}{\evalsto{\fenv}{\stack}{\fname(\plc_\arrg)}{\stepped{\stack}}{v^i}}$
         * $\link{4}{P = \allplaces{\plc_\arrg}{\tys}}$
-        
+
         Then $\link{4}{\stackeq{\stack^1}{\stack^2}{P}} \implies \link{2}{\stackeq{\stepped{\stack}^1}{\stepped{\stack}^2}{P}} \wedge \link{3}{v^1 = v^2}$
       </Theorem>
     </div>
   </Row>
 </Correspondence>
 
-The idea behind @[thm:proc_eqarg] is that "influence" is translated into a form of noninterference: if the input to a function is the same under any two stacks $\stack^1$ and $\stack^2$, then the mutations to that input must be the same. The rest of the stack is allowed to vary, but because the function $\fname$ cannot read it, that variation cannot influence the final value. 
+The idea behind @[thm:proc_eqarg] is that "influence" is translated into a form of noninterference: if the input to a function is the same under any two stacks $\stack^1$ and $\stack^2$, then the mutations to that input must be the same. The rest of the stack is allowed to vary, but because the function $\fname$ cannot read it, that variation cannot influence the final value.
 
 To formalize "the input being the same", we introduce another auxiliary function for transitive equality. For instance, if we only required that $\stack^1(\plc_\arrg) = \stack^2(\plc_\arrg)$ where $\plc_\arrg = \msf{ptr}~x$, then if $\stack^1(x) \neq \stack^2(x)$ the theorem would not be true. Hence, transitive equality is defined as equality including all pointed places. We define this concept through two pieces: a function for generating the set of places (denoted by $P$), and a relation defining the equivalence of stacks for a set of places.
 

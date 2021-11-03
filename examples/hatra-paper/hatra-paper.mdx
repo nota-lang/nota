@@ -67,8 +67,8 @@ However, PL has come a long way since the lambda calculus. Consider this rule re
   />
 </div>
 
-{/* \Delta, \triangleright, \mathcal{E}, \k, \rightharpoonup, \delta, h, D, \Psi, [], \ell, \Gamma, (;;), I, \overline, \gamma, \Theta, x, \overrightharpoon, \xi, k, \hookrightarrow, \m, 
-    \text{ht}, ||, :=, H, \eta, \lBrace, \text{ind}, \rho, \gg, \in, R, \text{intro}, /, \forall, \doteq, (|, ^_, 
+{/* \Delta, \triangleright, \mathcal{E}, \k, \rightharpoonup, \delta, h, D, \Psi, [], \ell, \Gamma, (;;), I, \overline, \gamma, \Theta, x, \overrightharpoon, \xi, k, \hookrightarrow, \m,
+    \text{ht}, ||, :=, H, \eta, \lBrace, \text{ind}, \rho, \gg, \in, R, \text{intro}, /, \forall, \doteq, (|, ^_,
   */}
 
 <p className="noindent">This rule uses about 40 distinct symbols to communicate a significant number of concepts. Some symbols, such as <q>$\forall$</q>, are expected background for the reader. But most are defined solely within the context of the paper. Remembering and applying these paper-specific symbols is a known challenge in reading scientific papers @[head2021augmenting]. And comprehension challenges go beyond individual symbols. A person reading a complex expression may want to know, how do I mentally parse this string? Where is the nearby text that explains this particular part of the rule? What kind of related work defines rules similar to this one?</p>
@@ -86,18 +86,18 @@ On the SIGPLAN blog, @[placcessible; full] argued for a new PL journal motivated
 Hence, my goal is to create a system for writing PL papers that (a) provides features for more effective reading, and (b) requires no special design knowledge to use. To that end, I designed Nota (as in *nota bene*), a web framework for writing academic papers. The core principle of Nota is *bridging the gap between definition and use.* Specifically:
 
 1. A reader should always be able to access the definition of a symbol.
-2. Jumping around is bad --- definitions should be visible in context.
+2. Jumping around is bad &mdash; definitions should be visible in context.
 3. A static display is preferable to an interactive one, all else being equal.
 
-I applied these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal --- Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible. 
+I applied these principles to design novel interfaces for <a href="#def-fig-oxide_syntax_bnf">grammars</a>, <a href="#assign-static-rule">inference rules</a>, and <a href="#correspondence-principle-1">theorems</a>. To showcase these interfaces, I have reimplemented a portion of one of my papers using Nota. The design choices here are assuredly not all optimal &mdash; Nota is very much a prototype, not a final system. But I hope this demo at least conveys a sense of what is possible.
 
 <div style={{marginTop: '1rem', textAlign: 'center', fontVariant: 'small-caps'}}>
-  This demo has only been tested in Chrome --- use other browsers at your own peril!
+  This demo has only been tested in Chrome &mdash; use other browsers at your own peril!
 </div>
 
 #[sec:demo] Demo
 
-<Commentary 
+<Commentary
   Document={(props) => <Document {...props}><SlicingPaper /></Document>}
   comment_width={350}>
   <Comment selector={'h1'}>
@@ -108,7 +108,7 @@ I applied these principles to design novel interfaces for <a href="#def-fig-oxid
   <Comment selector={'#def-sec-intro section:first-child h2 ~ p'}>
     <p>Try clicking on one of the purple citations. One click brings up a tooltip with the corresponding citation. (Click anywhere on the page to close it.) Then try double-clicking on a citation. You can use the browser's <q>back</q> function to jump back to where you were. Also note that the object you jump to is briefly highlighted in yellow to draw your attention after jumping.</p>
     <p>Some foundational concepts in Nota are definitions and references. For example, a bibliography defines sources, which can be referenced inline as a citation. A footnote defines asides, which can be referenced as a number. Try clicking on the footnote at the end of the first paragraph. Notice that the same tooltip mechanism can be used as with the citation.</p>
-  </Comment>        
+  </Comment>
   <Comment selector={'#def-sec-intro ol'}>
     Unimplemented references are replaced with placeholders, rather than preventing the document from compiling.
   </Comment>
@@ -117,7 +117,7 @@ I applied these principles to design novel interfaces for <a href="#def-fig-oxid
     <p>Interactive examples allow readers to engage with the material by forming and testing hypotheses, or checking edge cases of an algorithm.</p>
   </Comment>
   <Comment selector={'#multi-snippets'}>
-    Note that the browser allows for flexible layouts. If a figure needs to extend beyond page boundaries, then no problem &mdash; a monitor is wide enough. 
+    Note that the browser allows for flexible layouts. If a figure needs to extend beyond page boundaries, then no problem &mdash; a monitor is wide enough.
   </Comment>
   <Comment selector={'#def-sec-model'}>
     This section demonstrates the core features of Nota. Here, the paper needs to describe a large language, Oxide, imported from another paper (Weiss et al.). This language contains a large syntax and a semantics with a number of judgments. The goal of Nota is to simplify the definition, referencing, and explaining of formal systems like Oxide.
@@ -132,7 +132,7 @@ I applied these principles to design novel interfaces for <a href="#def-fig-oxid
     When describing a large formal system, some elements are less important than others. For instance, the context <$>\Delta</$> is necessary for the typing judgment, but isn't relevant to most of the paper. Rather than having a giant syntax figure or punting <$>\Delta</$> to the appendix, we can introduce <em>expandable elements.</em> Try double-clicking the <$>\Delta</$>. It will jump to the <q>extra</q> grammar hidden by the <q>Show grammar</q> button.
   </Comment>
   <Comment selector={'#static-rule'}>
-    A common pattern in PL papers is to present a formal rule full of symbols, then accompany that rule with a separate paragraph explaining it. The rule on the left shows a possible enhancement of this pattern: co-locating natural language explanations with the corresponding symbolic expressions. Try clicking the <$>\Sigma</$> buttons. 
+    A common pattern in PL papers is to present a formal rule full of symbols, then accompany that rule with a separate paragraph explaining it. The rule on the left shows a possible enhancement of this pattern: co-locating natural language explanations with the corresponding symbolic expressions. Try clicking the <$>\Sigma</$> buttons.
   </Comment>
   <Comment selector={'#correspondence-principle-1'}>
     Part of Nota's inspiration was my attempts to visually encode correspondences between objects (see page 10 of the <AEx href="slicing_paper.pdf#page=10">PDF</AEx>). LaTeX's brittle abstractions made it frustratingly hard to do something as simple as <q>draw a colored underline beneath a piece of math.</q>
@@ -147,47 +147,47 @@ Nota is a browser technology, so it is implemented using a combination of HTML, 
 
 
 <CenterSep>
-  <TsxViewer 
+  <TsxViewer
     code={r`<SubSection title="Static semantics" name="sec:statsem">
 <p>
   <Definition name="tex:tc">
-    Expressions are typechecked via the judgment 
-    <$>{r${bt}\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}${bt}}</$>, 
-    read as: "<$>\expr</$> has type <$>\ty</$> under contexts 
+    Expressions are typechecked via the judgment
+    <$>{r${bt}\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}${bt}}</$>,
+    read as: "<$>\expr</$> has type <$>\ty</$> under contexts
     <$>{\fenv, \tyenv, \stackenv}</$> producing new context <$>\stackenv'</$>."
-  </Definition> 
-  <$>\tyenv</$> contains function-level type and provenance variables. 
-  <$>\stackenv</$> maps variables to types and provenances to pointed-to 
-  place expressions with ownership qualifiers. For instance, when type checking 
-  <code>*b := a.1</code> in <Ref name="fig:oxide_syntax_example" />, the inputs would be 
-  <$>\tyenv = \tyenvempty</$> (empty) and 
+  </Definition>
+  <$>\tyenv</$> contains function-level type and provenance variables.
+  <$>\stackenv</$> maps variables to types and provenances to pointed-to
+  place expressions with ownership qualifiers. For instance, when type checking
+  <code>*b := a.1</code> in <Ref name="fig:oxide_syntax_example" />, the inputs would be
+  <$>\tyenv = \tyenvempty</$> (empty) and
   <$>{r${bt}\stackenv = \{
-    a \mapsto (\uty, \uty), ~ 
-    b \mapsto \eref{\uniq}{\r_2}{\uty}, ~ 
-    \r_1 \mapsto \{\loanform{\uniq}{a.0}\}, ~ 
+    a \mapsto (\uty, \uty), ~
+    b \mapsto \eref{\uniq}{\r_2}{\uty}, ~
+    \r_1 \mapsto \{\loanform{\uniq}{a.0}\}, ~
     \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}
   ${bt}}</$>.
-</p> 
-{/* ... */}`} />      
+</p>
+{/* ... */}`} />
 </CenterSep>
 
 {/* <CenterSep>
-  <Listing 
+  <Listing
     code={r`##[sec:statsem] Static semantics
 <Definition name="tex:tc">
-  Expressions are typechecked via the judgment 
-  $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$, 
-  read as: "$\expr$ has type $\ty$ under contexts 
+  Expressions are typechecked via the judgment
+  $\tc{\fenv}{\tyenv}{\stackenv}{\expr}{\ty}{\stackenv'}$,
+  read as: "$\expr$ has type $\ty$ under contexts
   $\fenv, \tyenv, \stackenv$ producing new context $\stackenv'$."
-</Definition> 
-$\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps  
-variables to types and provenances to pointed-to place expressions with ownership 
-qualifiers. For instance, when type checking \`*b := a.1\` in 
-@[fig:oxide_syntax_example], the inputs would be $\tyenv = \tyenvempty$ (empty) and 
-$\stackenv = \{a \mapsto (\uty, \uty),~ 
-  b \mapsto \eref{\uniq}{\r_2}{\uty},~ 
-  r_1 \mapsto \{\loanform{\uniq}{a.0}\},~ 
-  \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.`} />      
+</Definition>
+$\tyenv$ contains function-level type and provenance variables. $\stackenv$ maps
+variables to types and provenances to pointed-to place expressions with ownership
+qualifiers. For instance, when type checking \`*b := a.1\` in
+@[fig:oxide_syntax_example], the inputs would be $\tyenv = \tyenvempty$ (empty) and
+$\stackenv = \{a \mapsto (\uty, \uty),~
+  b \mapsto \eref{\uniq}{\r_2}{\uty},~
+  r_1 \mapsto \{\loanform{\uniq}{a.0}\},~
+  \r_2 \mapsto \{\loanform{\uniq}{a.0}\}\}$.`} />
 </CenterSep> */}
 
 Some tags like `<p>` and `<code>` are default tags built into the browser. The rest are components provided by Nota. For instance, `<SubSection>` and `<$>` directly correspond to the `\subsection` and `$` operators of LaTeX. The `<Definition>` and `<Ref>` components are enhanced versions of `\label` and `\ref`. A definition has a name and a tooltip, by default the contents of the definition. Then a reference to the definition will bring up the tooltip on click, and jump to the definition on double-click.
@@ -203,16 +203,16 @@ The `<$>` component is implemented using <AEx href="https://katex.org/">KaTeX</A
 Most users of Nota would write the declarative markup shown above. Library writers would create React components that can be plugged into a Nota document. For instance, the <a href="#assign-static-rule">toggle-based inference rule</a> is based on a `<Togglebox>` abstraction. A basic togglebox looks like this:
 
 <CenterSep>
-  <Togglebox 
-    Inside={props => <$ {...props}>{r`\text{$\LaTeX$ on the inside!}`}</$>} 
-    Outside={props => <$ {...props}>{r`\text{Text out the outside...}`}</$>} 
+  <Togglebox
+    Inside={props => <$ {...props}>{r`\text{$\LaTeX$ on the inside!}`}</$>}
+    Outside={props => <$ {...props}>{r`\text{Text out the outside...}`}</$>}
   />
 </CenterSep>
 
 <p className="noindent">Below is a simplified implementation of `<Togglebox>` using React and Typescript. It uses <AEx href="https://reactjs.org/docs/components-and-props.html">function components</AEx> and <AEx href="https://reactjs.org/docs/hooks-overview.html">hooks</AEx> to implement the two key aspects of the togglebox: sizing the box to fit both elements, and toggling the box when clicking the toggle button.</p>
 
 <CenterSep>
-  <TsxViewer 
+  <TsxViewer
     code={r`export let Togglebox: React.FC<ToggleboxProps> = ({ Inside, Outside }) => {
   let outside_ref = useRef<HTMLDivElement>(null);
   let inside_ref = useRef<HTMLDivElement>(null);
@@ -221,7 +221,7 @@ Most users of Nota would write the declarative markup shown above. Library write
   // Set the box's dimensions to the maximum size of both input elements
   let style = useStateOnInterval({}, 1000, () => {
     if (outside_ref.current || !inside_ref.current) { return {}; }
-    let get_dims = (ref: React.RefObject<HTMLDivElement>) => 
+    let get_dims = (ref: React.RefObject<HTMLDivElement>) =>
       ref.current!.getBoundingClientRect();
     let outside_dims = get_dims(outside_ref);
     let inside_dims = get_dims(inside_ref);
@@ -248,25 +248,25 @@ Most users of Nota would write the declarative markup shown above. Library write
     </div>
     <ToggleButton on={show_inside} onClick={() => set_show_inside(!show_inside)} />
   </div>;
-}`} />      
+}`} />
 </CenterSep>
 
 One advantage of using Javascript vs. TeX is the ability to define abstractions at a higher level than macros. For example, the BNF grammar above is automatically generated by a `Language` class that takes a grammar specification as input, and generates both the grammar and the TeX macros. The Oxide language is defined like this:
 
 <CenterSep>
-  <TsxViewer 
+  <TsxViewer
     code={r`export let Oxide = new Language([
   ["Variable", "vr", "x", []],
   ["Function", "fname", "f", []],
-  ["Number", "num", "n", []],  
+  ["Number", "num", "n", []],
   ["Path", "path", "q", [
-    [r${bt}empty${bt}, 0, r${bt}\varepsilon${bt}, []], 
+    [r${bt}empty${bt}, 0, r${bt}\varepsilon${bt}, []],
     [r${bt}elem${bt}, 2, r${bt}{#1}.{#2}${bt}, [r${bt}\num${bt}, r${bt}\path${bt}]]]],
   ["Place", "plc", r${bt}\pi${bt}, [
     [r${bt}form${bt}, 2, r${bt}{#1}.{#2}${bt}, [r${bt}\vr${bt}, r${bt}\path${bt}]]]],
   ["Place Expression", "pexp", "p", [
-    [${bt}var${bt}, 1, r${bt}#1${bt}, [r${bt}\vr${bt}]], 
-    [${bt}elem${bt}, 2, r${bt}{#1}.{#2}${bt}, [r${bt}\pexp${bt}, r${bt}\num${bt}]], 
+    [${bt}var${bt}, 1, r${bt}#1${bt}, [r${bt}\vr${bt}]],
+    [${bt}elem${bt}, 2, r${bt}{#1}.{#2}${bt}, [r${bt}\pexp${bt}, r${bt}\num${bt}]],
     [${bt}deref${bt}, 1, r${bt}\ast {#1}${bt}, [r${bt}\pexp${bt}]]]],
   ...
   ]);`} />
@@ -275,7 +275,7 @@ One advantage of using Javascript vs. TeX is the ability to define abstractions 
 Then the `Oxide` object has two methods to generate the TeX macros and BNF, like so:
 
 <CenterSep>
-  <TsxViewer 
+  <TsxViewer
     code={r`<Oxide.Commands />
 <Oxide.BNF layout={{columns: 2}} />`} />
 </CenterSep>
@@ -294,6 +294,6 @@ Of course, Nota is one of many possible visions for the future. Alternatives inc
 
 Nota itself also has drawbacks for academic communication. The web ecosystem changes rapidly, meaning what works today may not work tomorrow. While some <AEx href="https://www.spacejam.com/1996/">venerable websites</AEx> survive the test of time, would a Nota paper still work properly in 100 or 1,000 years? Such longevity is arguably much more likely for a PDF than a website. Moreover, important infrastructure for Nota like KaTeX would need feature-parity with existing TeX engines like pdfTeX to match the wide range of notation needed for PL research.
 
-Regardless, I hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level --- a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.
+Regardless, I hope that this paper draws attention to the pressing issue of how we communicate in PL research. As the field progresses, the conceptual infrastructure of new ideas grows ever larger. Interactive mediums like Nota can provide cognitive support for understanding ideas in context. And support doesn't have to stop at the individual level &mdash; a public platform could support crowd-sourced annotations on each paragraph of a research paper. In classic PL fashion, we could maybe design a medium so great that everyone else adopts it... in 30 years.
 
 <References bibtex={bibtex} />
