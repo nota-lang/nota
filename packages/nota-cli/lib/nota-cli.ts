@@ -32,6 +32,7 @@ let injected_document_plugin: esbuild.Plugin = {
 
 let page_path = path.resolve(path.join(__dirname, "..", "lib", "page.tsx"));
 
+let loader = opts.extensions ? _.fromPairs(opts.extensions.split(",").map((k: string) => ["." + k, "text"])) : {};
 let common_opts: Partial<esbuild.BuildOptions> = {
   watch: opts.watch,
   minify: opts.minify,
@@ -44,7 +45,7 @@ let common_opts: Partial<esbuild.BuildOptions> = {
     ".woff2": "file",
     ".ttf": "file",
     ".bib": "text",
-    ..._.fromPairs(opts.extensions.split(",").map((k: string) => ["." + k, "text"]))
+    ...loader
   },
 };
 
