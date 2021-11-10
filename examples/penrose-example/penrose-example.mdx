@@ -1,0 +1,148 @@
+import React from 'react';
+import { Simple } from '@penrose/components';
+
+import euclidean from './penrose/geometry/euclidean.sty';
+import geometry from './penrose/geometry/geometry.dsl';
+
+import set_theory from './penrose/set-theory/setTheory.dsl';
+import venn from './penrose/set-theory/venn.sty';
+import venn3d from './penrose/set-theory/venn-3d.sty';
+import tree from './penrose/set-theory/tree.sty';
+
+import logic_circuits from './penrose/logic-circuits/logic-gates.dsl';
+import distinctive_shape from './penrose/logic-circuits/distinctive-shape.sty';
+
+import linear_algebra from './penrose/linear-algebra/linear-algebra.dsl';
+import linear_algebra_paper_simple from './penrose/linear-algebra/linear-algebra-paper-simple.sty';
+
+export const r = String.raw;
+export const Penrose = ({domain, style, substance, height}) => {
+  let full_style = `
+${style}
+canvas {
+  width = 500
+  height = ${height}
+}
+`;
+  return <div style={{height}}>
+    <Simple domainString={domain} styleString={full_style} substanceString={substance} />
+  </div>;
+}
+
+<Title>Penrose: From Mathematical Notation to Beautiful Diagrams</Title>
+
+<Abstract>
+  We introduce a system called Penrose for creating mathematical diagrams. Its basic functionality is to translate abstract statements written in familiar math-like notation into one or more possible visual representations. Rather than rely on a fixed library of visualization tools, the visual representation is user-defined in a constraint-based specification language; diagrams are then generated automatically via constrained numerical optimization. The system is user-extensible to many domains of mathematics, and is fast enough for iterative design exploration. In contrast to tools that specify diagrams via direct manipulation or low-level graphics programming, Penrose enables rapid creation and exploration of diagrams that faithfully preserve the underlying mathematical meaning. We demonstrate the effectiveness and generality of the system by showing how it can be used to illustrate a diverse set of concepts from mathematics and computer graphics.
+</Abstract>
+
+export const substance = `Point p, q, r, s
+Segment a := MkSegment(p, q)
+Segment b := MkSegment(p, r)
+Point m := MkMidpoint(a)
+Angle theta := InteriorAngle(q, p, r)
+Triangle t := MkTriangle(p, r, s)
+-- Ray w := Bisector(theta)
+-- Segment h := PerpendicularBisector(a, m)
+AutoLabel All`;
+
+<Figure name="fig:teaser"> 
+  <Row>
+    <Listing code={substance} />
+    <Penrose substance={substance} domain={geometry} style={euclidean} height={300} />
+  </Row>
+  <Caption>Penrose is a framework for specifying how mathematical statements should be interpreted as visual diagrams. A clean separation between abstract mathematical objects and their visual representation provides new capabilities beyond existing code- or GUI-based tools. Here, for instance, the same set of statements (left) is given three different visual interpretations (right), via Euclidean, spherical, and hyperbolic geometry. (Further samples are shown in Fig. 29.)</Caption>
+</Figure>
+
+
+export const set_subst = `
+Set A, B, C, D, E, F, G
+
+IsSubset(B, A)
+IsSubset(C, A)
+IsSubset(D, B)
+IsSubset(E, B)
+IsSubset(F, C)
+IsSubset(G, C)
+
+Not(Intersecting(E, D))
+Not(Intersecting(F, G))
+Not(Intersecting(B, C))
+
+AutoLabel All`;
+
+<Figure>
+<Row> 
+  <Penrose
+    substance={set_subst}
+    domain={set_theory}
+    style={venn}
+    height={300}
+  />
+  <Penrose
+    substance={set_subst}
+    domain={set_theory}
+    style={venn3d}
+    height={300}
+  />
+ <Penrose
+    substance={set_subst}
+    domain={set_theory}
+    style={tree}
+    height={300}
+  />  
+</Row>
+  <Caption>Here, some Substance code is used to specify set relationships. Different Style programs not only tweak the visual style (e.g., flat vs. shaded disks), but allow one to use a completely different visual representation (e.g., a tree showing set inclusions). Sets.sty above describes the flat disk style.</Caption>
+</Figure>
+
+<Penrose
+  substance={`
+AutoLabel All
+
+InputNode IN1, IN2
+OutputNode SUM, CAR
+
+Node XORIN1, XORIN2, XOROUT
+XORGate XOR := MakeXORGate(XORIN1, XORIN2, XOROUT)
+
+Node ANDIN1, ANDIN2, ANDOUT 
+ANDGate AND := MakeANDGate(ANDIN1, ANDIN2, ANDOUT)
+
+Node S1IN, S1OUT1, S1OUT2
+SplitComponent S1 := MakeSplitComponent(S1IN, S1OUT1, S1OUT2)
+
+Node S2IN, S2OUT1, S2OUT2
+SplitComponent S2 := MakeSplitComponent(S2IN, S2OUT1, S2OUT2)
+
+Connection C1 := MakeConnection(IN1, S1IN)
+Connection C2 := MakeConnection(IN2, S2IN)
+Connection C3 := MakeConnection(S1OUT1, XORIN1)
+Connection C4 := MakeConnection(S2OUT1, XORIN2)
+Connection C5 := MakeConnection(S1OUT2, ANDIN1)
+Connection C6 := MakeConnection(S2OUT2, ANDIN2)
+Connection C7 := MakeConnection(XOROUT, SUM)
+Connection C8 := MakeConnection(ANDOUT, CAR)`}
+  domain={logic_circuits}
+  style={distinctive_shape}
+  height={300}
+ />
+
+<Penrose
+  substance={r`VectorSpace X
+VectorSpace V
+Vector u
+Vector v
+In(u, V)
+In(v, V)
+Independent(u, v)
+AutoLabel All
+Label u $\vec{u}$
+Label v $\vec{v}$`}
+  domain={linear_algebra}
+  style={linear_algebra_paper_simple}
+  height={300}
+  />
+
+# Introduction
+
+Effective communication of mathematical ideas is a major challenge for students, educators, and researchers. Though modern mathematics has a strong cultural bias toward formal language @[mashaal2006], visualization and illustration undoubtedly have an equally profound impact on mathematical progress [Thurston 1998]. Yet the ability to translate abstract concepts into concrete illustrations is often limited to the select few individuals who have both a deep understanding of mathematics and an intimate knowledge of graphical tools. As a result, diagrams are rather scarce in mathematical writing—for instance, recent mathematical papers from arXiv have on average only one figure every ten pages. A central goal of this work is to lower the barrier to turning mathematical ideas into effective, high-quality visual diagrams. In the same way that TEX and LATEX have democratized mathematical writing by algorithmically codifying best practices of professional typesetters [Beeton and Palais 2016], Penrose aims to codify best practices of mathematical illustrators into a format that is reusable and broadly accessible.
+

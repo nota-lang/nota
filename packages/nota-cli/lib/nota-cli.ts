@@ -6,11 +6,16 @@ import { promises as fs } from "fs";
 import { program } from "commander";
 import { sassPlugin } from "esbuild-sass-plugin";
 import { notaMarkdown } from "@wcrichto/nota-markdown"; 
+import _ from "lodash";
 
 //@ts-ignore
 import notaPeers from "@wcrichto/nota/dist/peer-dependencies.js";
 
-program.version("0.1.0").option("-w, --watch").argument("<input>");
+program.version("0.1.0")
+  .option("-w, --watch")
+  .option("-e, --extensions <exts>")
+  .option("-m, --minify")
+  .argument("<input>");
 
 program.parse(process.argv);
 let opts = program.opts();
@@ -29,6 +34,7 @@ let page_path = path.resolve(path.join(__dirname, "..", "lib", "page.tsx"));
 
 let common_opts: Partial<esbuild.BuildOptions> = {
   watch: opts.watch,
+  minify: opts.minify,
   sourcemap: true,
   bundle: true,
   plugins: [notaMarkdown(), sassPlugin()],
@@ -38,6 +44,7 @@ let common_opts: Partial<esbuild.BuildOptions> = {
     ".woff2": "file",
     ".ttf": "file",
     ".bib": "text",
+    ..._.fromPairs(opts.extensions.split(",").map((k: string) => ["." + k, "text"]))
   },
 };
 
