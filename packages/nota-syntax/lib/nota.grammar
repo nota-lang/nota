@@ -1,0 +1,38 @@
+@top Top { TextBody }
+
+TextBody { TextToken* }
+
+TextToken { Newline | Text | Command }
+
+delimited<rule, delim> { "" | rule (delim rule)* }
+
+Command { 
+  CommandSigil Ident 
+  startExpectingDelimiter 
+  ("[" startIgnoreText CommandNamedArgs stopIgnoreText "]")?
+  ("{" startDelimited CommandAnonArg stopDelimited "}")* 
+  stopExpectingDelimiter
+}
+
+CommandSigil { "%" | "@" | "#" }
+
+CommandNamedArgs { delimited<Ident, ","> }
+CommandAnonArg { TextBody }
+
+startDelimited[@export] { "" }
+stopDelimited[@export] { "" }
+startExpectingDelimiter[@export] { "" }
+stopExpectingDelimiter[@export] { "" }
+startIgnoreText[@export] { "" }
+stopIgnoreText[@export] { "" }
+
+
+@context dialectContext from "./tokens.ts"
+@external tokens text from "./tokens.ts" { 
+  Text
+}
+
+@tokens {
+  Newline { "\n" }
+  Ident { $[a-zA-Z_$]$[a-zA-Z0-9_$]* }
+}

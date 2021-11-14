@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
 import _ from "lodash";
 import { observer } from "mobx-react";
+import Children from "react-children-utilities";
 
 import { SectionTitle } from "./document";
 import { Definition, DefinitionsPlugin } from "./definitions";
@@ -156,12 +157,16 @@ class BibliographyData extends Pluggable {
 
 export let BibliographyPlugin = new Plugin(BibliographyData);
 
-export let References: React.FC<{ bibtex: string }> = observer(({ bibtex }) => {
+export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, children }) => {
   let ctx = usePlugin(BibliographyPlugin);
   let def_ctx = usePlugin(DefinitionsPlugin);
 
+  if (!bibtex) {    
+    bibtex = Children.onlyText(children);
+  }
+
   useEffect(() => {
-    ctx.import_bibtex(bibtex);
+    ctx.import_bibtex(bibtex!);
   }, []);
 
   let keys = Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key));

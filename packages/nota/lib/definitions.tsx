@@ -3,6 +3,7 @@ import _ from "lodash";
 import classNames from "classnames";
 import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
+import Children from "react-children-utilities";
 
 import { Container } from "./utils";
 import { ScrollPlugin } from "./scroll";
@@ -107,13 +108,13 @@ export let Definition: React.FC<DefinitionProps> = props => {
 };
 
 interface RefProps {
-  name: string;
   block?: boolean;
   nolink?: boolean;
 }
 
 export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...props }) => {
-  let name = props.name;
+  let name = Children.onlyText(children);
+
   let ctx = usePlugin(DefinitionsPlugin);
   let scroll_plugin = usePlugin(ScrollPlugin);
   useEffect(() => {
@@ -132,27 +133,27 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
     scroll_plugin.scroll_to(name_to_id(name));
   };
 
-  let inner: JSX.Element = children ? (
-    <>{children}</>
-  ) : def.Label ? (
-    <def.Label {...props} />
+  let inner: JSX.Element = def.Label ? (
+    <def.Label name={name} {...props} />
   ) : (
-    <span className="error">No children or label for &ldquo;{name}&rdquo;</span>
+    <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";
   let event_props = { [scroll_event]: on_click };
 
   let Inner = forwardRef<HTMLDivElement>(function Inner(inner_props, ref) {
-    return <Container
-      ref={ref}
-      block={block}
-      className={classNames("ref", { nolink })}
-      {...inner_props}
-      {...event_props}
-    >
-      {inner}
-    </Container>
+    return (
+      <Container
+        ref={ref}
+        block={block}
+        className={classNames("ref", { nolink })}
+        {...inner_props}
+        {...event_props}
+      >
+        {inner}
+      </Container>
+    );
   });
 
   if (def.Tooltip) {
