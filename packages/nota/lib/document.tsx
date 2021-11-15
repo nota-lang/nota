@@ -67,7 +67,7 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
-export let SectionTitle: React.FC<{plain?: boolean}> = ({ children, plain }) => {
+export let SectionTitle: React.FC<{ plain?: boolean }> = ({ children, plain }) => {
   let doc_ctx = useContext(DocumentContext);
   let sec_stack = doc_ctx.sections.top();
   let level = sec_stack.length;
@@ -84,11 +84,13 @@ export let SectionTitle: React.FC<{plain?: boolean}> = ({ children, plain }) => 
   } else {
     Header = props => <h4 {...props} />;
   }
-  Header.displayName = 'Header';
+  Header.displayName = "Header";
 
-  return <Header className="section-title">
-    {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
-  </Header>;
+  return (
+    <Header className="section-title">
+      {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
+    </Header>
+  );
 };
 
 export let Section: React.FC<{ name?: string }> = ({ name, children }) => {
@@ -173,11 +175,7 @@ export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children })
 
 export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{children}</span>;
 
-export let FullWidthContainer: React.FC<HTMLAttributes> = ({
-  style,
-  className,
-  ...props
-}) => {
+export let FullWidthContainer: React.FC<HTMLAttributes> = ({ style, className, ...props }) => {
   let ref = useRef<HTMLDivElement>(null);
   let [left, set_left] = useState(0);
 
@@ -302,17 +300,15 @@ let Footnotes: React.FC = _ => {
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = usePlugin(DefinitionsPlugin);
   return (
-    <>
-      <div
-        className={classNames("document", {
-          "def-mode": def_ctx.def_mode,
-        })}
-      >
-        {children}
-      </div>
+    <div
+      className={classNames({
+        "def-mode": def_ctx.def_mode,
+      })}
+    >
+      {children}
       <Footnotes />
       <Logger />
-    </>
+    </div>
   );
 });
 
@@ -344,7 +340,7 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
   );
 
   return (
-    <>
+    <div className="document">
       <DocumentContext.Provider value={new DocumentData()}>
         <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
       </DocumentContext.Provider>
@@ -354,6 +350,6 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
           portal.portal = el;
         }}
       />
-    </>
+    </div>
   );
 };

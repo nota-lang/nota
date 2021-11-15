@@ -1,15 +1,19 @@
 const estrella = require("estrella");
 const fs = require("fs");
-const pkg = JSON.parse(fs.readFileSync("./package.json"));
-const esbuild = require("esbuild");
-const peggy = require("peggy");
 const path = require("path");
 const generator = require("@lezer/generator");
+const _ = require("lodash");
 
-const lezer_plugin = {
+const lezer_plugin = grammars => ({
   name: "lezer",
   setup(build) {
-    let all_terms = {};
+    let term_builds = _.fromPairs(grammars.map(name => {
+      let resolve;
+      let promise = new Promise(r => {
+        resolve = r;
+      });
+      return [name, {promise, resolve}];
+    }));
 
     build.onResolve({ filter: /\.terms$/ }, async args => ({
       path: args.path,
@@ -17,7 +21,7 @@ const lezer_plugin = {
     }));
 
     build.onLoad({ filter: /.*/, namespace: "lezer-terms" }, async args => {
-      let contents = all_terms[path.basename(args.path, ".terms")];
+      let contents = await term_builds[path.basename(args.path, ".terms")].promise;
       return {
         contents,
         loader: "js",
@@ -29,21 +33,21 @@ const lezer_plugin = {
       let { parser, terms } = generator.buildParserFile(text, {
         fileName: args.path,
       });
-      all_terms[path.basename(args.path, ".grammar")] = terms;
+      term_builds[path.basename(args.path, ".grammar")].resolve(terms);
       return {
         contents: parser,
         loader: "js",
       };
     });
   },
-};
+});
 
 estrella.build({
-  entry: "lib/nota-syntax.tsx",
+  entryPoints: ["lib/nota-syntax.ts", "lib/esbuild-plugin.ts"],
   outdir: "dist",
   bundle: true,
   platform: "node",
   external: ["prettier"],
-  plugins: [lezer_plugin],
+  plugins: [lezer_plugin(["nota"])],
   sourcemap: true,
 });

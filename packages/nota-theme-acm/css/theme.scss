@@ -37,31 +37,31 @@ $sans-serif: "Linux Biolinum O", serif;
 
 .document {
   font-family: $serif;
-}
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: $sans-serif;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: $sans-serif;
+  }
 
-a[href],
-.ref {
-  color: rgb(101, 43, 126);
-}
+  a[href],
+  .ref {
+    color: rgb(101, 43, 126);
+  }
 
-.authors {
-  .author {
-    .author-name {
-      text-transform: uppercase;
-      font-family: $sans-serif;
+  .authors {
+    .author {
+      .author-name {
+        text-transform: uppercase;
+        font-family: $sans-serif;
+      }
     }
   }
-}
 
-.caption {
-  font-family: $sans-serif;
+  .caption {
+    font-family: $sans-serif;
+  }
 }

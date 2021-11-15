@@ -1,39 +1,134 @@
-import { SyntaxNode } from "@lezer/common";
+import { SyntaxNode, Tree } from "@lezer/common";
 //@ts-ignore
 import * as terms from "./nota.terms";
+import _ from "lodash";
 
 const assert = console.assert;
 
-let string_literal = (s: string): string => `r\`${s}\``;
-
-let to_react = (name: string, props: { [key: string]: any }, children: string[]): string => {
-  return `React.createElement(${name}, ${JSON.stringify(props)}, ${children.join(", ")})`;
+let string_literal = (s: string): string => `String.raw\`${s}\``;
+let symbol = (s: string): string => {
+  global.symbols.add(s);
+  return s;
 };
 
-let input: string;
-export let set_input = (inp: string) => {
-  input = inp;
+let global = {
+  input: "",
+  symbols: new Set(),
 };
 
-let text = (cursor: SyntaxNode): string => input.slice(cursor.from, cursor.to);
+export let translate = (input: string, tree: Tree): string => {
+  let node = tree.topNode;
+  assert(node.type.id == terms.Top);
+  global = {
+    input,
+    symbols: new Set(),
+  };
 
-export let translate_textbody = (node: SyntaxNode): string => {
-  assert(node.name == "TextBody");
+  let body = translate_toplevel(node.firstChild!);
+  let doc = to_react(symbol("Document"), {}, [body]);
+  let used_imports = Array.from(global.symbols).join(",");
 
-  let children = node.getChildren(terms.TextToken).map(token => {
+  return `function(imports) {
+    const {${used_imports}} = imports;
+    return ${doc};
+  }`;
+};
+
+let translate_toplevel = (node: SyntaxNode) => {
+  let tokens = node.getChildren(terms.TextToken);
+
+  interface Section {
+    title: SyntaxNode;
+    children: (SyntaxNode | Section)[];
+  }
+
+  let processed_sections: Section[] = [];
+  let section_stack: Section[] = [];
+  let body = [];
+  tokens.forEach(token => {
     let node = token.firstChild!;
+
     if (node.type.id == terms.Command) {
-      return translate_command(node);
-    } else if (node.type.id == terms.Text) {
-      return string_literal(text(node));
-    } else if (node.type.id == terms.Newline) {
-      return string_literal("\n");
+      let ident = text(node.getChild(terms.Ident)!).toLowerCase();
+      if (ident.endsWith("section")) {
+        let depth = Array.from(ident.matchAll(/sub/g)).length;
+
+        let popped = section_stack.splice(depth);
+        if (section_stack.length == 0 && popped.length > 0) {
+          processed_sections.push(popped[0]);
+        }
+
+        let section: Section = {
+          title: node.getChild(terms.CommandAnonArg)!.firstChild,
+          children: [],
+        };
+
+        if (section_stack.length > 0) {
+          _.last(section_stack)!.children.push(section);
+        }
+
+        section_stack.push(section);
+        return;
+      }
+    } else if (node.type.id == terms.Multinewline) {
+      return;
+    }
+
+    if (section_stack.length == 0) {
+      body.push(token);
     } else {
-      throw `Unhandled child type ${node.name}`;
+      _.last(section_stack)!.children.push(token);
     }
   });
 
-  return to_react("React.Fragment", {}, children);
+  if (section_stack.length > 0) {
+    processed_sections.push(section_stack[0]);
+  }
+
+  let translate_section = (section: Section) => {
+    let children = section.children.map(child =>
+      child.title ? translate_section(child) : translate_token(child)
+    );
+
+    children.unshift(to_react(symbol("SectionTitle"), {}, [translate_textbody(section.title)]));
+
+    return to_react(symbol("Section"), {}, children);
+  };
+
+  let new_body = body.map(translate_token).concat(processed_sections.map(translate_section));
+
+  // let paragraphs = blocks.map(block =>
+  //   to_react(block.has_text ? string_literal("p") : "React.Fragment", {}, block.children)
+  // );
+  return to_react("React.Fragment", {}, new_body);
+};
+
+let to_react = (name: string, props: { [key: string]: any }, children: string[]): string => {
+  return `${symbol("React")}.createElement(${name}, ${JSON.stringify(props)}, ${children.join(
+    ", "
+  )})`;
+};
+
+let text = (cursor: SyntaxNode): string => global.input.slice(cursor.from, cursor.to);
+
+let translate_token = (node: SyntaxNode): string => {
+  let child = node.firstChild!;
+  if (child.type.id == terms.Command) {
+    return translate_command(child);
+  } else if (child.type.id == terms.Text) {
+    return string_literal(text(child));
+  } else if (child.type.id == terms.Newline || child.type.id == terms.Multinewline) {
+    return string_literal("\n");
+  } else {
+    throw `Unhandled child type ${child.name}`;
+  }
+};
+
+let translate_textbody = (node: SyntaxNode): string => {
+  assert(node.name == "TextBody");
+
+  let children = node.getChildren(terms.TextToken).map(translate_token);
+  return to_react(`${symbol("React")}.Fragment`, {}, children);
 };
 
 let translate_command = (node: SyntaxNode): string => {
@@ -45,7 +140,7 @@ let translate_command = (node: SyntaxNode): string => {
     .map(node => translate_textbody(node.firstChild!));
 
   if (sigil == "@") {
-    return to_react(ident, {}, anon_args);
+    return to_react(symbol(ident), {}, anon_args);
   } else {
     throw `Unhandled sigil ${sigil}`;
   }

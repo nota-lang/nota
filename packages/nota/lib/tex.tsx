@@ -2,6 +2,7 @@ import React from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
+import Children from "react-children-utilities";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
@@ -154,7 +155,7 @@ export interface TexProps {
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   function Tex({ children, raw, block, ...props }) {
     let ctx = usePlugin(TexPlugin);
-    return ctx.render(children as string, block, raw, props);
+    return ctx.render(Children.onlyText(children), block, raw, props);
   },
   (prev, next) => prev.children == next.children
 );

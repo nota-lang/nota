@@ -2,10 +2,8 @@
 import {parser} from "./nota.grammar";
 import type esbuild from "esbuild";
 import fs from "fs";
-import { Text } from "./ast";
-import { translate_textbody, set_input } from "./translate";
-import * as nota from "@wcrichto/nota";
-import prettier from "prettier";
+import { translate } from "./translate";
+// import prettier from "prettier";
 import indentString from 'indent-string';
 
 export let notaSyntax: () => esbuild.Plugin = () => ({
@@ -25,9 +23,7 @@ export let notaSyntax: () => esbuild.Plugin = () => ({
         console.log(indentString(`${cursor.name}: "${sub_input}"`, 2 * depth(cursor.node)));
       } while (cursor.next());
 
-   
-      set_input(input);
-      console.log(translate_textbody(tree.topNode.firstChild));
+      console.log(translate(input, tree));
 
       return {contents: '', loader: 'js'};
       // let text = await fs.promises.readFile(args.path, "utf8");
