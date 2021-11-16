@@ -143,13 +143,13 @@ $sans-serif: "Helvetica", sans-serif;
       text-indent: 1em;
     }
 
-    .section-title + & {
-      text-indent: 0;
-    }
-
     &.noindent {
       text-indent: 0;
     }
+  }
+
+  .section-title + p {
+    text-indent: 0;
   }
 
   .document-title {

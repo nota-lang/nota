@@ -1,3 +1,3 @@
 //@ts-ignore
 export {parser} from "./nota.grammar";
-export {translate} from "./translate";
+export {translate, Translation, TranslatedFunction} from "./translate";

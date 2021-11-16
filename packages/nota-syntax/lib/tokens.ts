@@ -3,9 +3,7 @@ import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 import * as terms from "./nota.terms";
 import _ from "lodash";
 
-const [lparen, rparen, lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, space] = [
-  "(",
-  ")",
+const [lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, backslash] = [
   "{",
   "}",
   "[",
@@ -14,7 +12,7 @@ const [lparen, rparen, lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, n
   "%",
   "#",
   "\n",
-  " ",
+  "\\",
 ].map(s => s.charCodeAt(0));
 const eof = -1;
 
@@ -24,36 +22,34 @@ const {
   stopDelimited,
   startExpectingDelimiter,
   stopExpectingDelimiter,
-  startIgnoreText,
-  stopIgnoreText,
 } = terms;
-const term_name = n => Object.keys(terms).find(k => terms[k] == n);
+const _term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
 
-export const dialectContext = new ContextTracker({
+export const dialectContext = new ContextTracker<
+  (({ ignore: boolean } | { balance: boolean }) & { parent: any }) | null
+>({
   start: null,
   strict: false,
-  shift(context, term, stack, input) {
-    // console.log('shift', term_name(term))
+  shift(context) {
     return context;
   },
-  reduce(context, term, stack, input) {
-    // console.log('reduce', term_name(term));
+  reduce(context, term) {
     if (term == startExpectingDelimiter) {
       return { ignore: true, parent: context };
     } else if (term == stopExpectingDelimiter) {
-      return context.parent;
+      return context!.parent;
     } else if (term == startDelimited) {
       return { balance: true, parent: context };
     } else if (term == stopDelimited) {
-      return context.parent;
+      return context!.parent;
     }
 
     return context;
   },
-  reuse(context, node, _stack, input) {
+  reuse(context) {
     return context;
   },
-  hash(context) {
+  hash(_context) {
     return 0;
   },
 });
@@ -73,10 +69,10 @@ export const text = new ExternalTokenizer(
       // console.log(input.pos, String.fromCharCode(input.next), stack.context);
       if (
         input.next == eof ||
-        input.next == at_sign ||
-        input.next == pct_sign ||
+        input.next == newline ||
         input.next == hash_sign ||
-        input.next == newline
+        input.next == at_sign ||
+        input.next == pct_sign
       ) {
         if (len > 0) {
           input.acceptToken(Text);
@@ -107,7 +103,14 @@ export const text = new ExternalTokenizer(
         }
       }
 
-      input.advance();
+      if (input.next == backslash) {
+        input.advance();
+        if (input.next == hash_sign || input.next == at_sign || input.next == pct_sign) {
+          input.advance();
+        }
+      } else {
+        input.advance();
+      }
     }
   },
   { contextual: true }

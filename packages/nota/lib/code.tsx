@@ -5,6 +5,7 @@ import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
 import { EditorState, StateField, StateEffect, Extension } from "@codemirror/state";
 import { Plugin, usePlugin, Pluggable } from "./plugin";
+import Children from "react-children-utilities";
 import _ from "lodash";
 
 export const add_highlight = StateEffect.define<{ from: number; to: number; color: string }>();
@@ -137,7 +138,6 @@ export interface ListingDelimiterProps {
 }
 
 export interface ListingProps {
-  code: string;
   editable?: boolean;
   language?: LanguageSupport;
   onLoad?: (_editor: EditorView) => void;
@@ -152,7 +152,7 @@ export let Listing: React.FC<ListingProps> = props => {
   useEffect(() => {
     let language = props.language || ctx.language;
 
-    let code = props.code;
+    let code = Children.onlyText(props.children);
     let parse_result = null;
     if (props.delimiters) {
       parse_result = parse_with_delimiters(code, props.delimiters.delimiters);

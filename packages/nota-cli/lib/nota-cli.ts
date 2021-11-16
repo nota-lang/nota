@@ -5,7 +5,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { program } from "commander";
 import { sassPlugin } from "esbuild-sass-plugin";
-import { notaSyntax } from "@wcrichto/nota-syntax";
+import { notaSyntax } from "@wcrichto/nota-syntax/dist/esbuild-plugin";
 import _ from "lodash";
 
 //@ts-ignore

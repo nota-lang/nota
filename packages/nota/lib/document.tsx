@@ -269,7 +269,7 @@ export let Footnote: React.FC = ({ children }) => {
   return (
     <>
       <FootnoteDef>{children}</FootnoteDef>
-      <Ref name={`footnote:${i}`} />
+      <Ref>footnote:{i}</Ref>
     </>
   );
 };

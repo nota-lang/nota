@@ -110,9 +110,10 @@ export let Definition: React.FC<DefinitionProps> = props => {
 interface RefProps {
   block?: boolean;
   nolink?: boolean;
+  Element?: JSX.Element;
 }
 
-export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...props }) => {
+export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Element, ...props }) => {
   let name = Children.onlyText(children);
 
   let ctx = usePlugin(DefinitionsPlugin);
@@ -135,7 +136,7 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
 
   let inner: JSX.Element = def.Label ? (
     <def.Label name={name} {...props} />
-  ) : (
+  ) : Element || (
     <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );
 

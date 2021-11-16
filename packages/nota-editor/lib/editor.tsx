@@ -51,7 +51,7 @@ export let Editor = () => {
   let state = useContext(StateContext);
 
   useEffect(() => {
-    let editor = new EditorView({
+    let _editor = new EditorView({
       state: EditorState.create({
         doc: state.contents,
         extensions: [
