@@ -6,6 +6,8 @@ import * as nota from "@wcrichto/nota";
 import indentString from "indent-string";
 import classNames from "classnames";
 import { ErrorBoundary } from "react-error-boundary";
+import parserBabel from "prettier/parser-babel";
+import prettier from "prettier/standalone";
 
 export let Viewer = () => {
   let [selected, set_selected] = useState(0);
@@ -62,6 +64,7 @@ export let JSViewer = observer(() => {
   let js;
   try {
     js = translate(state.contents, tree);
+    js = prettier.format(js, {parser: "babel", plugins: [parserBabel]});
   } catch (e) {
     console.error(e);
     return <pre>{e.toString()}</pre>;

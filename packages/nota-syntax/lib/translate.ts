@@ -5,7 +5,7 @@ import _ from "lodash";
 
 const assert = console.assert;
 
-let string_literal = (s: string): string => `String.raw\`${s}\``;
+let string_literal = (s: string): string => `r\`${s}\``;
 let symbol = (s: string): string => {
   global.symbols.add(s);
   return s;
@@ -21,17 +21,20 @@ export let translate = (input: string, tree: Tree): string => {
   assert(node.type.id == terms.Top);
   global = {
     input,
-    symbols: new Set(),
+    symbols: new Set(["React"]),
   };
 
   let body = translate_toplevel(node.firstChild!);
   let doc = to_react(symbol("Document"), {}, [body]);
   let used_imports = Array.from(global.symbols).join(",");
 
-  return `function(imports) {
+  return `(function(imports) {
     const {${used_imports}} = imports;
+    const el = React.createElement;
+    const Fragment = React.Fragment;
+    const r = String.raw;
     return ${doc};
-  }`;
+  })`;
 };
 
 let translate_toplevel = (node: SyntaxNode) => {
@@ -70,8 +73,6 @@ let translate_toplevel = (node: SyntaxNode) => {
         section_stack.push(section);
         return;
       }
-    } else if (node.type.id == terms.Multinewline) {
-      return;
     }
 
     if (section_stack.length == 0) {
@@ -86,27 +87,42 @@ let translate_toplevel = (node: SyntaxNode) => {
   }
 
   let translate_section = (section: Section) => {
-    let children = section.children.map(child =>
-      child.title ? translate_section(child) : translate_token(child)
-    );
+    let children = [to_react(symbol("SectionTitle"), {}, [translate_textbody(section.title)])];
+    let paragraph = [];
+    let add_para = () => {
+      if (paragraph.length > 0) {
+        children.push(to_react(string_literal("p"), {}, _.clone(paragraph)));
+        paragraph = [];
+      }
+    };
 
-    children.unshift(to_react(symbol("SectionTitle"), {}, [translate_textbody(section.title)]));
+    section.children.forEach(child => {
+      if (child.title) {
+        add_para();
+        children.push(translate_section(child));
+      } else {
+        console.log(child.firstChild.name);
+        if (child.firstChild!.type.id == terms.Multinewline) {
+          add_para();
+          paragraph = [];
+        } else {
+          paragraph.push(translate_token(child));
+        }
+      }
+    });
+
+    add_para();
 
     return to_react(symbol("Section"), {}, children);
   };
 
   let new_body = body.map(translate_token).concat(processed_sections.map(translate_section));
 
-  // let paragraphs = blocks.map(block =>
-  //   to_react(block.has_text ? string_literal("p") : "React.Fragment", {}, block.children)
-  // );
-  return to_react("React.Fragment", {}, new_body);
+  return to_react("Fragment", {}, new_body);
 };
 
 let to_react = (name: string, props: { [key: string]: any }, children: string[]): string => {
-  return `${symbol("React")}.createElement(${name}, ${JSON.stringify(props)}, ${children.join(
-    ", "
-  )})`;
+  return `el(${name}, ${JSON.stringify(props)}, ${children.join(", ")})`;
 };
 
 let text = (cursor: SyntaxNode): string => global.input.slice(cursor.from, cursor.to);
@@ -128,7 +144,7 @@ let translate_textbody = (node: SyntaxNode): string => {
   assert(node.name == "TextBody");
 
   let children = node.getChildren(terms.TextToken).map(translate_token);
-  return to_react(`${symbol("React")}.Fragment`, {}, children);
+  return to_react("Fragment", {}, children);
 };
 
 let translate_command = (node: SyntaxNode): string => {
@@ -145,103 +161,6 @@ let translate_command = (node: SyntaxNode): string => {
     throw `Unhandled sigil ${sigil}`;
   }
 };
-
-// import { Text, AtExpr, AtBody } from "./ast";
-// import _ from "lodash";
-
-// const assert = console.assert;
-
-// export let translate_text = (text: Text, toplevel: boolean = true): string => {
-//   let commands: string[] = [];
-//   let blocks: { contains_atexpr: boolean; children: string[] }[] = [
-//     { contains_atexpr: false, children: [] },
-//   ];
-
-//   text.forEach(token => {
-//     let cur_block = blocks[blocks.length - 1];
-//     if (token.type == "TokenAtExpr") {
-//       let at_expr = token.value;
-//       if (at_expr.sigil == "%") {
-//         commands.push(translate_command(at_expr));
-//       } else {
-//         cur_block.contains_atexpr = true;
-//         cur_block.children.push(translate_atexpr(token.value));
-//       }
-//     } else {
-//       let body_text = token.value;
-//       if (body_text.type == "BodyTextString") {
-//         cur_block.children.push(string_literal(body_text.value));
-//       } else if (body_text.type == "BodyTextLine") {
-//         if (cur_block.children.length > 0) {
-//           blocks.push({ contains_atexpr: false, children: [] });
-//         }
-//       } else {
-//         assert(false);
-//       }
-//     }
-//   });
-
-//   let react_blocks = blocks.map(block => {
-//     if (block.children.length == 1 && !(toplevel && !block.contains_atexpr)) {
-//       return block.children[0];
-//     } else {
-//       return to_react(toplevel ? string_literal("p") : "React.Fragment", {}, block.children);
-//     }
-//   });
-
-//   let el = react_blocks.length > 1 ? to_react("React.Fragment", {}, react_blocks) : react_blocks[0];
-
-//   if (commands.length > 0) {
-//     return `(() => {${commands.join("\n")}\nreturn ${el};})()`;
-//   } else {
-//     return el;
-//   }
-// };
-
-// let translate_atexpr = (at_expr: AtExpr): string => {
-//   assert(at_expr.sigil != "%");
-
-//   if (at_expr.sigil == "@") {
-//     let func = at_expr.func.value;
-//     if (INTRINSIC_ELEMENTS.includes(func)) {
-//       func = string_literal(func);
-//     }
-
-//     let props = at_expr.args ? _.fromPairs(at_expr.args.map(({ key, value }) => [key, value])) : {};
-//     let children = at_expr.body ? [translate_atbody(at_expr.body)] : [];
-//     return to_react(func, props, children);
-//   } else {
-//     let func = at_expr.func.value;
-//     if (at_expr.body) {
-//       let args = translate_atbody(at_expr.body);
-//       return `${func}(${args})`;
-//     } else {
-//       return func;
-//     }
-//   }
-// };
-
-// let translate_atbody = (at_body: AtBody): string =>
-//   at_body.type == "AtBodyText"
-//     ? translate_text(at_body.value, false)
-//     : string_literal(at_body.value);
-
-// let translate_command = (cmd: AtExpr): string => {
-//   switch (cmd.func.value) {
-//     case "import":
-//     case "import_default": {
-//       let imports =
-//         cmd.func.value == "import"
-//           ? `{${cmd.args!.map(arg => arg.key).join(", ")}}`
-//           : cmd.args![0].key;
-//       return `const ${imports} = require("${cmd.body.value[0].value.value!}")`;
-//     }
-
-//     default: {
-//       throw `Unimplemented command: ${cmd.func.value}`;
-//     }
-//   }
-// };
 
 // const INTRINSIC_ELEMENTS: string[] = [
 //   "a",

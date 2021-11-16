@@ -26,8 +26,6 @@ $header-height: 45px;
   > div {
     width: 49%;
     height: 100%;
-    box-sizing: border-box;
-    padding: 0 5px;
   }
 
   pre {
@@ -37,5 +35,6 @@ $header-height: 45px;
   .viewer {
     height: 100%;
     overflow-y: auto;
+    padding-right: 15px;
   }
 }
