@@ -3,7 +3,7 @@ import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 import * as terms from "./nota.terms";
 import _ from "lodash";
 
-const [lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, backslash] = [
+const [lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, backslash, pipe, eqsign] = [
   "{",
   "}",
   "[",
@@ -13,16 +13,11 @@ const [lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, backslas
   "#",
   "\n",
   "\\",
+  "|",
+  "="
 ].map(s => s.charCodeAt(0));
 const eof = -1;
 
-const {
-  Text,
-  startDelimited,
-  stopDelimited,
-  startExpectingDelimiter,
-  stopExpectingDelimiter,
-} = terms;
 const _term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
 
 export const dialectContext = new ContextTracker<
@@ -30,23 +25,29 @@ export const dialectContext = new ContextTracker<
 >({
   start: null,
   strict: false,
-  shift(context) {
+  shift(context, term, _stack, _input) {
+    // console.log(`shift ${_term_name(term)} at ${String.fromCharCode(input.next)} (${input.pos}) in context ${JSON.stringify(context)}`);    
+    if (context != null) {
+      if (term == terms.eq || term == terms.lbrc) {
+        return { balance: true, parent: context }
+      } else if ((term == terms.rbrkt && context.parent) || term == terms.rbrc) {
+        return context.parent;
+      }  
+    }
     return context;
   },
-  reduce(context, term) {
-    if (term == startExpectingDelimiter) {
+  reduce(context, term, _stack, _input) {
+    // console.log(`reduce ${_term_name(term)} at ${String.fromCharCode(input.next)} (${input.pos}) in context ${JSON.stringify(context)}`);
+    if (term == terms.CommandSigil) {
       return { ignore: true, parent: context };
-    } else if (term == stopExpectingDelimiter) {
-      return context!.parent;
-    } else if (term == startDelimited) {
-      return { balance: true, parent: context };
-    } else if (term == stopDelimited) {
-      return context!.parent;
+    } else if (context && term == terms.Command) {
+      return context.parent;
     }
 
     return context;
   },
-  reuse(context) {
+  reuse(context, _node) {
+    // console.log('reuse', node.type.name);
     return context;
   },
   hash(_context) {
@@ -75,15 +76,15 @@ export const text = new ExternalTokenizer(
         input.next == pct_sign
       ) {
         if (len > 0) {
-          input.acceptToken(Text);
+          input.acceptToken(terms.Text);
         }
         return;
       }
 
       if (stack.context != null) {
-        if (stack.context.ignore && ldelims.includes(input.next)) {
+        if (stack.context.ignore && (input.next == pipe || input.next == eqsign || ldelims.includes(input.next))) {
           if (len > 0) {
-            input.acceptToken(Text);
+            input.acceptToken(terms.Text);
           }
           return;
         } else if (stack.context.balance) {
@@ -93,7 +94,7 @@ export const text = new ExternalTokenizer(
             let l = r2l[input.next];
             if (balance[l] == 0) {
               if (len > 0) {
-                input.acceptToken(Text);
+                input.acceptToken(terms.Text);
               }
               return;
             } else {
@@ -115,3 +116,17 @@ export const text = new ExternalTokenizer(
   },
   { contextual: true }
 );
+
+export const verbatim = new ExternalTokenizer(input => {
+  let saw_brace = false;
+  while (input.next != eof) {
+    if (input.next == lbrc) {
+      saw_brace = true;
+    } else if (input.next == pipe && saw_brace) {
+      input.acceptToken(terms.VerbatimText, -1);
+      return;
+    }
+
+    input.advance();
+  }
+});

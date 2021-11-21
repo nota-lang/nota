@@ -67,6 +67,8 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
+export let Paragraph: React.FC = ({children}) => <p lang="en">{children}</p>;
+
 export let SectionTitle: React.FC<{ plain?: boolean }> = ({ children, plain }) => {
   let doc_ctx = useContext(DocumentContext);
   let sec_stack = doc_ctx.sections.top();
@@ -93,7 +95,7 @@ export let SectionTitle: React.FC<{ plain?: boolean }> = ({ children, plain }) =
   );
 };
 
-export let Section: React.FC<{ name?: string }> = ({ name, children }) => {
+export let Section: React.FC<{ label?: string }> = ({ label, children }) => {
   let doc_ctx = useContext(DocumentContext);
   let incr_thm = doc_ctx.sections.stack.length == 1;
   if (incr_thm) {
@@ -104,7 +106,7 @@ export let Section: React.FC<{ name?: string }> = ({ name, children }) => {
 
   // TODO: section level-specific styles!
   return (
-    <Definition name={name} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
+    <Definition name={label} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
       <section>
         {children}
         <doc_ctx.sections.Pop />

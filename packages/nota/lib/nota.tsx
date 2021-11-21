@@ -19,6 +19,7 @@ export {
   Smallcaps,
   Center,
   Expandable,
+  Paragraph
 } from "./document";
 export { Definition, Ref } from "./definitions";
 export { Togglebox, ToggleButton } from "./togglebox";

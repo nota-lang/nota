@@ -75,7 +75,7 @@ class DefinitionsData extends Pluggable {
 export let DefinitionsPlugin = new Plugin(DefinitionsData);
 
 interface DefinitionProps {
-  name?: string;
+  name?: JSX.Element | string;
   block?: boolean;
   Tooltip?: React.FC | null;
   Label?: React.FC<any>;
@@ -91,7 +91,7 @@ export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = props
 
 export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [name] = useState(props.name || _.uniqueId());
+  let [name] = useState(props.name ? Children.onlyText(props.name) : _.uniqueId());
 
   useEffect(() => {
     let Tooltip =

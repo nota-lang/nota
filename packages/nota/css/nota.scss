@@ -138,6 +138,7 @@ $sans-serif: "Helvetica", sans-serif;
 
   p {
     margin: 0;
+    hyphens: auto;
 
     &:not(:first-child) {
       text-indent: 1em;
