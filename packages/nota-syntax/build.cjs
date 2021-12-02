@@ -7,13 +7,15 @@ const _ = require("lodash");
 const lezer_plugin = grammars => ({
   name: "lezer",
   setup(build) {
-    let term_builds = _.fromPairs(grammars.map(name => {
-      let resolve;
-      let promise = new Promise(r => {
-        resolve = r;
-      });
-      return [name, {promise, resolve}];
-    }));
+    let term_builds = _.fromPairs(
+      grammars.map(name => {
+        let resolve;
+        let promise = new Promise(r => {
+          resolve = r;
+        });
+        return [name, { promise, resolve }];
+      })
+    );
 
     build.onResolve({ filter: /\.terms$/ }, async args => ({
       path: args.path,
@@ -32,6 +34,7 @@ const lezer_plugin = grammars => ({
       let text = await fs.promises.readFile(args.path, "utf8");
       let { parser, terms } = generator.buildParserFile(text, {
         fileName: args.path,
+        includeNames: true,
       });
       term_builds[path.basename(args.path, ".grammar")].resolve(terms);
       return {
@@ -50,4 +53,7 @@ estrella.build({
   external: ["prettier"],
   plugins: [lezer_plugin(["nota"])],
   sourcemap: true,
+  define: {
+    process: JSON.stringify({ env: {} }),
+  },
 });

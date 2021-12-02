@@ -3,41 +3,62 @@ import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 import * as terms from "./nota.terms";
 import _ from "lodash";
 
-const [lbrc, rbrc, lbrkt, rbrkt, at_sign, pct_sign, hash_sign, newline, backslash, pipe, eqsign] = [
-  "{",
-  "}",
-  "[",
-  "]",
-  "@",
-  "%",
-  "#",
-  "\n",
-  "\\",
-  "|",
-  "="
-].map(s => s.charCodeAt(0));
+const [
+  lbrc,
+  rbrc,
+  lbrkt,
+  rbrkt,
+  lparen,
+  rparen,
+  at_sign,
+  pct_sign,
+  hash_sign,
+  newline,
+  backslash,
+  pipe,
+  eqsign,
+] = ["{", "}", "[", "]", "(", ")", "@", "%", "#", "\n", "\\", "|", "="].map(s => s.charCodeAt(0));
 const eof = -1;
 
 const _term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
 
-export const dialectContext = new ContextTracker<
-  (({ ignore: boolean } | { balance: boolean }) & { parent: any }) | null
->({
+interface IgnoreContext {
+  ignore: boolean;
+}
+
+interface BalanceContext {
+  balance: { [ldelim: string]: number };
+}
+
+type Context = (IgnoreContext | BalanceContext) & { parent: any };
+
+export const dialectContext = new ContextTracker<Context | null>({
   start: null,
   strict: false,
   shift(context, term, _stack, _input) {
-    // console.log(`shift ${_term_name(term)} at ${String.fromCharCode(input.next)} (${input.pos}) in context ${JSON.stringify(context)}`);    
+    // console.log(
+    //   `shift ${_term_name(term)} at ${String.fromCharCode(_input.next)} (${
+    //     _input.pos
+    //   }) in context ${JSON.stringify(context)}`
+    // );
     if (context != null) {
       if (term == terms.eq || term == terms.lbrc) {
-        return { balance: true, parent: context }
-      } else if ((term == terms.rbrkt && context.parent) || term == terms.rbrc) {
+        return { balance: _.fromPairs(ldelims.map(l => ([l, 0]))), parent: context };
+      } else if (
+        (term == terms.rbrkt && context.parent && context.parent.ignore) ||
+        term == terms.rbrc
+      ) {
         return context.parent;
-      }  
+      }
     }
     return context;
   },
   reduce(context, term, _stack, _input) {
-    // console.log(`reduce ${_term_name(term)} at ${String.fromCharCode(input.next)} (${input.pos}) in context ${JSON.stringify(context)}`);
+    // console.log(
+    //   `reduce ${_term_name(term)} at ${String.fromCharCode(_input.next)} (${
+    //     _input.pos
+    //   }) in context ${JSON.stringify(context)}`
+    // );
     if (term == terms.CommandSigil) {
       return { ignore: true, parent: context };
     } else if (context && term == terms.Command) {
@@ -65,7 +86,6 @@ let r2l = _.fromPairs(delims.map(([l, r]) => [r, l]));
 
 export const text = new ExternalTokenizer(
   (input, stack) => {
-    let balance = _.fromPairs(ldelims.map(l => [l, 0]));
     for (let len = 0; ; len++) {
       // console.log(input.pos, String.fromCharCode(input.next), stack.context);
       if (
@@ -82,23 +102,26 @@ export const text = new ExternalTokenizer(
       }
 
       if (stack.context != null) {
-        if (stack.context.ignore && (input.next == pipe || input.next == eqsign || ldelims.includes(input.next))) {
+        if (
+          stack.context.ignore &&
+          (input.next == pipe || input.next == eqsign || ldelims.includes(input.next))
+        ) {
           if (len > 0) {
             input.acceptToken(terms.Text);
           }
           return;
         } else if (stack.context.balance) {
           if (ldelims.includes(input.next)) {
-            balance[input.next]++;
+            stack.context.balance[input.next]++;
           } else if (rdelims.includes(input.next)) {
             let l = r2l[input.next];
-            if (balance[l] == 0) {
+            if (stack.context.balance[l] == 0) {
               if (len > 0) {
                 input.acceptToken(terms.Text);
               }
               return;
             } else {
-              balance[l]--;
+              stack.context.balance[l]--;
             }
           }
         }
@@ -127,6 +150,23 @@ export const verbatim = new ExternalTokenizer(input => {
       return;
     }
 
+    input.advance();
+  }
+});
+
+export const js = new ExternalTokenizer(input => {
+  let parens = 0;
+  while (input.next != eof) {
+    if (input.next == lparen) {
+      parens++;
+    } else if (input.next == rparen) {
+      if (parens == 0) {
+        input.acceptToken(terms.Js);
+        return;
+      } else {
+        parens--;
+      }
+    }
     input.advance();
   }
 });

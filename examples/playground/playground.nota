@@ -1,5 +1,2 @@
-@Title{Modular Program Slicing Through Ownership}
+%import_fields{SyntaxDiagram}{AssignStaticRule}{AssignDynamicRule}{./diagrams}
 
-@Section{Introduction}
-
-Heyo.

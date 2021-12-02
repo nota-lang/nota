@@ -1,16 +1,16 @@
-import React, { useContext, useState, useEffect } from "react";
-import type { Tree, SyntaxNode } from "@lezer/common";
-import { StateContext } from "./state";
+import React, { useContext, useState, useEffect, useRef } from "react";
+import type { SyntaxNode } from "@lezer/common";
 import { observer } from "mobx-react";
-import * as nota_syntax from "@wcrichto/nota-syntax";
-import * as nota from "@wcrichto/nota";
 import indentString from "indent-string";
 import classNames from "classnames";
 import { ErrorBoundary } from "react-error-boundary";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
-import axios from "axios";
-import _ from "lodash";
+import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
+import { javascript } from "@codemirror/lang-javascript";
+
+import { StateContext, is_err, TranslateResult } from "./state";
+import { theme } from "./editor";
 
 export let Viewer = () => {
   let [selected, set_selected] = useState(0);
@@ -36,108 +36,33 @@ export let Viewer = () => {
   );
 };
 
-let Error: React.FC = ({ children }) => <pre className="error">{children}</pre>;
-
-interface Ok<T> {
-  type: "Ok";
-  value: T;
-}
-
-interface Err<E> {
-  type: "Err";
-  value: E;
-}
-
-let ok = <T,>(value: T): Ok<T> => ({ type: "Ok", value });
-let err = <E,>(value: E): Err<E> => ({ type: "Err", value });
-// let is_ok = <T, E>(result: Result<T, E>): result is Ok<T> => result.type == "Ok";
-let is_err = <T, E>(result: Result<T, E>): result is Err<E> => result.type == "Err";
-
-type Result<T, E = Error> = Ok<T> | Err<E>;
-
-interface TranslateResult {
-  contents: string;
-  tree: Result<Tree>;
-  translation?: Result<nota_syntax.Translation>;
-  imports?: Result<{ [path: string]: string }>;
-  Element?: Result<React.FC>;
-}
+let ErrorView: React.FC = ({ children }) => <pre className="error">{children}</pre>;
 
 let TranslateErrorView: React.FC<{ result: TranslateResult }> = ({ result }) => {
+  let err_type;
   let err;
   if (is_err(result.tree)) {
+    err_type = "Parse error"
     err = result.tree.value;
   } else if (is_err(result.translation!)) {
+    err_type = "Translation error"
     err = result.translation.value;
   } else if (is_err(result.imports!)) {
+    err_type = "Import error"
     err = result.imports.value;
   } else if (is_err(result.Element!)) {
+    err_type = "JS parsing error"
     err = result.Element.value;
   } else {
     throw `No error`;
   }
 
-  return <Error>{err.toString()}</Error>;
-};
-
-let parser = nota_syntax.parser.configure({ strict: true });
-
-let translate = async (contents: string): Promise<TranslateResult> => {
-  let result: TranslateResult;
-
-  try {
-    result = { contents, tree: ok(parser.parse(contents)) };
-  } catch (e: any) {
-    result = { contents, tree: err(e) };
-    return result;
-  }
-
-  try {
-    result.translation = ok(nota_syntax.translate(contents, result.tree.value as Tree));
-  } catch (e: any) {
-    console.error(e);
-    result.translation = err(e);
-    return result;
-  }
-
-  try {
-    result.imports = ok(
-      _.fromPairs(
-        await Promise.all(
-          Array.from(result.translation.value.imports).map(async path => {
-            let response = await axios.get(path);
-            return [path, response.data];
-          })
-        )
-      )
-    );
-  } catch (e: any) {
-    console.error(e);
-    result.imports = err(e);
-    return result;
-  }
-
-  try {
-    let f: () => nota_syntax.TranslatedFunction = new Function(
-      `return(${result.translation.value.js})`
-    ) as any;
-    let symbols = { React, ...nota };
-    result.Element = ok(() => f()(symbols, result.imports!.value));
-  } catch (e: any) {
-    console.error(e);
-    result.Element = err(e);
-    return result;
-  }
-
-  return result;
+  return <ErrorView>{err_type}: {err.toString()}</ErrorView>;
 };
 
 let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
-  let state = useContext(StateContext);
-  let [data, set_data] = useState<TranslateResult | null>(null);
-  useEffect(() => {
-    translate(state.contents).then(set_data);
-  }, [state.contents]);
+  let state = useContext(StateContext)!;
+  let data = state.translation;
 
   if (!data) {
     return <>Loading...</>;
@@ -174,17 +99,40 @@ let ParseView: React.FC<{ result: TranslateResult }> = ({ result }) => {
 
 let JSView: React.FC<{ result: TranslateResult }> = ({ result }) => {
   let translation = result.translation;
-  if (!translation || is_err(translation)) {
-    return <TranslateErrorView result={result} />;
-  }
+  let ref = useRef<HTMLDivElement>(null);
+  let [editor, set_editor] = useState<EditorView | null>(null);
 
-  let js = translation.value.js;
-  try {
-    js = prettier.format(js, { parser: "babel", plugins: [parserBabel] });
-  } catch (e) {
-    console.error(e);
-  }
-  return <pre>{js}</pre>;
+  useEffect(() => {
+    if (!translation || is_err(translation)) {
+      return;
+    }
+
+    if (!editor) {
+      editor = new EditorView({
+        state: EditorState.create({ doc: "", extensions: [basicSetup, javascript(), theme] }),
+        parent: ref.current!,
+      });
+      set_editor(editor);
+    }
+
+    let js = translation.value.js;
+    try {
+      js = prettier.format(js, { parser: "babel", plugins: [parserBabel] });
+    } catch (e) {
+      console.error(e);
+    }
+
+    editor.dispatch({
+      changes: { from: 0, to: editor.state.doc.toString().length, insert: js },
+    });
+  }, [result]);
+
+  return (
+    <>
+      {!translation || is_err(translation) ? <TranslateErrorView result={result} /> : null}
+      <div ref={ref} />
+    </>
+  );
 };
 
 let OutputView: React.FC<{ result: TranslateResult }> = ({ result }) => {
@@ -194,7 +142,7 @@ let OutputView: React.FC<{ result: TranslateResult }> = ({ result }) => {
   }
 
   return (
-    <ErrorBoundary FallbackComponent={({ error }) => <Error>{error.message}</Error>}>
+    <ErrorBoundary resetKeys={[result.contents]} FallbackComponent={({ error }) => <ErrorView>Runtime error: {error.message}</ErrorView>}>
       <Element.value />
     </ErrorBoundary>
   );

@@ -1,27 +1,47 @@
 import { SyntaxNode, Tree } from "@lezer/common";
+import * as t from "./babel-polyfill";
 //@ts-ignore
 import * as terms from "./nota.terms";
-import _ from "lodash";
+import _, { transform } from "lodash";
+import type { Expression, LVal, SpreadElement } from "@babel/types";
+import { transformFromAst } from "@babel/standalone";
+import * as nota from "@wcrichto/nota";
+import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 
 const assert = console.assert;
 
-let string_literal = (s: string): string => `r\`${s.replace(/`/g, "${bt}")}\``;
-let symbol = (s: string): string => {
-  global.symbols.add(s);
-  return s;
-};
-
 let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
+let matches_newline = (node: SyntaxNode): boolean =>
+  matches(node, terms.Newline) || matches(node, terms.Multinewline);
 
 let global: {
   input: string;
+  used_prelude: Set<string>;
   imports: Set<string>;
-  symbols: Set<string>;
 } = {
   input: "",
+  used_prelude: new Set(),
   imports: new Set(),
-  symbols: new Set(),
 };
+
+let react_id = t.identifier("React");
+let globals_arg = t.identifier("globals");
+let imports_arg = t.identifier("imports");
+let create_el = t.identifier("el");
+
+let to_react = (
+  name: Expression,
+  props: { [key: string]: Expression },
+  children: (Expression | SpreadElement)[]
+): Expression => {
+  let args: (Expression | SpreadElement)[] = [
+    name,
+    t.objectExpression(Object.keys(props).map(k => t.objectProperty(t.stringLiteral(k), props[k]))),
+  ];
+  return t.callExpression(create_el, args.concat(children));
+};
+
+let text = (cursor: SyntaxNode): string => global.input.slice(cursor.from, cursor.to);
 
 export type TranslatedFunction = (
   _symbols: { [key: string]: any },
@@ -33,202 +53,64 @@ export interface Translation {
   imports: Set<string>;
 }
 
-export let translate = (input: string, tree: Tree): Translation => {
+export let PRELUDE: Set<string> = new Set(Object.keys(nota));
+
+export let translate = async (input: string, tree: Tree): Promise<Translation> => {
   let node = tree.topNode;
   assert(matches(node, terms.Top));
   global = {
     input,
+    used_prelude: new Set(["Document"]),
     imports: new Set(),
-    symbols: new Set(["React"]),
   };
 
-  let body = translate_toplevel(node.firstChild!);
-  let doc = to_react(symbol("Document"), {}, [body]);
-  let used_symbols = Array.from(global.symbols).join(",");
+  let doc_body = translate_textbody(node.firstChild!);
+  let doc = to_react(t.identifier("Document"), {}, doc_body);
 
-  let js = `(function(globals, imports) {
-  const {${used_symbols}} = globals;
-  const el = React.createElement;
-  const Fragment = React.Fragment;
-  const r = String.raw;
-  const bt = "\`";
-  return ${doc};
-})`;
+  let binding = (k: LVal, v: Expression) =>
+    t.variableDeclaration("let", [t.variableDeclarator(k, v)]);
+
+  let block = t.blockStatement([
+    binding(
+      t.objectPattern(
+        Array.from(global.used_prelude).map(k =>
+          t.objectProperty(t.identifier(k), t.identifier(k), true)
+        )
+      ),
+      globals_arg
+    ),
+    binding(react_id, t.memberExpression(globals_arg, react_id)),
+    binding(create_el, t.memberExpression(react_id, t.identifier("createElement"))),
+    t.returnStatement(doc),
+  ]);
+
+  let fn = t.arrowFunctionExpression([globals_arg, imports_arg], block);
+  let program = t.program([t.expressionStatement(fn)]);
+  let result: any = transformFromAst(program, undefined, {});
+  let js = result.code.slice(0, -1);
 
   return { js, imports: global.imports };
 };
 
-let translate_toplevel = (node: SyntaxNode) => {
-  let tokens = node.getChildren(terms.TextToken);
-
-  interface Section {
-    title: SyntaxNode;
-    props: {[key: string]: string},
-    children: (SyntaxNode | Section)[];
-  }
-
-  function is_section(obj: SyntaxNode | Section): obj is Section {
-    return "title" in obj;
-  }
-
-  let commands: string[] = [];
-  let processed_sections: Section[] = [];
-  let section_stack: Section[] = [];
-  let body: SyntaxNode[] = [];
-  tokens.forEach(token => {
-    let node = token.firstChild!;
-
-    if (matches(node, terms.Command)) {
-      let ident = text(node.getChild(terms.Ident)!).toLowerCase();
-      if (ident.endsWith("section")) {
-        let depth = Array.from(ident.matchAll(/sub/g)).length;
-
-        let popped = section_stack.splice(depth);
-        if (section_stack.length == 0 && popped.length > 0) {
-          processed_sections.push(popped[0]);
-        }
-
-        let section: Section = {
-          title: node.getChild(terms.CommandAnonArg)!.firstChild!,
-          props: translate_named_args(node.getChildren(terms.CommandNamedArg)),
-          children: [],
-        };
-
-        if (section_stack.length > 0) {
-          _.last(section_stack)!.children.push(section);
-        }
-
-        section_stack.push(section);
-        return;
-      }
-
-      let sigil = text(node.getChild(terms.CommandSigil)!).toLowerCase();
-      if (sigil == "%") {
-        let command;
-        if (ident == "import") {
-          let args = node.getChildren(terms.CommandAnonArg).map(child => child.firstChild!);
-          if (args.length != 2) {
-            throw `Incorrect number of arguments to %import`;
-          }
-
-          let [name, path] = args;
-          global.imports.add(text(path));
-          command = `const ${text(name)} = imports[${string_literal(text(path))}]`;
-        } else {
-          throw `Unknown percent-command ${ident}`;
-        }
-
-        commands.push(command);
-        return;
-      }
-    }
-
-    if (section_stack.length == 0) {
-      body.push(token);
-    } else {
-      _.last(section_stack)!.children.push(token);
-    }
-  });
-
-  if (section_stack.length > 0) {
-    processed_sections.push(section_stack[0]);
-  }
-
-  let translate_section = (section: Section) => {
-    let children = [to_react(symbol("SectionTitle"), {}, [translate_textbody(section.title)])];
-    let paragraph: string[] = [];
-    let contains_command = false;
-    let add_para = () => {
-      if (paragraph.length > 0) {
-        if (paragraph.length == 1 && contains_command) {
-          children.push(paragraph[0]);
-        } else {
-          children.push(to_react(symbol("Paragraph"), {}, _.clone(paragraph)));
-        }
-        paragraph = [];
-        contains_command = false;
-      }
-    };
-
-    for (let i = 0; i < section.children.length; ++i) {
-      let child = section.children[i];
-      if (is_section(child)) {
-        add_para();
-        children.push(translate_section(child));
-      } else {
-        let node = child.firstChild!;
-        if (matches(node, terms.Newline) && i < section.children.length - 1) {
-          let next = section.children[i + 1];
-          if (!is_section(next) && matches(next.firstChild!, terms.Newline)) {
-            i += 1;
-            add_para();
-            continue;
-          }
-        }
-
-        if (matches(node, terms.Command)) {
-          contains_command = true;
-        }
-        paragraph.push(translate_token(child));
-      }
-    }
-
-    add_para();
-
-    return to_react(symbol("Section"), section.props, children);
-  };
-
-  let new_body = body.map(translate_token).concat(processed_sections.map(translate_section));
-
-  let new_body_el = to_react("Fragment", {}, new_body);
-  if (commands.length > 0) {
-    return `(function(){${commands.join(";\n")};\nreturn ${new_body_el};})()`;
-  } else {
-    return new_body_el;
-  }
-};
-
-let to_react = (name: string, props: { [key: string]: string }, children: string[]): string => {
-  let prop_str = Object.keys(props).map(k => `${k}: ${props[k]}`).join(", ");
-  return `el(${name}, {${prop_str}}, ${children.join(", ")})`;
-};
-
-let text = (cursor: SyntaxNode): string => global.input.slice(cursor.from, cursor.to);
-
-let translate_token = (node: SyntaxNode): string => {
-  let child = node.firstChild!;
-  if (matches(child, terms.Command)) {
-    return translate_command(child);
-  } else if (matches(child, terms.Text)) {
-    return string_literal(text(child));
-  } else if (matches(child, terms.Newline)) {
-    return string_literal("\n");
-  } else {
-    throw `Unhandled child type ${child.name}`;
-  }
-};
-
-let translate_textbody = (node: SyntaxNode): string => {
-  assert(node.type.id == terms.TextBody);
+let translate_textbody = (node: SyntaxNode): Expression[] => {
+  assert(matches(node, terms.TextBody));
 
   let tokens = node.getChildren(terms.TextToken);
 
-  // Strip staring / ending newlines
-  tokens = tokens.filter((token, i) => {
-    let node = token.firstChild!;
-    if (matches(node, terms.Newline)) {
-      if (i == 0 || i == tokens.length - 1) {
-        return false;
-      }
+  // Remove whitespace on the last line
+  let last = _.last(tokens);
+  if (last && matches(last.firstChild!, terms.Text)) {
+    let s = text(last);
+    if (s.match(/^[\s]*$/)) {
+      tokens.pop();
     }
-    return true;
-  });
+  }
 
   // Remove leading whitespace
   let line_starts = tokens
     .map((_t, i) => i)
     .filter(i => {
-      let line_start = i == 0 || matches(tokens[i - 1].firstChild!, terms.Newline);
+      let line_start = i > 0 && matches_newline(tokens[i - 1].firstChild!);
       return line_start && matches(tokens[i].firstChild!, terms.Text);
     });
 
@@ -242,231 +124,79 @@ let translate_textbody = (node: SyntaxNode): string => {
           .reduce((a, b) => Math.min(a, b))
       : 0;
 
-  let children = tokens.map((token, i) => {
+  let children = tokens.reduce<Expression[]>((output, token, i) => {
     if (line_starts.includes(i)) {
-      return string_literal(text(token).slice(min_leading_whitespace));
+      let stripped = text(token).slice(min_leading_whitespace);
+      if (stripped.length > 0) {
+        output.push(t.stringLiteral(stripped));
+      }
+    } else if (matches_newline(token.firstChild!) && (i == 0 || i == tokens.length - 1)) {
+      // pass
     } else {
-      return translate_token(token);
+      output.push(translate_token(token));
     }
-  });
+    return output;
+  }, []);
 
-  return to_react("Fragment", {}, children);
+  return children;
 };
 
-let translate_named_args = (args: SyntaxNode[]): {[key: string]: string} => 
-  _.fromPairs(args.map(node => {
-    let key = text(node.getChild(terms.Ident)!);
-    let value = node.getChild(terms.TextBody);
-    if (value) {
-      return [key, translate_textbody(value)];
-    } else {
-      return [key, true];
-    }
-  }));
+let translate_token = (node: SyntaxNode): Expression => {
+  assert(matches(node, terms.TextToken));
 
-let translate_command = (node: SyntaxNode): string => {
+  let child = node.firstChild!;
+  if (matches(child, terms.Command)) {
+    return translate_command(child);
+  } else if (matches(child, terms.Text)) {
+    return t.stringLiteral(text(child));
+  } else if (matches(child, terms.Newline)) {
+    return t.stringLiteral("\n");
+  } else if (matches(child, terms.Multinewline)) {
+    return t.stringLiteral("\n\n");
+  } else {
+    throw `Unhandled child type ${child.name}`;
+  }
+};
+
+let translate_command = (node: SyntaxNode): Expression => {
+  assert(matches(node, terms.Command));
+
   let sigil = text(node.getChild(terms.CommandSigil)!);
-  let ident = text(node.getChild(terms.Ident)!);
-  let named_args = node.getChildren(terms.CommandNamedArg);
+  let name = text(node.getChild(terms.CommandName)!);
+  if (PRELUDE.has(name)) {
+    global.used_prelude.add(name);
+  }
 
-  let anon_args = node.getChildren(terms.CommandAnonArg).map(node => {
-    let child = node.firstChild!;
-    if (child.type.id == terms.TextBody) {
-      return translate_textbody(node.firstChild!);
-    } else if (child.type.id == terms.VerbatimText) {
-      return string_literal(text(child));
-    } else {
-      throw `Unknown CommandAnonArg ${child.name}`;
-    }
-  });
+  let named_args = node.getChildren(terms.CommandNamedArg);
+  let anon_args = node
+    .getChildren(terms.CommandAnonArg)
+    .map(node => {
+      let child = node.firstChild!;
+      if (child.type.id == terms.TextBody) {
+        return translate_textbody(node.firstChild!);
+      } else if (child.type.id == terms.VerbatimText) {
+        return [t.stringLiteral(text(child))];
+      } else {
+        throw `Unknown CommandAnonArg ${child.name}`;
+      }
+    })
+    .map(exprs => t.arrayExpression(exprs));
 
   if (sigil == "@") {
-    let name = INTRINSIC_ELEMENTS.has(ident) ? string_literal(ident) : symbol(ident);
-    let props = translate_named_args(named_args);
-    return to_react(name, props, anon_args);
+    return to_react(
+      INTRINSIC_ELEMENTS.has(name) ? t.stringLiteral(name) : t.identifier(name),
+      {},
+      anon_args.map(arr => t.spreadElement(arr))
+    );
   } else if (sigil == "#") {
-    return ident;
+    if (name == "import") {
+      global.imports.add(text(node.getChildren(terms.CommandAnonArg)[0].firstChild!));
+    }
+
+    return t.callExpression(t.identifier(name), anon_args);
+  } else if (sigil == "%") {
+    throw `nope`;
   } else {
     throw `Unhandled sigil ${sigil}`;
   }
 };
-
-const INTRINSIC_ELEMENTS: Set<string> = new Set([
-  "a",
-  "abbr",
-  "address",
-  "area",
-  "article",
-  "aside",
-  "audio",
-  "b",
-  "base",
-  "bdi",
-  "bdo",
-  "big",
-  "blockquote",
-  "body",
-  "br",
-  "button",
-  "canvas",
-  "caption",
-  "cite",
-  "code",
-  "col",
-  "colgroup",
-  "data",
-  "datalist",
-  "dd",
-  "del",
-  "details",
-  "dfn",
-  "dialog",
-  "div",
-  "dl",
-  "dt",
-  "em",
-  "embed",
-  "fieldset",
-  "figcaption",
-  "figure",
-  "footer",
-  "form",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "head",
-  "header",
-  "hgroup",
-  "hr",
-  "html",
-  "i",
-  "iframe",
-  "img",
-  "input",
-  "ins",
-  "kbd",
-  "keygen",
-  "label",
-  "legend",
-  "li",
-  "link",
-  "main",
-  "map",
-  "mark",
-  "menu",
-  "menuitem",
-  "meta",
-  "meter",
-  "nav",
-  "noindex",
-  "noscript",
-  "object",
-  "ol",
-  "optgroup",
-  "option",
-  "output",
-  "p",
-  "param",
-  "picture",
-  "pre",
-  "progress",
-  "q",
-  "rp",
-  "rt",
-  "ruby",
-  "s",
-  "samp",
-  "slot",
-  "script",
-  "section",
-  "select",
-  "small",
-  "source",
-  "span",
-  "strong",
-  "style",
-  "sub",
-  "summary",
-  "sup",
-  "table",
-  "template",
-  "tbody",
-  "td",
-  "textarea",
-  "tfoot",
-  "th",
-  "thead",
-  "time",
-  "title",
-  "tr",
-  "track",
-  "u",
-  "ul",
-  "",
-  "video",
-  "wbr",
-  "webview",
-  "svg",
-  "animate",
-  "TODO",
-  "animateMotion",
-  "animateTransform",
-  "TODO",
-  "circle",
-  "clipPath",
-  "defs",
-  "desc",
-  "ellipse",
-  "feBlend",
-  "feColorMatrix",
-  "feComponentTransfer",
-  "feComposite",
-  "feConvolveMatrix",
-  "feDiffuseLighting",
-  "feDisplacementMap",
-  "feDistantLight",
-  "feDropShadow",
-  "feFlood",
-  "feFuncA",
-  "feFuncB",
-  "feFuncG",
-  "feFuncR",
-  "feGaussianBlur",
-  "feImage",
-  "feMerge",
-  "feMergeNode",
-  "feMorphology",
-  "feOffset",
-  "fePointLight",
-  "feSpecularLighting",
-  "feSpotLight",
-  "feTile",
-  "feTurbulence",
-  "filter",
-  "foreignObject",
-  "g",
-  "image",
-  "line",
-  "linearGradient",
-  "marker",
-  "mask",
-  "metadata",
-  "mpath",
-  "path",
-  "pattern",
-  "polygon",
-  "polyline",
-  "radialGradient",
-  "rect",
-  "stop",
-  "switch",
-  "symbol",
-  "text",
-  "textPath",
-  "tspan",
-  "use",
-  "view",
-]);

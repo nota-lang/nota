@@ -125,7 +125,7 @@ class FigureData {
 
 let FigureContext = React.createContext<FigureData>(new FigureData());
 
-export let Figure: React.FC<{ name?: string }> = props => {
+export let Figure: React.FC<{ label?: string }> = props => {
   let doc_ctx = useContext(DocumentContext);
   let fig_stack = doc_ctx.figures.push();
   let level = fig_stack.length;
@@ -134,7 +134,7 @@ export let Figure: React.FC<{ name?: string }> = props => {
   let fig_ctx = new FigureData();
 
   let Caption = () => (
-    <Definition name={props.name} Label={() => <>{`Figure ${fig_num}`}</>} Tooltip={null} block>
+    <Definition name={props.label} Label={() => <>{`Figure ${fig_num}`}</>} Tooltip={null} block>
       <div className="caption">
         {level > 1 ? `(${fig_stack[fig_stack.length - 1]})` : `Figure ${fig_num}:`}{" "}
         {fig_ctx.caption}
