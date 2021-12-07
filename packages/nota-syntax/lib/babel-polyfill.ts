@@ -110,12 +110,13 @@ export let variableDeclarator = (id: LVal, init?: Expression | null): VariableDe
 
 export let memberExpression = (
   object: Expression,
-  property: Expression | Identifier
+  property: Expression | Identifier,
+  computed: boolean = false
 ): MemberExpression => ({
   type: "MemberExpression",
   object,
   property,
-  computed: false,
+  computed,
   ...base_node,
 });
 
