@@ -191,6 +191,7 @@ export class State {
           let modules = f()(externals).modules;
           result.imports = ok(modules);
         } catch (e: any) {
+          console.error(e);
           result.imports = err(Error(e.toString()));
           return result;
         }

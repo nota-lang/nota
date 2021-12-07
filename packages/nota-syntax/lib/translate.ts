@@ -2,10 +2,10 @@ import { SyntaxNode, Tree } from "@lezer/common";
 import * as t from "./babel-polyfill";
 //@ts-ignore
 import * as terms from "./nota.terms";
-import _, { transform } from "lodash";
-import type { Expression, Statement, LVal, SpreadElement } from "@babel/types";
-import type { PluginObj } from "@babel/core";
-import { transformFromAst } from "@babel/standalone";
+import _ from "lodash";
+import type { Expression, Statement, LVal, SpreadElement, StringLiteral } from "@babel/types";
+import type { PluginObj, BabelFileResult } from "@babel/core";
+import * as babel from "@babel/standalone";
 import * as nota from "@wcrichto/nota";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 
@@ -29,6 +29,7 @@ let react_id = t.identifier("React");
 let globals_arg = t.identifier("globals");
 let imports_arg = t.identifier("imports");
 let create_el = t.identifier("el");
+let join_id = t.identifier("_join");
 
 let to_react = (
   name: Expression,
@@ -71,9 +72,34 @@ let transform_plugin: PluginObj = {
           }
         })
         .flat();
+
+      let callee = path.node.callee;
+      if (callee.type == "Identifier" && callee.name == join_id.name) {
+        let args = path.node.arguments;
+        if (
+          args.length == 1 &&
+          args[0].type == "ArrayExpression" &&
+          _.every(args[0].elements, arg => arg && arg.type == "StringLiteral")
+        ) {
+          path.replaceWith(
+            t.stringLiteral(args[0].elements.map(arg => (arg as StringLiteral).value).join(""))
+          );
+        }
+      }
     },
   },
 };
+
+let syntax_prelude = (() => {
+  let result = babel.transform(
+    `let list = (...args) => args;
+let _join = s => s.join("");`,
+    {
+      ast: true,
+    }
+  ) as any as BabelFileResult;
+  return result.ast!.program.body;
+})();
 
 export let translate = async (input: string, tree: Tree): Promise<Translation> => {
   let node = tree.topNode;
@@ -98,15 +124,16 @@ export let translate = async (input: string, tree: Tree): Promise<Translation> =
     ),
     binding(react_id, t.memberExpression(globals_arg, react_id)),
     binding(create_el, t.memberExpression(react_id, t.identifier("createElement"))),
+    ...syntax_prelude,
     t.returnStatement(doc),
   ]);
 
   let fn = t.arrowFunctionExpression([globals_arg, imports_arg], block);
   let program = t.program([t.expressionStatement(fn)]);
-  let result: any = transformFromAst(program, undefined, {
+  let result = babel.transformFromAst(program, undefined, {
     plugins: [() => transform_plugin],
-  });
-  let js = result.code.slice(0, -1);
+  }) as any as BabelFileResult;
+  let js = result.code!.slice(0, -1);
 
   return { js, imports: global.imports };
 };
@@ -163,10 +190,11 @@ let translate_textbody = (node: SyntaxNode): Expression => {
     if (is_left(result)) {
       cur_array.push(result.value);
     } else {
-      cur_array = [];
-      let body = t.blockStatement([result.value, t.returnStatement(t.arrayExpression(cur_array))]);
+      let new_array: (Expression | SpreadElement)[] = [];
+      let body = t.blockStatement([result.value, t.returnStatement(t.arrayExpression(new_array))]);
       let fn = t.spreadElement(t.callExpression(t.arrowFunctionExpression([], body), []));
-      array.push(fn);
+      cur_array.push(fn);
+      cur_array = new_array;
     }
   });
 
@@ -224,19 +252,25 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
     let anon_args_exprs = anon_args.map(node => {
       let child = node.firstChild!;
       if (matches(child, terms.TextBody)) {
-        return t.spreadElement(translate_textbody(node.firstChild!));
+        return translate_textbody(node.firstChild!);
       } else if (matches(child, terms.VerbatimText)) {
-        return t.stringLiteral(text(child));
+        return t.arrayExpression([t.stringLiteral(text(child))]);
       } else {
         throw `Unknown CommandAnonArg ${child.name}`;
       }
     });
 
     if (sigil == "@") {
-      return left(to_react(name_js, {}, anon_args_exprs));
+      return left(to_react(name_js, {}, anon_args_exprs.map(t.spreadElement)));
     } else {
       // sigil == "#"
-      return left(t.callExpression(t.identifier(name_str), anon_args_exprs));
+      return left(
+        t.callExpression(
+          t.identifier(name_str),
+          anon_args_exprs
+          // anon_args_exprs.map(expr => t.callExpression(join_id, [expr]))
+        )
+      );
     }
   } else {
     // sigil == "%"
@@ -254,6 +288,9 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
           t.memberExpression(imports_arg, t.stringLiteral(import_path), true)
         )
       );
+    } else if (name_str == "let") {
+      let var_name = t.identifier(text(anon_args[0].firstChild!));
+      return right(binding(var_name, translate_textbody(anon_args[1].firstChild!)));
     } else {
       throw `Unknown %-command ${name_str}`;
     }

@@ -1,5 +1,5 @@
 export { Cite, References } from "./bibliography";
-export { newcommand, $, $$, Tex } from "./tex";
+export { tex_ref, tex_def, $, $$, Tex } from "./tex";
 export { Abstract, Authors, Author, Name, Affiliation, Institution, Title } from "./header";
 export { Language } from "./language";
 export { zipExn, useStateOnInterval } from "./utils";

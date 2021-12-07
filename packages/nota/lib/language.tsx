@@ -4,20 +4,20 @@ import _ from "lodash";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
-import { $$, newcommand, TexPlugin } from "./tex";
+import { $$, tex_ref, tex_def, TexPlugin } from "./tex";
 import { usePlugin } from "./plugin";
 
 const r = String.raw;
 
-export type InputSyntaxBranch = [string, number, string, string[]];
+export type InputSyntaxBranch = [string, number, (...args: string[]) => string, () => string[]];
 export type InputSyntaxSort = [string, string, string, InputSyntaxBranch[]];
 export type InputGrammar = InputSyntaxSort[];
 
 type SyntaxBranch = {
   subcmd: string;
   nargs: number;
-  body: string;
-  args: string[];
+  body: (...args: string[]) => string;
+  args: () => string[];
 };
 type SyntaxSort = {
   kind: string;
@@ -35,10 +35,10 @@ export interface BnfProps {
 }
 
 export class Language {
-  grammar: Grammar;
+  _grammar: Grammar;
 
-  constructor(grammar: InputGrammar) {
-    this.grammar = grammar.map(([kind, cmd, metavar, in_branches]) => {
+  constructor(grammar: () => InputGrammar) {
+    this._grammar = grammar.call(this).map(([kind, cmd, metavar, in_branches]) => {
       let branches = in_branches.map(([subcmd, nargs, body, args]) => ({
         subcmd,
         nargs,
@@ -47,20 +47,14 @@ export class Language {
       }));
       return { kind, cmd, metavar, branches };
     });
-  }
 
-  Commands: React.FC = () => {
-    let commands = this.grammar
-      .map(({ cmd, metavar, branches }) => {
-        let mv_cmd = newcommand(`${cmd}`, 0, metavar);
-        let branch_cmds = branches.map(({ subcmd, nargs, body }) =>
-          newcommand(cmd + subcmd, nargs, body)
-        );
-        return [mv_cmd].concat(branch_cmds).join("\n");
-      })
-      .join("\n");
-    return <$$>{commands}</$$>;
-  };
+    this._grammar.forEach(({ cmd, metavar, branches }) => {
+      this[cmd] = () => tex_ref(cmd, metavar);
+      branches.forEach(({ subcmd, nargs, body }) => {
+        this[cmd + subcmd] = (...args) => tex_ref(cmd + subcmd, body(...args));
+      });
+    });
+  }
 
   BnfInner: React.FC<BnfProps & { container_ref: HTMLDivElement }> = props => {
     let def_ctx = usePlugin(DefinitionsPlugin);
@@ -69,8 +63,8 @@ export class Language {
     let branch_to_tex =
       (cmd: string) =>
       ({ subcmd, args }: SyntaxBranch): string => {
-        let arg_str = args.map(arg => `{${arg}}`).join("");
-        return r`\htmlData{def=${cmd}${subcmd}}{${`\\` + cmd}${subcmd}${arg_str}}`;
+        let arg_str = this[cmd + subcmd](...args());
+        return tex_def(cmd + subcmd, arg_str);
       };
 
     let {
@@ -80,7 +74,7 @@ export class Language {
     } = useAsync(
       useCallback(async () => {
         let branch_dims = await Promise.all(
-          this.grammar.map(({ cmd, branches }) =>
+          this._grammar.map(({ cmd, branches }) =>
             Promise.all(
               branches
                 .map(branch_to_tex(cmd))
@@ -112,7 +106,7 @@ export class Language {
 
     const MAX_ROW_WIDTH = 350;
 
-    let rules = zipExn(this.grammar, branch_dims).map(
+    let rules = zipExn(this._grammar, branch_dims).map(
       ([{ kind, cmd, metavar, branches }, bdims]) => {
         let make_rhs = (hl?: string) => {
           if (branches.length == 0) {

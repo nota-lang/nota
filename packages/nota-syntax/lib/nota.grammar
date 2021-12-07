@@ -42,10 +42,10 @@ CommandAnonArg {
   lbrkt[@export] { "[" }
   rbrkt[@export] { "]" }
   eq[@export] { "=" }
-
+  
   Multinewline { "\n" "\n"+ }
   Newline { "\n" }
-  Ident { $[a-zA-Z_$]$[a-zA-Z0-9_$]* }
+  Ident { $[a-zA-Z_$]$[.a-zA-Z0-9_$]* }
   Number { $[0-9]+ }
 
   @precedence { Multinewline, Newline }

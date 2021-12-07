@@ -10,18 +10,8 @@ import { Plugin, Pluggable, usePlugin } from "./plugin";
 
 const r = String.raw;
 
-export let newcommand = (
-  cmd: string,
-  nargs: number,
-  body: string,
-  defaults: string[] = []
-): string => {
-  if (defaults.length > 0) {
-    throw `KaTeX currently doesn't support default arguments to newcommand. Check on this issue: https://github.com/KaTeX/KaTeX/issues/2228`;
-  }
-  let ds = defaults.map(s => `[${s}]`).join("");
-  return r`\newcommand{${"\\" + cmd}}[${nargs}]${ds}{\htmlData{cmd=${cmd}}{${body}}}`;
-};
+export let tex_def = (label: string, contents: string) => r`\htmlData{def=${label}}{${contents}}`;
+export let tex_ref = (label: string, contents: string) => r`\htmlData{cmd=${label}}{${contents}}`;
 
 export interface Dimensions {
   width: number;
