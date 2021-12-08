@@ -8,13 +8,41 @@ import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
+import { reaction } from "mobx";
 
-import { StateContext, is_err, TranslateResult } from "./state";
+import { StateContext, is_err, TranslateResult, is_ok } from "./state";
 import { theme } from "./editor";
 
 export let Viewer = () => {
+  let state = useContext(StateContext)!;
   let [selected, set_selected] = useState(0);
   let options = ["Output", "Parse tree", "Generated JS"];
+  let ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let el = ref.current;
+    if (!el) {
+      return;
+    }
+
+    let last_scroll = 0;
+    el.addEventListener("scroll", _ => {
+      let scroll = el!.scrollTop;
+      let t = state.translation;
+      if (t && t.translation && is_ok(t.translation) && scroll > 0) {
+        last_scroll = scroll;
+      }
+    });
+
+    reaction(
+      () => [state.translation],
+      () => {
+        if (el!.scrollTop == 0) {
+          el!.scrollTo(0, last_scroll);
+        }
+      }
+    );
+  }, [ref]);
 
   return (
     <div>
@@ -29,7 +57,7 @@ export let Viewer = () => {
           </button>
         ))}
       </div>
-      <div className="viewer">
+      <div className="viewer" ref={ref}>
         <Inner selected={selected} />
       </div>
     </div>

@@ -36,6 +36,9 @@ let react_id = t.identifier("React");
 let globals_arg = t.identifier("globals");
 let imports_arg = t.identifier("imports");
 let create_el = t.identifier("el");
+let arguments_id = t.identifier("args");
+let join = (e: Expression) =>
+  t.callExpression(t.memberExpression(e, t.identifier("join")), [t.stringLiteral("")]);
 
 let to_react = (
   name: Expression,
@@ -240,13 +243,19 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
   let text_args = node.getChildren(terms.ArgText);
 
   if (sigil == "@" || sigil == "#") {
-    let name_str = text(name);
-    if (PRELUDE.has(name_str)) {
-      global.used_prelude.add(name_str);
+    let name_expr: Expression;
+    if (name.getChild(terms.Ident)) {
+      let name_str = text(name.getChild(terms.Ident)!);
+      if (PRELUDE.has(name_str)) {
+        global.used_prelude.add(name_str);
+      }
+      name_expr = t.identifier(name_str);
+    } else if (name.getChild(terms.Number)) {
+      let n = parseInt(text(name.getChild(terms.Number)!));
+      name_expr = t.memberExpression(arguments_id, t.numericLiteral(n));
+    } else {
+      throw `Unimplemented`;
     }
-    let name_js = INTRINSIC_ELEMENTS.has(name_str)
-      ? t.stringLiteral(name_str)
-      : t.identifier(name_str);
 
     let text_args_exprs = text_args.map(node => {
       let child = node.firstChild!;
@@ -260,17 +269,20 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
     });
 
     if (sigil == "@") {
+      if (name_expr.type == "Identifier" && INTRINSIC_ELEMENTS.has(name_expr.name)) {
+        name_expr = t.stringLiteral(name_expr.name);
+      }
+
       let arg_dict = _.fromPairs(
         code_args.map(([k, v]) => [k, v === null ? t.booleanLiteral(true) : v])
       );
-      return left(to_react(name_js, arg_dict, text_args_exprs.map(t.spreadElement)));
+
+      return left(to_react(name_expr, arg_dict, text_args_exprs.map(t.spreadElement)));
     } else {
       // sigil == "#"
-      if (text_args_exprs.length == 0) {
-        return left(t.identifier(name_str));
-      } else {
-        return left(t.callExpression(t.identifier(name_str), text_args_exprs));
-      }
+      return left(
+        text_args_exprs.length == 0 ? name_expr : t.callExpression(name_expr, text_args_exprs.map(join))
+      );
     }
   } else {
     // sigil == "%"
@@ -291,7 +303,11 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
       );
     } else if (name_str == "let") {
       let var_name = t.identifier(text(text_args[0].firstChild!));
-      return right(binding(var_name, translate_textbody(text_args[1].firstChild!)));
+      return right(binding(var_name, join(translate_textbody(text_args[1].firstChild!))));
+    } else if (name_str == "letfn") {
+      let var_name = t.identifier(text(text_args[0].firstChild!));
+      let body = translate_textbody(text_args[1].firstChild!);
+      return right(binding(var_name, t.arrowFunctionExpression([t.restElement(arguments_id)], join(body))));
     } else {
       throw `Unknown %-command ${name_str}`;
     }

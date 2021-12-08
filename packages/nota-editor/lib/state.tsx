@@ -1,5 +1,5 @@
 import React from "react";
-import { makeAutoObservable, reaction, autorun, runInAction } from "mobx";
+import { makeAutoObservable, reaction, autorun, runInAction, observable, IObservableValue, makeObservable } from "mobx";
 import * as nota_syntax from "@wcrichto/nota-syntax";
 import * as nota from "@wcrichto/nota";
 import type { Tree } from "@lezer/common";
@@ -71,15 +71,14 @@ export type Response = ContentsResponse | ImportResponse | SyncResponse;
 
 export class State {
   contents: string = "";
-  translation: TranslateResult;
+  translation: TranslateResult | undefined = undefined;
   ready: boolean = false;
 
   private ws: WebSocket;
   private callbacks: { [type: string]: any[] } = {};
 
-  constructor() {
+  constructor() {    
     this.ws = new WebSocket("ws://localhost:8000");
-    this.translation = new TranslateResult("", err(Error("")));
 
     this.ws.onerror = evt => {
       console.error(evt);
@@ -113,16 +112,18 @@ export class State {
     };
 
     makeAutoObservable(this);
+
+    const TRANSLATE_DELAY = 1000;
     reaction(
       () => [this.ready, this.contents],
-      async () => {
+      _.debounce(async () => {
         if (this.ready) {
           let result = await this.run_translation(this.contents);
           runInAction(() => {
             this.translation = result;
           });
         }
-      }
+      }, TRANSLATE_DELAY)
     );
   }
 

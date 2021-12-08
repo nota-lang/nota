@@ -364,11 +364,7 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
 
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = usePlugin(DefinitionsPlugin);
-
-  if (!(children instanceof Array)) {
-    throw `Document must take an array of children as input`;
-  }
-  let processed = preprocess_document(children);
+  let processed = children instanceof Array ? preprocess_document(children) : children;
 
   return (
     <div

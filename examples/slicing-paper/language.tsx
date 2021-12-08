@@ -2,7 +2,7 @@ import { Language } from "@wcrichto/nota";
 
 const r = String.raw;
 
-let msf = s => r`\mathsf{${s}}`;
+export let msf = s => r`\mathsf{${s}}`;
 let id = x => x;
 let noargs = () => [];
 let textsc = s => r`\text{\tiny ${s}}`;
@@ -75,86 +75,40 @@ export let L = new Language(function() {
   ]
   });
 
-// export let OxideExtra = new Language([
-//   [
-//     "Dead Types",
-//     "tyd",
-//     r`\tau^\textsc{SD}`,
-//     [
-//       ["s", 1, r`{#1}^\dagger`, [r`\tys`]],
-//       ["tup", 1, r`({#1})`, [r`\tyd_1, \ldots, \tyd_n`]],
-//     ],
-//   ],
-//   [
-//     "Maybe Unsized Type",
-//     "tyx",
-//     r`\tau^\textsc{XI}`,
-//     [
-//       ["s", 1, "{#1}", [r`\tys`]],
-//       ["a", 1, "[{#1}]", [r`\tys`]],
-//     ],
-//   ],
-//   [
-//     "Maybe Dead Types",
-//     "tysx",
-//     r`\tau^\textsc{SX}`,
-//     [
-//       ["s", 1, "{#1}", [r`\tys`]],
-//       ["d", 1, "{#1}", [r`\tyd`]],
-//       ["tup", 1, "({#1})", [r`\tysx_1, \ldots, \tysx_n`]],
-//     ],
-//   ],
-//   [
-//     "Type",
-//     "ty",
-//     r`\tau`,
-//     [
-//       ["tyx", 1, "{#1}", [r`\tyx`]],
-//       ["tysx", 1, "{#1}", [r`\tysx`]],
-//     ],
-//   ],
-//   ["Loan", "loan", r`\ell`, [[`form`, 2, r`\,^{#1}{#2}`, [r`\ownq`, r`\pexp`]]]],
-//   ["Frame Var", "frmvar", r`\varphi`, []],
-//   [
-//     "Frame Typing",
-//     "ft",
-//     r`\mathcal{F}`,
-//     [
-//       ["empty", 0, r`\bullet`, []],
-//       ["wty", 3, "{#1}, {#2} : {#3}", [r`\ft`, r`\vr`, r`\tyx`]],
-//       ["wlf", 3, r`{#1}, {#2} \mapsto {#3}`, [r`\ft`, r`\concrprov`, r`\setof{\loan}`]],
-//     ],
-//   ],
-//   [
-//     "Stack Typing",
-//     "stackenv",
-//     r`\Gamma`,
-//     [
-//       ["empty", 0, r`\bullet`, []],
-//       ["wfr", 2, r`{#1} \mathrel{\natural} {#2}`, [r`\stackenv`, r`\ft`]],
-//     ],
-//   ],
-//   [
-//     "Kind",
-//     "kind",
-//     r`\kappa`,
-//     [
-//       ["base", 0, r`\bigstar`, []],
-//       ["prv", 0, r`\msf{PRV}`, []],
-//       ["frm", 0, r`\msf{FRM}`, []],
-//     ],
-//   ],
-//   ["Type Var", "tyvar", r`\alpha`, []],
-//   [
-//     "Type Environment",
-//     "tyenv",
-//     r`\Delta`,
-//     [
-//       ["empty", 0, r`\bullet`, []],
-//       ["wtvar", 2, r`{#1}, {#2} : \kindbase`, [r`\tyenv`, r`\tyvar`]],
-//       ["wprv", 2, r`{#1}, {#2} : \kindprv`, [r`\tyenv`, r`\abstrprov`]],
-//       ["wfrm", 2, r`{#1}, {#2} : \kindfrm`, [r`\tyenv`, r`\frmvar`]],
-//       ["wconstr", 3, r`{#1}, {#2} \mathrel{:>} {#3}`, [r`\tyenv`, r`\abstrprov`, r`\abstrprov'`]],
-//     ],
-//   ],
-// ]);
+// prettier-ignore
+export let L2 = new Language(function() {
+  return [["Dead Types", "tyd", r`\tau^${textsc("SD")}`, [
+    ["s", 1, x => r`${x}^\dagger`, () => [L.tys()]],
+    ["tup", 1, x => r`(${x})`, () => [r`${this.tyd()}_1, \ldots, ${this.tyd()}_n`]]]],
+  ["Maybe Unsized Type", "tyx", r`\tau^${textsc("XI")}`, [
+    ["s", 1, id, () => [L.tys()]],
+    ["a", 1, x => `[${x}]`, () => [L.tys()]]]],
+  ["Maybe Dead Types", "tysx", r`\tau^${textsc("SX")}`, [
+    ["s", 1, id, () => [L.tys()]],
+    ["d", 1, id, () => [this.tyd()]],
+    ["tup", 1, x => `(${x})`, () => [r`${this.tysx()}_1, \ldots, ${this.tysx()}_n`]]]],
+  ["Type", "ty", r`\tau`, [
+    ["tyx", 1, id, () => [this.tyx()]],
+    ["tysx", 1, id, () => [this.tysx()]]]],
+  ["Loan", "loan", r`\ell`, [
+    [`form`, 2, (x, y) => r`\,^{${x}}${y}`, () => [L.ownq(), L.pexp()]]]],
+  ["Frame Var", "frmvar", r`\varphi`, []],
+  ["Frame Typing", "ft", r`\mathcal{F}`, [
+    ["empty", 0, () => r`\bullet`, noargs],
+    ["wty", 3, (x, y, z) => `${x}, ${y} : ${z}`, () => [this.ft(), L.vr(), this.tyx()]],
+    ["wlf", 3, (x, y, z) => r`${x}, ${y} \mapsto ${z}`, () => [this.ft(), L.concrprov(), r`\{\overline{${this.loan()}}\}`]]]],
+  ["Stack Typing", "stackenv", r`\Gamma`, [
+    ["empty", 0, () => r`\bullet`, noargs],
+    ["wfr", 2, (x, y) => r`${x} \mathrel{\natural} ${y}`, () => [this.stackenv(), this.ft()]]]],
+  ["Kind", "kind", r`\kappa`, [
+    ["base", 0, () => r`\bigstar`, noargs],
+    ["prv", 0, () => msf("PRV"), noargs],
+    ["frm", 0, () => msf("FRM"), noargs]]],
+  ["Type Var", "tyvar", r`\alpha`, []],
+  ["Type Environment", "tyenv", r`\Delta`, [
+    ["empty", 0, () => r`\bullet`, () => []],
+    ["wtvar", 2, (x, y) => r`${x}, ${y} : ${this.kindbase()}`, () => [this.tyenv(), this.tyvar()]],
+    ["wprv", 2, (x, y) => r`${x}, ${y} : ${this.kindprv()}`, () => [this.tyenv(), L.abstrprov()]],
+    ["wfrm", 2, (x, y) => r`${x}, ${y} : ${this.kindfrm()}`, () => [this.tyenv(), this.frmvar()]],
+    ["wconstr", 3, (x, y, z) => r`${x}, ${y} \mathrel{:>} ${z}`, () => [this.tyenv(), L.abstrprov(), L.abstrprov()]]]],
+]});
