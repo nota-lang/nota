@@ -42,22 +42,26 @@ let TranslateErrorView: React.FC<{ result: TranslateResult }> = ({ result }) => 
   let err_type;
   let err;
   if (is_err(result.tree)) {
-    err_type = "Parse error"
+    err_type = "Parse error";
     err = result.tree.value;
   } else if (is_err(result.translation!)) {
-    err_type = "Translation error"
+    err_type = "Translation error";
     err = result.translation.value;
   } else if (is_err(result.imports!)) {
-    err_type = "Import error"
+    err_type = "Import error";
     err = result.imports.value;
   } else if (is_err(result.Element!)) {
-    err_type = "JS parsing error"
+    err_type = "JS parsing error";
     err = result.Element.value;
   } else {
     throw `No error`;
   }
 
-  return <ErrorView>{err_type}: {err.toString()}</ErrorView>;
+  return (
+    <ErrorView>
+      {err_type}: {err.toString()}
+    </ErrorView>
+  );
 };
 
 let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
@@ -142,7 +146,10 @@ let OutputView: React.FC<{ result: TranslateResult }> = ({ result }) => {
   }
 
   return (
-    <ErrorBoundary resetKeys={[result.contents]} FallbackComponent={({ error }) => <ErrorView>Runtime error: {error.message}</ErrorView>}>
+    <ErrorBoundary
+      resetKeys={[result.contents]}
+      FallbackComponent={({ error }) => <ErrorView>Runtime error: {error.message}</ErrorView>}
+    >
       <Element.value />
     </ErrorBoundary>
   );

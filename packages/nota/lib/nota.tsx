@@ -5,9 +5,9 @@ export { Language } from "./language";
 export { zipExn, useStateOnInterval } from "./utils";
 export {
   Section,
-  SubSection,
-  SubSubSection,
-  SectionTitle,
+  Subsection,
+  Subsubsection,
+  SectionBody,
   Footnote,
   FootnoteDef,
   Wrap,

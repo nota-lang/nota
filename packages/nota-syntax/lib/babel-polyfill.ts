@@ -24,6 +24,7 @@ import type {
   Program,
   ExpressionStatement,
   ObjectPattern,
+  BooleanLiteral,
 } from "@babel/types";
 
 let base_node = {
@@ -164,4 +165,10 @@ export let objectPattern = (properties: Array<RestElement | ObjectProperty>): Ob
   type: "ObjectPattern",
   properties,
   ...base_node,
+});
+
+export let booleanLiteral = (value: boolean): BooleanLiteral => ({
+  type: "BooleanLiteral",
+  value,
+  ...base_node
 });

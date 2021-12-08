@@ -67,9 +67,13 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
-export let Paragraph: React.FC = ({children}) => <p lang="en">{children}</p>;
+export let Paragraph: React.FC = ({ children }) => <p lang="en">{children}</p>;
 
-export let SectionTitle: React.FC<{ plain?: boolean }> = ({ children, plain }) => {
+export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
+  children,
+  plain,
+  label,
+}) => {
   let doc_ctx = useContext(DocumentContext);
   let sec_stack = doc_ctx.sections.top();
   let level = sec_stack.length;
@@ -88,14 +92,25 @@ export let SectionTitle: React.FC<{ plain?: boolean }> = ({ children, plain }) =
   }
   Header.displayName = "Header";
 
-  return (
+  let inner = (
     <Header className="section-title">
       {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
     </Header>
   );
+
+  return label ? (
+    <Definition name={label} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
+      {inner}
+    </Definition>
+  ) : (
+    inner
+  );
 };
 
-export let Section: React.FC<{ label?: string }> = ({ label, children }) => {
+export let Subsection: typeof Section = props => <Section {...props} />;
+export let Subsubsection: typeof Section = props => <Section {...props} />;
+
+export let SectionBody: React.FC<{ label?: string }> = ({ label, children }) => {
   let doc_ctx = useContext(DocumentContext);
   let incr_thm = doc_ctx.sections.stack.length == 1;
   if (incr_thm) {
@@ -104,20 +119,14 @@ export let Section: React.FC<{ label?: string }> = ({ label, children }) => {
   let sec_stack = doc_ctx.sections.push();
   let sec_num = sec_stack.join(".");
 
-  // TODO: section level-specific styles!
   return (
-    <Definition name={label} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
-      <section>
-        {children}
-        <doc_ctx.sections.Pop />
-        {incr_thm ? <doc_ctx.theorems.Pop /> : null}
-      </section>
-    </Definition>
+    <section>
+      {children}
+      <doc_ctx.sections.Pop />
+      {incr_thm ? <doc_ctx.theorems.Pop /> : null}
+    </section>
   );
 };
-
-export let SubSection: typeof Section = Section;
-export let SubSubSection: typeof Section = Section;
 
 class FigureData {
   caption?: JSX.Element;
@@ -299,15 +308,75 @@ let Footnotes: React.FC = _ => {
   );
 };
 
+let is_react_el = (t: React.ReactNode): t is React.ReactElement =>
+  t != null && typeof t == "object" && "type" in t;
+
+let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
+  let paragraphs: React.ReactNode[] = [];
+  let paragraph: React.ReactNode[] = [];
+  let flush_paragraph = () => {
+    if (paragraph.length > 0) {
+      if (paragraph.length == 1 && is_react_el(paragraph[0])) {
+        paragraphs.push(paragraph[0]);
+      } else {
+        paragraphs.push(<p key={paragraphs.length}>{paragraph}</p>);
+      }
+      paragraph = [];
+    }
+  };
+  children.forEach(child => {
+    if (child == "\n\n") {
+      flush_paragraph();
+    } else {
+      paragraph.push(child);
+    }
+  });
+  flush_paragraph();
+
+  let section_stack: React.ReactNode[][] = [[]];
+  let depths: [any, number][] = [
+    [Section, 0],
+    [Subsection, 1],
+    [Subsubsection, 2]
+  ];
+  let flush_stack = (depth: number) => {
+    _.range(1 + depth, section_stack.length).forEach(() => {
+      let sec = section_stack.pop();
+      _.last(section_stack)!.push(<SectionBody>{sec}</SectionBody>);
+    });
+  };
+  paragraphs.forEach(el => {
+    if (is_react_el(el)) {
+      let depth = depths.find(([F]) => el.type == F);
+      if (depth) {
+        flush_stack(depth[1]);
+        section_stack.push([el]);
+        return;
+      }
+    }
+
+    _.last(section_stack)!.push(el);
+  });
+  flush_stack(0);
+
+  return section_stack[0];
+};
+
 export let DocumentInner: React.FC = observer(({ children }) => {
   let def_ctx = usePlugin(DefinitionsPlugin);
+
+  if (!(children instanceof Array)) {
+    throw `Document must take an array of children as input`;
+  }
+  let processed = preprocess_document(children);
+
   return (
     <div
       className={classNames({
         "def-mode": def_ctx.def_mode,
       })}
     >
-      {children}
+      {processed}
       <Footnotes />
       <Logger />
     </div>

@@ -3,7 +3,14 @@ import * as t from "./babel-polyfill";
 //@ts-ignore
 import * as terms from "./nota.terms";
 import _ from "lodash";
-import type { Expression, Statement, LVal, SpreadElement, StringLiteral } from "@babel/types";
+import type {
+  Expression,
+  Statement,
+  LVal,
+  SpreadElement,
+  StringLiteral,
+  ExpressionStatement,
+} from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import * as nota from "@wcrichto/nota";
@@ -29,7 +36,6 @@ let react_id = t.identifier("React");
 let globals_arg = t.identifier("globals");
 let imports_arg = t.identifier("imports");
 let create_el = t.identifier("el");
-let join_id = t.identifier("_join");
 
 let to_react = (
   name: Expression,
@@ -72,34 +78,23 @@ let transform_plugin: PluginObj = {
           }
         })
         .flat();
-
-      let callee = path.node.callee;
-      if (callee.type == "Identifier" && callee.name == join_id.name) {
-        let args = path.node.arguments;
-        if (
-          args.length == 1 &&
-          args[0].type == "ArrayExpression" &&
-          _.every(args[0].elements, arg => arg && arg.type == "StringLiteral")
-        ) {
-          path.replaceWith(
-            t.stringLiteral(args[0].elements.map(arg => (arg as StringLiteral).value).join(""))
-          );
-        }
-      }
     },
   },
 };
 
-let syntax_prelude = (() => {
-  let result = babel.transform(
-    `let list = (...args) => args;
-let _join = s => s.join("");`,
-    {
-      ast: true,
-    }
-  ) as any as BabelFileResult;
+let parse = (code: string): Statement[] => {
+  let result = babel.transform(code, {
+    ast: true,
+  }) as any as BabelFileResult;
   return result.ast!.program.body;
-})();
+};
+
+let parse_expr = (code: string): Expression => {
+  let s = parse(`(${code});`)[0] as ExpressionStatement;
+  return s.expression;
+};
+
+let syntax_prelude = parse(`let list = (...args) => args;`);
 
 export let translate = async (input: string, tree: Tree): Promise<Translation> => {
   let node = tree.topNode;
@@ -237,8 +232,12 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
 
   let sigil = text(node.getChild(terms.CommandSigil)!);
   let name = node.getChild(terms.CommandName)!;
-  let named_args = node.getChildren(terms.CommandNamedArg);
-  let anon_args = node.getChildren(terms.CommandAnonArg);
+  let code_args = node.getChildren(terms.ArgCode).map(node => {
+    let ident = node.getChild(terms.Ident);
+    let js = node.getChild(terms.Js);
+    return [ident ? text(ident) : null, js ? parse_expr(text(js)) : null];
+  });
+  let text_args = node.getChildren(terms.ArgText);
 
   if (sigil == "@" || sigil == "#") {
     let name_str = text(name);
@@ -249,48 +248,50 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
       ? t.stringLiteral(name_str)
       : t.identifier(name_str);
 
-    let anon_args_exprs = anon_args.map(node => {
+    let text_args_exprs = text_args.map(node => {
       let child = node.firstChild!;
       if (matches(child, terms.TextBody)) {
         return translate_textbody(node.firstChild!);
       } else if (matches(child, terms.VerbatimText)) {
         return t.arrayExpression([t.stringLiteral(text(child))]);
       } else {
-        throw `Unknown CommandAnonArg ${child.name}`;
+        throw `Unknown ArgText ${child.name}`;
       }
     });
 
     if (sigil == "@") {
-      return left(to_react(name_js, {}, anon_args_exprs.map(t.spreadElement)));
+      let arg_dict = _.fromPairs(
+        code_args.map(([k, v]) => [k, v === null ? t.booleanLiteral(true) : v])
+      );
+      return left(to_react(name_js, arg_dict, text_args_exprs.map(t.spreadElement)));
     } else {
       // sigil == "#"
-      return left(
-        t.callExpression(
-          t.identifier(name_str),
-          anon_args_exprs
-          // anon_args_exprs.map(expr => t.callExpression(join_id, [expr]))
-        )
-      );
+      if (text_args_exprs.length == 0) {
+        return left(t.identifier(name_str));
+      } else {
+        return left(t.callExpression(t.identifier(name_str), text_args_exprs));
+      }
     }
   } else {
     // sigil == "%"
     let name_str = text(name);
-    if (name_str == "import") {
-      let import_path = text(anon_args[0].firstChild!);
+    if (name_str == "import" || name_str == "import_default") {
+      let import_path = text(text_args[0].firstChild!);
       global.imports.add(import_path);
-      let imports = anon_args.slice(1).map(arg => {
-        let id = t.identifier(text(arg.firstChild!));
-        return t.objectProperty(id, id, true);
-      });
+      let imports = t.objectPattern(
+        text_args.slice(1).map(arg => {
+          let id = t.identifier(text(arg.firstChild!));
+          return name_str == "import_default"
+            ? t.objectProperty(t.identifier("default"), id)
+            : t.objectProperty(id, id, true);
+        })
+      );
       return right(
-        binding(
-          t.objectPattern(imports),
-          t.memberExpression(imports_arg, t.stringLiteral(import_path), true)
-        )
+        binding(imports, t.memberExpression(imports_arg, t.stringLiteral(import_path), true))
       );
     } else if (name_str == "let") {
-      let var_name = t.identifier(text(anon_args[0].firstChild!));
-      return right(binding(var_name, translate_textbody(anon_args[1].firstChild!)));
+      let var_name = t.identifier(text(text_args[0].firstChild!));
+      return right(binding(var_name, translate_textbody(text_args[1].firstChild!)));
     } else {
       throw `Unknown %-command ${name_str}`;
     }

@@ -7,27 +7,26 @@ TextToken { Text | Newline | Multinewline | Command }
 Command { 
   CommandSigil 
   CommandName
-  CommandNamedArg*
-  CommandAnonArg* 
+  ArgCode*
+  ArgText* 
 }
 
 CommandName { Ident | Number | lparen Js rparen }
 
 CommandSigil { Pct | At | Hash }
 
-CommandNamedArg { 
-  lbrkt Ident (eq TextBody)? rbrkt
+ArgCode { 
+  lbrkt (Ident (eq Js)? | Js) rbrkt
 }
 
-CommandAnonArg {  
-  lbrc TextBody rbrc |
-  lverb VerbatimText rverb
+ArgText {  
+  lbrc TextBody rbrc
+| lverb VerbatimText rverb
 }
 
 @context dialectContext from "./tokens.ts"
 @external tokens text from "./tokens.ts" { Text }
 @external tokens verbatim from "./tokens.ts" { VerbatimText }
-@external tokens js from "./tokens.ts" { Js }
 
 @tokens {  
   Pct { "%" }
@@ -50,3 +49,5 @@ CommandAnonArg {
 
   @precedence { Multinewline, Newline }
 }
+
+@external tokens js from "./tokens.ts" { Js }

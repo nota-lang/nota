@@ -4,7 +4,7 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import Children from "react-children-utilities";
 
-import { SectionTitle } from "./document";
+import { Section } from "./document";
 import { Definition, DefinitionsPlugin } from "./definitions";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { action, makeObservable, observable } from "mobx";
@@ -173,7 +173,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
 
   return (
     <section>
-      <SectionTitle plain>References</SectionTitle>
+      <Section plain>References</Section>
       <div className="bib-references">
         {keys
           .filter(key => key in ctx.citations)

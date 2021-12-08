@@ -155,16 +155,16 @@ export const verbatim = new ExternalTokenizer(input => {
 });
 
 export const js = new ExternalTokenizer(input => {
-  let parens = 0;
+  let brackets = 0;
   while (input.next != eof) {
-    if (input.next == lparen) {
-      parens++;
-    } else if (input.next == rparen) {
-      if (parens == 0) {
+    if (input.next == lbrkt) {
+      brackets++;
+    } else if (input.next == rbrkt) {
+      if (brackets == 0) {
         input.acceptToken(terms.Js);
         return;
       } else {
-        parens--;
+        brackets--;
       }
     }
     input.advance();
