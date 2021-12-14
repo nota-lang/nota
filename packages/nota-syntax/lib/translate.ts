@@ -1,5 +1,5 @@
 import { SyntaxNode, Tree } from "@lezer/common";
-import * as t from "./babel-polyfill";
+import * as t from "@babel/types";
 //@ts-ignore
 import * as terms from "./nota.terms";
 import _ from "lodash";
@@ -25,7 +25,7 @@ let matches_newline = (node: SyntaxNode): boolean =>
 let global: {
   input: string;
   used_prelude: Set<string>;
-  imports: Set<string>;
+  imports: Set<t.ImportDeclaration>;
 } = {
   input: "",
   used_prelude: new Set(),
@@ -33,8 +33,6 @@ let global: {
 };
 
 let react_id = t.identifier("React");
-let globals_arg = t.identifier("globals");
-let imports_arg = t.identifier("imports");
 let create_el = t.identifier("el");
 let arguments_id = t.identifier("args");
 let join = (e: Expression) =>
@@ -99,7 +97,11 @@ let parse_expr = (code: string): Expression => {
 
 let syntax_prelude = parse(`let list = (...args) => args;`);
 
-export let translate = async (input: string, tree: Tree): Promise<Translation> => {
+// LEAVING OFF:
+//    * figure out output format/ABI
+//    * export proper JS module, not hacky ((globals, imports) => ...)
+
+export let translate = (input: string, tree: Tree): string => {
   let node = tree.topNode;
   assert(matches(node, terms.Top));
   global = {
@@ -111,29 +113,24 @@ export let translate = async (input: string, tree: Tree): Promise<Translation> =
   let doc_body = translate_textbody(node.firstChild!);
   let doc = to_react(t.identifier("Document"), {}, [t.spreadElement(doc_body)]);
 
-  let block = t.blockStatement([
-    binding(
-      t.objectPattern(
-        Array.from(global.used_prelude).map(k =>
-          t.objectProperty(t.identifier(k), t.identifier(k), true)
-        )
-      ),
-      globals_arg
+  let program = [
+    t.importDeclaration([t.importSpecifier(react_id, react_id)], t.stringLiteral("react")),
+    t.importDeclaration(
+      Array.from(global.used_prelude).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+      t.stringLiteral("@wcrichto/nota")
     ),
-    binding(react_id, t.memberExpression(globals_arg, react_id)),
+    ...Array.from(global.imports),
     binding(create_el, t.memberExpression(react_id, t.identifier("createElement"))),
     ...syntax_prelude,
-    t.returnStatement(doc),
-  ]);
+    t.exportDefaultDeclaration(doc),
+  ];
 
-  let fn = t.arrowFunctionExpression([globals_arg, imports_arg], block);
-  let program = t.program([t.expressionStatement(fn)]);
-  let result = babel.transformFromAst(program, undefined, {
+  let result = babel.transformFromAst(t.program(program), undefined, {
     plugins: [() => transform_plugin],
   }) as any as BabelFileResult;
-  let js = result.code!.slice(0, -1);
+  let js = result.code!;
 
-  return { js, imports: global.imports };
+  return js;
 };
 
 let translate_textbody = (node: SyntaxNode): Expression => {
@@ -168,7 +165,7 @@ let translate_textbody = (node: SyntaxNode): Expression => {
           .reduce((a, b) => Math.min(a, b))
       : 0;
 
-  let output: Either<Expression, Statement>[] = [];
+  let output: Either<Expression, Statement | null>[] = [];
   tokens.forEach((token, i) => {
     if (line_starts.includes(i)) {
       let stripped = text(token).slice(min_leading_whitespace);
@@ -187,7 +184,7 @@ let translate_textbody = (node: SyntaxNode): Expression => {
   output.forEach(result => {
     if (is_left(result)) {
       cur_array.push(result.value);
-    } else {
+    } else if (result.value != null) {
       let new_array: (Expression | SpreadElement)[] = [];
       let body = t.blockStatement([result.value, t.returnStatement(t.arrayExpression(new_array))]);
       let fn = t.spreadElement(t.callExpression(t.arrowFunctionExpression([], body), []));
@@ -213,7 +210,7 @@ let right = <L, R>(value: R): Either<L, R> => ({ type: "Right", value });
 let is_left = <L, R>(e: Either<L, R>): e is Left<L> => e.type == "Left";
 let is_right = <L, R>(e: Either<L, R>): e is Right<R> => e.type == "Right";
 
-let translate_token = (node: SyntaxNode): Either<Expression, Statement> => {
+let translate_token = (node: SyntaxNode): Either<Expression, Statement | null> => {
   assert(matches(node, terms.TextToken));
 
   let child = node.firstChild!;
@@ -230,7 +227,7 @@ let translate_token = (node: SyntaxNode): Either<Expression, Statement> => {
   }
 };
 
-let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
+let translate_command = (node: SyntaxNode): Either<Expression, Statement | null> => {
   assert(matches(node, terms.Command));
 
   let sigil = text(node.getChild(terms.CommandSigil)!);
@@ -277,11 +274,13 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
         code_args.map(([k, v]) => [k, v === null ? t.booleanLiteral(true) : v])
       );
 
-      return left(to_react(name_expr, arg_dict, text_args_exprs.map(t.spreadElement)));
+      return left(to_react(name_expr, arg_dict, text_args_exprs.map(arg => t.spreadElement(arg))));
     } else {
       // sigil == "#"
       return left(
-        text_args_exprs.length == 0 ? name_expr : t.callExpression(name_expr, text_args_exprs.map(join))
+        text_args_exprs.length == 0
+          ? name_expr
+          : t.callExpression(name_expr, text_args_exprs.map(join))
       );
     }
   } else {
@@ -289,25 +288,24 @@ let translate_command = (node: SyntaxNode): Either<Expression, Statement> => {
     let name_str = text(name);
     if (name_str == "import" || name_str == "import_default") {
       let import_path = text(text_args[0].firstChild!);
-      global.imports.add(import_path);
-      let imports = t.objectPattern(
-        text_args.slice(1).map(arg => {
-          let id = t.identifier(text(arg.firstChild!));
-          return name_str == "import_default"
-            ? t.objectProperty(t.identifier("default"), id)
-            : t.objectProperty(id, id, true);
-        })
-      );
-      return right(
-        binding(imports, t.memberExpression(imports_arg, t.stringLiteral(import_path), true))
-      );
+      let imports = text_args.slice(1).map(arg => {
+        let id = t.identifier(text(arg.firstChild!));
+        return name_str == "import_default"
+          ? t.importDefaultSpecifier(id)
+          : t.importSpecifier(id, id);
+      });
+      global.imports.add(t.importDeclaration(imports, t.stringLiteral(import_path)));
+
+      return right(null);
     } else if (name_str == "let") {
       let var_name = t.identifier(text(text_args[0].firstChild!));
       return right(binding(var_name, join(translate_textbody(text_args[1].firstChild!))));
     } else if (name_str == "letfn") {
       let var_name = t.identifier(text(text_args[0].firstChild!));
       let body = translate_textbody(text_args[1].firstChild!);
-      return right(binding(var_name, t.arrowFunctionExpression([t.restElement(arguments_id)], join(body))));
+      return right(
+        binding(var_name, t.arrowFunctionExpression([t.restElement(arguments_id)], join(body)))
+      );
     } else {
       throw `Unknown %-command ${name_str}`;
     }

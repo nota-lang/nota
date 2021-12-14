@@ -49,12 +49,12 @@ export class Language {
     });
 
     this._grammar.forEach(({ cmd, metavar, branches }) => {
-      this[cmd] = () => tex_ref(cmd, metavar);
+      (this as any)[cmd] = () => tex_ref(cmd, metavar);
       branches.forEach(({ subcmd, nargs, body }) => {
         if (typeof body != "function") {
-          throw `Not a function: ${body.toString()}`;
+          throw `Not a function: ${(body as any).toString()}`;
         }
-        this[cmd + subcmd] = (...args) => tex_ref(cmd + subcmd, body(...args));
+        (this as any)[cmd + subcmd] = (...args: any[]) => tex_ref(cmd + subcmd, body(...args));
       });
     });
   }
@@ -67,9 +67,9 @@ export class Language {
       (cmd: string) =>
       ({ subcmd, args }: SyntaxBranch): string => {
         if (typeof args != "function") {
-          throw `Not a function: ${args.toString()}`;
+          throw `Not a function: ${(args as any).toString()}`;
         }
-        let arg_str = this[cmd + subcmd](...args());
+        let arg_str = (this as any)[cmd + subcmd](...args());
         return tex_def(cmd + subcmd, arg_str);
       };
 

@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const generator = require("@lezer/generator");
 const _ = require("lodash");
+const pkg = JSON.parse(fs.readFileSync("./package.json"));
+
+let external = Object.keys(pkg.peerDependencies || {});
 
 const lezer_plugin = grammars => ({
   name: "lezer",
@@ -45,15 +48,23 @@ const lezer_plugin = grammars => ({
   },
 });
 
-estrella.build({
-  entryPoints: ["lib/nota-syntax.ts", "lib/esbuild-plugin.ts"],
+let opts = {
   outdir: "dist",
   bundle: true,
-  platform: "node",
-  external: ["prettier"],
-  plugins: [lezer_plugin(["nota"])],
+  format: "esm",
+  external,
+  plugins: [lezer_plugin(["nota", "javascript"])],
   sourcemap: true,
-  define: {
-    process: JSON.stringify({ env: {} }),
-  },
+};
+
+estrella.build({
+  entryPoints: ["lib/nota-syntax.ts"],
+  platform: "browser",
+  ...opts,
+});
+
+estrella.build({
+  entryPoints: ["lib/esbuild-plugin.ts"],
+  platform: "node",
+  ...opts,
 });
