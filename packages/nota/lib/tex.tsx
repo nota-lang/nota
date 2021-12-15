@@ -168,7 +168,7 @@ export interface TexProps {
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   function Tex({ children, raw, block, ...props }) {
     let ctx = usePlugin(TexPlugin);    
-    return ctx.render(join_recursive(children), block, raw, props);
+    return ctx.render(join_recursive(children as any), block, raw, props);
   },
   (prev, next) => prev.children == next.children
 );

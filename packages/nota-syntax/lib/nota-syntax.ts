@@ -1,22 +1,15 @@
-export type { Translation, TranslatedFunction } from "./translate_nota";
-
 import { parseMixed, Tree } from "@lezer/common";
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 import { Result, ok, err } from "@wcrichto/nota-common";
 
 //@ts-ignore
-import { parser as js_parser } from "./javascript/javascript.grammar";
+import { parser as js_parser, NotaMacro } from "./javascript/javascript.grammar";
 //@ts-ignore
-import { parser as nota_parser } from "./nota.grammar";
-//@ts-ignore
-import * as nota_terms from "./nota.terms";
-//@ts-ignore
-import * as js_terms from "./javascript/javascript.terms";
-import { Parse } from "@lezer/lr/dist/parse";
+import { parser as nota_parser, Js } from "./nota/nota.grammar";
 
 let nota_wrap = parseMixed((node, _input) => {
-  if (node.type.id == nota_terms.Js) {
+  if (node.type.id == Js) {
     return { parser: js_language.parser };
   }
   return null;
@@ -34,6 +27,7 @@ export let nota_language = LRLanguage.define({
         At: t.definitionKeyword,
         Pct: t.definitionKeyword,
         Hash: t.definitionKeyword,
+        Comment: t.lineComment,
         "( )": t.paren,
         "{ }": t.brace,
         "[ ]": t.squareBracket,
@@ -45,28 +39,30 @@ export let nota_language = LRLanguage.define({
 export let nota = () => new LanguageSupport(nota_language);
 
 export let try_parse = (contents: string): Result<Tree> => {
-  let parse = nota_language.parser.startParse(contents) as Parse;
+  // Parse is @lezer/common/mix/MixedParse but this isn't an exported type
+  let parse = nota_language.parser.startParse(contents) as any;
   while (true) {
     let tree = parse.advance();
-    if (tree != null) {
-      return ok(tree);
-    } else if (parse.recovering) {
-      let pos = parse.parsedPos - 1;
+    let base = parse.baseParse;
+    if (base && base.recovering) {
+      let pos = base.parsedPos - 1;
       let prefix = contents.slice(Math.max(0, pos - 10), pos);
       let suffix = contents.slice(pos + 1, pos + 10);
       let msg = `Invalid parse at: ${prefix}>>>${contents[pos]}<<<${suffix}`;
-      if (parse.tokens.mainToken) {
-        let token = nota_language.parser.getName(parse.tokens.mainToken.value);
+      if (base.tokens.mainToken) {
+        let token = nota_language.parser.getName(base.tokens.mainToken.value);
         msg += ` (unexpected token ${token})`;
       }
 
       return err(Error(msg));
+    } else if (tree != null) {
+      return ok(tree);
     }
   }
 };
 
 let js_wrap = parseMixed((node, _input) => {
-  if (node.type.id == js_terms.NotaMacro) {
+  if (node.type.id == NotaMacro) {
     return { parser: nota_language.parser };
   }
   return null;

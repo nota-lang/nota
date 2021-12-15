@@ -3,7 +3,7 @@ import { unwrap } from "@wcrichto/nota-common";
 import fs from "fs";
 
 import { try_parse } from "./nota-syntax";
-import { translate } from "./translate_nota";
+import { translate } from "./nota/translate";
 
 export let nota_plugin: () => esbuild.Plugin = () => ({
   name: "nota_syntax",

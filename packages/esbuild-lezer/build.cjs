@@ -2,11 +2,14 @@ const estrella = require("estrella");
 const fs = require("fs");
 const pkg = JSON.parse(fs.readFileSync("./package.json"));
 
+let external = Object.keys(pkg.peerDependencies || {});
+
 estrella.build({
-  entry: "lib/nota-markdown.tsx",
+  entry: "lib/esbuild-lezer.ts",
   outdir: "dist",
   bundle: true,
-  platform: 'node',
-  external: Object.keys(pkg.peerDependencies || {}),
+  format: "cjs",
+  platform: "node",
   sourcemap: true,
+  external,
 });

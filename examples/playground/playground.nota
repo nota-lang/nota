@@ -1,12 +1,3 @@
-%let[L][new Language(function() { return [
-  ["Variable", "vr", "x", []],
-  ["Number", "num", "n", []],  
-  ["Path", "path", "q", [
-    ["empty", () => @{\varepsilon}, () => []], 
-    ["elem", (...args) => @{#0.#1}, () => [this.num(), this.path()]]]],
-]})]
+%let[x][1]
 
-
-@Title{Modular Program Slicing Through Ownership}
-
-@Section[label="sec:intro"]{Introduction}
+Hello! #x

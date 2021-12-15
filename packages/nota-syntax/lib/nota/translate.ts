@@ -8,20 +8,19 @@ import type {
   ExpressionStatement,
   ImportDeclaration,
   Identifier,
-  CallExpression,
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import * as nota from "@wcrichto/nota";
 import { Either, left, right, is_left, assert, unreachable } from "@wcrichto/nota-common";
 
-import * as t from "./babel-polyfill";
+import * as t from "../babel-polyfill";
 //@ts-ignore
-import * as terms from "./nota.terms";
+import * as terms from "./nota.grammar";
 //@ts-ignore
-import * as js_terms from "./javascript/javascript.terms";
-import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
-import { translate_js } from "./translate_js";
+import * as js_terms from "../javascript/javascript.grammar";
+import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
+import { translate_js } from "../javascript/translate";
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matches_newline = (node: SyntaxNode): boolean =>
@@ -112,7 +111,7 @@ export let translate = (input: string, tree: Tree): string => {
     t.importDeclaration(
       Object.keys(nota).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
       t.stringLiteral("@wcrichto/nota")
-    ),    
+    ),
     ...Array.from(global.imports),
     binding(create_el, t.memberExpression(react_id, t.identifier("createElement"))),
     ...syntax_prelude,
@@ -285,7 +284,7 @@ let collect_args = (arg: SyntaxNode | null): SyntaxNode[] => {
     arg = arg.nextSibling;
   }
   return args;
-}
+};
 
 let translate_arg = (arg: SyntaxNode): Expression => {
   if (matches(arg, terms.ArgCodeAnon)) {
@@ -295,7 +294,7 @@ let translate_arg = (arg: SyntaxNode): Expression => {
   } else {
     unreachable();
   }
-}
+};
 
 let translate_hashcommand = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.HashCommand));

@@ -17,7 +17,7 @@ import {
   TSExtends,
   Dialect_ts,
   NotaMacro,
-} from "./javascript.terms";
+} from "./javascript.grammar";
 
 const space = [
   9, 10, 11, 12, 13, 32, 133, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201,

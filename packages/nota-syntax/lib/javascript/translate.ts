@@ -5,11 +5,11 @@ import * as babel from "@babel/standalone";
 import _ from "lodash";
 
 //@ts-ignore
-import * as terms from "./javascript/javascript.terms";
+import * as nota_terms from "../nota/nota.grammar";
 //@ts-ignore
-import * as nota_terms from "./nota.terms";
-import * as t from "./babel-polyfill";
-import { matches, text, translate_textbody, parse_expr } from "./translate_nota";
+import * as terms from "./javascript.grammar";
+import * as t from "../babel-polyfill";
+import { matches, text, translate_textbody, parse_expr } from "../nota/translate";
 import { BabelFileResult } from "@babel/core";
 
 export let translate_js = (node: SyntaxNode): Expression => {

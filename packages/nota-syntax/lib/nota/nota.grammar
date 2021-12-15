@@ -21,11 +21,14 @@ ArgText {
 | lverb VerbatimText rverb
 }
 
+// @skip { Comment }
+
 @context dialectContext from "./tokens.ts"
 @external tokens text from "./tokens.ts" { Text }
 @external tokens verbatim from "./tokens.ts" { VerbatimText }
+@external tokens js from "./tokens.ts" { Js }
 
-@tokens {  
+@tokens {    
   pct[@export] { "%" }
   at[@export] { "@" }
   hash[@export] { "#" }
@@ -44,7 +47,8 @@ ArgText {
   Ident { $[a-zA-Z_$]$[a-zA-Z0-9_$]* }
   Number { $[0-9]+ }
 
+  // Comment { "//" ![\n]* }
+
   @precedence { Multinewline, Newline }
 }
 
-@external tokens js from "./tokens.ts" { Js }

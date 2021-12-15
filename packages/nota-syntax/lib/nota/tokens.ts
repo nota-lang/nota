@@ -1,6 +1,6 @@
 import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 //@ts-ignore
-import * as terms from "./nota.terms";
+import * as terms from "./nota.grammar";
 import _ from "lodash";
 
 const [
@@ -32,7 +32,7 @@ interface BalanceContext {
 
 type Context = (IgnoreContext | BalanceContext) & { parent: any };
 
-const DEBUG = true;
+const DEBUG = false;
 
 export const dialectContext = new ContextTracker<Context | null>({
   start: null,
