@@ -20,7 +20,7 @@ const [
 ] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "\\", "|", "="].map(s => s.charCodeAt(0));
 const eof = -1;
 
-const _term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
+const term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
 
 interface IgnoreContext {
   ignore: boolean;
@@ -32,37 +32,40 @@ interface BalanceContext {
 
 type Context = (IgnoreContext | BalanceContext) & { parent: any };
 
+const DEBUG = true;
+
 export const dialectContext = new ContextTracker<Context | null>({
   start: null,
   strict: false,
   shift(context, term, _stack, input) {
-    // console.log(
-    //   `shift ${_term_name(term)} at ${String.fromCharCode(input.next)} (${
-    //     input.pos
-    //   }) in context ${JSON.stringify(context)}`
-    // );
+    if (DEBUG) {
+      console.log(
+        `shift ${term_name(term)} at ${String.fromCharCode(input.next)} (${
+          input.pos
+        }) in context ${JSON.stringify(context)}`
+      );
+    }
     if (term == terms.pct || term == terms.hash || term == terms.at) {
       return { ignore: true, parent: context };
     }
     if (context != null) {
       // TODO: term == terms.lbrc isn't working, but input.next == lbrc is?
-      if (term == terms.eq || input.next == lbrc) {
+      if (term == terms.lbrc || term == terms.lbrkt) {
         return { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: context };
-      } else if (
-        (input.next == rbrkt && context.parent && context.parent.ignore) ||
-        input.next == rbrc
-      ) {
+      } else if (term == terms.rbrc || term == terms.rbrkt) {
         return context.parent;
       }
     }
     return context;
   },
-  reduce(context, term, _stack, _input) {
-    // console.log(
-    //   `reduce ${_term_name(term)} at ${String.fromCharCode(_input.next)} (${
-    //     _input.pos
-    //   }) in context ${JSON.stringify(context)}`
-    // );
+  reduce(context, term, _stack, input) {
+    if (DEBUG) {
+      console.log(
+        `reduce ${term_name(term)} at ${String.fromCharCode(input.next)} (${
+          input.pos
+        }) in context ${JSON.stringify(context)}`
+      );
+    }
     if (context && term == terms.Command) {
       return context.parent;
     }

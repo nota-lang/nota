@@ -10,13 +10,12 @@ import { usePlugin } from "./plugin";
 
 const r = String.raw;
 
-export type InputSyntaxBranch = [string, number, (...args: any[]) => string, () => string[]];
+export type InputSyntaxBranch = [string, (...args: any[]) => string, () => string[]];
 export type InputSyntaxSort = [string, string, string, InputSyntaxBranch[]];
 export type InputGrammar = InputSyntaxSort[];
 
 type SyntaxBranch = {
   subcmd: string;
-  nargs: number;
   body: (...args: string[]) => string;
   args: () => string[];
 };
@@ -40,9 +39,8 @@ export class Language {
 
   constructor(grammar: () => InputGrammar) {
     this._grammar = grammar.call(this).map(([kind, cmd, metavar, in_branches]) => {
-      let branches = in_branches.map(([subcmd, nargs, body, args]) => ({
+      let branches = in_branches.map(([subcmd,  body, args]) => ({
         subcmd,
-        nargs,
         body,
         args,
       }));
@@ -51,7 +49,7 @@ export class Language {
 
     this._grammar.forEach(({ cmd, metavar, branches }) => {
       (this as any)[cmd] = () => tex_ref(cmd, metavar);
-      branches.forEach(({ subcmd, nargs, body }) => {
+      branches.forEach(({ subcmd, body }) => {
         if (typeof body != "function") {
           throw `Not a function: ${(body as any).toString()}`;
         }

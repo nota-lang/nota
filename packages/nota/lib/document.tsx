@@ -340,7 +340,7 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
     [Subsubsection, 2]
   ];
   let flush_stack = (depth: number) => {
-    _.range(1 + depth, section_stack.length).forEach(() => {
+    _.range(1 + depth, section_stack.length, 1).forEach(() => {
       let sec = section_stack.pop();
       let parent = _.last(section_stack)!;
       parent.push(<SectionBody key={parent.length}>{sec}</SectionBody>);

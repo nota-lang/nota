@@ -10,7 +10,7 @@ import { Result, ok, err } from "@wcrichto/nota-common";
 import { nota_plugin } from "@wcrichto/nota-syntax/dist/esbuild-plugin";
 import _ from "lodash";
 
-program.version("0.1.0").option("-e, --extensions <exts>").option("--open").argument("<input>");
+program.version("0.1.0").option("-e, --extensions <exts>").option("--open").option("-p, --port <port>").argument("<input>");
 
 program.parse(process.argv);
 let opts = program.opts();
@@ -58,7 +58,7 @@ let initial_build = esbuild.build({
   ],
   watch,
   loader,
-}) //.catch(_ => {});
+}).catch(_ => {});
 
 export interface InitialContent {
   type: "InitialContent";
@@ -108,4 +108,5 @@ app.ws("/", async (ws, _req) => {
   });
 });
 
-app.listen(8000);
+let port = opts.port ? parseInt(opts.port) : 8000;
+app.listen(port);

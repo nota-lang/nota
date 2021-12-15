@@ -12,7 +12,8 @@ export class State {
   private ws: WebSocket;
 
   constructor() {
-    this.ws = new WebSocket("ws://localhost:8000");
+    let host = window.location.host;
+    this.ws = new WebSocket(`ws://${host}`);
 
     this.ws.onerror = evt => {
       console.error(evt);

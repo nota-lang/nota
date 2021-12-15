@@ -1,6 +1,12 @@
-LET'S get downt o business @strong{to defeat.} THe huns.
+%let[L][new Language(function() { return [
+  ["Variable", "vr", "x", []],
+  ["Number", "num", "n", []],  
+  ["Path", "path", "q", [
+    ["empty", () => @{\varepsilon}, () => []], 
+    ["elem", (...args) => @{#0.#1}, () => [this.num(), this.path()]]]],
+]})]
 
-@em{If they send me daughters}!
 
-@strong{When I asked. FOR SO OOOONS}!
+@Title{Modular Program Slicing Through Ownership}
 
+@Section[label="sec:intro"]{Introduction}

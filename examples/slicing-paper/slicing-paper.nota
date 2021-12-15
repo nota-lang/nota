@@ -1,23 +1,11 @@
-%import{./diagrams}{SyntaxDiagram}{AssignStaticRule}{AssignDynamicRule}
-%import{./language}{L}{L2}{msf}
+%let[L][new Language(function() { return [
+  ["Variable", "vr", "x", []],
+  ["Number", "num", "n", []],  
+  ["Path", "path", "q", [
+    ["empty", () => @{\varepsilon}, () => []], 
+    ["elem", (...args) => @{#0.#1}, () => [this.num(), this.path()]]]],
+]})]
 
-%letfn{tc}{#tex_ref{tc}{#0; #1; #2 \vdash #3 : #4 \Rightarrow #5}}
-%letfn{subtype}{#tex_ref{subtype}{#0; #1 \vdash #2 \mathrel{\footnotesize \lesssim} #3 \Rightarrow #4}}
-%letfn{ownsafe}{#tex_ref{ownsafe}{#0; #1 \vdash_{#2} {#3} \Rightarrow {#4}}}
-
-%let{r}{#L.concrprov{}}
-%let{uniq}{#L.ownquniq{}}
-%let{shrd}{#L.ownqshrd{}}
-%let{uty}{#L.tybnum{}}
-%let{loanset}{\{\overline{#L2.loan{}}\}}
-%let{stackenv}{#L2.stackenv{}}
-%let{fenv}{#L.fenv{}}
-%let{tyenv}{#L2.tyenv{}}
-%let{expr}{#L.expr{}}
-%let{tys}{#L.tys{}}
-%let{plc}{#L.plc{}}
-%let{tysx}{#L2.tysx{}}
-%let{ty}{#L2.ty{}}
 
 @Title{Modular Program Slicing Through Ownership}
 
@@ -25,11 +13,12 @@
 
 Program slicing is the task of identifying the subset of a program relevant to computing a value of interest. The concept of slicing was introduced 40 years ago when @Ref[full]{weiser1982programmers} demonstrated that programmers mentally construct slices while debugging. Since then, hundreds of papers have been published on implementing automated program slice, as surveyed by @Ref[full]{xu2005brief} and @Ref[full]{silva2012vocabulary}. Despite these efforts, a review of slicers found "slicing-based debugging techniques are rarely used in practice" @Ref{parnin2011automated}@Ref{footnote:1}.
 
+
 @FootnoteDef{
-  The only open-source, functioning slicers the authors could find are Frama-C 
-  @Ref{cuoq2012frama} and dg @Ref{llvmslicer}. Slicing tools for Java like Kaveri 
-  @Ref{jayaraman2005kaveri} no longer work. The most industrial-strength slicing tool, 
-  CodeSurfer @Ref{balakrishnan2005codesurfer} was GrammaTech's proprietary technology 
+  The only open-source, functioning slicers the authors could find are Frama-C
+  @Ref{cuoq2012frama} and dg @Ref{llvmslicer}. Slicing tools for Java like Kaveri
+  @Ref{jayaraman2005kaveri} no longer work. The most industrial-strength slicing tool,
+  CodeSurfer @Ref{balakrishnan2005codesurfer} was GrammaTech's proprietary technology
   and appears to no longer exist.
 }
 
@@ -101,6 +90,7 @@ For instance, the Rust snippet on the right shows the slice in orange of a place
   }
 }
 
+
 @Section{Formal Model}
 
 To build an algorithm from these principles, we first need a formal model to describe and
@@ -115,86 +105,7 @@ We will incrementally introduce the aspects of Oxide's syntax and semantics as n
 
 @Subsection{Syntax}
 
-@Ref{fig:oxide_syntax} shows a subset of Oxide's syntax along with a labeled example. An Oxide program consists of a set of functions @${#L.fenv{}} (the "global environment"), where each function body is an expression @${#L.expr{}}.
+@(L.Bnf)
 
-@Figure[label="fig:oxide_syntax"]{
-  @Subfigure{
-    @L.Bnf
-    @L2.Bnf
-    @Caption{Subset of Oxide syntax, reproduced from @Ref[full]{weiss2019oxide}. The only difference in this subset is that closures are eliminated and functions are simplified to take one argument.}
-  }
-  @Subfigure[label="fig:oxide_syntax_example"]{
-    @SyntaxDiagram
-    @Caption{Syntactic forms and corresponding metavariables labeled in context of an example}
-  }
-  @Caption{Formal elements of Oxide and their explanation (excerpts).}
-}
-
-The syntax is largely the same as Rust's with a few exceptions: this is a bit funky
-
-@ul{
-  @li{Lifetimes are called "provenances", and they are both explicit in expressions and types throughout the program, and initially bound via @${#L.exprprov{}} expressions or as function parameters.}
-  @li{Rather than having immutable references @code{&'a τ} and mutable references @code{&'a mut τ}, Oxide calls them "shared" references @${#L.tysref{#shrd}{#L.prov{}}{#L.tys{}}} and "unique" references @${#L.tysref{#r}{#L.prov{}}{#L.tys{}}.}}
-  @li{Provenances are divided into "concrete" (@${#L.concrprov{}}) and "abstract" (@${#L.abstrprov{}}). Concrete provenances are used by borrow expressions, and abstract provenances are function parameters used for inputs with reference type.}
-}
-
-@Subsection[label="sec:statem"]{Static semantics}
-
-@Definition[name="tex:tc"]{
-  Expressions are typechecked via the judgment @${#tc{#L.fenv{}}{#L2.tyenv{}}{#L2.stackenv{}}{#L.expr{}}{#L2.ty{}}{#L2.stackenv{}'}}, read as: "@${#L.expr{}} has type @${#L2.ty{}}" under contexts @${#L.fenv{}, #L2.tyenv{}, #L2.stackenv{}}."
-} 
-@${#L2.tyenv{}} contains function-level type and provenance variables. @${#L2.stackenv{}} maps variables to types and provenances to pointed-to place expressions with ownership qualifiers. For instance, when type checking @code{*b := a.1} in @Ref{fig:oxide_syntax_example}, the inputs would be @${#L2.tyenv{} = #L2.tyenvempty{}} (empty) and 
-@${
-  #L2.stackenv{} = \{a \mapsto #L.tystup{#uty, #uty},~ 
-  b \mapsto #L.exprref{#r _2}{#uniq}{#uty}, ~
-  #r _1 \mapsto \{#L2.loanform{#uniq}{a.0}\}, ~
-  #r _2 \mapsto \{#L2.loanform{#uniq}{a.0}\}\}
-}.
-
-Typechecking relies on a number of auxiliary judgments, such as subtyping (@Definition[name="tex:subtype"]{
-  @${#subtype{#L2.tyenv{}}{#L2.stackenv{}}{#L2.ty{}_1}{#L2.ty{}_2}{#L2.stackenv{}'}}
-}) and ownership-safety (@Definition[name="tex:ownsafe"]{
-  @${#ownsafe{#L2.tyenv{}}{#L2.stackenv{}}{#L.ownq{}}{#L.pexp{}}{#loanset}}, read as "@${#L.pexp{}} has @${#L.ownq{}\text{-loans } #loanset} in the contexts @${#L2.tyenv{}, #L2.stackenv{}}"
-}).
-As an example, consider @Smallcaps{T-Assign} for the assignment expression @${#L.exprplcasgn{#L.plc{}}{#L.expr{}}}: 
-
-%letfn{T}{@Togglebox[Out=()=>@{#0}][In=()=>@{#1}]}
-
-@IR[Top=()=>@{
-  @PremiseRow{
-    @Premise{#T{
-      @${#expr} has sized type @${#tys}, making @${#stackenv _1}
-    }{
-      @${#tc{#fenv}{#tyenv}{#stackenv}{#expr}{#tys}{#stackenv'}}
-    }}
-    @Premise{#T{
-      @${#plc} has maybe-dead type @${#tysx} in @${#stackenv _1}
-    }{
-      @${#stackenv _1(#plc) = #tysx}
-    }}
-  }
-  @PremiseRow{
-    @Premise{
-      #T{@${#plc} is dead}{@${#tysx = #L2.tyd{}}}
-      @${\vee}
-      #T{@${#plc} is @${#uniq}-safe}{
-        @${#ownsafe{#tyenv}{#stackenv _1}{#uniq}{#plc}{#L2.loanform{#uniq}{#plc}}}
-      }
-    }
-    @Premise{#T{
-      @${#ty} is a subtype of @${#tysx}, making @${#stackenv'}
-    }{
-      @${#subtype{#tyenv}{#stackenv _1}{#tys}{#tysx}{#stackenv'}}
-    }}
-  }
-}][Bot=()=>@${#T{
-  @${#L.exprplcasgn{#plc}{#expr}} has type @${#L.tysbase{#L.tybunit{}}} and adds
-  @${#plc : #tys} to @${#stackenv}'
-}{
-  @${#tc{#fenv}{#tyenv}{#stackenv}{#L.exprplcasgn{#plc}{#expr}}{#L.tysbase{#L.tybunit{}}}{
-    #stackenv'[#plc \mapsto #tys] \triangleright #plc
-  }}
-}}][toggle]
-
-%import_default{./slicing-paper.bib}{bibtex}
+%import_default["./slicing-paper.bib"][bibtex]
 @References{#bibtex}

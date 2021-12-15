@@ -13,6 +13,7 @@ import { parser as nota_parser } from "./nota.grammar";
 import * as nota_terms from "./nota.terms";
 //@ts-ignore
 import * as js_terms from "./javascript/javascript.terms";
+import { Parse } from "@lezer/lr/dist/parse";
 
 let nota_wrap = parseMixed((node, _input) => {
   if (node.type.id == nota_terms.Js) {
@@ -44,7 +45,7 @@ export let nota_language = LRLanguage.define({
 export let nota = () => new LanguageSupport(nota_language);
 
 export let try_parse = (contents: string): Result<Tree> => {
-  let parse: any = nota_language.parser.startParse(contents);
+  let parse = nota_language.parser.startParse(contents) as Parse;
   while (true) {
     let tree = parse.advance();
     if (tree != null) {
