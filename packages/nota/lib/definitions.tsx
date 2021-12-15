@@ -9,6 +9,7 @@ import { Container } from "./utils";
 import { ScrollPlugin } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
+import { HTMLAttributes } from "./utils";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;
@@ -83,25 +84,35 @@ interface DefinitionProps {
 
 let name_to_id = (name: string): string => `def-${name.replace(":", "-")}`;
 
-export let DefinitionAnchor: React.FC<{ name: string; block?: boolean }> = props => (
-  <Container block={props.block} id={name_to_id(props.name)}>
+export let DefinitionAnchor: React.FC<{ name: string; block?: boolean } & HTMLAttributes> = ({
+  name,
+  block,
+  ...props
+}) => (
+  <Container block={block} id={name_to_id(name)} {...props}>
     {props.children}
   </Container>
 );
 
-export let Definition: React.FC<DefinitionProps> = props => {
+export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
+  name,
+  block,
+  Tooltip,
+  Label,
+  ...props
+}) => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [name] = useState(props.name ? Children.onlyText(props.name) : _.uniqueId());
+  let [name_str] = useState(name ? Children.onlyText(name) : _.uniqueId());
 
   useEffect(() => {
-    let Tooltip =
-      typeof props.Tooltip !== "undefined" ? props.Tooltip : () => <>{props.children}</>;
-    let Label = props.Label || null;
-    ctx.add_definition(name, { Tooltip, Label });
+    ctx.add_definition(name_str, {
+      Tooltip: Tooltip ? Tooltip : () => <>{props.children}</>,
+      Label: Label || null,
+    });
   }, []);
 
   return props.children ? (
-    <DefinitionAnchor block={props.block} name={name}>
+    <DefinitionAnchor block={block} name={name_str} {...props}>
       {props.children}
     </DefinitionAnchor>
   ) : null;
@@ -136,8 +147,8 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Elemen
 
   let inner: JSX.Element = def.Label ? (
     <def.Label name={name} {...props} />
-  ) : Element || (
-    <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
+  ) : (
+    Element || <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";

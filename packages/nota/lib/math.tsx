@@ -1,20 +1,32 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { DocumentContext, Smallcaps } from "./document";
 import { Definition } from "./definitions";
-import { ToggleButton } from "./togglebox";
+import { ToggleButton, ToggleGroupButton, ToggleGroup } from "./togglebox";
 import { HTMLAttributes } from "./utils";
 
 export let Premise: React.FC = ({ children }) => <div className="premise">{children}</div>;
 export let PremiseRow: React.FC = ({ children }) => <div className="premise-row">{children}</div>;
 
-export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right?: JSX.Element } & HTMLAttributes> = ({
-  Top,
-  Bot,
-  Right,
-  ...props
-}) => {
+export interface IRProps {
+  Top: React.FC;
+  Bot: React.FC;
+  Right?: React.FC;
+  toggle?: boolean;
+}
+
+type ToggleCallback = (_toggle: boolean) => void;
+interface IRToggleComponentProps {
+  reg: (_cb: ToggleCallback) => void;
+}
+
+export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...props }) => {
   let [right_height, set_right_height] = useState(0);
   let right_ref = useRef<HTMLDivElement>(null);
+
+  if (toggle) {
+    Right = () => <ToggleGroupButton big />;
+  }
+
   if (Right) {
     useEffect(() => {
       let right_el = right_ref.current!;
@@ -23,58 +35,34 @@ export let IR: React.FC<{ Top: JSX.Element; Bot: JSX.Element; Right?: JSX.Elemen
   }
 
   return (
-    <table className="inferrule" {...props}>
-      <tbody>
-        <tr>
-          <td>{Top}</td>
-        </tr>
-        <tr>
-          <td>
-            <div className="divider" />
-          </td>
-          <td>
-            <div className="right">
-              <div style={{ bottom: right_height / 2 }} ref={right_ref}>
-                {Right || null}
+    <ToggleGroup>
+      <table className="inferrule" {...props}>
+        <tbody>
+          <tr>
+            <td>
+              <Top />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div className="divider" />
+            </td>
+            <td>
+              <div className="right">
+                <div style={{ bottom: right_height / 2 }} ref={right_ref}>
+                  {Right ? <Right /> : null}
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>{Bot}</td>
-        </tr>
-      </tbody>
-    </table>
-  );
-};
-
-type ToggleCallback = (_toggle: boolean) => void;
-interface IRToggleComponentProps {
-  reg: (_cb: ToggleCallback) => void;
-}
-
-export let IRToggle: React.FC<{
-  Top: React.FC<IRToggleComponentProps>;
-  Bot: React.FC<IRToggleComponentProps>;
-} & HTMLAttributes> = ({ Top, Bot, ...props }) => {
-  let [toggles] = useState<ToggleCallback[]>([]);
-  let reg = (cb: ToggleCallback) => {
-    toggles.push(cb);
-  };
-  let [show_all, set_show_all] = useState(false);
-
-  let on_click = () => {
-    toggles.forEach(cb => cb(!show_all));
-    set_show_all(!show_all);
-  };
-
-  return (
-    <IR
-      Right={<ToggleButton big on={show_all} onClick={on_click} />}
-      Top={<Top reg={reg} />}
-      Bot={<Bot reg={reg} />}
-      {...props}
-    />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Bot />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ToggleGroup>
   );
 };
 

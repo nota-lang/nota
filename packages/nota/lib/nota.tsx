@@ -23,7 +23,7 @@ export {
 } from "./document";
 export { Definition, Ref } from "./definitions";
 export { Togglebox, ToggleButton } from "./togglebox";
-export { Theorem, IR, IRToggle, Premise, PremiseRow } from "./math";
+export { Theorem, IR, Premise, PremiseRow } from "./math";
 export { Correspondence, Link } from "./correspondence";
 export {
   Listing,

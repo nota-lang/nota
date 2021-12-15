@@ -10,6 +10,14 @@
 %let{shrd}{#L.ownqshrd{}}
 %let{uty}{#L.tybnum{}}
 %let{loanset}{\{\overline{#L2.loan{}}\}}
+%let{stackenv}{#L2.stackenv{}}
+%let{fenv}{#L.fenv{}}
+%let{tyenv}{#L2.tyenv{}}
+%let{expr}{#L.expr{}}
+%let{tys}{#L.tys{}}
+%let{plc}{#L.plc{}}
+%let{tysx}{#L2.tysx{}}
+%let{ty}{#L2.ty{}}
 
 @Title{Modular Program Slicing Through Ownership}
 
@@ -148,7 +156,45 @@ Typechecking relies on a number of auxiliary judgments, such as subtyping (@Defi
 }) and ownership-safety (@Definition[name="tex:ownsafe"]{
   @${#ownsafe{#L2.tyenv{}}{#L2.stackenv{}}{#L.ownq{}}{#L.pexp{}}{#loanset}}, read as "@${#L.pexp{}} has @${#L.ownq{}\text{-loans } #loanset} in the contexts @${#L2.tyenv{}, #L2.stackenv{}}"
 }).
-As an example, consider @Smallcaps{T-Assign} for the assignment expression @${#L.exprplcasgn{#L.plc{}}{#L.expr{}}}:
+As an example, consider @Smallcaps{T-Assign} for the assignment expression @${#L.exprplcasgn{#L.plc{}}{#L.expr{}}}: 
+
+%letfn{T}{@Togglebox[Out=()=>@{#0}][In=()=>@{#1}]}
+
+@IR[Top=()=>@{
+  @PremiseRow{
+    @Premise{#T{
+      @${#expr} has sized type @${#tys}, making @${#stackenv _1}
+    }{
+      @${#tc{#fenv}{#tyenv}{#stackenv}{#expr}{#tys}{#stackenv'}}
+    }}
+    @Premise{#T{
+      @${#plc} has maybe-dead type @${#tysx} in @${#stackenv _1}
+    }{
+      @${#stackenv _1(#plc) = #tysx}
+    }}
+  }
+  @PremiseRow{
+    @Premise{
+      #T{@${#plc} is dead}{@${#tysx = #L2.tyd{}}}
+      @${\vee}
+      #T{@${#plc} is @${#uniq}-safe}{
+        @${#ownsafe{#tyenv}{#stackenv _1}{#uniq}{#plc}{#L2.loanform{#uniq}{#plc}}}
+      }
+    }
+    @Premise{#T{
+      @${#ty} is a subtype of @${#tysx}, making @${#stackenv'}
+    }{
+      @${#subtype{#tyenv}{#stackenv _1}{#tys}{#tysx}{#stackenv'}}
+    }}
+  }
+}][Bot=()=>@${#T{
+  @${#L.exprplcasgn{#plc}{#expr}} has type @${#L.tysbase{#L.tybunit{}}} and adds
+  @${#plc : #tys} to @${#stackenv}'
+}{
+  @${#tc{#fenv}{#tyenv}{#stackenv}{#L.exprplcasgn{#plc}{#expr}}{#L.tysbase{#L.tybunit{}}}{
+    #stackenv'[#plc \mapsto #tys] \triangleright #plc
+  }}
+}}][toggle]
 
 %import_default{./slicing-paper.bib}{bibtex}
 @References{#bibtex}

@@ -26,6 +26,14 @@ import type {
   ObjectPattern,
   BooleanLiteral,
   Literal,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportDefaultSpecifier,
+  ImportNamespaceSpecifier,
+  ExportDefaultDeclaration,
+  ClassDeclaration,
+  TSDeclareFunction,
+  FunctionDeclaration,
 } from "@babel/types";
 
 let base_node = {
@@ -183,5 +191,39 @@ export let restElement = (argument: LVal): RestElement => ({
 export let numericLiteral = (value: number): NumericLiteral => ({
   type: "NumericLiteral",
   value,
+  ...base_node,
+});
+
+export let importDeclaration = (
+  specifiers: Array<ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier>,
+  source: StringLiteral
+): ImportDeclaration => ({
+  type: "ImportDeclaration",
+  specifiers,
+  source,
+  ...base_node,
+});
+
+export let importSpecifier = (
+  local: Identifier,
+  imported: Identifier | StringLiteral
+): ImportSpecifier => ({
+  type: "ImportSpecifier",
+  local,
+  imported,
+  ...base_node,
+});
+
+export let importDefaultSpecifier = (local: Identifier): ImportDefaultSpecifier => ({
+  type: "ImportDefaultSpecifier",
+  local,
+  ...base_node,
+});
+
+export let exportDefaultDeclaration = (
+  declaration: FunctionDeclaration | TSDeclareFunction | ClassDeclaration | Expression
+): ExportDefaultDeclaration => ({
+  type: "ExportDefaultDeclaration",
+  declaration,
   ...base_node,
 });

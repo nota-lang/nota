@@ -35,7 +35,7 @@
   predicate
 }
 
-@top Script { statement+ }
+@top Script { expression }
 
 statement[@isGroup=Statement] {
   ExportDeclaration |
@@ -275,8 +275,11 @@ expressionNoComma {
   PrefixCast { tsAngleOpen type ~tsAngle ">" expressionNoComma } |
   ArrowFunction[@dynamicPrecedence=1] {
     TypeParamList { tsAngleOpen commaSep<typeParam> ">" } ParamList TypeAnnotation? "=>" (Block | expressionNoComma)
-  }
+  } |
+  NotaMacroWrap
 }
+
+NotaMacroWrap { "@" "{" NotaMacro "}" }
 
 ParenthesizedExpression { "(" expression ")" }
 
@@ -540,6 +543,8 @@ questionOp[@name=LogicOp] { "?" }
 @context trackNewline from "./tokens.js"
 
 @external specialize { identifier } tsExtends from "./tokens" { TSExtends[@name=extends] }
+
+@external tokens notaMacro from "./tokens" { NotaMacro }
 
 @external tokens noSemicolon from "./tokens" { noSemi }
 

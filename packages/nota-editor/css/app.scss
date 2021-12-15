@@ -54,8 +54,8 @@ $header-height: 45px;
     padding-left: 15px;
     position: relative;
 
-    .error {
-      position: absolute;
+    .translate-error {
+      position: sticky;
       z-index: 1000;
       top: 5px;
       right: 10px;

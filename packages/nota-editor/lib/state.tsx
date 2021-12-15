@@ -27,8 +27,7 @@ export class State {
         }
       );
 
-      const SYNC_INTERVAL = 100;
-      setInterval(() => {
+      let sync = () => {
         if (needs_sync) {
           needs_sync = false;
           let sync: SyncText = {
@@ -37,7 +36,18 @@ export class State {
           };
           this.ws.send(JSON.stringify(sync));
         }
-      }, SYNC_INTERVAL);
+      }
+      
+
+      // TODO: make auto-compile configurable
+      document.addEventListener('keydown', (evt: KeyboardEvent) => {
+        if ((evt.metaKey || evt.ctrlKey) && evt.key == 's') {
+          evt.stopPropagation();
+          evt.preventDefault();
+          sync();
+        }      
+      });
+      // setInterval(sync, 1000);
     };
 
     this.ws.onmessage = action(event => {

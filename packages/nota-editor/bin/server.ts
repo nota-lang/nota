@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node -r @cspotcode/source-map-support/register
 
 import express from "express";
 import expressWs from "express-ws";
@@ -58,7 +58,7 @@ let initial_build = esbuild.build({
   ],
   watch,
   loader,
-});
+}) //.catch(_ => {});
 
 export interface InitialContent {
   type: "InitialContent";

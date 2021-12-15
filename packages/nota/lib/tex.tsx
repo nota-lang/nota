@@ -2,7 +2,7 @@ import React from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
-import Children from "react-children-utilities";
+import { join_recursive } from "@wcrichto/nota-common";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
@@ -10,8 +10,20 @@ import { Plugin, Pluggable, usePlugin } from "./plugin";
 
 const r = String.raw;
 
-export let tex_def = (label: string, contents: string) => r`\htmlData{def=${label}}{${contents}}`;
-export let tex_ref = (label: string, contents: string) => r`\htmlData{cmd=${label}}{${contents}}`;
+export let tex_def = (label: string, contents: string) => [
+  r`\htmlData{def=`,
+  label,
+  `}{`,
+  contents,
+  `}`,
+];
+export let tex_ref = (label: string, contents: string) => [
+  r`\htmlData{cmd=`,
+  label,
+  `}{`,
+  contents,
+  `}`,
+];
 
 export interface Dimensions {
   width: number;
@@ -155,8 +167,8 @@ export interface TexProps {
 // memo is important to avoid re-renders that include macro definitions
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   function Tex({ children, raw, block, ...props }) {
-    let ctx = usePlugin(TexPlugin);
-    return ctx.render(Children.onlyText(children), block, raw, props);
+    let ctx = usePlugin(TexPlugin);    
+    return ctx.render(join_recursive(children), block, raw, props);
   },
   (prev, next) => prev.children == next.children
 );

@@ -1,33 +1,62 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { useStateOnInterval } from "./utils";
 import classNames from "classnames";
+import { action, makeAutoObservable, makeObservable, observable } from "mobx";
+import { observer } from "mobx-react";
 
-interface ToggleboxProps {
-  Inside: React.FC;
-  Outside: React.FC;
-  resize?: boolean;
-  registerToggle?: (_toggle: (_show: boolean) => void) => void;
+type ToggleCallback = (_show: boolean) => void;
+
+class ToggleGroupState {
+  toggles: ToggleCallback[] = [];
+  all_on: boolean = false;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 }
 
-export let ToggleButton: React.FC<{ on: boolean; onClick: () => void; big?: boolean }> = ({
-  on,
-  big,
-  onClick,
-}) => (
+let ToggleGroupContext = React.createContext<ToggleGroupState | null>(null);
+
+export let ToggleGroup: React.FC = ({ children }) => {
+  let state = new ToggleGroupState();
+  return <ToggleGroupContext.Provider value={state}>{children}</ToggleGroupContext.Provider>;
+};
+
+export let ToggleGroupButton: React.FC<{ big?: boolean }> = observer(({ big }) => {
+  let ctx = useContext(ToggleGroupContext)!;
+  let on_click = action(() => {
+    ctx.all_on = !ctx.all_on;
+    ctx.toggles.forEach(cb => cb(ctx.all_on));
+  });
+  return <ToggleButton on={ctx.all_on} onClick={on_click} big={big} />;
+});
+
+export let ToggleButton: React.FC<{
+  on: boolean;
+  onClick: () => void;
+  big?: boolean;
+}> = ({ on, big, onClick }) => (
   <span className={classNames("toggle-button", { big })} onClick={onClick}>
     {on ? "A" : "∑"}
   </span>
 );
 
-export let Togglebox: React.FC<ToggleboxProps> = ({ Inside, Outside, resize, registerToggle }) => {
+interface ToggleboxProps {
+  In: React.FC;
+  Out: React.FC;
+  resize?: boolean;
+}
+
+export let Togglebox: React.FC<ToggleboxProps> = ({ In, Out, resize }) => {
   let outside_ref = useRef<HTMLDivElement>(null);
   let inside_ref = useRef<HTMLDivElement>(null);
   let [show_inside, set_show_inside] = useState(false);
+  let ctx = useContext(ToggleGroupContext);
 
-  if (registerToggle) {
+  if (ctx) {
     useEffect(() => {
-      registerToggle(set_show_inside);
-    }, [registerToggle]);
+      ctx!.toggles.push(set_show_inside);
+    }, [ctx]);
   }
 
   let style = useStateOnInterval({}, 1000, () => {
@@ -57,10 +86,10 @@ export let Togglebox: React.FC<ToggleboxProps> = ({ Inside, Outside, resize, reg
       <div className="togglebox-parent">
         <div className="togglebox" style={style}>
           <div ref={outside_ref} style={inner_style(!show_inside)}>
-            <Outside />
+            <Out />
           </div>
           <div ref={inside_ref} style={inner_style(show_inside)}>
-            <Inside />
+            <In />
           </div>
         </div>
       </div>

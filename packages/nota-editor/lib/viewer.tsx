@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
+import * as ReactMembers from "react";
 import type { SyntaxNode } from "@lezer/common";
 import { observer, useLocalObservable } from "mobx-react";
 import indentString from "indent-string";
@@ -10,8 +11,9 @@ import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
 import { action, makeAutoObservable, reaction } from "mobx";
 import { is_err, is_ok, err, ok, Result, unwrap } from "@wcrichto/nota-common";
-import type { BuildFailure } from "esbuild";
 import * as nota from "@wcrichto/nota";
+import { try_parse } from "@wcrichto/nota-syntax";
+import _ from "lodash";
 
 import { StateContext } from "./state";
 import { theme } from "./editor";
@@ -29,7 +31,7 @@ export let ViewerStateContext = React.createContext<ViewerState | null>(null);
 
 export let ViewerConfig = observer(() => {
   let viewer_state = useContext(ViewerStateContext)!;
-  let options = ["Output" /*, "Parse tree", "Generated JS"*/];
+  let options = ["Output", "Generated JS", "Parse tree"];
   return (
     <div className="viewer-config">
       <div>
@@ -86,35 +88,7 @@ export let Viewer = observer(() => {
   );
 });
 
-let ErrorView: React.FC = ({ children }) => <pre className="error">{children}</pre>;
-
-let TranslateErrorView: React.FC<{ result: BuildFailure }> = ({ result }) => {
-  // let err_type;
-  // let err;
-  // if (is_err(result.tree)) {
-  //   err_type = "Parse error";
-  //   err = result.tree.value;
-  // } else if (is_err(result.translation!)) {
-  //   err_type = "Translation error";
-  //   err = result.translation.value;
-  // } else if (is_err(result.imports!)) {
-  //   err_type = "Import error";
-  //   err = result.imports.value;
-  // } else if (is_err(result.Element!)) {
-  //   err_type = "JS parsing error";
-  //   err = result.Element.value;
-  // } else {
-  //   throw `No error`;
-  // }
-
-  return (
-    <ErrorView>
-      {result.errors.map(msg => (
-        <div>{msg.text}</div>
-      ))}
-    </ErrorView>
-  );
-};
+let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;
 
 let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
   let state = useContext(StateContext)!;
@@ -122,75 +96,91 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
 
   if (selected == 0) {
     return <OutputView result={data} />;
-  }
-  /*else if (selected == 1) {
-    return <ParseView result={data} />;
-  } else if (selected == 2) {
+  } else if (selected == 1) {
     return <JSView result={data} />;
-  } */
+  } else if (selected == 2) {
+    return <ParseView />;
+  }
 
   return null;
 });
 
-// let ParseView: React.FC<{ result: TranslateResult }> = ({ result }) => {
-//   if (is_err(result.tree)) {
-//     return <TranslateErrorView result={result} />;
-//   }
+let ParseView: React.FC = () => {
+  let state = useContext(StateContext)!;
+  let tree = try_parse(state.contents);
 
-//   let depth = (node: SyntaxNode): number => (node.parent ? 1 + depth(node.parent) : 0);
+  if (is_err(tree)) {
+    return <ErrorView>{tree.value.toString()}</ErrorView>;
+  }
 
-//   let output = "";
-//   let cursor = result.tree.value.cursor();
-//   do {
-//     let sub_input = result.contents.slice(cursor.from, cursor.to);
-//     if (sub_input.length > 30) {
-//       sub_input = sub_input.slice(0, 12) + "..." + sub_input.slice(-12);
-//     }
-//     output += indentString(`${cursor.name}: "${sub_input}"`, 2 * depth(cursor.node)) + "\n";
-//   } while (cursor.next());
+  let depth = (node: SyntaxNode): number => (node.parent ? 1 + depth(node.parent) : 0);
 
-//   return <pre>{output}</pre>;
-// };
+  let output = "";
+  let cursor = tree.value.cursor();
+  do {
+    let sub_input = state.contents.slice(cursor.from, cursor.to);
+    if (sub_input.length > 30) {
+      sub_input = sub_input.slice(0, 12) + "..." + sub_input.slice(-12);
+    }
+    output += indentString(`${cursor.name}: "${sub_input}"`, 2 * depth(cursor.node)) + "\n";
+  } while (cursor.next());
 
-// let JSView: React.FC<{ result: TranslateResult }> = ({ result }) => {
-//   let translation = result.translation;
-//   let ref = useRef<HTMLDivElement>(null);
-//   let [editor, set_editor] = useState<EditorView | null>(null);
+  return <pre>{output}</pre>;
+};
 
-//   useEffect(() => {
-//     if (!translation || is_err(translation)) {
-//       return;
-//     }
+let EsbuildErrorView = ({ error }) => (
+  <>
+    {error.errors.map(msg => (
+      <div>{msg.text}</div>
+    ))}
+  </>
+);
 
-//     if (!editor) {
-//       editor = new EditorView({
-//         state: EditorState.create({ doc: "", extensions: [basicSetup, javascript(), theme] }),
-//         parent: ref.current!,
-//       });
-//       set_editor(editor);
-//     }
+let JSView: React.FC<{ result: TranslationResult }> = ({ result }) => {
+  let ref = useRef<HTMLDivElement>(null);
+  let [editor, set_editor] = useState<EditorView | null>(null);
 
-//     let js = translation.value.js;
-//     try {
-//       js = prettier.format(js, { parser: "babel", plugins: [parserBabel] });
-//     } catch (e) {
-//       console.error(e);
-//     }
+  useEffect(() => {
+    if (is_err(result)) {
+      return;
+    }
 
-//     editor.dispatch({
-//       changes: { from: 0, to: editor.state.doc.toString().length, insert: js },
-//     });
-//   }, [result]);
+    if (!editor) {
+      editor = new EditorView({
+        state: EditorState.create({
+          doc: "",
+          extensions: [basicSetup, javascript(), theme, EditorView.editable.of(false)],
+        }),
+        parent: ref.current!,
+      });
+      set_editor(editor);
+    }
 
-//   return (
-//     <>
-//       {!translation || is_err(translation) ? <TranslateErrorView result={result} /> : null}
-//       <div ref={ref} />
-//     </>
-//   );
-// };
+    let js = result.value;
+    try {
+      js = prettier.format(js, { parser: "babel", plugins: [parserBabel] });
+    } catch (e) {
+      console.error(e);
+    }
 
-let prelude = { "@wcrichto/nota": nota, react: { React } };
+    editor.dispatch({
+      changes: { from: 0, to: editor.state.doc.toString().length, insert: js },
+    });
+  }, [result]);
+
+  return (
+    <>
+      {is_err(result) ? (
+        <ErrorView>
+          <EsbuildErrorView error={result.value} />
+        </ErrorView>
+      ) : null}
+      <div ref={ref} />
+    </>
+  );
+};
+
+let prelude = { "@wcrichto/nota": nota, react: { React, ...ReactMembers } };
 let nota_require = (path: string) => {
   if (!(path in prelude)) {
     throw `Cannot import ${path}`;
@@ -200,13 +190,7 @@ let nota_require = (path: string) => {
 
 let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   if (is_err(result)) {
-    return err(
-      <>
-        {result.value.errors.map(msg => (
-          <div>{msg.text}</div>
-        ))}
-      </>
-    );
+    return err(<EsbuildErrorView error={result.value} />);
   }
 
   let Doc;
@@ -222,37 +206,39 @@ let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
 };
 
 let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) => {
-  let last_translation = useLocalObservable(() => ({
+  let last_translation = useLocalObservable<{ t: JSX.Element | null }>(() => ({
     t: null,
   }));
 
-  let Doc = execute(result);
+  let Doc = execute(result);  
 
-  let OnSuccess = action(() => {
-    let doc = unwrap(Doc);
-    if (doc != last_translation.t) {
-      last_translation.t = doc;
-    }
-    return null;
-  });
-
-  let fallback = err => (
-    <>
-      <ErrorView>{err}</ErrorView>
-      {last_translation.t}
-    </>
+  let errored = false;
+  useEffect(
+    action(() => {
+      if (errored) {
+        errored = false;
+        return;
+      }
+      let doc = unwrap(Doc);
+      if (doc != last_translation.t) {
+        last_translation.t = doc;
+      }
+    })
   );
+
+  let fallback = err => {
+    errored = true;
+    return (
+      <>
+        <ErrorView>{err}</ErrorView>
+        {last_translation.t}
+      </>
+    );
+  };
 
   return (
     <ErrorBoundary resetKeys={[result]} FallbackComponent={({ error }) => fallback(error.message)}>
-      {is_ok(Doc) ? (
-        <>
-          {Doc.value}
-          <OnSuccess />
-        </>
-      ) : (
-        fallback(Doc.value)
-      )}
+      {is_ok(Doc) ? Doc.value : fallback(Doc.value)}
     </ErrorBoundary>
   );
 });

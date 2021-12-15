@@ -45,9 +45,13 @@
     "express-ws": "^5.0.2",
     "mobx": "^6.3.7",
     "mobx-react": "^7.2.1",
+    "prettier": "^2.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-error-boundary": "^3.1.4",
     "ws": "^8.2.3"
+  },
+  "dependencies": {
+    "@cspotcode/source-map-support": "^0.7.0"
   }
 }

@@ -6,10 +6,10 @@ import _ from "lodash";
 const [
   lbrc,
   rbrc,
-  lbrkt,
-  rbrkt,
   lparen,
   rparen,
+  lbrkt,
+  rbrkt,
   at_sign,
   pct_sign,
   hash_sign,
@@ -17,7 +17,7 @@ const [
   backslash,
   pipe,
   eqsign,
-] = ["{", "}", "[", "]", "(", ")", "@", "%", "#", "\n", "\\", "|", "="].map(s => s.charCodeAt(0));
+] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "\\", "|", "="].map(s => s.charCodeAt(0));
 const eof = -1;
 
 const _term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
@@ -35,18 +35,22 @@ type Context = (IgnoreContext | BalanceContext) & { parent: any };
 export const dialectContext = new ContextTracker<Context | null>({
   start: null,
   strict: false,
-  shift(context, term, _stack, _input) {
+  shift(context, term, _stack, input) {
     // console.log(
-    //   `shift ${_term_name(term)} at ${String.fromCharCode(_input.next)} (${
-    //     _input.pos
+    //   `shift ${_term_name(term)} at ${String.fromCharCode(input.next)} (${
+    //     input.pos
     //   }) in context ${JSON.stringify(context)}`
     // );
+    if (term == terms.pct || term == terms.hash || term == terms.at) {
+      return { ignore: true, parent: context };
+    }
     if (context != null) {
-      if (term == terms.eq || term == terms.lbrc) {
-        return { balance: _.fromPairs(ldelims.map(l => ([l, 0]))), parent: context };
+      // TODO: term == terms.lbrc isn't working, but input.next == lbrc is?
+      if (term == terms.eq || input.next == lbrc) {
+        return { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: context };
       } else if (
-        (term == terms.rbrkt && context.parent && context.parent.ignore) ||
-        term == terms.rbrc
+        (input.next == rbrkt && context.parent && context.parent.ignore) ||
+        input.next == rbrc
       ) {
         return context.parent;
       }
@@ -59,12 +63,9 @@ export const dialectContext = new ContextTracker<Context | null>({
     //     _input.pos
     //   }) in context ${JSON.stringify(context)}`
     // );
-    if (term == terms.CommandSigil) {
-      return { ignore: true, parent: context };
-    } else if (context && term == terms.Command) {
+    if (context && term == terms.Command) {
       return context.parent;
     }
-
     return context;
   },
   reuse(context, _node) {
@@ -79,6 +80,7 @@ export const dialectContext = new ContextTracker<Context | null>({
 let delims = [
   [lbrc, rbrc],
   [lbrkt, rbrkt],
+  [lparen, rparen],
 ];
 let ldelims = delims.map(([l]) => l);
 let rdelims = delims.map(([_l, r]) => r);
@@ -155,16 +157,17 @@ export const verbatim = new ExternalTokenizer(input => {
 });
 
 export const js = new ExternalTokenizer(input => {
-  let brackets = 0;
+  let balance = _.fromPairs(ldelims.map(l => [l, 0]));
   while (input.next != eof) {
-    if (input.next == lbrkt) {
-      brackets++;
-    } else if (input.next == rbrkt) {
-      if (brackets == 0) {
+    if (ldelims.includes(input.next)) {
+      balance[input.next]++;
+    } else if (rdelims.includes(input.next)) {
+      let l = r2l[input.next];
+      if (balance[l] == 0) {
         input.acceptToken(terms.Js);
         return;
       } else {
-        brackets--;
+        balance[l]--;
       }
     }
     input.advance();

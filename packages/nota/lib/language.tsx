@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 import _ from "lodash";
+import { join_recursive } from "@wcrichto/nota-common";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
@@ -9,7 +10,7 @@ import { usePlugin } from "./plugin";
 
 const r = String.raw;
 
-export type InputSyntaxBranch = [string, number, (...args: string[]) => string, () => string[]];
+export type InputSyntaxBranch = [string, number, (...args: any[]) => string, () => string[]];
 export type InputSyntaxSort = [string, string, string, InputSyntaxBranch[]];
 export type InputGrammar = InputSyntaxSort[];
 
@@ -54,7 +55,8 @@ export class Language {
         if (typeof body != "function") {
           throw `Not a function: ${(body as any).toString()}`;
         }
-        (this as any)[cmd + subcmd] = (...args: any[]) => tex_ref(cmd + subcmd, body(...args));
+        (this as any)[cmd + subcmd] = (...args: any[]) =>
+          tex_ref(cmd + subcmd, body(...args));
       });
     });
   }
@@ -70,7 +72,7 @@ export class Language {
           throw `Not a function: ${(args as any).toString()}`;
         }
         let arg_str = (this as any)[cmd + subcmd](...args());
-        return tex_def(cmd + subcmd, arg_str);
+        return join_recursive(tex_def(cmd + subcmd, arg_str));
       };
 
     let {

@@ -9,7 +9,7 @@ export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
   return _.zip(l1, l2) as any;
 };
 
-export type HTMLAttributes = React.HTMLAttributes<HTMLElement>;
+export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
 export type ReactReturn = React.ReactElement<any, any> | null;
 
 export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(

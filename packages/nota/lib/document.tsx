@@ -143,7 +143,7 @@ export let Figure: React.FC<{ label?: string }> = props => {
   let fig_ctx = new FigureData();
 
   let Caption = () => (
-    <Definition name={props.label} Label={() => <>{`Figure ${fig_num}`}</>} Tooltip={null} block>
+    <Definition style={{width: '100%'}} name={props.label} Label={() => <>{`Figure ${fig_num}`}</>} Tooltip={null} block>
       <div className="caption">
         {level > 1 ? `(${fig_stack[fig_stack.length - 1]})` : `Figure ${fig_num}:`}{" "}
         {fig_ctx.caption}
@@ -342,7 +342,8 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
   let flush_stack = (depth: number) => {
     _.range(1 + depth, section_stack.length).forEach(() => {
       let sec = section_stack.pop();
-      _.last(section_stack)!.push(<SectionBody>{sec}</SectionBody>);
+      let parent = _.last(section_stack)!;
+      parent.push(<SectionBody key={parent.length}>{sec}</SectionBody>);
     });
   };
   paragraphs.forEach(el => {
