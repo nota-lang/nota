@@ -21,7 +21,7 @@ ArgText {
 | lverb VerbatimText rverb
 }
 
-// @skip { Comment }
+@skip { Comment }
 
 @context dialectContext from "./tokens.ts"
 @external tokens text from "./tokens.ts" { Text }
@@ -47,7 +47,7 @@ ArgText {
   Ident { $[a-zA-Z_$]$[a-zA-Z0-9_$]* }
   Number { $[0-9]+ }
 
-  // Comment { "//" ![\n]* }
+  Comment { "//" ![\n]* }
 
   @precedence { Multinewline, Newline }
 }

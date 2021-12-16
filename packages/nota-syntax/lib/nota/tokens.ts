@@ -14,10 +14,11 @@ const [
   pct_sign,
   hash_sign,
   newline,
+  fwdslash,
   backslash,
   pipe,
   eqsign,
-] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "\\", "|", "="].map(s => s.charCodeAt(0));
+] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "/", "\\", "|", "="].map(s => s.charCodeAt(0));
 const eof = -1;
 
 const term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
@@ -91,6 +92,10 @@ let r2l = _.fromPairs(delims.map(([l, r]) => [r, l]));
 
 export const text = new ExternalTokenizer(
   (input, stack) => {
+    if (input.next == fwdslash && input.peek(1) == fwdslash) {
+      return;
+    }
+
     for (let len = 0; ; len++) {
       // console.log(input.pos, String.fromCharCode(input.next), stack.context);
       if (

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
-import { nota, nota_language, js, js_language } from "@wcrichto/nota-syntax";
+import { nota, js } from "@wcrichto/nota-syntax";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { keymap } from "@codemirror/view";
 import { tags as t, HighlightStyle } from "@codemirror/highlight";
@@ -29,6 +29,9 @@ export let theme = EditorView.theme({
   },
 });
 
+let nota_lang = nota();
+let js_lang = js();
+
 let nota_style = HighlightStyle.define(
   [
     { tag: t.string, fontFamily: "Linux Libertine O, serif" },
@@ -37,7 +40,7 @@ let nota_style = HighlightStyle.define(
     { tag: t.comment, color: "#940" },
   ],
   {
-    scope: nota_language.topNode,
+    scope: nota_lang.language.topNode,
   }
 );
 
@@ -64,7 +67,7 @@ let js_style = HighlightStyle.define(
     { tag: t.invalid, color: "#f00" },
   ],
   {
-    scope: js_language.topNode,
+    scope: js_lang.language.topNode,
   }
 );
 
@@ -73,13 +76,8 @@ export let Editor = () => {
   let state = useContext(StateContext)!;
 
   useEffect(() => {
-    let lang_exts = [nota(), js()];
-    let visual_exts = [
-      nota_style, 
-      js_style,
-      theme,
-      EditorView.lineWrapping,
-    ];
+    let lang_exts = [nota_lang, js_lang];
+    let visual_exts = [nota_style, js_style, theme, EditorView.lineWrapping];
     let editing_exts = [keymap.of([indentWithTab])];
     let custom_exts = [
       EditorView.updateListener.of(
