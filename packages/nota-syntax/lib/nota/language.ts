@@ -1,5 +1,5 @@
 import { parseMixed } from "@lezer/common";
-import { LRLanguage, LanguageSupport } from "@codemirror/language";
+import { LRLanguage, LanguageSupport, indentNodeProp, continuedIndent } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 
 //@ts-ignore
@@ -30,6 +30,9 @@ export let nota_language = LRLanguage.define({
         "( )": t.paren,
         "{ }": t.brace,
         "[ ]": t.squareBracket,
+      }),
+      indentNodeProp.add({
+        ArgText: continuedIndent(),
       }),
     ],
   }),

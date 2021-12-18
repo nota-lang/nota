@@ -1,5 +1,10 @@
 import { syntaxTree } from "@codemirror/language";
-import { CompletionSource, Completion } from "@codemirror/autocomplete";
+import {
+  CompletionSource,
+  Completion,
+  snippetCompletion as snip,
+  completeFromList,
+} from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
 
 import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
@@ -9,13 +14,14 @@ import * as terms from "./nota.grammar";
 import * as js_terms from "../javascript/javascript.grammar";
 
 // TODO: determine which Nota exports are React elements vs. functions
-let prelude = Array.from(INTRINSIC_ELEMENTS)
-  .map(label => ({ label, type: "function", boost: -1 }))
+let nota_elements = ["Section", "Subsection", "Title", "$", "$$"];
+let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
+  .map(label => ({ label, type: "react", boost: -1 }))
   .concat(
-    ["$", "$$", "Section", "Subsection", "Title"].map(label => ({
+    nota_elements.reverse().map((label, i) => ({
       label,
-      type: "function",
-      boost: 1,
+      type: "react",
+      boost: i,
     }))
   );
 
@@ -27,9 +33,18 @@ let pct_completions: Completion[] = ["let", "letfn", "import", "import_default"]
   })
 );
 
-let ident = /^[a-zA-Z_\$][a-zA-Z0-9_\$]*$/;
+// TODO: not working, figure out how snippets work
+let snippets: Completion[] = [["list", "@ol{\n\t@li{}\n}"]].map(([label, snippet]) =>
+  snip(snippet, { label, type: "react" })
+);
+
+let ident = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
 export let autocomplete: CompletionSource = context => {
+  let snippet = completeFromList(snippets)(context);
+  if (snippet) {
+    return snippet;
+  }
   let text = (node: SyntaxNode) => context.state.doc.sliceString(node.from, node.to);
   let tree = syntaxTree(context.state);
 
@@ -41,11 +56,15 @@ export let autocomplete: CompletionSource = context => {
       if (type.id == terms.PctCommand && type.name == "PctCommand" && get().getChild(terms.Ident)) {
         let node = get();
         let name = text(node.getChild(terms.Ident)!);
-        if ((name == "let" || name == "letfn") && node.getChild(terms.ArgCodeAnon)) {
-          definitions.push({
-            label: text(node.getChild(terms.ArgCodeAnon)!.getChild(js_terms.Script)!),
-            type: name == "let" ? "variable" : "function",
-          });
+        let arg;
+        if ((name == "let" || name == "letfn") && (arg = node.getChild(terms.ArgCodeAnon))) {
+          let script;
+          if ((script = arg.getChild(js_terms.Script))) {
+            definitions.push({
+              label: text(script),
+              type: name == "let" ? "variable" : "function",
+            });
+          }
         }
         return false;
       }

@@ -9,7 +9,7 @@ import * as nota_terms from "../nota/nota.grammar";
 //@ts-ignore
 import * as terms from "./javascript.grammar";
 import * as t from "../babel-polyfill";
-import { matches, text, translate_textbody, parse_expr } from "../nota/translate";
+import { matches, text, translate_textbody, parse_expr, lambda } from "../nota/translate";
 import { BabelFileResult } from "@babel/core";
 
 export let translate_js = (node: SyntaxNode): Expression => {
@@ -20,7 +20,18 @@ export let translate_js = (node: SyntaxNode): Expression => {
   while (node.from <= cursor.from && cursor.to <= node.to) {
     if (matches(cursor.node, terms.NotaMacroWrap)) {
       let doc = cursor.node.getChild(nota_terms.Document)!;
-      let expr = translate_textbody(doc.firstChild!);
+      let expr = translate_textbody(doc.firstChild!); 
+
+      let name_node = cursor.node.getChild(terms.Label);
+      if (name_node) {
+        let name = text(name_node);
+        if (name == "fn") {
+          expr = lambda(expr);
+        } else {
+          throw `Unknown @-macro ${name}`;
+        }
+      }
+
       let result = babel.transformFromAst(
         t.program([t.expressionStatement(expr)]),
         undefined,

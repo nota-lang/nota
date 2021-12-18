@@ -1,10 +1,17 @@
 import React from "react";
 import { makeAutoObservable, reaction, action } from "mobx";
-import type { Message, SyncText, TranslationResult } from "../bin/server";
-import { ok, unwrap } from "@wcrichto/nota-common";
 import _ from "lodash";
 
-export class State {
+import type { Message, SyncText, TranslationResult } from "../bin/server";
+import { ok } from "@wcrichto/nota-common";
+
+export interface State {
+  contents: string;
+  translation: TranslationResult;
+  ready: boolean;
+}
+
+export class RemoteState implements State {
   contents: string = "";
   translation: TranslationResult = ok("");
   ready: boolean = false;
@@ -37,16 +44,15 @@ export class State {
           };
           this.ws.send(JSON.stringify(sync));
         }
-      }
-      
+      };
 
       // TODO: make auto-compile configurable
-      document.addEventListener('keydown', (evt: KeyboardEvent) => {
-        if ((evt.metaKey || evt.ctrlKey) && evt.key == 's') {
+      document.addEventListener("keydown", (evt: KeyboardEvent) => {
+        if ((evt.metaKey || evt.ctrlKey) && evt.key == "s") {
           evt.stopPropagation();
           evt.preventDefault();
           sync();
-        }      
+        }
       });
       // setInterval(sync, 1000);
     };

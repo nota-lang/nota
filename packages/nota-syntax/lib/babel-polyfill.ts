@@ -14,7 +14,6 @@ import type {
   VariableDeclarator,
   VariableDeclaration,
   LVal,
-  PrivateName,
   MemberExpression,
   ReturnStatement,
   Pattern,
@@ -25,7 +24,6 @@ import type {
   ExpressionStatement,
   ObjectPattern,
   BooleanLiteral,
-  Literal,
   ImportDeclaration,
   ImportSpecifier,
   ImportDefaultSpecifier,
@@ -34,6 +32,7 @@ import type {
   ClassDeclaration,
   TSDeclareFunction,
   FunctionDeclaration,
+  DebuggerStatement,
 } from "@babel/types";
 
 let base_node = {
@@ -225,5 +224,10 @@ export let exportDefaultDeclaration = (
 ): ExportDefaultDeclaration => ({
   type: "ExportDefaultDeclaration",
   declaration,
+  ...base_node,
+});
+
+export let debuggerStatement = (): DebuggerStatement => ({
+  type: "DebuggerStatement",
   ...base_node,
 });

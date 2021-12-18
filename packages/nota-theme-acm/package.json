@@ -23,6 +23,7 @@
   "scripts": {
     "build": "node build.cjs",
     "tc": "tsc -emitDeclarationOnly",
+    "full": "yarn tc && yarn build -no-diag",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },

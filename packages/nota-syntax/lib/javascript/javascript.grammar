@@ -279,7 +279,7 @@ expressionNoComma {
   NotaMacroWrap
 }
 
-NotaMacroWrap { "@" "{" NotaMacro "}" }
+NotaMacroWrap { "@" Label? "{" NotaMacro "}" }
 
 ParenthesizedExpression { "(" expression ")" }
 

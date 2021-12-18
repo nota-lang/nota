@@ -1,6 +1,5 @@
 import generator from "@lezer/generator";
 import type { Plugin } from "esbuild";
-import _ from "lodash";
 import fs from "fs/promises";
 import path from "path";
 

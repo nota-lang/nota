@@ -8,10 +8,5 @@ jobs:
           sudo npm install -g yarn lerna
           lerna bootstrap
           lerna link
-          lerna run tc
-          lerna run build
+          lerna run full
           lerna run lint
-      - uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          branch: gh-pages
-          folder: examples/hatra-paper/dist/page

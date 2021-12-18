@@ -18,7 +18,9 @@ const [
   backslash,
   pipe,
   eqsign,
-] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "/", "\\", "|", "="].map(s => s.charCodeAt(0));
+] = ["{", "}", "(", ")", "[", "]", "@", "%", "#", "\n", "/", "\\", "|", "="].map(s =>
+  s.charCodeAt(0)
+);
 const eof = -1;
 
 const term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
@@ -37,7 +39,7 @@ const DEBUG = false;
 
 export const dialectContext = new ContextTracker<Context | null>({
   start: null,
-  strict: false,
+  strict: true,
   shift(context, term, _stack, input) {
     if (DEBUG) {
       console.log(
@@ -50,7 +52,6 @@ export const dialectContext = new ContextTracker<Context | null>({
       return { ignore: true, parent: context };
     }
     if (context != null) {
-      // TODO: term == terms.lbrc isn't working, but input.next == lbrc is?
       if (term == terms.lbrc || term == terms.lbrkt) {
         return { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: context };
       } else if (term == terms.rbrc || term == terms.rbrkt) {
@@ -73,7 +74,6 @@ export const dialectContext = new ContextTracker<Context | null>({
     return context;
   },
   reuse(context, _node) {
-    // console.log('reuse', node.type.name);
     return context;
   },
   hash(_context) {
@@ -97,7 +97,7 @@ export const text = new ExternalTokenizer(
     }
 
     for (let len = 0; ; len++) {
-      // console.log(input.pos, String.fromCharCode(input.next), stack.context);
+      // console.log("text", input.pos, String.fromCharCode(input.next), stack.context);
       if (
         input.next == eof ||
         input.next == newline ||
@@ -140,6 +140,7 @@ export const text = new ExternalTokenizer(
       if (input.next == backslash) {
         input.advance();
         if (input.next == hash_sign || input.next == at_sign || input.next == pct_sign) {
+          len += 1;
           input.advance();
         }
       } else {
@@ -153,11 +154,14 @@ export const text = new ExternalTokenizer(
 export const verbatim = new ExternalTokenizer(input => {
   let saw_brace = false;
   while (input.next != eof) {
-    if (input.next == lbrc) {
+    // console.log("verbatim", input.pos, String.fromCharCode(input.next));
+    if (input.next == rbrc) {
       saw_brace = true;
     } else if (input.next == pipe && saw_brace) {
       input.acceptToken(terms.VerbatimText, -1);
       return;
+    } else {
+      saw_brace = false;
     }
 
     input.advance();
@@ -178,6 +182,7 @@ export const js = new ExternalTokenizer(input => {
         balance[l]--;
       }
     }
+
     input.advance();
   }
 });

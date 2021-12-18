@@ -1,4 +1,5 @@
 export { nota } from "./nota/language";
+export { translate } from "./nota/translate";
 export { js } from "./javascript/language";
 
 import { Result, ok, err } from "@wcrichto/nota-common";

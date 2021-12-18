@@ -4,14 +4,14 @@ import { observer } from "mobx-react";
 
 import { Editor } from "./editor";
 import { Viewer, ViewerConfig, ViewerState, ViewerStateContext } from "./viewer";
-import { State, StateContext } from "./state";
+import { StateContext, RemoteState } from "./state";
 
-import "@wcrichto/nota/dist/nota.css";
+import "@wcrichto/nota-components/dist/nota-components.css";
 import "@wcrichto/nota-theme-acm/dist/nota-theme-acm.css";
 import "../css/app.scss";
 
 let App = observer(() => {
-  let [state] = useState(() => new State());
+  let [state] = useState(() => new RemoteState());
   let [viewer_state] = useState(() => new ViewerState());
   return (
     <div>

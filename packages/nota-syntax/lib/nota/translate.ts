@@ -8,10 +8,11 @@ import type {
   ExpressionStatement,
   ImportDeclaration,
   Identifier,
+  StringLiteral,
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
-import * as nota from "@wcrichto/nota";
+import * as nota from "@wcrichto/nota-components";
 import { Either, left, right, is_left, assert, unreachable } from "@wcrichto/nota-common";
 
 import * as t from "../babel-polyfill";
@@ -34,7 +35,6 @@ let global: {
   imports: new Set(),
 };
 
-let react_id = t.identifier("React");
 let create_el = t.identifier("el");
 let arguments_id = t.identifier("args");
 
@@ -93,7 +93,8 @@ export let parse_expr = (code: string): Expression => {
   return s.expression;
 };
 
-let syntax_prelude = parse(`let list = (...args) => args;`);
+export let lambda = (body: Expression) =>
+  t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
 export let translate = (input: string, tree: Tree): string => {
   let node = tree.topNode;
@@ -106,15 +107,18 @@ export let translate = (input: string, tree: Tree): string => {
   let doc_body = translate_textbody(node.firstChild!);
   let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
 
+  let create_el_long = t.identifier("createElement");
   let program = [
-    t.importDeclaration([t.importSpecifier(react_id, react_id)], t.stringLiteral("react")),
+    t.importDeclaration(
+      [t.importSpecifier(create_el_long, create_el_long)],
+      t.stringLiteral("react")
+    ),
     t.importDeclaration(
       Object.keys(nota).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
-      t.stringLiteral("@wcrichto/nota")
+      t.stringLiteral("@wcrichto/nota-components")
     ),
     ...Array.from(global.imports),
-    binding(create_el, t.memberExpression(react_id, t.identifier("createElement"))),
-    ...syntax_prelude,
+    binding(create_el, create_el_long),
     t.exportDefaultDeclaration(doc),
   ];
 
@@ -163,7 +167,7 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
     if (line_starts.includes(i)) {
       let stripped = text(token).slice(min_leading_whitespace);
       if (stripped.length > 0) {
-        output.push(left(t.stringLiteral(stripped)));
+        output.push(left(process_text(stripped)));
       }
     } else if (matches_newline(token.firstChild!) && (i == 0 || i == tokens.length - 1)) {
       // pass
@@ -191,6 +195,10 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
 
 type TranslatedToken = Either<Expression, Statement | null>;
 
+let process_text = (text: string): StringLiteral => {
+  return t.stringLiteral(text.replace(/\\%/g, "%"));
+};
+
 let translate_token = (node: SyntaxNode): TranslatedToken => {
   assert(matches(node, terms.TextToken));
 
@@ -198,7 +206,7 @@ let translate_token = (node: SyntaxNode): TranslatedToken => {
   if (matches(child, terms.Command)) {
     return translate_command(child);
   } else if (matches(child, terms.Text)) {
-    return left(t.stringLiteral(text(child)));
+    return left(process_text(text(child)));
   } else if (matches(child, terms.Newline)) {
     return left(t.stringLiteral("\n"));
   } else if (matches(child, terms.Multinewline)) {
@@ -339,7 +347,9 @@ let translate_pctcommand = (node: SyntaxNode): Statement | null => {
       throw `Invalid let-var: ${lhs}`;
     }
     let rhs = args[1];
-    return binding(lhs, t.arrowFunctionExpression([t.restElement(arguments_id)], rhs));
+    return binding(lhs, lambda(rhs));
+  } else if (name == "debugger") {
+    return t.debuggerStatement();
   } else {
     throw `Unknown %-command ${name}`;
   }

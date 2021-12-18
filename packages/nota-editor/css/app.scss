@@ -32,6 +32,16 @@ $header-height: 45px;
   }
 }
 
+.cm-completionIcon-react:after {
+  content: '⚛';
+  font-size: 140%;
+  display: block;
+  margin-bottom: -1px;
+  margin-top: -4px;
+  position: relative;
+  top: 2px;
+}
+
 .panels {  
   display: flex;
   justify-content: space-between;

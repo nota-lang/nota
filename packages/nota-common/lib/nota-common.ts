@@ -48,10 +48,27 @@ export let unreachable = (): never => {
   throw `Unreachable`;
 };
 
-export let join_recursive = (t: string | any[]): string => {
+export interface NestedArray<T> extends Array<T | NestedArray<T>> {}
+export type NotaText = NestedArray<string>;
+export type NotaFn<Input = NotaText> = (..._args: Input[]) => NotaText;
+
+export let join_recursive = (t: NotaText | string): string => {
   if (t instanceof Array) {
     return t.map(join_recursive).join("");
+  } else if (typeof t != 'string') {
+    throw `Element must be string: ${t}`; 
   } else {
     return t;
   }
+};
+
+export let add_between = (l: NotaText, el: string): NotaText => {
+  let l2: NotaText = [];
+  l.forEach((t, i) => {
+    if (i > 0) {
+      l2.push(el);
+    }
+    l2.push(t);
+  });
+  return l2;
 };

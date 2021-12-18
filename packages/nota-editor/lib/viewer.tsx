@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
-import * as ReactMembers from "react";
 import type { SyntaxNode } from "@lezer/common";
 import { observer, useLocalObservable } from "mobx-react";
 import indentString from "indent-string";
@@ -11,13 +10,13 @@ import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
 import { action, makeAutoObservable, reaction } from "mobx";
 import { is_err, is_ok, err, ok, Result, unwrap } from "@wcrichto/nota-common";
-import * as nota from "@wcrichto/nota";
-import { try_parse } from "@wcrichto/nota-syntax";
+import { nota } from "@wcrichto/nota-syntax";
 import _ from "lodash";
+import nota_imports from "@wcrichto/nota-components/dist/peer-imports";
 
+import type { TranslationResult } from "../bin/server";
 import { StateContext } from "./state";
 import { theme } from "./editor";
-import { TranslationResult } from "../bin/server";
 
 export class ViewerState {
   selected: number = 0;
@@ -105,36 +104,26 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
   return null;
 });
 
+let nota_lang = nota();
 let ParseView: React.FC = () => {
   let state = useContext(StateContext)!;
-  let tree = try_parse(state.contents);
-
-  if (is_err(tree)) {
-    return <ErrorView>{tree.value.toString()}</ErrorView>;
-  }
+  let tree = nota_lang.language.parser.parse(state.contents);
 
   let depth = (node: SyntaxNode): number => (node.parent ? 1 + depth(node.parent) : 0);
 
   let output = "";
-  let cursor = tree.value.cursor();
+  let cursor = tree.cursor();
   do {
     let sub_input = state.contents.slice(cursor.from, cursor.to);
     if (sub_input.length > 30) {
       sub_input = sub_input.slice(0, 12) + "..." + sub_input.slice(-12);
     }
+    sub_input = sub_input.replace("\n", "\\n");
     output += indentString(`${cursor.name}: "${sub_input}"`, 2 * depth(cursor.node)) + "\n";
   } while (cursor.next());
 
   return <pre>{output}</pre>;
 };
-
-let EsbuildErrorView = ({ error }) => (
-  <>
-    {error.errors.map(msg => (
-      <div>{msg.text}</div>
-    ))}
-  </>
-);
 
 let JSView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   let ref = useRef<HTMLDivElement>(null);
@@ -170,36 +159,33 @@ let JSView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 
   return (
     <>
-      {is_err(result) ? (
-        <ErrorView>
-          <EsbuildErrorView error={result.value} />
-        </ErrorView>
-      ) : null}
+      {is_err(result) ? <ErrorView>{result.value.stack}</ErrorView> : null}
       <div ref={ref} />
     </>
   );
 };
 
-let prelude = { "@wcrichto/nota": nota, react: { React, ...ReactMembers } };
-let nota_require = (path: string) => {
-  if (!(path in prelude)) {
+let nota_require = (path: string): any => {
+  if (!(path in nota_imports)) {
     throw `Cannot import ${path}`;
   }
-  return prelude[path];
+  return nota_imports[path];
 };
 
 let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   if (is_err(result)) {
-    return err(<EsbuildErrorView error={result.value} />);
+    return err(<>{result.value.stack}</>);
   }
 
   let Doc;
   try {
-    let f = new Function("require", result.value + `\n; return document.default;`);
+    let f = new Function(
+      "require",
+      result.value + `\n; return nota_document.default; //# sourceURL=document.js`
+    );
     Doc = f(nota_require);
   } catch (e: any) {
-    console.error(e);
-    return err(<>{e.toString()}</>);
+    return err(<>{e.stack}</>);
   }
 
   return ok(Doc);
@@ -210,7 +196,7 @@ let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) 
     t: null,
   }));
 
-  let Doc = execute(result);  
+  let Doc = execute(result);
 
   let errored = false;
   useEffect(
@@ -226,7 +212,7 @@ let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) 
     })
   );
 
-  let fallback = err => {
+  let fallback = (err: JSX.Element) => {
     errored = true;
     return (
       <>
@@ -237,7 +223,10 @@ let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) 
   };
 
   return (
-    <ErrorBoundary resetKeys={[result]} FallbackComponent={({ error }) => fallback(error.message)}>
+    <ErrorBoundary
+      resetKeys={[result]}
+      FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
+    >
       {is_ok(Doc) ? Doc.value : fallback(Doc.value)}
     </ErrorBoundary>
   );

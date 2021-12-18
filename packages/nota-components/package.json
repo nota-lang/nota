@@ -1,11 +1,11 @@
 {
-  "name": "@wcrichto/nota-syntax",
+  "name": "@wcrichto/nota-components",
   "version": "0.1.3",
-  "description": "> TODO: description",
+  "description": "TODO",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
-  "homepage": "https://github.com/willcrichton/nota#readme",
+  "homepage": "https://github.com/willcrichton/nota",
   "license": "MIT",
-  "main": "dist/nota-syntax.js",
+  "main": "dist/nota-components.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -30,22 +30,29 @@
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
   },
-  "dependencies": {
-    "@codemirror/autocomplete": "^0.19.0",
+  "devDependencies": {
+    "@orcid/bibtex-parse-js": "^0.0.25",
+    "@popperjs/core": "^2.9.2",
+    "@wcrichto/nota-common": "^0.1.3",
+    "classnames": "^2.3.1",
+    "html-to-react": "^1.4.5",
+    "katex": "^0.15.1",
+    "lodash": "^4.17.21",
+    "react-async": "^10.0.1",
+    "react-loader-spinner": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@codemirror/gutter": "^0.19.0",
     "@codemirror/highlight": "^0.19.0",
     "@codemirror/language": "^0.19.0",
+    "@codemirror/state": "^0.19.0",
+    "@codemirror/view": "^0.19.0",
+    "@codemirror/rangeset": "^0.19.0",
     "@lezer/common": "^0.15.11",
     "@lezer/lr": "^0.15.5",
-    "@wcrichto/nota-common": "^0.1.3",
-    "@wcrichto/nota-components": "^0.1.3",
-    "prettier": "^2.5.1"
-  },
-  "devDependencies": {
-    "@babel/standalone": "^7.16.4",
-    "@lezer/generator": "^0.15.2",
-    "@types/babel__core": "^7.1.16",
-    "@types/babel__standalone": "^7.1.3",
-    "@types/prettier": "^2.4.2",
-    "@wcrichto/esbuild-lezer": "^0.1.3"
+    "mobx": "^6.3.2",
+    "mobx-react": "^7.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

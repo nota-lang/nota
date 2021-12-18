@@ -1,12 +1,9 @@
 const estrella = require("estrella");
 const fs = require("fs");
-const path = require("path");
-const generator = require("@lezer/generator");
-const _ = require("lodash");
 const pkg = JSON.parse(fs.readFileSync("./package.json"));
-const {lezerPlugin} = require("@wcrichto/esbuild-lezer");
+const { lezerPlugin } = require("@wcrichto/esbuild-lezer");
 
-let external = Object.keys(pkg.peerDependencies || {});
+let external = Object.keys(pkg.dependencies || {});
 
 let opts = {
   outdir: "dist",

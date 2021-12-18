@@ -34,7 +34,6 @@ const braceR = 125,
   dollar = 36,
   backtick = 96,
   backslash = 92,
-  atSign = 64,
   eof = -1;
 
 export const trackNewline = new ContextTracker({
@@ -135,6 +134,4 @@ export const notaMacro = new ExternalTokenizer(input => {
     }
     input.advance();
   }
-
-  return;
 });

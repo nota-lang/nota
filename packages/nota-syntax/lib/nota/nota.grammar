@@ -16,10 +16,7 @@ ArgCodeNamed { lbrkt Ident (eq Js)? rbrkt }
 
 ArgCodeAnon { lbrkt Js rbrkt }
 
-ArgText {  
-  lbrc TextBody rbrc
-| lverb VerbatimText rverb
-}
+ArgText { lbrc TextBody rbrc | lverb VerbatimText rverb }
 
 @skip { Comment }
 
@@ -32,8 +29,8 @@ ArgText {
   pct[@export] { "%" }
   at[@export] { "@" }
   hash[@export] { "#" }
-  lverb { "|{ "}
-  rverb { "}| "}
+  lverb { "|{" }
+  rverb { "}|" }
   lparen[@export] { "(" }
   rparen[@export] { ")" }
   lbrc[@export] { "{" }
