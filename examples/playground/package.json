@@ -1,0 +1,11 @@
+{
+  "name": "playground",
+  "version": "0.2.0",
+  "license": "MIT",
+  "main": "dist/document/document.js",
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "@wcrichto/nota-editor": "^0.2.0"
+  }
+}

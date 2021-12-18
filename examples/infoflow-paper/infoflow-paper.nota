@@ -1,0 +1,225 @@
+%import["@codemirror/lang-rust"][rust]
+%import["@codemirror/lang-cpp"][cpp]
+
+@ListingConfigure[language=rust()]
+
+@Title{Modular Information Flow Through Ownership}
+
+%let[stanford]{@Affiliation{@Institution{Stanford University}}}
+@Authors{
+  @Author{@Name{Will Crichton} #stanford}
+  @Author{
+    @Name{Marco Patrignani}
+    @Affiliation{@Institution{CISPA Helmholtz Center for Information Security}}
+  }
+  @Author{@Name{Maneesh Agrawala} #stanford}
+  @Author{@Name{Pat Hanrahan} #stanford}
+}
+
+%let[sysname]{Flowistry}
+@Abstract{
+  Statically analyzing information flow, or how data influences other data within a program, is a challenging task in imperative languages. Analyzing pointers and mutations requires access to a program's complete source.  However, programs often use pre-compiled dependencies where only type signatures are available. We demonstrate that ownership types can be used to soundly and precisely analyze information flow through function calls given only their type signature.  From this insight, we built #sysname, a system for analyzing information flow in Rust, an ownership-based language. We prove the system's soundness as a form of noninterference using the Oxide formal model of Rust. Then we empirically evaluate the precision of #sysname, showing that modular flows are identical to whole-program flows in 90\% of cases drawn from large Rust codebases. We illustrate the applicability of #sysname by implementing both a program slicer and an IFC checker on top of it.
+}
+
+@Section{Introduction}
+
+Information flow describes how data influences other data within a program. Analyzing a program's information flow has applications to security, such information flow control (IFC) @Ref{sabelfeld2003language}, and to developer tools, such as program slicing @Ref{weiser1984program}. Our goal is to build a practical system for computing information flow. By "practical", we mean the following:
+
+@ol{
+  @li{@strong{Applicable to many real-world programs:} the language being analyzed must support commonly used language features, especially pointers and mutation.}
+  @li{@strong{Zero configuration to run on existing code:} the analyzer must integrate with an existing language and existing unannotated programs. It must not require users to adopt a new one designed for information flow.}
+  @li{@strong{No dynamic analysis:} to reduce integration challenges and costs, the analyzer must be purely static --- no modifications to runtimes or binaries are needed.}
+  @li{@strong{Modular over dependencies:} in practice, programs may not have source available for dependencies. The analyzer must still have reasonable precision without whole-program analysis.}
+}
+
+As a case study on the challenges imposed by these requirements, we briefly examine C++: a language satisfying (1) and (2). Consider analyzing what information flows into the return value of the function @code{copy_to} below.
+
+@Listing[language=cpp()]{
+  // Copy elements 0 to max into a new vector!
+  vector<int> copy_to(vector<int>& v, size_t max) {
+    vector<int> v2; size_t i = 0;
+    for (auto x(v.begin()); x != v.end(); ++x) {
+      if (i == max) { break; }
+      v2.push_back(*x); ++i;
+    }
+    return v2;
+  }
+}
+
+Here, a key flow is that @code{v2} is influenced by @code{v}: (1) @code{push_back} mutates @code{v2} with @code{*x} as input, and (2) @code{x} points to data within @code{v}. The question is: how could an analyzer statically deduce these two facts? For C++, the answer is @em{by looking at function implementations}. The implementation of @code{push_back} contains code modifying @code{v2}, and the implementation of @code{begin} returns a pointer to data within @code{v}. 
+
+However, analyzing such implementations violates our fourth requirement, since these functions may only have their type signature available. In C++, given only a function's type signature, not much can be inferred about its behavior, since the type system does not contain information relevant to pointer analysis.
+
+Our key insight is that @em{ownership types} can be leveraged to modularly analyze pointers and mutation using only a function's type signature. Ownership has emerged from several intersecting lines of research on linear logic @Ref{girard1987linear}, class-based alias management @Ref{clarke1998ownership}, and region-based memory management @Ref{grossman2002region}. The fundamental law of ownership is that @em{data cannot be simultaneously aliased and mutated.} Ownership-based type systems enforce this law by tracking which entities own which data, allowing ownership to be transferred between entities, and flagging ownership violations like mutating immutably-borrowed data.
+
+Today, the most popular ownership-based language is Rust. Consider this Rust implementation of @code{copy_to}:
+
+@Listing{
+  fn copy_to(v: &Vec<i32>, max: usize) -> Vec<i32> {
+    let mut v2 = Vec::new();
+    for (i, x) in v.iter().enumerate() {
+      if i == max { break; }
+      v2.push(*x);
+    }
+    return v2;
+  }
+}
+
+Focus on the two key methods: @code{push} and @code{iter}. For a @code{Vec<i32>}, these methods have the following type signatures:
+
+@Listing{
+  fn push(&mut self, i32);
+  fn iter<'a>(&'a self) -> Iter<'a, i32>;
+}
+
+To determine that @code{push} mutates @code{v2}, we leverage @em{mutability modifiers}. All references in Rust are either immutable (i.e. the type is @code{&T}) or mutable (the type is @code{&mut T}). Therefore @code{iter} does not mutate @code{v} because it takes @code{&self} as input, while @code{push} may mutate @code{v2} because it takes @code{&mut self} as input.
+
+To determine that @code{x} points to @code{v}, we leverage @em{lifetimes}. All references in Rust are annotated with a lifetime, either explicitly (such as @code{'a}) or implicitly. Shared lifetimes indicate a potential aliasing relationship: because @code{&self} in @code{iter} has lifetime @code{'a}, and because the returned @code{Iter} structure shares that lifetime, then we can determine that @code{Iter} may contain pointers to @code{self}.
+
+Inspired by this insight, we built #sysname, a system for analyzing information flow in the safe subset of Rust programs. #sysname satisfies our four design criteria: (1) Rust supports pointers and mutation, (2) #sysname does not require any change to the Rust language or to Rust programs, (3) #sysname is a purely static analysis, and (4) it uses ownership types to analyze functions calls without needing their definition. This paper presents a theoretical and empirical investigation into #sysname in five parts:
+
+@ol{
+  @li{We provide a precise description of how #sysname computes information flow by embedding its definition within Oxide @Ref{weiss2019oxide}, a formal model of Rust (@Ref{sec:algorithm}).}
+  @li{We prove the soundness of our information flow analysis as a form of noninterference (@Ref{sec:soundness}).}
+  @li{We describe the implementation details of #sysname that bridge the theory of Oxide to the practicalities of Rust (@Ref{sec:implementation}).}
+  @li{We evaluate the precision of the modular algorithm on a dataset of large Rust codebases, finding that modular flows are identical to whole-program flows in 90\% of cases, and are on average 10\% larger in the remaining 10\% of cases (@Ref{sec:evaluation}).}
+  @li{We demonstrate the utility of #sysname by using it to prototype a program slicer and an IFC checker (@Ref{sec:applications}).}
+}
+
+We conclude by presenting related work (@Ref{sec:rw}) and discussing future directions for #sysname (@Ref{sec:discussion}). Due to space constraints, we omit many formal details, all auxiliary lemmas, and all proofs.
+The interested reader can find them in @Ref{sec:appendix}. #sysname and our applications of it are publicly available, open-source, MIT-licensed projects. For review, anonymized versions are provided in supplementary materials.
+
+@Section[label="sec:algorithm"]{Algorithm}
+
+%letfn[msf]{\mathsf{#0}}
+%letfn[textsc]{\text{\tiny #0}}
+%letfn[repeat]{\overline{#0}}
+%let[L][new Language(function(){ return [
+  ["Variable", "vr", "x"],
+  ["Number", "num", "n"],
+  ["Function", "fname", "f"],
+  ["Path", "path", "q", [
+    ["empty", @fn{\varepsilon}],
+    ["with", @fn{#0.#1}, () => [this.vr, this.path]]    
+  ]],
+  ["Place", "plc", @{\pi}, [
+    ["form", @fn{#0.#1}, () => [this.vr, this.path]]
+  ]],
+  ["Constant", "const", "c", [
+    ["unit", @fn{()}],
+    ["num", @fn{#0}, () => [this.num]],
+    ["true", @fn{#msf{true}}],
+    ["false", @fn{#msf{false}}]
+  ]],
+  ["Base Type", "tyb", @{\tau^{#textsc{B}}}, [
+    ["unit", @fn{#msf{unit}}],
+  ]],
+  ["Sized Type", "tys", @{\tau^{#textsc{SI}}}, [
+    ["base", @fn{#0}, () => [this.tyb]],
+    ["tup", @fn{(#0)}, () => [@{#(this.tys)_1, \ldots, #(this.tys)_n}]]    
+  ]],
+  ["Expression", "expr", "e", [
+    ["const", @fn{#0}, () => [this.const]],
+    ["plc", @fn{#0}, () => [this.plc]],
+    ["let", @fn{#msf{let}~#0 : #1~=~#2;~#3},
+      () => [this.vr, this.tys, @{#(this.expr)_1}, @{#(this.expr)_2}]],
+    ["asgn", @fn{#0 := #1}, () => [this.plc, this.expr]],
+    ["seq", @fn{#0;~#1}, () => [@{#(this.expr)_1}, @{#(this.expr)_2}]],
+  ]],
+  ["Ownership Qualifier", "ownq", @{\omega}, [
+    ["shrd", @fn{#msf{shrd}}],
+    ["uniq", @fn{#msf{uniq}}]
+  ]],
+  ["Place Expression", "pexp", "p", [
+    ["var", @fn{#0}, () => [this.vr]],
+    ["elem", @fn{#0.#1}, () => [this.pexp, this.num]],
+    ["deref", @fn{\ast #0}, () => [this.pexp]]
+  ]],
+  ["Dead Type", "tyd", @{\tau^{#textsc{SD}}}, [
+    ["s", @fn{#0^\dagger}, () => [this.tys]],
+    ["tup", @fn{(#0)}, () => [@{#(this.tyd)_1, \ldots, #(this.tyd)_n}]]
+  ]],
+  ["Maybe Unsized Type", "tyx", @{\tau^{#textsc{XI}}}, [
+    ["s", @fn{#0}, () => [this.tys]],
+    ["d", @fn{[#0]}, () => [this.tys]]
+  ]],
+  ["Maybe Dead Type", "tysx", @{\tau^{#textsc{SX}}}, [
+    ["s", @fn{#0}, () => [this.tys]],
+    ["d", @fn{#0}, () => [this.tyd]],
+    ["tup", @fn{(#0)}, () => [@{#(this.tysx)_1, \ldots, #(this.tysx)_n}]]
+  ]],
+  ["Type", "ty", @{\tau}, [
+    ["tyx", @fn{#0}, () => [this.tyx]],
+    ["tysx", @fn{#0}, () => [this.tysx]]
+  ]],
+  ["Loan", "loan", @{\ell}, [
+    ["form", @fn{^{#0}#1}, () => [this.ownq, this.pexp]],    
+  ]],
+  ["Frame Typing", "ft", @{\mathcal{F}}, [
+    ["empty", @fn{\bullet}],
+    ["wty", @fn{#0, #1 : #2}, () => [this.ft, this.vr, this.tyx]],
+    ["wlf", @fn{#0, #1 \mapsto #2}, () => [this.ft, this.concrprov, @{\{#repeat{#(this.loan)}\}}]]
+  ]],
+  ["Stack Typing", "stackenv", @{\Gamma}, [
+    ["empty", @fn{\bullet}],
+    ["wfr", @fn{#0 \mathrel{\natural} #1}, () => [this.stackenv, this.ft]]
+  ]],
+  ["Kind", "kind", @{\kappa}, [
+    ["base", @fn{\bigstar}],
+    ["prov", @fn{#msf{PRV}}],
+    ["frm", @fn{#msf{FRM}}],
+  ]],
+  ["Type Var", "tyvar", @{\alpha}],
+  ["Type Environment", "tyenv", @{\Delta}, [
+    ["empty", @fn{\bullet}],
+    ["wtfvar", @fn{#0, #1 : #2}, () => [this.tyenv, this.tyvar, this.kindbase()]],
+    ["wprov", @fn{#0, #1 : #2}, () => [this.tyenv, this.abstrprov, this.kindprov()]],
+    ["wfrm", @fn{#0, #1 : #2}, () => [this.tyenv, this.frmvar, this.kindfrm()]],
+    ["wconstr", @fn{#0, #1 \mathrel{:>} #2}, () => [this.tyenv, @{#(this.abstrprov)_1}, @{#(this.abstrprov)_2}]]
+  ]],
+  
+  ["Global Entries", "fdef", @{\varepsilon}, [
+    ["form", 
+     @fn{#msf{fn} ~ #0 \left\langle #1, #2, #3 \right\rangle\left(#4 : #5\right) \rightarrow #6 ~ #msf{where} #7 ~ \{ #8 \}},
+     () => [
+       this.fname, @{#repeat{\psi}}, repeat(this.abstrprov),
+       repeat(this.tyvar), this.vr, this.tys, this.tys, 
+       @{#repeat{#(this.abstrprov)_1 : #(this.abstrprov)_2}}, 
+       this.expr]
+    ]
+  ]],
+  ["Global Environment", "fenv", @{\Sigma}, [
+    ["empty", @fn{\bullet}],
+    ["with", @fn{#0, #1}, () => [this.fenv, this.fdef]]
+  ]]
+]})]
+%let[e][L.expr]
+%let[ty][L.ty]
+%let[cx][L.stackenv]
+%let[tcx][L.tyenv]
+%let[fcx][L.fenv]
+%letfn[tc]{#0; #1; #2 \vdash #3 : #4 \Rightarrow #5}
+%letfn[stepsto]{#0 \vdash (#1, #2) \rightarrow (#3, #4)}
+
+@(L.Bnf)[subset=[
+  "vr", "num", "path", "plc", "const", "tyb", "tys", 
+  ["expr", ["const", "plc", "let", "asgn", "seq"]]
+]]
+
+We begin by describing our algorithm for computing information flow on Rust programs. While the algorithm is implemented itself as a Rust program, our goal here is to provide a description of it that is both concise (for clarity of communication) and precise (for amenability to proof). We therefore base our description on Oxide @Ref{weiss2019oxide}, a formal model of Rust. At a high-level, Oxide provides three ingredients: 
+
+@ol{
+    @li{A syntax of Rust-like programs with expressions @${#e} and types @${#ty}.}
+    @li{A type-checker, expressed with the judgment @${#tc{#fcx}{#tcx}{#cx}{#e}{#ty}{#cx'}} using the contexts @${#cx} for types and lifetimes, @${#tcx} for type variables, and @${#fcx} for global functions.}
+    @li{An interpreter, expressed by a small-step operational semantics with the judgment @${#stepsto{\sigma}{#e}{\sigma'}{#e'}} using @${\sigma} for a runtime stack.}
+}
+
+@(L.Bnf)[subset=[
+  "tyd", "tyx", "tysx", "ty", "ft", "stackenv",
+  "tyvar", "tyenv", "kind",
+  "loan", "pexp", "ownq",
+  "fdef", "fenv", "fname"
+]]
+
+%import_default["./bibliography.bib"][bibtex]
+@References{#bibtex}

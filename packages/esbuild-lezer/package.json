@@ -1,11 +1,11 @@
 {
-  "name": "@wcrichto/nota-theme-acm",
+  "name": "@wcrichto/esbuild-lezer",
   "version": "0.2.0",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
   "license": "MIT",
-  "main": "dist/nota-theme-acm.js",
+  "main": "dist/esbuild-lezer.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -29,5 +29,9 @@
   },
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
+  },
+  "peerDependencies": {
+    "@lezer/generator": "^0.15.2",
+    "esbuild": "^0.14.5"
   }
 }
