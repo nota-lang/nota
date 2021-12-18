@@ -1,6 +1,6 @@
 # Nota: A Web Framework for Documents
 
-[![.github/workflows/ci.yaml](https://github.com/willcrichton/nota/actions/workflows/ci.yaml/badge.svg)](https://github.com/willcrichton/nota/actions/workflows/ci.yaml)
+[![.github/workflows/ci.yaml](https://github.com/nota-lang/nota/actions/workflows/ci.yaml/badge.svg)](https://github.com/nota-lang/nota/actions/workflows/ci.yaml)
 
 Nota is a framework for writing documents, like LaTeX. It uses the browser's document layout engine and interactive capabilities to make documents easier to both write and read.
 
@@ -17,7 +17,7 @@ To see an example, or to read about Nota's design philosophy, please check out m
 If you would like to make a contribution to Nota, thanks! You can build the repository from scratch by first installing [yarn](https://yarnpkg.com/) and [lerna](https://lerna.js.org/), and then running:
 
 ```
-git clone https://github.com/willcrichton/nota/
+git clone https://github.com/nota-lang/nota/
 cd nota
 lerna bootstrap
 lerna link
