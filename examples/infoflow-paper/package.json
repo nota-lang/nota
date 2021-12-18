@@ -1,12 +1,12 @@
 {
   "name": "infoflow-paper",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/document/document.js",
   "private": true,
   "scripts": {},
   "devDependencies": {
     "@codemirror/lang-cpp": "^0.19.1",
-    "@wcrichto/nota-editor": "^0.1.3"
+    "@wcrichto/nota-editor": "^0.2.0"
   }
 }
