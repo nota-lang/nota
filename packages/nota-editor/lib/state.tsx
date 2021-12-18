@@ -1,9 +1,12 @@
 import React from "react";
 import { makeAutoObservable, reaction, action } from "mobx";
 import _ from "lodash";
+import { err, Result } from "@wcrichto/nota-common";
 
-import type { Message, SyncText, TranslationResult } from "../bin/server";
-import { ok } from "@wcrichto/nota-common";
+export type TranslationResult = Result<{
+  transpiled: string;
+  lowered: string;
+}>;
 
 export interface State {
   contents: string;
@@ -11,9 +14,28 @@ export interface State {
   ready: boolean;
 }
 
+export interface InitialContent {
+  type: "InitialContent";
+  contents: string;
+  translation: TranslationResult;
+}
+
+export interface SyncText {
+  type: "SyncText";
+  contents: string;
+}
+
+export interface NewOutput {
+  type: "NewOutput";
+  translation: TranslationResult;
+}
+
+export type Message = SyncText | NewOutput | InitialContent;
+
+
 export class RemoteState implements State {
   contents: string = "";
-  translation: TranslationResult = ok("");
+  translation: TranslationResult = err(Error(""));
   ready: boolean = false;
 
   private ws: WebSocket;

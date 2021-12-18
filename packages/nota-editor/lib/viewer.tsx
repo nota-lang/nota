@@ -14,8 +14,7 @@ import { nota } from "@wcrichto/nota-syntax";
 import _ from "lodash";
 import nota_imports from "@wcrichto/nota-components/dist/peer-imports";
 
-import type { TranslationResult } from "../bin/server";
-import { StateContext } from "./state";
+import { StateContext, TranslationResult } from "./state";
 import { theme } from "./editor";
 
 export class ViewerState {
@@ -96,7 +95,7 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
   if (selected == 0) {
     return <OutputView result={data} />;
   } else if (selected == 1) {
-    return <JSView result={data} />;
+    return <JsView result={data} />;
   } else if (selected == 2) {
     return <ParseView />;
   }
@@ -125,7 +124,7 @@ let ParseView: React.FC = () => {
   return <pre>{output}</pre>;
 };
 
-let JSView: React.FC<{ result: TranslationResult }> = ({ result }) => {
+export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   let ref = useRef<HTMLDivElement>(null);
   let [editor, set_editor] = useState<EditorView | null>(null);
 
@@ -145,7 +144,7 @@ let JSView: React.FC<{ result: TranslationResult }> = ({ result }) => {
       set_editor(editor);
     }
 
-    let js = result.value;
+    let js = result.value.transpiled;
     try {
       js = prettier.format(js, { parser: "babel", plugins: [parserBabel] });
     } catch (e) {
@@ -181,7 +180,7 @@ let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   try {
     let f = new Function(
       "require",
-      result.value + `\n; return nota_document.default; //# sourceURL=document.js`
+      result.value.lowered + `\n; return nota_document.default; //# sourceURL=document.js`
     );
     Doc = f(nota_require);
   } catch (e: any) {
@@ -191,7 +190,7 @@ let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   return ok(Doc);
 };
 
-let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) => {
+export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) => {
   let last_translation = useLocalObservable<{ t: JSX.Element | null }>(() => ({
     t: null,
   }));

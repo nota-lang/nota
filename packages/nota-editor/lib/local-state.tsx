@@ -1,16 +1,15 @@
-import { is_err, ok } from "@wcrichto/nota-common";
+import { is_err, err, ok } from "@wcrichto/nota-common";
 import { try_parse, translate } from "@wcrichto/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import esbuild from "esbuild-wasm";
 //@ts-ignore
 import esbuildWasmURL from "esbuild-wasm/esbuild.wasm";
 
-import { State } from "./state";
-import type { TranslationResult } from "../bin/server";
+import { State, TranslationResult } from "./state";
 
 export class LocalState implements State {
   contents: string = "";
-  translation: TranslationResult = ok("");
+  translation: TranslationResult = err(Error(""));
   ready: boolean = false;
 
   async try_translate(): Promise<TranslationResult> {
@@ -20,7 +19,10 @@ export class LocalState implements State {
     }
     let js = translate(this.contents, tree.value);
     let output = await esbuild.transform(js, { format: "iife", globalName: "nota_document" });
-    return ok(output.code);
+    return ok({
+      transpiled: js,
+      lowered: output.code,
+    });
   }
 
   constructor() {
@@ -29,7 +31,7 @@ export class LocalState implements State {
       .initialize({
         wasmURL: esbuildWasmURL,
       })
-      .then(async () => {
+      .then(async () => {        
         let translation = await this.try_translate();
         runInAction(() => {
           this.translation = translation;
