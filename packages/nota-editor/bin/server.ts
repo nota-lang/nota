@@ -10,26 +10,8 @@ import { Result, ok, err } from "@wcrichto/nota-common";
 import { nota_plugin } from "@wcrichto/nota-syntax/dist/esbuild-plugin";
 import peerDependencies from "@wcrichto/nota-components/dist/peer-dependencies";
 import _ from "lodash";
+import type { TranslationResult, Message }  from "../lib/state";
 
-export type TranslationResult = Result<string>;
-
-export interface InitialContent {
-  type: "InitialContent";
-  contents: string;
-  translation: TranslationResult;
-}
-
-export interface SyncText {
-  type: "SyncText";
-  contents: string;
-}
-
-export interface NewOutput {
-  type: "NewOutput";
-  translation: TranslationResult;
-}
-
-export type Message = SyncText | NewOutput | InitialContent;
 
 let main = async () => {
   program
@@ -57,17 +39,28 @@ let main = async () => {
     ? _.fromPairs(opts.extensions.split(",").map((k: string) => ["." + k, "text"]))
     : {};
 
+  const OUTPUT_PATH = "dist/document.js";
+  const OUTPUT_MAP_PATH = OUTPUT_PATH + ".map";
+
   let socket_cbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
-
-  const OUTPUT_PATH = "dist/document.js";
+  let load_output = async () => {
+    let [lowered, map] = await Promise.all(
+      [OUTPUT_PATH, OUTPUT_MAP_PATH].map(p => fs.readFile(p, "utf-8"))
+    );
+    let transpiled = JSON.parse(map).sourcesContent[0];
+    output = ok({
+      lowered,
+      transpiled,
+    });
+  };
 
   let watch: esbuild.WatchMode = {
     async onRebuild(error, result) {
       if (error) {
         output = err(Error(error.errors.map(err => err.text).join("\n")));
       } else {
-        output = ok((await fs.readFile(OUTPUT_PATH)).toString("utf-8"));
+        await load_output();
       }
       socket_cbs.forEach(cb => cb());
     },
@@ -89,12 +82,13 @@ let main = async () => {
 
   app.ws("/", async (ws, _req) => {
     await initial_build;
-    let contents = (await fs.readFile(input_path)).toString("utf-8");
+    await load_output();
+    let contents = await fs.readFile(input_path, "utf-8");
     ws.send(
       JSON.stringify({
         type: "InitialContent",
         contents,
-        translation: ok((await fs.readFile(OUTPUT_PATH)).toString("utf-8")),
+        translation: output,
       })
     );
 

@@ -5,7 +5,7 @@
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/components/components.js",
   "bin": {
     "nota-editor": "dist/backend/server.js"
   },
@@ -41,6 +41,8 @@
     "@types/ws": "^8.2.0",
     "@wcrichto/nota-components": "^0.2.0",
     "@wcrichto/nota-syntax": "^0.2.0",
+    "@wcrichto/nota-common": "^0.2.0",
+    "esbuild-wasm": "^0.14.5",
     "commander": "^8.3.0",
     "express": "^4.17.1",
     "express-ws": "^5.0.2",
@@ -53,7 +55,6 @@
     "ws": "^8.2.3"
   },
   "dependencies": {
-    "@cspotcode/source-map-support": "^0.7.0",
-    "esbuild-wasm": "^0.14.5"
+    "@cspotcode/source-map-support": "^0.7.0"
   }
 }

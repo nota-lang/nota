@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist"
-  }
+    "rootDir": "lib",
+    "outDir": "dist/components",
+  },
+    "exclude": ["bin/server.ts"]
 }
