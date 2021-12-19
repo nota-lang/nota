@@ -3,7 +3,7 @@ import fs from "fs";
 import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
 
 let pkg = JSON.parse(fs.readFileSync("./package.json"));
-let external = Object.keys(pkg.peerDependencies || {});
+let external = Object.keys(pkg.dependencies || {});
 
 esbuild.build({
   entryPoints: ["lib/esbuild-utils.ts"],

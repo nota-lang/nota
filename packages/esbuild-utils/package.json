@@ -31,7 +31,9 @@
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
   },
-  "peerDependencies": {
+  "dependencies": {
+    "glob": "^7.2.0",
+    "glob-promise": "^4.2.2",
     "esbuild": "^0.14.5"
   },
   "devDependencies": {

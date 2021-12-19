@@ -5,6 +5,7 @@ import type { IPackageJson, IDependencyMap } from "package-json-type";
 import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
 import path from "path";
 import _ from "lodash";
+import { promise as glob } from "glob-promise";
 
 export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
   let options = yargs(process.argv.slice(2)).alias("w", "watch").alias("p", "prod").argv as any;
@@ -67,11 +68,11 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
 
     let paths: [string, string][] = [];
     let filter = new RegExp(extensions.map(_.escapeRegExp).join("|"));
-    build.onResolve({ filter }, args => {
+    build.onResolve({ filter }, async args => {
       let abs_path = path.join(args.resolveDir, args.path);
-      let outpath = path.join(outdir!, path.basename(args.path));
-      paths.push([abs_path, outpath]);
-      return { path: args.path, namespace: "copy", watchFiles: [abs_path] };
+      let matching_paths = await glob(abs_path);
+      paths = paths.concat(matching_paths.map(p => [p, path.join(outdir, path.basename(p))]));
+      return { path: args.path, namespace: "copy" };
     });
 
     build.onLoad({ filter: /.*/, namespace: "copy" }, async _args => ({ contents: "" }));
