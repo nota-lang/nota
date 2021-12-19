@@ -5,10 +5,4 @@ let build = cli();
 build({
   entryPoints: ["lib/nota-theme-acm.tsx"],
   plugins: [sassPlugin()],
-  loader: {
-    ".otf": "file",
-    ".woff": "file",
-    ".woff2": "file",
-    ".ttf": "file",
-  },
 });

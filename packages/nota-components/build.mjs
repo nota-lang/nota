@@ -6,12 +6,6 @@ let build = cli();
 build({
   entryPoints: ["lib/nota-components.tsx"],
   plugins: [sassPlugin()],
-  loader: {
-    ".otf": "file",
-    ".woff": "file",
-    ".woff2": "file",
-    ".ttf": "file",
-  },
 }).then(([_result, opts]) => {
   let modules = opts.external.concat(["@nota-lang/nota-components"]);
 

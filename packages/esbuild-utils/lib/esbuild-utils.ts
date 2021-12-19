@@ -1,6 +1,6 @@
 import fs from "fs";
 import yargs from "yargs";
-import esbuild, { BuildOptions, BuildResult, Plugin } from "esbuild";
+import esbuild, { BuildOptions, BuildResult, Plugin, Loader } from "esbuild";
 import type { IPackageJson, IDependencyMap } from "package-json-type";
 import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
 import path from "path";
@@ -21,6 +21,16 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       plugins.push(EsmExternalsPlugin({ externals: external }));
     }
 
+    let loader: { [ext: string]: Loader } = {
+      ".otf": "file",
+      ".woff": "file",
+      ".woff2": "file",
+      ".ttf": "file",
+      ".wasm": "file",
+      ".bib": "text",
+      ...(extra.loader || {}),
+    };
+
     let outpaths: BuildOptions = {};
     if (extra.outdir) {
       outpaths.outdir = extra.outdir;
@@ -38,6 +48,7 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       external,
       plugins,
       format,
+      loader,
       bundle: extra.bundle !== undefined ? extra.bundle : true,
       sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : true,
     };

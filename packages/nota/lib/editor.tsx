@@ -15,9 +15,10 @@ import classNames from "classnames";
 
 import "../static/index.html";
 
-// import "@nota-lang/nota-components/dist/nota-components.css";
-// import "@nota-lang/nota-theme-acm/dist/nota-theme-acm.css";
-// import "../css/app.scss";
+import "@nota-lang/nota-components/dist/nota-components.css";
+import "@nota-lang/nota-theme-acm/dist/nota-theme-acm.css";
+import "@nota-lang/nota-editor/dist/nota-editor.css";
+import "../css/editor.scss";
 
 export class ViewerState {
   selected: number = 0;

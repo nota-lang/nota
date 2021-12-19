@@ -7,8 +7,5 @@ let build = cli();
 build({
   entryPoints: ["lib/nota-editor.tsx"],
   plugins: [sassPlugin()],
-  loader: {
-    ".wasm": "file",
-  },
   external: peerDependencies
 });
