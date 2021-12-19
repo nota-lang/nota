@@ -15,12 +15,12 @@ build({
   );
 
   let imports = modules.map((mod, i) => `import * as _${i} from "${mod}";`).join("\n");
-  let export_ = `export let peerImports = {${modules.map((mod, i) => `"${mod}": _${i}`).join(",")}}`;
+  let export_ = `module.exports = {peerImports: {${modules.map((mod, i) => `"${mod}": _${i}`).join(",")}}}`;
   fs.writeFileSync("dist/peer-imports.js", imports + "\n" + export_);
 
   fs.writeFileSync(
     "dist/peer-dependencies.d.ts",
     `export const peerDependencies: string[];`
   );
-  fs.writeFileSync("dist/peer-dependencies.js", `export let peerDependencies = ${JSON.stringify(modules)};`);
+  fs.writeFileSync("dist/peer-dependencies.js", `module.exports = {peerDependencies: ${JSON.stringify(modules)}};`);
 });
