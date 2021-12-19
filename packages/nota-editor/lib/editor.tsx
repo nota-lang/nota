@@ -12,7 +12,7 @@ export let theme = EditorView.theme({
   "&": {
     height: "100%",
   },
-  "&.cm-focused": {
+  "&.cm-editor.cm-focused": {
     outline: "0",
   },
   ".cm-scroller": {
