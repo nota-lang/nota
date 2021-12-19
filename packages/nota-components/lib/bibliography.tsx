@@ -7,7 +7,7 @@ import { Section } from "./document";
 import { Definition, DefinitionsPlugin } from "./definitions";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { action, makeObservable, observable } from "mobx";
-import { join_recursive } from "@wcrichto/nota-common";
+import { join_recursive } from "@nota-lang/nota-common";
 
 function isString(x: any): x is string {
   return typeof x === "string";

@@ -1,10 +1,11 @@
 {
-  "name": "@wcrichto/nota-syntax",
+  "name": "@nota-lang/nota-syntax",
   "version": "0.2.0",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
   "license": "MIT",
+  "type": "module",
   "main": "dist/nota-syntax.js",
   "directories": {
     "lib": "lib",
@@ -21,9 +22,9 @@
     "url": "git+https://github.com/willcrichton/nota.git"
   },
   "scripts": {
-    "build": "node build.cjs",
+    "build": "node build.mjs",
     "tc": "tsc -emitDeclarationOnly",
-    "full": "yarn tc && yarn build -no-diag",
+    "full": "yarn tc && yarn build -p",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
@@ -36,8 +37,8 @@
     "@codemirror/language": "^0.19.0",
     "@lezer/common": "^0.15.11",
     "@lezer/lr": "^0.15.5",
-    "@wcrichto/nota-common": "^0.2.0",
-    "@wcrichto/nota-components": "^0.2.0",
+    "@nota-lang/nota-common": "^0.2.0",
+    "@nota-lang/nota-components": "^0.2.0",
     "prettier": "^2.5.1"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@types/babel__core": "^7.1.16",
     "@types/babel__standalone": "^7.1.3",
     "@types/prettier": "^2.4.2",
-    "@wcrichto/esbuild-lezer": "^0.2.0"
+    "@nota-lang/esbuild-lezer": "^0.2.0",
+    "@nota-lang/esbuild-utils": "^0.2.0"
   }
 }

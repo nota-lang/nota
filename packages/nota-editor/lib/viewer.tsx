@@ -9,102 +9,19 @@ import prettier from "prettier/standalone";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
 import { action, makeAutoObservable, reaction } from "mobx";
-import { is_err, is_ok, err, ok, Result, unwrap } from "@wcrichto/nota-common";
-import { nota } from "@wcrichto/nota-syntax";
+import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
+import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
-import nota_imports from "@wcrichto/nota-components/dist/peer-imports";
+import {peerImports} from "@nota-lang/nota-components/dist/peer-imports.mjs";
 
-import { StateContext, TranslationResult } from "./state";
+
+import { StateContext, TranslationResult } from "./nota-editor";
 import { theme } from "./editor";
-
-export class ViewerState {
-  selected: number = 0;
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-}
-
-export let ViewerStateContext = React.createContext<ViewerState | null>(null);
-
-export let ViewerConfig = observer(() => {
-  let viewer_state = useContext(ViewerStateContext)!;
-  let options = ["Output", "Generated JS", "Parse tree"];
-  return (
-    <div className="viewer-config">
-      <div>
-        {options.map((key, i) => (
-          <button
-            key={key}
-            onClick={action(() => {
-              viewer_state.selected = i;
-            })}
-            className={classNames({ active: viewer_state.selected == i })}
-          >
-            {key}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-export let Viewer = observer(() => {
-  let viewer_state = useContext(ViewerStateContext)!;
-  let state = useContext(StateContext)!;
-  let ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let el = ref.current;
-    if (!el) {
-      return;
-    }
-
-    let last_scroll = 0;
-    el.addEventListener("scroll", _ => {
-      let scroll = el!.scrollTop;
-      let t = state.translation;
-      if (is_ok(t) && scroll > 0) {
-        last_scroll = scroll;
-      }
-    });
-
-    reaction(
-      () => [state.translation],
-      () => {
-        if (el!.scrollTop == 0) {
-          el!.scrollTo(0, last_scroll);
-        }
-      }
-    );
-  }, [ref]);
-
-  return (
-    <div className="viewer" ref={ref}>
-      <Inner selected={viewer_state.selected} />
-    </div>
-  );
-});
 
 let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;
 
-let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
-  let state = useContext(StateContext)!;
-  let data = state.translation;
-
-  if (selected == 0) {
-    return <OutputView result={data} />;
-  } else if (selected == 1) {
-    return <JsView result={data} />;
-  } else if (selected == 2) {
-    return <ParseView />;
-  }
-
-  return null;
-});
-
 let nota_lang = nota();
-let ParseView: React.FC = () => {
+export let ParseView: React.FC = () => {
   let state = useContext(StateContext)!;
   let tree = nota_lang.language.parser.parse(state.contents);
 
@@ -165,10 +82,10 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 };
 
 let nota_require = (path: string): any => {
-  if (!(path in nota_imports)) {
+  if (!(path in peerImports)) {
     throw `Cannot import ${path}`;
   }
-  return nota_imports[path];
+  return peerImports[path];
 };
 
 let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
@@ -184,6 +101,7 @@ let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
     );
     Doc = f(nota_require);
   } catch (e: any) {
+    console.error(e);
     return err(<>{e.stack}</>);
   }
 
@@ -199,7 +117,7 @@ export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ res
 
   let errored = false;
   useEffect(
-    action(() => {
+    action(() => { 
       if (errored) {
         errored = false;
         return;

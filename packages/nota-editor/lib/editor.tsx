@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
-import { nota, js } from "@wcrichto/nota-syntax";
+import { nota, js } from "@nota-lang/nota-syntax";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { keymap } from "@codemirror/view";
 import { tags as t, HighlightStyle } from "@codemirror/highlight";
 import { indentWithTab } from "@codemirror/commands";
 
-import { StateContext } from "./state";
+import { StateContext } from "./nota-editor";
 
 export let theme = EditorView.theme({
   "&": {

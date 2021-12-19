@@ -9,7 +9,7 @@ import { ScrollPlugin } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { HTMLAttributes } from "./utils";
-import { join_recursive } from "@wcrichto/nota-common";
+import { join_recursive } from "@nota-lang/nota-common";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;

@@ -7,6 +7,6 @@
   "scripts": {},
   "devDependencies": {
     "@codemirror/lang-cpp": "^0.19.1",
-    "@wcrichto/nota-editor": "^0.2.0"
+    "@nota-lang/nota-editor": "^0.2.0"
   }
 }

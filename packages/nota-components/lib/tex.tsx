@@ -2,7 +2,7 @@ import React from "react";
 import katex from "katex";
 import H2R from "html-to-react";
 import ReactDOM from "react-dom";
-import { join_recursive, NotaText } from "@wcrichto/nota-common";
+import { join_recursive, NotaText } from "@nota-lang/nota-common";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";

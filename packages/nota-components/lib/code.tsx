@@ -6,7 +6,7 @@ import { LanguageSupport } from "@codemirror/language";
 import { EditorState, StateField, StateEffect, Extension } from "@codemirror/state";
 import { Plugin, usePlugin, Pluggable } from "./plugin";
 import _ from "lodash";
-import { join_recursive } from "@wcrichto/nota-common";
+import { join_recursive } from "@nota-lang/nota-common";
 
 export const add_highlight = StateEffect.define<{ from: number; to: number; color: string }>();
 

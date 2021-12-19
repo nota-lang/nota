@@ -1,5 +1,5 @@
 import type esbuild from "esbuild";
-import { unwrap } from "@wcrichto/nota-common";
+import { unwrap } from "@nota-lang/nota-common";
 import fs from "fs";
 import prettier from "prettier";
 

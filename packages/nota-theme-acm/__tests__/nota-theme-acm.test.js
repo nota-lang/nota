@@ -1,7 +1,7 @@
 'use strict';
 
-const notaThemeAcm = require('..');
+import notaThemeAcm from '..';
 
-describe('@wcrichto/nota-theme-acm', () => {
+describe('@nota-lang/nota-theme-acm', () => {
     it('needs tests');
 });

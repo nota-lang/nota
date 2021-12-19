@@ -1,7 +1,7 @@
 'use strict';
 
-const nota = require('..');
+import nota from '..';
 
-describe('@wcrichto/nota', () => {
+describe('@nota-lang/nota', () => {
     it('needs tests');
 });

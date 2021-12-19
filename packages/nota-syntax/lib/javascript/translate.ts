@@ -1,6 +1,6 @@
 import type { SyntaxNode } from "@lezer/common";
 import type { Expression } from "@babel/types";
-import { assert } from "@wcrichto/nota-common";
+import { assert } from "@nota-lang/nota-common";
 import * as babel from "@babel/standalone";
 import _ from "lodash";
 

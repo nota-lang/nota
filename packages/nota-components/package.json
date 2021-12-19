@@ -1,5 +1,5 @@
 {
-  "name": "@wcrichto/nota-components",
+  "name": "@nota-lang/nota-components",
   "version": "0.2.0",
   "description": "TODO",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
@@ -21,9 +21,9 @@
     "url": "git+https://github.com/willcrichton/nota.git"
   },
   "scripts": {
-    "build": "node build.cjs",
+    "build": "node build.mjs",
     "tc": "tsc -emitDeclarationOnly",
-    "full": "yarn tc && yarn build -no-diag",
+    "full": "yarn tc && yarn build -p",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
@@ -33,7 +33,8 @@
   "devDependencies": {
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@popperjs/core": "^2.9.2",
-    "@wcrichto/nota-common": "^0.2.0",
+    "@nota-lang/nota-common": "^0.2.0",
+    "@nota-lang/esbuild-utils": "^0.2.0",
     "classnames": "^2.3.1",
     "html-to-react": "^1.4.5",
     "katex": "^0.15.1",

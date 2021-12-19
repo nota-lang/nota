@@ -2,7 +2,7 @@ export { nota } from "./nota/language";
 export { translate } from "./nota/translate";
 export { js } from "./javascript/language";
 
-import { Result, ok, err } from "@wcrichto/nota-common";
+import { Result, ok, err } from "@nota-lang/nota-common";
 import type { Tree } from "@lezer/common";
 
 import { nota_language } from "./nota/language";

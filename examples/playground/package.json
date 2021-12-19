@@ -6,6 +6,6 @@
   "private": true,
   "scripts": {},
   "devDependencies": {
-    "@wcrichto/nota-editor": "^0.2.0"
+    "@nota-lang/nota": "^0.2.0"
   }
 }

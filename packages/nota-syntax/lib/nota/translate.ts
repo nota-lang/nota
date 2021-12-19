@@ -12,8 +12,8 @@ import type {
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
-import * as nota from "@wcrichto/nota-components";
-import { Either, left, right, is_left, assert, unreachable } from "@wcrichto/nota-common";
+import * as nota from "@nota-lang/nota-components";
+import { Either, left, right, is_left, assert, unreachable } from "@nota-lang/nota-common";
 
 import * as t from "../babel-polyfill";
 //@ts-ignore
@@ -114,8 +114,8 @@ export let translate = (input: string, tree: Tree): string => {
       t.stringLiteral("react")
     ),
     t.importDeclaration(
-      Object.keys(nota).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
-      t.stringLiteral("@wcrichto/nota-components")
+      Object.keys(nota).filter(k => k != "default").map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+      t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
     binding(create_el, create_el_long),

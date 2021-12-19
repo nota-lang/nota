@@ -1,5 +1,5 @@
 {
-  "name": "@wcrichto/nota-common",
+  "name": "@nota-lang/nota-common",
   "version": "0.2.0",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
@@ -21,13 +21,16 @@
     "url": "git+https://github.com/willcrichton/nota.git"
   },
   "scripts": {
-    "build": "node build.cjs",
+    "build": "node build.mjs",
     "tc": "tsc -emitDeclarationOnly",
-    "full": "yarn tc && yarn build -no-diag",
+    "full": "yarn tc && yarn build -p",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
+  },
+  "devDependencies": {
+    "@nota-lang/esbuild-utils": "^0.2.0"
   }
 }

@@ -1,18 +1,8 @@
-import React from "react";
 import { makeAutoObservable, reaction, action } from "mobx";
 import _ from "lodash";
-import { err, Result } from "@wcrichto/nota-common";
+import { err } from "@nota-lang/nota-common";
 
-export type TranslationResult = Result<{
-  transpiled: string;
-  lowered: string;
-}>;
-
-export interface State {
-  contents: string;
-  translation: TranslationResult;
-  ready: boolean;
-}
+import { TranslationResult, State } from "./nota-editor";
 
 export interface InitialContent {
   type: "InitialContent";
@@ -31,7 +21,6 @@ export interface NewOutput {
 }
 
 export type Message = SyncText | NewOutput | InitialContent;
-
 
 export class RemoteState implements State {
   contents: string = "";
@@ -93,5 +82,3 @@ export class RemoteState implements State {
     makeAutoObservable(this);
   }
 }
-
-export let StateContext = React.createContext<State | null>(null);

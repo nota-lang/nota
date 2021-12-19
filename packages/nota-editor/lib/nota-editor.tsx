@@ -1,38 +1,22 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom";
-import { observer } from "mobx-react";
+import React from "react";
+import { Result } from "@nota-lang/nota-common";
 
-import { Editor } from "./editor";
-import { Viewer, ViewerConfig, ViewerState, ViewerStateContext } from "./viewer";
-import { StateContext, RemoteState } from "./state";
+export type TranslationResult = Result<{
+  transpiled: string;
+  lowered: string;
+}>;
 
-import "@wcrichto/nota-components/dist/nota-components.css";
-import "@wcrichto/nota-theme-acm/dist/nota-theme-acm.css";
-import "../css/app.scss";
+export interface State {
+  contents: string;
+  translation: TranslationResult;
+  ready: boolean;
+}
 
-let App = observer(() => {
-  let [state] = useState(() => new RemoteState());
-  let [viewer_state] = useState(() => new ViewerState());
-  return (
-    <div>
-      {!state.ready ? (
-        <>Loading...</>
-      ) : (
-        <StateContext.Provider value={state}>
-          <ViewerStateContext.Provider value={viewer_state}>
-            <div className="header">
-              <h1>Nota Editor</h1>
-              <ViewerConfig />
-            </div>
-            <div className="panels">
-              <Editor />
-              <Viewer />
-            </div>
-          </ViewerStateContext.Provider>
-        </StateContext.Provider>
-      )}
-    </div>
-  );
-});
+export let StateContext = React.createContext<State | null>(null);
 
-ReactDOM.render(<App />, document.getElementById("container"));
+export { Editor } from "./editor";
+export { LocalState } from "./local-state";
+export { RemoteState } from "./remote-state";
+export { JsView, OutputView, ParseView } from "./viewer";
+
+import "../css/nota-editor.scss";

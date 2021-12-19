@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 import _ from "lodash";
-import { add_between, NotaText, NotaFn } from "@wcrichto/nota-common";
+import { add_between, NotaText, NotaFn } from "@nota-lang/nota-common";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";

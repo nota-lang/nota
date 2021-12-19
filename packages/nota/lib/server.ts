@@ -1,28 +1,22 @@
-#!/usr/bin/env -S node -r @cspotcode/source-map-support/register
-
 import express from "express";
 import expressWs from "express-ws";
 import path from "path";
 import { constants, promises as fs } from "fs";
-import esbuild from "esbuild";
-import { program } from "commander";
-import { Result, ok, err } from "@wcrichto/nota-common";
-import { nota_plugin } from "@wcrichto/nota-syntax/dist/esbuild-plugin";
-import peerDependencies from "@wcrichto/nota-components/dist/peer-dependencies";
+import * as esbuild from "esbuild";
+import { ok, err } from "@nota-lang/nota-common";
+import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import {peerDependencies} from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import _ from "lodash";
-import type { TranslationResult, Message }  from "../lib/state";
+import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 
+export interface ServerOptions {
+  file: string;
+  extensions?: string[];
+  port?: number;
+}
 
-let main = async () => {
-  program
-    .version("0.1.0")
-    .option("-e, --extensions <exts>")
-    .option("--open")
-    .option("-p, --port <port>")
-    .argument("<input>");
-  program.parse(process.argv);
-  let opts = program.opts();
-  let input_path = path.resolve(program.args[0]);
+export let main = async (opts: ServerOptions) => {
+  let input_path = path.resolve(opts.file);
   try {
     await fs.access(input_path, constants.F_OK);
   } catch (e) {
@@ -31,12 +25,11 @@ let main = async () => {
 
   let { app } = expressWs(express());
 
-  let SERVER_ROOT = path.resolve(path.join(__dirname, "..", "frontend"));
-  app.use(express.static(SERVER_ROOT));
+  app.use(express.static(__dirname));
   app.use(express.static("dist"));
 
   let loader: { [_k: string]: esbuild.Loader } = opts.extensions
-    ? _.fromPairs(opts.extensions.split(",").map((k: string) => ["." + k, "text"]))
+    ? _.fromPairs(opts.extensions.map((k: string) => ["." + k, "text"]))
     : {};
 
   const OUTPUT_PATH = "dist/document.js";
@@ -77,8 +70,7 @@ let main = async () => {
       external: peerDependencies,
       watch,
       loader,
-    })
-    .catch(_ => {});
+    });
 
   app.ws("/", async (ws, _req) => {
     await initial_build;
@@ -93,7 +85,7 @@ let main = async () => {
     );
 
     ws.on("message", async data => {
-      let msg: Message = JSON.parse(data.toString("utf-8"));
+      let msg /*: Message*/ = JSON.parse(data.toString("utf-8"));
       if (msg.type == "SyncText") {
         await fs.writeFile(input_path, msg.contents);
       } else {
@@ -111,8 +103,6 @@ let main = async () => {
     });
   });
 
-  let port = opts.port ? parseInt(opts.port) : 8000;
+  let port = opts.port ? opts.port : 8000;
   app.listen(port);
 };
-
-main();

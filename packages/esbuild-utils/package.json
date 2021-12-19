@@ -1,11 +1,12 @@
 {
-  "name": "@nota-lang/nota-theme-acm",
+  "name": "@nota-lang/esbuild-utils",
   "version": "0.2.0",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
   "license": "MIT",
-  "main": "dist/nota-theme-acm.js",
+  "type": "module",
+  "main": "dist/esbuild-utils.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -30,7 +31,14 @@
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
   },
+  "peerDependencies": {
+    "esbuild": "^0.14.5"
+  },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.0"
+    "@types/yargs": "^17.0.7",
+    "commander": "^8.3.0",
+    "lodash": "^4.17.21",
+    "package-json-type": "^1.0.3",
+    "yargs": "^17.3.0"
   }
 }

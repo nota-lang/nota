@@ -1,4 +1,4 @@
-import { join_recursive } from "@wcrichto/nota-common";
+import { join_recursive } from "@nota-lang/nota-common";
 import React from "react";
 import { createContext, useContext } from "react";
 
