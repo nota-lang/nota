@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-components",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "TODO",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota",
@@ -31,12 +31,12 @@
     "url": "https://github.com/willcrichton/nota/issues"
   },
   "dependencies": {
-    "katex": "^0.15.1",
-    "@popperjs/core": "^2.9.2"
+    "@popperjs/core": "^2.9.2",
+    "katex": "^0.15.1"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.1",
-    "@nota-lang/nota-common": "^0.2.1",
+    "@nota-lang/esbuild-utils": "^0.2.2",
+    "@nota-lang/nota-common": "^0.2.2",
     "@orcid/bibtex-parse-js": "^0.0.25",
     "classnames": "^2.3.1",
     "html-to-react": "^1.4.5",
