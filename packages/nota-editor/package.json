@@ -34,17 +34,17 @@
   "bugs": {
     "url": "https://github.com/willcrichton/nota/issues"
   },
+  "dependencies": {
+    "@nota-lang/nota-components": "^0.2.1",
+    "@nota-lang/nota-syntax": "^0.2.1",
+    "prettier": "^2.5.1"
+  },
+  "dependenciesComments": [
+    "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/peer-dependencies"
+  ],
   "devDependencies": {
     "@nota-lang/esbuild-utils": "^0.2.1",
     "@nota-lang/nota-common": "^0.2.1",
-    "@nota-lang/nota-components": "^0.2.1",
-    "@nota-lang/nota-syntax": "^0.2.1",
-    "commander": "^8.3.0",
-    "esbuild-wasm": "^0.14.5",
-    "express": "^4.17.1",
-    "express-ws": "^5.0.2",
-    "prettier": "^2.5.1",
-    "react-error-boundary": "^3.1.4",
-    "ws": "^8.2.3"
+    "react-error-boundary": "^3.1.4"
   }
 }

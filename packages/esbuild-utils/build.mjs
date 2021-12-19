@@ -1,9 +1,9 @@
 import esbuild from "esbuild";
 import fs from "fs";
-import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
+import _ from "lodash";
 
 let pkg = JSON.parse(fs.readFileSync("./package.json"));
-let external = Object.keys(pkg.dependencies || {});
+let external = Object.keys(pkg.dependencies || {}).concat(Object.keys(pkg.peerDependencies || {}));
 
 esbuild.build({
   entryPoints: ["lib/esbuild-utils.ts"],
@@ -12,6 +12,5 @@ esbuild.build({
   format: "esm",
   platform: "node",
   sourcemap: true,
-  plugins: [EsmExternalsPlugin({ externals: external })],
   external,
 });

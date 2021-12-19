@@ -1,5 +1,5 @@
 export { nota } from "./nota/language";
-export { translate } from "./nota/translate";
+export { translate, translate_ast } from "./nota/translate";
 export { js } from "./javascript/language";
 
 import { Result, ok, err } from "@nota-lang/nota-common";

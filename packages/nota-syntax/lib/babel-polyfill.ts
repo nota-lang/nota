@@ -157,7 +157,7 @@ export let arrayExpression = (
 export let program = (body: Array<Statement>): Program => ({
   type: "Program",
   body,
-  sourceType: "script",
+  sourceType: "module",
   directives: [],
   sourceFile: "",
   ...base_node,

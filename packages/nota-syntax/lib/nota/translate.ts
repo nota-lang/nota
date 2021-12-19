@@ -9,6 +9,7 @@ import type {
   ImportDeclaration,
   Identifier,
   StringLiteral,
+  Program
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
@@ -96,7 +97,7 @@ export let parse_expr = (code: string): Expression => {
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
-export let translate = (input: string, tree: Tree): string => {
+export let translate_ast = (input: string, tree: Tree): Program => {
   let node = tree.topNode;
   assert(matches(node, terms.Document));
   global = {
@@ -122,7 +123,12 @@ export let translate = (input: string, tree: Tree): string => {
     t.exportDefaultDeclaration(doc),
   ];
 
-  let result = babel.transformFromAst(t.program(program), undefined, {
+  return t.program(program);
+}
+
+export let translate = (input: string, tree: Tree): string => {
+  let program = translate_ast(input, tree);
+  let result = babel.transformFromAst(program, undefined, {
     plugins: [() => optimize_plugin],
   }) as any as BabelFileResult;
   let js = result.code!;

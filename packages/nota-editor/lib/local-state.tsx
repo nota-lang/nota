@@ -1,59 +1,55 @@
-import { is_err, err, ok } from "@nota-lang/nota-common";
-import { try_parse, translate } from "@nota-lang/nota-syntax";
+import { is_err, ok } from "@nota-lang/nota-common";
+import { try_parse, translate_ast } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import esbuild from "esbuild-wasm";
-//@ts-ignore
-import esbuildWasmURL from "esbuild-wasm/esbuild.wasm";
+import * as babel from "@babel/standalone";
+import type { BabelFileResult } from "@babel/core";
 
 import { TranslationResult, State } from "./nota-editor";
 
 export class LocalState implements State {
-  contents: string = "";
-  translation: TranslationResult = err(Error(""));
-  ready: boolean = false;
+  contents: string;
+  translation: TranslationResult;
+  ready: boolean = true;
 
-  async try_translate(): Promise<TranslationResult> {
+  try_translate(): TranslationResult {
     let tree = try_parse(this.contents);
     if (is_err(tree)) {
       return tree;
     }
-    let js = translate(this.contents, tree.value);
-    let output = await esbuild.transform(js, { format: "iife", globalName: "nota_document" });
+    let js = translate_ast(this.contents, tree.value);
+    let transpiled_result = babel.transformFromAst(js, undefined, {}) as any as BabelFileResult;
+    let lowered_result = babel.transformFromAst(js, undefined, {
+      presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
+    }) as any as BabelFileResult;
+    let lowered = `let exports = {};\n${lowered_result.code}\nlet nota_document = exports;`;
     return ok({
-      transpiled: js,
-      lowered: output.code,
+      transpiled: transpiled_result.code!,
+      lowered,
     });
   }
 
-  constructor() {
+  constructor(contents: string) {
+    this.contents = contents;
+    this.translation = this.try_translate();
     makeAutoObservable(this);
-    esbuild
-      .initialize({
-        wasmURL: esbuildWasmURL,
-      })
-      .then(async () => {
-        let translation = await this.try_translate();
+
+    let needs_sync = false;
+    reaction(
+      () => [this.contents],
+      () => {
+        needs_sync = true;
+      }
+    );
+
+    const SYNC_INTERVAL = 200;
+    setInterval(async () => {
+      if (needs_sync) {
+        let translation = this.try_translate();
+        needs_sync = false;
         runInAction(() => {
           this.translation = translation;
-          this.ready = true;
         });
-
-        let needs_sync = false;
-        reaction(
-          () => [this.contents],
-          () => {
-            needs_sync = true;
-          }
-        );
-
-        setInterval(async () => {
-          if (needs_sync) {
-            let translation = await this.try_translate();
-            runInAction(() => {
-              this.translation = translation;
-            });
-          }
-        }, 200);
-      });
+      }
+    }, SYNC_INTERVAL);
   }
 }

@@ -34,13 +34,14 @@
   "dependencies": {
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
+    "yargs": "^17.3.0"
+  },
+  "peerDependencies": {
     "esbuild": "^0.14.5"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.7",
-    "commander": "^8.3.0",
     "lodash": "^4.17.21",
-    "package-json-type": "^1.0.3",
-    "yargs": "^17.3.0"
+    "package-json-type": "^1.0.3"
   }
 }

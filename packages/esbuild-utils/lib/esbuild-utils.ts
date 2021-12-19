@@ -1,11 +1,10 @@
 import fs from "fs";
-import yargs from "yargs";
 import esbuild, { BuildOptions, BuildResult, Plugin, Loader } from "esbuild";
 import type { IPackageJson, IDependencyMap } from "package-json-type";
-import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
 import path from "path";
 import _ from "lodash";
 import { promise as glob } from "glob-promise";
+import yargs from "yargs";
 
 export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
   let options = yargs(process.argv.slice(2)).alias("w", "watch").alias("p", "prod").argv as any;
@@ -19,7 +18,7 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
     if (format == "esm") {
-      plugins.push(EsmExternalsPlugin({ externals: external }));
+      plugins.push(esm_externals_plugin({ externals: external }));
     }
 
     let loader: { [ext: string]: Loader } = {
@@ -71,7 +70,7 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
     build.onResolve({ filter }, async args => {
       let abs_path = path.join(args.resolveDir, args.path);
       let matching_paths = await glob(abs_path);
-      paths = paths.concat(matching_paths.map(p => [p, path.join(outdir, path.basename(p))]));
+      paths = paths.concat(matching_paths.map(p => [p, path.join(outdir!, path.basename(p))]));
       return { path: args.path, namespace: "copy" };
     });
 
@@ -79,5 +78,22 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
     build.onEnd(_ => {
       paths.forEach(([inpath, outpath]) => fs.promises.copyFile(inpath, outpath));
     });
+  },
+});
+
+export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plugin => ({
+  name: "esm-externals",
+  setup(build) {
+    let filter = new RegExp("^(" + externals.map(_.escapeRegExp).join("|") + ")(\\/.*)?$");
+
+    build.onResolve({ filter }, args => ({
+      path: args.path,
+      external: true,
+      namespace: "esm-externals",
+    }));
+
+    build.onLoad({ filter: /.*/, namespace: "esm-externals" }, args => ({
+      contents: `export {default} from "${args.path}"; export * from "${args.path}";`,
+    }));
   },
 });
