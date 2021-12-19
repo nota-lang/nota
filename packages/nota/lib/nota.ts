@@ -3,7 +3,7 @@
 import { program } from "commander";
 import * as server from "./server";
 
-program.command("build <file>").action(opts => {
+program.command("build <file>").action(_opts => {
   throw `Not yet implemented!`;
 });
 

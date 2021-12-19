@@ -2,18 +2,16 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import type { SyntaxNode } from "@lezer/common";
 import { observer, useLocalObservable } from "mobx-react";
 import indentString from "indent-string";
-import classNames from "classnames";
 import { ErrorBoundary } from "react-error-boundary";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
-import { action, makeAutoObservable, reaction } from "mobx";
-import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
+import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
-import {peerImports} from "@nota-lang/nota-components/dist/peer-imports.mjs";
-
+import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
+import { peerImports } from "@nota-lang/nota-components/dist/peer-imports";
 
 import { StateContext, TranslationResult } from "./nota-editor";
 import { theme } from "./editor";
@@ -117,7 +115,7 @@ export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ res
 
   let errored = false;
   useEffect(
-    action(() => { 
+    action(() => {
       if (errored) {
         errored = false;
         return;

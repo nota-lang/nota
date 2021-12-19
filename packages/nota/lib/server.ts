@@ -5,7 +5,7 @@ import { constants, promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import {peerDependencies} from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
+import {peerDependencies} from "@nota-lang/nota-components/dist/peer-dependencies";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 
@@ -49,7 +49,7 @@ export let main = async (opts: ServerOptions) => {
   };
 
   let watch: esbuild.WatchMode = {
-    async onRebuild(error, result) {
+    async onRebuild(error, _result) {
       if (error) {
         output = err(Error(error.errors.map(err => err.text).join("\n")));
       } else {

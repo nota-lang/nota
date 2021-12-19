@@ -6,7 +6,7 @@ import { EsmExternalsPlugin } from "@esbuild-plugins/esm-externals";
 import path from "path";
 import _ from "lodash";
 
-export let cli = (): ((extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
+export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
   let options = yargs(process.argv.slice(2)).alias("w", "watch").alias("p", "prod").argv as any;
 
   let pkg: IPackageJson = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
@@ -63,12 +63,7 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
       return { path: args.path, namespace: "copy", watchFiles: [abs_path] };
     });
 
-    build.onLoad({ filter: /.*/, namespace: "copy" }, async args => {
-      return {
-        contents: "",
-      };
-    });
-
+    build.onLoad({ filter: /.*/, namespace: "copy" }, async _args => ({ contents: "" }));
     build.onEnd(_ => {
       paths.forEach(([inpath, outpath]) => fs.promises.copyFile(inpath, outpath));
     });

@@ -17,21 +17,16 @@ build({
 
   fs.writeFileSync(
     "dist/peer-imports.d.ts",
-    `declare const peerImports: {[mod: string]: any}; export peerImports;`
+    `export const peerImports: {[mod: string]: any};`
   );
 
   let imports = modules.map((mod, i) => `import * as _${i} from "${mod}";`).join("\n");
-  let export_ = `export let peerImports = {${modules
-    .map((mod, i) => `"${mod}": _${i}`)
-    .join(",")}}`;
-  fs.writeFileSync("dist/peer-imports.mjs", imports + "\n" + export_);
+  let export_ = `export let peerImports = {${modules.map((mod, i) => `"${mod}": _${i}`).join(",")}}`;
+  fs.writeFileSync("dist/peer-imports.js", imports + "\n" + export_);
 
   fs.writeFileSync(
     "dist/peer-dependencies.d.ts",
-    `declare const peerDependencies: string[]; expor peerDependencies;`
+    `export const peerDependencies: string[];`
   );
-  fs.writeFileSync(
-    "dist/peer-dependencies.mjs",
-    `export let peerDependencies = ${JSON.stringify(modules)};`
-  );
+  fs.writeFileSync("dist/peer-dependencies.js", `export let peerDependencies = ${JSON.stringify(modules)};`);
 });
