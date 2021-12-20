@@ -1,5 +1,5 @@
 import fs from "fs";
-import esbuild, { BuildOptions, BuildResult, Plugin, Loader } from "esbuild";
+import esbuild, { BuildOptions, BuildResult, Plugin, Loader, WatchMode } from "esbuild";
 import type { IPackageJson, IDependencyMap } from "package-json-type";
 import path from "path";
 import _ from "lodash";
@@ -40,10 +40,18 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       extra.outdir = "dist";
     }
 
+    let watch: WatchMode | undefined = options.watch
+      ? {
+          onRebuild() {
+            console.log("Rebuilt.");
+          },
+        }
+      : undefined;
+
     let opts = {
       ...extra,
       ...outpaths,
-      watch: options.watch,
+      watch,
       minify: options.prod,
       external,
       plugins,
@@ -53,7 +61,11 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : true,
     };
 
-    return esbuild.build(opts).then(result => [result, opts]);
+    let start = _.now();
+    return esbuild.build(opts).then(result => {
+      console.log(`Built in ${((_.now() - start) / 1000).toFixed(2)}s.`);
+      return [result, opts];
+    });
   };
 };
 
@@ -86,14 +98,19 @@ export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plug
   setup(build) {
     let filter = new RegExp("^(" + externals.map(_.escapeRegExp).join("|") + ")(\\/.*)?$");
 
-    build.onResolve({ filter }, args => ({
+    let namespace = "esm-externals";
+    build.onResolve({ filter: /.*/, namespace }, args => ({
       path: args.path,
       external: true,
-      namespace: "esm-externals",
     }));
 
-    build.onLoad({ filter: /.*/, namespace: "esm-externals" }, args => ({
-      contents: `export {default} from "${args.path}"; export * from "${args.path}";`,
+    build.onResolve({ filter }, args => ({
+      path: args.path,
+      namespace,
+    }));
+
+    build.onLoad({ filter: /.*/, namespace }, args => ({
+      contents: `export * as default from "${args.path}"; export * from "${args.path}";`,
     }));
   },
 });

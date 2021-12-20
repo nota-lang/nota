@@ -39,5 +39,4 @@ export { Loader, LoaderContext } from "./loader";
 export { LoggerPlugin } from "./logger";
 export { usePlugin, Plugin, Pluggable } from "./plugin";
 
-import "katex/dist/katex.min.css";
 import "../css/nota-components.scss";

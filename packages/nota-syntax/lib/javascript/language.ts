@@ -1,22 +1,11 @@
-import { parseMixed } from "@lezer/common";
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 
-//@ts-ignore
-import { parser, NotaMacro } from "./javascript.grammar";
-import { nota_language } from "../nota/language";
-
-let js_wrap = parseMixed((node, _input) => {
-  if (node.type.id == NotaMacro) {
-    return { parser: nota_language.parser };
-  }
-  return null;
-});
+import { js_parser } from "./translate";
 
 // copied from https://github.com/codemirror/lang-javascript/blob/main/src/javascript.ts
 export let js_language = LRLanguage.define({
-  parser: parser.configure({
-    wrap: js_wrap,
+  parser: js_parser.configure({
     props: [
       styleTags({
         "get set async static": t.modifier,

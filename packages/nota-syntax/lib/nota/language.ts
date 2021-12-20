@@ -1,22 +1,11 @@
-import { parseMixed } from "@lezer/common";
 import { LRLanguage, LanguageSupport, indentNodeProp, continuedIndent } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 
-//@ts-ignore
-import { parser, Js } from "./nota.grammar";
+import { nota_parser } from "./translate";
 import { autocomplete } from "./autocomplete";
-import { js_language } from "../javascript/language";
-
-let wrap = parseMixed((node, _input) => {
-  if (node.type.id == Js) {
-    return { parser: js_language.parser };
-  }
-  return null;
-});
 
 export let nota_language = LRLanguage.define({
-  parser: parser.configure({
-    wrap,
+  parser: nota_parser.configure({
     props: [
       styleTags({
         Text: t.string,

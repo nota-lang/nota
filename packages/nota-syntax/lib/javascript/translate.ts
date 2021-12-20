@@ -1,4 +1,5 @@
-import type { SyntaxNode } from "@lezer/common";
+import { SyntaxNode, parseMixed } from "@lezer/common";
+import type { LRParser } from "@lezer/lr";
 import type { Expression } from "@babel/types";
 import { assert } from "@nota-lang/nota-common";
 import * as babel from "@babel/standalone";
@@ -9,8 +10,24 @@ import * as nota_terms from "../nota/nota.grammar";
 //@ts-ignore
 import * as terms from "./javascript.grammar";
 import * as t from "../babel-polyfill";
-import { matches, text, translate_textbody, parse_expr, lambda } from "../nota/translate";
+import {
+  matches,
+  text,
+  translate_textbody,
+  parse_expr,
+  lambda,
+  nota_parser,
+} from "../nota/translate";
 import { BabelFileResult } from "@babel/core";
+
+export let js_parser: LRParser = terms.parser.configure({
+  wrap: parseMixed((node, _input) => {
+    if (node.type.id == terms.NotaMacro) {
+      return { parser: nota_parser };
+    }
+    return null;
+  }),
+});
 
 export let translate_js = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.Script));
@@ -20,7 +37,7 @@ export let translate_js = (node: SyntaxNode): Expression => {
   while (node.from <= cursor.from && cursor.to <= node.to) {
     if (matches(cursor.node, terms.NotaMacroWrap)) {
       let doc = cursor.node.getChild(nota_terms.Document)!;
-      let expr = translate_textbody(doc.firstChild!); 
+      let expr = translate_textbody(doc.firstChild!);
 
       let name_node = cursor.node.getChild(terms.Label);
       if (name_node) {

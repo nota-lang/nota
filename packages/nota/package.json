@@ -43,10 +43,7 @@
     "@types/express-ws": "^3.0.1",
     "@types/ws": "^8.2.0",
     "classnames": "^2.3.1",
-    "commander": "^8.3.0",
     "esbuild-sass-plugin": "^1.8.1",
-    "express": "^4.17.1",
-    "express-ws": "^5.0.2",
     "mobx": "^6.3.7",
     "mobx-react": "^7.2.1",
     "react": "^17.0.2",
@@ -55,6 +52,9 @@
   },
   "dependencies": {
     "@cspotcode/source-map-support": "^0.7.0",
-    "esbuild": "^0.14.5"
+    "esbuild": "^0.14.5",
+    "express": "^4.17.1",
+    "express-ws": "^5.0.2",
+    "commander": "^8.3.0"
   }
 }

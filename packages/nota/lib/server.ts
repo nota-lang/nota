@@ -5,7 +5,7 @@ import { constants, promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import {peerDependencies} from "@nota-lang/nota-components/dist/peer-dependencies";
+import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 
@@ -59,18 +59,17 @@ export let main = async (opts: ServerOptions) => {
     },
   };
 
-  let initial_build = esbuild
-    .build({
-      entryPoints: [input_path],
-      bundle: true,
-      sourcemap: true,
-      outfile: OUTPUT_PATH,
-      plugins: [nota_plugin({ pretty: true })],
-      globalName: "nota_document",
-      external: peerDependencies,
-      watch,
-      loader,
-    });
+  let initial_build = esbuild.build({
+    entryPoints: [input_path],
+    bundle: true,
+    sourcemap: true,
+    outfile: OUTPUT_PATH,
+    plugins: [nota_plugin({ pretty: true })],
+    globalName: "nota_document",
+    external: peerDependencies,
+    watch,
+    loader,
+  });
 
   app.ws("/", async (ws, _req) => {
     await initial_build;

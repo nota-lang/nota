@@ -35,6 +35,7 @@
     "url": "https://github.com/willcrichton/nota/issues"
   },
   "dependencies": {
+    "@babel/standalone": "^7.16.4",
     "@nota-lang/nota-components": "^0.2.2",
     "@nota-lang/nota-syntax": "^0.2.2",
     "prettier": "^2.5.1"
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@nota-lang/esbuild-utils": "^0.2.2",
     "@nota-lang/nota-common": "^0.2.2",
+    "@types/prettier": "^2.4.2",
     "react-error-boundary": "^3.1.4"
   }
 }

@@ -1,4 +1,4 @@
-import { SyntaxNode, Tree } from "@lezer/common";
+import { SyntaxNode, Tree, parseMixed } from "@lezer/common";
 import _ from "lodash";
 import type {
   Expression,
@@ -9,12 +9,12 @@ import type {
   ImportDeclaration,
   Identifier,
   StringLiteral,
-  Program
+  Program,
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
-import * as nota from "@nota-lang/nota-components";
 import { Either, left, right, is_left, assert, unreachable } from "@nota-lang/nota-common";
+import type { LRParser } from "@lezer/lr";
 
 import * as t from "../babel-polyfill";
 //@ts-ignore
@@ -22,7 +22,16 @@ import * as terms from "./nota.grammar";
 //@ts-ignore
 import * as js_terms from "../javascript/javascript.grammar";
 import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
-import { translate_js } from "../javascript/translate";
+import { translate_js, js_parser } from "../javascript/translate";
+
+export let nota_parser: LRParser = terms.parser.configure({
+  wrap: parseMixed((node, _input) => {
+    if (node.type.id == terms.Js) {
+      return { parser: js_parser };
+    }
+    return null;
+  })
+});
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matches_newline = (node: SyntaxNode): boolean =>
@@ -97,6 +106,16 @@ export let parse_expr = (code: string): Expression => {
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
+// prettier-ignore
+export let PRELUDE = {
+  components: [
+    "Document", "Paragraph", "Section", "Subsection", "Subsubsection", "Title", "Ref", "References", "Abstract",
+    "Row", "Wrap", "Footnote", "Figure", "Caption", "Definition", "Togglebox", "IR", "Theorem",
+    "Link", "Correspondence", "Listing", "ListingConfigure"
+  ], 
+  functions: [],
+};
+
 export let translate_ast = (input: string, tree: Tree): Program => {
   let node = tree.topNode;
   assert(matches(node, terms.Document));
@@ -115,7 +134,9 @@ export let translate_ast = (input: string, tree: Tree): Program => {
       t.stringLiteral("react")
     ),
     t.importDeclaration(
-      Object.keys(nota).filter(k => k != "default").map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+      PRELUDE.components
+        .concat(PRELUDE.functions)
+        .map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
       t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
@@ -124,7 +145,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   ];
 
   return t.program(program);
-}
+};
 
 export let translate = (input: string, tree: Tree): string => {
   let program = translate_ast(input, tree);
