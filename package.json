@@ -9,7 +9,8 @@
     "clean-repo": "lerna clean && rm -r node_modules && find packages -name dist | xargs rm -r",
     "full": "lerna run full",
     "lint": "lerna run lint",
-    "watch": "lerna run --parallel  --no-bail build -- -w"
+    "watch": "lerna run --parallel  --no-bail build -- -w",
+    "commit-check": "yarn clean-repo && yarn init-repo && yarn lint"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",
