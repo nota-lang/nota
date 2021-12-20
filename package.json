@@ -6,9 +6,10 @@
   ],
   "scripts": {
     "init-repo": "yarn && lerna bootstrap && lerna link && lerna run full",
-    "clean-repo": "lerna clean && rm -r node_modules && find packages -name dist | xargs rm -r",
+    "clean-repo": "(yes | lerna clean) && rm -r node_modules && find packages -name dist | xargs rm -r",
     "full": "lerna run full",
     "lint": "lerna run lint",
+    "build": "lerna run build",
     "watch": "lerna run --parallel  --no-bail build -- -w",
     "commit-check": "yarn clean-repo && yarn init-repo && yarn lint"
   },

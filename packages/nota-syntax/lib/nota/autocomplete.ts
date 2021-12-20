@@ -3,7 +3,7 @@ import {
   CompletionSource,
   Completion,
   snippetCompletion as snip,
-  completeFromList,
+  // completeFromList,
 } from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
 
@@ -34,17 +34,18 @@ let pct_completions: Completion[] = ["let", "letfn", "import", "import_default"]
 );
 
 // TODO: not working, figure out how snippets work
-let snippets: Completion[] = [["list", "@ol{\n\t@li{}\n}"]].map(([label, snippet]) =>
+let _snippets: Completion[] = [["list", "@ol{\n\t@li{}\n}"]].map(([label, snippet]) =>
   snip(snippet, { label, type: "react" })
 );
 
 let ident = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
 export let autocomplete: CompletionSource = context => {
-  let snippet = completeFromList(snippets)(context);
-  if (snippet) {
-    return snippet;
-  }
+  // let snippet = completeFromList(snippets)(context);
+  // if (snippet) {
+  //   return snippet;
+  // }
+
   let text = (node: SyntaxNode) => context.state.doc.sliceString(node.from, node.to);
   let tree = syntaxTree(context.state);
 
@@ -81,7 +82,7 @@ export let autocomplete: CompletionSource = context => {
 
   let parent = node_before.parent;
   // User has just typed "@"
-  if (cmds.includes(node_before.type.id)) {
+  if (cmds.includes(node_before.type.id)) {    
     return {
       from: node_before.to,
       options: completions.get(node_before.type.id)!,

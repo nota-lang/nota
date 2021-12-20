@@ -111,7 +111,8 @@ export let PRELUDE = {
   components: [
     "Document", "Paragraph", "Section", "Subsection", "Subsubsection", "Title", "Ref", "References", "Abstract",
     "Row", "Wrap", "Footnote", "Figure", "Caption", "Definition", "Togglebox", "IR", "Theorem",
-    "Link", "Correspondence", "Listing", "ListingConfigure"
+    "Link", "Correspondence", "Listing", "ListingConfigure", "$", "$$", "Cite", "Authors", "Author", "Name", 
+    "Affiliation", "Institution"
   ], 
   functions: [],
 };

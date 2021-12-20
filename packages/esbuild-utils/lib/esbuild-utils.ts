@@ -93,9 +93,11 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
   },
 });
 
+let ALLOWLIST = ['react'];
 export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plugin => ({
   name: "esm-externals",
   setup(build) {
+    externals = externals.filter(m => ALLOWLIST.includes(m));
     let filter = new RegExp("^(" + externals.map(_.escapeRegExp).join("|") + ")(\\/.*)?$");
 
     let namespace = "esm-externals";
