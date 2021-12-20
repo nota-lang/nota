@@ -51,7 +51,7 @@ export let main = async (opts: ServerOptions) => {
   let watch: esbuild.WatchMode = {
     async onRebuild(error, _result) {
       if (error) {
-        output = err(Error(error.errors.map(err => err.text).join("\n")));
+        output = err(error.errors.map(err => err.text).join("\n"));
       } else {
         await load_output();
       }

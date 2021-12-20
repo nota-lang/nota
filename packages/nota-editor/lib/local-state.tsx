@@ -1,4 +1,4 @@
-import { is_err, ok } from "@nota-lang/nota-common";
+import { is_err, err, ok } from "@nota-lang/nota-common";
 import { try_parse, nota_parser, translate_ast } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
@@ -14,7 +14,7 @@ export class LocalState implements State {
   try_translate(): TranslationResult {
     let tree = try_parse(nota_parser, this.contents);
     if (is_err(tree)) {
-      return tree;
+      return err(tree.value.stack!);
     }
     let js = translate_ast(this.contents, tree.value);
     let transpiled_result = babel.transformFromAst(js, undefined, {}) as any as BabelFileResult;

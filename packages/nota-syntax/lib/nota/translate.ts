@@ -17,21 +17,22 @@ import { Either, left, right, is_left, assert, unreachable } from "@nota-lang/no
 import type { LRParser } from "@lezer/lr";
 
 import * as t from "../babel-polyfill";
+import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
+import { translate_js } from "../javascript/translate";
 //@ts-ignore
 import * as terms from "./nota.grammar";
 //@ts-ignore
 import * as js_terms from "../javascript/javascript.grammar";
-import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
-import { translate_js, js_parser } from "../javascript/translate";
 
-export let nota_parser: LRParser = terms.parser.configure({
-  wrap: parseMixed((node, _input) => {
+export let nota_wrap = (js_parser: () => LRParser) =>
+  parseMixed((node, _input) => {
     if (node.type.id == terms.Js) {
-      return { parser: js_parser };
+      return { parser: js_parser() };
     }
     return null;
-  })
-});
+  });
+
+export let nota_parser = terms.parser.configure({ wrap: nota_wrap(() => js_terms.parser) });
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matches_newline = (node: SyntaxNode): boolean =>
@@ -91,6 +92,8 @@ let optimize_plugin: PluginObj = {
   },
 };
 
+
+
 let parse = (code: string): Statement[] => {
   let result = babel.transform(code, {
     ast: true,
@@ -128,20 +131,22 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   let doc_body = translate_textbody(node.firstChild!);
   let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
 
+  let all_prelude = PRELUDE.components.concat(PRELUDE.functions);
+  let used_prelude: Set<string> = new Set();
+  t.traverse(doc, node => {
+    if (node.type == "Identifier" && all_prelude.includes(node.name)) {
+      used_prelude.add(node.name);
+    }
+  });
+
   let create_el_long = t.identifier("createElement");
   let program = [
+    t.importDeclaration([t.importSpecifier(create_el, create_el_long)], t.stringLiteral("react")),
     t.importDeclaration(
-      [t.importSpecifier(create_el_long, create_el_long)],
-      t.stringLiteral("react")
-    ),
-    t.importDeclaration(
-      PRELUDE.components
-        .concat(PRELUDE.functions)
-        .map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+      Array.from(used_prelude).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
       t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
-    binding(create_el, create_el_long),
     t.exportDefaultDeclaration(doc),
   ];
 

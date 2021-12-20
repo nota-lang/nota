@@ -73,7 +73,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 
   return (
     <>
-      {is_err(result) ? <ErrorView>{result.value.stack}</ErrorView> : null}
+      {is_err(result) ? <ErrorView>{result.value}</ErrorView> : null}
       <div ref={ref} />
     </>
   );
@@ -88,7 +88,7 @@ let nota_require = (path: string): any => {
 
 let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   if (is_err(result)) {
-    return err(<>{result.value.stack}</>);
+    return err(<>{result.value}</>);
   }
 
   let Doc;

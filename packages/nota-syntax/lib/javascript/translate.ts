@@ -10,24 +10,16 @@ import * as nota_terms from "../nota/nota.grammar";
 //@ts-ignore
 import * as terms from "./javascript.grammar";
 import * as t from "../babel-polyfill";
-import {
-  matches,
-  text,
-  translate_textbody,
-  parse_expr,
-  lambda,
-  nota_parser,
-} from "../nota/translate";
+import { matches, text, translate_textbody, parse_expr, lambda } from "../nota/translate";
 import { BabelFileResult } from "@babel/core";
 
-export let js_parser: LRParser = terms.parser.configure({
-  wrap: parseMixed((node, _input) => {
+export let js_wrap = (nota_parser: () => LRParser) =>
+  parseMixed((node, _input) => {
     if (node.type.id == terms.NotaMacro) {
-      return { parser: nota_parser };
+      return { parser: nota_parser() };
     }
     return null;
-  }),
-});
+  });
 
 export let translate_js = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.Script));

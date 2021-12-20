@@ -1,11 +1,15 @@
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 
-import { js_parser } from "./translate";
+import { nota_language } from "../nota/language";
+import { js_wrap } from "./translate";
+//@ts-ignore
+import { parser } from "./javascript.grammar";
 
 // copied from https://github.com/codemirror/lang-javascript/blob/main/src/javascript.ts
 export let js_language = LRLanguage.define({
-  parser: js_parser.configure({
+  parser: parser.configure({
+    wrap: js_wrap(() => nota_language.parser),
     props: [
       styleTags({
         "get set async static": t.modifier,

@@ -1,11 +1,15 @@
 import { LRLanguage, LanguageSupport, indentNodeProp, continuedIndent } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
 
-import { nota_parser } from "./translate";
+import { js_language } from "../javascript/language";
+import { nota_wrap } from "./translate";
 import { autocomplete } from "./autocomplete";
+//@ts-ignore
+import { parser } from "./nota.grammar";
 
 export let nota_language = LRLanguage.define({
-  parser: nota_parser.configure({
+  parser: parser.configure({
+    wrap: nota_wrap(() => js_language.parser),
     props: [
       styleTags({
         Text: t.string,

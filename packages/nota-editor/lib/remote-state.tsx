@@ -24,7 +24,7 @@ export type Message = SyncText | NewOutput | InitialContent;
 
 export class RemoteState implements State {
   contents: string = "";
-  translation: TranslationResult = err(Error(""));
+  translation: TranslationResult = err("");
   ready: boolean = false;
 
   private ws: WebSocket;

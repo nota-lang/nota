@@ -33,6 +33,7 @@ import type {
   TSDeclareFunction,
   FunctionDeclaration,
   DebuggerStatement,
+  Node,
 } from "@babel/types";
 
 let base_node = {
@@ -231,3 +232,16 @@ export let debuggerStatement = (): DebuggerStatement => ({
   type: "DebuggerStatement",
   ...base_node,
 });
+
+let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;
+export let traverse = (node: Node, visit: (_node: Node) => void) => {
+  visit(node);
+  Object.keys(node).forEach(k => {
+    let v = (node as any)[k];
+    if (is_node(v)) {
+      traverse(v, visit);
+    } else if (v instanceof Array && v.length > 0 && is_node(v[0])) {
+      v.forEach(child => traverse(child, visit));
+    }
+  });
+};

@@ -1,6 +1,2 @@
-Sup.!!!
-
-@Section{Sup!}
-
-NICE! ok.
-@em{ok.} ALright. what's up. ok. Whee ok!fdsf
+%letfn[foo]{#0}
+@Section{Hey}
