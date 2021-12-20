@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-syntax",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -43,9 +43,9 @@
   },
   "devDependencies": {
     "@lezer/generator": "^0.15.2",
-    "@nota-lang/esbuild-lezer": "^0.2.3",
-    "@nota-lang/esbuild-utils": "^0.2.3",
-    "@nota-lang/nota-common": "^0.2.3",
+    "@nota-lang/esbuild-lezer": "^0.2.4",
+    "@nota-lang/esbuild-utils": "^0.2.4",
+    "@nota-lang/nota-common": "^0.2.4",
     "@types/babel__core": "^7.1.16",
     "@types/babel__standalone": "^7.1.3"
   }
