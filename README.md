@@ -8,9 +8,7 @@ To see an example, or to read about Nota's design philosophy, please check out m
 
 ## Usage
 
-### Step 1. Write the document
-
-<UNDER CONSTRUCTION>
+⚠️ UNDER CONSTRUCTION ⚠️
 
 ## Contributing
 
@@ -19,7 +17,5 @@ If you would like to make a contribution to Nota, thanks! You can build the repo
 ```
 git clone https://github.com/nota-lang/nota/
 cd nota
-lerna bootstrap
-lerna link
-lerna run full
+yarn init-repo
 ```
