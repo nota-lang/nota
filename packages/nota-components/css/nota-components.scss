@@ -549,6 +549,7 @@ $sans-serif: "Helvetica", sans-serif;
     position: fixed;
     width: 0;
     height: 0;
+    z-index: 1000;
   }
 
   .loader {
