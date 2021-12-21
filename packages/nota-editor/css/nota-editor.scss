@@ -11,12 +11,12 @@
 }
 
 .translate-error {
-  position: sticky;
+  position: absolute;
   z-index: 1000;
-  top: 5px;
-  right: 10px;
+  bottom: 0;
+  left: 0;
   margin: 0;
-  padding: 10px;
+  padding: 5px 10px;
   border: 1px solid #ccc;
   border-radius: 2px;
   color: red;
@@ -25,4 +25,6 @@
   max-width: 100%;
   height: min-content;  
   white-space: pre-wrap;
+  font-size: 85%;
+  overflow-x: auto;
 }
