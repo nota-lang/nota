@@ -1,14 +1,8 @@
-# Nota: A Web Framework for Documents
+# Nota: A Document Language for the Browser
 
 [![.github/workflows/ci.yaml](https://github.com/nota-lang/nota/actions/workflows/ci.yaml/badge.svg)](https://github.com/nota-lang/nota/actions/workflows/ci.yaml)
 
-Nota is a framework for writing documents, like LaTeX. It uses the browser's document layout engine and interactive capabilities to make documents easier to both write and read.
-
-To see an example, or to read about Nota's design philosophy, please check out my [HATRA '21](https://2021.splashcon.org/home/hatra-2021) paper: ["A New Medium for Communicating Research on Programming Languages"](https://willcrichton.net/nota/)
-
-## Usage
-
-⚠️ UNDER CONSTRUCTION ⚠️
+This README is ⚠️ UNDER CONSTRUCTION ⚠️ until an alpha release is ready. Check out [nota-lang.org](https://nota-lang.org/) for a demo.
 
 ## Contributing
 
