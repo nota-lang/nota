@@ -67,8 +67,7 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
-// TODO: make language a document-level configurable
-export let Paragraph: React.FC = ({ children }) => <p lang="en">{children}</p>;
+export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
 
 export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   children,

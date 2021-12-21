@@ -303,6 +303,7 @@ $sans-serif: "Helvetica", sans-serif;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     max-width: 600px;
     width: max-content;
+    z-index: 1000;
 
     .arrow {
       visibility: hidden;

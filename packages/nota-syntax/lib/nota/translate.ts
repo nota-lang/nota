@@ -18,7 +18,7 @@ import type { LRParser } from "@lezer/lr";
 
 import * as t from "../babel-polyfill";
 import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
-import { translate_js } from "../javascript/translate";
+import { translate_js, js_parser } from "../javascript/translate";
 //@ts-ignore
 import * as terms from "./nota.grammar";
 //@ts-ignore
@@ -32,7 +32,7 @@ export let nota_wrap = (js_parser: () => LRParser) =>
     return null;
   });
 
-export let nota_parser = terms.parser.configure({ wrap: nota_wrap(() => js_terms.parser) });
+export let nota_parser: LRParser = terms.parser.configure({ wrap: nota_wrap(() => js_parser) });
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matches_newline = (node: SyntaxNode): boolean =>
@@ -92,8 +92,6 @@ let optimize_plugin: PluginObj = {
   },
 };
 
-
-
 let parse = (code: string): Statement[] => {
   let result = babel.transform(code, {
     ast: true,
@@ -115,7 +113,7 @@ export let PRELUDE = {
     "Document", "Paragraph", "Section", "Subsection", "Subsubsection", "Title", "Ref", "References", "Abstract",
     "Row", "Wrap", "Footnote", "Figure", "Caption", "Definition", "Togglebox", "IR", "Theorem",
     "Link", "Correspondence", "Listing", "ListingConfigure", "$", "$$", "Cite", "Authors", "Author", "Name", 
-    "Affiliation", "Institution"
+    "Affiliation", "Institution", "Smallcaps"
   ], 
   functions: [],
 };
@@ -128,7 +126,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
     imports: new Set(),
   };
 
-  let doc_body = translate_textbody(node.firstChild!);
+  let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
   let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
 
   let all_prelude = PRELUDE.components.concat(PRELUDE.functions);
@@ -147,7 +145,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
       t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
-    t.exportDefaultDeclaration(doc),
+    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc)),
   ];
 
   return t.program(program);
@@ -229,7 +227,7 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
 type TranslatedToken = Either<Expression, Statement | null>;
 
 let process_text = (text: string): StringLiteral => {
-  return t.stringLiteral(text.replace(/\\%/g, "%"));
+  return t.stringLiteral(text.replace(/\\%/g, "%").replace(/---/g, "—"));
 };
 
 let translate_token = (node: SyntaxNode): TranslatedToken => {

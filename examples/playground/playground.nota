@@ -1,2 +1,6 @@
-%letfn[foo]{#0}
-@Section{Hey}
+//hey!
+%let[nota]{@span[style={fontVariant: 'small-caps'}]{Nota}}
+@Definition[name="nota"][Label=()=>nota]{
+  #nota is a language for writing documents, like academic papers and blog posts.
+}
+I love @Ref{nota}.

@@ -17,6 +17,7 @@ export let theme = EditorView.theme({
   },
   ".cm-scroller": {
     fontFamily: "Inconsolata, monospace",
+    lineHeight: '1.3',
   },
   ".cm-gutters": {
     background: "none",
@@ -34,7 +35,7 @@ let js_lang = js();
 
 let nota_style = HighlightStyle.define(
   [
-    { tag: t.string, fontFamily: "Linux Libertine O, serif" },
+    { tag: t.string, class: "nota-text" },
     { tag: t.variableName, color: "#164" },
     { tag: t.definitionKeyword, color: "#219" },
     { tag: t.comment, color: "#940" },

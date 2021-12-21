@@ -13,7 +13,7 @@ import { join_recursive } from "@nota-lang/nota-common";
 
 export interface DefinitionData {
   Tooltip: React.FC | null;
-  Label: React.FC<any> | null;
+  Label: React.FC<any> | JSX.Element | null;
 }
 
 class DefinitionsData extends Pluggable {
@@ -145,7 +145,11 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Elemen
   };
 
   let inner: JSX.Element = def.Label ? (
-    <def.Label name={name} {...props} />
+    typeof def.Label == "function" ? (
+      <def.Label name={name} {...props} />
+    ) : (
+      def.Label
+    )
   ) : (
     Element || <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );

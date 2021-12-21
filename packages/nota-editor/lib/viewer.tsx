@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import type { SyntaxNode } from "@lezer/common";
-import { observer, useLocalObservable } from "mobx-react";
 import indentString from "indent-string";
 import { ErrorBoundary } from "react-error-boundary";
 import parserBabel from "prettier/parser-babel";
@@ -86,7 +85,7 @@ let nota_require = (path: string): any => {
   return peerImports[path];
 };
 
-let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
+let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
   if (is_err(result)) {
     return err(<>{result.value}</>);
   }
@@ -106,12 +105,11 @@ let execute = (result: TranslationResult): Result<JSX.Element, JSX.Element> => {
   return ok(Doc);
 };
 
-export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ result }) => {
-  let last_translation = useLocalObservable<{ t: JSX.Element | null }>(() => ({
-    t: null,
-  }));
+let counter = 0;
+export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) => {
+  let [last_translation] = useState<{t: JSX.Element | null}>({t: null});
 
-  let Doc = execute(result);
+  let DocResult = execute(result);
 
   let errored = false;
   useEffect(
@@ -120,11 +118,10 @@ export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ res
         errored = false;
         return;
       }
-      let doc = unwrap(Doc);
-      if (doc != last_translation.t) {
-        last_translation.t = doc;
-      }
-    })
+      let Doc = unwrap(DocResult);
+      last_translation.t = <Doc key={counter++} />;
+    }),
+    [result]
   );
 
   let fallback = (err: JSX.Element) => {
@@ -142,7 +139,7 @@ export let OutputView: React.FC<{ result: TranslationResult }> = observer(({ res
       resetKeys={[result]}
       FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
     >
-      {is_ok(Doc) ? Doc.value : fallback(Doc.value)}
+      {is_ok(DocResult) ? <DocResult.value key={counter++} /> : fallback(DocResult.value)}
     </ErrorBoundary>
   );
-});
+};
