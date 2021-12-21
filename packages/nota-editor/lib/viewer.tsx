@@ -73,7 +73,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   return (
     <>
       {is_err(result) ? <ErrorView>{result.value}</ErrorView> : null}
-      <div ref={ref} />
+      <div className="js-view" ref={ref} />
     </>
   );
 };

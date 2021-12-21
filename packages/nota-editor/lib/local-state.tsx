@@ -1,5 +1,5 @@
 import { is_err, err, ok } from "@nota-lang/nota-common";
-import { try_parse, nota_parser, translate_ast } from "@nota-lang/nota-syntax";
+import { try_parse, nota_parser, translate_ast, optimize_plugin } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
@@ -17,7 +17,9 @@ export class LocalState implements State {
       return err(tree.value.stack!);
     }
     let js = translate_ast(this.contents, tree.value);
-    let transpiled_result = babel.transformFromAst(js, undefined, {}) as any as BabelFileResult;
+    let transpiled_result = babel.transformFromAst(js, undefined, {
+      plugins: [optimize_plugin]
+    }) as any as BabelFileResult;
     let lowered_result = babel.transformFromAst(js, undefined, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
     }) as any as BabelFileResult;

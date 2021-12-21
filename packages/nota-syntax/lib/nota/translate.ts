@@ -76,7 +76,7 @@ export interface Translation {
 let binding = (k: LVal, v: Expression) =>
   t.variableDeclaration("let", [t.variableDeclarator(k, v)]);
 
-let optimize_plugin: PluginObj = {
+export let optimize_plugin = (): PluginObj => ({
   visitor: {
     CallExpression(path) {
       path.node.arguments = path.node.arguments
@@ -90,7 +90,7 @@ let optimize_plugin: PluginObj = {
         .flat();
     },
   },
-};
+});
 
 let parse = (code: string): Statement[] => {
   let result = babel.transform(code, {
@@ -154,7 +154,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
 export let translate = (input: string, tree: Tree): string => {
   let program = translate_ast(input, tree);
   let result = babel.transformFromAst(program, undefined, {
-    plugins: [() => optimize_plugin],
+    plugins: [optimize_plugin],
   }) as any as BabelFileResult;
   let js = result.code!;
 
