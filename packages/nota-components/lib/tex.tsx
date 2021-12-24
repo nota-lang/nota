@@ -1,8 +1,8 @@
 import React from "react";
 import katex from "katex";
-import H2R from "html-to-react";
 import ReactDOM from "react-dom";
 import { join_recursive, NotaText } from "@nota-lang/nota-common";
+import _ from "lodash";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
@@ -82,9 +82,9 @@ export let TexPlugin = new Plugin(
       props: any = {},
       ref?: React.RefObject<HTMLDivElement>
     ) {
-      let html;
+      let raw_html;
       try {
-        html = katex.renderToString(contents, {
+        raw_html = katex.renderToString(contents, {
           // these two options ensure macros persist across invocations
           macros: this.macros,
           globalGroup: true,
@@ -114,45 +114,67 @@ export let TexPlugin = new Plugin(
           <Container
             ref={ref}
             block={block}
-            dangerouslySetInnerHTML={{ __html: html }}
+            dangerouslySetInnerHTML={{ __html: raw_html }}
             {...props}
           />
         );
       }
 
-      let defns = new H2R.ProcessNodeDefinitions(React);
-      let instrs = [
-        {
-          shouldProcessNode: (node: any) => node.attribs && "data-cmd" in node.attribs,
-          processNode: (node: any, children: any, index: any) => {
-            let def = node.attribs["data-cmd"];
-            let inner = defns.processDefaultNode(node, children, index);
-            return (
-              <Ref Element={inner} nolink>
-                tex:{def}
-              </Ref>
-            );
-          },
-        },
-        {
-          shouldProcessNode: (node: any) => node.attribs && "data-def" in node.attribs,
-          processNode: (node: any, children: any, index: any) => {
-            let def = node.attribs["data-def"];
-            let inner = defns.processDefaultNode(node, children, index);
-            return <DefinitionAnchor name={`tex:${def}`}>{inner}</DefinitionAnchor>;
-          },
-        },
-        {
-          shouldProcessNode: (_: any) => true,
-          processNode: defns.processDefaultNode,
-        },
-      ];
-      let parser = new H2R.Parser();
-      let node = parser.parseWithInstructions(html, (_: any) => true, instrs);
+      let parser = new DOMParser();
+      let html = parser.parseFromString(raw_html, "text/html");
+      let node = html.body.firstChild! as ChildNode & HTMLElement;
+
+      let el = React.createElement;
+      let prop_aliases: { [_name: string]: string } = {
+        class: "className",
+      };
+      let capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+      let translate = (node: ChildNode & (HTMLElement | Text)): JSX.Element | string => {
+        if (node instanceof Text) {
+          return node.textContent!;
+        }
+
+        let children = Array.from(node.childNodes).map((node: any) => translate(node));
+
+        let props = _.fromPairs(
+          Array.from(node.attributes).map(attr => {
+            if (attr.name == "style") {
+              let style = _.fromPairs(
+                attr.value.split(";").map(prop => {
+                  let [name, value] = prop.split(":");
+                  name = name
+                    .split("-")
+                    .map((s, i) => (i > 0 ? capitalize(s) : s))
+                    .join("");
+                  return [name, value];
+                })
+              );
+              return [attr.name, style];
+            } else {
+              let name = attr.name in prop_aliases ? prop_aliases[attr.name] : attr.name;
+              return [name, attr.value];
+            }
+          })
+        );
+
+        let react_node = el(node.tagName.toLowerCase(), props, children);
+
+        if (node.dataset.cmd) {
+          return (
+            <Ref Element={react_node} nolink>
+              tex:{node.dataset.cmd}
+            </Ref>
+          );
+        } else if (node.dataset.def) {
+          return <DefinitionAnchor name={`tex:${node.dataset.def}`}>{react_node}</DefinitionAnchor>;
+        } else {
+          return react_node;
+        }
+      };
 
       return (
         <Container ref={ref} block={block} {...props}>
-          {node}
+          {translate(node)}
         </Container>
       );
     }

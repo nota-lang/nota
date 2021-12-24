@@ -32,10 +32,20 @@
   font-style: italic;
 }
 
-$serif: "Linux Libertine O", serif;
-$sans-serif: "Linux Biolinum O", serif;
+$size-footnote: 14px;
+$size-small: 16px;
+$size-normal: 18px;
+$size-large: 22px;
+$size-Large: 24px;
+$size-LARGE: 28px;
+$size-huge: 32px;
+$size-Huge: 36px;
 
-.document {
+$serif: "Linux Libertine O", serif;
+$sans-serif: "Linux Biolinum O", sans-serif;
+$monospace: "Inconsolata", monospace;
+
+.nota-document {
   font-family: $serif;
 
   h1,
@@ -54,14 +64,88 @@ $sans-serif: "Linux Biolinum O", serif;
 
   .authors {
     .author {
+      margin-bottom: 0.25rem;
+
       .author-name {
         text-transform: uppercase;
         font-family: $sans-serif;
+        font-size: $size-large;
       }
     }
   }
 
+  .section-title {
+    margin-bottom: 1rem;
+    margin-top: 0;
+    font-size: $size-large;
+
+    .section-number {
+      margin-right: 20px;
+    }
+
+    @at-root {
+      h2#{&} {
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .abstract {
+    margin: 1em 0 2rem;
+  }
+
   .caption {
+    font-family: $sans-serif;
+  }
+
+  .footnotes {
+    line-height: 1.2em;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    margin-top: 2rem;
+  }
+
+  .document-title {
+    margin-bottom: 2rem;
+  }
+
+  pre,
+  code {
+    font-family: $monospace;
+  }
+
+  code {
+    border: 1px solid #eee;
+    padding: 0 3px 1px;
+    border-radius: 4px;
+  }
+
+  pre {
+    margin: 0.5rem 0;
+  }
+
+  section {
+    margin-top: 2rem;
+  }
+
+  .row {
+    margin: 1rem 0;
+  }
+
+  .figure {
+    &.level-1 {
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+      margin: 2rem 0;
+    }
+
+    &.level-2 {
+      margin: 1rem 0;
+    }
+  }
+
+  .expandable .expand { 
     font-family: $sans-serif;
   }
 }

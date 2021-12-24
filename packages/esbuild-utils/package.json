@@ -34,7 +34,9 @@
   "dependencies": {
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
-    "yargs": "^17.3.0"
+    "winston": "^3.3.3",
+    "yargs": "^17.3.0",
+    "@cspotcode/source-map-support": "^0.7.0"
   },
   "peerDependencies": {
     "esbuild": "^0.14.5"

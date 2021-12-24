@@ -276,10 +276,8 @@ expressionNoComma {
   ArrowFunction[@dynamicPrecedence=1] {
     TypeParamList { tsAngleOpen commaSep<typeParam> ">" } ParamList TypeAnnotation? "=>" (Block | expressionNoComma)
   } |
-  NotaMacroWrap
+  NotaMacro
 }
-
-NotaMacroWrap { "@" Label? "{" NotaMacro "}" }
 
 ParenthesizedExpression { "(" expression ")" }
 

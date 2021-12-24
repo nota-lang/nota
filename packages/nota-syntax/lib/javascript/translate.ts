@@ -13,7 +13,7 @@ import * as t from "../babel-polyfill";
 import {
   matches,
   text,
-  translate_textbody,
+  translate_atcommand,
   parse_expr,
   lambda,
   nota_parser,
@@ -36,20 +36,14 @@ export let translate_js = (node: SyntaxNode): Expression => {
   let cursor = node.cursor;
   let replacements: [number, number, string][] = [];
   while (node.from <= cursor.from && cursor.to <= node.to) {
-    if (matches(cursor.node, terms.NotaMacroWrap)) {
-      let doc = cursor.node.getChild(nota_terms.Document)!;
-      let expr = translate_textbody(doc.firstChild!);
+    if (matches(cursor.node, nota_terms.Document)) {
+      let cmd = cursor.node
+        .getChild(nota_terms.TextBody)!
+        .getChild(nota_terms.TextToken)!
+        .getChild(nota_terms.Command)!
+        .getChild(nota_terms.AtCommand)!;
 
-      let name_node = cursor.node.getChild(terms.Label);
-      if (name_node) {
-        let name = text(name_node);
-        if (name == "fn") {
-          expr = lambda(expr);
-        } else {
-          throw `Unknown @-macro ${name}`;
-        }
-      }
-
+      let expr = translate_atcommand(cmd);
       let result = babel.transformFromAst(
         t.program([t.expressionStatement(expr)]),
         undefined,
@@ -57,7 +51,10 @@ export let translate_js = (node: SyntaxNode): Expression => {
       ) as any as BabelFileResult;
       let code = result.code!.slice(0, -1);
       replacements.push([cursor.from - node.from, cursor.to - node.from, code]);
-      cursor.next(false);
+
+      if (!cursor.next(false)) {
+        break;
+      }
     } else if (!cursor.next()) {
       break;
     }

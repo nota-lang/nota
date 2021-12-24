@@ -412,7 +412,7 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
   );
 
   return (
-    <div className="document">
+    <div className="nota-document">
       <DocumentContext.Provider value={new DocumentData()}>
         <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
       </DocumentContext.Provider>

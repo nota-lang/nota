@@ -102,6 +102,7 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   };
 
   useEffect(() => {
+    console.log('a');
     if (stage == "mount" && referenceElement && popperElement) {
       set_stage("done");
 
@@ -127,8 +128,6 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
         ],
       });
       set_instance(instance);
-
-      // console.log(popperElement, referenceElement);
 
       ctx.elts[id] = {
         popperElement,

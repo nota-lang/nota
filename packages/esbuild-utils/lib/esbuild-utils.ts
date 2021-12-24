@@ -5,6 +5,22 @@ import path from "path";
 import _ from "lodash";
 import { promise as glob } from "glob-promise";
 import yargs from "yargs";
+import winston from "winston";
+import "@cspotcode/source-map-support/register.js";
+
+export let log = winston.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf(({ level, message }) => {
+          let timestamp = new Date().toLocaleTimeString();
+          return `[${timestamp}] ${level}: ${message}`;
+        })
+      ),
+    }),
+  ],
+});
 
 export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
   let options = yargs(process.argv.slice(2)).alias("w", "watch").alias("p", "prod").argv as any;
@@ -43,7 +59,7 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
     let watch: WatchMode | undefined = options.watch
       ? {
           onRebuild() {
-            console.log("Rebuilt.");
+            log.info("Rebuilt.");
           },
         }
       : undefined;
@@ -63,7 +79,7 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
 
     let start = _.now();
     return esbuild.build(opts).then(result => {
-      console.log(`Built in ${((_.now() - start) / 1000).toFixed(2)}s.`);
+      log.info(`Built in ${((_.now() - start) / 1000).toFixed(2)}s.`);
       return [result, opts];
     });
   };
@@ -93,7 +109,7 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
   },
 });
 
-let ALLOWLIST = ['react'];
+let ALLOWLIST = ["react"];
 export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plugin => ({
   name: "esm-externals",
   setup(build) {

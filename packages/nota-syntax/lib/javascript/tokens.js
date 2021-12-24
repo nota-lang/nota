@@ -34,6 +34,7 @@ const braceR = 125,
   dollar = 36,
   backtick = 96,
   backslash = 92,
+  atSign = 64,
   eof = -1;
 
 export const trackNewline = new ContextTracker({
@@ -119,18 +120,24 @@ export function tsExtends(value, stack) {
   return value == "extends" && stack.dialectEnabled(Dialect_ts) ? TSExtends : -1;
 }
 
+// TODO: this is a hack. It precludes no-args (e.g. "@Foo")
 export const notaMacro = new ExternalTokenizer(input => {
+  if (input.next != atSign) {
+    return;
+  }
+
   let balance = 0;
   while (input.next != eof) {
     if (input.next == braceL) {
       balance += 1;
     } else if (input.next == braceR) {
+      balance -= 1;
+
       if (balance == 0) {
+        input.advance();
         input.acceptToken(NotaMacro);
         return;
-      } else {
-        balance -= 1;
-      }
+      } 
     }
     input.advance();
   }

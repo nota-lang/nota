@@ -115,7 +115,7 @@ export let PRELUDE = {
     "Link", "Correspondence", "Listing", "ListingConfigure", "$", "$$", "Cite", "Authors", "Author", "Name", 
     "Affiliation", "Institution", "Smallcaps"
   ], 
-  functions: [],
+  functions: ["tex_ref", "tex_def"],
 };
 
 export let translate_ast = (input: string, tree: Tree): Program => {
@@ -295,7 +295,7 @@ let translate_ident = (node: SyntaxNode): Identifier => {
   return t.identifier(text(node));
 };
 
-let translate_atcommand = (node: SyntaxNode): Expression => {
+export let translate_atcommand = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.AtCommand));
 
   let name_expr = translate_command_name(node.getChild(terms.CommandName)!);

@@ -40,7 +40,6 @@
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@types/katex": "^0.11.1",
     "classnames": "^2.3.1",
-    "html-to-react": "^1.4.5",
     "react-async": "^10.0.1",
     "react-loader-spinner": "^4.0.0"
   },

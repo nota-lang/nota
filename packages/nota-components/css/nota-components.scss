@@ -32,23 +32,15 @@ $colors: (
   @return map-get($colors, $key);
 }
 
-$serif: serif;
-$sans-serif: "Helvetica", sans-serif;
-
-.document {
+.nota-document {
   text-align: justify;
   line-height: 1.3em;
-  font-family: $serif;
   font-size: $size-normal;
   overflow-wrap: anywhere;
 
   .footnotes {
     font-size: $size-footnote;
-    line-height: 1.2em;
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-    margin-top: 2rem;
-
+  
     .backlink {
       color: black;
       font-size: 10px;
@@ -62,12 +54,6 @@ $sans-serif: "Helvetica", sans-serif;
     .footnote {
       margin-bottom: 1rem;
       display: flex;
-    }
-  }
-
-  .footnote-body {
-    p {
-      text-indent: 0;
     }
   }
 
@@ -90,7 +76,15 @@ $sans-serif: "Helvetica", sans-serif;
   }
 
   h1 {
-    font-size: 2em !important;
+    font-size: $size-huge;
+  }
+
+  h2 {
+    font-size: $size-Large;
+  }
+
+  h3 {
+    font-size: $size-large;
   }
 
   a[href],
@@ -137,8 +131,9 @@ $sans-serif: "Helvetica", sans-serif;
   }
 
   p {
-    margin: 0;
+    // Note: <html> must have a lang="..." attribute for hyphens to work!
     hyphens: auto;
+    margin: 0;
 
     &.noindent {
       text-indent: 0;
@@ -149,62 +144,8 @@ $sans-serif: "Helvetica", sans-serif;
     text-indent: 1em;
   }
 
-  .document-title {
-    margin-bottom: 2rem;
-  }
-
-  .authors {
-    .author {
-      margin-bottom: 0.25rem;
-
-      .author-name {
-        font-size: $size-large;
-      }
-    }
-  }
-
-  .abstract {
-    margin: 1em 0 2rem;
-  }
-
-  .section-title {
-    margin-bottom: 1rem;
-    margin-top: 0;
-    font-size: $size-large;
-
-    .section-number {
-      margin-right: 20px;
-    }
-
-    @at-root {
-      h2#{&} {
-        text-transform: uppercase;
-      }
-    }
-
-    // h3#{&} {
-    //   font-size: $size-normal;
-    // }
-  }
-
-  pre,
   code {
-    font-family: Inconsolata, monospace;
-  }
-
-  code {
-    border: 1px solid #eee;
-    padding: 0 3px 1px;
-    border-radius: 4px;
     white-space: nowrap;
-  }
-
-  pre {
-    margin: 0.5rem 0;
-  }
-
-  section {
-    margin-top: 2rem;
   }
 
   .katex {
@@ -255,15 +196,6 @@ $sans-serif: "Helvetica", sans-serif;
   .row {
     display: flex;
     justify-content: center;
-    margin: 1rem 0;
-
-    > * {
-      margin-right: 2rem;
-
-      &:last-child {
-        margin-right: 0;
-      }
-    }
   }
 
   .figure {
@@ -271,15 +203,6 @@ $sans-serif: "Helvetica", sans-serif;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-
-      border-top: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
-      padding: 1rem 0;
-      margin: 2rem 0;
-    }
-
-    &.level-2 {
-      margin: 1rem 0;
     }
   }
 
@@ -347,7 +270,6 @@ $sans-serif: "Helvetica", sans-serif;
 
     .expand {
       cursor: pointer;
-      font-family: $sans-serif;
       border: black;
       color: black;
       padding: 2px 4px;
