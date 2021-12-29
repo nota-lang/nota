@@ -16,8 +16,8 @@ import {
   LineComment,
   TSExtends,
   Dialect_ts,
-  NotaMacro,
-} from "./javascript.grammar";
+} from "./nota.grammar";
+
 
 const space = [
   9, 10, 11, 12, 13, 32, 133, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201,
@@ -25,6 +25,7 @@ const space = [
 ];
 
 const braceR = 125,
+  parenR = 41,
   braceL = 123,
   semicolon = 59,
   slash = 47,
@@ -33,9 +34,7 @@ const braceR = 125,
   minus = 45,
   dollar = 36,
   backtick = 96,
-  backslash = 92,
-  atSign = 64,
-  eof = -1;
+  backslash = 92;
 
 export const trackNewline = new ContextTracker({
   start: false,
@@ -50,7 +49,7 @@ export const trackNewline = new ContextTracker({
 export const insertSemicolon = new ExternalTokenizer(
   (input, stack) => {
     let { next } = input;
-    if ((next == braceR || next == -1 || stack.context) && stack.canShift(insertSemi))
+    if ((next == braceR || next == parenR || next == -1 || stack.context.newline) && stack.canShift(insertSemi))
       input.acceptToken(insertSemi);
   },
   { contextual: true, fallback: true }
@@ -66,7 +65,7 @@ export const noSemicolon = new ExternalTokenizer(
       next != braceR &&
       next != semicolon &&
       next != -1 &&
-      !stack.context &&
+      !stack.context.newline &&
       stack.canShift(noSemi)
     )
       input.acceptToken(noSemi);
@@ -81,7 +80,7 @@ export const incdecToken = new ExternalTokenizer(
       input.advance();
       if (next == input.next) {
         input.advance();
-        let mayPostfix = !stack.context && stack.canShift(incdec);
+        let mayPostfix = !stack.context.newline && stack.canShift(incdec);
         input.acceptToken(mayPostfix ? incdec : incdecPrefix);
       }
     }
@@ -119,26 +118,3 @@ export const template = new ExternalTokenizer(input => {
 export function tsExtends(value, stack) {
   return value == "extends" && stack.dialectEnabled(Dialect_ts) ? TSExtends : -1;
 }
-
-// TODO: this is a hack. It precludes no-args (e.g. "@Foo")
-export const notaMacro = new ExternalTokenizer(input => {
-  if (input.next != atSign) {
-    return;
-  }
-
-  let balance = 0;
-  while (input.next != eof) {
-    if (input.next == braceL) {
-      balance += 1;
-    } else if (input.next == braceR) {
-      balance -= 1;
-
-      if (balance == 0) {
-        input.advance();
-        input.acceptToken(NotaMacro);
-        return;
-      } 
-    }
-    input.advance();
-  }
-});

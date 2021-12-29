@@ -1,2 +1,1 @@
-%let[x][@h1{ok}]
-#x
+%(let Publication = ({pub}) => @Definition[name=pub.name]{foo})

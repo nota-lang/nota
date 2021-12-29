@@ -102,7 +102,6 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   };
 
   useEffect(() => {
-    console.log('a');
     if (stage == "mount" && referenceElement && popperElement) {
       set_stage("done");
 

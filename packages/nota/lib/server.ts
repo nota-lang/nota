@@ -38,10 +38,12 @@ export let main = async (opts: ServerOptions) => {
   let socket_cbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
   let load_output = async () => {
-    let [lowered, map] = await Promise.all(
+    let [lowered, map_json] = await Promise.all(
       [OUTPUT_PATH, OUTPUT_MAP_PATH].map(p => fs.readFile(p, "utf-8"))
     );
-    let transpiled = JSON.parse(map).sourcesContent[0];
+    let map = JSON.parse(map_json);
+    let idx = _.findIndex(map.sources, (p: string) => path.basename(p) == path.basename(input_path));
+    let transpiled = map.sourcesContent[idx];
     output = ok({
       lowered,
       transpiled,
@@ -69,7 +71,7 @@ export let main = async (opts: ServerOptions) => {
     external: peerDependencies,
     watch,
     loader,
-  });
+  }).catch(_ => {});
 
   app.ws("/", async (ws, _req) => {
     await initial_build;

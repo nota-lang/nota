@@ -7,11 +7,9 @@ import {
 } from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
 
-import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
+import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 //@ts-ignore
 import * as terms from "./nota.grammar";
-//@ts-ignore
-import * as js_terms from "../javascript/javascript.grammar";
 
 // TODO: determine which Nota exports are React elements vs. functions
 let nota_elements = ["Section", "Subsection", "Title", "$", "$$"];
@@ -54,18 +52,18 @@ export let autocomplete: CompletionSource = context => {
   let definitions: Completion[] = [];
   tree.iterate({
     enter(type, _from, _to, get) {
-      if (type.id == terms.PctCommand && type.name == "PctCommand" && get().getChild(terms.Ident)) {
+      if (type.id == terms.PctCommand && type.name == "PctCommand" && get().getChild(terms.PctIdent)) {
         let node = get();
-        let name = text(node.getChild(terms.Ident)!);
+        let name = text(node.getChild(terms.PctIdent)!);
         let arg;
         if ((name == "let" || name == "letfn") && (arg = node.getChild(terms.ArgCodeAnon))) {
           let script;
-          if ((script = arg.getChild(js_terms.Script))) {
-            definitions.push({
-              label: text(script),
-              type: name == "let" ? "variable" : "function",
-            });
-          }
+          // if ((script = arg.getChild(js_terms.Script))) {
+          //   definitions.push({
+          //     label: text(script),
+          //     type: name == "let" ? "variable" : "function",
+          //   });
+          // }
         }
         return false;
       }

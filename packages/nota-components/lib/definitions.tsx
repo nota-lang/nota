@@ -88,7 +88,7 @@ export let DefinitionAnchor: React.FC<{ name: string; block?: boolean } & HTMLAt
   block,
   ...props
 }) => (
-  <Container block={block} id={name_to_id(name)} {...props}>
+  <Container block={block} id={name_to_id(name)} className={"definition"} {...props}>
     {props.children}
   </Container>
 );

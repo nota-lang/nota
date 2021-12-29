@@ -1,4 +1,4 @@
-import { SyntaxNode, Tree, parseMixed } from "@lezer/common";
+import type { SyntaxNode, Tree } from "@lezer/common";
 import _ from "lodash";
 import type {
   Expression,
@@ -14,29 +14,15 @@ import type {
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import { Either, left, right, is_left, assert, unreachable } from "@nota-lang/nota-common";
-import type { LRParser } from "@lezer/lr";
 
-import * as t from "../babel-polyfill";
-import { INTRINSIC_ELEMENTS } from "../intrinsic-elements";
-import { translate_js, js_parser } from "../javascript/translate";
+import * as t from "./babel-polyfill";
+import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 //@ts-ignore
 import * as terms from "./nota.grammar";
-//@ts-ignore
-import * as js_terms from "../javascript/javascript.grammar";
-
-export let nota_wrap = (js_parser: () => LRParser) =>
-  parseMixed((node, _input) => {
-    if (node.type.id == terms.Js) {
-      return { parser: js_parser() };
-    }
-    return null;
-  });
-
-export let nota_parser: LRParser = terms.parser.configure({ wrap: nota_wrap(() => js_parser) });
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matches_newline = (node: SyntaxNode): boolean =>
-  matches(node, terms.Newline) || matches(node, terms.Multinewline);
+  matches(node, terms.NotaNewline); /*|| matches(node, terms.Multinewline)*/
 
 let global: {
   input: string;
@@ -46,6 +32,7 @@ let global: {
   imports: new Set(),
 };
 
+let fragment = t.identifier("Fragment");
 let create_el = t.identifier("el");
 let arguments_id = t.identifier("args");
 
@@ -104,6 +91,11 @@ export let parse_expr = (code: string): Expression => {
   return s.expression;
 };
 
+let parse_stmt = (code: string): Statement => {
+  let s = parse(`${code};`)[0] as Statement;
+  return s;
+};
+
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
@@ -139,7 +131,10 @@ export let translate_ast = (input: string, tree: Tree): Program => {
 
   let create_el_long = t.identifier("createElement");
   let program = [
-    t.importDeclaration([t.importSpecifier(create_el, create_el_long)], t.stringLiteral("react")),
+    t.importDeclaration(
+      [t.importSpecifier(create_el, create_el_long), t.importSpecifier(fragment, fragment)],
+      t.stringLiteral("react")
+    ),
     t.importDeclaration(
       Array.from(used_prelude).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
       t.stringLiteral("@nota-lang/nota-components")
@@ -227,7 +222,11 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
 type TranslatedToken = Either<Expression, Statement | null>;
 
 let process_text = (text: string): StringLiteral => {
-  return t.stringLiteral(text.replace(/\\%/g, "%").replace(/---/g, "—"));
+  return t.stringLiteral(
+    text.replace(/\\%/g, "%")
+      .replace(/\\\[/g, "[")
+      .replace(/\\\]/g, "]")
+      .replace(/---/g, "—"));
 };
 
 let translate_token = (node: SyntaxNode): TranslatedToken => {
@@ -238,11 +237,11 @@ let translate_token = (node: SyntaxNode): TranslatedToken => {
     return translate_command(child);
   } else if (matches(child, terms.Text)) {
     return left(process_text(text(child)));
-  } else if (matches(child, terms.Newline)) {
+  } else if (matches(child, terms.NotaNewline)) {
     return left(t.stringLiteral("\n"));
-  } else if (matches(child, terms.Multinewline)) {
+  } /*else if (matches(child, terms.Multinewline)) {
     return left(t.stringLiteral("\n\n"));
-  } else {
+  }*/ else {
     throw `Unhandled child type ${child.name}`;
   }
 };
@@ -265,14 +264,14 @@ let translate_command = (node: SyntaxNode): TranslatedToken => {
 let translate_command_name = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.CommandName));
 
-  if (node.getChild(terms.Ident)) {
-    let name_str = text(node.getChild(terms.Ident)!);
+  if (node.getChild(terms.VariableName)) {
+    let name_str = text(node.getChild(terms.VariableName)!);
     return t.identifier(name_str);
   } else if (node.getChild(terms.Number)) {
     let n = parseInt(text(node.getChild(terms.Number)!));
     return t.memberExpression(arguments_id, t.numericLiteral(n));
-  } else if (node.getChild(js_terms.Script)) {
-    return translate_js(node.getChild(js_terms.Script)!);
+  } else if (node.getChild(terms.NotaExpression)) {
+    return translate_js(node.getChild(terms.NotaExpression)!);
   } else {
     unreachable();
   }
@@ -291,21 +290,26 @@ let translate_arg_text = (node: SyntaxNode): Expression => {
 };
 
 let translate_ident = (node: SyntaxNode): Identifier => {
-  assert(matches(node, terms.Ident));
+  assert(matches(node, terms.VariableName));
   return t.identifier(text(node));
 };
 
 export let translate_atcommand = (node: SyntaxNode): Expression => {
   assert(matches(node, terms.AtCommand));
 
-  let name_expr = translate_command_name(node.getChild(terms.CommandName)!);
-  if (name_expr.type == "Identifier" && INTRINSIC_ELEMENTS.has(name_expr.name)) {
-    name_expr = t.stringLiteral(name_expr.name);
+  let name_node, name_expr;
+  if ((name_node = node.getChild(terms.CommandName))) {
+    name_expr = translate_command_name(name_node);
+    if (name_expr.type == "Identifier" && INTRINSIC_ELEMENTS.has(name_expr.name)) {
+      name_expr = t.stringLiteral(name_expr.name);
+    }
+  } else {
+    name_expr = fragment;
   }
 
   let code_args: [Expression, Expression][] = node.getChildren(terms.ArgCodeNamed).map(node => {
-    let ident = node.getChild(terms.Ident)!;
-    let js = node.getChild(js_terms.Script);
+    let ident = node.getChild(terms.VariableName)!;
+    let js = node.getChild(terms.NotaExpression);
     return [translate_ident(ident), js ? translate_js(js) : t.booleanLiteral(true)];
   });
 
@@ -327,7 +331,7 @@ let collect_args = (arg: SyntaxNode | null): SyntaxNode[] => {
 
 let translate_arg = (arg: SyntaxNode): Expression => {
   if (matches(arg, terms.ArgCodeAnon)) {
-    return translate_js(arg.getChild(js_terms.Script)!);
+    return translate_js(arg.getChild(terms.NotaExpression)!);
   } else if (matches(arg, terms.ArgText)) {
     return translate_arg_text(arg);
   } else {
@@ -348,40 +352,89 @@ let translate_hashcommand = (node: SyntaxNode): Expression => {
 let translate_pctcommand = (node: SyntaxNode): Statement | null => {
   assert(matches(node, terms.PctCommand));
 
-  let name_node = node.getChild(terms.Ident)!;
-  let name = text(name_node);
-  let args = collect_args(name_node.nextSibling).map(translate_arg);
-
-  if (name == "import" || name == "import_default") {
-    let imports = args.slice(1).map(arg => {
-      if (arg.type != "Identifier") {
-        throw `Invalid import: ${arg}`;
-      }
-      return name == "import_default" ? t.importDefaultSpecifier(arg) : t.importSpecifier(arg, arg);
-    });
-    if (args[0].type != "StringLiteral") {
-      throw `Invalid import path: ${args[0]}`;
-    }
-    global.imports.add(t.importDeclaration(imports, args[0]));
-
+  let stmt = parse_stmt(replace_nota_calls(node.getChild(terms.NotaStatement)!));
+  if (stmt.type == "ImportDeclaration") {
+    global.imports.add(stmt);
     return null;
-  } else if (name == "let") {
-    let lhs = args[0];
-    if (lhs.type != "Identifier") {
-      throw `Invalid let-var: ${lhs}`;
-    }
-    let rhs = args[1];
-    return binding(lhs, rhs);
-  } else if (name == "letfn") {
-    let lhs = args[0];
-    if (lhs.type != "Identifier") {
-      throw `Invalid let-var: ${lhs}`;
-    }
-    let rhs = args[1];
-    return binding(lhs, lambda(rhs));
-  } else if (name == "debugger") {
-    return t.debuggerStatement();
   } else {
-    throw `Unknown %-command ${name}`;
+    return stmt;
   }
+
+  // let name_node = node.getChild(terms.PctIdent)!;
+  // let name = text(name_node);
+  // let args = collect_args(name_node.nextSibling).map(translate_arg);
+
+  // if (name == "import" || name == "import_default") {
+  //   let imports = args.slice(1).map(arg => {
+  //     if (arg.type != "Identifier") {
+  //       throw `Invalid import: ${arg}`;
+  //     }
+  //     return name == "import_default" ? t.importDefaultSpecifier(arg) : t.importSpecifier(arg, arg);
+  //   });
+  //   if (args[0].type != "StringLiteral") {
+  //     throw `Invalid import path: ${args[0]}`;
+  //   }
+  //   global.imports.add(t.importDeclaration(imports, args[0]));
+
+  //   return null;
+  // } else if (name == "let") {
+  //   let lhs = args[0];
+  //   if (lhs.type != "Identifier") {
+  //     throw `Invalid let-var: ${lhs}`;
+  //   }
+  //   let rhs = args[1];
+  //   return binding(lhs, rhs);
+  // } else if (name == "letfn") {
+  //   let lhs = args[0];
+  //   if (lhs.type != "Identifier") {
+  //     throw `Invalid let-var: ${lhs}`;
+  //   }
+  //   let rhs = args[1];
+  //   return binding(lhs, lambda(rhs));
+  // } else if (name == "debugger") {
+  //   return t.debuggerStatement();
+  // } else {
+  //   throw `Unknown %-command ${name}`;
+  // }
+};
+
+let replace_nota_calls = (node: SyntaxNode): string => {
+  let cursor = node.cursor;
+  let replacements: [number, number, string][] = [];
+  while (node.from <= cursor.from && cursor.to <= node.to) {
+    if (matches(cursor.node, terms.AtCommand)) {
+      let expr = translate_atcommand(cursor.node);
+      let result = babel.transformFromAst(
+        t.program([t.expressionStatement(expr)]),
+        undefined,
+        {}
+      ) as any as BabelFileResult;
+      let code = result.code!.slice(0, -1);
+      replacements.push([cursor.from - node.from, cursor.to - node.from, code]);
+
+      if (!cursor.next(false)) {
+        break;
+      }
+    } else if (!cursor.next()) {
+      break;
+    }
+  }
+
+  let code = text(node);
+  replacements = _.sortBy(replacements, [0]);
+  let expanded = "";
+  let i = 0;
+  replacements.forEach(([from, to, expr]) => {
+    expanded += code.slice(i, from);
+    expanded += expr;
+    i = to;
+  });
+  expanded += code.slice(i);
+
+  return expanded;
+};
+
+let translate_js = (node: SyntaxNode): Expression => {
+  assert(matches(node, terms.NotaExpression));
+  return parse_expr(replace_nota_calls(node));
 };

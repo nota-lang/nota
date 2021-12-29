@@ -33,43 +33,52 @@ interface BalanceContext {
   balance: { [ldelim: string]: number };
 }
 
-type Context = (IgnoreContext | BalanceContext) & { parent: any };
+type TextContext = ((IgnoreContext | BalanceContext) & { parent: any }) | null;
+type Context = { text: TextContext; newline: boolean };
 
 const DEBUG = false;
 
-export const dialectContext = new ContextTracker<Context | null>({
-  start: null,
+export const context = new ContextTracker<Context>({
+  start: { text: null, newline: false },
   strict: true,
   shift(context, term, _stack, input) {
     if (DEBUG) {
       console.log(
         `shift ${term_name(term)} at ${String.fromCharCode(input.next)} (${
           input.pos
-        }) in context ${JSON.stringify(context)}`
+        }) in context ${JSON.stringify(context.text)}`
       );
     }
+
+    let newline =
+      term == terms.LineComment || term == terms.BlockComment || term == terms.spaces
+        ? context.newline
+        : term == terms.newline;
+
+    let text = context.text;
     if (term == terms.pct || term == terms.hash || term == terms.at) {
-      return { ignore: true, parent: context };
+      text = { ignore: true, parent: text };
     }
-    if (context != null) {
+    if (text != null) {
       if (term == terms.lbrc || term == terms.lbrkt) {
-        return { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: context };
+        text = { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: text };
       } else if (term == terms.rbrc || term == terms.rbrkt) {
-        return context.parent;
+        text = text.parent;
       }
     }
-    return context;
+
+    return { newline, text };
   },
   reduce(context, term, _stack, input) {
     if (DEBUG) {
       console.log(
         `reduce ${term_name(term)} at ${String.fromCharCode(input.next)} (${
           input.pos
-        }) in context ${JSON.stringify(context)}`
+        }) in context ${JSON.stringify(context.text)}`
       );
     }
-    if (context && term == terms.Command) {
-      return context.parent;
+    if (context.text && term == terms.Command) {
+      return {...context, text: context.text.parent};
     }
     return context;
   },
@@ -79,6 +88,14 @@ export const dialectContext = new ContextTracker<Context | null>({
   hash(_context) {
     return 0;
   },
+});
+
+export const notaNewline = new ExternalTokenizer(input => {
+  if (input.next == newline) {
+    input.advance();
+    input.acceptToken(terms.NotaNewline);
+    return;
+  }
 });
 
 let delims = [
@@ -111,27 +128,28 @@ export const text = new ExternalTokenizer(
         return;
       }
 
-      if (stack.context != null) {
+      let ctx = stack.context.text;
+      if (ctx != null) {
         if (
-          stack.context.ignore &&
-          (input.next == pipe || input.next == eqsign || ldelims.includes(input.next))
+          ctx.ignore &&
+          (input.next == pipe || input.next == eqsign || ldelims.includes(input.next) || rdelims.includes(input.next))
         ) {
           if (len > 0) {
             input.acceptToken(terms.Text);
           }
           return;
-        } else if (stack.context.balance) {
+        } else if (ctx.balance) {
           if (ldelims.includes(input.next)) {
-            stack.context.balance[input.next]++;
+            ctx.balance[input.next]++;
           } else if (rdelims.includes(input.next)) {
             let l = r2l[input.next];
-            if (stack.context.balance[l] == 0) {
+            if (ctx.balance[l] == 0) {
               if (len > 0) {
                 input.acceptToken(terms.Text);
               }
               return;
             } else {
-              stack.context.balance[l]--;
+              ctx.balance[l]--;
             }
           }
         }
@@ -162,25 +180,6 @@ export const verbatim = new ExternalTokenizer(input => {
       return;
     } else {
       saw_brace = false;
-    }
-
-    input.advance();
-  }
-});
-
-export const js = new ExternalTokenizer(input => {
-  let balance = _.fromPairs(ldelims.map(l => [l, 0]));
-  while (input.next != eof) {
-    if (ldelims.includes(input.next)) {
-      balance[input.next]++;
-    } else if (rdelims.includes(input.next)) {
-      let l = r2l[input.next];
-      if (balance[l] == 0) {
-        input.acceptToken(terms.Js);
-        return;
-      } else {
-        balance[l]--;
-      }
     }
 
     input.advance();

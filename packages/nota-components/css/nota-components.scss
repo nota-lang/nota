@@ -91,6 +91,11 @@ $colors: (
   .ref {
     cursor: pointer;
     text-decoration: none;
+    color: rgb(0, 0, 238);
+
+    &:visited {
+      color: rgb(85, 26, 139);
+    }
 
     &:hover {
       text-decoration: underline;
@@ -123,12 +128,19 @@ $colors: (
     }
   }
 
-  *:target {
+  .yellowflash {
     animation: yellowflash 1s;
     padding: 4px;
     margin: -4px;
     border-radius: 2px;
   }
+
+  // *:target {
+  //   animation: yellowflash 1s;
+  //   padding: 4px;
+  //   margin: -4px;
+  //   border-radius: 2px;
+  // }
 
   p {
     // Note: <html> must have a lang="..." attribute for hyphens to work!

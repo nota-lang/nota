@@ -328,13 +328,18 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
       paragraph = [];
     }
   };
-  children.forEach(child => {
-    if (child == "\n\n") {
+  
+  let i = 0;
+  while (i < children.length) {
+    let child = children[i];
+    if (child == "\n" && i < children.length - 1 && children[i + 1] == "\n") {
+      while (children[i] == "\n") { i++; }
       flush_paragraph();
     } else {
       paragraph.push(child);
+      i++;
     }
-  });
+  }
   flush_paragraph();
 
   let section_stack: React.ReactNode[][] = [[]];

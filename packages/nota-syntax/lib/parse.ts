@@ -1,8 +1,9 @@
 import { Result, ok, err } from "@nota-lang/nota-common";
 import type { Tree } from "@lezer/common";
-import type { LRParser } from "@lezer/lr";
+//@ts-ignore
+import { parser } from "./nota.grammar";
 
-export let try_parse = (parser: LRParser, contents: string): Result<Tree> => {
+export let try_parse = (contents: string): Result<Tree> => {
   // Parse is @lezer/common/mix/MixedParse but this isn't an exported type
   let parse = parser.configure({strict: true}).startParse(contents) as any;
   while (true) {

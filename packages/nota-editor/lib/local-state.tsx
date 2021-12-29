@@ -1,5 +1,5 @@
 import { is_err, err, ok } from "@nota-lang/nota-common";
-import { try_parse, nota_parser, translate_ast, optimize_plugin } from "@nota-lang/nota-syntax";
+import { try_parse, translate_ast, optimize_plugin } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
@@ -12,7 +12,7 @@ export class LocalState implements State {
   ready: boolean = true;
 
   try_translate(): TranslationResult {
-    let tree = try_parse(nota_parser, this.contents);
+    let tree = try_parse(this.contents);
     if (is_err(tree)) {
       return err(tree.value.stack!);
     }
