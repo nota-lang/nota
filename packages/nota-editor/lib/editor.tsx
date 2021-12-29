@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
-import { nota } from "@nota-lang/nota-syntax";
+import { nota, CodeTag } from "@nota-lang/nota-syntax";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { keymap } from "@codemirror/view";
-import { tags as t, HighlightStyle } from "@codemirror/highlight";
+import { tags as t, HighlightStyle, defaultHighlightStyle } from "@codemirror/highlight";
 import { indentWithTab } from "@codemirror/commands";
 
 import { StateContext } from "./nota-editor";
@@ -32,51 +32,18 @@ export let theme = EditorView.theme({
 
 let nota_lang = nota();
 
-let nota_style = HighlightStyle.define(
-  [
-    { tag: t.string, class: "nota-text" },
-    { tag: t.variableName, color: "#164" },
-    { tag: t.definitionKeyword, color: "#219" },
-    { tag: t.comment, color: "#940" },
-  ]
-  // {
-  //   scope: nota_lang.language.topNode,
-  // }
-);
-
-// let js_style = HighlightStyle.define(
-//   [
-//     { tag: t.link, textDecoration: "underline" },
-//     { tag: t.heading, textDecoration: "underline", fontWeight: "bold" },
-//     { tag: t.emphasis, fontStyle: "italic" },
-//     { tag: t.strong, fontWeight: "bold" },
-//     { tag: t.strikethrough, textDecoration: "line-through" },
-//     { tag: t.keyword, color: "#708" },
-//     { tag: [t.atom, t.bool, t.url, t.contentSeparator, t.labelName], color: "#219" },
-//     { tag: [t.literal, t.inserted], color: "#164" },
-//     { tag: [t.string, t.deleted], color: "#a11" },
-//     { tag: [t.regexp, t.escape, t.special(t.string)], color: "#e40" },
-//     { tag: t.definition(t.variableName), color: "#00f" },
-//     { tag: t.local(t.variableName), color: "#30a" },
-//     { tag: [t.typeName, t.namespace], color: "#085" },
-//     { tag: t.className, color: "#167" },
-//     { tag: [t.special(t.variableName), t.macroName], color: "#256" },
-//     { tag: t.definition(t.propertyName), color: "#00c" },
-//     { tag: t.comment, color: "#940" },
-//     { tag: t.meta, color: "#7a757a" },
-//     { tag: t.invalid, color: "#f00" },
-//   ],
-//   {
-//     scope: js_lang.language.topNode,
-//   }
-// );
+let nota_style = HighlightStyle.define([
+  { tag: t.variableName, color: "#256" },
+  { tag: CodeTag, background: "#f5f5f5" },
+  { tag: t.content, background: "white" },
+]);
 
 export let Editor = () => {
   let ref = useRef<HTMLDivElement>(null);
   let state = useContext(StateContext)!;
 
   useEffect(() => {
-    let visual_exts = [nota_style, theme, EditorView.lineWrapping];
+    let visual_exts = [nota_style, defaultHighlightStyle, EditorView.lineWrapping, theme];
     let editing_exts = [keymap.of([indentWithTab])];
     let custom_exts = [
       EditorView.updateListener.of(

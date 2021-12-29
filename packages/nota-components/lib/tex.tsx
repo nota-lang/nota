@@ -122,14 +122,14 @@ export let TexPlugin = new Plugin(
 
       let parser = new DOMParser();
       let html = parser.parseFromString(raw_html, "text/html");
-      let node = html.body.firstChild! as ChildNode & HTMLElement;
+      let node = html.body.firstChild! as HTMLElement;
 
       let el = React.createElement;
       let prop_aliases: { [_name: string]: string } = {
         class: "className",
       };
       let capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-      let translate = (node: ChildNode & (HTMLElement | Text)): JSX.Element | string => {
+      let translate = (node: HTMLElement | Text): JSX.Element | string => {
         if (node instanceof Text) {
           return node.textContent!;
         }

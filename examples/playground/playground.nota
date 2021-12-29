@@ -1,1 +1,3 @@
 %(let Publication = ({pub}) => @Definition[name=pub.name]{foo})
+
+This is text!

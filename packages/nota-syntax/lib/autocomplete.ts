@@ -23,14 +23,6 @@ let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
     }))
   );
 
-let pct_completions: Completion[] = ["let", "letfn", "import", "import_default"].map(
-  (label, i) => ({
-    label,
-    type: "keyword",
-    boost: -i,
-  })
-);
-
 // TODO: not working, figure out how snippets work
 let _snippets: Completion[] = [["list", "@ol{\n\t@li{}\n}"]].map(([label, snippet]) =>
   snip(snippet, { label, type: "react" })
@@ -52,19 +44,11 @@ export let autocomplete: CompletionSource = context => {
   let definitions: Completion[] = [];
   tree.iterate({
     enter(type, _from, _to, get) {
-      if (type.id == terms.PctCommand && type.name == "PctCommand" && get().getChild(terms.PctIdent)) {
-        let node = get();
-        let name = text(node.getChild(terms.PctIdent)!);
-        let arg;
-        if ((name == "let" || name == "letfn") && (arg = node.getChild(terms.ArgCodeAnon))) {
-          let script;
-          // if ((script = arg.getChild(js_terms.Script))) {
-          //   definitions.push({
-          //     label: text(script),
-          //     type: name == "let" ? "variable" : "function",
-          //   });
-          // }
-        }
+      if (type.id == terms.VariableDefinition) {
+        definitions.push({
+          label: text(get()),
+          type: "variable",
+        });
         return false;
       }
     },
@@ -73,23 +57,24 @@ export let autocomplete: CompletionSource = context => {
   let node_before = tree.resolveInner(context.pos, -1);
   let completions = new Map<number, Completion[]>([
     [terms.AtCommand, prelude],
-    [terms.PctCommand, pct_completions],
     [terms.HashCommand, definitions],
   ]);
   let cmds = Array.from(completions.keys());
 
   let parent = node_before.parent;
+
   // User has just typed "@"
-  if (cmds.includes(node_before.type.id)) {    
+  if (cmds.includes(node_before.type.id)) {
+    console.log(node_before.to)
     return {
-      from: node_before.to,
+      from: context.pos,
       options: completions.get(node_before.type.id)!,
       span: ident,
     };
   } // User is typing "@cmd"
   else if (
     parent &&
-    (parent.type.id == terms.CommandName || parent.type.id == terms.Ident) &&
+    (parent.type.id == terms.CommandName || parent.type.id == terms.VariableName) &&
     parent.parent &&
     cmds.includes(parent.parent.type.id)
   ) {

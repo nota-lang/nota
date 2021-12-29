@@ -3,7 +3,6 @@ import _ from "lodash";
 import type {
   Expression,
   Statement,
-  LVal,
   SpreadElement,
   ExpressionStatement,
   ImportDeclaration,
@@ -59,9 +58,6 @@ export interface Translation {
   js: string;
   imports: Set<string>;
 }
-
-let binding = (k: LVal, v: Expression) =>
-  t.variableDeclaration("let", [t.variableDeclarator(k, v)]);
 
 export let optimize_plugin = (): PluginObj => ({
   visitor: {

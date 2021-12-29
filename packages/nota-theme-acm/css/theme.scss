@@ -45,6 +45,10 @@ $serif: "Linux Libertine O", serif;
 $sans-serif: "Linux Biolinum O", sans-serif;
 $monospace: "Inconsolata", monospace;
 
+.nota-text {
+  font-family: $serif;
+}
+
 .nota-document {
   font-family: $serif;
 
