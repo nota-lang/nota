@@ -222,6 +222,7 @@ let process_text = (text: string): StringLiteral => {
     text.replace(/\\%/g, "%")
       .replace(/\\\[/g, "[")
       .replace(/\\\]/g, "]")
+      .replace(/\\\@/g, "@")
       .replace(/---/g, "—"));
 };
 
