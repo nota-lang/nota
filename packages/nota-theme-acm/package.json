@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-theme-acm",
-  "version": "0.2.11",
+  "version": "0.2.14",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -31,6 +31,6 @@
     "url": "https://github.com/willcrichton/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.11"
+    "@nota-lang/esbuild-utils": "^0.2.14"
   }
 }
