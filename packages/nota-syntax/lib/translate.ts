@@ -9,6 +9,7 @@ import type {
   Identifier,
   StringLiteral,
   Program,
+  ExportDeclaration,
 } from "@babel/types";
 import type { PluginObj, BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
@@ -26,9 +27,11 @@ let matches_newline = (node: SyntaxNode): boolean =>
 let global: {
   input: string;
   imports: Set<ImportDeclaration>;
+  exports: Set<ExportDeclaration>;
 } = {
   input: "",
   imports: new Set(),
+  exports: new Set(),
 };
 
 let fragment = t.identifier("Fragment");
@@ -112,6 +115,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   global = {
     input,
     imports: new Set(),
+    exports: new Set()
   };
 
   let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
@@ -126,6 +130,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   });
 
   let create_el_long = t.identifier("createElement");
+
   let program = [
     t.importDeclaration(
       [t.importSpecifier(create_el, create_el_long), t.importSpecifier(fragment, fragment)],
@@ -136,7 +141,8 @@ export let translate_ast = (input: string, tree: Tree): Program => {
       t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
-    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc)),
+    ...Array.from(global.exports),
+    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc))
   ];
 
   return t.program(program);
@@ -219,11 +225,13 @@ type TranslatedToken = Either<Expression, Statement | null>;
 
 let process_text = (text: string): StringLiteral => {
   return t.stringLiteral(
-    text.replace(/\\%/g, "%")
+    text
+      .replace(/\\%/g, "%")
       .replace(/\\\[/g, "[")
       .replace(/\\\]/g, "]")
       .replace(/\\\@/g, "@")
-      .replace(/---/g, "—"));
+      .replace(/---/g, "—")
+  );
 };
 
 let translate_token = (node: SyntaxNode): TranslatedToken => {
@@ -353,46 +361,12 @@ let translate_pctcommand = (node: SyntaxNode): Statement | null => {
   if (stmt.type == "ImportDeclaration") {
     global.imports.add(stmt);
     return null;
+  } else if (stmt.type == "ExportNamedDeclaration") {
+    global.exports.add(stmt);
+    return null;
   } else {
     return stmt;
   }
-
-  // let name_node = node.getChild(terms.PctIdent)!;
-  // let name = text(name_node);
-  // let args = collect_args(name_node.nextSibling).map(translate_arg);
-
-  // if (name == "import" || name == "import_default") {
-  //   let imports = args.slice(1).map(arg => {
-  //     if (arg.type != "Identifier") {
-  //       throw `Invalid import: ${arg}`;
-  //     }
-  //     return name == "import_default" ? t.importDefaultSpecifier(arg) : t.importSpecifier(arg, arg);
-  //   });
-  //   if (args[0].type != "StringLiteral") {
-  //     throw `Invalid import path: ${args[0]}`;
-  //   }
-  //   global.imports.add(t.importDeclaration(imports, args[0]));
-
-  //   return null;
-  // } else if (name == "let") {
-  //   let lhs = args[0];
-  //   if (lhs.type != "Identifier") {
-  //     throw `Invalid let-var: ${lhs}`;
-  //   }
-  //   let rhs = args[1];
-  //   return binding(lhs, rhs);
-  // } else if (name == "letfn") {
-  //   let lhs = args[0];
-  //   if (lhs.type != "Identifier") {
-  //     throw `Invalid let-var: ${lhs}`;
-  //   }
-  //   let rhs = args[1];
-  //   return binding(lhs, lambda(rhs));
-  // } else if (name == "debugger") {
-  //   return t.debuggerStatement();
-  // } else {
-  //   throw `Unknown %-command ${name}`;
-  // }
 };
 
 let replace_nota_calls = (node: SyntaxNode): string => {

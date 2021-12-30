@@ -1,6 +1,7 @@
 import type esbuild from "esbuild";
 import { unwrap } from "@nota-lang/nota-common";
 import fs from "fs";
+import path from "path";
 
 import { try_parse } from "./parse";
 import { translate } from "./translate";
@@ -14,7 +15,7 @@ export let nota_plugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
       let input = await fs.promises.readFile(args.path, "utf8");
       let tree = unwrap(try_parse(input));
       let js = translate(input, tree);
-      return { contents: js, loader: "js" };
+      return { contents: js, loader: "js", resolveDir: path.dirname(args.path) };
     });
   },
 });

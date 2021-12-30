@@ -33,6 +33,9 @@ import type {
   TSDeclareFunction,
   FunctionDeclaration,
   DebuggerStatement,
+  Declaration,
+  ExportNamedDeclaration,
+  ExportSpecifier,
   Node,
 } from "@babel/types";
 
@@ -228,6 +231,14 @@ export let exportDefaultDeclaration = (
   ...base_node,
 });
 
+export let exportNamedDeclaration = (declaration?: Declaration, source: StringLiteral | null = null, specifiers: ExportSpecifier[] = []): ExportNamedDeclaration => ({
+  type: "ExportNamedDeclaration",
+  declaration,
+  specifiers,
+  source,
+  ...base_node,
+});
+
 export let debuggerStatement = (): DebuggerStatement => ({
   type: "DebuggerStatement",
   ...base_node,
@@ -245,3 +256,10 @@ export let traverse = (node: Node, visit: (_node: Node) => void) => {
     }
   });
 };
+
+export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSpecifier => ({
+  type: "ExportSpecifier",
+  local,
+  exported,
+  ...base_node,
+});

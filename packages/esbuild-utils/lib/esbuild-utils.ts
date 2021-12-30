@@ -74,7 +74,7 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       format,
       loader,
       bundle: extra.bundle !== undefined ? extra.bundle : true,
-      sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : true,
+      sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : !options.prod,
     };
 
     let start = _.now();
