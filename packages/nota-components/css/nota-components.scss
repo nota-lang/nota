@@ -34,6 +34,11 @@ $colors: (
 
 .nota-document {
   text-align: justify;
+
+  @media (max-width: 800px) {
+    text-align: left;
+  }
+
   line-height: 1.3em;
   overflow-wrap: anywhere;
 
