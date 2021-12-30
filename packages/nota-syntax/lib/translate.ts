@@ -229,7 +229,7 @@ let process_text = (text: string): StringLiteral => {
       .replace(/\\%/g, "%")
       .replace(/\\\[/g, "[")
       .replace(/\\\]/g, "]")
-      .replace(/\\\@/g, "@")
+      .replace(/\\@/g, "@")
       .replace(/---/g, "—")
   );
 };
