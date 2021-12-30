@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-editor",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.16.4",
-    "@nota-lang/nota-components": "^0.2.12",
+    "@nota-lang/nota-components": "^0.2.13",
     "@nota-lang/nota-syntax": "^0.2.12",
     "prettier": "^2.5.1"
   },
