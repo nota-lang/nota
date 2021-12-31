@@ -10,6 +10,7 @@ program.command("build <file>").action(_opts => {
 program
   .command("edit")
   .argument("<file>")
+  .option("-c, --config <path>", "Path to config file")
   .option("-p, --port <port>", "Port to run local server", parseInt)
   .action((file, opts) =>
     server.main({

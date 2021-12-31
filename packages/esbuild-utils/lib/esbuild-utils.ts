@@ -45,7 +45,7 @@ export let cli = (
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
   let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 
-  return (extra: BuildOptions) => {
+  return async (extra: BuildOptions) => {
     let external = pkg_external.concat(extra.external || []);
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
@@ -83,9 +83,8 @@ export let cli = (
             },
           }
         : undefined;
-        
+
     let opts = {
-      
       ...extra,
       ...outpaths,
       watch,
@@ -99,10 +98,9 @@ export let cli = (
     };
 
     let start = _.now();
-    return esbuild.build(opts).then(result => {
-      log.info(`Built in ${((_.now() - start) / 1000).toFixed(2)}s.`);
-      return [result, opts];
-    });
+    let result = await esbuild.build(opts);
+    log.info(`Built in ${((_.now() - start) / 1000).toFixed(2)}s.`);
+    return [result, opts];
   };
 };
 

@@ -14,9 +14,19 @@ export interface ServerOptions {
   file: string;
   extensions?: string[];
   port?: number;
+  config?: string;
 }
 
 export let main = async (opts: ServerOptions) => {
+  let config: {
+    plugins?: any
+  } = {}; 
+  if (opts.config) {
+    // Note: if imported path is relative, this seemed to cause script to get executed twice??
+    // No idea why, but path.resolve fixes the issue.
+    config = await import(path.resolve(opts.config));  
+  }
+   
   let input_path = path.resolve(opts.file);
   try {
     await fs.access(input_path, constants.F_OK);
@@ -81,11 +91,11 @@ export let main = async (opts: ServerOptions) => {
   let initial_build = build({
     entryPoints: [input_path],
     outfile: OUTPUT_JS_PATH,
-    plugins: [nota_plugin({ pretty: true })],
     globalName: "nota_document",
     external: peerDependencies,
     loader,
     format: "iife",
+    plugins: [nota_plugin({ pretty: true }), ...(config.plugins || [])],
   });
 
   app.ws("/", async (ws, _req) => {
