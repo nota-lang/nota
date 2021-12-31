@@ -4,6 +4,7 @@ import { Result } from "@nota-lang/nota-common";
 export type TranslationResult = Result<{
   transpiled: string;
   lowered: string;
+  css: string | null;
 }, string>;
 
 export interface State {

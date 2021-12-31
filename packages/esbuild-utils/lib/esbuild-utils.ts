@@ -4,8 +4,8 @@ import type { IPackageJson, IDependencyMap } from "package-json-type";
 import path from "path";
 import _ from "lodash";
 import { promise as glob } from "glob-promise";
-import yargs from "yargs";
 import winston from "winston";
+import { program } from "commander";
 import "@cspotcode/source-map-support/register.js";
 
 export let log = winston.createLogger({
@@ -22,10 +22,26 @@ export let log = winston.createLogger({
   ],
 });
 
-export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
-  let options = yargs(process.argv.slice(2)).alias("w", "watch").alias("p", "prod").argv as any;
+export interface CliOptions {
+  watch?: boolean | WatchMode;
+  debug?: boolean;
+}
 
-  let pkg: IPackageJson = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
+export let cli = (
+  external_options?: CliOptions
+): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
+  let options =
+    external_options ||
+    (program
+      .option("-w, --watch", "Watch for changes and rebuild")
+      .option("-g, --debug", "Do not minify and include source maps")
+      .parse(process.argv)
+      .opts() as CliOptions);
+
+  let pkg_path = "./package.json";
+  let pkg: IPackageJson = fs.existsSync(pkg_path)
+    ? JSON.parse(fs.readFileSync("./package.json", "utf-8"))
+    : {};
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
   let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 
@@ -56,25 +72,30 @@ export let cli = (): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptio
       extra.outdir = "dist";
     }
 
-    let watch: WatchMode | undefined = options.watch
-      ? {
-          onRebuild() {
-            log.info("Rebuilt.");
-          },
-        }
-      : undefined;
-
+    let debug = options.debug || options.watch !== undefined;
+    let watch: WatchMode | undefined =
+      typeof options.watch === "object"
+        ? options.watch
+        : options.watch
+        ? {
+            onRebuild() {
+              log.info("Rebuilt.");
+            },
+          }
+        : undefined;
+        
     let opts = {
+      
       ...extra,
       ...outpaths,
       watch,
-      minify: options.prod,
       external,
       plugins,
       format,
       loader,
       bundle: extra.bundle !== undefined ? extra.bundle : true,
-      sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : !options.prod,
+      minify: extra.minify !== undefined ? extra.minify : !debug,
+      sourcemap: extra.sourcemap !== undefined ? extra.sourcemap : debug,
     };
 
     let start = _.now();

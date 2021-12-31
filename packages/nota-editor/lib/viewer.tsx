@@ -134,12 +134,13 @@ export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) =>
     );
   };
 
-  return (
+  return (<>
+    {is_ok(result) && result.value.css ? <style>{result.value.css}</style> : null}
     <ErrorBoundary
       resetKeys={[result]}
       FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
-    >
+    >            
       {is_ok(DocResult) ? <DocResult.value key={counter++} /> : fallback(DocResult.value)}
     </ErrorBoundary>
-  );
+  </>);
 };

@@ -24,7 +24,7 @@
   "scripts": {
     "build": "node build.mjs",
     "tc": "tsc -emitDeclarationOnly",
-    "full": "yarn tc && yarn build -p",
+    "full": "yarn tc && yarn build",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
@@ -33,10 +33,10 @@
   },
   "dependencies": {
     "@cspotcode/source-map-support": "^0.7.0",
+    "commander": "^8.3.0",
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
-    "winston": "^3.3.3",
-    "yargs": "^17.3.0"
+    "winston": "^3.3.3"
   },
   "peerDependencies": {
     "esbuild": "^0.14.5"

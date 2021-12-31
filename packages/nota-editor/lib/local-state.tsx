@@ -27,6 +27,7 @@ export class LocalState implements State {
     return ok({
       transpiled: transpiled_result.code!,
       lowered,
+      css: null
     });
   }
 

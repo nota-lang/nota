@@ -5,6 +5,7 @@ import { constants, promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import { cli } from "@nota-lang/esbuild-utils";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
@@ -32,21 +33,33 @@ export let main = async (opts: ServerOptions) => {
     ? _.fromPairs(opts.extensions.map((k: string) => ["." + k, "text"]))
     : {};
 
-  const OUTPUT_PATH = "dist/document.js";
-  const OUTPUT_MAP_PATH = OUTPUT_PATH + ".map";
+  const OUTPUT_JS_PATH = "dist/document.js";
+  const OUTPUT_MAP_PATH = OUTPUT_JS_PATH + ".map";
+  const OUTPUT_CSS_PATH = "dist/document.css";
 
   let socket_cbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
   let load_output = async () => {
-    let [lowered, map_json] = await Promise.all(
-      [OUTPUT_PATH, OUTPUT_MAP_PATH].map(p => fs.readFile(p, "utf-8"))
+    let [lowered, map_json, css] = await Promise.all(
+      [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p => {
+        try {
+          await fs.access(p, constants.F_OK); 
+          return fs.readFile(p, "utf-8");
+        } catch (e) {
+          return null;
+        }
+      })
     );
-    let map = JSON.parse(map_json);
-    let idx = _.findIndex(map.sources, (p: string) => path.basename(p) == path.basename(input_path));
+    let map = JSON.parse(map_json!);
+    let idx = _.findIndex(
+      map.sources,
+      (p: string) => path.basename(p) == path.basename(input_path)
+    );
     let transpiled = map.sourcesContent[idx];
     output = ok({
-      lowered,
+      lowered: lowered!,
       transpiled,
+      css,
     });
   };
 
@@ -61,17 +74,19 @@ export let main = async (opts: ServerOptions) => {
     },
   };
 
-  let initial_build = esbuild.build({
+  let build = cli({
+    watch,
+    debug: true,
+  });
+  let initial_build = build({
     entryPoints: [input_path],
-    bundle: true,
-    sourcemap: true,
-    outfile: OUTPUT_PATH,
+    outfile: OUTPUT_JS_PATH,
     plugins: [nota_plugin({ pretty: true })],
     globalName: "nota_document",
     external: peerDependencies,
-    watch,
     loader,
-  }).catch(_ => {});
+    format: "iife",
+  });
 
   app.ws("/", async (ws, _req) => {
     await initial_build;
