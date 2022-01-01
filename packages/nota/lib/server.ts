@@ -36,16 +36,28 @@ export let main = async (opts: ServerOptions) => {
 
   let { app } = expressWs(express());
 
+  const outdir = await fs.mkdtemp("/tmp/");
+
+  // TODO: figure out how to cleanup the outdir. 
+  //  Issue is that esbuild is also catching a SIGINT
+  // let rm = async () => {
+  //   await fs.rm(outdir, {recursive: true})
+  // };
+  // process.on('SIGTERM', rm);
+  // process.on('SIGINT', rm);
+
   app.use(express.static(__dirname));
-  app.use(express.static("dist"));
+  app.use(express.static(process.cwd()))  
+  app.use(express.static(outdir));
 
   let loader: { [_k: string]: esbuild.Loader } = opts.extensions
     ? _.fromPairs(opts.extensions.map((k: string) => ["." + k, "text"]))
     : {};
 
-  const OUTPUT_JS_PATH = "dist/document.js";
+
+  const OUTPUT_JS_PATH = path.join(outdir, "document.js");
   const OUTPUT_MAP_PATH = OUTPUT_JS_PATH + ".map";
-  const OUTPUT_CSS_PATH = "dist/document.css";
+  const OUTPUT_CSS_PATH = path.join(outdir, "document.css");
 
   let socket_cbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
@@ -132,3 +144,4 @@ export let main = async (opts: ServerOptions) => {
   let port = opts.port ? opts.port : 8000;
   app.listen(port);
 };
+
