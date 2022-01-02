@@ -125,19 +125,21 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   });
 
   let create_el_long = t.identifier("createElement");
+  let observer = t.identifier("observer");
 
   let program = [
     t.importDeclaration(
       [t.importSpecifier(create_el, create_el_long), t.importSpecifier(fragment, fragment)],
       t.stringLiteral("react")
     ),
+    t.importDeclaration([t.importSpecifier(observer, observer)], t.stringLiteral("mobx-react")),
     t.importDeclaration(
       Array.from(used_prelude).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
       t.stringLiteral("@nota-lang/nota-components")
     ),
     ...Array.from(global.imports),
     ...Array.from(global.exports),
-    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc)),
+    t.exportDefaultDeclaration(t.callExpression(observer, [t.arrowFunctionExpression([], doc)])),
   ];
 
   return t.program(program);
@@ -206,7 +208,10 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
       cur_array.push(result.value);
     } else {
       let new_array: (Expression | SpreadElement)[] = [];
-      let body = t.blockStatement([...result.value, t.returnStatement(t.arrayExpression(new_array))]);
+      let body = t.blockStatement([
+        ...result.value,
+        t.returnStatement(t.arrayExpression(new_array)),
+      ]);
       let fn = t.spreadElement(t.callExpression(t.arrowFunctionExpression([], body), []));
       cur_array.push(fn);
       cur_array = new_array;

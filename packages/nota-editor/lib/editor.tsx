@@ -11,6 +11,7 @@ import { StateContext } from "./nota-editor";
 export let theme = EditorView.theme({
   "&": {
     height: "100%",
+    textAlign: "left"
   },
   "&.cm-editor.cm-focused": {
     outline: "0",
