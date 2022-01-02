@@ -5,7 +5,7 @@ import { constants, promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import { cli } from "@nota-lang/esbuild-utils";
+import { cli, file_exists } from "@nota-lang/esbuild-utils";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
@@ -20,9 +20,7 @@ export interface ServerOptions {
 
 export let main = async (opts: ServerOptions & CommonOptions) => {
   let input_path = path.resolve(opts.file);
-  try {
-    await fs.access(input_path, constants.F_OK);
-  } catch (e) {
+  if (!file_exists(input_path)) {
     await fs.writeFile(input_path, "");
   }
 
@@ -44,7 +42,6 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     app.use(express.static(opts.static));
   }
 
-
   const OUTPUT_JS_PATH = path.join(outdir, "document.js");
   const OUTPUT_MAP_PATH = OUTPUT_JS_PATH + ".map";
   const OUTPUT_CSS_PATH = path.join(outdir, "document.css");
@@ -53,14 +50,9 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   let output: TranslationResult | null = null;
   let load_output = async () => {
     let [lowered, map_json, css] = await Promise.all(
-      [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p => {
-        try {
-          await fs.access(p, constants.F_OK);
-          return fs.readFile(p, "utf-8");
-        } catch (e) {
-          return null;
-        }
-      })
+      [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p =>
+        (await file_exists(p)) ? fs.readFile(p, "utf-8") : null
+      )
     );
     let map = JSON.parse(map_json!);
     let idx = _.findIndex(

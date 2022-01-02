@@ -180,7 +180,11 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
       let { name, dir } = path.parse(args.path);
       let script = `./${name}.mjs`;
-      let template_path = (opts && opts.template) || "@nota-lang/esbuild-utils/dist/template";
+      let template_path = "@nota-lang/esbuild-utils/dist/template";
+      if (opts && opts.template) {
+        template_path = "." + path.sep + path.relative(dir, opts.template);
+      }
+      
       let contents = `
       import React from "react";
       import ReactDOM from "react-dom";
