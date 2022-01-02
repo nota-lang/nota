@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-editor",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -36,16 +36,16 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.16.4",
-    "@nota-lang/nota-components": "^0.2.15",
-    "@nota-lang/nota-syntax": "^0.2.15",
+    "@nota-lang/nota-components": "^0.2.16",
+    "@nota-lang/nota-syntax": "^0.2.16",
     "prettier": "^2.5.1"
   },
   "dependenciesComments": [
     "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/peer-dependencies"
   ],
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.15",
-    "@nota-lang/nota-common": "^0.2.15",
+    "@nota-lang/esbuild-utils": "^0.2.16",
+    "@nota-lang/nota-common": "^0.2.16",
     "@types/exenv": "^1.2.0",
     "@types/prettier": "^2.4.2",
     "exenv": "^1.2.2",
