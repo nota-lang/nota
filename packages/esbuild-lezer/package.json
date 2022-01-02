@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/esbuild-lezer",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "> TODO: description",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
@@ -32,7 +32,7 @@
     "url": "https://github.com/willcrichton/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.14"
+    "@nota-lang/esbuild-utils": "^0.2.15"
   },
   "peerDependencies": {
     "@lezer/generator": "^0.15.2",
