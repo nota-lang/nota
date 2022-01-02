@@ -34,6 +34,7 @@
   "dependencies": {
     "@cspotcode/source-map-support": "^0.7.0",
     "commander": "^8.3.0",
+    "exenv": "^1.2.2",
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
     "winston": "^3.3.3"
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@types/yargs": "^17.0.7",
+    "es-main": "^1.0.2",
     "package-json-type": "^1.0.3"
   }
 }

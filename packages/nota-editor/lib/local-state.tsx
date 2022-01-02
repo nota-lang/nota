@@ -3,6 +3,7 @@ import { try_parse, translate_ast, optimize_plugin } from "@nota-lang/nota-synta
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
+import { canUseDOM } from "exenv";
 
 import { TranslationResult, State } from "./nota-editor";
 
@@ -18,7 +19,7 @@ export class LocalState implements State {
     }
     let js = translate_ast(this.contents, tree.value);
     let transpiled_result = babel.transformFromAst(js, undefined, {
-      plugins: [optimize_plugin]
+      plugins: [optimize_plugin],
     }) as any as BabelFileResult;
     let lowered_result = babel.transformFromAst(js, undefined, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
@@ -27,7 +28,7 @@ export class LocalState implements State {
     return ok({
       transpiled: transpiled_result.code!,
       lowered,
-      css: null
+      css: null,
     });
   }
 
@@ -46,14 +47,16 @@ export class LocalState implements State {
     );
 
     const SYNC_INTERVAL = 200;
-    setInterval(async () => {
-      if (needs_sync) {
-        let translation = this.try_translate();
-        needs_sync = false;
-        runInAction(() => {
-          this.translation = translation;
-        });
-      }
-    }, SYNC_INTERVAL);
+    if (canUseDOM) {
+      setInterval(async () => {
+        if (needs_sync) {
+          let translation = this.try_translate();
+          needs_sync = false;
+          runInAction(() => {
+            this.translation = translation;
+          });
+        }
+      }, SYNC_INTERVAL);
+    }
   }
 }

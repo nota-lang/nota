@@ -1,22 +1,48 @@
 #!/usr/bin/env -S node -r @cspotcode/source-map-support/register
 
-import { program } from "commander";
+import esbuild from "esbuild";
+import { Command, program } from "commander";
+import path from "path";
+import {file_exists} from "@nota-lang/esbuild-utils";
 import * as server from "./server";
+import * as builder from "./builder";
 
-program.command("build <file>").action(_opts => {
-  throw `Not yet implemented!`;
+export interface CommonOptions {
+  file: string;
+  config: esbuild.BuildOptions;
+}
+
+let common_opts = (cmd: Command): Command =>
+  cmd.argument("<file>").option("-c, --config <path>", "Path to config file");
+
+let load_config = async (config_path?: string): Promise<esbuild.BuildOptions> => {
+  if (!config_path && file_exists("nota.config.mjs")) {
+    config_path = "nota.config.mjs"
+  }
+
+  if (!config_path) {
+    return {};
+  }
+
+  // Note: if imported path is relative, this seemed to cause script to get executed twice??
+  // No idea why, but path.resolve fixes the issue.
+  let mod = await import(path.resolve(config_path));
+  return mod.default;
+};
+
+common_opts(program.command("build")).action(async (file, { config, ...opts }) => {
+  await builder.main({ file, config: await load_config(config), ...opts });
 });
 
-program
-  .command("edit")
-  .argument("<file>")
-  .option("-c, --config <path>", "Path to config file")
+common_opts(program.command("edit"))
   .option("-p, --port <port>", "Port to run local server", parseInt)
-  .action((file, opts) =>
-    server.main({
+  .option("-s, --static <dir>", "Directory to serve static files")
+  .action(async (file, { config, ...opts }) =>
+    await server.main({
       file,
+      config: await load_config(config),
       ...opts,
     })
   );
 
-program.parse(process.argv);
+program.parseAsync(process.argv);

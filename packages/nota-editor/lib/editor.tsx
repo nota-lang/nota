@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
-import { nota, CodeTag } from "@nota-lang/nota-syntax";
+import { nota, /*CodeTag*/ } from "@nota-lang/nota-syntax";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { keymap } from "@codemirror/view";
 import { tags as t, HighlightStyle, defaultHighlightStyle } from "@codemirror/highlight";
@@ -34,8 +34,8 @@ let nota_lang = nota();
 
 let nota_style = HighlightStyle.define([
   { tag: t.variableName, color: "#256" },
-  { tag: CodeTag, background: "#f5f5f5" },
-  { tag: t.content, background: "white" },
+  // { tag: CodeTag, background: "#f5f5f5" },
+  // { tag: t.content, background: "white" },
 ]);
 
 export let Editor = () => {

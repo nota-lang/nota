@@ -9,24 +9,16 @@ import { cli } from "@nota-lang/esbuild-utils";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
+import os from "os";
+import { CommonOptions } from "./nota";
 
 export interface ServerOptions {
-  file: string;
   extensions?: string[];
   port?: number;
-  config?: string;
+  static?: string;
 }
 
-export let main = async (opts: ServerOptions) => {
-  let config: {
-    plugins?: any
-  } = {}; 
-  if (opts.config) {
-    // Note: if imported path is relative, this seemed to cause script to get executed twice??
-    // No idea why, but path.resolve fixes the issue.
-    config = await import(path.resolve(opts.config));  
-  }
-   
+export let main = async (opts: ServerOptions & CommonOptions) => {
   let input_path = path.resolve(opts.file);
   try {
     await fs.access(input_path, constants.F_OK);
@@ -36,9 +28,9 @@ export let main = async (opts: ServerOptions) => {
 
   let { app } = expressWs(express());
 
-  const outdir = await fs.mkdtemp("/tmp/");
+  const outdir = await fs.mkdtemp(path.join(os.tmpdir(), path.sep, "nota-"));
 
-  // TODO: figure out how to cleanup the outdir. 
+  // TODO: figure out how to cleanup the outdir.
   //  Issue is that esbuild is also catching a SIGINT
   // let rm = async () => {
   //   await fs.rm(outdir, {recursive: true})
@@ -47,12 +39,10 @@ export let main = async (opts: ServerOptions) => {
   // process.on('SIGINT', rm);
 
   app.use(express.static(__dirname));
-  app.use(express.static(process.cwd()))  
   app.use(express.static(outdir));
-
-  let loader: { [_k: string]: esbuild.Loader } = opts.extensions
-    ? _.fromPairs(opts.extensions.map((k: string) => ["." + k, "text"]))
-    : {};
+  if (opts.static) {
+    app.use(express.static(opts.static));
+  }
 
 
   const OUTPUT_JS_PATH = path.join(outdir, "document.js");
@@ -65,7 +55,7 @@ export let main = async (opts: ServerOptions) => {
     let [lowered, map_json, css] = await Promise.all(
       [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p => {
         try {
-          await fs.access(p, constants.F_OK); 
+          await fs.access(p, constants.F_OK);
           return fs.readFile(p, "utf-8");
         } catch (e) {
           return null;
@@ -105,9 +95,8 @@ export let main = async (opts: ServerOptions) => {
     outfile: OUTPUT_JS_PATH,
     globalName: "nota_document",
     external: peerDependencies,
-    loader,
     format: "iife",
-    plugins: [nota_plugin({ pretty: true }), ...(config.plugins || [])],
+    plugins: [nota_plugin({ pretty: true }), ...(opts.config.plugins || [])],
   });
 
   app.ws("/", async (ws, _req) => {
@@ -144,4 +133,3 @@ export let main = async (opts: ServerOptions) => {
   let port = opts.port ? opts.port : 8000;
   app.listen(port);
 };
-

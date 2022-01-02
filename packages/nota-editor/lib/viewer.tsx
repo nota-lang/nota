@@ -79,6 +79,9 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 };
 
 let nota_require = (path: string): any => {
+  if (path == "@nota-lang/nota-components/dist/peer-imports") {
+    return {peerImports};
+  }
   if (!(path in peerImports)) {
     throw `Cannot import ${path}`;
   }
@@ -90,7 +93,7 @@ let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
     return err(<>{result.value}</>);
   }
 
-  let Doc;
+  let Doc;  
   try {
     let f = new Function(
       "require",

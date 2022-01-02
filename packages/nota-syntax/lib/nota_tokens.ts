@@ -60,9 +60,9 @@ export const context = new ContextTracker<Context>({
       text = { ignore: true, parent: text };
     }
     if (text != null) {
-      if (term == terms.lbrc || term == terms.lbrkt) {
+      if (term == terms.lbrc || term == terms.lbrkt || term == terms.lparen) {
         text = { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: text };
-      } else if (term == terms.rbrc || term == terms.rbrkt) {
+      } else if (term == terms.rbrc || term == terms.rbrkt || term == terms.rparen) {
         text = text.parent;
       }
     }
@@ -77,7 +77,7 @@ export const context = new ContextTracker<Context>({
         }) in context ${JSON.stringify(context.text)}`
       );
     }
-    if (context.text && term == terms.Command) {
+    if (context.text && (term == terms.AtCommand || term == terms.PctCommand || term == terms.HashCommand)) {
       return {...context, text: context.text.parent};
     }
     return context;

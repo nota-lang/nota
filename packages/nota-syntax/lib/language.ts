@@ -106,6 +106,8 @@ export let nota_language = LRLanguage.define({
         "JSXOpenTag JSXSelfClosingTag"(context) {
           return context.column(context.node.from) + context.unit;
         },
+        ArgText: continuedIndent(),
+        PctCommand: continuedIndent(),
       }),
       foldNodeProp.add({
         "Block ClassBody SwitchBody EnumBody ObjectExpression ArrayExpression": foldInside,

@@ -46,7 +46,9 @@
   "devDependencies": {
     "@nota-lang/esbuild-utils": "^0.2.14",
     "@nota-lang/nota-common": "^0.2.14",
+    "@types/exenv": "^1.2.0",
     "@types/prettier": "^2.4.2",
+    "exenv": "^1.2.2",
     "react-error-boundary": "^3.1.4"
   }
 }

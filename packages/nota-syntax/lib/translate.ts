@@ -90,11 +90,6 @@ export let parse_expr = (code: string): Expression => {
   return s.expression;
 };
 
-let parse_stmt = (code: string): Statement => {
-  let s = parse(`${code};`)[0] as Statement;
-  return s;
-};
-
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
@@ -115,7 +110,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   global = {
     input,
     imports: new Set(),
-    exports: new Set()
+    exports: new Set(),
   };
 
   let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
@@ -142,7 +137,7 @@ export let translate_ast = (input: string, tree: Tree): Program => {
     ),
     ...Array.from(global.imports),
     ...Array.from(global.exports),
-    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc))
+    t.exportDefaultDeclaration(t.arrowFunctionExpression([], doc)),
   ];
 
   return t.program(program);
@@ -190,7 +185,7 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
           .reduce((a, b) => Math.min(a, b))
       : 0;
 
-  let output: Either<Expression, Statement | null>[] = [];
+  let output: Either<Expression, Array<Statement>>[] = [];
   tokens.forEach((token, i) => {
     if (line_starts.includes(i)) {
       let stripped = text(token).slice(min_leading_whitespace);
@@ -209,9 +204,9 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
   output.forEach(result => {
     if (is_left(result)) {
       cur_array.push(result.value);
-    } else if (result.value != null) {
+    } else {
       let new_array: (Expression | SpreadElement)[] = [];
-      let body = t.blockStatement([result.value, t.returnStatement(t.arrayExpression(new_array))]);
+      let body = t.blockStatement([...result.value, t.returnStatement(t.arrayExpression(new_array))]);
       let fn = t.spreadElement(t.callExpression(t.arrowFunctionExpression([], body), []));
       cur_array.push(fn);
       cur_array = new_array;
@@ -221,7 +216,7 @@ export let translate_textbody = (node: SyntaxNode): Expression => {
   return t.arrayExpression(array);
 };
 
-type TranslatedToken = Either<Expression, Statement | null>;
+type TranslatedToken = Either<Expression, Array<Statement>>;
 
 let process_text = (text: string): StringLiteral => {
   return t.stringLiteral(
@@ -354,19 +349,21 @@ let translate_hashcommand = (node: SyntaxNode): Expression => {
   return args.length == 0 ? name_expr : t.callExpression(name_expr, args);
 };
 
-let translate_pctcommand = (node: SyntaxNode): Statement | null => {
+let translate_pctcommand = (node: SyntaxNode): Array<Statement> => {
   assert(matches(node, terms.PctCommand));
 
-  let stmt = parse_stmt(replace_nota_calls(node.getChild(terms.NotaStatement)!));
-  if (stmt.type == "ImportDeclaration") {
-    global.imports.add(stmt);
-    return null;
-  } else if (stmt.type == "ExportNamedDeclaration") {
-    global.exports.add(stmt);
-    return null;
-  } else {
-    return stmt;
-  }
+  let stmts = parse(replace_nota_calls(node.getChild(terms.NotaStatement)!));
+  return stmts.filter(stmt => {
+    if (stmt.type == "ImportDeclaration") {
+      global.imports.add(stmt);
+      return false;
+    } else if (stmt.type == "ExportNamedDeclaration") {
+      global.exports.add(stmt);
+      return false;
+    } else {
+      return true;
+    }
+  });
 };
 
 let replace_nota_calls = (node: SyntaxNode): string => {

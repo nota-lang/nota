@@ -1,4 +1,2 @@
-%(import "@nota-lang/nota-theme-acm/dist/nota-theme-acm.css")
-%(let Publication = ({pub}) => @Definition[name=pub.name]{foo})
-
-This is text!! Whoah pretty gnarly.
+%(let nota = @{ok})
+Documents (yes ok)

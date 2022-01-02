@@ -6,7 +6,18 @@ import _ from "lodash";
 import { promise as glob } from "glob-promise";
 import winston from "winston";
 import { program } from "commander";
+//@ts-ignore
+import esMain from "es-main";
 import "@cspotcode/source-map-support/register.js";
+
+export let file_exists = async (path: string): Promise<boolean> => {
+  try {
+    await fs.promises.access(path, fs.constants.F_OK);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+};
 
 export let log = winston.createLogger({
   transports: [
@@ -26,6 +37,8 @@ export interface CliOptions {
   watch?: boolean | WatchMode;
   debug?: boolean;
 }
+
+export let is_main = esMain;
 
 export let cli = (
   external_options?: CliOptions
@@ -149,5 +162,67 @@ export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plug
     build.onLoad({ filter: /.*/, namespace }, args => ({
       contents: `export * as default from "${args.path}"; export * from "${args.path}";`,
     }));
+  },
+});
+
+export interface SsrOptions {
+  template?: string;
+}
+
+export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
+  name: "ssr",
+  setup(build) {
+    build.onResolve({ filter: /\.html$/ }, args => ({
+      path: args.path,
+      namespace: "ssr",
+    }));
+
+    build.onLoad({ filter: /./, namespace: "ssr" }, args => {
+      let { name, dir } = path.parse(args.path);
+      let script = `./${name}.mjs`;
+      let template_path = (opts && opts.template) || "@nota-lang/esbuild-utils/dist/template";
+      let contents = `
+      import React from "react";
+      import ReactDOM from "react-dom";
+      import Doc, {metadata} from "./${name}.nota"
+      import Template from "${template_path}";
+      import { canUseDOM } from "exenv";
+
+      export let Page = (props) => <Template {...props}><Doc /></Template>;
+      export { metadata };
+      export { default as React } from "react";
+      export { default as ReactDOMServer } from "react-dom/server";
+      
+      if (canUseDOM) {
+        ReactDOM.hydrate(<Page {...metadata} script={"${script}"} />, document.documentElement);
+      }
+      `;
+
+      return { contents, loader: "jsx", resolveDir: dir };
+    });
+
+    build.onEnd(async _args => {
+      let entryPoints = build.initialOptions.entryPoints;
+      let promises = (entryPoints as string[]).map(async p => {
+        let { name, dir } = path.parse(path.relative("src", p));
+        let script = `./${name}.mjs`;
+
+        let mod = await import(path.resolve(path.join("dist", dir, name + ".mjs")));
+        let { Page, React, ReactDOMServer, metadata } = mod;
+
+        // IMPORTANT NOTE: if *any* timers / intervals are still running after the page is rendered,
+        // this will cause NodeJS to hang! Timers should either be feature-gated (canUseDOM) or effect-gated (useEffect)
+        let content = ReactDOMServer.renderToString(
+          React.createElement(Page, { script, ...metadata })
+        );
+
+        await fs.promises.writeFile(
+          path.join("dist", dir, name + ".html"),
+          `<!DOCTYPE html><html lang="en">${content}</html>`
+        );
+      });
+
+      await Promise.all(promises);
+    });
   },
 });

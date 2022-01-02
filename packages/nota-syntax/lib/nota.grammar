@@ -550,7 +550,7 @@ TextToken { Text | NotaNewline | Command }
 Command { PctCommand | HashCommand | AtCommand }
 
 NotaExpression { expressionNoComma }
-NotaStatement { statement }
+NotaStatement { statement+ }
 
 PctCommand { pct lparen NotaStatement rparen }
 HashCommand { hash CommandName (ArgCodeAnon | ArgText)* }
