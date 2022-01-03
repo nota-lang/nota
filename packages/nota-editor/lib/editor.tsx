@@ -64,5 +64,5 @@ export let Editor = () => {
     });
   }, []);
 
-  return <div ref={ref} />;
+  return <div className="nota-editor" ref={ref} />;
 };

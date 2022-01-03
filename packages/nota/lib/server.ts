@@ -12,6 +12,7 @@ import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 import os from "os";
 import { CommonOptions } from "./nota";
 import { fileURLToPath } from 'url';
+import open from "open";
 
 export interface ServerOptions {
   extensions?: string[];
@@ -127,4 +128,6 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
 
   let port = opts.port ? opts.port : 8000;
   app.listen(port);
+
+  open(`http://localhost:${port}`);
 };

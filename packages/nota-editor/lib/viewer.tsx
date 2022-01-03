@@ -79,7 +79,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 };
 
 let nota_require = (path: string): any => {
-  if (path == "@nota-lang/nota-components/dist/peer-imports.mjs") {
+  if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
     return { peerImports };
   }
   if (!(path in peerImports)) {

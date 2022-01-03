@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r @cspotcode/source-map-support/register
+#!/usr/bin/env node -r @cspotcode/source-map-support/register
 
 import esbuild from "esbuild";
 import { Command, program } from "commander";

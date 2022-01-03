@@ -43,9 +43,10 @@
     "@codemirror/basic-setup": "^0.19.0",
     "@codemirror/lang-javascript": "^0.19.3",
     "@cspotcode/source-map-support": "^0.7.0",
-    "@nota-lang/nota-components": "^0.2.16",
     "@nota-lang/esbuild-utils": "^0.2.16",
+    "@nota-lang/nota-components": "^0.2.16",
     "@nota-lang/nota-editor": "^0.2.16",
+    "classnames": "^2.3.1",
     "commander": "^8.3.0",
     "esbuild": "^0.14.5",
     "exenv": "^1.2.2",
@@ -53,9 +54,9 @@
     "express-ws": "^5.0.2",
     "mobx": "^6.3.7",
     "mobx-react": "^7.2.1",
+    "open": "^8.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "classnames": "^2.3.1",
     "ws": "^8.2.3"
   }
 }
