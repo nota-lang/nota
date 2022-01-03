@@ -31,27 +31,27 @@ test("nota-cli-builder", async () => {
   expect(contents).toMatchSnapshot();
 });
 
-test("nota-cli-server", async () => {
-  let p = cp.spawn(`node ${nota_path} edit index.nota --port 8765`, { cwd: dir, shell: true });
-  let once = (k: string) =>
-    new Promise(resolve => {
-      p.once(k, resolve);
-    });
+// test("nota-cli-server", async () => {
+//   let p = cp.spawn(`node ${nota_path} edit index.nota --port 8765`, { cwd: dir, shell: true });
+//   let once = (k: string) =>
+//     new Promise(resolve => {
+//       p.once(k, resolve);
+//     });
 
-  await once("spawn");
+//   await once("spawn");
 
-  // TODO: figure out http
-  // await new Promise(resolve =>
-  //   http.request(
-  //     {
-  //       hostname: "localhost",
-  //       port: 8765,
-  //     },
-  //     resolve
-  //   )
-  // );
+//   // TODO: figure out http
+//   // await new Promise(resolve =>
+//   //   http.request(
+//   //     {
+//   //       hostname: "localhost",
+//   //       port: 8765,
+//   //     },
+//   //     resolve
+//   //   )
+//   // );
 
-  p.kill('SIGINT');
+//   p.kill('SIGINT');
 
-  await once("exit");
-});
+//   await once("exit");
+// });
