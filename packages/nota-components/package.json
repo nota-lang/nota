@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-components",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "TODO",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota",
@@ -35,8 +35,8 @@
     "katex": "^0.15.1"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.16",
-    "@nota-lang/nota-common": "^0.2.16",
+    "@nota-lang/esbuild-utils": "^0.2.17",
+    "@nota-lang/nota-common": "^0.2.17",
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
