@@ -10,7 +10,7 @@ import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
 import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
-import { peerImports } from "@nota-lang/nota-components/dist/peer-imports";
+import {peerImports} from "@nota-lang/nota-components/dist/peer-imports.js";
 
 import { StateContext, TranslationResult } from "./nota-editor";
 import { theme } from "./editor";
@@ -79,8 +79,8 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 };
 
 let nota_require = (path: string): any => {
-  if (path == "@nota-lang/nota-components/dist/peer-imports") {
-    return {peerImports};
+  if (path == "@nota-lang/nota-components/dist/peer-imports.mjs") {
+    return { peerImports };
   }
   if (!(path in peerImports)) {
     throw `Cannot import ${path}`;
@@ -93,7 +93,7 @@ let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
     return err(<>{result.value}</>);
   }
 
-  let Doc;  
+  let Doc;
   try {
     let f = new Function(
       "require",
@@ -110,7 +110,7 @@ let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
 
 let counter = 0;
 export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) => {
-  let [last_translation] = useState<{t: JSX.Element | null}>({t: null});
+  let [last_translation] = useState<{ t: JSX.Element | null }>({ t: null });
 
   let DocResult = execute(result);
 
@@ -137,13 +137,15 @@ export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) =>
     );
   };
 
-  return (<>
-    {is_ok(result) && result.value.css ? <style>{result.value.css}</style> : null}
-    <ErrorBoundary
-      resetKeys={[result]}
-      FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
-    >            
-      {is_ok(DocResult) ? <DocResult.value key={counter++} /> : fallback(DocResult.value)}
-    </ErrorBoundary>
-  </>);
+  return (
+    <>
+      {is_ok(result) && result.value.css ? <style>{result.value.css}</style> : null}
+      <ErrorBoundary
+        resetKeys={[result]}
+        FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
+      >
+        {is_ok(DocResult) ? <DocResult.value key={counter++} /> : fallback(DocResult.value)}
+      </ErrorBoundary>
+    </>
+  );
 };

@@ -5,7 +5,8 @@ let build = cli();
 build({
   entryPoints: ["lib/nota.ts"],
   platform: "node",
-  format: "cjs"
+  format: "esm",
+  outExtension: { ".js": ".mjs" },
 });
 
 build({

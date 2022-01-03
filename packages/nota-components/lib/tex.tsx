@@ -129,12 +129,12 @@ export let TexPlugin = new Plugin(
         class: "className",
       };
       let capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-      let translate = (node: HTMLElement | Text): JSX.Element | string => {
+      let translate = (node: HTMLElement | Text, key?: number): JSX.Element | string => {
         if (node instanceof Text) {
           return node.textContent!;
         }
 
-        let children = Array.from(node.childNodes).map((node: any) => translate(node));
+        let children = Array.from(node.childNodes).map((node: any, i) => translate(node, i));
 
         let props = _.fromPairs(
           Array.from(node.attributes).map(attr => {
@@ -156,17 +156,22 @@ export let TexPlugin = new Plugin(
             }
           })
         );
+        props.key = key;
 
         let react_node = el(node.tagName.toLowerCase(), props, children);
 
         if (node.dataset.cmd) {
           return (
-            <Ref Element={react_node} nolink>
+            <Ref Element={react_node} nolink key={key}>
               tex:{node.dataset.cmd}
             </Ref>
           );
         } else if (node.dataset.def) {
-          return <DefinitionAnchor name={`tex:${node.dataset.def}`}>{react_node}</DefinitionAnchor>;
+          return (
+            <DefinitionAnchor name={`tex:${node.dataset.def}`} key={key}>
+              {react_node}
+            </DefinitionAnchor>
+          );
         } else {
           return react_node;
         }

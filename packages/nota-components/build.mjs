@@ -27,18 +27,18 @@ build({
   external: cm_deps,
   plugins: [sassPlugin()],
 }).then(([_result, opts]) => {
-  let modules = opts.external.concat(['@nota-lang/nota-components']);
+  let modules = opts.external.concat(["@nota-lang/nota-components"]);
 
-  fs.writeFileSync("dist/peer-dependencies.d.ts", `export const peerDependencies: string[];`);
+  fs.writeFileSync("dist/peer-dependencies.d.mts", `export const peerDependencies: string[];`);
   fs.writeFileSync(
-    "dist/peer-dependencies.js",
-    `module.exports = {peerDependencies: ${JSON.stringify(modules)}};`
+    "dist/peer-dependencies.mjs",
+    `export let peerDependencies = ${JSON.stringify(modules)};`
   );
 
   let imports = modules.map((mod, i) => `import * as _${i} from "${mod}";`).join("\n");
-  let export_ = `module.exports = {peerImports: {${modules
+  let export_ = `export let peerImports = {${modules
     .map((mod, i) => `"${mod}": _${i}`)
-    .join(",")}}}`;
+    .join(",")}}`;
   fs.writeFileSync("dist/peer-imports.d.ts", `export const peerImports: {[mod: string]: any};`);
   fs.writeFileSync("dist/peer-imports.js", imports + "\n" + export_);
 });

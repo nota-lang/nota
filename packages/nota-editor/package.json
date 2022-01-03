@@ -41,7 +41,7 @@
     "prettier": "^2.5.1"
   },
   "dependenciesComments": [
-    "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/peer-dependencies"
+    "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/"
   ],
   "devDependencies": {
     "@nota-lang/esbuild-utils": "^0.2.16",

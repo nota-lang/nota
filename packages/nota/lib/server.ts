@@ -1,16 +1,17 @@
 import express from "express";
 import expressWs from "express-ws";
 import path from "path";
-import { constants, promises as fs } from "fs";
+import { promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
 import { cli, file_exists } from "@nota-lang/esbuild-utils";
-import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies";
+import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 import os from "os";
 import { CommonOptions } from "./nota";
+import { fileURLToPath } from 'url';
 
 export interface ServerOptions {
   extensions?: string[];
@@ -36,6 +37,8 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   // process.on('SIGTERM', rm);
   // process.on('SIGINT', rm);
 
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
   app.use(express.static(__dirname));
   app.use(express.static(outdir));
   if (opts.static) {

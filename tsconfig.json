@@ -8,12 +8,14 @@
       "sourceMap": true,
       "esModuleInterop": true,
       "jsx": "react",
-      "lib": ["es2018", "dom"],
+      "lib": ["es2020", "dom"],
+      "module": "ES2020",
+      "moduleResolution": "Node",
 
       // Output file options
       "outDir": "dist",
       "declaration": true,
 
       "experimentalDecorators": true
-  }
+  },
 }

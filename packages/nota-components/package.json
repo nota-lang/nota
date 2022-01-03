@@ -38,6 +38,8 @@
     "@nota-lang/esbuild-utils": "^0.2.16",
     "@nota-lang/nota-common": "^0.2.16",
     "@orcid/bibtex-parse-js": "^0.0.25",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
     "@types/katex": "^0.11.1",
     "classnames": "^2.3.1",
     "react-async": "^10.0.1",

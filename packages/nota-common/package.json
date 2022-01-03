@@ -5,6 +5,7 @@
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/willcrichton/nota#readme",
   "license": "MIT",
+  "type": "module",
   "main": "dist/nota-common.js",
   "directories": {
     "lib": "lib",
@@ -31,6 +32,7 @@
     "url": "https://github.com/willcrichton/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.16"
+    "@nota-lang/esbuild-utils": "^0.2.16",
+    "@types/jest": "^27.4.0"
   }
 }

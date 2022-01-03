@@ -6,6 +6,7 @@ import _ from "lodash";
 import { promise as glob } from "glob-promise";
 import winston from "winston";
 import { program } from "commander";
+import commonPathPrefix from "common-path-prefix";
 //@ts-ignore
 import esMain from "es-main";
 import "@cspotcode/source-map-support/register.js";
@@ -59,9 +60,11 @@ export let cli = (
   let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 
   return async (extra: BuildOptions) => {
-    let external = pkg_external.concat(extra.external || []);
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
+ 
+    let external = (format != "iife" ? pkg_external : []).concat(extra.external || []);
+    
     if (format == "esm") {
       plugins.push(esm_externals_plugin({ externals: external }));
     }
@@ -178,22 +181,23 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
     }));
 
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
-      let { name, dir } = path.parse(args.path);
+      let { name, dir } = path.parse(path.resolve(args.path));
       let script = `./${name}.mjs`;
       let template_path = "@nota-lang/esbuild-utils/dist/template";
       if (opts && opts.template) {
         template_path = "." + path.sep + path.relative(dir, opts.template);
       }
-      
+
       let contents = `
       import React from "react";
       import ReactDOM from "react-dom";
-      import Doc, {metadata} from "./${name}.nota"
+      import Doc, * as doc_mod from "./${name}.nota"
       import Template from "${template_path}";
       import { canUseDOM } from "exenv";
 
+      let key = "metadata";
+      export let metadata = key in doc_mod ? doc_mod[key] : {};
       export let Page = (props) => <Template {...props}><Doc /></Template>;
-      export { metadata };
       export { default as React } from "react";
       export { default as ReactDOMServer } from "react-dom/server";
       
@@ -206,9 +210,11 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
     });
 
     build.onEnd(async _args => {
-      let entryPoints = build.initialOptions.entryPoints;
-      let promises = (entryPoints as string[]).map(async p => {
-        let { name, dir } = path.parse(path.relative("src", p));
+      let entryPoints = build.initialOptions.entryPoints as string[];
+      let common_prefix = commonPathPrefix(entryPoints);
+
+      let promises = entryPoints.map(async p => {
+        let { name, dir } = path.parse(path.relative(common_prefix, p));
         let script = `./${name}.mjs`;
 
         let mod = await import(path.resolve(path.join("dist", dir, name + ".mjs")));

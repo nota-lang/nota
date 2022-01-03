@@ -37,7 +37,8 @@
     "exenv": "^1.2.2",
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "common-path-prefix": "^3.0.0"
   },
   "peerDependencies": {
     "esbuild": "^0.14.5"
