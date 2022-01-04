@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-components",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "description": "React components for Nota documents",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -34,8 +34,8 @@
     "katex": "^0.15.1"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.17",
-    "@nota-lang/nota-common": "^0.2.17",
+    "@nota-lang/esbuild-utils": "^0.2.18",
+    "@nota-lang/nota-common": "^0.2.18",
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@types/katex": "^0.11.1",
     "classnames": "^2.3.1",
