@@ -1,4 +1,5 @@
-#!/usr/bin/env node -r @cspotcode/source-map-support/register
+#!/bin/sh 
+":" //# comment; exec /usr/bin/env node  -r @cspotcode/source-map-support/register "$0" "$@"
 
 import esbuild from "esbuild";
 import { Command, program } from "commander";
