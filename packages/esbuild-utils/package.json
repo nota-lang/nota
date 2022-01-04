@@ -1,15 +1,14 @@
 {
   "name": "@nota-lang/esbuild-utils",
   "version": "0.2.17",
-  "description": "> TODO: description",
+  "description": "esbuild utilities for @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
-  "homepage": "https://github.com/willcrichton/nota#readme",
+  "homepage": "https://github.com/nota-lang/nota",
   "license": "MIT",
   "type": "module",
   "main": "dist/esbuild-utils.js",
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "dist"
@@ -19,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/willcrichton/nota.git"
+    "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
     "build": "node build.mjs",
@@ -29,7 +28,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/willcrichton/nota/issues"
+    "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
     "@cspotcode/source-map-support": "^0.7.0",
@@ -44,7 +43,6 @@
     "esbuild": "^0.14.5"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.7",
     "es-main": "^1.0.2",
     "package-json-type": "^1.0.3"
   }

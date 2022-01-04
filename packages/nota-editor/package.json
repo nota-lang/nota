@@ -1,18 +1,14 @@
 {
   "name": "@nota-lang/nota-editor",
   "version": "0.2.17",
-  "description": "> TODO: description",
+  "description": "Browser-based editor for Nota documents",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
-  "homepage": "https://github.com/willcrichton/nota#readme",
+  "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
   "type": "module",
   "main": "dist/nota-editor.js",
-  "bin": {
-    "nota-editor": "dist/backend/server.cjs"
-  },
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "dist"
@@ -22,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/willcrichton/nota.git"
+    "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
     "build": "node build.mjs",
@@ -32,13 +28,15 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/willcrichton/nota/issues"
+    "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
     "@babel/standalone": "^7.16.4",
     "@nota-lang/nota-components": "^0.2.17",
     "@nota-lang/nota-syntax": "^0.2.17",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "exenv": "^1.2.2",
+    "react-error-boundary": "^3.1.4"
   },
   "dependenciesComments": [
     "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/"
@@ -47,8 +45,6 @@
     "@nota-lang/esbuild-utils": "^0.2.17",
     "@nota-lang/nota-common": "^0.2.17",
     "@types/exenv": "^1.2.0",
-    "@types/prettier": "^2.4.2",
-    "exenv": "^1.2.2",
-    "react-error-boundary": "^3.1.4"
+    "@types/prettier": "^2.4.2"
   }
 }

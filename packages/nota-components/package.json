@@ -1,13 +1,12 @@
 {
   "name": "@nota-lang/nota-components",
   "version": "0.2.17",
-  "description": "TODO",
+  "description": "React components for Nota documents",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
-  "homepage": "https://github.com/willcrichton/nota",
+  "homepage": "https://github.com/nota-lang/nota",
   "license": "MIT",
   "main": "dist/nota-components.js",
   "directories": {
-    "lib": "lib",
     "test": "__tests__"
   },
   "files": [
@@ -18,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/willcrichton/nota.git"
+    "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
     "build": "node build.mjs",
@@ -28,7 +27,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/willcrichton/nota/issues"
+    "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
@@ -38,8 +37,6 @@
     "@nota-lang/esbuild-utils": "^0.2.17",
     "@nota-lang/nota-common": "^0.2.17",
     "@orcid/bibtex-parse-js": "^0.0.25",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
     "@types/katex": "^0.11.1",
     "classnames": "^2.3.1",
     "react-async": "^10.0.1",

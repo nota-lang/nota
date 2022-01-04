@@ -1,14 +1,14 @@
 {
   "name": "@nota-lang/nota-theme-acm",
   "version": "0.2.17",
-  "description": "> TODO: description",
+  "description": "Nota theme for the ACM paper template",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
-  "homepage": "https://github.com/willcrichton/nota#readme",
+  "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
+  "type": "module",
   "main": "dist/nota-theme-acm.js",
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "dist"
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/willcrichton/nota.git"
+    "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
     "build": "node build.mjs",
@@ -28,7 +28,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/willcrichton/nota/issues"
+    "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
     "@nota-lang/esbuild-utils": "^0.2.17"

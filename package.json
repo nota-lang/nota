@@ -15,6 +15,8 @@
     "commit-check": "yarn clean-repo && yarn init-repo && yarn lint && yarn test"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.6",
     "@types/react": "^17.0.38",
