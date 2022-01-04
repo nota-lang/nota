@@ -11,7 +11,7 @@ import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 import os from "os";
 import { CommonOptions } from "./index";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 import open from "open";
 
 export interface ServerOptions {
@@ -22,7 +22,7 @@ export interface ServerOptions {
 
 export let main = async (opts: ServerOptions & CommonOptions) => {
   let input_path = path.resolve(opts.file);
-  if (!file_exists(input_path)) {
+  if (!(await file_exists(input_path))) {
     await fs.writeFile(input_path, "");
   }
 

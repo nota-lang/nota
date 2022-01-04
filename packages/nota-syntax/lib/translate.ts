@@ -99,7 +99,7 @@ export let PRELUDE = {
     "Document", "Paragraph", "Section", "Subsection", "Subsubsection", "Title", "Ref", "References", "Abstract",
     "Row", "Wrap", "Footnote", "Figure", "Caption", "Definition", "Togglebox", "IR", "Theorem",
     "Link", "Correspondence", "Listing", "ListingConfigure", "$", "$$", "Cite", "Authors", "Author", "Name", 
-    "Affiliation", "Institution", "Smallcaps"
+    "Affiliation", "Institution", "Smallcaps", "Center"
   ], 
   functions: ["tex_ref", "tex_def"],
 };
@@ -230,6 +230,7 @@ let process_text = (text: string): StringLiteral => {
       .replace(/\\\[/g, "[")
       .replace(/\\\]/g, "]")
       .replace(/\\@/g, "@")
+      .replace(/\\#/g, "#")
       .replace(/---/g, "—")
   );
 };
