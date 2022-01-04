@@ -6,7 +6,7 @@
   "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
   "bin": {
-    "nota": "dist/nota.mjs"
+    "nota": "dist/index.mjs"
   },
   "directories": {
     "lib": "lib"

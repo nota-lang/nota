@@ -6,7 +6,7 @@
   "homepage": "https://github.com/nota-lang/nota",
   "license": "MIT",
   "type": "module",
-  "main": "dist/nota-syntax.js",
+  "main": "dist/index.js",
   "directories": {
     "lib": "lib"
   },

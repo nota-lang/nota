@@ -12,7 +12,7 @@ import _ from "lodash";
 import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
 import {peerImports} from "@nota-lang/nota-components/dist/peer-imports.js";
 
-import { StateContext, TranslationResult } from "./nota-editor";
+import { StateContext, TranslationResult } from ".";
 import { theme } from "./editor";
 
 let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;

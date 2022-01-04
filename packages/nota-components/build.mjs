@@ -23,7 +23,6 @@ let cm_deps = [
 
 let build = cli();
 build({
-  entryPoints: ["lib/nota-components.tsx"],
   external: cm_deps,
   plugins: [sassPlugin()],
 }).then(([_result, opts]) => {

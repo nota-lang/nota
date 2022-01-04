@@ -6,7 +6,7 @@ import util from "util";
 import http from "http";
 
 let exec = util.promisify(cp.exec);
-let nota_path = path.join(process.cwd(), "packages", "nota", "dist", "nota.mjs");
+let nota_path = path.join(process.cwd(), "packages", "nota", "dist", "index.mjs");
 
 let dir: string;
 let input_path: string;

@@ -6,7 +6,8 @@
   "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
   "type": "module",
-  "main": "dist/esbuild-lezer.js",
+  "main": "dist/index.js",
+  "typedocMain": "lib/index.ts",
   "directories": {
     "lib": "lib"
   },

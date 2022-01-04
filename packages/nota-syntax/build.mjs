@@ -7,7 +7,6 @@ let opts = {
 };
 
 build({
-  entryPoints: ["lib/nota-syntax.ts"],
   ...opts,
 });
 

@@ -6,7 +6,7 @@ import { keymap } from "@codemirror/view";
 import { tags as t, HighlightStyle, defaultHighlightStyle } from "@codemirror/highlight";
 import { indentWithTab } from "@codemirror/commands";
 
-import { StateContext } from "./nota-editor";
+import { StateContext } from ".";
 
 export let theme = EditorView.theme({
   "&": {

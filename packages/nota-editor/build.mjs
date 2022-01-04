@@ -5,7 +5,6 @@ import {peerDependencies} from "@nota-lang/nota-components/dist/peer-dependencie
 let build = cli();
 
 build({
-  entryPoints: ["lib/nota-editor.tsx"],
   plugins: [sassPlugin()],
   external: peerDependencies,
 });

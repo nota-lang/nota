@@ -10,7 +10,7 @@ import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependenc
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 import os from "os";
-import { CommonOptions } from "./nota";
+import { CommonOptions } from "./index";
 import { fileURLToPath } from 'url';
 import open from "open";
 

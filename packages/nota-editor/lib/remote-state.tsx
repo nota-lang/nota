@@ -2,7 +2,7 @@ import { makeAutoObservable, reaction, action } from "mobx";
 import _ from "lodash";
 import { err } from "@nota-lang/nota-common";
 
-import { TranslationResult, State } from "./nota-editor";
+import { TranslationResult, State } from ".";
 
 export interface InitialContent {
   type: "InitialContent";

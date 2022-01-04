@@ -16,8 +16,8 @@ import classNames from "classnames";
 import "../static/index.html";
 
 import "katex/dist/katex.min.css";
-import "@nota-lang/nota-components/dist/nota-components.css";
-import "@nota-lang/nota-editor/dist/nota-editor.css";
+import "@nota-lang/nota-components/dist/index.css";
+import "@nota-lang/nota-editor/dist/index.css";
 import "../css/editor.scss";
 
 export class ViewerState {

@@ -5,7 +5,7 @@ import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
 import { canUseDOM } from "exenv";
 
-import { TranslationResult, State } from "./nota-editor";
+import { TranslationResult, State } from ".";
 
 export class LocalState implements State {
   contents: string;

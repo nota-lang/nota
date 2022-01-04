@@ -59,12 +59,12 @@ export let cli = (
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
   let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 
-  return async (extra: BuildOptions) => {
+  return async (extra: BuildOptions = {}) => {
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
- 
+
     let external = (format != "iife" ? pkg_external : []).concat(extra.external || []);
-    
+
     if (format == "esm") {
       plugins.push(esm_externals_plugin({ externals: external }));
     }
@@ -100,9 +100,15 @@ export let cli = (
           }
         : undefined;
 
+    let entryPoints = extra.entryPoints;
+    if (!entryPoints) {
+      entryPoints = [(await file_exists("./lib/index.ts")) ? "./lib/index.ts" : "./lib/index.tsx"];
+    }
+
     let opts = {
       ...extra,
       ...outpaths,
+      entryPoints,
       watch,
       external,
       plugins,

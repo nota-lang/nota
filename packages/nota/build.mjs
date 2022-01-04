@@ -3,7 +3,6 @@ import { sassPlugin } from "esbuild-sass-plugin";
 
 let build = cli();
 build({
-  entryPoints: ["lib/nota.ts"],
   platform: "node",
   format: "esm",
   outExtension: { ".js": ".mjs" },

@@ -1,6 +1,6 @@
 import { cli, ssr_plugin } from "@nota-lang/esbuild-utils";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import { CommonOptions } from "./nota";
+import { CommonOptions } from "./index";
 import path from "path";
 
 export interface BuilderOptions {}

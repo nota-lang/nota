@@ -6,7 +6,7 @@
   "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
   "type": "module",
-  "main": "dist/nota-editor.js",
+  "main": "dist/index.js",
   "directories": {
     "lib": "lib"
   },

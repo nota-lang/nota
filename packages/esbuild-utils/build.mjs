@@ -8,7 +8,7 @@ let external = Object.keys(pkg.dependencies || {}).concat(Object.keys(pkg.peerDe
 let watch = process.argv.includes('-w');
 
 esbuild.build({
-  entryPoints: ["lib/esbuild-utils.ts"],
+  entryPoints: ["lib/index.ts"],
   outdir: "dist",
   bundle: true,
   format: "esm",
