@@ -1,12 +1,12 @@
 {
   "name": "playground",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "license": "MIT",
   "main": "dist/document/document.js",
   "private": true,
   "scripts": {},
   "devDependencies": {
-    "@nota-lang/nota": "^0.2.18",
-    "@nota-lang/nota-theme-acm": "^0.2.18"
+    "@nota-lang/nota": "^0.2.19",
+    "@nota-lang/nota-theme-acm": "^0.2.19"
   }
 }

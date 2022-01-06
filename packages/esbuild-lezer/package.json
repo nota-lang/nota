@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/esbuild-lezer",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "esbuild plugin for Lezer grammars",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -32,7 +32,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.2.18"
+    "@nota-lang/esbuild-utils": "^0.2.19"
   },
   "peerDependencies": {
     "@lezer/generator": "^0.15.2",
