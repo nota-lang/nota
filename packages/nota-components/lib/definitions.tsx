@@ -105,7 +105,7 @@ export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
 
   useEffect(() => {
     ctx.add_definition(name_str, {
-      Tooltip: Tooltip ? Tooltip : () => <>{props.children}</>,
+      Tooltip: Tooltip !== undefined ? Tooltip : () => <>{props.children}</>,
       Label: Label || null,
     });
   }, []);
@@ -120,10 +120,10 @@ export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
 interface RefProps {
   block?: boolean;
   nolink?: boolean;
-  Element?: JSX.Element;
+  Label?: JSX.Element;
 }
 
-export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Element, ...props }) => {
+export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Label, ...props }) => {
   let name = join_recursive(children as any);
 
   let ctx = usePlugin(DefinitionsPlugin);
@@ -151,7 +151,7 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Elemen
       def.Label
     )
   ) : (
-    Element || <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
+    Label || <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";

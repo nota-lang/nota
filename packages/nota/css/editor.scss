@@ -1,26 +1,32 @@
 body {
-  font: 12pt Helvetica, sans-serif;  
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;  
   overflow: hidden;
 }
 
-$header-height: 45px;
+$header-height: 55px;
+$frame-color: #ccc;
+$frame-width: 6px;
 
 .header {
+  font: 12pt Helvetica, sans-serif !important; 
   display: flex;
   justify-content: space-between;
   height: $header-height;
   box-sizing: border-box;
-  padding: 5px 0;
+  padding: 5px 20px;
+  border-bottom: $frame-width solid $frame-color;
+
+  > div {
+    align-self: center;
+  }
 
   h1 {
     margin: 0;
-    padding-left: 20px;
   }
 
   .viewer-config {
     padding-top: 5px;
-    padding-right: 5px;
 
     button {
       margin-left: 10px;
@@ -38,9 +44,25 @@ $header-height: 45px;
   width: 100%;
   height: calc(100vh - $header-height);
 
-  > div {
-    width: 50%;
+  $sep-margin: 6px;
+  $sep-width: $frame-width + $sep-margin * 2;
+  .nota-editor:not(.embedded), .viewer {
+    width: calc(50% - $sep-width/2);
     height: 100%;
+  }
+
+  .nota-editor:not(.embedded) {
+    font-size: 12pt !important;
+  }
+
+  &.fullscreen {
+    .nota-editor:not(.embedded) {
+      width: 0;
+    }
+
+    .viewer {
+      width: calc(100% - $sep-width);
+    }
   }
 
   pre {
@@ -49,9 +71,40 @@ $header-height: 45px;
 
   .viewer {
     height: 100%;
+    box-sizing: border-box;
     overflow-y: auto;
+    overflow-x: hidden;
     padding-right: 15px;
     padding-left: 15px;
+    padding-top: 10px;
+    padding-bottom: 20px;
     position: relative;
   }
+
+  .separator {
+    width: $frame-width;
+    margin: 0 $sep-margin;
+    background: $frame-color;
+    height: 100%;
+
+    button {
+      $height: 40px;
+      width: 100%;
+      height: $height;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      position: relative;
+      top: calc(50% - $height/2);
+      font-size: 14px;
+      background: #eee;
+
+      &:hover {
+        background: #333;
+        color: white;
+        cursor: pointer;
+      }
+    }
+  }
 }
+

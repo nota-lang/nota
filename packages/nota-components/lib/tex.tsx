@@ -162,7 +162,7 @@ export let TexPlugin = new Plugin(
 
         if (node.dataset.cmd) {
           return (
-            <Ref Element={react_node} nolink key={key}>
+            <Ref Label={react_node} nolink key={key}>
               tex:{node.dataset.cmd}
             </Ref>
           );

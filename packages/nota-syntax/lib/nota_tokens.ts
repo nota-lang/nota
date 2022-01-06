@@ -58,8 +58,7 @@ export const context = new ContextTracker<Context>({
     let text = context.text;
     if (term == terms.pct || term == terms.hash || term == terms.at) {
       text = { ignore: true, parent: text };
-    }
-    if (text != null) {
+    } else if (text != null) {
       if (term == terms.lbrc || term == terms.lbrkt || term == terms.lparen) {
         text = { balance: _.fromPairs(ldelims.map(l => [l, 0])), parent: text };
       } else if (term == terms.rbrc || term == terms.rbrkt || term == terms.rparen) {
@@ -77,8 +76,11 @@ export const context = new ContextTracker<Context>({
         }) in context ${JSON.stringify(context.text)}`
       );
     }
-    if (context.text && (term == terms.AtCommand || term == terms.PctCommand || term == terms.HashCommand)) {
-      return {...context, text: context.text.parent};
+    if (
+      context.text &&
+      (term == terms.AtCommand || term == terms.PctCommand || term == terms.HashCommand)
+    ) {
+      return { ...context, text: context.text.parent };
     }
     return context;
   },
@@ -109,11 +111,14 @@ let r2l = _.fromPairs(delims.map(([l, r]) => [r, l]));
 
 export const text = new ExternalTokenizer(
   (input, stack) => {
-    if (input.next == fwdslash && input.peek(1) == fwdslash) {
-      return;
-    }
-
     for (let len = 0; ; len++) {
+      if (input.next == fwdslash && input.peek(1) == fwdslash) {
+        if (len > 0) {
+          input.acceptToken(terms.Text);
+        }
+        return;
+      }
+
       // console.log("text", input.pos, String.fromCharCode(input.next), stack.context);
       if (
         input.next == eof ||
@@ -132,7 +137,10 @@ export const text = new ExternalTokenizer(
       if (ctx != null) {
         if (
           ctx.ignore &&
-          (input.next == pipe || input.next == eqsign || ldelims.includes(input.next) || rdelims.includes(input.next))
+          (input.next == pipe ||
+            input.next == eqsign ||
+            ldelims.includes(input.next) ||
+            rdelims.includes(input.next))
         ) {
           if (len > 0) {
             input.acceptToken(terms.Text);

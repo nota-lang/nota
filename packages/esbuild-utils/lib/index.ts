@@ -76,6 +76,10 @@ export let cli = (
       ".ttf": "file",
       ".wasm": "file",
       ".bib": "text",
+      ".png": "file",
+      ".jpg": "file",
+      ".jpeg": "file",
+      ".gif": "file",
       ...(extra.loader || {}),
     };
 
@@ -181,6 +185,11 @@ export interface SsrOptions {
 export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
   name: "ssr",
   setup(build) {
+    build.initialOptions.outExtension = {
+      ...(build.initialOptions.outExtension || {}),
+      ".js": ".mjs",
+    };
+
     build.onResolve({ filter: /\.html$/ }, args => ({
       path: args.path,
       namespace: "ssr",
@@ -239,6 +248,19 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       });
 
       await Promise.all(promises);
+    });
+  },
+});
+
+export let executable_plugin = (paths: string[]): Plugin => ({
+  name: "executable",
+  setup(build) {
+    build.initialOptions.banner = {
+      js: `#!/usr/bin/env node`,
+    };
+
+    build.onEnd(async () => {
+      await Promise.all(paths.map(p => fs.promises.chmod(p, fs.constants.S_IRWXU)));
     });
   },
 });

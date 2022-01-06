@@ -1,18 +1,16 @@
-import { cli, copy_plugin } from "@nota-lang/esbuild-utils";
+import { cli, copy_plugin, executable_plugin } from "@nota-lang/esbuild-utils";
 import { sassPlugin } from "esbuild-sass-plugin";
+import fs from "fs/promises";
+import { constants } from "fs";
 
-let shebang = `#!/bin/sh 
-":" //# comment; exec /usr/bin/env node  -r @cspotcode/source-map-support/register "$0" "$@"`;
 
 let build = cli();
 build({
   platform: "node",
   format: "esm",
   outExtension: { ".js": ".mjs" },
-  banner: {
-    js: shebang,
-  },
-});
+  plugins: [executable_plugin(["dist/index.mjs"])],
+})
 
 build({
   entryPoints: ["lib/editor.tsx"],

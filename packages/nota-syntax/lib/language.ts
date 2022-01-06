@@ -8,7 +8,7 @@ import {
   foldNodeProp,
   foldInside,
 } from "@codemirror/language";
-import { styleTags, tags as t, Tag } from "@codemirror/highlight";
+import { styleTags, HighlightStyle, tags as t, Tag } from "@codemirror/highlight";
 
 import { autocomplete } from "./autocomplete";
 //@ts-ignore
@@ -132,4 +132,10 @@ let nota_completion = nota_language.data.of({
   autocomplete,
 });
 
-export let nota = () => new LanguageSupport(nota_language, [nota_completion]);
+let nota_style = HighlightStyle.define([
+  { tag: t.variableName, color: "#256" },
+  // { tag: CodeTag, background: "#f5f5f5" },
+  { tag: t.content, class: "nota-editor-text" },
+]);
+
+export let nota = () => new LanguageSupport(nota_language, [nota_completion, nota_style]);

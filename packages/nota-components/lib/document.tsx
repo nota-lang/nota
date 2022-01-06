@@ -63,6 +63,7 @@ class DocumentData {
 
   footnotes: React.ReactNode[] = [];
   anonymous: boolean = false;
+  section_numbers: boolean = false;
 }
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
@@ -94,7 +95,8 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
 
   let inner = (
     <Header className="section-title">
-      {!plain ? <span className="section-number">{sec_num}</span> : null} {children}
+      {!plain && doc_ctx.section_numbers ? <span className="section-number">{sec_num}</span> : null}{" "}
+      {children}
     </Header>
   );
 
@@ -112,16 +114,12 @@ export let Subsubsection: typeof Section = props => <Section {...props} />;
 
 export let SectionBody: React.FC = ({ children }) => {
   let doc_ctx = useContext(DocumentContext);
-  let incr_thm = doc_ctx.sections.stack.length == 1;
-  if (incr_thm) {
-    doc_ctx.theorems.push();
-  }
+  doc_ctx.sections.push();
 
   return (
     <section>
       {children}
       <doc_ctx.sections.Pop />
-      {incr_thm ? <doc_ctx.theorems.Pop /> : null}
     </section>
   );
 };
@@ -328,12 +326,14 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
       paragraph = [];
     }
   };
-  
+
   let i = 0;
   while (i < children.length) {
     let child = children[i];
     if (child == "\n" && i < children.length - 1 && children[i + 1] == "\n") {
-      while (children[i] == "\n") { i++; }
+      while (children[i] == "\n") {
+        i++;
+      }
       flush_paragraph();
     } else {
       paragraph.push(child);
@@ -358,7 +358,7 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
   paragraphs.forEach(el => {
     if (is_react_el(el)) {
       let depth = depths.find(([F]) => el.type == F);
-      if (depth) {
+      if (depth !== undefined) {
         flush_stack(depth[1]);
         section_stack.push([el]);
         return;

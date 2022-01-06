@@ -4,6 +4,7 @@ import path from "path";
 import { file_exists } from "@nota-lang/esbuild-utils";
 import * as server from "./server";
 import * as builder from "./builder";
+import "@cspotcode/source-map-support/register.js";
 
 export interface CommonOptions {
   file: string;

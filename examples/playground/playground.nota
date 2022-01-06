@@ -1,2 +1,1 @@
-%(let nota = @{ok})
-Documents (yes ok)
+(@code|{ok}|)

@@ -5,7 +5,7 @@ import { promises as fs } from "fs";
 import * as esbuild from "esbuild";
 import { ok, err } from "@nota-lang/nota-common";
 import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import { cli, file_exists } from "@nota-lang/esbuild-utils";
+import { cli, file_exists, log } from "@nota-lang/esbuild-utils";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
@@ -13,6 +13,7 @@ import os from "os";
 import { CommonOptions } from "./index";
 import { fileURLToPath } from "url";
 import open from "open";
+import tcpPortUsed from "tcp-port-used";
 
 export interface ServerOptions {
   extensions?: string[];
@@ -86,7 +87,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     watch,
     debug: true,
   });
-  let initial_build = build({
+  await build({
     entryPoints: [input_path],
     outfile: OUTPUT_JS_PATH,
     globalName: "nota_document",
@@ -96,7 +97,6 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   });
 
   app.ws("/", async (ws, _req) => {
-    await initial_build;
     await load_output();
     let contents = await fs.readFile(input_path, "utf-8");
     ws.send(
@@ -127,6 +127,16 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   });
 
   let port = opts.port ? opts.port : 8000;
+  const MAX_TRIES = 10;
+  for (let i = 0; i < MAX_TRIES; i++) {
+    let in_use = await tcpPortUsed.check(port, 'localhost');
+    if (!in_use) {
+      break;
+    }
+    port++;
+  }
+
+  log.info(`Starting a server at: http://localhost:${port}`);
   app.listen(port);
 
   open(`http://localhost:${port}`);

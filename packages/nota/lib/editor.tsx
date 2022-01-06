@@ -107,6 +107,26 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
 let App = observer(() => {
   let [state] = useState(() => new RemoteState());
   let [viewer_state] = useState(() => new ViewerState());
+  let [fullscreen, set_fullscreen] = useState(false);
+
+  useEffect(() => {
+    let f = (event: KeyboardEvent) => {
+      if (event.altKey && event.code == "KeyF") {
+        set_fullscreen(!fullscreen);
+        event.preventDefault();
+        event.stopPropagation();        
+      }
+    };
+    document.addEventListener("keypress", f);
+    return () => document.removeEventListener("keypress", f);
+  });
+
+  let separator = (
+    <div className="separator">
+      <button onClick={() => set_fullscreen(!fullscreen)}>{fullscreen ? ">" : "<"}</button>
+    </div>
+  );
+
   return (
     <div>
       {!state.ready ? (
@@ -118,8 +138,9 @@ let App = observer(() => {
               <h1>Nota Editor</h1>
               <ViewerConfig />
             </div>
-            <div className="panels">
+            <div className={classNames("panels", { fullscreen })}>
               <Editor />
+              {separator}
               <Viewer />
             </div>
           </ViewerStateContext.Provider>

@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
-import { nota, /*CodeTag*/ } from "@nota-lang/nota-syntax";
+import { nota /*CodeTag*/ } from "@nota-lang/nota-syntax";
 import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
 import { keymap } from "@codemirror/view";
-import { tags as t, HighlightStyle, defaultHighlightStyle } from "@codemirror/highlight";
+import { defaultHighlightStyle } from "@codemirror/highlight";
 import { indentWithTab } from "@codemirror/commands";
+import classNames from "classnames";
 
 import { StateContext } from ".";
 
 export let theme = EditorView.theme({
   "&": {
     height: "100%",
-    textAlign: "left"
+    textAlign: "left",
   },
   "&.cm-editor.cm-focused": {
     outline: "0",
@@ -33,18 +34,16 @@ export let theme = EditorView.theme({
 
 let nota_lang = nota();
 
-let nota_style = HighlightStyle.define([
-  { tag: t.variableName, color: "#256" },
-  // { tag: CodeTag, background: "#f5f5f5" },
-  // { tag: t.content, background: "white" },
-]);
+export interface EditorProps {
+  embedded?: boolean;
+}
 
-export let Editor = () => {
+export let Editor: React.FC<EditorProps> = ({ embedded }) => {
   let ref = useRef<HTMLDivElement>(null);
   let state = useContext(StateContext)!;
 
   useEffect(() => {
-    let visual_exts = [nota_style, defaultHighlightStyle, EditorView.lineWrapping, theme];
+    let visual_exts = [defaultHighlightStyle, EditorView.lineWrapping, theme];
     let editing_exts = [keymap.of([indentWithTab])];
     let custom_exts = [
       EditorView.updateListener.of(
@@ -64,5 +63,5 @@ export let Editor = () => {
     });
   }, []);
 
-  return <div className="nota-editor" ref={ref} />;
+  return <div className={classNames("nota-editor", { embedded })} ref={ref} />;
 };

@@ -595,8 +595,8 @@ ArgText { !nota lbrc TextBody rbrc | lverb VerbatimText rverb }
   pct[@export] { "%" }
   at[@export] { "@" }
   hash[@export] { "#" }
-  lverb { "|{" }
-  rverb { "}|" }
+  lverb[@export] { "|{" }
+  rverb[@export] { "}|" }
   lparen[@export] { "(" }
   rparen[@export] { ")" }
   lbrc[@export] { "{" }
