@@ -188,5 +188,5 @@ export let Listing: React.FC<ListingProps> = props => {
     }
   }, []);
 
-  return <div ref={ref} />;
+  return <div className="listing" ref={ref} />;
 };

@@ -34,11 +34,13 @@ export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   <li>
     <stack.value />
-    <ol>
-      {stack.children.map((child, i) => (
-        <Stack key={i} stack={child} />
-      ))}
-    </ol>
+    {stack.children.length > 0 ? (
+      <ol>
+        {stack.children.map((child, i) => (
+          <Stack key={i} stack={child} />
+        ))}
+      </ol>
+    ) : null}
   </li>
 );
 
