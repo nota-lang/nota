@@ -93,17 +93,6 @@ export let parse_expr = (code: string): Expression => {
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(arguments_id)], body);
 
-// prettier-ignore
-export let PRELUDE = {
-  components: [
-    "Document", "Paragraph", "Section", "Subsection", "Subsubsection", "Title", "Ref", "References", "Abstract",
-    "Row", "Wrap", "Footnote", "Figure", "Caption", "Definition", "Togglebox", "IR", "Theorem",
-    "Link", "Correspondence", "Listing", "ListingConfigure", "$", "$$", "Cite", "Authors", "Author", "Name", 
-    "Affiliation", "Institution", "Smallcaps", "Center"
-  ], 
-  functions: ["tex_ref", "tex_def"],
-};
-
 export let translate_ast = (input: string, tree: Tree): Program => {
   let node = tree.topNode;
   assert(matches(node, terms.Document));
@@ -116,10 +105,13 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
   let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
 
-  let all_prelude = PRELUDE.components.concat(PRELUDE.functions);
+  /* eslint no-undef: off */
+  //@ts-ignore
+  let prelude: string[] = COMPONENTS;
+
   let used_prelude: Set<string> = new Set();
   t.traverse(doc, node => {
-    if (node.type == "Identifier" && all_prelude.includes(node.name)) {
+    if (node.type == "Identifier" && prelude.includes(node.name)) {
       used_prelude.add(node.name);
     }
   });
@@ -310,7 +302,7 @@ export let translate_atcommand = (node: SyntaxNode): Expression => {
       name_expr = t.stringLiteral(name_expr.name);
     }
   } else {
-    name_expr = fragment;
+    return t.arrayExpression(node.getChildren(terms.ArgText).map(translate_arg_text));
   }
 
   let code_args: [Expression, Expression][] = node.getChildren(terms.ArgCodeNamed).map(node => {

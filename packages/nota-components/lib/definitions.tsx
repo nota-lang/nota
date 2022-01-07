@@ -120,10 +120,10 @@ export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
 interface RefProps {
   block?: boolean;
   nolink?: boolean;
-  Label?: JSX.Element;
+  Label?: React.ReactNode;
 }
 
-export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Label, ...props }) => {
+export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...props }) => {
   let name = join_recursive(children as any);
 
   let ctx = usePlugin(DefinitionsPlugin);
@@ -144,14 +144,16 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, Label,
     scroll_plugin.scroll_to(name_to_id(name));
   };
 
-  let inner: JSX.Element = def.Label ? (
-    typeof def.Label == "function" ? (
-      <def.Label name={name} {...props} />
+  let Label = props.Label || def.Label;
+
+  let inner: React.ReactNode = Label ? (
+    typeof Label == "function" ? (
+      <Label name={name} {...props} />
     ) : (
-      def.Label
+      Label
     )
   ) : (
-    Label || <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
+    <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
   );
 
   let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";

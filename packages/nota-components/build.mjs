@@ -1,6 +1,6 @@
 import { cli } from "@nota-lang/esbuild-utils";
 import { sassPlugin } from "esbuild-sass-plugin";
-import fs from "fs";
+import fs from "fs/promises";
 
 // These are all the packages within @codemirror/basic-setup
 let cm_deps = [
@@ -21,15 +21,17 @@ let cm_deps = [
   "@codemirror/view",
 ];
 
-let build = cli();
-build({
-  external: cm_deps,
-  plugins: [sassPlugin()],
-}).then(([_result, opts]) => {
+async function main() {
+  let build = cli();
+  let [_result, opts] = await build({
+    external: cm_deps,
+    plugins: [sassPlugin()],
+  });
+
   let modules = opts.external.concat(["@nota-lang/nota-components"]);
 
-  fs.writeFileSync("dist/peer-dependencies.d.mts", `export const peerDependencies: string[];`);
-  fs.writeFileSync(
+  let p1 = fs.writeFile("dist/peer-dependencies.d.mts", `export const peerDependencies: string[];`);
+  let p2 = fs.writeFile(
     "dist/peer-dependencies.mjs",
     `export let peerDependencies = ${JSON.stringify(modules)};`
   );
@@ -38,6 +40,13 @@ build({
   let export_ = `export let peerImports = {${modules
     .map((mod, i) => `"${mod}": _${i}`)
     .join(",")}}`;
-  fs.writeFileSync("dist/peer-imports.d.ts", `export const peerImports: {[mod: string]: any};`);
-  fs.writeFileSync("dist/peer-imports.js", imports + "\n" + export_);
-});
+  let p3 = fs.writeFile(
+    "dist/peer-imports.d.ts",
+    `export const peerImports: {[mod: string]: any};`
+  );
+  let p4 = fs.writeFile("dist/peer-imports.js", imports + "\n" + export_);
+
+  await Promise.all([p1, p2, p3, p4]);
+}
+
+main();

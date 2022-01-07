@@ -11,8 +11,10 @@ import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 //@ts-ignore
 import * as terms from "./nota.grammar";
 
-// TODO: determine which Nota exports are React elements vs. functions
-let nota_elements = ["Section", "Subsection", "Title", "$", "$$"];
+/* eslint no-undef: off */
+//@ts-ignore
+let components: string[] = COMPONENTS;
+let nota_elements = components.filter(name => name[0].match(/[A-Z$]/) !== null);
 let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
   .map(label => ({ label, type: "react", boost: -1 }))
   .concat(
@@ -65,7 +67,6 @@ export let autocomplete: CompletionSource = context => {
 
   // User has just typed "@"
   if (cmds.includes(node_before.type.id)) {
-    console.log(node_before.to)
     return {
       from: context.pos,
       options: completions.get(node_before.type.id)!,

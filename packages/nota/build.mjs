@@ -1,8 +1,5 @@
 import { cli, copy_plugin, executable_plugin } from "@nota-lang/esbuild-utils";
 import { sassPlugin } from "esbuild-sass-plugin";
-import fs from "fs/promises";
-import { constants } from "fs";
-
 
 let build = cli();
 build({

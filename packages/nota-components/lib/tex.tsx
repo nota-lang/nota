@@ -3,6 +3,7 @@ import katex from "katex";
 import ReactDOM from "react-dom";
 import { join_recursive, NotaText } from "@nota-lang/nota-common";
 import _ from "lodash";
+import {canUseDOM} from "exenv";
 
 import { Ref, DefinitionAnchor } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
@@ -109,7 +110,7 @@ export let TexPlugin = new Plugin(
         }
       }
 
-      if (raw) {
+      if (raw || !canUseDOM) {
         return (
           <Container
             ref={ref}
@@ -120,6 +121,7 @@ export let TexPlugin = new Plugin(
         );
       }
 
+    
       let parser = new DOMParser();
       let html = parser.parseFromString(raw_html, "text/html");
       let node = html.body.firstChild! as HTMLElement;
@@ -163,12 +165,12 @@ export let TexPlugin = new Plugin(
         if (node.dataset.cmd) {
           return (
             <Ref Label={react_node} nolink key={key}>
-              tex:{node.dataset.cmd}
+              {node.dataset.cmd}
             </Ref>
           );
         } else if (node.dataset.def) {
           return (
-            <DefinitionAnchor name={`tex:${node.dataset.def}`} key={key}>
+            <DefinitionAnchor name={node.dataset.def} key={key}>
               {react_node}
             </DefinitionAnchor>
           );

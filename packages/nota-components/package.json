@@ -5,6 +5,7 @@
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
   "license": "MIT",
+  "type": "module",
   "main": "dist/index.js",
   "directories": {
     "lib": "lib"

@@ -95,10 +95,14 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
   let [show, set_show] = useState(false);
 
   let trigger = () => {
-    if (stage == "start") {
-      set_stage("mount");
+    if (show) {
+      set_show(false);
+    } else {
+      if (stage == "start") {
+        set_stage("mount");
+      }
+      ctx.queue_update(id);
     }
-    ctx.queue_update(id);
   };
 
   useEffect(() => {

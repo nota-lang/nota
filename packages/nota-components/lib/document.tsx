@@ -15,46 +15,7 @@ import { ScrollPlugin } from "./scroll";
 import { HTMLAttributes } from "./utils";
 import { Logger, LoggerPlugin } from "./logger";
 import { Plugin, usePlugin } from "./plugin";
-
-export type NumberStyle = "1" | "a";
-
-export class NestedCounter {
-  stack: number[];
-  styles: NumberStyle[];
-
-  constructor(styles: NumberStyle[] = ["1"]) {
-    this.stack = [0];
-    this.styles = styles;
-  }
-
-  stylize = (n: number, style: NumberStyle): string => {
-    if (style == "1") {
-      return n.toString();
-    } else if (style == "a") {
-      let char_code = "a".charCodeAt(0) + n - 1;
-      return String.fromCharCode(char_code);
-    } else {
-      throw `Bad style ${style}`;
-    }
-  };
-
-  top = (): string[] => {
-    return this.stack
-      .slice(0, -1)
-      .map((n, i) => this.stylize(n, this.styles[i % this.styles.length]));
-  };
-
-  push = (): string[] => {
-    this.stack[this.stack.length - 1] += 1;
-    this.stack.push(0);
-    return this.top();
-  };
-
-  Pop: React.FC = () => {
-    this.stack.pop();
-    return null;
-  };
-}
+import { NestedCounter, ValueStack } from "./counter";
 
 class DocumentData {
   sections: NestedCounter = new NestedCounter();
@@ -70,15 +31,43 @@ export let DocumentContext = React.createContext<DocumentData>(new DocumentData(
 
 export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
 
+let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
+  <li>
+    <stack.value />
+    <ol>
+      {stack.children.map((child, i) => (
+        <Stack key={i} stack={child} />
+      ))}
+    </ol>
+  </li>
+);
+
+export let TableOfContents: React.FC = observer(({}) => {
+  let doc_ctx = useContext(DocumentContext);
+  return (
+    <div className="toc-wrapper">
+      <div className="toc">
+        <ol>
+          {doc_ctx.sections.values.map((child, i) => (
+            <Stack key={i} stack={child} />
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+});
+
 export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   children,
   plain,
-  label,
+  ...props
 }) => {
   let doc_ctx = useContext(DocumentContext);
-  let sec_stack = doc_ctx.sections.top();
-  let level = sec_stack.length;
-  let sec_num = sec_stack.join(".");
+  let pos = doc_ctx.sections.position();
+  let level = pos.level();
+  let sec_num = pos.to_string();
+  let label = props.label || `section-${sec_num}`;
+  doc_ctx.sections.save_value(() => <Ref Label={children}>{label}</Ref>);
 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
@@ -100,12 +89,10 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
     </Header>
   );
 
-  return label ? (
+  return (
     <Definition name={label} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
       {inner}
     </Definition>
-  ) : (
-    inner
   );
 };
 
@@ -132,9 +119,9 @@ let FigureContext = React.createContext<FigureData>(new FigureData());
 
 export let Figure: React.FC<{ label?: string }> = props => {
   let doc_ctx = useContext(DocumentContext);
-  let fig_stack = doc_ctx.figures.push();
-  let level = fig_stack.length;
-  let fig_num = fig_stack.join("-");
+  let pos = doc_ctx.figures.push();
+  let level = pos.level();
+  let fig_num = pos.to_string();
 
   let fig_ctx = new FigureData();
 
@@ -147,8 +134,7 @@ export let Figure: React.FC<{ label?: string }> = props => {
       block
     >
       <div className="caption">
-        {level > 1 ? `(${fig_stack[fig_stack.length - 1]})` : `Figure ${fig_num}:`}{" "}
-        {fig_ctx.caption}
+        Figure {fig_num}: {fig_ctx.caption}
       </div>
     </Definition>
   );

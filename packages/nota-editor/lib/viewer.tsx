@@ -78,20 +78,23 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   );
 };
 
-let nota_require = (path: string): any => {
-  if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
-    return { peerImports };
-  }
-  if (!(path in peerImports)) {
-    throw `Cannot import ${path}`;
-  }
-  return peerImports[path];
-};
-
-let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
+let execute = (result: TranslationResult, imports: any): Result<React.FC, JSX.Element> => {
   if (is_err(result)) {
     return err(<>{result.value}</>);
   }
+
+  let nota_require = (path: string): any => {
+    if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
+      return { peerImports };
+    }
+    if (path in imports) {
+      return imports[path];
+    }
+    if (path in peerImports) {
+      return peerImports[path]
+    }
+    throw `Cannot import ${path}`;
+  };
 
   let Doc;
   try {
@@ -109,10 +112,10 @@ let execute = (result: TranslationResult): Result<React.FC, JSX.Element> => {
 };
 
 let counter = 0;
-export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) => {
+export let OutputView: React.FC<{ result: TranslationResult, imports?: any }> = ({ result, imports }) => {
   let [last_translation] = useState<{ t: JSX.Element | null }>({ t: null });
 
-  let DocResult = execute(result);
+  let DocResult = execute(result, imports || {});
 
   let errored = false;
   useEffect(

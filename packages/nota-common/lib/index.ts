@@ -56,6 +56,7 @@ export let join_recursive = (t: NotaText | string): string => {
   if (t instanceof Array) {
     return t.map(join_recursive).join("");
   } else if (typeof t != 'string') {
+    console.error("Invalid element in join_recursive", t);
     throw `Element must be string: ${t}`; 
   } else {
     return t;

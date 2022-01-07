@@ -64,7 +64,7 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
 
 export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title, children }) => {
   let ctx = useContext(DocumentContext);
-  let thm_num = ctx.theorems.push().join(".");
+  let thm_num = ctx.theorems.push().to_string();
   let label = `Theorem ${thm_num}`;
   let suffix = title ? `: ${title}` : "";
 
