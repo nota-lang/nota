@@ -2,14 +2,20 @@
 
 [![.github/workflows/ci.yaml](https://github.com/nota-lang/nota/actions/workflows/ci.yaml/badge.svg)](https://github.com/nota-lang/nota/actions/workflows/ci.yaml)
 
-This README is ⚠️ UNDER CONSTRUCTION ⚠️ until an alpha release is ready. Check out [nota-lang.org](https://nota-lang.org/) for a demo.
+Nota is a language for writing documents, like academic papers and blog posts. The goal of Nota is to bring documents into the 21st century.
+
+## Installation and Usage
+
+For instructions on how to setup and use Nota, visit: https://nota-lang.org/
+
+## Feedback
+
+If you encounter an issue or have a proposed feature, you can either comment on a tracking issue below or create a new issue:
+* nota-lang/nota#10
+* nota-lang/nota#11
+* nota-lang/nota#12
+* nota-lang/nota#13
 
 ## Contributing
 
-If you would like to make a contribution to Nota, thanks! You can build the repository from scratch by first installing [yarn](https://yarnpkg.com/) and [lerna](https://lerna.js.org/), and then running:
-
-```
-git clone https://github.com/nota-lang/nota/
-cd nota
-yarn init-repo
-```
+If you would like to contribute to Nota, see [CONTRIBUTING.md](https://github.com/nota-lang/nota/blob/master/CONTRIBUTING.md).
