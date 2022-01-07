@@ -10,11 +10,12 @@ For instructions on how to setup and use Nota, visit: https://nota-lang.org/
 
 ## Feedback
 
-If you encounter an issue or have a proposed feature, you can either comment on a tracking issue below or create a new issue:
-* nota-lang/nota#10
-* nota-lang/nota#11
-* nota-lang/nota#12
-* nota-lang/nota#13
+
+If you encounter an issue or have a proposed feature, you can either comment on a tracking issue below or create a new issue: 
+* [Nota editor](https://github.com/nota-lang/nota/issues/11)
+* [Nota components](https://github.com/nota-lang/nota/issues/12)
+* [Nota syntax](https://github.com/nota-lang/nota/issues/10)
+* [Bikeshed emporium](https://github.com/nota-lang/nota/issues/13) (for small nits / naming issues)
 
 ## Contributing
 
