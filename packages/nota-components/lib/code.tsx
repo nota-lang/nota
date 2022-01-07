@@ -78,12 +78,14 @@ export let pos_to_linecol = (editor: EditorView, pos: number): Linecol => {
 export let ListingPlugin = new Plugin(
   class extends Pluggable {
     language?: LanguageSupport;
+    wrap?: boolean;
   }
 );
 
-export let ListingConfigure: React.FC<{ language?: LanguageSupport }> = ({ language }) => {
+export let ListingConfigure: React.FC<{ language?: LanguageSupport, wrap?: boolean }> = ({ language, wrap }) => {
   let ctx = usePlugin(ListingPlugin);
   ctx.language = language;
+  ctx.wrap = wrap;
   return null;
 };
 
@@ -139,6 +141,7 @@ export interface ListingDelimiterProps {
 
 export interface ListingProps {
   editable?: boolean;
+  wrap?: boolean;
   language?: LanguageSupport;
   onLoad?: (_editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
@@ -171,6 +174,7 @@ export let Listing: React.FC<ListingProps> = props => {
           defaultHighlightStyle,
           theme,
           EditorView.editable.of(props.editable || false),
+          props.wrap || ctx.wrap ? EditorView.lineWrapping : [],
           highlight_field,
         ]
           .concat(language ? [language] : [])

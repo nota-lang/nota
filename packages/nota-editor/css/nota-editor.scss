@@ -26,3 +26,9 @@
   font-size: 85%;
   overflow-x: auto;
 }
+
+@media (max-width: 800px) {
+  .cm-gutterElement {
+    padding-left: 0 !important;
+  }
+}
