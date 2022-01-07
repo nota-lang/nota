@@ -2,9 +2,11 @@ import esbuild from "esbuild";
 import { Command, program } from "commander";
 import path from "path";
 import { file_exists } from "@nota-lang/esbuild-utils";
+import { fileURLToPath } from "url";
+import "@cspotcode/source-map-support/register.js";
+
 import * as server from "./server";
 import * as builder from "./builder";
-import "@cspotcode/source-map-support/register.js";
 
 export interface CommonOptions {
   file: string;
@@ -28,6 +30,14 @@ let load_config = async (config_path?: string): Promise<esbuild.BuildOptions> =>
   let mod = await import(path.resolve(config_path));
   return mod.default;
 };
+
+export let __filename = fileURLToPath(import.meta.url);
+export let __dirname = path.dirname(__filename);
+
+export let nodePaths = [path.resolve(path.join(__dirname, '..', 'node_modules'))];
+if (process.env.NODE_PATH) {
+  nodePaths.push(process.env.NODE_PATH);
+}
 
 common_opts(program.command("build")).action(async (file, { config, ...opts }) => {
   await builder.main({ file, config: await load_config(config), ...opts });

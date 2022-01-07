@@ -214,7 +214,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       export let metadata = key in doc_mod ? doc_mod[key] : {};
       export let Page = (props) => <Template {...props}><Doc /></Template>;
       export { default as React } from "react";
-      export { default as ReactDOMServer } from "react-dom/server";
+      export { default as ReactDOMServer } from "react-dom/server.browser.js";
       
       if (canUseDOM) {
         ReactDOM.hydrate(<Page {...metadata} script={"${script}"} />, document.documentElement);

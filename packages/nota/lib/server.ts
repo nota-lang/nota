@@ -10,8 +10,7 @@ import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependenc
 import _ from "lodash";
 import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
 import os from "os";
-import { CommonOptions } from "./index";
-import { fileURLToPath } from "url";
+import { CommonOptions, __dirname, nodePaths } from "./index";
 import open from "open";
 import tcpPortUsed from "tcp-port-used";
 
@@ -39,8 +38,6 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   // process.on('SIGTERM', rm);
   // process.on('SIGINT', rm);
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
   app.use(express.static(__dirname));
   app.use(express.static(outdir));
   if (opts.static) {
@@ -93,6 +90,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     globalName: "nota_document",
     external: peerDependencies,
     format: "iife",
+    nodePaths,
     plugins: [nota_plugin({ pretty: true }), ...(opts.config.plugins || [])],
   });
 
