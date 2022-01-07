@@ -11,7 +11,6 @@ import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
 //@ts-ignore
 import * as terms from "./nota.grammar";
 
-/* eslint no-undef: off */
 //@ts-ignore
 let components: string[] = COMPONENTS;
 let nota_elements = components.filter(name => name[0].match(/[A-Z$]/) !== null);

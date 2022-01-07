@@ -24,7 +24,6 @@ export class Plugin<T extends Pluggable> {
       t.init();
     }
 
-    /* eslint no-undef: off */
     return <this.context.Provider value={t}>
       {children}
     </this.context.Provider>;  

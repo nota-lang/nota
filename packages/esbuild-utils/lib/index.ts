@@ -41,6 +41,11 @@ export interface CliOptions {
 
 export let is_main = esMain;
 
+export let get_manifest = (): IPackageJson => {
+  let pkg_path = "./package.json";
+  return fs.existsSync(pkg_path) ? JSON.parse(fs.readFileSync("./package.json", "utf-8")) : {};
+};
+
 export let cli = (
   external_options?: CliOptions
 ): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
@@ -52,10 +57,7 @@ export let cli = (
       .parse(process.argv)
       .opts() as CliOptions);
 
-  let pkg_path = "./package.json";
-  let pkg: IPackageJson = fs.existsSync(pkg_path)
-    ? JSON.parse(fs.readFileSync("./package.json", "utf-8"))
-    : {};
+  let pkg = get_manifest();
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
   let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 

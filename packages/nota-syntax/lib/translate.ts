@@ -105,7 +105,6 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
   let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
 
-  /* eslint no-undef: off */
   //@ts-ignore
   let prelude: string[] = COMPONENTS;
 

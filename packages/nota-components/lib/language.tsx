@@ -249,7 +249,6 @@ export class Language {
     let [_, rerender] = useState(false);
     useEffect(() => rerender(true), []);
 
-    /* eslint no-undef: off */
     return (
       <div ref={ref}>
         {ref.current ? <this.BnfInner container_ref={ref.current} {...props} /> : null}

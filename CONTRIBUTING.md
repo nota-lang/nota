@@ -21,6 +21,7 @@ yarn init-repo
 You can test the CLI by running:
 
 ```bash
+export NODE_PATH="$(pwd)/node_modules:$NODE_PATH"
 cd packages/nota
 yarn link
 cd $(mktemp -d)
@@ -28,6 +29,8 @@ echo "@h1{Hello world}" > index.nota
 nota build index.nota
 open dist/index.html
 ```
+
+Note that if you use the symlinked nota CLI, you must have `NODE_PATH` include the repository's root `node_modules` directory.
 
 ## Development cycle
 

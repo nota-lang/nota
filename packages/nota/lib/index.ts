@@ -34,14 +34,19 @@ let load_config = async (config_path?: string): Promise<esbuild.BuildOptions> =>
 export let __filename = fileURLToPath(import.meta.url);
 export let __dirname = path.dirname(__filename);
 
-export let nodePaths = [path.resolve(path.join(__dirname, '..', 'node_modules'))];
+export let nodePaths = [path.resolve(path.join(__dirname, "..", "node_modules"))];
 if (process.env.NODE_PATH) {
   nodePaths.push(process.env.NODE_PATH);
 }
 
-common_opts(program.command("build")).action(async (file, { config, ...opts }) => {
-  await builder.main({ file, config: await load_config(config), ...opts });
-});
+// @ts-ignore
+program.version(VERSION);
+
+common_opts(program.command("build"))
+  .option("-w, --watch", "Watch for changes and rebuild")
+  .action(async (file, { config, ...opts }) => {
+    await builder.main({ file, config: await load_config(config), ...opts });
+  });
 
 common_opts(program.command("edit"))
   .option("-p, --port <port>", "Port to run local server", parseInt)
