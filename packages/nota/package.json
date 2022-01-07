@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "description": "A document language for the browser",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -44,8 +44,8 @@
     "@codemirror/lang-javascript": "^0.19.3",
     "@cspotcode/source-map-support": "^0.7.0",
     "@nota-lang/esbuild-utils": "^0.2.19",
-    "@nota-lang/nota-components": "^0.2.20",
-    "@nota-lang/nota-editor": "^0.2.20",
+    "@nota-lang/nota-components": "^0.2.21",
+    "@nota-lang/nota-editor": "^0.2.21",
     "classnames": "^2.3.1",
     "commander": "^8.3.0",
     "esbuild": "^0.14.5",

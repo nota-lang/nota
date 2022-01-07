@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-editor",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "description": "Browser-based editor for Nota documents",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.16.4",
-    "@nota-lang/nota-components": "^0.2.20",
-    "@nota-lang/nota-syntax": "^0.2.20",
+    "@nota-lang/nota-components": "^0.2.21",
+    "@nota-lang/nota-syntax": "^0.2.21",
     "exenv": "^1.2.2",
     "prettier": "^2.5.1"
   },
