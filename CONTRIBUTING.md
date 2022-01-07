@@ -21,7 +21,7 @@ yarn init-repo
 You can test the CLI by running:
 
 ```bash
-export NODE_PATH="$(pwd)/node_modules:$NODE_PATH"
+export NODE_PATH="$(pwd)/node_modules"
 cd packages/nota
 yarn link
 cd $(mktemp -d)
