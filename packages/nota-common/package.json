@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-common",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "Shared utilities amongst @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
