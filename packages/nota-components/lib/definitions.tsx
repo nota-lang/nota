@@ -144,10 +144,11 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
     scroll_plugin.scroll_to(name_to_id(name));
   };
 
-  let Label = props.Label || def.Label;
-
+  // TODO: need to establish clear coding conventions around react elements vs. components
+  // when they get passed to things like Ref
+  let Label: any = props.Label || def.Label;
   let inner: React.ReactNode = Label ? (
-    typeof Label == "function" ? (
+    typeof Label == "object" && "type" in Label && typeof Label.type == "function" ? (
       <Label name={name} {...props} />
     ) : (
       Label

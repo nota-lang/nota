@@ -132,19 +132,12 @@ $colors: (
     }
   }
 
-  .yellowflash {
+  .yellowflash, *:target {
     animation: yellowflash 1s;
     padding: 4px;
     margin: -4px;
     border-radius: 2px;
   }
-
-  // *:target {
-  //   animation: yellowflash 1s;
-  //   padding: 4px;
-  //   margin: -4px;
-  //   border-radius: 2px;
-  // }
 
   p {
     // Note: <html> must have a lang="..." attribute for hyphens to work!

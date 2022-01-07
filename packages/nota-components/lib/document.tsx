@@ -33,7 +33,7 @@ export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
 
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   <li>
-    <stack.value />
+    {typeof stack.value === "function" ?  <stack.value /> : stack.value}
     {stack.children.length > 0 ? (
       <ol>
         {stack.children.map((child, i) => (
@@ -304,12 +304,13 @@ let is_react_el = (t: React.ReactNode): t is React.ReactElement =>
 let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
   let paragraphs: React.ReactNode[] = [];
   let paragraph: React.ReactNode[] = [];
+  let key = 0;
   let flush_paragraph = () => {
     if (paragraph.length > 0) {
       if (_.every(paragraph, t => t == "\n" || typeof t != "string")) {
         paragraphs = paragraphs.concat(paragraph);
       } else {
-        paragraphs.push(<Paragraph key={paragraphs.length}>{paragraph}</Paragraph>);
+        paragraphs.push(<Paragraph key={key++}>{paragraph}</Paragraph>);
       }
       paragraph = [];
     }

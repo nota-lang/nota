@@ -3,7 +3,7 @@ import bibtexParse from "@orcid/bibtex-parse-js";
 import _ from "lodash";
 import { observer } from "mobx-react";
 
-import { Section } from "./document";
+import { Section, SectionBody } from "./document";
 import { Definition, DefinitionsPlugin } from "./definitions";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { action, makeObservable, observable } from "mobx";
@@ -172,7 +172,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
   let keys = Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key));
 
   return (
-    <section>
+    <SectionBody>
       <Section plain>References</Section>
       <div className="bib-references">
         {keys
@@ -183,7 +183,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
             </Definition>
           ))}
       </div>
-    </section>
+    </SectionBody>
   );
 });
 
