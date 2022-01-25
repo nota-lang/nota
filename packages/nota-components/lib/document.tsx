@@ -378,7 +378,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   );
 });
 
-interface DocumentProps {
+export interface DocumentProps {
   anonymous?: boolean;
   editing?: boolean;
   onLoad?: () => void;

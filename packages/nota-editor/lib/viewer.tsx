@@ -10,7 +10,8 @@ import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
 import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
-import {peerImports} from "@nota-lang/nota-components/dist/peer-imports.js";
+import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
+import type { DocumentProps } from "@nota-lang/nota-components";
 
 import { StateContext, TranslationResult } from ".";
 import { theme } from "./editor";
@@ -78,7 +79,10 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   );
 };
 
-let execute = (result: TranslationResult, imports: any): Result<React.FC, JSX.Element> => {
+let execute = (
+  result: TranslationResult,
+  imports: any
+): Result<React.FC<DocumentProps>, JSX.Element> => {
   if (is_err(result)) {
     return err(<>{result.value}</>);
   }
@@ -91,7 +95,7 @@ let execute = (result: TranslationResult, imports: any): Result<React.FC, JSX.El
       return imports[path];
     }
     if (path in peerImports) {
-      return peerImports[path]
+      return peerImports[path];
     }
     throw `Cannot import ${path}`;
   };
@@ -112,7 +116,10 @@ let execute = (result: TranslationResult, imports: any): Result<React.FC, JSX.El
 };
 
 let counter = 0;
-export let OutputView: React.FC<{ result: TranslationResult, imports?: any }> = ({ result, imports }) => {
+export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = ({
+  result,
+  imports,
+}) => {
   let [last_translation] = useState<{ t: JSX.Element | null }>({ t: null });
 
   let DocResult = execute(result, imports || {});

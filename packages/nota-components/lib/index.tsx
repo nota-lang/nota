@@ -13,6 +13,7 @@ export {
   Wrap,
   Row,
   Document,
+  DocumentProps,
   Figure,
   Subfigure,
   Caption,

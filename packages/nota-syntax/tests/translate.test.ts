@@ -9,7 +9,8 @@ test('translate', () => {
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
 import { Document } from "@nota-lang/nota-components";
-export default observer(() => el(Document, {}, el("h1", {}, "Hello world!")));
+export default observer(doc_props => el(Document, { ...doc_props
+}, el("h1", {}, "Hello world!")));
   `;
   expect(js).toBe(expected.trim());
 });
