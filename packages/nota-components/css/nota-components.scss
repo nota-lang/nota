@@ -44,7 +44,7 @@ $colors: (
     }
   }
 
-  .error {
+  &.editing .error {
     color: color("error");
     padding: 2px;
     border: 1px solid color("error");

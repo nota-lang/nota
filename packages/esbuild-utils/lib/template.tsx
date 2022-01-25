@@ -13,7 +13,7 @@ let Template: React.FC<TemplateProps> = ({ title, script, children }) => (
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>{title}</title>
     </head>
-    <body className="no-edit">
+    <body>
       {children}
       <script src={script} type="module"></script>
     </body>
