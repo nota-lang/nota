@@ -125,7 +125,7 @@ export let OutputView: React.FC<{ result: TranslationResult, imports?: any }> = 
         return;
       }
       let Doc = unwrap(DocResult);
-      last_translation.t = <Doc key={counter++} />;
+      last_translation.t = <Doc key={counter++} editing />;
     }),
     [result]
   );
@@ -147,7 +147,7 @@ export let OutputView: React.FC<{ result: TranslationResult, imports?: any }> = 
         resetKeys={[result]}
         FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
       >
-        {is_ok(DocResult) ? <DocResult.value key={counter++} /> : fallback(DocResult.value)}
+        {is_ok(DocResult) ? <DocResult.value key={counter++} editing /> : fallback(DocResult.value)}
       </ErrorBoundary>
     </>
   );

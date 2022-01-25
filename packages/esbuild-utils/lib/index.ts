@@ -197,8 +197,16 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       namespace: "ssr",
     }));
 
+    let get_path_parts = (p: string): {name: string, dir: string} => {
+      let {name, dir} = path.parse(p);
+      let outfile = build.initialOptions.outfile;
+      name = outfile ? path.parse(outfile).name : name;
+      return {name, dir};
+    };
+
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
-      let { name, dir } = path.parse(path.resolve(args.path));
+      let p = path.resolve(args.path);
+      let { name, dir } = get_path_parts(p);
       let script = `./${name}.mjs`;
       let template_path = "@nota-lang/esbuild-utils/dist/template";
       if (opts && opts.template) {
@@ -208,7 +216,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       let contents = `
       import React from "react";
       import ReactDOM from "react-dom";
-      import Doc, * as doc_mod from "./${name}.nota"
+      import Doc, * as doc_mod from "./${path.parse(p).name}.nota"
       import Template from "${template_path}";
       import { canUseDOM } from "exenv";
 
@@ -223,7 +231,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       }
       `;
 
-      return { contents, loader: "jsx", resolveDir: dir };
+            return { contents, loader: "jsx", resolveDir: dir };
     });
 
     build.onEnd(async _args => {
@@ -231,7 +239,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       let common_prefix = commonPathPrefix(entryPoints);
 
       let promises = entryPoints.map(async p => {
-        let { name, dir } = path.parse(path.relative(common_prefix, p));
+        let { name, dir } = get_path_parts(path.relative(common_prefix, p));
         let script = `./${name}.mjs`;
 
         let mod = await import(path.resolve(path.join("dist", dir, name + ".mjs")));

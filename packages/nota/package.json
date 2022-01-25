@@ -46,6 +46,7 @@
     "@nota-lang/esbuild-utils": "^0.3.0",
     "@nota-lang/nota-components": "^0.3.2",
     "@nota-lang/nota-editor": "^0.3.2",
+    "@nota-lang/nota-theme-standalone": "^0.3.0",
     "classnames": "^2.3.1",
     "commander": "^8.3.0",
     "esbuild": "^0.14.5",

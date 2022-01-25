@@ -1,11 +1,4 @@
-$size-footnote: 14px;
-$size-small: 16px;
-$size-normal: 18px;
-$size-large: 22px;
-$size-Large: 24px;
-$size-LARGE: 28px;
-$size-huge: 32px;
-$size-Huge: 36px;
+@use "@nota-lang/nota-common/dist/index" as *;
 
 $colors: (
   peach: rgb(250, 223, 203),
@@ -13,16 +6,6 @@ $colors: (
   error: rgb(190, 34, 34),
   highlight: rgb(255, 249, 172),
 );
-
-@mixin color-classes($name, $color) {
-  .textcolor-#{$name} {
-    color: $color;
-  }
-
-  .bgcolor-#{$name} {
-    background: $color;
-  }
-}
 
 @each $name, $color in $colors {
   @include color-classes($name, $color);
@@ -35,7 +18,7 @@ $colors: (
 .nota-document {
   text-align: justify;
 
-  @media (max-width: 800px) {
+  @include mobile {
     text-align: left;
   }
 
@@ -44,7 +27,7 @@ $colors: (
 
   .footnotes {
     font-size: $size-footnote;
-  
+
     .backlink {
       color: black;
       font-size: 10px;
@@ -132,7 +115,8 @@ $colors: (
     }
   }
 
-  .yellowflash, *:target {
+  .yellowflash,
+  *:target {
     animation: yellowflash 1s;
     padding: 4px;
     margin: -4px;

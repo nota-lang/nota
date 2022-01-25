@@ -1,3 +1,5 @@
+import "../css/index.scss";
+
 export interface Ok<T> {
   type: "Ok";
   value: T;

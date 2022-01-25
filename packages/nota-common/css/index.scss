@@ -1,0 +1,32 @@
+$mobile-cutoff: 800px;
+
+@mixin mobile {
+  @media (max-width: ($mobile-cutoff - 1)) {
+    @content;
+  }
+}
+
+@mixin monitor {
+  @media (min-width: $mobile-cutoff) {
+    @content;
+  }
+}
+
+@mixin color-classes($name, $color) {
+  .textcolor-#{$name} {
+    color: $color;
+  }
+
+  .bgcolor-#{$name} {
+    background: $color;
+  }
+}
+
+$size-footnote: 14px;
+$size-small: 16px;
+$size-normal: 18px;
+$size-large: 22px;
+$size-Large: 24px;
+$size-LARGE: 28px;
+$size-huge: 32px;
+$size-Huge: 36px;

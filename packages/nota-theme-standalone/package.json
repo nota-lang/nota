@@ -1,0 +1,37 @@
+{
+  "name": "@nota-lang/nota-theme-standalone",
+  "version": "0.3.0",
+  "description": "Nota theme for standalone pages",
+  "author": "Will Crichton <wcrichto@cs.stanford.edu>",
+  "homepage": "https://github.com/nota-lang/nota#readme",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "tc": "tsc -emitDeclarationOnly",
+    "full": "yarn tc && yarn build",
+    "lint": "eslint --ext js,ts,tsx lib",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/nota-lang/nota/issues"
+  },
+  "devDependencies": {
+    "@nota-lang/esbuild-utils": "^0.3.0",
+    "@nota-lang/nota-common": "^0.3.0"
+  }
+}

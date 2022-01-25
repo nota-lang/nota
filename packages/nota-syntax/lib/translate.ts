@@ -40,12 +40,16 @@ let arguments_id = t.identifier("args");
 
 let to_react = (
   name: Expression,
-  props: [Expression, Expression][],
+  props: ([Expression, Expression] | SpreadElement)[],
   children: (Expression | SpreadElement)[]
 ): Expression => {
   let args: (Expression | SpreadElement)[] = [
     name,
-    t.objectExpression(props.map(([k, v]) => t.objectProperty(k, v))),
+    t.objectExpression(
+      props.map(p => {
+        return p instanceof Array ? t.objectProperty(p[0], p[1]) : p;
+      })
+    ),
   ];
   return t.callExpression(create_el, args.concat(children));
 };
@@ -103,7 +107,8 @@ export let translate_ast = (input: string, tree: Tree): Program => {
   };
 
   let doc_body = translate_textbody(node.getChild(terms.TextBody)!);
-  let doc = to_react(t.identifier("Document"), [], [t.spreadElement(doc_body)]);
+  let doc_props = t.identifier("doc_props");
+  let doc = to_react(t.identifier("Document"), [t.spreadElement(doc_props)], [t.spreadElement(doc_body)]);
 
   //@ts-ignore
   let prelude: string[] = COMPONENTS;
@@ -130,7 +135,9 @@ export let translate_ast = (input: string, tree: Tree): Program => {
     ),
     ...Array.from(global.imports),
     ...Array.from(global.exports),
-    t.exportDefaultDeclaration(t.callExpression(observer, [t.arrowFunctionExpression([], doc)])),
+    t.exportDefaultDeclaration(
+      t.callExpression(observer, [t.arrowFunctionExpression([doc_props], doc)])
+    ),
   ];
 
   return t.program(program);

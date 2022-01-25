@@ -1,0 +1,9 @@
+@use "@nota-lang/nota-common/dist/index" as *;
+
+.nota-document:not(.editing) {
+  @include monitor {
+    width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+}

@@ -14,7 +14,7 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
   let target = path.join(dir, name + ".html");
   await build({
     entryPoints: [target],
-    outExtension: { ".js": ".mjs" },
+    outfile: "dist/index.mjs",
     preserveSymlinks: true,
     nodePaths,
     plugins: [nota_plugin({}), ssr_plugin(), ...(opts.config.plugins || [])],

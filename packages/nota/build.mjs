@@ -16,5 +16,5 @@ build({
 build({
   entryPoints: ["lib/editor.tsx"],
   format: "iife",
-  plugins: [sassPlugin(), copy_plugin({ extensions: [".html"] })],
+  plugins: [sassPlugin(), copy_plugin({ extensions: [".html", ".ico"] })],
 });

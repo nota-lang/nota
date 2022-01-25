@@ -33,7 +33,7 @@ export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
 
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   <li>
-    {typeof stack.value === "function" ?  <stack.value /> : stack.value}
+    {typeof stack.value === "function" ? <stack.value /> : stack.value}
     {stack.children.length > 0 ? (
       <ol>
         {stack.children.map((child, i) => (
@@ -380,6 +380,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
 
 interface DocumentProps {
   anonymous?: boolean;
+  editing?: boolean;
   onLoad?: () => void;
 }
 
@@ -393,7 +394,7 @@ const PLUGINS = (): Plugin<any>[] => [
   LoggerPlugin,
 ];
 
-export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
+export let Document: React.FC<DocumentProps> = ({ children, editing, onLoad }) => {
   let portal = new PortalData();
 
   if (onLoad) {
@@ -406,7 +407,7 @@ export let Document: React.FC<DocumentProps> = ({ children, onLoad }) => {
   );
 
   return (
-    <div className="nota-document">
+    <div className={classNames("nota-document", { editing })}>
       <DocumentContext.Provider value={new DocumentData()}>
         <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
       </DocumentContext.Provider>

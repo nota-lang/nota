@@ -1,3 +1,5 @@
+@use "@nota-lang/nota-common/dist/index" as *;
+
 .cm-completionIcon-react:after {
   content: '⚛';
   font-size: 140%;
@@ -27,7 +29,7 @@
   overflow-x: auto;
 }
 
-@media (max-width: 800px) {
+@include mobile {
   .cm-gutterElement {
     padding-left: 0 !important;
   }

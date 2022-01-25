@@ -14,6 +14,7 @@ import { is_ok } from "@nota-lang/nota-common";
 import classNames from "classnames";
 
 import "../static/index.html";
+import "../static/favicon.ico";
 
 import "katex/dist/katex.min.css";
 import "@nota-lang/nota-components/dist/index.css";
