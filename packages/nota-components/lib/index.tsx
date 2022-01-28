@@ -1,5 +1,5 @@
-export { Cite, References } from "./bibliography";
-export { tex_ref, tex_def, $, $$, Tex } from "./tex";
+export { Cite, References, BibliographyPlugin } from "./bibliography";
+export { tex_ref, tex_def, tex_def_anchor, $, $$, Tex } from "./tex";
 export { Abstract, Authors, Author, Name, Affiliation, Institution, Title } from "./header";
 export { Language } from "./language";
 export { zipExn, useStateOnInterval } from "./utils";
@@ -21,9 +21,9 @@ export {
   Center,
   Expandable,
   Paragraph,
-  TableOfContents
+  TableOfContents,
 } from "./document";
-export { Definition, Ref } from "./definitions";
+export { Definition, Ref, DefinitionsPlugin } from "./definitions";
 export { Togglebox, ToggleButton } from "./togglebox";
 export { Theorem, IR, Premise, PremiseRow } from "./math";
 export { Correspondence, Link } from "./correspondence";
@@ -36,6 +36,7 @@ export {
   linecol_to_pos,
   pos_to_linecol,
 } from "./code";
+export { TooltipPlugin } from "./tooltip";
 export { Commentary, Comment } from "./commentary";
 export { Loader, LoaderContext } from "./loader";
 export { LoggerPlugin } from "./logger";

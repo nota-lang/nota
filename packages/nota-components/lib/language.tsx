@@ -5,7 +5,7 @@ import { add_between, NotaText, NotaFn } from "@nota-lang/nota-common";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
-import { $$, tex_ref, tex_def, TexPlugin } from "./tex";
+import { $$, tex_ref, tex_def_anchor, TexPlugin } from "./tex";
 import { usePlugin } from "./plugin";
 
 const r = String.raw;
@@ -70,7 +70,7 @@ export class Language {
           throw `Not a function: ${(args as any).toString()}`;
         }
         let arg_str = (this as any)[cmd + subcmd](...args());
-        return tex_def([cmd + subcmd], arg_str);
+        return tex_def_anchor([cmd + subcmd], arg_str);
       };
 
     let {

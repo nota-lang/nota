@@ -88,7 +88,7 @@ export let DefinitionAnchor: React.FC<{ name: string; block?: boolean } & HTMLAt
   block,
   ...props
 }) => (
-  <Container block={block} id={name_to_id(name)} className={"definition"} {...props}>
+  <Container block={block} id={name_to_id(name)} className="definition" {...props}>
     {props.children}
   </Container>
 );
@@ -148,7 +148,8 @@ export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...pro
   // when they get passed to things like Ref
   let Label: any = props.Label || def.Label;
   let inner: React.ReactNode = Label ? (
-    typeof Label == "object" && "type" in Label && typeof Label.type == "function" ? (
+    (typeof Label == "object" && "type" in Label && typeof Label.type == "function") ||
+    typeof Label == "function" ? (
       <Label name={name} {...props} />
     ) : (
       Label

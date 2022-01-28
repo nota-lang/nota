@@ -3,13 +3,21 @@ import katex from "katex";
 import ReactDOM from "react-dom";
 import { join_recursive, NotaText } from "@nota-lang/nota-common";
 import _ from "lodash";
-import {canUseDOM} from "exenv";
+import { canUseDOM } from "exenv";
 
-import { Ref, DefinitionAnchor } from "./definitions";
+import { Ref, DefinitionAnchor, Definition } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 
 const r = String.raw;
+
+export let tex_def_anchor = (label: NotaText, contents: NotaText): NotaText => [
+  r`\htmlData{defanchor=`,
+  label,
+  `}{`,
+  contents,
+  `}`,
+];
 
 export let tex_def = (label: NotaText, contents: NotaText): NotaText => [
   r`\htmlData{def=`,
@@ -18,8 +26,9 @@ export let tex_def = (label: NotaText, contents: NotaText): NotaText => [
   contents,
   `}`,
 ];
+
 export let tex_ref = (label: NotaText, contents: NotaText): NotaText => [
-  r`\htmlData{cmd=`,
+  r`\htmlData{ref=`,
   label,
   `}{`,
   contents,
@@ -40,6 +49,7 @@ export let TexPlugin = new Plugin(
       this.macros = {};
     }
 
+    // TODO: this should be a generic utility, not just for tex
     async dimensions(
       contents: NotaText,
       block: boolean,
@@ -121,7 +131,6 @@ export let TexPlugin = new Plugin(
         );
       }
 
-    
       let parser = new DOMParser();
       let html = parser.parseFromString(raw_html, "text/html");
       let node = html.body.firstChild! as HTMLElement;
@@ -162,17 +171,23 @@ export let TexPlugin = new Plugin(
 
         let react_node = el(node.tagName.toLowerCase(), props, children);
 
-        if (node.dataset.cmd) {
+        if (node.dataset.ref) {
           return (
             <Ref Label={react_node} nolink key={key}>
-              {node.dataset.cmd}
+              {node.dataset.ref}
             </Ref>
+          );
+        } else if (node.dataset.defanchor) {
+          return (
+            <DefinitionAnchor name={node.dataset.defanchor} key={key}>
+              {react_node}
+            </DefinitionAnchor>
           );
         } else if (node.dataset.def) {
           return (
-            <DefinitionAnchor name={node.dataset.def} key={key}>
+            <Definition name={node.dataset.def} key={key}>
               {react_node}
-            </DefinitionAnchor>
+            </Definition>
           );
         } else {
           return react_node;
