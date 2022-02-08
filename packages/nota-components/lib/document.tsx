@@ -28,8 +28,6 @@ class DocumentData {
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
-export let Paragraph: React.FC = ({ children }) => <p>{children}</p>;
-
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   <li>
     {typeof stack.value === "function" ? <stack.value /> : stack.value}
@@ -255,7 +253,7 @@ export let FootnoteDef: React.FC<{ name?: string }> = ({ children }) => {
 
 export let Footnote: React.FC = ({ children }) => {
   let ctx = useContext(DocumentContext);
-  let i = ctx.footnotes.length;
+  let [i] = useState(ctx.footnotes.length);
   return (
     <>
       <FootnoteDef>{children}</FootnoteDef>
@@ -268,17 +266,14 @@ let Footnotes: React.FC = _ => {
   let ctx = useContext(DocumentContext);
   return ctx.footnotes.length == 0 ? null : (
     <div className="footnotes">
-      {ctx.footnotes.map((footnote, i) => {
-        i += 1;
-        return (
-          <div className="footnote" id={`footnote-${i}`} key={i}>
-            <div className="footnote-number">{i}</div>
-            <Definition name={`footnote:${i}`} label={<sup className="footnote">{i}</sup>} block>
-              <div className="footnote-body">{footnote}</div>
-            </Definition>
-          </div>
-        );
-      })}
+      {ctx.footnotes.map((footnote, i) => (
+        <div className="footnote" id={`footnote-${i}`} key={i}>
+          <div className="footnote-number">{i}</div>
+          <Definition name={`footnote:${i}`} label={<sup className="footnote">{i}</sup>} block>
+            <div className="footnote-body">{footnote}</div>
+          </Definition>
+        </div>
+      ))}
     </div>
   );
 };
@@ -295,7 +290,7 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
       if (_.every(paragraph, t => t == "\n" || typeof t != "string")) {
         paragraphs = paragraphs.concat(paragraph);
       } else {
-        paragraphs.push(<Paragraph key={key++}>{paragraph}</Paragraph>);
+        paragraphs.push(<p key={key++}>{paragraph}</p>);
       }
       paragraph = [];
     }
@@ -353,7 +348,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   return (
     <>
       <div
-        className={classNames({
+        className={classNames("nota-document-inner", {
           "def-mode": def_ctx.def_mode,
         })}
       >

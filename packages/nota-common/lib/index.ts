@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import "../css/index.scss";
 
 export interface Some<T> {
@@ -73,33 +75,18 @@ export let unreachable = (): never => {
   throw `Unreachable`;
 };
 
-export type Stringable = string | { toString(): string };
 export interface NestedArray<T> extends Array<T | NestedArray<T>> {}
-export type NotaText = NestedArray<Stringable> | Stringable;
+export type NotaText = NestedArray<any> | any;
 export type NotaFn<Input = NotaText> = (..._args: Input[]) => NotaText;
 
-let to_string = (s: Stringable): string => {
-  if (typeof s == "string") {
-    return s;
-  } else if (typeof s == "object" && "toString" in s) {
-    return s.toString();
-  } else {
-    console.error("Element is not Stringable", s);
-    throw `Could not convert element to string`;
-  }
-};
+let to_string = (s: any): string => (typeof s == "string" ? s : String(s));
 
-export let join_recursive = (t: NotaText): string => {
-  if (t instanceof Array) {
-    return t.map(join_recursive).join("");
-  } else {
-    return to_string(t);
-  }
-};
+export let join_recursive = (t: NotaText): string =>
+  t instanceof Array ? t.map(join_recursive).join("") : to_string(t);
 
-export let add_between = (t: NotaText, el: Stringable): NotaText => {
+export let add_between = (t: NotaText, el: any): NotaText => {
   if (t instanceof Array) {
-    let l2: NestedArray<Stringable> = [];
+    let l2: NestedArray<any> = [];
     let el_s = to_string(el);
     t.forEach((inner, i) => {
       if (i > 0) {
@@ -111,4 +98,12 @@ export let add_between = (t: NotaText, el: Stringable): NotaText => {
   } else {
     return t;
   }
+};
+
+export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
+  if (l1.length != l2.length) {
+    throw `Cannot zip lists of length ${l1.length} and ${l2.length}`;
+  }
+
+  return _.zip(l1, l2) as any;
 };

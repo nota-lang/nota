@@ -8,10 +8,9 @@ import {
   some,
   none,
   NestedArray,
-  Stringable,
+  zipExn,
 } from "@nota-lang/nota-common";
 
-import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
 import { $$, tex_ref, tex_def_anchor, TexPlugin } from "./tex";
 import { usePlugin } from "./plugin";
@@ -179,7 +178,7 @@ export class Language {
                       return tex;
                     }),
                     r`\mid`
-                  ) as NestedArray<Stringable>
+                  ) as NestedArray<any>
                 ).concat(add_dots ? [r`\mid \ldots`] : []);
               }),
             r`\\& & & && &&\mid`

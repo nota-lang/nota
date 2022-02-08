@@ -1,14 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 
-export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
-  if (l1.length != l2.length) {
-    throw `Cannot zip lists of length ${l1.length} and ${l2.length}`;
-  }
-
-  return _.zip(l1, l2) as any;
-};
-
 export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
 export type ReactNode = React.ReactNode;
 export type ReactConstructor<P = {}> = React.FunctionComponent<P> | React.ComponentClass<P>;

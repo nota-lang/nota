@@ -2,7 +2,7 @@ export { Cite, References, BibliographyPlugin } from "./bibliography";
 export { tex_ref, tex_def, tex_def_anchor, $, $$, Tex } from "./tex";
 export { Abstract, Authors, Author, Name, Affiliation, Institution, Title } from "./header";
 export { Language } from "./language";
-export { zipExn, useStateOnInterval } from "./utils";
+export { useStateOnInterval } from "./utils";
 export {
   Section,
   Subsection,
@@ -20,7 +20,6 @@ export {
   Smallcaps,
   Center,
   Expandable,
-  Paragraph,
   TableOfContents,
 } from "./document";
 export { Definition, Ref, DefinitionsPlugin } from "./definitions";

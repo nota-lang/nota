@@ -9,7 +9,7 @@ import "@testing-library/jest-dom";
 import { TooltipPlugin, PortalPlugin, Portal, Tooltip } from "@nota-lang/nota-components";
 
 describe("tooltip", () => {
-  it("has defs, refs, and tooltips", async () => {
+  it("can render the inside and open on click", async () => {
     render(
       <TooltipPlugin.Provide>
         <PortalPlugin.Provide>
