@@ -7,7 +7,13 @@ import { render, waitFor, screen, getByText } from "@testing-library/react";
 import { zipExn } from "@nota-lang/nota-common";
 import "@testing-library/jest-dom";
 
-import { Document, Section, Subsection, Footnote } from "@nota-lang/nota-components";
+import {
+  Document,
+  Section,
+  Subsection,
+  Footnote,
+  TableOfContents,
+} from "@nota-lang/nota-components";
 
 describe("document", () => {
   it("automatically puts top-level content into paragraphs", () => {
@@ -24,9 +30,10 @@ describe("document", () => {
     });
   });
 
-  it("turns a list of sections into a hierarchy", () => {
+  it("turns a list of sections into a hierarchy", async () => {
     let { baseElement } = render(
       <Document>
+        <TableOfContents />
         <Section>Introduction</Section>
         <p>In this paper...</p>
         <Subsection>Contributions</Subsection>
@@ -35,6 +42,9 @@ describe("document", () => {
         <p>We have shown...</p>
       </Document>
     );
+
+    let toc = baseElement.querySelector<HTMLElement>('.toc');
+    await waitFor(() => expect(toc.querySelector("li")).not.toBeNull());
 
     let [intro, conclusion] = baseElement.querySelectorAll<HTMLElement>(
       ".nota-document-inner > section"
@@ -47,6 +57,10 @@ describe("document", () => {
     getByText(contributions, "We are contributing...");
 
     getByText(conclusion, "We have shown...");
+
+    getByText(toc, "Introduction");
+    getByText(toc, "Contributions");
+    getByText(toc, "Conclusion");
   });
 
   it("supports footnotes", async () => {
