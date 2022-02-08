@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { createPopper, Instance } from "@popperjs/core";
 import _ from "lodash";
 
-import { ToplevelElem } from "./document";
-import { HTMLAttributes, ReactConstructor, ReactNode, get_or_render } from "./utils";
+import { ToplevelElem } from "./portal";
+import {
+  HTMLAttributes,
+  ReactConstructor,
+  ReactNode,
+  get_or_render,
+  is_constructor,
+  Container,
+} from "./utils";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { observer } from "mobx-react";
 
@@ -78,12 +85,17 @@ class TooltipData extends Pluggable {
 
 export let TooltipPlugin: Plugin<TooltipData> = new Plugin(TooltipData);
 
+interface TooltipChildProps {
+  ref: React.Ref<HTMLElement>;
+  onClick: HTMLAttributes["onClick"];
+}
+
 interface TooltipProps {
-  Inner: React.FC<HTMLAttributes & { ref: any }>;
+  children: ReactConstructor<TooltipChildProps> | ReactNode;
   Popup: ReactConstructor | ReactNode;
 }
 
-export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
+export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
@@ -115,11 +127,9 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
       //   feature that manually calls getBoundingClientRect(). Probably an issue
       //   with whatever their getBoundingClientRect alternative is?
       let popper_ref_el = {
-        getBoundingClientRect: () => {
-          return referenceElement.getBoundingClientRect();
-        },
+        getBoundingClientRect: () => referenceElement.getBoundingClientRect(),
       };
-            
+
       let instance = createPopper(popper_ref_el, popperElement, {
         placement: "top",
         modifiers: [
@@ -142,9 +152,17 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
     }
   }, [stage, referenceElement, popperElement]);
 
+  let inner = is_constructor(Inner) ? (
+    <Inner ref={setReferenceElement} onClick={trigger} />
+  ) : (
+    <Container ref={setReferenceElement} onClick={trigger}>
+      {Inner}
+    </Container>
+  );
+
   return (
     <>
-      <Inner ref={setReferenceElement} onClick={trigger} />
+      {inner}
       {stage != "start" ? (
         <ToplevelElem>
           <div
@@ -168,7 +186,7 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
                 display: show ? "block" : "none",
               }}
             />
-            {get_or_render(Popup)}
+            {get_or_render(Popup, {})}
           </div>
         </ToplevelElem>
       ) : null}

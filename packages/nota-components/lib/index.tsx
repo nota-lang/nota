@@ -36,10 +36,11 @@ export {
   linecol_to_pos,
   pos_to_linecol,
 } from "./code";
-export { TooltipPlugin } from "./tooltip";
+export { TooltipPlugin, Tooltip } from "./tooltip";
 export { Commentary, Comment } from "./commentary";
 export { Loader, LoaderContext } from "./loader";
 export { LoggerPlugin } from "./logger";
 export { usePlugin, Plugin, Pluggable } from "./plugin";
+export { Portal, PortalPlugin } from "./portal";
 
 import "../css/nota-components.scss";

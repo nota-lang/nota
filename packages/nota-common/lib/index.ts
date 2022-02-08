@@ -21,7 +21,7 @@ export let opt_unwrap = <T>(opt: Option<T>): T => {
   } else {
     throw `Could not unwrap None`;
   }
-}
+};
 
 export interface Ok<T> {
   type: "Ok";
@@ -73,28 +73,42 @@ export let unreachable = (): never => {
   throw `Unreachable`;
 };
 
+export type Stringable = string | { toString(): string };
 export interface NestedArray<T> extends Array<T | NestedArray<T>> {}
-export type NotaText = NestedArray<string>;
+export type NotaText = NestedArray<Stringable> | Stringable;
 export type NotaFn<Input = NotaText> = (..._args: Input[]) => NotaText;
 
-export let join_recursive = (t: NotaText | string): string => {
-  if (t instanceof Array) {
-    return t.map(join_recursive).join("");
-  } else if (typeof t != "string") {
-    console.error("Invalid element in join_recursive", t);
-    throw `Element must be string: ${t}`;
+let to_string = (s: Stringable): string => {
+  if (typeof s == "string") {
+    return s;
+  } else if (typeof s == "object" && "toString" in s) {
+    return s.toString();
   } else {
-    return t;
+    console.error("Element is not Stringable", s);
+    throw `Could not convert element to string`;
   }
 };
 
-export let add_between = (l: NotaText, el: string): NotaText => {
-  let l2: NotaText = [];
-  l.forEach((t, i) => {
-    if (i > 0) {
-      l2.push(el);
-    }
-    l2.push(t);
-  });
-  return l2;
+export let join_recursive = (t: NotaText): string => {
+  if (t instanceof Array) {
+    return t.map(join_recursive).join("");
+  } else {
+    return to_string(t);
+  }
+};
+
+export let add_between = (t: NotaText, el: Stringable): NotaText => {
+  if (t instanceof Array) {
+    let l2: NestedArray<Stringable> = [];
+    let el_s = to_string(el);
+    t.forEach((inner, i) => {
+      if (i > 0) {
+        l2.push(el_s);
+      }
+      l2.push(inner);
+    });
+    return l2;
+  } else {
+    return t;
+  }
 };

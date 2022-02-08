@@ -13,14 +13,22 @@ export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
 export type ReactNode = React.ReactNode;
 export type ReactConstructor<P = {}> = React.FunctionComponent<P> | React.ComponentClass<P>;
 
-export let get_or_render = <P,>(t: ReactNode | ReactConstructor<P>, p?: P): ReactNode => {
+export let is_constructor = <P,>(t: ReactNode | ReactConstructor<P>): t is ReactConstructor<P> => {
   let is_cls = t !== null && typeof t === "object" && "type" in t && typeof t.type === "function";
+  let is_wrapper =
+    t !== null &&
+    typeof t === "object" &&
+    "$$typeof" in t &&
+    t["$$typeof"] === Symbol.for("react.forward_ref");
   let is_fc = typeof t === "function";
-  if (is_cls || is_fc) {
-    let T: any = t;
+  return is_cls || is_wrapper || is_fc;
+};
+
+export let get_or_render = <P,>(T: ReactNode | ReactConstructor<P>, p: P): ReactNode => {
+  if (is_constructor(T)) {
     return <T {...p} />;
   } else {
-    return t;
+    return T;
   }
 };
 

@@ -1,10 +1,8 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
-import ReactDOM from "react-dom";
 import _ from "lodash";
 import CSS from "csstype";
 import classNames from "classnames";
 import { observer } from "mobx-react";
-import { observable } from "mobx";
 
 import { TexPlugin } from "./tex";
 import { BibliographyPlugin } from "./bibliography";
@@ -16,6 +14,7 @@ import { HTMLAttributes } from "./utils";
 import { Logger, LoggerPlugin } from "./logger";
 import { Plugin, usePlugin } from "./plugin";
 import { NestedCounter, ValueStack } from "./counter";
+import { PortalPlugin, Portal } from "./portal";
 
 class DocumentData {
   sections: NestedCounter = new NestedCounter();
@@ -203,16 +202,6 @@ export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) =
   );
 };
 
-class PortalData {
-  @observable portal: HTMLDivElement | null = null;
-}
-let PortalContext = React.createContext<PortalData>(new PortalData());
-
-export let ToplevelElem: React.FC = observer(({ children }) => {
-  let portal = useContext(PortalContext);
-  return portal.portal !== null ? ReactDOM.createPortal(children, portal.portal) : null;
-});
-
 export let Center: React.FC = ({ children }) => {
   return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
 };
@@ -362,15 +351,18 @@ export let DocumentInner: React.FC = observer(({ children }) => {
   let processed = children instanceof Array ? preprocess_document(children) : children;
 
   return (
-    <div
-      className={classNames({
-        "def-mode": def_ctx.def_mode,
-      })}
-    >
-      {processed}
-      <Footnotes />
-      <Logger />
-    </div>
+    <>
+      <div
+        className={classNames({
+          "def-mode": def_ctx.def_mode,
+        })}
+      >
+        {processed}
+        <Footnotes />
+        <Logger />
+      </div>
+      <Portal />
+    </>
   );
 });
 
@@ -388,11 +380,10 @@ const PLUGINS = (): Plugin<any>[] => [
   ListingPlugin,
   ScrollPlugin,
   LoggerPlugin,
+  PortalPlugin,
 ];
 
 export let Document: React.FC<DocumentProps> = ({ children, editing, onLoad }) => {
-  let portal = new PortalData();
-
   if (onLoad) {
     useEffect(onLoad, []);
   }
@@ -404,15 +395,7 @@ export let Document: React.FC<DocumentProps> = ({ children, editing, onLoad }) =
 
   return (
     <div className={classNames("nota-document", { editing })}>
-      <DocumentContext.Provider value={new DocumentData()}>
-        <PortalContext.Provider value={portal}>{inner}</PortalContext.Provider>
-      </DocumentContext.Provider>
-      <div
-        className="portal"
-        ref={el => {
-          portal.portal = el;
-        }}
-      />
+      <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
     </div>
   );
 };

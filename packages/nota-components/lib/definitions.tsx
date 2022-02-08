@@ -9,7 +9,15 @@ import { ScrollPlugin } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { HTMLAttributes, get_or_render } from "./utils";
-import { join_recursive, Option, some, none, is_some, opt_unwrap } from "@nota-lang/nota-common";
+import {
+  join_recursive,
+  Option,
+  some,
+  none,
+  is_some,
+  opt_unwrap,
+  NotaText,
+} from "@nota-lang/nota-common";
 
 export interface DefinitionData {
   tooltip: Option<ReactConstructor | ReactNode>;
@@ -87,7 +95,7 @@ export let DefinitionAnchor: React.FC<{
 );
 
 interface DefinitionProps {
-  name?: ReactNode;
+  name?: NotaText;
   block?: boolean;
   tooltip?: ReactConstructor | ReactNode;
   label?: ReactConstructor<any> | ReactNode;
@@ -96,7 +104,7 @@ interface DefinitionProps {
 
 export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [name_str] = useState(props.name ? join_recursive(props.name as any) : _.uniqueId());
+  let [name_str] = useState(props.name ? join_recursive(props.name) : _.uniqueId());
 
   useEffect(() => {
     let tooltip: DefinitionData["tooltip"];
@@ -124,11 +132,12 @@ interface RefProps {
   block?: boolean;
   nolink?: boolean;
   label?: ReactConstructor | ReactNode;
+  children: NotaText;
 }
 
 export let Ref: React.FC<RefProps> = observer(
   ({ block, nolink, children, label: user_label, ...props }) => {
-    let name = join_recursive(children as any);
+    let name = join_recursive(children);
 
     let ctx = usePlugin(DefinitionsPlugin);
     let scroll_plugin = usePlugin(ScrollPlugin);
@@ -173,7 +182,7 @@ export let Ref: React.FC<RefProps> = observer(
     });
 
     if (is_some(def.tooltip)) {
-      return <Tooltip Inner={Inner} Popup={opt_unwrap(def.tooltip)} />;
+      return <Tooltip Popup={opt_unwrap(def.tooltip)}>{Inner}</Tooltip>;
     } else {
       return <Inner />;
     }

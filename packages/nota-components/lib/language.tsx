@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 import _ from "lodash";
-import { add_between, NotaText, NotaFn, some, none } from "@nota-lang/nota-common";
+import {
+  add_between,
+  NotaText,
+  NotaFn,
+  some,
+  none,
+  NestedArray,
+  Stringable,
+} from "@nota-lang/nota-common";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
@@ -161,15 +169,17 @@ export class Language {
                 let add_dots =
                   (hl && rows.length > 1) ||
                   (included_cmds && typeof included_cmds[cmd] != "boolean");
-                return add_between(
-                  row.map(branch => {
-                    let tex = branch_to_tex(cmd)(branch);
-                    if (hl && branch.subcmd == hl) {
-                      tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
-                    }
-                    return tex;
-                  }),
-                  r`\mid`
+                return (
+                  add_between(
+                    row.map(branch => {
+                      let tex = branch_to_tex(cmd)(branch);
+                      if (hl && branch.subcmd == hl) {
+                        tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
+                      }
+                      return tex;
+                    }),
+                    r`\mid`
+                  ) as NestedArray<Stringable>
                 ).concat(add_dots ? [r`\mid \ldots`] : []);
               }),
             r`\\& & & && &&\mid`
