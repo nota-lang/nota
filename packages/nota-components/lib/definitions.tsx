@@ -4,16 +4,16 @@ import classNames from "classnames";
 import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
 
-import { Container } from "./utils";
+import { Container, ReactConstructor, ReactNode } from "./utils";
 import { ScrollPlugin } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
-import { HTMLAttributes } from "./utils";
-import { join_recursive } from "@nota-lang/nota-common";
+import { HTMLAttributes, get_or_render } from "./utils";
+import { join_recursive, Option, some, none, is_some, opt_unwrap } from "@nota-lang/nota-common";
 
 export interface DefinitionData {
-  Tooltip: React.FC | null;
-  Label: React.FC<any> | JSX.Element | null;
+  tooltip: Option<ReactConstructor | ReactNode>;
+  label: Option<ReactConstructor | ReactNode>;
 }
 
 class DefinitionsData extends Pluggable {
@@ -74,44 +74,47 @@ class DefinitionsData extends Pluggable {
 
 export let DefinitionsPlugin = new Plugin(DefinitionsData);
 
-interface DefinitionProps {
-  name?: JSX.Element | string;
-  block?: boolean;
-  Tooltip?: React.FC | null;
-  Label?: React.FC<any>;
-}
-
 let name_to_id = (name: string): string => `def-${name.replace(":", "-")}`;
 
-export let DefinitionAnchor: React.FC<{ name: string; block?: boolean } & HTMLAttributes> = ({
-  name,
-  block,
-  ...props
-}) => (
-  <Container block={block} id={name_to_id(name)} className="definition" {...props}>
-    {props.children}
+export let DefinitionAnchor: React.FC<{
+  name: string;
+  block?: boolean;
+  attrs?: HTMLAttributes;
+}> = ({ name, block, attrs, children }) => (
+  <Container block={block} id={name_to_id(name)} className="definition" {...attrs}>
+    {children}
   </Container>
 );
 
-export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
-  name,
-  block,
-  Tooltip,
-  Label,
-  ...props
-}) => {
+interface DefinitionProps {
+  name?: ReactNode;
+  block?: boolean;
+  tooltip?: ReactConstructor | ReactNode;
+  label?: ReactConstructor<any> | ReactNode;
+  attrs?: HTMLAttributes;
+}
+
+export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [name_str] = useState(name ? join_recursive(name as any) : _.uniqueId());
+  let [name_str] = useState(props.name ? join_recursive(props.name as any) : _.uniqueId());
 
   useEffect(() => {
-    ctx.add_definition(name_str, {
-      Tooltip: Tooltip !== undefined ? Tooltip : () => <>{props.children}</>,
-      Label: Label || null,
-    });
+    let tooltip: DefinitionData["tooltip"];
+    if (props.tooltip === null) {
+      tooltip = none();
+    } else if (props.tooltip === undefined) {
+      tooltip = some(props.children);
+    } else {
+      tooltip = some(props.tooltip);
+    }
+
+    let label: DefinitionData["label"] = props.label ? some(props.label) : none();
+
+    ctx.add_definition(name_str, { tooltip, label });
   }, []);
 
   return props.children ? (
-    <DefinitionAnchor block={block} name={name_str} {...props}>
+    <DefinitionAnchor block={props.block} name={name_str} attrs={props.attrs}>
       {props.children}
     </DefinitionAnchor>
   ) : null;
@@ -120,64 +123,59 @@ export let Definition: React.FC<DefinitionProps & HTMLAttributes> = ({
 interface RefProps {
   block?: boolean;
   nolink?: boolean;
-  Label?: React.ReactNode;
+  label?: ReactConstructor | ReactNode;
 }
 
-export let Ref: React.FC<RefProps> = observer(({ block, nolink, children, ...props }) => {
-  let name = join_recursive(children as any);
+export let Ref: React.FC<RefProps> = observer(
+  ({ block, nolink, children, label: user_label, ...props }) => {
+    let name = join_recursive(children as any);
 
-  let ctx = usePlugin(DefinitionsPlugin);
-  let scroll_plugin = usePlugin(ScrollPlugin);
-  useEffect(() => {
-    ctx.register_use(name);
-  }, []);
+    let ctx = usePlugin(DefinitionsPlugin);
+    let scroll_plugin = usePlugin(ScrollPlugin);
+    useEffect(() => {
+      ctx.register_use(name);
+    }, []);
 
-  let def = ctx.get_definition(name);
-  if (!def) {
-    return <span className="error">{name}</span>;
-  }
+    let def = ctx.get_definition(name);
+    if (!def) {
+      return <span className="error">{name}</span>;
+    }
 
-  let on_click: React.MouseEventHandler = e => {
-    e.preventDefault();
-    e.stopPropagation();
+    let on_click: React.MouseEventHandler = e => {
+      e.preventDefault();
+      scroll_plugin.scroll_to(name_to_id(name));
+    };
 
-    scroll_plugin.scroll_to(name_to_id(name));
-  };
-
-  // TODO: need to establish clear coding conventions around react elements vs. components
-  // when they get passed to things like Ref
-  let Label: any = props.Label || def.Label;
-  let inner: React.ReactNode = Label ? (
-    (typeof Label == "object" && "type" in Label && typeof Label.type == "function") ||
-    typeof Label == "function" ? (
-      <Label name={name} {...props} />
+    let label = user_label !== undefined ? some(user_label) : def.label;
+    let inner = is_some(label) ? (
+      get_or_render(opt_unwrap(label), { name, ...props })
     ) : (
-      Label
-    )
-  ) : (
-    <span className="error">No label defined for &ldquo;{name}&rdquo;</span>
-  );
-
-  let scroll_event = def.Tooltip ? "onDoubleClick" : "onClick";
-  let event_props = { [scroll_event]: on_click };
-
-  let Inner = forwardRef<HTMLDivElement>(function Inner(inner_props, ref) {
-    return (
-      <Container
-        ref={ref}
-        block={block}
-        className={classNames("ref", { nolink })}
-        {...inner_props}
-        {...event_props}
-      >
-        {inner}
-      </Container>
+      <span className="error">
+        No label defined for <q>{name}</q>
+      </span>
     );
-  });
 
-  if (def.Tooltip) {
-    return <Tooltip Inner={Inner} Popup={def.Tooltip} />;
-  } else {
-    return <Inner />;
+    let scroll_event = def.tooltip ? "onDoubleClick" : "onClick";
+    let event_props = { [scroll_event]: on_click };
+
+    let Inner = forwardRef<HTMLDivElement>(function Inner(inner_props, ref) {
+      return (
+        <Container
+          ref={ref}
+          block={block}
+          className={classNames("ref", { nolink })}
+          {...inner_props}
+          {...event_props}
+        >
+          {inner}
+        </Container>
+      );
+    });
+
+    if (is_some(def.tooltip)) {
+      return <Tooltip Inner={Inner} Popup={opt_unwrap(def.tooltip)} />;
+    } else {
+      return <Inner />;
+    }
   }
-});
+);

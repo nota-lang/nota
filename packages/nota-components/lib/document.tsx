@@ -69,7 +69,7 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   let level = pos.level();
   let sec_num = pos.to_string();
   let label = props.label || `section-${sec_num}`;
-  doc_ctx.sections.save_value(() => <Ref Label={children}>{label}</Ref>);
+  doc_ctx.sections.save_value(() => <Ref label={children}>{label}</Ref>);
 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
@@ -92,7 +92,7 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   );
 
   return (
-    <Definition name={label} Label={() => <>Section {sec_num}</>} Tooltip={null} block>
+    <Definition name={label} label={`Section ${sec_num}`} tooltip={null} block>
       {inner}
     </Definition>
   );
@@ -129,10 +129,10 @@ export let Figure: React.FC<{ label?: string }> = props => {
 
   let Caption = () => (
     <Definition
-      style={{ width: "100%" }}
+      attrs={{ style: { width: "100%" } }}
       name={props.label}
-      Label={() => <>{`Figure ${fig_num}`}</>}
-      Tooltip={null}
+      label={`Figure ${fig_num}`}
+      tooltip={null}
       block
     >
       <div className="caption">
@@ -284,11 +284,7 @@ let Footnotes: React.FC = _ => {
         return (
           <div className="footnote" id={`footnote-${i}`} key={i}>
             <div className="footnote-number">{i}</div>
-            <Definition
-              name={`footnote:${i}`}
-              Label={() => <sup className="footnote">{i}</sup>}
-              block
-            >
+            <Definition name={`footnote:${i}`} label={<sup className="footnote">{i}</sup>} block>
               <div className="footnote-body">{footnote}</div>
             </Definition>
           </div>

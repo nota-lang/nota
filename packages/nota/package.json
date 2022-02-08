@@ -23,8 +23,6 @@
   },
   "scripts": {
     "build": "node build.mjs",
-    "tc": "tsc -emitDeclarationOnly",
-    "full": "yarn tc && yarn build",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },

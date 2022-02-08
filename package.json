@@ -5,9 +5,8 @@
     "examples/*"
   ],
   "scripts": {
-    "init-repo": "yarn && lerna bootstrap && lerna link && lerna run full",
+    "init-repo": "yarn && lerna bootstrap && lerna link && lerna run build",
     "clean-repo": "lerna clean -y && rm -rf node_modules && find packages -name dist -exec rm -r {} +",
-    "full": "lerna run full",
     "lint": "lerna run lint",
     "build": "lerna run build",
     "watch": "lerna run --parallel  --no-bail build -- -w",

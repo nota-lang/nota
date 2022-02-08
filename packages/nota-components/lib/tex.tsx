@@ -173,7 +173,7 @@ export let TexPlugin = new Plugin(
 
         if (node.dataset.ref) {
           return (
-            <Ref Label={react_node} nolink key={key}>
+            <Ref label={react_node} nolink key={key}>
               {node.dataset.ref}
             </Ref>
           );

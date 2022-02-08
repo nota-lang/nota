@@ -10,7 +10,19 @@ export let zipExn = <S, T>(l1: S[], l2: T[]): [S, T][] => {
 };
 
 export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
-export type ReactReturn = React.ReactElement<any, any> | null;
+export type ReactNode = React.ReactNode;
+export type ReactConstructor<P = {}> = React.FunctionComponent<P> | React.ComponentClass<P>;
+
+export let get_or_render = <P,>(t: ReactNode | ReactConstructor<P>, p?: P): ReactNode => {
+  let is_cls = t !== null && typeof t === "object" && "type" in t && typeof t.type === "function";
+  let is_fc = typeof t === "function";
+  if (is_cls || is_fc) {
+    let T: any = t;
+    return <T {...p} />;
+  } else {
+    return t;
+  }
+};
 
 export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
   function Container({ block, ...props }, ref) {

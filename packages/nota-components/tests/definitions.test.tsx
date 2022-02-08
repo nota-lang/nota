@@ -13,8 +13,8 @@ describe("definitions", () => {
     let { baseElement } = render(
       <Document>
         <Ref>foo</Ref>
-        <Ref Label={"override"}>foo</Ref>
-        <Definition name="foo" Label={() => "hello world"} Tooltip={() => "tooltip"}>
+        <Ref label={"override"}>foo</Ref>
+        <Definition name="foo" label={"hello world"} tooltip={"tooltip"}>
           a def
         </Definition>
       </Document>

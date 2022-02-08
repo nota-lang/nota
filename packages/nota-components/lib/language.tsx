@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAsync } from "react-async";
 import _ from "lodash";
-import { add_between, NotaText, NotaFn } from "@nota-lang/nota-common";
+import { add_between, NotaText, NotaFn, some, none } from "@nota-lang/nota-common";
 
 import { zipExn } from "./utils";
 import { DefinitionsPlugin, DefinitionData } from "./definitions";
@@ -135,7 +135,9 @@ export class Language {
           let [rows] = zipExn(branches, bdims)
             .filter(
               ([{ subcmd }]) =>
-                !included_cmds || included_cmds[cmd] === true || (included_cmds[cmd] as any).includes(subcmd)
+                !included_cmds ||
+                included_cmds[cmd] === true ||
+                (included_cmds[cmd] as any).includes(subcmd)
             )
             .reduce(
               ([rows, cur_width], [branch, dims]) => {
@@ -182,7 +184,7 @@ export class Language {
           defs.push([
             `tex:${cmd}${subcmd}`,
             {
-              Tooltip: () => (
+              tooltip: some(() => (
                 <$$ className="nomargin">
                   {[
                     r`\begin{aligned}&\mathsf{`,
@@ -194,8 +196,8 @@ export class Language {
                     r`\end{aligned}`,
                   ]}
                 </$$>
-              ),
-              Label: null,
+              )),
+              label: none(),
             },
           ]);
         });
@@ -204,7 +206,7 @@ export class Language {
         defs.push([
           `tex:${cmd}`,
           {
-            Tooltip: () => (
+            tooltip: some(() => (
               <$$ className="nomargin">
                 {[
                   r`\begin{aligned}&\mathsf{`,
@@ -216,8 +218,8 @@ export class Language {
                   r`\end{aligned}`,
                 ]}
               </$$>
-            ),
-            Label: null,
+            )),
+            label: none(),
           },
         ]);
         return [r`&\htmlData{def=`, cmd, r`}{\mathsf{`, kind, `}}& ~ &`, metavar, ` &&`, rhs];

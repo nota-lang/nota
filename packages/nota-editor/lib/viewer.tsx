@@ -9,7 +9,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
-import { is_err, is_ok, err, ok, Result, unwrap } from "@nota-lang/nota-common";
+import { is_err, is_ok, err, ok, Result, res_unwrap } from "@nota-lang/nota-common";
 import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
 import type { DocumentProps } from "@nota-lang/nota-components";
 
@@ -131,7 +131,7 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
         errored = false;
         return;
       }
-      let Doc = unwrap(DocResult);
+      let Doc = res_unwrap(DocResult);
       last_translation.t = <Doc key={counter++} editing />;
     }),
     [result]

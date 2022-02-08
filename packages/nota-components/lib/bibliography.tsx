@@ -178,7 +178,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
         {keys
           .filter(key => key in ctx.citations)
           .map(key => (
-            <Definition key={key} name={key} Label={Cite} block>
+            <Definition key={key} name={key} label={Cite} block>
               {ctx.citations[key].bib_cite()}
             </Definition>
           ))}

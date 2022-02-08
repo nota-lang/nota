@@ -3,7 +3,7 @@ import { createPopper, Instance } from "@popperjs/core";
 import _ from "lodash";
 
 import { ToplevelElem } from "./document";
-import { HTMLAttributes } from "./utils";
+import { HTMLAttributes, ReactConstructor, ReactNode, get_or_render } from "./utils";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { observer } from "mobx-react";
 
@@ -80,7 +80,7 @@ export let TooltipPlugin: Plugin<TooltipData> = new Plugin(TooltipData);
 
 interface TooltipProps {
   Inner: React.FC<HTMLAttributes & { ref: any }>;
-  Popup: React.FC;
+  Popup: ReactConstructor | ReactNode;
 }
 
 export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
@@ -168,7 +168,7 @@ export let Tooltip = observer(({ Inner, Popup }: TooltipProps) => {
                 display: show ? "block" : "none",
               }}
             />
-            <Popup />
+            {get_or_render(Popup)}
           </div>
         </ToplevelElem>
       ) : null}

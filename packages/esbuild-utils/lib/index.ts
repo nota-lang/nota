@@ -7,6 +7,7 @@ import { promise as glob } from "glob-promise";
 import winston from "winston";
 import { program } from "commander";
 import commonPathPrefix from "common-path-prefix";
+import * as cp from "child_process";
 //@ts-ignore
 import esMain from "es-main";
 import "@cspotcode/source-map-support/register.js";
@@ -37,6 +38,7 @@ export let log = winston.createLogger({
 export interface CliOptions {
   watch?: boolean | WatchMode;
   debug?: boolean;
+  ts?: boolean;
 }
 
 export let is_main = esMain;
@@ -46,6 +48,30 @@ export let get_manifest = (): IPackageJson => {
   return fs.existsSync(pkg_path) ? JSON.parse(fs.readFileSync("./package.json", "utf-8")) : {};
 };
 
+// Taken from https://github.com/chalk/ansi-regex
+const ANSI_REGEX = new RegExp(
+  [
+    "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
+    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))",
+  ].join("|"),
+  "g"
+);
+
+export let tsc_plugin = (): Plugin => ({
+  name: "tsc",
+  setup(build) {
+    let opts = ["-emitDeclarationOnly"];
+    if (build.initialOptions.watch) {
+      opts.push("-w");
+    }
+
+    let tsc = cp.spawn("tsc", opts);
+    tsc.stdout!.on("data", data => {
+      console.log(data.toString().replace(ANSI_REGEX, "").trim());
+    });
+  },
+});
+
 export let cli = (
   external_options?: CliOptions
 ): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
@@ -54,6 +80,7 @@ export let cli = (
     (program
       .option("-w, --watch", "Watch for changes and rebuild")
       .option("-g, --debug", "Do not minify and include source maps")
+      .option("-t, --typescript", "Run typescript")
       .parse(process.argv)
       .opts() as CliOptions);
 
@@ -109,6 +136,10 @@ export let cli = (
     let entryPoints = extra.entryPoints;
     if (!entryPoints) {
       entryPoints = [(await file_exists("./lib/index.ts")) ? "./lib/index.ts" : "./lib/index.tsx"];
+    }
+
+    if (options.ts || _.some(entryPoints, (p: string) => path.extname(p).startsWith(".ts"))) {
+      plugins.push(tsc_plugin());
     }
 
     let opts = {
@@ -197,11 +228,11 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       namespace: "ssr",
     }));
 
-    let get_path_parts = (p: string): {name: string, dir: string} => {
-      let {name, dir} = path.parse(p);
+    let get_path_parts = (p: string): { name: string; dir: string } => {
+      let { name, dir } = path.parse(p);
       let outfile = build.initialOptions.outfile;
       name = outfile ? path.parse(outfile).name : name;
-      return {name, dir};
+      return { name, dir };
     };
 
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
@@ -231,7 +262,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       }
       `;
 
-            return { contents, loader: "jsx", resolveDir: dir };
+      return { contents, loader: "jsx", resolveDir: dir };
     });
 
     build.onEnd(async _args => {

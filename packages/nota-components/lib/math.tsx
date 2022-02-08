@@ -69,15 +69,7 @@ export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title
   let suffix = title ? `: ${title}` : "";
 
   return (
-    <Definition
-      name={name}
-      Label={() => (
-        <>
-          {label}
-          {suffix}
-        </>
-      )}
-    >
+    <Definition name={name} label={`${label} ${suffix}`}>
       <div className="theorem">
         <Smallcaps>
           {label}
