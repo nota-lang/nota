@@ -3,7 +3,6 @@ import katex from "katex";
 import ReactDOM from "react-dom";
 import { join_recursive, NotaText } from "@nota-lang/nota-common";
 import _ from "lodash";
-import { canUseDOM } from "exenv";
 
 import { Ref, DefinitionAnchor, Definition } from "./definitions";
 import { Container, HTMLAttributes } from "./utils";
@@ -120,7 +119,7 @@ export let TexPlugin = new Plugin(
         }
       }
 
-      if (raw || !canUseDOM) {
+      if (raw) {
         return (
           <Container
             ref={ref}

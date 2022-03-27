@@ -3,7 +3,6 @@ import { try_parse, translate_ast, optimize_plugin } from "@nota-lang/nota-synta
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
-import { canUseDOM } from "exenv";
 
 import { TranslationResult, State } from ".";
 
@@ -47,16 +46,14 @@ export class LocalState implements State {
     );
 
     const SYNC_INTERVAL = 200;
-    if (canUseDOM) {
-      setInterval(async () => {
-        if (needs_sync) {
-          let translation = this.try_translate();
-          needs_sync = false;
-          runInAction(() => {
-            this.translation = translation;
-          });
-        }
-      }, SYNC_INTERVAL);
-    }
+    setInterval(async () => {
+      if (needs_sync) {
+        let translation = this.try_translate();
+        needs_sync = false;
+        runInAction(() => {
+          this.translation = translation;
+        });
+      }
+    }, SYNC_INTERVAL);
   }
 }

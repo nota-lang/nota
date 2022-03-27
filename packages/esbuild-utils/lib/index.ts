@@ -8,6 +8,10 @@ import winston from "winston";
 import { program } from "commander";
 import commonPathPrefix from "common-path-prefix";
 import * as cp from "child_process";
+import puppeteer from "puppeteer-core";
+import statik from "node-static";
+import http from "http";
+import tcpPortUsed from "tcp-port-used";
 //@ts-ignore
 import esMain from "es-main";
 import "@cspotcode/source-map-support/register.js";
@@ -213,11 +217,23 @@ export let esm_externals_plugin = ({ externals }: { externals: string[] }): Plug
 
 export interface SsrOptions {
   template?: string;
+
+  // How long the page waits to determine that a Nota document has finished rendering,
+  // i.e. when there are no MutationObserver events
+  in_page_render_timeout?: number;
+
+  // How long Puppeteer waits from the start of rendering for the document to finish rendering.
+  external_render_timeout?: number;
+
+  // Port for the static file server
+  port?: number;
 }
 
 export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
   name: "ssr",
-  setup(build) {
+  async setup(build) {
+    let watch = build.initialOptions.watch;
+
     build.initialOptions.outExtension = {
       ...(build.initialOptions.outExtension || {}),
       ".js": ".mjs",
@@ -235,6 +251,9 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       return { name, dir };
     };
 
+    let SSR_CLASS = "ssr-env";
+    let NOTA_READY = "window.NOTA_READY";
+
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
       let p = path.resolve(args.path);
       let { name, dir } = get_path_parts(p);
@@ -244,26 +263,80 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
         template_path = "." + path.sep + path.relative(dir, opts.template);
       }
 
+      let render_timeout = (opts && opts.in_page_render_timeout) || 1000;
+
+      // TODO 1: there should be some kind of indicator while the shadow page is rendering
+      // TODO 2: it would be ideal if Nota committed to having plugins say when they're done,
+      //   so we don't need to watch mutations
       let contents = `
       import React from "react";
       import ReactDOM from "react-dom";
       import Doc, * as doc_mod from "./${path.parse(p).name}.nota"
       import Template from "${template_path}";
-      import { canUseDOM } from "exenv";
 
       let key = "metadata";
-      export let metadata = key in doc_mod ? doc_mod[key] : {};
-      export let Page = (props) => <Template {...props}><Doc /></Template>;
-      export { default as React } from "react";
-      export { default as ReactDOMServer } from "react-dom/server.browser.js";
-      
-      if (canUseDOM) {
-        ReactDOM.hydrate(<Page {...metadata} script={"${script}"} />, document.documentElement);
-      }
+      let metadata = key in doc_mod ? doc_mod[key] : {};
+      let Page = (props) => <Template {...props}><Doc /></Template>;
+
+      let wait_to_render = async (element) => {
+        let last_change = Date.now();
+        let observer = new MutationObserver(evt => { last_change = Date.now(); });
+        observer.observe(element, {subtree: true, childList: true, attributes: true});
+        
+        return new Promise(resolve => {
+          let intvl = setInterval(() => {
+            if (Date.now() - last_change > ${render_timeout}) {
+              clearInterval(intvl);
+              observer.disconnect();
+              resolve();
+            }
+          }, 50);
+        });  
+      };  
+
+      let main = async () => {
+        let html = document.documentElement;
+        if (html.classList.contains("${SSR_CLASS}")) {
+          html.classList.remove("${SSR_CLASS}");      
+          ReactDOM.render(<Page {...metadata} script={"${script}"} />, html);
+          await wait_to_render(html);
+          ${NOTA_READY} = true;  
+        } else {
+          let new_root = document.createElement('div');
+          ReactDOM.render(<Doc />, new_root);                            
+          await wait_to_render(new_root);
+          root.parentNode.replaceChild(new_root, root);
+        }
+      };                 
+
+      main();
       `;
 
       return { contents, loader: "jsx", resolveDir: dir };
     });
+
+    let port = (opts && opts.port) || 8000;
+    const MAX_TRIES = 10;
+    for (let i = 0; i < MAX_TRIES; i++) {
+      let in_use = await tcpPortUsed.check(port, "localhost");
+      if (!in_use) {
+        break;
+      }
+      port++;
+    }
+    let browser = await puppeteer.launch({ channel: "chrome" });
+    let file_server = new statik.Server("./dist", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+    let http_server = http
+      .createServer((request, response) =>
+        request.addListener("end", () => file_server.serve(request, response)).resume()
+      )
+      .listen(port);
 
     build.onEnd(async _args => {
       let entryPoints = build.initialOptions.entryPoints as string[];
@@ -271,24 +344,38 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
 
       let promises = entryPoints.map(async p => {
         let { name, dir } = get_path_parts(path.relative(common_prefix, p));
-        let script = `./${name}.mjs`;
 
-        let mod = await import(path.resolve(path.join("dist", dir, name + ".mjs")));
-        let { Page, React, ReactDOMServer, metadata } = mod;
+        let page = await browser.newPage();
 
-        // IMPORTANT NOTE: if *any* timers / intervals are still running after the page is rendered,
-        // this will cause NodeJS to hang! Timers should either be feature-gated (canUseDOM) or effect-gated (useEffect)
-        let content = ReactDOMServer.renderToString(
-          React.createElement(Page, { script, ...metadata })
-        );
+        // Pipe in-page logging to the terminal for debugging purposes
+        page
+          .on("console", message => log.info(message.text()))
+          .on("pageerror", err => log.error(err.toString()))
+          .on("error", err => log.error(err.toString()));
 
-        await fs.promises.writeFile(
-          path.join("dist", dir, name + ".html"),
-          `<!DOCTYPE html><html lang="en">${content}</html>`
-        );
+        // Put the HTML into the page and wait for initial load
+        let html = `<!DOCTYPE html>
+        <html lang="en" class="${SSR_CLASS}">
+          <body><script src="http://localhost:${port}/${dir}/${name}.mjs" type="module"></script></body>
+        </html>`;
+        await page.setContent(html, { waitUntil: "domcontentloaded" });
+
+        // Then wait for NOTA_READY to be set by the SSR script
+        let timeout = (opts && opts.external_render_timeout) || 10000;
+        await page.waitForFunction(NOTA_READY, { timeout });
+
+        // And write the rendered HTML to disk once it's ready
+        let content = await page.content();
+        let html_path = path.join("dist", dir, name + ".html");
+        await fs.promises.writeFile(html_path, content);
       });
 
       await Promise.all(promises);
+
+      if (!watch) {
+        http_server.close();
+        await browser.close();
+      }
     });
   },
 });

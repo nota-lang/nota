@@ -14,7 +14,7 @@ let Template: React.FC<TemplateProps> = ({ title, script, children }) => (
       <title>{title}</title>
     </head>
     <body>
-      {children}
+      <div id="root">{children}</div>
       <script src={script} type="module"></script>
     </body>
   </>
