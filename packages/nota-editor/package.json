@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-editor",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Browser-based editor for Nota documents",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -30,16 +30,16 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.16.4",
-    "@nota-lang/nota-components": "^0.3.3",
-    "@nota-lang/nota-syntax": "^0.3.3",
+    "@nota-lang/nota-components": "^0.3.4",
+    "@nota-lang/nota-syntax": "^0.3.4",
     "prettier": "^2.5.1"
   },
   "dependenciesComments": [
     "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/"
   ],
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.3.3",
-    "@nota-lang/nota-common": "^0.3.3",
+    "@nota-lang/esbuild-utils": "^0.3.4",
+    "@nota-lang/nota-common": "^0.3.4",
     "@types/prettier": "^2.4.2",
     "react-error-boundary": "^3.1.4"
   }
