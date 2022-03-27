@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-syntax",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Compiler for Nota syntax",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -43,7 +43,7 @@
     "@nota-lang/esbuild-lezer": "^0.3.4",
     "@nota-lang/esbuild-utils": "^0.3.4",
     "@nota-lang/nota-common": "^0.3.4",
-    "@nota-lang/nota-components": "^0.3.4",
+    "@nota-lang/nota-components": "^0.3.5",
     "@types/babel__core": "^7.1.16",
     "@types/babel__standalone": "^7.1.3"
   }
