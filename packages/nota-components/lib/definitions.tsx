@@ -5,7 +5,7 @@ import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
 
 import { Container, ReactConstructor, ReactNode } from "./utils";
-import { ScrollPlugin } from "./scroll";
+import { LocalLink } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { HTMLAttributes, get_or_render } from "./utils";
@@ -140,7 +140,6 @@ export let Ref: React.FC<RefProps> = observer(
     let name = join_recursive(children);
 
     let ctx = usePlugin(DefinitionsPlugin);
-    let scroll_plugin = usePlugin(ScrollPlugin);
     useEffect(() => {
       ctx.register_use(name);
     }, []);
@@ -149,11 +148,6 @@ export let Ref: React.FC<RefProps> = observer(
     if (!def) {
       return <span className="error">{name}</span>;
     }
-
-    let on_click: React.MouseEventHandler = e => {
-      e.preventDefault();
-      scroll_plugin.scroll_to(name_to_id(name));
-    };
 
     let label = user_label !== undefined ? some(user_label) : def.label;
     let inner = is_some(label) ? (
@@ -164,20 +158,19 @@ export let Ref: React.FC<RefProps> = observer(
       </span>
     );
 
-    let scroll_event = def.tooltip ? "onDoubleClick" : "onClick";
-    let event_props = { [scroll_event]: on_click };
-
-    let Inner = forwardRef<HTMLDivElement>(function Inner(inner_props, ref) {
+    let scroll_event = is_some(def.tooltip) ? "onDoubleClick" : "onClick";
+    let Inner = forwardRef<HTMLAnchorElement>(function Inner(inner_props, ref) {
       return (
-        <Container
+        <LocalLink
           ref={ref}
           block={block}
+          target={name_to_id(name)}
+          event={scroll_event}
           className={classNames("ref", { nolink })}
           {...inner_props}
-          {...event_props}
         >
           {inner}
-        </Container>
+        </LocalLink>
       );
     });
 

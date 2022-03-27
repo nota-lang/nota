@@ -1,4 +1,6 @@
-import { Plugin, Pluggable } from "./plugin";
+import React, { CSSProperties, forwardRef } from "react";
+import { Plugin, Pluggable, usePlugin } from "./plugin";
+import { HTMLAttributes } from "./utils";
 
 // https://stackoverflow.com/questions/5353934/check-if-element-is-visible-on-screen
 function checkVisible(elm: any): boolean {
@@ -15,6 +17,42 @@ let get_ancestors = (el: Node): Node[] => {
   return nodes;
 };
 
+export interface LocalLinkProps {
+  target: string;
+  block?: boolean;
+  event?: string;
+}
+
+export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttributes>(
+  function LocalLinkInner({ children, target, block, event, ...attrs }, ref) {
+    let plugin = usePlugin(ScrollPlugin);
+
+    let callback: React.MouseEventHandler = e => {
+      e.preventDefault();
+      plugin.scroll_to(target);
+    };
+
+    event = event || "onClick";
+    let props = { [event]: callback };
+    if (event != "onClick") {
+      props.onClick = e => {
+        e.preventDefault();
+      };
+    }
+
+    let style: CSSProperties = {};
+    if (block) {
+      style.display = "block";
+    }
+
+    return (
+      <a ref={ref} href={`#${target}`} style={style} {...props} {...attrs}>
+        {children}
+      </a>
+    );
+  }
+);
+
 export let ScrollPlugin = new Plugin(
   class extends Pluggable {
     scroll_hooks: { [id: string]: () => void } = {};
@@ -30,12 +68,12 @@ export let ScrollPlugin = new Plugin(
       window.history.pushState(null, "", anchor_hash);
 
       anchor_elem.classList.remove("yellowflash");
-      
+
       // Hack to ensure that CSS animation will restart by forcing reflow of element.
       // Unclear what performance implications this has if any?
       // See: https://css-tricks.com/restart-css-animation/
       void anchor_elem.offsetWidth;
-      
+
       anchor_elem.classList.add("yellowflash");
 
       // Expand any containers that wrap the anchor

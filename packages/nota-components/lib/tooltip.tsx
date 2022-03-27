@@ -106,7 +106,9 @@ export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
   let [stage, set_stage] = useState("start");
   let [show, set_show] = useState(false);
 
-  let trigger = () => {
+  let trigger: React.MouseEventHandler = e => {
+    e.preventDefault();
+
     if (show) {
       set_show(false);
     } else {
