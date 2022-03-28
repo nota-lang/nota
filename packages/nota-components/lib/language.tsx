@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useAsync } from "react-async";
-import _ from "lodash";
 import {
-  add_between,
-  NotaText,
-  NotaFn,
-  some,
-  none,
   NestedArray,
+  NotaFn,
+  NotaText,
+  add_between,
+  none,
+  some,
   zipExn,
 } from "@nota-lang/nota-common";
+import _ from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useAsync } from "react-async";
 
-import { DefinitionsPlugin, DefinitionData } from "./definitions";
-import { $$, tex_ref, tex_def_anchor, TexPlugin } from "./tex";
+import { DefinitionData, DefinitionsPlugin } from "./definitions";
 import { usePlugin } from "./plugin";
+import { $$, TexPlugin, tex_def_anchor, tex_ref } from "./tex";
 
 const r = String.raw;
 

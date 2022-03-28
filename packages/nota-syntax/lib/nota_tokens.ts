@@ -1,7 +1,8 @@
-import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
+import { ContextTracker, ExternalTokenizer } from "@lezer/lr";
+import _ from "lodash";
+
 //@ts-ignore
 import * as terms from "./nota.grammar";
-import _ from "lodash";
 
 const [
   lbrc,

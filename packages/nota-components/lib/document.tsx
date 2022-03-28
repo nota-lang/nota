@@ -1,20 +1,20 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
-import _ from "lodash";
-import CSS from "csstype";
 import classNames from "classnames";
+import CSS from "csstype";
+import _ from "lodash";
 import { observer } from "mobx-react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { TexPlugin } from "./tex";
 import { BibliographyPlugin } from "./bibliography";
-import { DefinitionsPlugin, Definition, Ref } from "./definitions";
-import { TooltipPlugin } from "./tooltip";
 import { ListingPlugin } from "./code";
-import { ScrollPlugin } from "./scroll";
-import { HTMLAttributes } from "./utils";
+import { NestedCounter, ValueStack } from "./counter";
+import { Definition, DefinitionsPlugin, Ref } from "./definitions";
 import { Logger, LoggerPlugin } from "./logger";
 import { Plugin, usePlugin } from "./plugin";
-import { NestedCounter, ValueStack } from "./counter";
-import { PortalPlugin, Portal } from "./portal";
+import { Portal, PortalPlugin } from "./portal";
+import { ScrollPlugin } from "./scroll";
+import { TexPlugin } from "./tex";
+import { TooltipPlugin } from "./tooltip";
+import { HTMLAttributes } from "./utils";
 
 class DocumentData {
   sections: NestedCounter = new NestedCounter();

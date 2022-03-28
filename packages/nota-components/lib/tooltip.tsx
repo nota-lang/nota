@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { createPopper, Instance } from "@popperjs/core";
+import { Instance, createPopper } from "@popperjs/core";
 import _ from "lodash";
+import { observer } from "mobx-react";
+import React, { useEffect, useState } from "react";
 
+import { Pluggable, Plugin, usePlugin } from "./plugin";
 import { ToplevelElem } from "./portal";
 import {
+  Container,
   HTMLAttributes,
   ReactConstructor,
   ReactNode,
   get_or_render,
   is_constructor,
-  Container,
 } from "./utils";
-import { Plugin, Pluggable, usePlugin } from "./plugin";
-import { observer } from "mobx-react";
 
 // TODO
 // * Immediately:

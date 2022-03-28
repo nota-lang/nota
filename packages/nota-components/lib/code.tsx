@@ -1,12 +1,13 @@
-import React, { useRef, useEffect } from "react";
-import { EditorView, Decoration, DecorationSet } from "@codemirror/view";
 import { lineNumbers } from "@codemirror/gutter";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
-import { EditorState, StateField, StateEffect, Extension } from "@codemirror/state";
-import { Plugin, usePlugin, Pluggable } from "./plugin";
-import _ from "lodash";
+import { EditorState, Extension, StateEffect, StateField } from "@codemirror/state";
+import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
 import { join_recursive } from "@nota-lang/nota-common";
+import _ from "lodash";
+import React, { useEffect, useRef } from "react";
+
+import { Pluggable, Plugin, usePlugin } from "./plugin";
 
 export const add_highlight = StateEffect.define<{ from: number; to: number; color: string }>();
 
@@ -82,7 +83,10 @@ export let ListingPlugin = new Plugin(
   }
 );
 
-export let ListingConfigure: React.FC<{ language?: LanguageSupport, wrap?: boolean }> = ({ language, wrap }) => {
+export let ListingConfigure: React.FC<{ language?: LanguageSupport; wrap?: boolean }> = ({
+  language,
+  wrap,
+}) => {
   let ctx = usePlugin(ListingPlugin);
   ctx.language = language;
   ctx.wrap = wrap;

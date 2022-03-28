@@ -1,12 +1,12 @@
-import React from "react";
+import { NotaText, join_recursive } from "@nota-lang/nota-common";
 import katex from "katex";
-import ReactDOM from "react-dom";
-import { join_recursive, NotaText } from "@nota-lang/nota-common";
 import _ from "lodash";
+import React from "react";
+import ReactDOM from "react-dom";
 
-import { Ref, DefinitionAnchor, Definition } from "./definitions";
+import { Definition, DefinitionAnchor, Ref } from "./definitions";
+import { Pluggable, Plugin, usePlugin } from "./plugin";
 import { Container, HTMLAttributes } from "./utils";
-import { Plugin, Pluggable, usePlugin } from "./plugin";
 
 const r = String.raw;
 

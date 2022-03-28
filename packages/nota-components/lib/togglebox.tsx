@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-import { useStateOnInterval } from "./utils";
 import classNames from "classnames";
 import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+
+import { useStateOnInterval } from "./utils";
 
 type ToggleCallback = (_show: boolean) => void;
 

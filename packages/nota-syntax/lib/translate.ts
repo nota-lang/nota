@@ -1,19 +1,19 @@
-import type { SyntaxNode, Tree } from "@lezer/common";
-import _ from "lodash";
-import type {
-  Expression,
-  Statement,
-  SpreadElement,
-  ExpressionStatement,
-  ImportDeclaration,
-  Identifier,
-  StringLiteral,
-  Program,
-  ExportDeclaration,
-} from "@babel/types";
-import type { PluginObj, BabelFileResult } from "@babel/core";
+import type { BabelFileResult, PluginObj } from "@babel/core";
 import * as babel from "@babel/standalone";
-import { Either, left, right, is_left, assert, unreachable } from "@nota-lang/nota-common";
+import type {
+  ExportDeclaration,
+  Expression,
+  ExpressionStatement,
+  Identifier,
+  ImportDeclaration,
+  Program,
+  SpreadElement,
+  Statement,
+  StringLiteral,
+} from "@babel/types";
+import type { SyntaxNode, Tree } from "@lezer/common";
+import { Either, assert, is_left, left, right, unreachable } from "@nota-lang/nota-common";
+import _ from "lodash";
 
 import * as t from "./babel-polyfill";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";

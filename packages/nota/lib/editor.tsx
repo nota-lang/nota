@@ -115,7 +115,7 @@ let App = observer(() => {
       if (event.altKey && event.code == "KeyF") {
         set_fullscreen(!fullscreen);
         event.preventDefault();
-        event.stopPropagation();        
+        event.stopPropagation();
       }
     };
     document.addEventListener("keypress", f);

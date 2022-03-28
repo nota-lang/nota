@@ -1,10 +1,9 @@
-import { syntaxTree } from "@codemirror/language";
 import {
-  CompletionSource,
   Completion,
-  snippetCompletion as snip,
-  // completeFromList,
+  CompletionSource,
+  snippetCompletion as snip, // completeFromList,
 } from "@codemirror/autocomplete";
+import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";

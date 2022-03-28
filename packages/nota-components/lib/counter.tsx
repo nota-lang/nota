@@ -1,6 +1,6 @@
+import _ from "lodash";
 import { action, makeAutoObservable } from "mobx";
 import React from "react";
-import _ from "lodash";
 
 export type NumberStyle = "1" | "a";
 
@@ -31,8 +31,8 @@ export class CounterPosition {
 }
 
 export interface ValueStack {
-  value: any,
-  children: ValueStack[]
+  value: any;
+  children: ValueStack[];
 }
 
 export class NestedCounter {

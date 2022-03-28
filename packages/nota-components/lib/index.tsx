@@ -1,3 +1,5 @@
+import "../css/nota-components.scss";
+
 export { Cite, References, BibliographyPlugin } from "./bibliography";
 export { tex_ref, tex_def, tex_def_anchor, $, $$, Tex } from "./tex";
 export { Abstract, Authors, Author, Name, Affiliation, Institution, Title } from "./header";
@@ -41,5 +43,3 @@ export { Loader, LoaderContext } from "./loader";
 export { LoggerPlugin } from "./logger";
 export { usePlugin, Plugin, Pluggable } from "./plugin";
 export { Portal, PortalPlugin } from "./portal";
-
-import "../css/nota-components.scss";

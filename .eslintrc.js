@@ -18,7 +18,8 @@ module.exports = {
     },
     "plugins": [
         "react",
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "prettier"
     ],
     "globals": {
         "MutationObserverInit": true,
@@ -33,6 +34,7 @@ module.exports = {
         "no-undef": "off",
         "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-        "no-constant-condition": ["error", {"checkLoops": false}]
+        "no-constant-condition": ["error", {"checkLoops": false}],
+        "prettier/prettier": "error"
     }
 };

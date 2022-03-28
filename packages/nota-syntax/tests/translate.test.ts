@@ -1,14 +1,14 @@
+import type { BabelFileResult } from "@babel/core";
+import * as babel from "@babel/standalone";
 import type { Expression, Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { is_left, res_unwrap } from "@nota-lang/nota-common";
-import * as babel from "@babel/standalone";
-import type { BabelFileResult } from "@babel/core";
 import {
-  try_parse,
-  translate,
   Translator,
   babel_polyfill as t,
   terms,
+  translate,
+  try_parse,
 } from "@nota-lang/nota-syntax";
 
 test("translate", () => {

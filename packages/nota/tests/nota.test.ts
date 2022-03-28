@@ -1,9 +1,9 @@
 import * as cp from "child_process";
-import os from "os";
 import fs from "fs/promises";
+import http from "http";
+import os from "os";
 import path from "path";
 import util from "util";
-import http from "http";
 
 let exec = util.promisify(cp.exec);
 let nota_path = path.join(process.cwd(), "packages", "nota", "dist", "index.mjs");

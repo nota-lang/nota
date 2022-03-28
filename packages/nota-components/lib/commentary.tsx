@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+
 import { FullWidthContainer, Row } from "./document";
 import { useStateOnInterval } from "./utils";
 

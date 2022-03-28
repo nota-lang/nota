@@ -1,18 +1,22 @@
+import { cli, file_exists, log } from "@nota-lang/esbuild-utils";
+import { err, ok } from "@nota-lang/nota-common";
+import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
+import type {
+  TranslationResult,
+  /*, Message*/
+} from "@nota-lang/nota-editor";
+import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import * as esbuild from "esbuild";
 import express from "express";
 import expressWs from "express-ws";
-import path from "path";
 import { promises as fs } from "fs";
-import * as esbuild from "esbuild";
-import { ok, err } from "@nota-lang/nota-common";
-import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
-import { cli, file_exists, log } from "@nota-lang/esbuild-utils";
-import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import _ from "lodash";
-import type { TranslationResult /*, Message*/ } from "@nota-lang/nota-editor";
-import os from "os";
-import { CommonOptions, __dirname, nodePaths } from "./index";
 import open from "open";
+import os from "os";
+import path from "path";
 import tcpPortUsed from "tcp-port-used";
+
+import { CommonOptions, __dirname, nodePaths } from "./index";
 
 export interface ServerOptions {
   extensions?: string[];
@@ -127,7 +131,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   let port = opts.port ? opts.port : 8000;
   const MAX_TRIES = 10;
   for (let i = 0; i < MAX_TRIES; i++) {
-    let in_use = await tcpPortUsed.check(port, 'localhost');
+    let in_use = await tcpPortUsed.check(port, "localhost");
     if (!in_use) {
       break;
     }

@@ -1,14 +1,14 @@
+import { HighlightStyle, Tag, styleTags, tags as t } from "@codemirror/highlight";
 import {
   LRLanguage,
   LanguageSupport,
+  continuedIndent,
   delimitedIndent,
   flatIndent,
-  continuedIndent,
-  indentNodeProp,
-  foldNodeProp,
   foldInside,
+  foldNodeProp,
+  indentNodeProp,
 } from "@codemirror/language";
-import { styleTags, HighlightStyle, tags as t, Tag } from "@codemirror/highlight";
 
 import { autocomplete } from "./autocomplete";
 //@ts-ignore

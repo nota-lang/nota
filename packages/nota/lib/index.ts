@@ -1,12 +1,12 @@
-import esbuild from "esbuild";
-import { Command, program } from "commander";
-import path from "path";
-import { file_exists } from "@nota-lang/esbuild-utils";
-import { fileURLToPath } from "url";
 import "@cspotcode/source-map-support/register.js";
+import { file_exists } from "@nota-lang/esbuild-utils";
+import { Command, program } from "commander";
+import esbuild from "esbuild";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import * as server from "./server";
 import * as builder from "./builder";
+import * as server from "./server";
 
 export interface CommonOptions {
   file: string;

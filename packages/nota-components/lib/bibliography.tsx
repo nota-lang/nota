@@ -68,11 +68,13 @@ class BibliographyEntry {
           : null}
         {this.year ? this.year + ". " : null}
         {this.title ? this.title + ". " : null}
-        {location ? <i>
-          {location}
-          {this.tags.number ? ` (${this.tags.number})` : null}
-          {". "}
-        </i> : null}
+        {location ? (
+          <i>
+            {location}
+            {this.tags.number ? ` (${this.tags.number})` : null}
+            {". "}
+          </i>
+        ) : null}
         {this.tags.note}
       </div>
     );
@@ -161,7 +163,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
   let ctx = usePlugin(BibliographyPlugin);
   let def_ctx = usePlugin(DefinitionsPlugin);
 
-  if (!bibtex) {    
+  if (!bibtex) {
     bibtex = join_recursive(children as any);
   }
 

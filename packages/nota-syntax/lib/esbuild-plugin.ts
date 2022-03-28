@@ -1,5 +1,5 @@
-import type esbuild from "esbuild";
 import { res_unwrap } from "@nota-lang/nota-common";
+import type esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 

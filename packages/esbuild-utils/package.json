@@ -21,8 +21,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs && tsc -emitDeclarationOnly",
-    "watch": "node build.mjs -w",
+    "build": "tsc -emitDeclarationOnly && node build.mjs",    
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },

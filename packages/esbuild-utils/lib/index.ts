@@ -1,20 +1,20 @@
-import fs from "fs";
-import esbuild, { BuildOptions, BuildResult, Plugin, Loader, WatchMode } from "esbuild";
-import type { IPackageJson, IDependencyMap } from "package-json-type";
-import path from "path";
-import _ from "lodash";
-import { promise as glob } from "glob-promise";
-import winston from "winston";
+import "@cspotcode/source-map-support/register.js";
+import * as cp from "child_process";
 import { program } from "commander";
 import commonPathPrefix from "common-path-prefix";
-import * as cp from "child_process";
-import puppeteer from "puppeteer-core";
-import statik from "node-static";
-import http from "http";
-import tcpPortUsed from "tcp-port-used";
 //@ts-ignore
 import esMain from "es-main";
-import "@cspotcode/source-map-support/register.js";
+import esbuild, { BuildOptions, BuildResult, Loader, Plugin, WatchMode } from "esbuild";
+import fs from "fs";
+import { promise as glob } from "glob-promise";
+import http from "http";
+import _ from "lodash";
+import statik from "node-static";
+import type { IDependencyMap, IPackageJson } from "package-json-type";
+import path from "path";
+import puppeteer from "puppeteer-core";
+import tcpPortUsed from "tcp-port-used";
+import winston from "winston";
 
 export let file_exists = async (path: string): Promise<boolean> => {
   try {

@@ -43,7 +43,7 @@ describe("document", () => {
       </Document>
     );
 
-    let toc = baseElement.querySelector<HTMLElement>('.toc');
+    let toc = baseElement.querySelector<HTMLElement>(".toc");
     await waitFor(() => expect(toc.querySelector("li")).not.toBeNull());
 
     let [intro, conclusion] = baseElement.querySelectorAll<HTMLElement>(
