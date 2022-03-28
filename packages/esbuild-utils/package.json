@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/esbuild-utils",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "esbuild utilities for @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "tsc -emitDeclarationOnly && node build.mjs",    
+    "build": "tsc -emitDeclarationOnly && node build.mjs",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
