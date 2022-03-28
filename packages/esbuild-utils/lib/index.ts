@@ -276,7 +276,7 @@ export let ssrPlugin = (opts?: SsrOptions): Plugin => ({
 
       let key = "metadata";
       let metadata = key in doc_mod ? doc_mod[key] : {};
-      let Page = (props) => <Template {...props}><Doc /></Template>;
+      let Page = (props) => <Template {...props}><div id="root"><Doc /></div></Template>;
 
       let wait_to_render = async (element) => {
         let last_change = Date.now();
@@ -302,7 +302,7 @@ export let ssrPlugin = (opts?: SsrOptions): Plugin => ({
           await wait_to_render(html);
           ${NOTA_READY} = true;  
         } else {
-          let root = document.getElementById('root');
+          let root = document.getElementById("root");
           let new_root = document.createElement('div');
           ReactDOM.render(<Doc />, new_root);                            
           await wait_to_render(new_root);
@@ -341,10 +341,11 @@ export let ssrPlugin = (opts?: SsrOptions): Plugin => ({
 
     build.onEnd(async _args => {
       let entryPoints = build.initialOptions.entryPoints as string[];
-      let common_prefix = commonPathPrefix(entryPoints);
+      let commonPrefix =
+        entryPoints.length == 1 ? path.dirname(entryPoints[0]) : commonPathPrefix(entryPoints);
 
       let promises = entryPoints.map(async p => {
-        let { name, dir } = getPathParts(path.relative(common_prefix, p));
+        let { name, dir } = getPathParts(path.relative(commonPrefix, p));
 
         let page = await browser.newPage();
 
