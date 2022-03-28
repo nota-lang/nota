@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
-import _ from "lodash";
 import { observer } from "mobx-react";
 
 import { Section, SectionBody } from "./document";
 import { Definition, DefinitionsPlugin } from "./definitions";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
 import { action, makeObservable, observable } from "mobx";
-import { join_recursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -40,7 +39,7 @@ class BibliographyEntry {
     this.tags = tags;
   }
 
-  display_author() {
+  displayAuthor() {
     if (this.authors) {
       if (this.authors.length > 2) {
         return `${this.authors[0][0]} et al.`;
@@ -56,7 +55,7 @@ class BibliographyEntry {
     }
   }
 
-  bib_cite() {
+  bibCite() {
     let names = this.authors?.map(author => [...author.slice(1), author[0]].join(" "));
     let location = this.tags.journal || this.tags.booktitle;
     return (
@@ -109,7 +108,7 @@ class BibliographyData extends Pluggable {
     makeObservable(this);
   }
 
-  import_bibtex = action((bibtex: string) => {
+  importBibtex = action((bibtex: string) => {
     let entries = bibtexParse.toJSON(bibtex);
     entries.forEach((entry: any) => {
       this.citations[entry.citationKey] = new BibliographyEntry(entry);
@@ -129,7 +128,7 @@ class BibliographyData extends Pluggable {
       intersperse(
         keys.map(key => {
           let entry = this.citations[key];
-          let author = entry.display_author();
+          let author = entry.displayAuthor();
           return <span key={key}>{`${author} [${entry.year}${suffix}]`}</span>;
         }),
         props => <span {...props}>{"; "}</span>
@@ -143,7 +142,7 @@ class BibliographyData extends Pluggable {
             if (yearonly) {
               return <span key={key}>{`${entry.year}${suffix}`}</span>;
             } else {
-              let author = entry.display_author();
+              let author = entry.displayAuthor();
               return <span key={key}>{`${author} ${entry.year}${suffix}`}</span>;
             }
           }),
@@ -160,28 +159,28 @@ class BibliographyData extends Pluggable {
 export let BibliographyPlugin = new Plugin(BibliographyData);
 
 export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, children }) => {
-  let ctx = usePlugin(BibliographyPlugin);
-  let def_ctx = usePlugin(DefinitionsPlugin);
+  let bibCtx = usePlugin(BibliographyPlugin);
+  let defCtx = usePlugin(DefinitionsPlugin);
 
   if (!bibtex) {
-    bibtex = join_recursive(children as any);
+    bibtex = joinRecursive(children as any);
   }
 
   useEffect(() => {
-    ctx.import_bibtex(bibtex!);
+    bibCtx.importBibtex(bibtex!);
   }, []);
 
-  let keys = Object.keys(ctx.citations).filter(key => def_ctx.used_definitions.has(key));
+  let keys = Object.keys(bibCtx.citations).filter(key => defCtx.usedDefinitions.has(key));
 
   return (
     <SectionBody>
       <Section plain>References</Section>
       <div className="bib-references">
         {keys
-          .filter(key => key in ctx.citations)
+          .filter(key => key in bibCtx.citations)
           .map(key => (
             <Definition key={key} name={key} label={Cite} block>
-              {ctx.citations[key].bib_cite()}
+              {bibCtx.citations[key].bibCite()}
             </Definition>
           ))}
       </div>

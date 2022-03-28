@@ -3,7 +3,7 @@ import { sassPlugin } from "esbuild-sass-plugin";
 import fs from "fs/promises";
 
 // These are all the packages within @codemirror/basic-setup
-let cm_deps = [
+let cmDeps = [
   "@codemirror/autocomplete",
   "@codemirror/closebrackets",
   "@codemirror/commands",
@@ -24,7 +24,7 @@ let cm_deps = [
 async function main() {
   let build = cli();
   let [_result, opts] = await build({
-    external: cm_deps,
+    external: cmDeps,
     plugins: [sassPlugin()],
   });
 

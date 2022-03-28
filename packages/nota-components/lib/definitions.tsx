@@ -8,14 +8,14 @@ import { Container, ReactConstructor, ReactNode } from "./utils";
 import { LocalLink } from "./scroll";
 import { Tooltip } from "./tooltip";
 import { Plugin, Pluggable, usePlugin } from "./plugin";
-import { HTMLAttributes, get_or_render } from "./utils";
+import { HTMLAttributes, getOrRender } from "./utils";
 import {
-  join_recursive,
+  joinRecursive,
   Option,
   some,
   none,
-  is_some,
-  opt_unwrap,
+  isSome,
+  optUnwrap,
   NotaText,
 } from "@nota-lang/nota-common";
 
@@ -26,8 +26,8 @@ export interface DefinitionData {
 
 class DefinitionsData extends Pluggable {
   @observable.shallow defs: { [name: string]: DefinitionData } = {};
-  @observable def_mode: boolean = false;
-  @observable used_definitions: Set<string> = new Set();
+  @observable defMode: boolean = false;
+  @observable usedDefinitions: Set<string> = new Set();
   stateful = true;
 
   constructor() {
@@ -35,21 +35,21 @@ class DefinitionsData extends Pluggable {
     makeObservable(this);
   }
 
-  register_use = action((name: string) => {
-    this.used_definitions.add(name);
+  registerUse = action((name: string) => {
+    this.usedDefinitions.add(name);
   });
 
-  get_definition = (name: string): DefinitionData | undefined => {
+  getDefinition = (name: string): DefinitionData | undefined => {
     return this.defs[name];
   };
 
-  add_definition = action((name: string, def: DefinitionData) => {
+  addDefinition = action((name: string, def: DefinitionData) => {
     if (!(name in this.defs)) {
       this.defs[name] = def;
     }
   });
 
-  all_definitions = (namespace?: string): { [name: string]: DefinitionData } => {
+  allDefinitions = (namespace?: string): { [name: string]: DefinitionData } => {
     return _.fromPairs(
       Object.keys(this.defs)
         .filter(name => (namespace ? name.startsWith(namespace) : true))
@@ -82,14 +82,14 @@ class DefinitionsData extends Pluggable {
 
 export let DefinitionsPlugin = new Plugin(DefinitionsData);
 
-let name_to_id = (name: string): string => `def-${name.replace(":", "-")}`;
+let nameToId = (name: string): string => `def-${name.replace(":", "-")}`;
 
 export let DefinitionAnchor: React.FC<{
   name: string;
   block?: boolean;
   attrs?: HTMLAttributes;
 }> = ({ name, block, attrs, children }) => (
-  <Container block={block} id={name_to_id(name)} className="definition" {...attrs}>
+  <Container block={block} id={nameToId(name)} className="definition" {...attrs}>
     {children}
   </Container>
 );
@@ -104,7 +104,7 @@ interface DefinitionProps {
 
 export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [name_str] = useState(props.name ? join_recursive(props.name) : _.uniqueId());
+  let [nameStr] = useState(props.name ? joinRecursive(props.name) : _.uniqueId());
 
   useEffect(() => {
     let tooltip: DefinitionData["tooltip"];
@@ -118,11 +118,11 @@ export let Definition: React.FC<DefinitionProps> = props => {
 
     let label: DefinitionData["label"] = props.label ? some(props.label) : none();
 
-    ctx.add_definition(name_str, { tooltip, label });
+    ctx.addDefinition(nameStr, { tooltip, label });
   }, []);
 
   return props.children ? (
-    <DefinitionAnchor block={props.block} name={name_str} attrs={props.attrs}>
+    <DefinitionAnchor block={props.block} name={nameStr} attrs={props.attrs}>
       {props.children}
     </DefinitionAnchor>
   ) : null;
@@ -136,46 +136,46 @@ interface RefProps {
 }
 
 export let Ref: React.FC<RefProps> = observer(
-  ({ block, nolink, children, label: user_label, ...props }) => {
-    let name = join_recursive(children);
+  ({ block, nolink, children, label: userLabel, ...props }) => {
+    let name = joinRecursive(children);
 
     let ctx = usePlugin(DefinitionsPlugin);
     useEffect(() => {
-      ctx.register_use(name);
+      ctx.registerUse(name);
     }, []);
 
-    let def = ctx.get_definition(name);
+    let def = ctx.getDefinition(name);
     if (!def) {
       return <span className="error">{name}</span>;
     }
 
-    let label = user_label !== undefined ? some(user_label) : def.label;
-    let inner = is_some(label) ? (
-      get_or_render(opt_unwrap(label), { name, ...props })
+    let label = userLabel !== undefined ? some(userLabel) : def.label;
+    let inner = isSome(label) ? (
+      getOrRender(optUnwrap(label), { name, ...props })
     ) : (
       <span className="error">
         No label defined for <q>{name}</q>
       </span>
     );
 
-    let scroll_event = is_some(def.tooltip) ? "onDoubleClick" : "onClick";
-    let Inner = forwardRef<HTMLAnchorElement>(function Inner(inner_props, ref) {
+    let scrollEvent = isSome(def.tooltip) ? "onDoubleClick" : "onClick";
+    let Inner = forwardRef<HTMLAnchorElement>(function Inner(innerProps, ref) {
       return (
         <LocalLink
           ref={ref}
           block={block}
-          target={name_to_id(name)}
-          event={scroll_event}
+          target={nameToId(name)}
+          event={scrollEvent}
           className={classNames("ref", { nolink })}
-          {...inner_props}
+          {...innerProps}
         >
           {inner}
         </LocalLink>
       );
     });
 
-    if (is_some(def.tooltip)) {
-      return <Tooltip Popup={opt_unwrap(def.tooltip)}>{Inner}</Tooltip>;
+    if (isSome(def.tooltip)) {
+      return <Tooltip Popup={optUnwrap(def.tooltip)}>{Inner}</Tooltip>;
     } else {
       return <Inner />;
     }

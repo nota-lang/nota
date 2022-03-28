@@ -19,14 +19,14 @@ export class CounterPosition {
     if (style == "1") {
       return n.toString();
     } else if (style == "a") {
-      let char_code = "a".charCodeAt(0) + n - 1;
-      return String.fromCharCode(char_code);
+      let charCode = "a".charCodeAt(0) + n - 1;
+      return String.fromCharCode(charCode);
     } else {
       throw `Bad style ${style}`;
     }
   };
 
-  to_string = (): string =>
+  toString = (): string =>
     this.stack.map((n, i) => this.stylize(n, this.styles[i % this.styles.length])).join(".");
 }
 
@@ -46,7 +46,7 @@ export class NestedCounter {
     makeAutoObservable(this);
   }
 
-  save_value = action((value: any) => {
+  saveValue = action((value: any) => {
     let a = this.stack.slice(0, -2).reduce(a => _.last(a)!.children, this.values);
     _.last(a)!.value = value;
   });

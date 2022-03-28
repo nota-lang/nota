@@ -1,7 +1,7 @@
 import "../css/nota-components.scss";
 
 export { Cite, References, BibliographyPlugin } from "./bibliography";
-export { tex_ref, tex_def, tex_def_anchor, $, $$, Tex } from "./tex";
+export { texRef, texDef, texDefAnchor, $, $$, Tex } from "./tex";
 export { Abstract, Authors, Author, Name, Affiliation, Institution, Title } from "./header";
 export { Language } from "./language";
 export { useStateOnInterval } from "./utils";
@@ -32,10 +32,10 @@ export {
   Listing,
   ListingConfigure,
   ListingPlugin,
-  add_highlight,
-  clear_highlights,
-  linecol_to_pos,
-  pos_to_linecol,
+  addHighlight,
+  clearHighlights,
+  linecolToPos,
+  posToLinecol,
 } from "./code";
 export { TooltipPlugin, Tooltip } from "./tooltip";
 export { Commentary, Comment } from "./commentary";

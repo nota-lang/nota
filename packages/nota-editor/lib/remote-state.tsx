@@ -38,17 +38,17 @@ export class RemoteState implements State {
     };
 
     this.ws.onopen = async () => {
-      let needs_sync = false;
+      let needsSync = false;
       reaction(
         () => [this.contents],
         () => {
-          needs_sync = true;
+          needsSync = true;
         }
       );
 
       let sync = () => {
-        if (needs_sync) {
-          needs_sync = false;
+        if (needsSync) {
+          needsSync = false;
           let sync: SyncText = {
             type: "SyncText",
             contents: this.contents,

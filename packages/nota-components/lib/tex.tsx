@@ -1,4 +1,4 @@
-import { NotaText, join_recursive } from "@nota-lang/nota-common";
+import { NotaText, joinRecursive } from "@nota-lang/nota-common";
 import katex from "katex";
 import _ from "lodash";
 import React from "react";
@@ -10,7 +10,7 @@ import { Container, HTMLAttributes } from "./utils";
 
 const r = String.raw;
 
-export let tex_def_anchor = (label: NotaText, contents: NotaText): NotaText => [
+export let texDefAnchor = (label: NotaText, contents: NotaText): NotaText => [
   r`\htmlData{defanchor=`,
   label,
   `}{`,
@@ -18,7 +18,7 @@ export let tex_def_anchor = (label: NotaText, contents: NotaText): NotaText => [
   `}`,
 ];
 
-export let tex_def = (label: NotaText, contents: NotaText): NotaText => [
+export let texDef = (label: NotaText, contents: NotaText): NotaText => [
   r`\htmlData{def=`,
   label,
   `}{`,
@@ -26,7 +26,7 @@ export let tex_def = (label: NotaText, contents: NotaText): NotaText => [
   `}`,
 ];
 
-export let tex_ref = (label: NotaText, contents: NotaText): NotaText => [
+export let texRef = (label: NotaText, contents: NotaText): NotaText => [
   r`\htmlData{ref=`,
   label,
   `}{`,
@@ -54,7 +54,7 @@ export let TexPlugin = new Plugin(
       block: boolean,
       container: HTMLElement
     ): Promise<Dimensions> {
-      let node = this.render(join_recursive(contents), block, true);
+      let node = this.render(joinRecursive(contents), block, true);
       let el = document.createElement("div");
       el.style.display = "inline-block";
       el.style.position = "absolute";
@@ -64,8 +64,8 @@ export let TexPlugin = new Plugin(
       let promise = new Promise((resolve, _) => {
         let observer = new MutationObserver(mutations => {
           mutations.forEach(mutation => {
-            Array.from(mutation.addedNodes).forEach(added_node => {
-              if (added_node == el) {
+            Array.from(mutation.addedNodes).forEach(addedNode => {
+              if (addedNode == el) {
                 observer.disconnect();
                 resolve(undefined);
               }
@@ -92,9 +92,9 @@ export let TexPlugin = new Plugin(
       props: any = {},
       ref?: React.RefObject<HTMLDivElement>
     ) {
-      let raw_html;
+      let rawHtml;
       try {
-        raw_html = katex.renderToString(contents, {
+        rawHtml = katex.renderToString(contents, {
           // these two options ensure macros persist across invocations
           macros: this.macros,
           globalGroup: true,
@@ -124,18 +124,18 @@ export let TexPlugin = new Plugin(
           <Container
             ref={ref}
             block={block}
-            dangerouslySetInnerHTML={{ __html: raw_html }}
+            dangerouslySetInnerHTML={{ __html: rawHtml }}
             {...props}
           />
         );
       }
 
       let parser = new DOMParser();
-      let html = parser.parseFromString(raw_html, "text/html");
+      let html = parser.parseFromString(rawHtml, "text/html");
       let node = html.body.firstChild! as HTMLElement;
 
       let el = React.createElement;
-      let prop_aliases: { [_name: string]: string } = {
+      let propAliases: { [_name: string]: string } = {
         class: "className",
       };
       let capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -161,35 +161,35 @@ export let TexPlugin = new Plugin(
               );
               return [attr.name, style];
             } else {
-              let name = attr.name in prop_aliases ? prop_aliases[attr.name] : attr.name;
+              let name = attr.name in propAliases ? propAliases[attr.name] : attr.name;
               return [name, attr.value];
             }
           })
         );
         props.key = key;
 
-        let react_node = el(node.tagName.toLowerCase(), props, children);
+        let reactNode = el(node.tagName.toLowerCase(), props, children);
 
         if (node.dataset.ref) {
           return (
-            <Ref label={react_node} nolink key={key}>
+            <Ref label={reactNode} nolink key={key}>
               {node.dataset.ref}
             </Ref>
           );
         } else if (node.dataset.defanchor) {
           return (
             <DefinitionAnchor name={node.dataset.defanchor} key={key}>
-              {react_node}
+              {reactNode}
             </DefinitionAnchor>
           );
         } else if (node.dataset.def) {
           return (
             <Definition name={node.dataset.def} key={key}>
-              {react_node}
+              {reactNode}
             </Definition>
           );
         } else {
-          return react_node;
+          return reactNode;
         }
       };
 
@@ -211,7 +211,7 @@ export interface TexProps {
 export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
   function Tex({ children, raw, block, ...props }) {
     let ctx = usePlugin(TexPlugin);
-    return ctx.render(join_recursive(children as any), block, raw, props);
+    return ctx.render(joinRecursive(children as any), block, raw, props);
   },
   (prev, next) => prev.children == next.children
 );

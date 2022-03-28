@@ -1,11 +1,11 @@
-import { cli, file_exists, log } from "@nota-lang/esbuild-utils";
+import { cli, fileExists, log } from "@nota-lang/esbuild-utils";
 import { err, ok } from "@nota-lang/nota-common";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import type {
   TranslationResult,
   /*, Message*/
 } from "@nota-lang/nota-editor";
-import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
 import * as esbuild from "esbuild";
 import express from "express";
 import expressWs from "express-ws";
@@ -25,9 +25,9 @@ export interface ServerOptions {
 }
 
 export let main = async (opts: ServerOptions & CommonOptions) => {
-  let input_path = path.resolve(opts.file);
-  if (!(await file_exists(input_path))) {
-    await fs.writeFile(input_path, "");
+  let inputPath = path.resolve(opts.file);
+  if (!(await fileExists(inputPath))) {
+    await fs.writeFile(inputPath, "");
   }
 
   let { app } = expressWs(express());
@@ -52,19 +52,16 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   const OUTPUT_MAP_PATH = OUTPUT_JS_PATH + ".map";
   const OUTPUT_CSS_PATH = path.join(outdir, "document.css");
 
-  let socket_cbs: (() => void)[] = [];
+  let socketCbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
-  let load_output = async () => {
-    let [lowered, map_json, css] = await Promise.all(
+  let loadOutput = async () => {
+    let [lowered, mapJson, css] = await Promise.all(
       [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p =>
-        (await file_exists(p)) ? fs.readFile(p, "utf-8") : null
+        (await fileExists(p)) ? fs.readFile(p, "utf-8") : null
       )
     );
-    let map = JSON.parse(map_json!);
-    let idx = _.findIndex(
-      map.sources,
-      (p: string) => path.basename(p) == path.basename(input_path)
-    );
+    let map = JSON.parse(mapJson!);
+    let idx = _.findIndex(map.sources, (p: string) => path.basename(p) == path.basename(inputPath));
     let transpiled = map.sourcesContent[idx];
     output = ok({
       lowered: lowered!,
@@ -78,9 +75,9 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
       if (error) {
         output = err(error.errors.map(err => err.text).join("\n"));
       } else {
-        await load_output();
+        await loadOutput();
       }
-      socket_cbs.forEach(cb => cb());
+      socketCbs.forEach(cb => cb());
     },
   };
 
@@ -89,18 +86,18 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     debug: true,
   });
   await build({
-    entryPoints: [input_path],
+    entryPoints: [inputPath],
     outfile: OUTPUT_JS_PATH,
-    globalName: "nota_document",
+    globalName: "notaDocument",
     external: peerDependencies,
     format: "iife",
     nodePaths,
-    plugins: [nota_plugin({ pretty: true }), ...(opts.config.plugins || [])],
+    plugins: [notaPlugin({ pretty: true }), ...(opts.config.plugins || [])],
   });
 
   app.ws("/", async (ws, _req) => {
-    await load_output();
-    let contents = await fs.readFile(input_path, "utf-8");
+    await loadOutput();
+    let contents = await fs.readFile(inputPath, "utf-8");
     ws.send(
       JSON.stringify({
         type: "InitialContent",
@@ -112,13 +109,13 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     ws.on("message", async data => {
       let msg /*: Message*/ = JSON.parse(data.toString("utf-8"));
       if (msg.type == "SyncText") {
-        await fs.writeFile(input_path, msg.contents);
+        await fs.writeFile(inputPath, msg.contents);
       } else {
         throw `Invalid request ${msg}`;
       }
     });
 
-    socket_cbs.push(() => {
+    socketCbs.push(() => {
       ws.send(
         JSON.stringify({
           type: "NewOutput",
@@ -131,8 +128,8 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   let port = opts.port ? opts.port : 8000;
   const MAX_TRIES = 10;
   for (let i = 0; i < MAX_TRIES; i++) {
-    let in_use = await tcpPortUsed.check(port, "localhost");
-    if (!in_use) {
+    let inUse = await tcpPortUsed.check(port, "localhost");
+    if (!inUse) {
       break;
     }
     port++;

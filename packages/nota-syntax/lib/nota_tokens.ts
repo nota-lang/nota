@@ -11,9 +11,9 @@ const [
   rparen,
   lbrkt,
   rbrkt,
-  at_sign,
-  pct_sign,
-  hash_sign,
+  atSign,
+  pctSign,
+  hashSign,
   newline,
   fwdslash,
   backslash,
@@ -24,7 +24,7 @@ const [
 );
 const eof = -1;
 
-const term_name = (n: number) => Object.keys(terms).find(k => terms[k] == n);
+const termName = (n: number) => Object.keys(terms).find(k => terms[k] == n);
 
 interface IgnoreContext {
   ignore: boolean;
@@ -45,7 +45,7 @@ export const context = new ContextTracker<Context>({
   shift(context, term, _stack, input) {
     if (DEBUG) {
       console.log(
-        `shift ${term_name(term)} at ${String.fromCharCode(input.next)} (${
+        `shift ${termName(term)} at ${String.fromCharCode(input.next)} (${
           input.pos
         }) in context ${JSON.stringify(context.text)}`
       );
@@ -72,7 +72,7 @@ export const context = new ContextTracker<Context>({
   reduce(context, term, _stack, input) {
     if (DEBUG) {
       console.log(
-        `reduce ${term_name(term)} at ${String.fromCharCode(input.next)} (${
+        `reduce ${termName(term)} at ${String.fromCharCode(input.next)} (${
           input.pos
         }) in context ${JSON.stringify(context.text)}`
       );
@@ -124,9 +124,9 @@ export const text = new ExternalTokenizer(
       if (
         input.next == eof ||
         input.next == newline ||
-        input.next == hash_sign ||
-        input.next == at_sign ||
-        input.next == pct_sign
+        input.next == hashSign ||
+        input.next == atSign ||
+        input.next == pctSign
       ) {
         if (len > 0) {
           input.acceptToken(terms.Text);
@@ -166,7 +166,7 @@ export const text = new ExternalTokenizer(
 
       if (input.next == backslash) {
         input.advance();
-        if (input.next == hash_sign || input.next == at_sign || input.next == pct_sign) {
+        if (input.next == hashSign || input.next == atSign || input.next == pctSign) {
           len += 1;
           input.advance();
         }
@@ -179,16 +179,16 @@ export const text = new ExternalTokenizer(
 );
 
 export const verbatim = new ExternalTokenizer(input => {
-  let saw_brace = false;
+  let sawBrace = false;
   while (input.next != eof) {
     // console.log("verbatim", input.pos, String.fromCharCode(input.next));
     if (input.next == rbrc) {
-      saw_brace = true;
-    } else if (input.next == pipe && saw_brace) {
+      sawBrace = true;
+    } else if (input.next == pipe && sawBrace) {
       input.acceptToken(terms.VerbatimText, -1);
       return;
     } else {
-      saw_brace = false;
+      sawBrace = false;
     }
 
     input.advance();

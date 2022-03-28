@@ -6,17 +6,17 @@ import path from "path";
 import util from "util";
 
 let exec = util.promisify(cp.exec);
-let nota_path = path.join(process.cwd(), "packages", "nota", "dist", "index.mjs");
+let notaPath = path.join(process.cwd(), "packages", "nota", "dist", "index.mjs");
 
 let dir: string;
-let input_path: string;
+let inputPath: string;
 beforeAll(async () => {
   dir = await fs.mkdtemp(path.join(os.tmpdir(), "nota-"));
-  input_path = path.join(dir, "index.nota");
-  await fs.writeFile(input_path, `@h1{Hello world}`);
+  inputPath = path.join(dir, "index.nota");
+  await fs.writeFile(inputPath, `@h1{Hello world}`);
 
-  let mod_path = path.join(process.cwd(), "packages", "nota");
-  await exec(`yarn add ${mod_path}`, { cwd: dir });
+  let modPath = path.join(process.cwd(), "packages", "nota");
+  await exec(`yarn add ${modPath}`, { cwd: dir });
 });
 afterAll(async () => {
   await fs.rm(dir, { recursive: true });
@@ -25,9 +25,9 @@ afterAll(async () => {
 jest.setTimeout(30 * 1000);
 
 test("nota-cli-builder", async () => {
-  await exec(`node ${nota_path} build index.nota`, { cwd: dir });
-  let html_path = path.join(dir, "dist", "index.html");
-  let contents = await fs.readFile(html_path, "utf-8");
+  await exec(`node ${notaPath} build index.nota`, { cwd: dir });
+  let htmlPath = path.join(dir, "dist", "index.html");
+  let contents = await fs.readFile(htmlPath, "utf-8");
   expect(contents).toMatchSnapshot();
 });
 

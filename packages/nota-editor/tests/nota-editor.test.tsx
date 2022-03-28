@@ -21,14 +21,14 @@ test("editor", async () => {
   let { container } = render(<Component />);
 
   // Header should be the initial contents
-  let expect_header = (contents: string) => {
+  let expectHeader = (contents: string) => {
     let header = container.querySelector(".nota-document h1");
     expect(header).not.toBeNull();
     expect(header!.textContent).toBe(contents);
   };
   await waitFor(() => screen.getByText("Hello world"));
 
-  expect_header("Hello world");
+  expectHeader("Hello world");
 
   // Simulate updating the contents
   runInAction(() => {
@@ -37,5 +37,5 @@ test("editor", async () => {
   await waitFor(() => screen.getByText("Hello 世界"));
 
   // Header should reflect the new contents
-  expect_header("Hello 世界");
+  expectHeader("Hello 世界");
 });

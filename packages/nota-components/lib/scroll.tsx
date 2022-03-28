@@ -9,7 +9,7 @@ function checkVisible(elm: any): boolean {
   return !(rect.bottom < 0 || rect.top - window.innerHeight >= 0);
 }
 
-let get_ancestors = (el: Node): Node[] => {
+let getAncestors = (el: Node): Node[] => {
   let nodes = [];
   while (el.parentNode) {
     nodes.push(el.parentNode);
@@ -30,7 +30,7 @@ export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttrib
 
     let callback: React.MouseEventHandler = e => {
       e.preventDefault();
-      plugin.scroll_to(target);
+      plugin.scrollTo(target);
     };
 
     event = event || "onClick";
@@ -56,46 +56,46 @@ export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttrib
 
 export let ScrollPlugin = new Plugin(
   class extends Pluggable {
-    scroll_hooks: { [id: string]: () => void } = {};
+    scrollHooks: { [id: string]: () => void } = {};
     stateful = true;
 
-    register_scroll_hook = (id: string, cb: () => void) => {
-      this.scroll_hooks[id] = cb;
+    registerScrollHook = (id: string, cb: () => void) => {
+      this.scrollHooks[id] = cb;
     };
 
-    scroll_to = (anchor_id: string) => {
-      let anchor_elem = document.getElementById(anchor_id)!;
-      let anchor_hash = "#" + anchor_id;
-      window.history.pushState(null, "", anchor_hash);
+    scrollTo = (anchorId: string) => {
+      let anchorElem = document.getElementById(anchorId)!;
+      let anchorHash = "#" + anchorId;
+      window.history.pushState(null, "", anchorHash);
 
-      anchor_elem.classList.remove("yellowflash");
+      anchorElem.classList.remove("yellowflash");
 
       // Hack to ensure that CSS animation will restart by forcing reflow of element.
       // Unclear what performance implications this has if any?
       // See: https://css-tricks.com/restart-css-animation/
-      void anchor_elem.offsetWidth;
+      void anchorElem.offsetWidth;
 
-      anchor_elem.classList.add("yellowflash");
+      anchorElem.classList.add("yellowflash");
 
       // Expand any containers that wrap the anchor
-      let ancestors = get_ancestors(anchor_elem);
+      let ancestors = getAncestors(anchorElem);
       let expanded = false;
       ancestors.forEach(node => {
-        if (node instanceof HTMLElement && node.id in this.scroll_hooks) {
-          this.scroll_hooks[node.id]();
+        if (node instanceof HTMLElement && node.id in this.scrollHooks) {
+          this.scrollHooks[node.id]();
           expanded = true;
         }
       });
 
       // Don't scroll if element is visible
       // See: https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-      if (!expanded && checkVisible(anchor_elem)) {
+      if (!expanded && checkVisible(anchorElem)) {
         return;
       }
 
       let block: ScrollLogicalPosition =
-        anchor_elem!.offsetHeight > window.innerHeight ? "start" : "center";
-      anchor_elem!.scrollIntoView({
+        anchorElem!.offsetHeight > window.innerHeight ? "start" : "center";
+      anchorElem!.scrollIntoView({
         block,
         inline: "center",
       });

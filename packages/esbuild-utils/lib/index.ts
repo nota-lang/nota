@@ -16,7 +16,7 @@ import puppeteer from "puppeteer-core";
 import tcpPortUsed from "tcp-port-used";
 import winston from "winston";
 
-export let file_exists = async (path: string): Promise<boolean> => {
+export let fileExists = async (path: string): Promise<boolean> => {
   try {
     await fs.promises.access(path, fs.constants.F_OK);
     return true;
@@ -45,11 +45,11 @@ export interface CliOptions {
   ts?: boolean;
 }
 
-export let is_main = esMain;
+export let isMain = esMain;
 
-export let get_manifest = (): IPackageJson => {
-  let pkg_path = "./package.json";
-  return fs.existsSync(pkg_path) ? JSON.parse(fs.readFileSync("./package.json", "utf-8")) : {};
+export let getManifest = (): IPackageJson => {
+  let pkgPath = "./package.json";
+  return fs.existsSync(pkgPath) ? JSON.parse(fs.readFileSync("./package.json", "utf-8")) : {};
 };
 
 // Taken from https://github.com/chalk/ansi-regex
@@ -61,7 +61,7 @@ const ANSI_REGEX = new RegExp(
   "g"
 );
 
-export let tsc_plugin = (): Plugin => ({
+export let tscPlugin = (): Plugin => ({
   name: "tsc",
   setup(build) {
     let opts = ["-emitDeclarationOnly"];
@@ -77,10 +77,10 @@ export let tsc_plugin = (): Plugin => ({
 });
 
 export let cli = (
-  external_options?: CliOptions
+  externalOptions?: CliOptions
 ): ((_extra: BuildOptions) => Promise<[BuildResult, BuildOptions]>) => {
   let options =
-    external_options ||
+    externalOptions ||
     (program
       .option("-w, --watch", "Watch for changes and rebuild")
       .option("-g, --debug", "Do not minify and include source maps")
@@ -88,15 +88,15 @@ export let cli = (
       .parse(process.argv)
       .opts() as CliOptions);
 
-  let pkg = get_manifest();
+  let pkg = getManifest();
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
-  let pkg_external = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
+  let pkgExternal = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
 
   return async (extra: BuildOptions = {}) => {
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
 
-    let external = (format != "iife" ? pkg_external : []).concat(extra.external || []);
+    let external = (format != "iife" ? pkgExternal : []).concat(extra.external || []);
 
     if (format == "esm") {
       plugins.push(esm_externals_plugin({ externals: external }));
@@ -139,11 +139,11 @@ export let cli = (
 
     let entryPoints = extra.entryPoints;
     if (!entryPoints) {
-      entryPoints = [(await file_exists("./lib/index.ts")) ? "./lib/index.ts" : "./lib/index.tsx"];
+      entryPoints = [(await fileExists("./lib/index.ts")) ? "./lib/index.ts" : "./lib/index.tsx"];
     }
 
     if (options.ts || _.some(entryPoints, (p: string) => path.extname(p).startsWith(".ts"))) {
-      plugins.push(tsc_plugin());
+      plugins.push(tscPlugin());
     }
 
     let opts = {
@@ -167,7 +167,7 @@ export let cli = (
   };
 };
 
-export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => ({
+export let copyPlugin = ({ extensions }: { extensions: string[] }): Plugin => ({
   name: "copy",
   setup(build) {
     let outdir = build.initialOptions.outdir;
@@ -178,15 +178,15 @@ export let copy_plugin = ({ extensions }: { extensions: string[] }): Plugin => (
     let paths: [string, string][] = [];
     let filter = new RegExp(extensions.map(_.escapeRegExp).join("|"));
     build.onResolve({ filter }, async args => {
-      let abs_path = path.join(args.resolveDir, args.path);
-      let matching_paths = await glob(abs_path);
-      paths = paths.concat(matching_paths.map(p => [p, path.join(outdir!, path.basename(p))]));
+      let absPath = path.join(args.resolveDir, args.path);
+      let matchingPaths = await glob(absPath);
+      paths = paths.concat(matchingPaths.map(p => [p, path.join(outdir!, path.basename(p))]));
       return { path: args.path, namespace: "copy" };
     });
 
     build.onLoad({ filter: /.*/, namespace: "copy" }, async _args => ({ contents: "" }));
     build.onEnd(_ => {
-      paths.forEach(([inpath, outpath]) => fs.promises.copyFile(inpath, outpath));
+      paths.forEach(([inPath, outPath]) => fs.promises.copyFile(inPath, outPath));
     });
   },
 });
@@ -220,16 +220,16 @@ export interface SsrOptions {
 
   // How long the page waits to determine that a Nota document has finished rendering,
   // i.e. when there are no MutationObserver events
-  in_page_render_timeout?: number;
+  inPageRenderTimeout?: number;
 
   // How long Puppeteer waits from the start of rendering for the document to finish rendering.
-  external_render_timeout?: number;
+  externalRenderTimeout?: number;
 
   // Port for the static file server
   port?: number;
 }
 
-export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
+export let ssrPlugin = (opts?: SsrOptions): Plugin => ({
   name: "ssr",
   async setup(build) {
     let watch = build.initialOptions.watch;
@@ -244,7 +244,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       namespace: "ssr",
     }));
 
-    let get_path_parts = (p: string): { name: string; dir: string } => {
+    let getPathParts = (p: string): { name: string; dir: string } => {
       let { name, dir } = path.parse(p);
       let outfile = build.initialOptions.outfile;
       name = outfile ? path.parse(outfile).name : name;
@@ -256,14 +256,14 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
 
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
       let p = path.resolve(args.path);
-      let { name, dir } = get_path_parts(p);
+      let { name, dir } = getPathParts(p);
       let script = `./${name}.mjs`;
-      let template_path = "@nota-lang/esbuild-utils/dist/template";
+      let templatePath = "@nota-lang/esbuild-utils/dist/template";
       if (opts && opts.template) {
-        template_path = "." + path.sep + path.relative(dir, opts.template);
+        templatePath = "." + path.sep + path.relative(dir, opts.template);
       }
 
-      let render_timeout = (opts && opts.in_page_render_timeout) || 1000;
+      let render_timeout = (opts && opts.inPageRenderTimeout) || 1000;
 
       // TODO 1: there should be some kind of indicator while the shadow page is rendering
       // TODO 2: it would be ideal if Nota committed to having plugins say when they're done,
@@ -272,7 +272,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       import React from "react";
       import ReactDOM from "react-dom";
       import Doc, * as doc_mod from "./${path.parse(p).name}.nota"
-      import Template from "${template_path}";
+      import Template from "${templatePath}";
 
       let key = "metadata";
       let metadata = key in doc_mod ? doc_mod[key] : {};
@@ -302,6 +302,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
           await wait_to_render(html);
           ${NOTA_READY} = true;  
         } else {
+          let root = document.getElementById('root');
           let new_root = document.createElement('div');
           ReactDOM.render(<Doc />, new_root);                            
           await wait_to_render(new_root);
@@ -325,16 +326,16 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       port++;
     }
     let browser = await puppeteer.launch({ channel: "chrome" });
-    let file_server = new statik.Server("./dist", {
+    let fileServer = new statik.Server("./dist", {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type",
       },
     });
-    let http_server = http
+    let httpServer = http
       .createServer((request, response) =>
-        request.addListener("end", () => file_server.serve(request, response)).resume()
+        request.addListener("end", () => fileServer.serve(request, response)).resume()
       )
       .listen(port);
 
@@ -343,7 +344,7 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
       let common_prefix = commonPathPrefix(entryPoints);
 
       let promises = entryPoints.map(async p => {
-        let { name, dir } = get_path_parts(path.relative(common_prefix, p));
+        let { name, dir } = getPathParts(path.relative(common_prefix, p));
 
         let page = await browser.newPage();
 
@@ -361,26 +362,26 @@ export let ssr_plugin = (opts?: SsrOptions): Plugin => ({
         await page.setContent(html, { waitUntil: "domcontentloaded" });
 
         // Then wait for NOTA_READY to be set by the SSR script
-        let timeout = (opts && opts.external_render_timeout) || 10000;
+        let timeout = (opts && opts.externalRenderTimeout) || 10000;
         await page.waitForFunction(NOTA_READY, { timeout });
 
         // And write the rendered HTML to disk once it's ready
         let content = await page.content();
-        let html_path = path.join("dist", dir, name + ".html");
-        await fs.promises.writeFile(html_path, content);
+        let htmlPath = path.join("dist", dir, name + ".html");
+        await fs.promises.writeFile(htmlPath, content);
       });
 
       await Promise.all(promises);
 
       if (!watch) {
-        http_server.close();
+        httpServer.close();
         await browser.close();
       }
     });
   },
 });
 
-export let executable_plugin = (paths: string[]): Plugin => ({
+export let executablePlugin = (paths: string[]): Plugin => ({
   name: "executable",
   setup(build) {
     build.initialOptions.banner = {

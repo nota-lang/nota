@@ -11,6 +11,7 @@
     "build": "lerna run build",
     "watch": "lerna run --parallel  --no-bail build -- -w",
     "test": "jest --config jest.config.json",
+    "fmt": "prettier -w \"packages/*/lib/**/*.{ts,tsx}\"",
     "commit-check": "yarn clean-repo && yarn init-repo && yarn lint && yarn test"
   },
   "devDependencies": {

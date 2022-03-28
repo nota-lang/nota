@@ -9,7 +9,7 @@ type ToggleCallback = (_show: boolean) => void;
 
 class ToggleGroupState {
   toggles: ToggleCallback[] = [];
-  all_on: boolean = false;
+  allOn: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -25,11 +25,11 @@ export let ToggleGroup: React.FC = ({ children }) => {
 
 export let ToggleGroupButton: React.FC<{ big?: boolean }> = observer(({ big }) => {
   let ctx = useContext(ToggleGroupContext)!;
-  let on_click = action(() => {
-    ctx.all_on = !ctx.all_on;
-    ctx.toggles.forEach(cb => cb(ctx.all_on));
+  let onClick = action(() => {
+    ctx.allOn = !ctx.allOn;
+    ctx.toggles.forEach(cb => cb(ctx.allOn));
   });
-  return <ToggleButton on={ctx.all_on} onClick={on_click} big={big} />;
+  return <ToggleButton on={ctx.allOn} onClick={onClick} big={big} />;
 });
 
 export let ToggleButton: React.FC<{
@@ -49,32 +49,32 @@ interface ToggleboxProps {
 }
 
 export let Togglebox: React.FC<ToggleboxProps> = ({ In, Out, resize }) => {
-  let outside_ref = useRef<HTMLDivElement>(null);
-  let inside_ref = useRef<HTMLDivElement>(null);
-  let [show_inside, set_show_inside] = useState(false);
+  let outsideRef = useRef<HTMLDivElement>(null);
+  let insideRef = useRef<HTMLDivElement>(null);
+  let [showInside, setShowInside] = useState(false);
   let ctx = useContext(ToggleGroupContext);
 
   if (ctx) {
     useEffect(() => {
-      ctx!.toggles.push(set_show_inside);
+      ctx!.toggles.push(setShowInside);
     }, [ctx]);
   }
 
   let style = useStateOnInterval({}, 1000, () => {
-    if (resize || !outside_ref.current || !inside_ref.current) {
+    if (resize || !outsideRef.current || !insideRef.current) {
       return {};
     }
 
-    let get_dims = (ref: React.RefObject<HTMLDivElement>) => ref.current!.getBoundingClientRect();
-    let outside_dims = get_dims(outside_ref);
-    let inside_dims = get_dims(inside_ref);
+    let getDims = (ref: React.RefObject<HTMLDivElement>) => ref.current!.getBoundingClientRect();
+    let outsideDims = getDims(outsideRef);
+    let insideDims = getDims(insideRef);
     return {
-      width: Math.max(outside_dims.width, inside_dims.width),
-      height: Math.max(outside_dims.height, inside_dims.height),
+      width: Math.max(outsideDims.width, insideDims.width),
+      height: Math.max(outsideDims.height, insideDims.height),
     };
   });
 
-  let inner_style = (show: boolean): any =>
+  let innerStyle = (show: boolean): any =>
     !show
       ? {
           visibility: "hidden",
@@ -86,15 +86,15 @@ export let Togglebox: React.FC<ToggleboxProps> = ({ In, Out, resize }) => {
     <div className="togglebox-grandparent">
       <div className="togglebox-parent">
         <div className="togglebox" style={style}>
-          <div ref={outside_ref} style={inner_style(!show_inside)}>
+          <div ref={outsideRef} style={innerStyle(!showInside)}>
             <Out />
           </div>
-          <div ref={inside_ref} style={inner_style(show_inside)}>
+          <div ref={insideRef} style={innerStyle(showInside)}>
             <In />
           </div>
         </div>
       </div>
-      <ToggleButton on={show_inside} onClick={() => set_show_inside(!show_inside)} />
+      <ToggleButton on={showInside} onClick={() => setShowInside(!showInside)} />
     </div>
   );
 };

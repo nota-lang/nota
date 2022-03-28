@@ -5,19 +5,19 @@ export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
 export type ReactNode = React.ReactNode;
 export type ReactConstructor<P = {}> = React.FunctionComponent<P> | React.ComponentClass<P>;
 
-export let is_constructor = <P,>(t: ReactNode | ReactConstructor<P>): t is ReactConstructor<P> => {
-  let is_cls = t !== null && typeof t === "object" && "type" in t && typeof t.type === "function";
-  let is_wrapper =
+export let isConstructor = <P,>(t: ReactNode | ReactConstructor<P>): t is ReactConstructor<P> => {
+  let isCls = t !== null && typeof t === "object" && "type" in t && typeof t.type === "function";
+  let isWrapper =
     t !== null &&
     typeof t === "object" &&
     "$$typeof" in t &&
     t["$$typeof"] === Symbol.for("react.forward_ref");
-  let is_fc = typeof t === "function";
-  return is_cls || is_wrapper || is_fc;
+  let isFc = typeof t === "function";
+  return isCls || isWrapper || isFc;
 };
 
-export let get_or_render = <P,>(T: ReactNode | ReactConstructor<P>, p: P): ReactNode => {
-  if (is_constructor(T)) {
+export let getOrRender = <P,>(T: ReactNode | ReactConstructor<P>, p: P): ReactNode => {
+  if (isConstructor(T)) {
     return <T {...p} />;
   } else {
     return T;
@@ -70,12 +70,12 @@ export let useSynchronizer = (callback: () => void): (() => () => void) => {
 };
 
 export let useStateOnInterval = <T,>(init: T, interval: number, callback: () => T) => {
-  let [state, set_state] = useState(init);
+  let [state, setState] = useState(init);
   useEffect(() => {
     let instance = setInterval(() => {
-      let new_state = callback();
-      if (!_.isEqual(new_state, state)) {
-        set_state(callback);
+      let newState = callback();
+      if (!_.isEqual(newState, state)) {
+        setState(callback);
       }
     }, interval);
     return () => clearInterval(instance);

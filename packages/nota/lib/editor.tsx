@@ -10,7 +10,7 @@ import {
   StateContext,
   RemoteState,
 } from "@nota-lang/nota-editor";
-import { is_ok } from "@nota-lang/nota-common";
+import { isOk } from "@nota-lang/nota-common";
 import classNames from "classnames";
 
 import "../static/index.html";
@@ -32,7 +32,7 @@ export class ViewerState {
 export let ViewerStateContext = React.createContext<ViewerState | null>(null);
 
 export let ViewerConfig = observer(() => {
-  let viewer_state = useContext(ViewerStateContext)!;
+  let viewerState = useContext(ViewerStateContext)!;
   let options = ["Output", "Generated JS", "Parse tree"];
   return (
     <div className="viewer-config">
@@ -41,9 +41,9 @@ export let ViewerConfig = observer(() => {
           <button
             key={key}
             onClick={action(() => {
-              viewer_state.selected = i;
+              viewerState.selected = i;
             })}
-            className={classNames({ active: viewer_state.selected == i })}
+            className={classNames({ active: viewerState.selected == i })}
           >
             {key}
           </button>
@@ -54,7 +54,7 @@ export let ViewerConfig = observer(() => {
 });
 
 export let Viewer = observer(() => {
-  let viewer_state = useContext(ViewerStateContext)!;
+  let viewerState = useContext(ViewerStateContext)!;
   let state = useContext(StateContext)!;
   let ref = useRef<HTMLDivElement>(null);
 
@@ -64,12 +64,12 @@ export let Viewer = observer(() => {
       return;
     }
 
-    let last_scroll = 0;
+    let lastScroll = 0;
     el.addEventListener("scroll", _ => {
       let scroll = el!.scrollTop;
       let t = state.translation;
-      if (is_ok(t) && scroll > 0) {
-        last_scroll = scroll;
+      if (isOk(t) && scroll > 0) {
+        lastScroll = scroll;
       }
     });
 
@@ -77,7 +77,7 @@ export let Viewer = observer(() => {
       () => [state.translation],
       () => {
         if (el!.scrollTop == 0) {
-          el!.scrollTo(0, last_scroll);
+          el!.scrollTo(0, lastScroll);
         }
       }
     );
@@ -85,7 +85,7 @@ export let Viewer = observer(() => {
 
   return (
     <div className="viewer" ref={ref}>
-      <Inner selected={viewer_state.selected} />
+      <Inner selected={viewerState.selected} />
     </div>
   );
 });
@@ -107,13 +107,13 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
 
 let App = observer(() => {
   let [state] = useState(() => new RemoteState());
-  let [viewer_state] = useState(() => new ViewerState());
-  let [fullscreen, set_fullscreen] = useState(false);
+  let [viewerState] = useState(() => new ViewerState());
+  let [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
     let f = (event: KeyboardEvent) => {
       if (event.altKey && event.code == "KeyF") {
-        set_fullscreen(!fullscreen);
+        setFullscreen(!fullscreen);
         event.preventDefault();
         event.stopPropagation();
       }
@@ -124,7 +124,7 @@ let App = observer(() => {
 
   let separator = (
     <div className="separator">
-      <button onClick={() => set_fullscreen(!fullscreen)}>{fullscreen ? ">" : "<"}</button>
+      <button onClick={() => setFullscreen(!fullscreen)}>{fullscreen ? ">" : "<"}</button>
     </div>
   );
 
@@ -134,7 +134,7 @@ let App = observer(() => {
         <>Loading...</>
       ) : (
         <StateContext.Provider value={state}>
-          <ViewerStateContext.Provider value={viewer_state}>
+          <ViewerStateContext.Provider value={viewerState}>
             <div className="header">
               <h1>Nota Editor</h1>
               <ViewerConfig />

@@ -1,5 +1,5 @@
-import { cli, ssr_plugin } from "@nota-lang/esbuild-utils";
-import { nota_plugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import { cli, ssrPlugin } from "@nota-lang/esbuild-utils";
+import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
 import path from "path";
 
 import { CommonOptions, nodePaths } from "./index";
@@ -17,6 +17,6 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
     outfile: "dist/index.mjs",
     preserveSymlinks: true,
     nodePaths,
-    plugins: [nota_plugin({}), ssr_plugin(), ...(opts.config.plugins || [])],
+    plugins: [notaPlugin({}), ssrPlugin(), ...(opts.config.plugins || [])],
   });
 };

@@ -35,7 +35,7 @@ export let theme = EditorView.theme({
 
 // Either adds an empty command at the cursor or wraps the selected text
 // in a command.
-let insert_command_at_cursor = (key: string, cmd: string): KeyBinding => ({
+let insertCommandAtCursor = (key: string, cmd: string): KeyBinding => ({
   key,
   run({ state, dispatch }) {
     let changes = state.changeByRange(range => {
@@ -72,17 +72,17 @@ let insert_command_at_cursor = (key: string, cmd: string): KeyBinding => ({
   },
 });
 
-let key_bindings: KeyBinding[] = [
-  insert_command_at_cursor("Mod-b", "strong"),
-  insert_command_at_cursor("Mod-i", "em"),
-  insert_command_at_cursor("Mod-u", "u"),
-  insert_command_at_cursor("Mod-k", "a"),
-  insert_command_at_cursor("Ctrl-1", "Section"),
-  insert_command_at_cursor("Ctrl-2", "Subsection"),
-  insert_command_at_cursor("Ctrl-3", "Subsubsection"),
+let keyBindings: KeyBinding[] = [
+  insertCommandAtCursor("Mod-b", "strong"),
+  insertCommandAtCursor("Mod-i", "em"),
+  insertCommandAtCursor("Mod-u", "u"),
+  insertCommandAtCursor("Mod-k", "a"),
+  insertCommandAtCursor("Ctrl-1", "Section"),
+  insertCommandAtCursor("Ctrl-2", "Subsection"),
+  insertCommandAtCursor("Ctrl-3", "Subsubsection"),
 ];
 
-let nota_lang = nota();
+let notaLang = nota();
 
 export interface EditorProps {
   embedded?: boolean;
@@ -93,9 +93,9 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
   let state = useContext(StateContext)!;
 
   useEffect(() => {
-    let visual_exts = [defaultHighlightStyle, EditorView.lineWrapping, theme];
-    let editing_exts = [keymap.of([...key_bindings, indentWithTab])];
-    let custom_exts = [
+    let visualExts = [defaultHighlightStyle, EditorView.lineWrapping, theme];
+    let editingExts = [keymap.of([...keyBindings, indentWithTab])];
+    let customExts = [
       EditorView.updateListener.of(
         action(update => {
           if (update.docChanged) {
@@ -107,7 +107,7 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
     let _editor = new EditorView({
       state: EditorState.create({
         doc: state.contents,
-        extensions: [nota_lang, visual_exts, editing_exts, custom_exts, basicSetup],
+        extensions: [notaLang, visualExts, editingExts, customExts, basicSetup],
       }),
       parent: ref.current!,
     });

@@ -23,7 +23,7 @@ class DocumentData {
 
   footnotes: React.ReactNode[] = [];
   anonymous: boolean = false;
-  section_numbers: boolean = false;
+  sectionNumbers: boolean = false;
 }
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
@@ -42,12 +42,12 @@ let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
 );
 
 export let TableOfContents: React.FC = observer(({}) => {
-  let doc_ctx = useContext(DocumentContext);
+  let docCtx = useContext(DocumentContext);
   return (
     <div className="toc-wrapper">
       <div className="toc">
         <ol>
-          {doc_ctx.sections.values.map((child, i) => (
+          {docCtx.sections.values.map((child, i) => (
             <Stack key={i} stack={child} />
           ))}
         </ol>
@@ -61,12 +61,12 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   plain,
   ...props
 }) => {
-  let doc_ctx = useContext(DocumentContext);
-  let pos = doc_ctx.sections.position();
+  let docCtx = useContext(DocumentContext);
+  let pos = docCtx.sections.position();
   let level = pos.level();
-  let sec_num = pos.to_string();
-  let label = props.label || `section-${sec_num}`;
-  doc_ctx.sections.save_value(() => <Ref label={children}>{label}</Ref>);
+  let secNum = pos.toString();
+  let label = props.label || `section-${secNum}`;
+  docCtx.sections.saveValue(() => <Ref label={children}>{label}</Ref>);
 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
@@ -83,13 +83,13 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
 
   let inner = (
     <Header className="section-title">
-      {!plain && doc_ctx.section_numbers ? <span className="section-number">{sec_num}</span> : null}{" "}
+      {!plain && docCtx.sectionNumbers ? <span className="section-number">{secNum}</span> : null}{" "}
       {children}
     </Header>
   );
 
   return (
-    <Definition name={label} label={`Section ${sec_num}`} tooltip={null} block>
+    <Definition name={label} label={`Section ${secNum}`} tooltip={null} block>
       {inner}
     </Definition>
   );
@@ -99,13 +99,13 @@ export let Subsection: typeof Section = props => <Section {...props} />;
 export let Subsubsection: typeof Section = props => <Section {...props} />;
 
 export let SectionBody: React.FC = ({ children }) => {
-  let doc_ctx = useContext(DocumentContext);
-  doc_ctx.sections.push();
+  let docCtx = useContext(DocumentContext);
+  docCtx.sections.push();
 
   return (
     <section>
       {children}
-      <doc_ctx.sections.Pop />
+      <docCtx.sections.Pop />
     </section>
   );
 };
@@ -117,34 +117,34 @@ class FigureData {
 let FigureContext = React.createContext<FigureData>(new FigureData());
 
 export let Figure: React.FC<{ label?: string }> = props => {
-  let doc_ctx = useContext(DocumentContext);
-  let pos = doc_ctx.figures.push();
+  let docCtx = useContext(DocumentContext);
+  let pos = docCtx.figures.push();
   let level = pos.level();
-  let fig_num = pos.to_string();
+  let figNum = pos.toString();
 
-  let fig_ctx = new FigureData();
+  let figCtx = new FigureData();
 
   let Caption = () => (
     <Definition
       attrs={{ style: { width: "100%" } }}
       name={props.label}
-      label={`Figure ${fig_num}`}
+      label={`Figure ${figNum}`}
       tooltip={null}
       block
     >
       <div className="caption">
-        Figure {fig_num}: {fig_ctx.caption}
+        Figure {figNum}: {figCtx.caption}
       </div>
     </Definition>
   );
 
   return (
-    <FigureContext.Provider value={fig_ctx}>
+    <FigureContext.Provider value={figCtx}>
       <div className={`figure level-${level}`}>
         {props.children}
         <Caption />
       </div>
-      <doc_ctx.figures.Pop />
+      <docCtx.figures.Pop />
     </FigureContext.Provider>
   );
 };
@@ -175,11 +175,11 @@ export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{
 
 export let FullWidthContainer: React.FC<HTMLAttributes> = ({ style, className, ...props }) => {
   let ref = useRef<HTMLDivElement>(null);
-  let [left, set_left] = useState(0);
+  let [left, setLeft] = useState(0);
 
   useEffect(() => {
     let { left } = ref.current!.getBoundingClientRect();
-    set_left(-left);
+    setLeft(-left);
   }, []);
 
   return (
@@ -205,22 +205,22 @@ export let Center: React.FC = ({ children }) => {
 };
 
 export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
-  let scroll_plugin = usePlugin(ScrollPlugin);
+  let scrollPlugin = usePlugin(ScrollPlugin);
   let ref = useRef(null);
-  let [show, set_show] = useState(false);
-  let [height, set_height] = useState(0);
+  let [show, setShow] = useState(false);
+  let [height, setHeight] = useState(0);
   let [id] = useState(() => _.uniqueId());
 
   useEffect(() => {
     let observer = new ResizeObserver(entries => {
       let height = entries[0].borderBoxSize[0].blockSize;
-      set_height(height);
+      setHeight(height);
     });
     observer.observe(ref.current!);
 
-    console.log("registering", id, "to", scroll_plugin);
-    scroll_plugin.register_scroll_hook(id, () => {
-      set_show(true);
+    console.log("registering", id, "to", scrollPlugin);
+    scrollPlugin.registerScrollHook(id, () => {
+      setShow(true);
     });
 
     return () => {
@@ -231,7 +231,7 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   return (
     <div className={classNames("expandable", { expanded: show })}>
       <div style={{ textAlign: "center" }}>
-        <span className="expand" onClick={() => set_show(!show)}>
+        <span className="expand" onClick={() => setShow(!show)}>
           {show ? "Hide..." : prompt}
           <span style={{ fontSize: "0.7em" }}>&nbsp; {show ? "⬆" : "⬇"}</span>
         </span>
@@ -278,14 +278,14 @@ let Footnotes: React.FC = _ => {
   );
 };
 
-let is_react_el = (t: React.ReactNode): t is React.ReactElement =>
+let isReactEl = (t: React.ReactNode): t is React.ReactElement =>
   t != null && typeof t == "object" && "type" in t;
 
-let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
+let preprocessDocument = (children: React.ReactNode[]): React.ReactNode[] => {
   let paragraphs: React.ReactNode[] = [];
   let paragraph: React.ReactNode[] = [];
   let key = 0;
-  let flush_paragraph = () => {
+  let flushParagraph = () => {
     if (paragraph.length > 0) {
       if (_.every(paragraph, t => t == "\n" || typeof t != "string")) {
         paragraphs = paragraphs.concat(paragraph);
@@ -303,53 +303,53 @@ let preprocess_document = (children: React.ReactNode[]): React.ReactNode[] => {
       while (children[i] == "\n") {
         i++;
       }
-      flush_paragraph();
+      flushParagraph();
     } else {
       paragraph.push(child);
       i++;
     }
   }
-  flush_paragraph();
+  flushParagraph();
 
-  let section_stack: React.ReactNode[][] = [[]];
+  let sectionStack: React.ReactNode[][] = [[]];
   let depths: [any, number][] = [
     [Section, 0],
     [Subsection, 1],
     [Subsubsection, 2],
   ];
-  let flush_stack = (depth: number) => {
-    _.range(1 + depth, section_stack.length, 1).forEach(() => {
-      let sec = section_stack.pop();
-      let parent = _.last(section_stack)!;
+  let flushStack = (depth: number) => {
+    _.range(1 + depth, sectionStack.length, 1).forEach(() => {
+      let sec = sectionStack.pop();
+      let parent = _.last(sectionStack)!;
       parent.push(<SectionBody key={parent.length}>{sec}</SectionBody>);
     });
   };
   paragraphs.forEach(el => {
-    if (is_react_el(el)) {
+    if (isReactEl(el)) {
       let depth = depths.find(([F]) => el.type == F);
       if (depth !== undefined) {
-        flush_stack(depth[1]);
-        section_stack.push([el]);
+        flushStack(depth[1]);
+        sectionStack.push([el]);
         return;
       }
     }
 
-    _.last(section_stack)!.push(el);
+    _.last(sectionStack)!.push(el);
   });
-  flush_stack(0);
+  flushStack(0);
 
-  return section_stack[0];
+  return sectionStack[0];
 };
 
 export let DocumentInner: React.FC = observer(({ children }) => {
-  let def_ctx = usePlugin(DefinitionsPlugin);
-  let processed = children instanceof Array ? preprocess_document(children) : children;
+  let defCtx = usePlugin(DefinitionsPlugin);
+  let processed = children instanceof Array ? preprocessDocument(children) : children;
 
   return (
     <>
       <div
         className={classNames("nota-document-inner", {
-          "def-mode": def_ctx.def_mode,
+          "def-mode": defCtx.defMode,
         })}
       >
         {processed}

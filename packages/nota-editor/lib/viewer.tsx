@@ -9,7 +9,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
-import { is_err, is_ok, err, ok, Result, res_unwrap } from "@nota-lang/nota-common";
+import { isErr, isOk, err, ok, Result, resUnwrap } from "@nota-lang/nota-common";
 import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
 import type { DocumentProps } from "@nota-lang/nota-components";
 
@@ -18,22 +18,22 @@ import { theme } from "./editor";
 
 let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;
 
-let nota_lang = nota();
+let notaLang = nota();
 export let ParseView: React.FC = () => {
   let state = useContext(StateContext)!;
-  let tree = nota_lang.language.parser.parse(state.contents);
+  let tree = notaLang.language.parser.parse(state.contents);
 
   let depth = (node: SyntaxNode): number => (node.parent ? 1 + depth(node.parent) : 0);
 
   let output = "";
   let cursor = tree.cursor();
   do {
-    let sub_input = state.contents.slice(cursor.from, cursor.to);
-    if (sub_input.length > 30) {
-      sub_input = sub_input.slice(0, 12) + "..." + sub_input.slice(-12);
+    let subInput = state.contents.slice(cursor.from, cursor.to);
+    if (subInput.length > 30) {
+      subInput = subInput.slice(0, 12) + "..." + subInput.slice(-12);
     }
-    sub_input = sub_input.replace("\n", "\\n");
-    output += indentString(`${cursor.name}: "${sub_input}"`, 2 * depth(cursor.node)) + "\n";
+    subInput = subInput.replace("\n", "\\n");
+    output += indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)) + "\n";
   } while (cursor.next());
 
   return <pre>{output}</pre>;
@@ -41,10 +41,10 @@ export let ParseView: React.FC = () => {
 
 export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   let ref = useRef<HTMLDivElement>(null);
-  let [editor, set_editor] = useState<EditorView | null>(null);
+  let [editor, setEditor] = useState<EditorView | null>(null);
 
   useEffect(() => {
-    if (is_err(result)) {
+    if (isErr(result)) {
       return;
     }
 
@@ -56,7 +56,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
         }),
         parent: ref.current!,
       });
-      set_editor(editor);
+      setEditor(editor);
     }
 
     let js = result.value.transpiled;
@@ -73,7 +73,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 
   return (
     <>
-      {is_err(result) ? <ErrorView>{result.value}</ErrorView> : null}
+      {isErr(result) ? <ErrorView>{result.value}</ErrorView> : null}
       <div className="js-view" ref={ref} />
     </>
   );
@@ -83,11 +83,11 @@ let execute = (
   result: TranslationResult,
   imports: any
 ): Result<React.FC<DocumentProps>, JSX.Element> => {
-  if (is_err(result)) {
+  if (isErr(result)) {
     return err(<>{result.value}</>);
   }
 
-  let nota_require = (path: string): any => {
+  let notaRequire = (path: string): any => {
     if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
       return { peerImports };
     }
@@ -104,9 +104,9 @@ let execute = (
   try {
     let f = new Function(
       "require",
-      result.value.lowered + `\n; return nota_document.default; //# sourceURL=document.js`
+      result.value.lowered + `\n; return notaDocument.default; //# sourceURL=document.js`
     );
-    Doc = f(nota_require);
+    Doc = f(notaRequire);
   } catch (e: any) {
     console.error(e);
     return err(<>{e.stack}</>);
@@ -120,7 +120,7 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
   result,
   imports,
 }) => {
-  let [last_translation] = useState<{ t: JSX.Element | null }>({ t: null });
+  let [lastTranslation] = useState<{ t: JSX.Element | null }>({ t: null });
 
   let DocResult = execute(result, imports || {});
 
@@ -131,8 +131,8 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
         errored = false;
         return;
       }
-      let Doc = res_unwrap(DocResult);
-      last_translation.t = <Doc key={counter++} editing />;
+      let Doc = resUnwrap(DocResult);
+      lastTranslation.t = <Doc key={counter++} editing />;
     }),
     [result]
   );
@@ -142,19 +142,19 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
     return (
       <>
         <ErrorView>{err}</ErrorView>
-        {last_translation.t}
+        {lastTranslation.t}
       </>
     );
   };
 
   return (
     <>
-      {is_ok(result) && result.value.css ? <style>{result.value.css}</style> : null}
+      {isOk(result) && result.value.css ? <style>{result.value.css}</style> : null}
       <ErrorBoundary
         resetKeys={[result]}
         FallbackComponent={({ error }) => fallback(<>{error.stack}</>)}
       >
-        {is_ok(DocResult) ? <DocResult.value key={counter++} editing /> : fallback(DocResult.value)}
+        {isOk(DocResult) ? <DocResult.value key={counter++} editing /> : fallback(DocResult.value)}
       </ErrorBoundary>
     </>
   );

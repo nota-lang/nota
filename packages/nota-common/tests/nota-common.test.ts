@@ -1,22 +1,22 @@
 import * as common from "@nota-lang/nota-common";
 
-let expect_each = (a: [any[], any][], f: (..._i: any[]) => any) =>
+let expectEach = (a: [any[], any][], f: (..._i: any[]) => any) =>
   a.forEach(([i, o]) => expect(f(...i)).toStrictEqual(o));
 
-test("join_recursive", () => {
-  expect_each(
+test("joinRecursive", () => {
+  expectEach(
     [
       [["a"], "a"],
       [[[]], ""],
       [[["a", "b"]], "ab"],
       [[["a", ["b", "c"]]], "abc"],
     ],
-    common.join_recursive
+    common.joinRecursive
   );
 });
 
-test("add_between", () => {
-  expect_each(
+test("addBetween", () => {
+  expectEach(
     [
       [[[], ","], []],
       [[["a"], ","], ["a"]],
@@ -29,6 +29,6 @@ test("add_between", () => {
         ["a", ",", "b", ",", "c"],
       ],
     ],
-    common.add_between
+    common.addBetween
   );
 });

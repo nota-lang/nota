@@ -15,10 +15,10 @@ export type Option<T> = Some<T> | None;
 
 export let some = <T>(value: T): Option<T> => ({ type: "Some", value });
 export let none = <T>(): Option<T> => ({ type: "None" });
-export let is_some = <T>(opt: Option<T>): opt is Some<T> => opt.type == "Some";
-export let is_none = <T>(opt: Option<T>): opt is None => opt.type == "None";
-export let opt_unwrap = <T>(opt: Option<T>): T => {
-  if (is_some(opt)) {
+export let isSome = <T>(opt: Option<T>): opt is Some<T> => opt.type == "Some";
+export let isNone = <T>(opt: Option<T>): opt is None => opt.type == "None";
+export let optUnwrap = <T>(opt: Option<T>): T => {
+  if (isSome(opt)) {
     return opt.value;
   } else {
     throw `Could not unwrap None`;
@@ -39,10 +39,10 @@ export type Result<T, E = Error> = Ok<T> | Err<E>;
 
 export let ok = <T>(value: T): Ok<T> => ({ type: "Ok", value });
 export let err = <E>(value: E): Err<E> => ({ type: "Err", value });
-export let is_ok = <T, E>(result: Result<T, E>): result is Ok<T> => result.type == "Ok";
-export let is_err = <T, E>(result: Result<T, E>): result is Err<E> => result.type == "Err";
-export let res_unwrap = <T, E>(result: Result<T, E>): T => {
-  if (is_ok(result)) {
+export let isOk = <T, E>(result: Result<T, E>): result is Ok<T> => result.type == "Ok";
+export let isErr = <T, E>(result: Result<T, E>): result is Err<E> => result.type == "Err";
+export let resUnwrap = <T, E>(result: Result<T, E>): T => {
+  if (isOk(result)) {
     return result.value;
   } else {
     throw result.value;
@@ -61,8 +61,8 @@ export interface Right<R> {
 
 export let left = <L, R>(value: L): Either<L, R> => ({ type: "Left", value });
 export let right = <L, R>(value: R): Either<L, R> => ({ type: "Right", value });
-export let is_left = <L, R>(e: Either<L, R>): e is Left<L> => e.type == "Left";
-export let is_right = <L, R>(e: Either<L, R>): e is Right<R> => e.type == "Right";
+export let isLeft = <L, R>(e: Either<L, R>): e is Left<L> => e.type == "Left";
+export let isRight = <L, R>(e: Either<L, R>): e is Right<R> => e.type == "Right";
 
 export let assert = (b: boolean) => {
   if (!b) {
@@ -79,15 +79,15 @@ export interface NestedArray<T> extends Array<T | NestedArray<T>> {}
 export type NotaText = NestedArray<any> | any;
 export type NotaFn<Input = NotaText> = (..._args: Input[]) => NotaText;
 
-let to_string = (s: any): string => (typeof s == "string" ? s : String(s));
+let toString = (s: any): string => (typeof s == "string" ? s : String(s));
 
-export let join_recursive = (t: NotaText): string =>
-  t instanceof Array ? t.map(join_recursive).join("") : to_string(t);
+export let joinRecursive = (t: NotaText): string =>
+  t instanceof Array ? t.map(joinRecursive).join("") : toString(t);
 
-export let add_between = (t: NotaText, el: any): NotaText => {
+export let addBetween = (t: NotaText, el: any): NotaText => {
   if (t instanceof Array) {
     let l2: NestedArray<any> = [];
-    let el_s = to_string(el);
+    let el_s = toString(el);
     t.forEach((inner, i) => {
       if (i > 0) {
         l2.push(el_s);

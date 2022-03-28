@@ -2,7 +2,7 @@ import {
   NestedArray,
   NotaFn,
   NotaText,
-  add_between,
+  addBetween,
   none,
   some,
   zipExn,
@@ -13,7 +13,7 @@ import { useAsync } from "react-async";
 
 import { DefinitionData, DefinitionsPlugin } from "./definitions";
 import { usePlugin } from "./plugin";
-import { $$, TexPlugin, tex_def_anchor, tex_ref } from "./tex";
+import { $$, TexPlugin, texDefAnchor, texRef } from "./tex";
 
 const r = String.raw;
 
@@ -46,8 +46,8 @@ export class Language {
   _grammar: Grammar;
 
   constructor(grammar: () => InputGrammar) {
-    this._grammar = grammar.call(this).map(([kind, cmd, metavar, in_branches]) => {
-      let branches = (in_branches || []).map(([subcmd, body, args]) => ({
+    this._grammar = grammar.call(this).map(([kind, cmd, metavar, inBranches]) => {
+      let branches = (inBranches || []).map(([subcmd, body, args]) => ({
         subcmd,
         body,
         args: args || (() => []),
@@ -56,46 +56,46 @@ export class Language {
     });
 
     this._grammar.forEach(({ cmd, metavar, branches }) => {
-      (this as any)[cmd] = tex_ref([cmd], metavar);
+      (this as any)[cmd] = texRef([cmd], metavar);
       branches.forEach(({ subcmd, body }) => {
         if (typeof body != "function") {
           throw `Not a function: ${(body as any).toString()}`;
         }
-        (this as any)[cmd + subcmd] = (...args: any[]) => tex_ref([cmd + subcmd], body(...args));
+        (this as any)[cmd + subcmd] = (...args: any[]) => texRef([cmd + subcmd], body(...args));
       });
     });
   }
 
-  BnfInner: React.FC<BnfProps & { container_ref: HTMLDivElement }> = props => {
-    let def_ctx = usePlugin(DefinitionsPlugin);
-    let tex_ctx = usePlugin(TexPlugin);
+  BnfInner: React.FC<BnfProps & { containerRef: HTMLDivElement }> = props => {
+    let defCtx = usePlugin(DefinitionsPlugin);
+    let texCtx = usePlugin(TexPlugin);
 
-    let branch_to_tex =
+    let branchToTex =
       (cmd: string) =>
       ({ subcmd, args }: SyntaxBranch): NotaText => {
         if (typeof args != "function") {
           throw `Not a function: ${(args as any).toString()}`;
         }
-        let arg_str = (this as any)[cmd + subcmd](...args());
-        return tex_def_anchor([cmd + subcmd], arg_str);
+        let argStr = (this as any)[cmd + subcmd](...args());
+        return texDefAnchor([cmd + subcmd], argStr);
       };
 
     let {
-      data: branch_dims,
+      data: branchDims,
       isPending,
       error,
     } = useAsync(
       useCallback(async () => {
-        let branch_dims = await Promise.all(
+        let branchDims = await Promise.all(
           this._grammar.map(({ cmd, branches }) =>
             Promise.all(
               branches
-                .map(branch_to_tex(cmd))
-                .map(tex => tex_ctx.dimensions(tex, false, props.container_ref))
+                .map(branchToTex(cmd))
+                .map(tex => texCtx.dimensions(tex, false, props.containerRef))
             )
           )
         );
-        return branch_dims;
+        return branchDims;
       }, [])
     );
 
@@ -103,38 +103,38 @@ export class Language {
     // "setState while rendering component" errors
     let defs: [string, DefinitionData][] = [];
     useEffect(() => {
-      if (branch_dims) {
-        defs.forEach(([name, def]) => def_ctx.add_definition(name, def));
+      if (branchDims) {
+        defs.forEach(([name, def]) => defCtx.addDefinition(name, def));
       }
-    }, [branch_dims]);
+    }, [branchDims]);
 
     if (isPending) {
       return null;
     }
 
-    if (!branch_dims) {
+    if (!branchDims) {
       console.error(error);
       return null;
     }
 
     const MAX_ROW_WIDTH = 350;
 
-    let included_cmds: { [cmd: string]: boolean | string[] } | null = null;
+    let includedCmds: { [cmd: string]: boolean | string[] } | null = null;
     if (props.subset) {
-      included_cmds = {};
+      includedCmds = {};
       props.subset.forEach(t => {
         if (typeof t == "string") {
-          included_cmds![t] = true;
+          includedCmds![t] = true;
         } else {
-          included_cmds![t[0]] = t[1];
+          includedCmds![t[0]] = t[1];
         }
       });
     }
 
-    let rules = zipExn(this._grammar, branch_dims)
-      .filter(([{ cmd }]) => !included_cmds || cmd in included_cmds)
+    let rules = zipExn(this._grammar, branchDims)
+      .filter(([{ cmd }]) => !includedCmds || cmd in includedCmds)
       .map(([{ kind, cmd, metavar, branches }, bdims]) => {
-        let make_rhs = (hl?: string) => {
+        let makeRhs = (hl?: string) => {
           if (branches.length == 0) {
             return "";
           }
@@ -142,36 +142,36 @@ export class Language {
           let [rows] = zipExn(branches, bdims)
             .filter(
               ([{ subcmd }]) =>
-                !included_cmds ||
-                included_cmds[cmd] === true ||
-                (included_cmds[cmd] as any).includes(subcmd)
+                !includedCmds ||
+                includedCmds[cmd] === true ||
+                (includedCmds[cmd] as any).includes(subcmd)
             )
             .reduce(
-              ([rows, cur_width], [branch, dims]) => {
-                let last_row = rows[rows.length - 1];
-                if (cur_width + dims.width > MAX_ROW_WIDTH && last_row.length > 0) {
+              ([rows, curWidth], [branch, dims]) => {
+                let lastRow = rows[rows.length - 1];
+                if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
                   rows.push([branch]);
-                  cur_width = dims.width;
+                  curWidth = dims.width;
                 } else {
-                  last_row.push(branch);
-                  cur_width += dims.width;
+                  lastRow.push(branch);
+                  curWidth += dims.width;
                 }
-                return [rows, cur_width];
+                return [rows, curWidth];
               },
               [[[]] as SyntaxBranch[][], 0]
             );
-          let str = add_between(
+          let str = addBetween(
             rows
               // if we're highlighting a specific branch, then remove other rows
               .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
               .map(row => {
-                let add_dots =
+                let addDots =
                   (hl && rows.length > 1) ||
-                  (included_cmds && typeof included_cmds[cmd] != "boolean");
+                  (includedCmds && typeof includedCmds[cmd] != "boolean");
                 return (
-                  add_between(
+                  addBetween(
                     row.map(branch => {
-                      let tex = branch_to_tex(cmd)(branch);
+                      let tex = branchToTex(cmd)(branch);
                       if (hl && branch.subcmd == hl) {
                         tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
                       }
@@ -179,7 +179,7 @@ export class Language {
                     }),
                     r`\mid`
                   ) as NestedArray<any>
-                ).concat(add_dots ? [r`\mid \ldots`] : []);
+                ).concat(addDots ? [r`\mid \ldots`] : []);
               }),
             r`\\& & & && &&\mid`
           );
@@ -189,7 +189,7 @@ export class Language {
         kind = kind.replace(/ /g, r`\ `);
 
         branches.forEach(({ subcmd }) => {
-          let rhs = make_rhs(subcmd);
+          let rhs = makeRhs(subcmd);
           defs.push([
             `tex:${cmd}${subcmd}`,
             {
@@ -211,7 +211,7 @@ export class Language {
           ]);
         });
 
-        let rhs = make_rhs();
+        let rhs = makeRhs();
         defs.push([
           `tex:${cmd}`,
           {
@@ -245,12 +245,12 @@ export class Language {
 \hspace{2em}
 %
 `;
-    let final_tex = add_between(
-      columns.map(col => [r`\begin{aligned}`, add_between(col, r`\\`), r`\end{aligned}`]),
+    let finalTex = addBetween(
+      columns.map(col => [r`\begin{aligned}`, addBetween(col, r`\\`), r`\end{aligned}`]),
       sep
     );
 
-    return <$$>{final_tex}</$$>;
+    return <$$>{finalTex}</$$>;
   };
 
   Bnf: React.FC<BnfProps> = props => {
@@ -262,7 +262,7 @@ export class Language {
 
     return (
       <div ref={ref}>
-        {ref.current ? <this.BnfInner container_ref={ref.current} {...props} /> : null}
+        {ref.current ? <this.BnfInner containerRef={ref.current} {...props} /> : null}
       </div>
     );
   };

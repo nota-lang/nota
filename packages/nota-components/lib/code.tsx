@@ -3,24 +3,24 @@ import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
 import { EditorState, Extension, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
-import { join_recursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common";
 import _ from "lodash";
 import React, { useEffect, useRef } from "react";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin";
 
-export const add_highlight = StateEffect.define<{ from: number; to: number; color: string }>();
+export const addHighlight = StateEffect.define<{ from: number; to: number; color: string }>();
 
-export const clear_highlights = StateEffect.define();
+export const clearHighlights = StateEffect.define();
 
-const highlight_field = StateField.define<DecorationSet>({
+const highlightField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none;
   },
   update(highlights, tr) {
     highlights = highlights.map(tr.changes);
     for (let e of tr.effects) {
-      if (e.is(add_highlight)) {
+      if (e.is(addHighlight)) {
         let { to, from, color } = e.value;
         let mark = Decoration.mark({
           class: `cm-highlight bgcolor-${color}`,
@@ -28,7 +28,7 @@ const highlight_field = StateField.define<DecorationSet>({
         highlights = highlights.update({
           add: [mark.range(from, to)],
         });
-      } else if (e.is(clear_highlights)) {
+      } else if (e.is(clearHighlights)) {
         return highlights.update({ filter: _ => false });
       }
     }
@@ -63,16 +63,16 @@ interface Linecol {
   col: number;
 }
 
-export let linecol_to_pos = (editor: EditorView, { line, col }: Linecol): number => {
-  let line_obj = editor.state.doc.line(line);
-  return line_obj.from + col;
+export let linecolToPos = (editor: EditorView, { line, col }: Linecol): number => {
+  let lineObj = editor.state.doc.line(line);
+  return lineObj.from + col;
 };
 
-export let pos_to_linecol = (editor: EditorView, pos: number): Linecol => {
-  let line_obj = editor.state.doc.lineAt(pos);
+export let posToLinecol = (editor: EditorView, pos: number): Linecol => {
+  let lineObj = editor.state.doc.lineAt(pos);
   return {
-    line: line_obj.number,
-    col: pos - line_obj.from,
+    line: lineObj.number,
+    col: pos - lineObj.from,
   };
 };
 
@@ -93,49 +93,49 @@ export let ListingConfigure: React.FC<{ language?: LanguageSupport; wrap?: boole
   return null;
 };
 
-let parse_with_delimiters = (
+let parseWithDelimiters = (
   code: string,
   delimiters: string[][]
-): { output_code?: string; ranges?: number[][]; error?: string } => {
+): { outputCode?: string; ranges?: number[][]; error?: string } => {
   let [open, close] = _.unzip(delimiters);
-  let make_check = (arr: string[]) => {
+  let makeCheck = (arr: string[]) => {
     let r = new RegExp(`^${arr.join("|")}`);
     return (s: string) => {
       let match = s.match(r);
       return match ? match[0].length : null;
     };
   };
-  let [open_check, close_check] = [make_check(open), make_check(close)];
+  let [openCheck, closeCheck] = [makeCheck(open), makeCheck(close)];
 
   let index = 0;
-  let in_seq = null;
+  let inSeq = null;
   let ranges = [];
-  let output_code = [];
+  let outputCode = [];
   let i = 0;
   while (i < code.length) {
-    if (in_seq === null) {
-      let n = open_check(code.substring(i));
+    if (inSeq === null) {
+      let n = openCheck(code.substring(i));
       if (n) {
         i += n;
-        in_seq = index;
+        inSeq = index;
         continue;
       }
     } else {
-      let n = close_check(code.substring(i));
+      let n = closeCheck(code.substring(i));
       if (n) {
         i += n;
-        ranges.push([in_seq!, index]);
-        in_seq = null;
+        ranges.push([inSeq!, index]);
+        inSeq = null;
         continue;
       }
     }
 
     index += 1;
-    output_code.push(code[i]);
+    outputCode.push(code[i]);
     i += 1;
   }
 
-  return { output_code: output_code.join(""), ranges };
+  return { outputCode: outputCode.join(""), ranges };
 };
 
 export interface ListingDelimiterProps {
@@ -159,14 +159,14 @@ export let Listing: React.FC<ListingProps> = props => {
   useEffect(() => {
     let language = props.language || ctx.language;
 
-    let code = join_recursive(props.children as any);
-    let parse_result = null;
+    let code = joinRecursive(props.children as any);
+    let parseResult = null;
     if (props.delimiters) {
-      parse_result = parse_with_delimiters(code, props.delimiters.delimiters);
-      if (parse_result.error) {
-        throw parse_result.error;
+      parseResult = parseWithDelimiters(code, props.delimiters.delimiters);
+      if (parseResult.error) {
+        throw parseResult.error;
       } else {
-        code = parse_result.output_code!;
+        code = parseResult.outputCode!;
       }
     }
 
@@ -179,7 +179,7 @@ export let Listing: React.FC<ListingProps> = props => {
           theme,
           EditorView.editable.of(props.editable || false),
           props.wrap || ctx.wrap ? EditorView.lineWrapping : [],
-          highlight_field,
+          highlightField,
         ]
           .concat(language ? [language] : [])
           .concat(props.extensions || []),
@@ -192,7 +192,7 @@ export let Listing: React.FC<ListingProps> = props => {
     }
 
     if (props.delimiters) {
-      props.delimiters.onParse(parse_result!.ranges!);
+      props.delimiters.onParse(parseResult!.ranges!);
     }
   }, []);
 

@@ -8,25 +8,25 @@ let DOCUMENT_WIDTH = 800;
 
 interface CommentaryProps {
   Document: React.FC<{ onLoad: () => void }>;
-  comment_width: 300;
+  commentWidth: 300;
 }
 
 interface CommentaryData {
   document: React.RefObject<HTMLDivElement>;
-  document_ready: boolean;
+  documentReady: boolean;
 }
 
 let CommentaryContext = React.createContext<CommentaryData | null>(null);
 
 export let Comment: React.FC<{ selector: string }> = ({ selector, children }) => {
   let ctx = useContext(CommentaryContext);
-  let [node, set_node] = useState<Element | null>(null);
+  let [node, setNode] = useState<Element | null>(null);
   let top = useStateOnInterval(0, 1000, () => {
     if (node) {
       let container = ctx!.document.current!;
-      let container_rect = container.getBoundingClientRect();
-      let node_rect = node.getBoundingClientRect();
-      return node_rect.top - container_rect.top;
+      let containerRect = container.getBoundingClientRect();
+      let nodeRect = node.getBoundingClientRect();
+      return nodeRect.top - containerRect.top;
     }
   });
 
@@ -35,7 +35,7 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
       throw `Missing CommentaryContext in Comment`;
     }
 
-    if (!ctx.document_ready) {
+    if (!ctx.documentReady) {
       return;
     }
 
@@ -46,8 +46,8 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
       throw `Missing selector "${selector}"`;
     }
 
-    set_node(node);
-  }, [selector, ctx!.document_ready]);
+    setNode(node);
+  }, [selector, ctx!.documentReady]);
 
   return (
     <div className="comment" style={{ top }}>
@@ -56,22 +56,22 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
   );
 };
 
-export let Commentary: React.FC<CommentaryProps> = ({ Document, children, comment_width }) => {
-  let document_ref = useRef<HTMLDivElement>(null);
-  let [document_ready, set_document_ready] = useState(false);
+export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commentWidth }) => {
+  let documentRef = useRef<HTMLDivElement>(null);
+  let [documentReady, setDocumentReady] = useState(false);
 
   return (
-    <CommentaryContext.Provider value={{ document: document_ref, document_ready }}>
+    <CommentaryContext.Provider value={{ document: documentRef, documentReady: documentReady }}>
       <FullWidthContainer
         className="commentary"
         style={{ background: "#f4f4f4", padding: "1rem 0" }}
       >
         <Row>
-          <div ref={document_ref} className="object" style={{ width: DOCUMENT_WIDTH }}>
-            <Document onLoad={useCallback(() => set_document_ready(true), [])} />
+          <div ref={documentRef} className="object" style={{ width: DOCUMENT_WIDTH }}>
+            <Document onLoad={useCallback(() => setDocumentReady(true), [])} />
           </div>
-          <div className="comments" style={{ width: comment_width }}>
-            {document_ready ? children : null}
+          <div className="comments" style={{ width: commentWidth }}>
+            {documentReady ? children : null}
           </div>
         </Row>
       </FullWidthContainer>

@@ -16,8 +16,8 @@ export interface IRProps {
 }
 
 export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...props }) => {
-  let [right_height, set_right_height] = useState(0);
-  let right_ref = useRef<HTMLDivElement>(null);
+  let [rightHeight, setRightHeight] = useState(0);
+  let rightRef = useRef<HTMLDivElement>(null);
 
   if (toggle) {
     let RuleToggle = () => <ToggleGroupButton big />;
@@ -26,8 +26,8 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
 
   if (Right) {
     useEffect(() => {
-      let right_el = right_ref.current!;
-      set_right_height(right_el.getBoundingClientRect().height);
+      let rightEl = rightRef.current!;
+      setRightHeight(rightEl.getBoundingClientRect().height);
     }, []);
   }
 
@@ -46,7 +46,7 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
             </td>
             <td>
               <div className="right">
-                <div style={{ bottom: right_height / 2 }} ref={right_ref}>
+                <div style={{ bottom: rightHeight / 2 }} ref={rightRef}>
                   {Right ? <Right /> : null}
                 </div>
               </div>
@@ -65,8 +65,8 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
 
 export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title, children }) => {
   let ctx = useContext(DocumentContext);
-  let thm_num = ctx.theorems.push().to_string();
-  let label = `Theorem ${thm_num}`;
+  let thmNum = ctx.theorems.push().toString();
+  let label = `Theorem ${thmNum}`;
   let suffix = title ? `: ${title}` : "";
 
   return (

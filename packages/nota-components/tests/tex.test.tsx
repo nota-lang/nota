@@ -6,7 +6,7 @@ import React from "react";
 import { render, waitFor, screen, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { $, tex_def, tex_ref, DefinitionsPlugin } from "@nota-lang/nota-components";
+import { $, texDef, texRef, DefinitionsPlugin } from "@nota-lang/nota-components";
 
 describe("tex", () => {
   it("can render basic tex", () => {
@@ -19,8 +19,8 @@ describe("tex", () => {
     let { baseElement } = render(
       <DefinitionsPlugin.Provide>
         <$>
-          {tex_def(["x"], ["y"])}
-          {tex_ref(["x"], ["z"])}
+          {texDef(["x"], ["y"])}
+          {texRef(["x"], ["z"])}
         </$>
       </DefinitionsPlugin.Provide>
     );

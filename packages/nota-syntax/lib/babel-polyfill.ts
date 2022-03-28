@@ -39,7 +39,7 @@ import type {
   VariableDeclarator,
 } from "@babel/types";
 
-let base_node = {
+let baseNode = {
   leadingComments: null,
   innerComments: null,
   trailingComments: null,
@@ -51,13 +51,13 @@ let base_node = {
 export let identifier = (name: string): Identifier => ({
   type: "Identifier",
   name,
-  ...base_node,
+  ...baseNode,
 });
 
 export let stringLiteral = (value: string): StringLiteral => ({
   type: "StringLiteral",
   value,
-  ...base_node,
+  ...baseNode,
 });
 
 export let objectExpression = (
@@ -65,7 +65,7 @@ export let objectExpression = (
 ): ObjectExpression => ({
   type: "ObjectExpression",
   properties,
-  ...base_node,
+  ...baseNode,
 });
 
 export let objectProperty = (
@@ -78,7 +78,7 @@ export let objectProperty = (
   value,
   computed: false,
   shorthand,
-  ...base_node,
+  ...baseNode,
 });
 
 export let callExpression = (
@@ -88,20 +88,20 @@ export let callExpression = (
   type: "CallExpression",
   callee,
   arguments: args,
-  ...base_node,
+  ...baseNode,
 });
 
 export let spreadElement = (argument: Expression): SpreadElement => ({
   type: "SpreadElement",
   argument,
-  ...base_node,
+  ...baseNode,
 });
 
 export let blockStatement = (body: Array<Statement>): BlockStatement => ({
   type: "BlockStatement",
   body,
   directives: [],
-  ...base_node,
+  ...baseNode,
 });
 
 export let variableDeclaration = (
@@ -111,14 +111,14 @@ export let variableDeclaration = (
   type: "VariableDeclaration",
   kind,
   declarations,
-  ...base_node,
+  ...baseNode,
 });
 
 export let variableDeclarator = (id: LVal, init?: Expression | null): VariableDeclarator => ({
   type: "VariableDeclarator",
   id,
   init,
-  ...base_node,
+  ...baseNode,
 });
 
 export let memberExpression = (
@@ -130,13 +130,13 @@ export let memberExpression = (
   object,
   property,
   computed,
-  ...base_node,
+  ...baseNode,
 });
 
 export let returnStatement = (argument?: Expression | null): ReturnStatement => ({
   type: "ReturnStatement",
   argument,
-  ...base_node,
+  ...baseNode,
 });
 
 export let arrowFunctionExpression = (
@@ -147,7 +147,7 @@ export let arrowFunctionExpression = (
   params,
   body,
   expression: false,
-  ...base_node,
+  ...baseNode,
 });
 
 export let arrayExpression = (
@@ -155,7 +155,7 @@ export let arrayExpression = (
 ): ArrayExpression => ({
   type: "ArrayExpression",
   elements,
-  ...base_node,
+  ...baseNode,
 });
 
 export let program = (body: Array<Statement>): Program => ({
@@ -164,37 +164,37 @@ export let program = (body: Array<Statement>): Program => ({
   sourceType: "module",
   directives: [],
   sourceFile: "",
-  ...base_node,
+  ...baseNode,
 });
 
 export let expressionStatement = (expression: Expression): ExpressionStatement => ({
   type: "ExpressionStatement",
   expression,
-  ...base_node,
+  ...baseNode,
 });
 
 export let objectPattern = (properties: Array<RestElement | ObjectProperty>): ObjectPattern => ({
   type: "ObjectPattern",
   properties,
-  ...base_node,
+  ...baseNode,
 });
 
 export let booleanLiteral = (value: boolean): BooleanLiteral => ({
   type: "BooleanLiteral",
   value,
-  ...base_node,
+  ...baseNode,
 });
 
 export let restElement = (argument: LVal): RestElement => ({
   type: "RestElement",
   argument,
-  ...base_node,
+  ...baseNode,
 });
 
 export let numericLiteral = (value: number): NumericLiteral => ({
   type: "NumericLiteral",
   value,
-  ...base_node,
+  ...baseNode,
 });
 
 export let importDeclaration = (
@@ -204,7 +204,7 @@ export let importDeclaration = (
   type: "ImportDeclaration",
   specifiers,
   source,
-  ...base_node,
+  ...baseNode,
 });
 
 export let importSpecifier = (
@@ -214,13 +214,13 @@ export let importSpecifier = (
   type: "ImportSpecifier",
   local,
   imported,
-  ...base_node,
+  ...baseNode,
 });
 
 export let importDefaultSpecifier = (local: Identifier): ImportDefaultSpecifier => ({
   type: "ImportDefaultSpecifier",
   local,
-  ...base_node,
+  ...baseNode,
 });
 
 export let exportDefaultDeclaration = (
@@ -228,7 +228,7 @@ export let exportDefaultDeclaration = (
 ): ExportDefaultDeclaration => ({
   type: "ExportDefaultDeclaration",
   declaration,
-  ...base_node,
+  ...baseNode,
 });
 
 export let exportNamedDeclaration = (
@@ -240,12 +240,12 @@ export let exportNamedDeclaration = (
   declaration,
   specifiers,
   source,
-  ...base_node,
+  ...baseNode,
 });
 
 export let debuggerStatement = (): DebuggerStatement => ({
   type: "DebuggerStatement",
-  ...base_node,
+  ...baseNode,
 });
 
 let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;
@@ -265,5 +265,5 @@ export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSp
   type: "ExportSpecifier",
   local,
   exported,
-  ...base_node,
+  ...baseNode,
 });

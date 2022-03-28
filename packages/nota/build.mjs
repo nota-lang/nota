@@ -1,7 +1,7 @@
-import { cli, copy_plugin, executable_plugin, get_manifest } from "@nota-lang/esbuild-utils";
+import { cli, copyPlugin, executablePlugin, getManifest } from "@nota-lang/esbuild-utils";
 import { sassPlugin } from "esbuild-sass-plugin";
 
-let pkg = get_manifest();
+let pkg = getManifest();
 let build = cli();
 build({
   platform: "node",
@@ -10,11 +10,11 @@ build({
   define: {
     VERSION: JSON.stringify(pkg.version),
   },
-  plugins: [executable_plugin(["dist/index.mjs"])],
+  plugins: [executablePlugin(["dist/index.mjs"])],
 })
 
 build({
   entryPoints: ["lib/editor.tsx"],
   format: "iife",
-  plugins: [sassPlugin(), copy_plugin({ extensions: [".html", ".ico"] })],
+  plugins: [sassPlugin(), copyPlugin({ extensions: [".html", ".ico"] })],
 });

@@ -1,4 +1,4 @@
-import { join_recursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common";
 import React from "react";
 import { createContext, useContext } from "react";
 
@@ -22,23 +22,23 @@ let AuthorContext = createContext<AuthorData>({});
 
 export let Institution: React.FC = ({ children }) => {
   let ctx = useContext(AffiliationContext);
-  ctx.institution = join_recursive(children as any);
+  ctx.institution = joinRecursive(children as any);
   return null;
 };
 
 export let Affiliation: React.FC = ({ children }) => {
-  let auth_ctx = useContext(AuthorContext);
-  let aff_ctx: AuthorAffiliation = {};
+  let authCtx = useContext(AuthorContext);
+  let affCtx: AuthorAffiliation = {};
   let Inner = () => {
-    if (!auth_ctx.affiliations) {
-      auth_ctx.affiliations = [];
+    if (!authCtx.affiliations) {
+      authCtx.affiliations = [];
     }
-    auth_ctx.affiliations.push(aff_ctx);
+    authCtx.affiliations.push(affCtx);
     return null;
   };
   return (
     <>
-      <AffiliationContext.Provider value={aff_ctx}>{children}</AffiliationContext.Provider>
+      <AffiliationContext.Provider value={affCtx}>{children}</AffiliationContext.Provider>
       <Inner />
     </>
   );
@@ -46,7 +46,7 @@ export let Affiliation: React.FC = ({ children }) => {
 
 export let Name: React.FC = ({ children }) => {
   let ctx = useContext(AuthorContext);
-  ctx.name = join_recursive(children as any);
+  ctx.name = joinRecursive(children as any);
   return <></>;
 };
 

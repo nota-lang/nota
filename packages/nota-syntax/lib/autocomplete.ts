@@ -12,11 +12,11 @@ import * as terms from "./nota.grammar";
 
 //@ts-ignore
 let components: string[] = COMPONENTS;
-let nota_elements = components.filter(name => name[0].match(/[A-Z$]/) !== null);
+let notaElements = components.filter(name => name[0].match(/[A-Z$]/) !== null);
 let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
   .map(label => ({ label, type: "react", boost: -1 }))
   .concat(
-    nota_elements.reverse().map((label, i) => ({
+    notaElements.reverse().map((label, i) => ({
       label,
       type: "react",
       boost: i,
@@ -54,20 +54,20 @@ export let autocomplete: CompletionSource = context => {
     },
   });
 
-  let node_before = tree.resolveInner(context.pos, -1);
+  let nodeBefore = tree.resolveInner(context.pos, -1);
   let completions = new Map<number, Completion[]>([
     [terms.AtCommand, prelude],
     [terms.HashCommand, definitions],
   ]);
   let cmds = Array.from(completions.keys());
 
-  let parent = node_before.parent;
+  let parent = nodeBefore.parent;
 
   // User has just typed "@"
-  if (cmds.includes(node_before.type.id)) {
+  if (cmds.includes(nodeBefore.type.id)) {
     return {
       from: context.pos,
-      options: completions.get(node_before.type.id)!,
+      options: completions.get(nodeBefore.type.id)!,
       span: ident,
     };
   } // User is typing "@cmd"
@@ -78,7 +78,7 @@ export let autocomplete: CompletionSource = context => {
     cmds.includes(parent.parent.type.id)
   ) {
     return {
-      from: node_before.from,
+      from: nodeBefore.from,
       options: completions.get(parent.parent.type.id)!,
       span: ident,
     };

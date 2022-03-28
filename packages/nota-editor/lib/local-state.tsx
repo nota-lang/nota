@@ -1,5 +1,5 @@
-import { is_err, err, ok } from "@nota-lang/nota-common";
-import { try_parse, translate_ast, optimize_plugin } from "@nota-lang/nota-syntax";
+import { isErr, err, ok } from "@nota-lang/nota-common";
+import { tryParse, translateAst, optimizePlugin } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
@@ -11,21 +11,21 @@ export class LocalState implements State {
   translation: TranslationResult;
   ready: boolean = true;
 
-  try_translate(): TranslationResult {
-    let tree = try_parse(this.contents);
-    if (is_err(tree)) {
+  tryTranslate(): TranslationResult {
+    let tree = tryParse(this.contents);
+    if (isErr(tree)) {
       return err(tree.value.stack!);
     }
-    let js = translate_ast(this.contents, tree.value);
-    let transpiled_result = babel.transformFromAst(js, undefined, {
-      plugins: [optimize_plugin],
+    let js = translateAst(this.contents, tree.value);
+    let transpiledResult = babel.transformFromAst(js, undefined, {
+      plugins: [optimizePlugin],
     }) as any as BabelFileResult;
-    let lowered_result = babel.transformFromAst(js, undefined, {
+    let loweredResult = babel.transformFromAst(js, undefined, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
     }) as any as BabelFileResult;
-    let lowered = `let exports = {};\n${lowered_result.code}\nlet nota_document = exports;`;
+    let lowered = `let exports = {};\n${loweredResult.code}\nlet notaDocument = exports;`;
     return ok({
-      transpiled: transpiled_result.code!,
+      transpiled: transpiledResult.code!,
       lowered,
       css: null,
     });
@@ -33,23 +33,23 @@ export class LocalState implements State {
 
   constructor(contents: string) {
     this.contents = contents;
-    this.translation = this.try_translate();
+    this.translation = this.tryTranslate();
 
     makeAutoObservable(this);
 
-    let needs_sync = false;
+    let needsSync = false;
     reaction(
       () => [this.contents],
       () => {
-        needs_sync = true;
+        needsSync = true;
       }
     );
 
     const SYNC_INTERVAL = 200;
     setInterval(async () => {
-      if (needs_sync) {
-        let translation = this.try_translate();
-        needs_sync = false;
+      if (needsSync) {
+        let translation = this.tryTranslate();
+        needsSync = false;
         runInAction(() => {
           this.translation = translation;
         });

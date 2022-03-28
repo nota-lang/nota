@@ -2,24 +2,18 @@ import type { BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import type { Expression, Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
-import { is_left, res_unwrap } from "@nota-lang/nota-common";
-import {
-  Translator,
-  babel_polyfill as t,
-  terms,
-  translate,
-  try_parse,
-} from "@nota-lang/nota-syntax";
+import { isLeft, resUnwrap } from "@nota-lang/nota-common";
+import { Translator, babelPolyfill as t, terms, translate, tryParse } from "@nota-lang/nota-syntax";
 
 test("translate", () => {
   let input = "@h1{Hello world!}";
-  let tree = res_unwrap(try_parse(input));
+  let tree = resUnwrap(tryParse(input));
   let js = translate(input, tree);
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
 import { Document } from "@nota-lang/nota-components";
-export default observer(doc_props => el(Document, { ...doc_props
+export default observer(docProps => el(Document, { ...docProps
 }, el("h1", {}, "Hello world!")));
   `;
   expect(js).toBe(expected.trim());
@@ -29,7 +23,7 @@ let gen =
   (f: (_tr: Translator, _node: SyntaxNode) => Statement) =>
   (input: string): string => {
     try {
-      let tree = res_unwrap(try_parse(input));
+      let tree = resUnwrap(tryParse(input));
       let translator = new Translator(input);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
@@ -42,9 +36,9 @@ let gen =
   };
 
 test("translate textbody", () => {
-  let gen_textbody = gen((translator, node) => {
+  let genTextbody = gen((translator, node) => {
     let textbody = node.getChild(terms.TextBody)!;
-    let expr = translator.translate_textbody(textbody);
+    let expr = translator.translateTextbody(textbody);
     return t.expressionStatement(expr);
   });
 
@@ -55,16 +49,16 @@ test("translate textbody", () => {
   ];
 
   pairs.forEach(([input, expected]) => {
-    let actual = gen_textbody(input);
+    let actual = genTextbody(input);
     expect(actual).toBe(expected);
   });
 });
 
 test("translate command", () => {
-  let gen_command = gen((translator, node) => {
+  let genCommand = gen((translator, node) => {
     let cmd = node.getChild(terms.TextBody)!.getChild(terms.TextToken)!.getChild(terms.Command)!;
-    let result = translator.translate_command(cmd);
-    if (is_left(result)) {
+    let result = translator.translateCommand(cmd);
+    if (isLeft(result)) {
       return t.expressionStatement(result.value);
     } else {
       return t.blockStatement(result.value);
@@ -88,7 +82,7 @@ test("translate command", () => {
   ];
 
   pairs.forEach(([input, expected]) => {
-    let actual = gen_command(input);
+    let actual = genCommand(input);
     expect(actual).toBe(expected);
   });
 });

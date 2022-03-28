@@ -15,7 +15,7 @@ import { autocomplete } from "./autocomplete";
 import { parser } from "./nota.grammar";
 
 export let CodeTag = Tag.define();
-export let nota_language = LRLanguage.define({
+export let notaLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       styleTags({
@@ -128,14 +128,14 @@ export let nota_language = LRLanguage.define({
   },
 });
 
-let nota_completion = nota_language.data.of({
+let notaCompletion = notaLanguage.data.of({
   autocomplete,
 });
 
-let nota_style = HighlightStyle.define([
+let notaStyle = HighlightStyle.define([
   { tag: t.variableName, color: "#256" },
   // { tag: CodeTag, background: "#f5f5f5" },
   { tag: t.content, class: "nota-editor-text" },
 ]);
 
-export let nota = () => new LanguageSupport(nota_language, [nota_completion, nota_style]);
+export let nota = () => new LanguageSupport(notaLanguage, [notaCompletion, notaStyle]);

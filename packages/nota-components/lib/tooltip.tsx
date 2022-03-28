@@ -10,8 +10,8 @@ import {
   HTMLAttributes,
   ReactConstructor,
   ReactNode,
-  get_or_render,
-  is_constructor,
+  getOrRender,
+  isConstructor,
 } from "./utils";
 
 // TODO
@@ -24,60 +24,60 @@ class TooltipData extends Pluggable {
   elts: any = {};
   queue: string[] = [];
   flushed = false;
-  in_event = false;
+  inEvent = false;
   stateful = true;
 
-  queue_update = (id: string) => {
+  queueUpdate = (id: string) => {
     this.queue.push(id);
   };
 
-  check_queue = () => {
+  checkQueue = () => {
     if (!_.every(this.queue, id => id in this.elts)) {
       return;
     }
 
-    let last_el: Element | null = null;
+    let lastEl: Element | null = null;
     this.queue.forEach(id => {
-      let { popperElement, referenceElement, instance, set_show } = this.elts[id];
-      let ref_el = last_el === null ? referenceElement : last_el;
-      instance.state.elements.reference = ref_el;
+      let { popperElement, referenceElement, instance, setShow } = this.elts[id];
+      let refEl = lastEl === null ? referenceElement : lastEl;
+      instance.state.elements.reference = refEl;
       instance.update();
-      set_show(true);
-      last_el = popperElement;
+      setShow(true);
+      lastEl = popperElement;
     });
 
     Object.keys(this.elts).forEach(id => {
       if (this.queue.indexOf(id) == -1) {
-        this.elts[id].set_show(false);
+        this.elts[id].setShow(false);
       }
     });
 
     this.queue = [];
-    if (this.in_event) {
+    if (this.inEvent) {
       this.flushed = true;
     }
   };
 
-  on_click = () => {
+  onClick = () => {
     if (!this.flushed) {
-      this.check_queue();
+      this.checkQueue();
     }
 
     this.flushed = false;
-    this.in_event = false;
+    this.inEvent = false;
   };
 
-  on_click_capture = () => {
-    this.in_event = true;
+  onClickCapture = () => {
+    this.inEvent = true;
   };
 
   init = () => {
     useEffect(() => {
-      window.addEventListener("click", this.on_click);
-      window.addEventListener("click", this.on_click_capture, true);
+      window.addEventListener("click", this.onClick);
+      window.addEventListener("click", this.onClickCapture, true);
       return () => {
-        window.removeEventListener("click", this.on_click);
-        window.removeEventListener("click", this.on_click_capture, true);
+        window.removeEventListener("click", this.onClick);
+        window.removeEventListener("click", this.onClickCapture, true);
       };
     }, []);
   };
@@ -99,40 +99,40 @@ export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
-  const [instance, set_instance] = useState<Instance | null>(null);
+  const [instance, setInstance] = useState<Instance | null>(null);
 
   let ctx = usePlugin(TooltipPlugin);
   let [id] = useState(_.uniqueId());
-  let [stage, set_stage] = useState("start");
-  let [show, set_show] = useState(false);
+  let [stage, setStage] = useState("start");
+  let [show, setShow] = useState(false);
 
   let trigger: React.MouseEventHandler = e => {
     e.preventDefault();
 
     if (show) {
-      set_show(false);
+      setShow(false);
     } else {
       if (stage == "start") {
-        set_stage("mount");
+        setStage("mount");
       }
-      ctx.queue_update(id);
+      ctx.queueUpdate(id);
     }
   };
 
   useEffect(() => {
     if (stage == "mount" && referenceElement && popperElement) {
-      set_stage("done");
+      setStage("done");
 
       // TODO: I noticed that when embedding a document within another,
       //   the nested-document tooltips on math elements would be misaligned.
       //   Unclear why, but a fix was to use the popperjs "virtual element"
       //   feature that manually calls getBoundingClientRect(). Probably an issue
       //   with whatever their getBoundingClientRect alternative is?
-      let popper_ref_el = {
+      let popperRefEl = {
         getBoundingClientRect: () => referenceElement.getBoundingClientRect(),
       };
 
-      let instance = createPopper(popper_ref_el, popperElement, {
+      let instance = createPopper(popperRefEl, popperElement, {
         placement: "top",
         modifiers: [
           // Push tooltip farther away from content
@@ -142,19 +142,19 @@ export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
           { name: "arrow", options: { element: arrowElement } },
         ],
       });
-      set_instance(instance);
+      setInstance(instance);
 
       ctx.elts[id] = {
         popperElement,
-        referenceElement: popper_ref_el,
+        referenceElement: popperRefEl,
         instance,
-        set_show,
+        setShow,
       };
-      ctx.check_queue();
+      ctx.checkQueue();
     }
   }, [stage, referenceElement, popperElement]);
 
-  let inner = is_constructor(Inner) ? (
+  let inner = isConstructor(Inner) ? (
     <Inner ref={setReferenceElement} onClick={trigger} />
   ) : (
     <Container ref={setReferenceElement} onClick={trigger}>
@@ -188,7 +188,7 @@ export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
                 display: show ? "block" : "none",
               }}
             />
-            {get_or_render(Popup, {})}
+            {getOrRender(Popup, {})}
           </div>
         </ToplevelElem>
       ) : null}
