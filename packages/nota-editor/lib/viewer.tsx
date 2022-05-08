@@ -9,12 +9,12 @@ import { javascript } from "@codemirror/lang-javascript";
 import { action } from "mobx";
 import { nota } from "@nota-lang/nota-syntax";
 import _ from "lodash";
-import { isErr, isOk, err, ok, Result, resUnwrap } from "@nota-lang/nota-common";
+import { isErr, isOk, err, ok, Result, resUnwrap } from "@nota-lang/nota-common/dist/result";
 import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
-import type { DocumentProps } from "@nota-lang/nota-components";
+import type { DocumentProps } from "@nota-lang/nota-components/dist/document";
 
 import { StateContext, TranslationResult } from ".";
-import { theme } from "./editor";
+import { theme } from "./editor.js";
 
 let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;
 

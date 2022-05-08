@@ -3,9 +3,9 @@ import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { useStateOnInterval } from "./utils";
+import { useStateOnInterval } from "./utils.js";
 
-type ToggleCallback = (_show: boolean) => void;
+type ToggleCallback = (show: boolean) => void;
 
 class ToggleGroupState {
   toggles: ToggleCallback[] = [];

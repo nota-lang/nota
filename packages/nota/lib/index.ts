@@ -5,8 +5,8 @@ import esbuild from "esbuild";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import * as builder from "./builder";
-import * as server from "./server";
+import * as builder from "./builder.js";
+import * as server from "./server.js";
 
 export interface CommonOptions {
   file: string;

@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { default as ReactLoader } from "react-loader-spinner";
-import { action, makeObservable, observable } from "mobx";
+import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
 import classNames from "classnames";
 
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-
 export class LoaderData {
-  @observable loaded: boolean;
+  loaded: boolean;
 
   constructor(initial: boolean) {
     this.loaded = initial;
-    makeObservable(this);
+    makeAutoObservable(this);
   }
 
   set_loaded = action((loaded: boolean) => {

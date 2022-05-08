@@ -1,4 +1,4 @@
-import { isErr, err, ok } from "@nota-lang/nota-common";
+import { isErr, err, ok } from "@nota-lang/nota-common/dist/result";
 import { tryParse, translateAst, optimizePlugin } from "@nota-lang/nota-syntax";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import * as babel from "@babel/standalone";

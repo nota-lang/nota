@@ -1,12 +1,12 @@
-import { NotaText, joinRecursive } from "@nota-lang/nota-common";
+import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import katex from "katex";
 import _ from "lodash";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Definition, DefinitionAnchor, Ref } from "./definitions";
-import { Pluggable, Plugin, usePlugin } from "./plugin";
-import { Container, HTMLAttributes } from "./utils";
+import { Definition, DefinitionAnchor, Ref } from "./definitions.js";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { Container, HTMLAttributes } from "./utils.js";
 
 const r = String.raw;
 

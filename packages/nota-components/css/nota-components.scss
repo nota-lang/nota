@@ -1,4 +1,6 @@
-@use "@nota-lang/nota-common/dist/index" as *;
+@use "@nota-lang/nota-common/dist/index.scss" as *;
+
+@import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 $colors: (
   peach: rgb(250, 223, 203),

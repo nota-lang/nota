@@ -2,7 +2,8 @@ import type { BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import type { Expression, Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
-import { isLeft, resUnwrap } from "@nota-lang/nota-common";
+import { resUnwrap } from "@nota-lang/nota-common/dist/result";
+import { isLeft } from "@nota-lang/nota-common/dist/either";
 import { Translator, babelPolyfill as t, terms, translate, tryParse } from "@nota-lang/nota-syntax";
 
 test("translate", () => {
@@ -12,15 +13,17 @@ test("translate", () => {
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
-import { Document } from "@nota-lang/nota-components";
-export default observer(docProps => el(Document, { ...docProps
-}, el("h1", {}, "Hello world!")));
+import { document } from "@nota-lang/nota-components";
+const {
+  Document
+} = document;
+export default observer(docProps => el(Document, docProps, el("h1", {}, "Hello world!")));
   `;
   expect(js).toBe(expected.trim());
 });
 
 let gen =
-  (f: (_tr: Translator, _node: SyntaxNode) => Statement) =>
+  (f: (tr: Translator, node: SyntaxNode) => Statement) =>
   (input: string): string => {
     try {
       let tree = resUnwrap(tryParse(input));
@@ -28,7 +31,7 @@ let gen =
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
       let result = babel.transformFromAst(program, undefined, {}) as any as BabelFileResult;
-      return result.code;
+      return result.code!;
     } catch (e) {
       console.error(input);
       throw e;

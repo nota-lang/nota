@@ -1,6 +1,6 @@
 import { makeAutoObservable, reaction, action } from "mobx";
 import _ from "lodash";
-import { err } from "@nota-lang/nota-common";
+import { err } from "@nota-lang/nota-common/dist/result";
 
 import { TranslationResult, State } from ".";
 

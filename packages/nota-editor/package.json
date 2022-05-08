@@ -21,7 +21,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs",
+    "build": "mkdir -p dist && cp css/nota-editor.scss dist/index.scss && tsc --sourceMap",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },

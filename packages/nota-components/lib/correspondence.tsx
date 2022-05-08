@@ -2,7 +2,7 @@ import classNames from "classnames";
 import _ from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 
-import { Container, HTMLAttributes } from "./utils";
+import { Container, HTMLAttributes } from "./utils.js";
 
 export let Correspondence: React.FC<HTMLAttributes> = ({ children, ...props }) => {
   let ref = useRef<HTMLDivElement>(null);

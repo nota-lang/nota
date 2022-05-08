@@ -2,7 +2,7 @@ import { cli, ssrPlugin } from "@nota-lang/esbuild-utils";
 import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
 import path from "path";
 
-import { CommonOptions, nodePaths } from "./index";
+import { CommonOptions, nodePaths } from "./index.js";
 
 export interface BuilderOptions {
   watch?: boolean;

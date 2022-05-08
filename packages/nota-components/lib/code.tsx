@@ -3,11 +3,11 @@ import { defaultHighlightStyle } from "@codemirror/highlight";
 import { LanguageSupport } from "@codemirror/language";
 import { EditorState, Extension, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
-import { joinRecursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import _ from "lodash";
 import React, { useEffect, useRef } from "react";
 
-import { Pluggable, Plugin, usePlugin } from "./plugin";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 
 export const addHighlight = StateEffect.define<{ from: number; to: number; color: string }>();
 
@@ -140,14 +140,14 @@ let parseWithDelimiters = (
 
 export interface ListingDelimiterProps {
   delimiters: string[][];
-  onParse: (_ranges: number[][]) => void;
+  onParse: (ranges: number[][]) => void;
 }
 
 export interface ListingProps {
   editable?: boolean;
   wrap?: boolean;
   language?: LanguageSupport;
-  onLoad?: (_editor: EditorView) => void;
+  onLoad?: (editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
   extensions?: Extension[];
 }

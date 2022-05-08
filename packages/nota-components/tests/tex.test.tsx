@@ -6,7 +6,8 @@ import React from "react";
 import { render, waitFor, screen, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { $, texDef, texRef, DefinitionsPlugin } from "@nota-lang/nota-components";
+import { $, texDef, texRef } from "@nota-lang/nota-components/dist/tex";
+import { DefinitionsPlugin } from "@nota-lang/nota-components/dist/definitions";
 
 describe("tex", () => {
   it("can render basic tex", () => {
@@ -26,8 +27,8 @@ describe("tex", () => {
     );
     await waitFor(() => screen.getByText("z"));
 
-    let def = baseElement.querySelector<HTMLElement>(`[data-def="x"]`);
-    let ref = baseElement.querySelector<HTMLElement>(`[data-ref="x"]`);
+    let def = baseElement.querySelector<HTMLElement>(`[data-def="x"]`)!;
+    let ref = baseElement.querySelector<HTMLElement>(`[data-ref="x"]`)!;
     getByText(def, "y");
     getByText(ref, "z");
   });

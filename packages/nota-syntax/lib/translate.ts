@@ -12,13 +12,16 @@ import type {
   StringLiteral,
 } from "@babel/types";
 import type { SyntaxNode, Tree } from "@lezer/common";
-import { Either, assert, isLeft, left, right, unreachable } from "@nota-lang/nota-common";
+import { Either, isLeft, left, right } from "@nota-lang/nota-common/dist/either";
+import { assert, unreachable } from "@nota-lang/nota-common";
 import _ from "lodash";
 
-import * as t from "./babel-polyfill";
-import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
+import * as t from "./babel-polyfill.js";
+import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
 //@ts-ignore
-import * as terms from "./nota.grammar";
+import * as terms from "./nota.grammar.terms.js";
+//@ts-ignore
+import COMPONENTS from "./components.js";
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 let matchesNewline = (node: SyntaxNode): boolean =>
@@ -303,16 +306,53 @@ export interface Translation {
 
 export let optimizePlugin = (): PluginObj => ({
   visitor: {
-    CallExpression(path) {
-      path.node.arguments = path.node.arguments
-        .map(arg => {
-          if (arg.type == "SpreadElement" && arg.argument.type == "ArrayExpression") {
-            return arg.argument.elements.map(el => el!);
+    ArrayExpression(path) {
+      // [...[e1, e2]] => [e1, e2]
+      path.node.elements = path.node.elements
+        .map(el => {
+          if (el && el.type == "SpreadElement" && el.argument.type == "ArrayExpression") {
+            return el.argument.elements;
           } else {
-            return [arg];
+            return [el];
           }
         })
         .flat();
+    },
+
+    ObjectExpression(path) {
+      let props = path.node.properties;
+      /// {...e} => e
+      if (props.length == 1 && props[0].type == "SpreadElement") {
+        path.replaceWith(props[0].argument);
+      }
+    },
+
+    CallExpression(path) {
+      let expr = path.node;
+      if (
+        expr.arguments.length == 0 &&
+        expr.arguments.length == 0 &&
+        expr.callee.type == "ArrowFunctionExpression" &&
+        expr.callee.body.type == "BlockStatement" &&
+        expr.callee.body.body.length == 1 &&
+        expr.callee.body.body[0].type == "ReturnStatement" &&
+        expr.callee.body.body[0].argument
+      ) {
+        // `(() => { return e; })()` => `e`
+        path.replaceWith(expr.callee.body.body[0].argument);
+        path.visit();
+      } else {
+        path.node.arguments = path.node.arguments
+          .map(arg => {
+            // f(...[x, y]) => f(x, y)
+            if (arg.type == "SpreadElement" && arg.argument.type == "ArrayExpression") {
+              return arg.argument.elements.map(el => el!);
+            } else {
+              return [arg];
+            }
+          })
+          .flat();
+      }
     },
   },
 });
@@ -345,29 +385,53 @@ export let translateAst = (input: string, tree: Tree): Program => {
     [t.spreadElement(docBody)]
   );
 
-  //@ts-ignore
-  let prelude: string[] = COMPONENTS;
+  let prelude: { [k: string]: string } = COMPONENTS;
 
   let usedPrelude: Set<string> = new Set();
   t.traverse(doc, node => {
-    if (node.type == "Identifier" && prelude.includes(node.name)) {
+    if (node.type == "Identifier" && node.name in prelude) {
       usedPrelude.add(node.name);
     }
   });
 
+  let preludeImports: { [k: string]: string[] } = {};
+  for (let k of usedPrelude) {
+    let path = prelude[k];
+    if (!(path in preludeImports)) {
+      preludeImports[path] = [];
+    }
+    preludeImports[path].push(k);
+  }
+
   let createElLong = t.identifier("createElement");
   let observer = t.identifier("observer");
 
-  let program = [
+  let program: Statement[] = [
     t.importDeclaration(
       [t.importSpecifier(createEl, createElLong), t.importSpecifier(fragment, fragment)],
       t.stringLiteral("react")
     ),
     t.importDeclaration([t.importSpecifier(observer, observer)], t.stringLiteral("mobx-react")),
     t.importDeclaration(
-      Array.from(usedPrelude).map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+      Object.keys(preludeImports).map(mod =>
+        t.importSpecifier(t.identifier(mod), t.identifier(mod))
+      ),
       t.stringLiteral("@nota-lang/nota-components")
     ),
+    ..._.toPairs(preludeImports).map(([mod, ks]) =>
+      t.variableDeclaration("const", [
+        t.variableDeclarator(
+          t.objectPattern(ks.map(k => t.objectProperty(t.identifier(k), t.identifier(k), true))),
+          t.identifier(mod)
+        ),
+      ])
+    ),
+    // ..._.toPairs(preludeImports).map(([path, ks]) =>
+    //   t.importDeclaration(
+    //     ks.map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
+    //     t.stringLiteral(path)
+    //   ),
+    // ),
     ...Array.from(translator.imports),
     ...Array.from(translator.exports),
     t.exportDefaultDeclaration(

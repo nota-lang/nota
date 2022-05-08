@@ -3,3 +3,4 @@ yarn-error.log
 dist
 .env
 lerna-debug.log
+docs

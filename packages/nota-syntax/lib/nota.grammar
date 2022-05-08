@@ -570,10 +570,10 @@ ArgText { !nota lbrc TextBody rbrc | lverb VerbatimText rverb }
 
 ///////////// TOKENS
 
-@context context from "./nota_tokens.ts"
-@external tokens notaNewline from "./nota_tokens.ts" { NotaNewline }
-@external tokens text from "./nota_tokens.ts" { Text }
-@external tokens verbatim from "./nota_tokens.ts" { VerbatimText }
+@context context from "./nota_tokens"
+@external tokens notaNewline from "./nota_tokens" { NotaNewline }
+@external tokens text from "./nota_tokens" { Text }
+@external tokens verbatim from "./nota_tokens" { VerbatimText }
 
 @external specialize { identifier } tsExtends from "./js_tokens" { TSExtends[@name=extends] }
 

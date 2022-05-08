@@ -3,17 +3,16 @@ import {
   NotaFn,
   NotaText,
   addBetween,
-  none,
-  some,
-  zipExn,
-} from "@nota-lang/nota-common";
+} from "@nota-lang/nota-common/dist/nota-text.js";
+import { zipExn } from "@nota-lang/nota-common";
+import { none, some } from "@nota-lang/nota-common/dist/option.js";
 import _ from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAsync } from "react-async";
 
-import { DefinitionData, DefinitionsPlugin } from "./definitions";
-import { usePlugin } from "./plugin";
-import { $$, TexPlugin, texDefAnchor, texRef } from "./tex";
+import { DefinitionData, DefinitionsPlugin } from "./definitions.js";
+import { usePlugin } from "./plugin.js";
+import { $$, TexPlugin, texDefAnchor, texRef } from "./tex.js";
 
 const r = String.raw;
 

@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import bibtexParse from "@orcid/bibtex-parse-js";
 import { observer } from "mobx-react";
 
-import { Section, SectionBody } from "./document";
-import { Definition, DefinitionsPlugin } from "./definitions";
-import { Plugin, Pluggable, usePlugin } from "./plugin";
+import { Section, SectionBody } from "./document.js";
+import { Definition, DefinitionsPlugin } from "./definitions.js";
+import { Plugin, Pluggable, usePlugin } from "./plugin.js";
 import { action, makeObservable, observable } from "mobx";
-import { joinRecursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -99,13 +99,15 @@ function intersperse(arr: JSX.Element[], Sep: React.FC): JSX.Element[] {
   );
 }
 
-class BibliographyData extends Pluggable {
-  @observable citations: { [key: string]: BibliographyEntry } = {};
+export class BibliographyData extends Pluggable {
+  citations: { [key: string]: BibliographyEntry } = {};
   stateful = true;
 
   constructor() {
     super();
-    makeObservable(this);
+    makeObservable(this, {
+      citations: observable,
+    });
   }
 
   importBibtex = action((bibtex: string) => {

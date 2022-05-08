@@ -6,7 +6,8 @@ import React from "react";
 import { render, waitFor, screen, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { Definition, Ref, Document } from "@nota-lang/nota-components";
+import { Definition, Ref } from "@nota-lang/nota-components/dist/definitions";
+import { Document } from "@nota-lang/nota-components/dist/document";
 
 describe("definitions", () => {
   it("has defs, refs, and tooltips", async () => {

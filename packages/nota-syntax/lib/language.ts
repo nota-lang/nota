@@ -10,9 +10,9 @@ import {
   indentNodeProp,
 } from "@codemirror/language";
 
-import { autocomplete } from "./autocomplete";
+import { autocomplete } from "./autocomplete.js";
 //@ts-ignore
-import { parser } from "./nota.grammar";
+import { parser } from "./nota.grammar.js";
 
 export let CodeTag = Tag.define();
 export let notaLanguage = LRLanguage.define({

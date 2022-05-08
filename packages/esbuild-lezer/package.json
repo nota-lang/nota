@@ -22,15 +22,13 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs",
+    "build": "tsc --sourceMap",
+    "prepublish": "tsc",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
-  },
-  "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.3.6"
   },
   "peerDependencies": {
     "@lezer/generator": "^0.15.2",

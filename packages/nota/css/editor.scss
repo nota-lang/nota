@@ -1,3 +1,8 @@
+@use "@nota-lang/nota-components/dist/index" as *;
+@use "@nota-lang/nota-editor/dist/index" as *;
+
+@import "katex/dist/katex.min.css";
+
 body {
   margin: 0 !important;
   padding: 0 !important;  

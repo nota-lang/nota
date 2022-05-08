@@ -16,7 +16,10 @@ export let isConstructor = <P,>(t: ReactNode | ReactConstructor<P>): t is ReactC
   return isCls || isWrapper || isFc;
 };
 
-export let getOrRender = <P,>(T: ReactNode | ReactConstructor<P>, p: P): ReactNode => {
+export let getOrRender = <P extends object>(
+  T: ReactNode | ReactConstructor<P>,
+  p: P
+): ReactNode => {
   if (isConstructor(T)) {
     return <T {...p} />;
   } else {

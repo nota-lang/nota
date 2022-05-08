@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { FullWidthContainer, Row } from "./document";
-import { useStateOnInterval } from "./utils";
+import { FullWidthContainer, Row } from "./document.js";
+import { useStateOnInterval } from "./utils.js";
 
 // TODO: relate this to CSS somehow
 let DOCUMENT_WIDTH = 800;

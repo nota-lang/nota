@@ -7,7 +7,7 @@ import { render, screen } from "@testing-library/react";
 import { javascript } from "@codemirror/lang-javascript";
 import "@testing-library/jest-dom";
 
-import { Listing, ListingPlugin, ListingConfigure } from "@nota-lang/nota-components";
+import { Listing, ListingPlugin, ListingConfigure } from "@nota-lang/nota-components/dist/code";
 
 describe("code", () => {
   it("can render blocks", async () => {

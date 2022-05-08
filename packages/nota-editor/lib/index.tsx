@@ -1,5 +1,5 @@
 import React from "react";
-import { Result } from "@nota-lang/nota-common";
+import type { Result } from "@nota-lang/nota-common/dist/result";
 
 export type TranslationResult = Result<
   {
@@ -18,9 +18,7 @@ export interface State {
 
 export let StateContext = React.createContext<State | null>(null);
 
-export { Editor } from "./editor";
-export { LocalState } from "./local-state";
-export { RemoteState } from "./remote-state";
-export { JsView, OutputView, ParseView } from "./viewer";
-
-import "../css/nota-editor.scss";
+export { Editor } from "./editor.js";
+export { LocalState } from "./local-state.js";
+export { RemoteState } from "./remote-state.js";
+export { JsView, OutputView, ParseView } from "./viewer.js";

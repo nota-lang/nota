@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["packages/esbuild-utils", "packages/esbuild-lezer", "packages/nota-common", "packages/nota-components"],
+  "entryPointStrategy": "packages",
+  "name": "Nota",
+  "validation": {
+    "invalidLink": true,
+    "notExported": true
+  }
+}

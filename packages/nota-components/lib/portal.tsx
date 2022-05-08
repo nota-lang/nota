@@ -1,12 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { observable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
 
-import { Pluggable, Plugin, usePlugin } from "./plugin";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 
 class PortalData extends Pluggable {
-  @observable portal: HTMLDivElement | null = null;
+  portal: HTMLDivElement | null = null;
+
+  constructor() {
+    super();
+    makeObservable(this, { portal: observable });
+  }
 }
 
 export let PortalPlugin = new Plugin(PortalData);
@@ -21,9 +26,9 @@ export let Portal = () => {
   return (
     <div
       className="portal"
-      ref={el => {
+      ref={action((el: HTMLDivElement) => {
         portal.portal = el;
-      }}
+      })}
     />
   );
 };

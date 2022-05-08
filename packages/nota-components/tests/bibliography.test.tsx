@@ -6,7 +6,8 @@ import React from "react";
 import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { References, BibliographyPlugin, DefinitionsPlugin, Ref } from "@nota-lang/nota-components";
+import { References, BibliographyPlugin } from "@nota-lang/nota-components/dist/bibliography";
+import { DefinitionsPlugin, Ref } from "@nota-lang/nota-components/dist/definitions";
 
 describe("bibliography", () => {
   it("can do bibtex -> citation -> references", async () => {
@@ -29,8 +30,8 @@ describe("bibliography", () => {
     await waitFor(() => screen.getByText("Aliprantis and Border 1994"));
     expect(
       baseElement
-        .querySelector(".bib-reference")
-        .textContent.includes("Infinite Dimensional Analysis")
+        .querySelector(".bib-reference")!
+        .textContent!.includes("Infinite Dimensional Analysis")
     ).toBeTruthy();
   });
 

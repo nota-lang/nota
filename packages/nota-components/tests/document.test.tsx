@@ -13,7 +13,7 @@ import {
   Subsection,
   Footnote,
   TableOfContents,
-} from "@nota-lang/nota-components";
+} from "@nota-lang/nota-components/dist/document";
 
 describe("document", () => {
   it("automatically puts top-level content into paragraphs", () => {
@@ -23,7 +23,9 @@ describe("document", () => {
       </Document>
     );
 
-    let paragraphs = baseElement.querySelectorAll<HTMLElement>(".nota-document-inner > p");
+    let paragraphs = Array.from(
+      baseElement.querySelectorAll<HTMLElement>(".nota-document-inner > p")
+    );
     let contents = ["A B\nC", "D", "E<span>F</span>"];
     zipExn(paragraphs, contents).map(([p, html]) => {
       expect(p.innerHTML).toBe(html);
@@ -43,17 +45,17 @@ describe("document", () => {
       </Document>
     );
 
-    let toc = baseElement.querySelector<HTMLElement>(".toc");
+    let toc = baseElement.querySelector<HTMLElement>(".toc")!;
     await waitFor(() => expect(toc.querySelector("li")).not.toBeNull());
 
-    let [intro, conclusion] = baseElement.querySelectorAll<HTMLElement>(
-      ".nota-document-inner > section"
+    let [intro, conclusion] = Array.from(
+      baseElement.querySelectorAll<HTMLElement>(".nota-document-inner > section")!
     );
     getByText(intro, "Introduction");
     getByText(intro, "In this paper...");
     getByText(intro, "We are contributing...");
 
-    let contributions = intro.querySelector<HTMLElement>("section");
+    let contributions = intro.querySelector<HTMLElement>("section")!;
     getByText(contributions, "We are contributing...");
 
     getByText(conclusion, "We have shown...");
@@ -78,6 +80,6 @@ describe("document", () => {
 
     screen.getByText("footnote");
     screen.getByText("another");
-    expect(baseElement.querySelector("sup").textContent).toBe("0");
+    expect(baseElement.querySelector("sup")!.textContent).toBe("0");
   });
 });

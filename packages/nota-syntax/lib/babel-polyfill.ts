@@ -249,7 +249,7 @@ export let debuggerStatement = (): DebuggerStatement => ({
 });
 
 let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;
-export let traverse = (node: Node, visit: (_node: Node) => void) => {
+export let traverse = (node: Node, visit: (node: Node) => void) => {
   visit(node);
   Object.keys(node).forEach(k => {
     let v = (node as any)[k];

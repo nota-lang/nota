@@ -7,6 +7,7 @@
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
+  "typedocMain": "lib/index.ts",
   "directories": {
     "lib": "lib"
   },
@@ -21,7 +22,8 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "tsc -emitDeclarationOnly && node build.mjs",
+    "build": "tsc --sourceMap",
+    "prepublish": "tsc",
     "lint": "eslint --ext js,ts,tsx lib",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
@@ -37,15 +39,15 @@
     "node-static": "^0.7.11",
     "puppeteer-core": "^13.5.1",
     "tcp-port-used": "^1.0.2",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "es-main": "^1.0.2",
+    "package-json-type": "^1.0.3"
   },
   "peerDependencies": {
     "esbuild": "^0.14.5"
   },
   "devDependencies": {
     "@types/node-static": "^0.7.7",
-    "@types/puppeteer-core": "^5.4.0",
-    "es-main": "^1.0.2",
-    "package-json-type": "^1.0.3"
+    "@types/puppeteer-core": "^5.4.0"
   }
 }

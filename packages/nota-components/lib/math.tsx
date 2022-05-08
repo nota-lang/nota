@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { Definition } from "./definitions";
-import { DocumentContext, Smallcaps } from "./document";
-import { ToggleGroup, ToggleGroupButton } from "./togglebox";
-import { HTMLAttributes } from "./utils";
+import { Definition } from "./definitions.js";
+import { DocumentContext, Smallcaps } from "./document.js";
+import { ToggleGroup, ToggleGroupButton } from "./togglebox.js";
+import { HTMLAttributes } from "./utils.js";
 
 export let Premise: React.FC = ({ children }) => <div className="premise">{children}</div>;
 export let PremiseRow: React.FC = ({ children }) => <div className="premise-row">{children}</div>;

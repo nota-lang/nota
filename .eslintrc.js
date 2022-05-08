@@ -27,14 +27,19 @@ module.exports = {
         "ScrollLogicalPosition": true,
         "JSX": true
     },
-    "ignorePatterns": ["*.d.ts"],
+    "ignorePatterns": ["*.d.ts", "packages/nota-syntax/lib/nota.grammar.*"],
     "rules": {
         "react/prop-types": "off",
         "no-empty-pattern": "off",
         "no-undef": "off",
-        "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         "no-constant-condition": ["error", {"checkLoops": false}],
         "prettier/prettier": "error"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 };

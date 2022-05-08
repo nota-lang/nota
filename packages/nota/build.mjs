@@ -10,7 +10,7 @@ build({
   define: {
     VERSION: JSON.stringify(pkg.version),
   },
-  plugins: [executablePlugin(["dist/index.mjs"])],
+  plugins: [executablePlugin({paths: ["dist/index.mjs"]})],
 })
 
 build({

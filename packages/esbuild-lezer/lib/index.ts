@@ -1,8 +1,21 @@
+/**
+ * An esbuild plugin that allows [Lezer grammars](https://lezer.codemirror.net/) to be loaded.
+ * @module
+ */
+
 import { buildParserFile } from "@lezer/generator";
 import type { Plugin } from "esbuild";
 import fs from "fs/promises";
 import path from "path";
 
+/** Runs Lezer on all `*.grammar` files.
+ *
+ * Rather than generating two separate files like Lezer normally does (the grammar and the terms),
+ * this plugin combines them into one file that exports both. So you can do something like:
+ * ```js
+ * import {parser, * as terms} from "./foo.grammar";
+ * ```
+ */
 export let lezerPlugin = (): Plugin => ({
   name: "lezer",
   setup(build) {

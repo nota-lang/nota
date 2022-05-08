@@ -1,10 +1,17 @@
 import React from "react";
 
+/** A server-side rendering template must accept these properties. */
 export interface TemplateProps {
+  /** The title of the page.
+   * Should go in a <title> tag in the header. */
   title: string;
+
+  /** A URL for the Javascript that will render the page body.
+   * Should go at the bottom of <body>. */
   script: string;
 }
 
+/** The default page template for server-side rendering. */
 let Template: React.FC<TemplateProps> = ({ title, script, children }) => (
   <>
     <head>

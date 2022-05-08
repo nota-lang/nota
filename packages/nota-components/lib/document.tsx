@@ -4,17 +4,17 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { BibliographyPlugin } from "./bibliography";
-import { ListingPlugin } from "./code";
-import { NestedCounter, ValueStack } from "./counter";
-import { Definition, DefinitionsPlugin, Ref } from "./definitions";
-import { Logger, LoggerPlugin } from "./logger";
-import { Plugin, usePlugin } from "./plugin";
-import { Portal, PortalPlugin } from "./portal";
-import { ScrollPlugin } from "./scroll";
-import { TexPlugin } from "./tex";
-import { TooltipPlugin } from "./tooltip";
-import { HTMLAttributes } from "./utils";
+import { BibliographyPlugin } from "./bibliography.js";
+import { ListingPlugin } from "./code.js";
+import { NestedCounter, ValueStack } from "./counter.js";
+import { Definition, DefinitionsPlugin, Ref } from "./definitions.js";
+import { Logger, LoggerPlugin } from "./logger.js";
+import { Plugin, usePlugin } from "./plugin.js";
+import { Portal, PortalPlugin } from "./portal.js";
+import { ScrollPlugin } from "./scroll.js";
+import { TexPlugin } from "./tex.js";
+import { TooltipPlugin } from "./tooltip.js";
+import { HTMLAttributes } from "./utils.js";
 
 class DocumentData {
   sections: NestedCounter = new NestedCounter();

@@ -1,8 +1,8 @@
 import type { Tree } from "@lezer/common";
-import { Result, err, ok } from "@nota-lang/nota-common";
+import { Result, err, ok } from "@nota-lang/nota-common/dist/result";
 
 //@ts-ignore
-import { parser } from "./nota.grammar";
+import { parser } from "./nota.grammar.js";
 
 export let tryParse = (contents: string): Result<Tree> => {
   // Parse is @lezer/common/mix/MixedParse but this isn't an exported type

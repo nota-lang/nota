@@ -3,8 +3,8 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
 
-import { Pluggable, Plugin, usePlugin } from "./plugin";
-import { ToplevelElem } from "./portal";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { ToplevelElem } from "./portal.js";
 import {
   Container,
   HTMLAttributes,
@@ -12,7 +12,7 @@ import {
   ReactNode,
   getOrRender,
   isConstructor,
-} from "./utils";
+} from "./utils.js";
 
 // TODO
 // * Immediately:

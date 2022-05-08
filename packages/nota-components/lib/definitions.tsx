@@ -4,20 +4,13 @@ import classNames from "classnames";
 import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
 
-import { Container, ReactConstructor, ReactNode } from "./utils";
-import { LocalLink } from "./scroll";
-import { Tooltip } from "./tooltip";
-import { Plugin, Pluggable, usePlugin } from "./plugin";
-import { HTMLAttributes, getOrRender } from "./utils";
-import {
-  joinRecursive,
-  Option,
-  some,
-  none,
-  isSome,
-  optUnwrap,
-  NotaText,
-} from "@nota-lang/nota-common";
+import { Container, ReactConstructor, ReactNode } from "./utils.js";
+import { LocalLink } from "./scroll.js";
+import { Tooltip } from "./tooltip.js";
+import { Plugin, Pluggable, usePlugin } from "./plugin.js";
+import { HTMLAttributes, getOrRender } from "./utils.js";
+import { Option, some, none, isSome, optUnwrap } from "@nota-lang/nota-common/dist/option.js";
+import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 
 export interface DefinitionData {
   tooltip: Option<ReactConstructor | ReactNode>;
@@ -25,14 +18,18 @@ export interface DefinitionData {
 }
 
 class DefinitionsData extends Pluggable {
-  @observable.shallow defs: { [name: string]: DefinitionData } = {};
-  @observable defMode: boolean = false;
-  @observable usedDefinitions: Set<string> = new Set();
+  defs: { [name: string]: DefinitionData } = {};
+  defMode: boolean = false;
+  usedDefinitions: Set<string> = new Set();
   stateful = true;
 
   constructor() {
     super();
-    makeObservable(this);
+    makeObservable(this, {
+      defs: observable.shallow,
+      defMode: observable,
+      usedDefinitions: observable,
+    });
   }
 
   registerUse = action((name: string) => {

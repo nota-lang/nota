@@ -1,16 +1,16 @@
 import React from "react";
-import { action, observable, makeObservable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
 import _ from "lodash";
 
-import { Plugin, Pluggable, usePlugin } from "./plugin";
+import { Plugin, Pluggable, usePlugin } from "./plugin.js";
 
 class LoggerData extends Pluggable {
-  @observable queue: { Message: React.FC; duration: number; id: string }[] = [];
+  queue: { Message: React.FC; duration: number; id: string }[] = [];
 
   constructor() {
     super();
-    makeObservable(this);
+    makeObservable(this, { queue: observable });
   }
 
   log = action((Message: React.FC, duration: number = 5000) => {

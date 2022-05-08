@@ -1,8 +1,8 @@
-import { joinRecursive } from "@nota-lang/nota-common";
+import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import React from "react";
 import { createContext, useContext } from "react";
 
-import { DocumentContext } from "./document";
+import { DocumentContext } from "./document.js";
 
 interface AuthorAffiliation {
   institution?: string;

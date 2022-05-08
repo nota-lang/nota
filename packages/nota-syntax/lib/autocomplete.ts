@@ -6,13 +6,16 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 
-import { INTRINSIC_ELEMENTS } from "./intrinsic-elements";
+import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
 //@ts-ignore
-import * as terms from "./nota.grammar";
+import * as terms from "./nota.grammar.terms.js";
 
 //@ts-ignore
-let components: string[] = COMPONENTS;
-let notaElements = components.filter(name => name[0].match(/[A-Z$]/) !== null);
+import COMPONENTS from "./components.js";
+
+let notaElements = Object.keys(COMPONENTS as { [k: string]: string }).filter(
+  name => name[0].match(/[A-Z$]/) !== null
+);
 let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
   .map(label => ({ label, type: "react", boost: -1 }))
   .concat(

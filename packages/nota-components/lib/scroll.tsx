@@ -1,7 +1,7 @@
 import React, { CSSProperties, forwardRef } from "react";
 
-import { Pluggable, Plugin, usePlugin } from "./plugin";
-import { HTMLAttributes } from "./utils";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { HTMLAttributes } from "./utils.js";
 
 // https://stackoverflow.com/questions/5353934/check-if-element-is-visible-on-screen
 function checkVisible(elm: any): boolean {

@@ -10,15 +10,11 @@ import {
   StateContext,
   RemoteState,
 } from "@nota-lang/nota-editor";
-import { isOk } from "@nota-lang/nota-common";
+import { isOk } from "@nota-lang/nota-common/dist/result";
 import classNames from "classnames";
 
 import "../static/index.html";
 import "../static/favicon.ico";
-
-import "katex/dist/katex.min.css";
-import "@nota-lang/nota-components/dist/index.css";
-import "@nota-lang/nota-editor/dist/index.css";
 import "../css/editor.scss";
 
 export class ViewerState {

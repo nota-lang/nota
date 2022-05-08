@@ -6,7 +6,8 @@ import React from "react";
 import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { TooltipPlugin, PortalPlugin, Portal, Tooltip } from "@nota-lang/nota-components";
+import { TooltipPlugin, Tooltip } from "@nota-lang/nota-components/dist/tooltip";
+import { PortalPlugin, Portal } from "@nota-lang/nota-components/dist/portal";
 
 describe("tooltip", () => {
   it("can render the inside and open on click", async () => {

@@ -1,5 +1,5 @@
 import { cli, fileExists, log } from "@nota-lang/esbuild-utils";
-import { err, ok } from "@nota-lang/nota-common";
+import { err, ok } from "@nota-lang/nota-common/dist/result";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import type {
   TranslationResult,

@@ -2,7 +2,7 @@ import { ContextTracker, ExternalTokenizer } from "@lezer/lr";
 import _ from "lodash";
 
 //@ts-ignore
-import * as terms from "./nota.grammar";
+import * as terms from "./nota.grammar.terms.js";
 
 const [
   lbrc,

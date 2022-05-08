@@ -1,10 +1,10 @@
-import { resUnwrap } from "@nota-lang/nota-common";
+import { resUnwrap } from "@nota-lang/nota-common/dist/result";
 import type esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 
-import { tryParse } from "./parse";
-import { translate } from "./translate";
+import { tryParse } from "./parse.js";
+import { translate } from "./translate.js";
 
 export interface NotaPluginOpts {}
 
