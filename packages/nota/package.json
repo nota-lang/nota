@@ -8,9 +8,6 @@
   "bin": {
     "nota": "dist/index.mjs"
   },
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
     "dist"
   ],
@@ -23,8 +20,7 @@
   },
   "scripts": {
     "build": "node build.mjs",
-    "lint": "eslint --ext js,ts,tsx lib",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"

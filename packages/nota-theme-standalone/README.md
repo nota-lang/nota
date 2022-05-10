@@ -1,11 +1,11 @@
-# `@nota-lang/nota-theme-acm`
+# `@nota-lang/nota-theme-standalone`
 
-> TODO: description
+A Nota theme for standalone documents that puts the document in the center of the page.
 
 ## Usage
 
-```
-import notaThemeAcm from '@nota-lang/nota-theme-acm';
+In your Nota document, write:
 
-// TODO: DEMONSTRATE API
+```
+%(import "@nota-lang/nota-theme-standalone/dist/index.css")
 ```

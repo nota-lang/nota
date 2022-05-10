@@ -16,16 +16,13 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "mkdir -p dist && cp -r css/assets dist && sass -I node_modules css/theme.scss dist/index.css",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "mkdir -p dist && cp -r css/assets dist && sass -I node_modules css/theme.scss dist/index.css"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/nota-common": "workspace:^0.3.6"
-  },
-  "dependencies": {
+    "@nota-lang/nota-common": "workspace:^0.3.6",
     "sass": "^1.51.0"
   }
 }

@@ -7,10 +7,9 @@
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "typedocMain": "lib/index.tsx",
   "files": [
+    "lib",
     "dist"
   ],
   "publishConfig": {
@@ -21,9 +20,8 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "mkdir -p dist && sass -I node_modules css/nota-editor.scss dist/index.css && tsc --sourceMap",
-    "lint": "eslint --ext js,ts,tsx lib",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "mkdir -p dist && sass -I node_modules css/nota-editor.scss dist/index.css && tsc",
+    "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
@@ -36,7 +34,6 @@
     "@codemirror/language": "^0.20.0",
     "@codemirror/state": "^0.20.0",
     "@codemirror/view": "^0.20.0",
-    "@lezer/common": "^0.16.0",
     "@nota-lang/nota-components": "workspace:^0.3.6",
     "@nota-lang/nota-syntax": "workspace:^0.3.6",
     "classnames": "^2.3.1",
@@ -46,10 +43,8 @@
     "prettier": "^2.6.2",
     "react": "^17.0.2"
   },
-  "dependenciesComments": [
-    "We do NOT need to include codemirror, react, etc as peerDependencies b/c they are automatically fetched from @nota-lang/nota-components/dist/"
-  ],
   "devDependencies": {
+    "@lezer/common": "^0.16.0",
     "@nota-lang/esbuild-utils": "workspace:^0.3.6",
     "@nota-lang/nota-common": "workspace:^0.3.6",
     "@types/babel__core": "^7.1.19",

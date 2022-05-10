@@ -8,11 +8,8 @@
   "type": "module",
   "main": "dist/index.js",
   "typedocMain": "lib/index.ts",
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
-    "dist"
+    "lib", "dist"
   ],
   "publishConfig": {
     "access": "public"
@@ -22,10 +19,8 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs && tsc --sourceMap",
-    "prepublish": "node build.mjs && tsc",
-    "lint": "eslint --ext js,ts,tsx lib",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "node build.mjs && tsc",
+    "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"

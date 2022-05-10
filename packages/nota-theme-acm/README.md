@@ -1,11 +1,11 @@
 # `@nota-lang/nota-theme-acm`
 
-> TODO: description
+A Nota theme that mimics the ACM LaTeX template: https://www.acm.org/publications/proceedings-template
 
 ## Usage
 
-```
-import notaThemeAcm from '@nota-lang/nota-theme-acm';
+In your Nota document, write:
 
-// TODO: DEMONSTRATE API
+```
+%(import "@nota-lang/nota-theme-acm/dist/index.css")
 ```

@@ -8,9 +8,6 @@
   "type": "module",
   "main": "dist/index.js",
   "typedocMain": "lib/index.ts",
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
     "dist"
   ],
@@ -22,17 +19,14 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "tsc --sourceMap",
-    "prepublish": "tsc",
-    "lint": "eslint --ext js,ts,tsx lib",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "tsc",
+    "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
     "@cspotcode/source-map-support": "^0.8.1",
-    "@types/puppeteer": "^5.4.6",
     "commander": "^9.2.0",
     "common-path-prefix": "^3.0.0",
     "es-main": "^1.0.2",
@@ -40,7 +34,6 @@
     "glob-promise": "^4.2.2",
     "lodash": "^4.17.21",
     "node-static": "^0.7.11",
-    "package-json-type": "^1.0.3",
     "puppeteer": "^14.0.0",
     "tcp-port-used": "^1.0.2",
     "winston": "^3.7.2"
@@ -51,10 +44,11 @@
   "devDependencies": {
     "@types/lodash": "^4.14.182",
     "@types/node-static": "^0.7.7",
-    "@types/puppeteer-core": "^5.4.0",
+    "@types/puppeteer": "^5.4.6",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
     "@types/tcp-port-used": "^1.0.1",
+    "package-json-type": "^1.0.3",
     "esbuild": "^0.14.5"
   }
 }
