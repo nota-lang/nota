@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { action } from "mobx";
 import { nota /*CodeTag*/ } from "@nota-lang/nota-syntax";
-import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
-import { keymap, KeyBinding } from "@codemirror/view";
-import { defaultHighlightStyle } from "@codemirror/highlight";
+import { basicSetup } from "@codemirror/basic-setup";
+import { keymap, KeyBinding, EditorView } from "@codemirror/view";
+import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { indentWithTab } from "@codemirror/commands";
+import { EditorSelection, EditorState } from "@codemirror/state";
 import classNames from "classnames";
 
 import { StateContext } from ".";
-import { EditorSelection } from "@codemirror/state";
 
 export let theme = EditorView.theme({
   "&": {
@@ -93,7 +93,11 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
   let state = useContext(StateContext)!;
 
   useEffect(() => {
-    let visualExts = [defaultHighlightStyle, EditorView.lineWrapping, theme];
+    let visualExts = [
+      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      EditorView.lineWrapping,
+      theme,
+    ];
     let editingExts = [keymap.of([...keyBindings, indentWithTab])];
     let customExts = [
       EditorView.updateListener.of(

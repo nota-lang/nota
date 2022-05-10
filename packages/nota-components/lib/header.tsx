@@ -1,6 +1,5 @@
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
-import React from "react";
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 
 import { DocumentContext } from "./document.js";
 

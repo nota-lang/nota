@@ -2,9 +2,9 @@ import type { BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
 import type { Expression, Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
-import { resUnwrap } from "@nota-lang/nota-common/dist/result";
-import { isLeft } from "@nota-lang/nota-common/dist/either";
-import { Translator, babelPolyfill as t, terms, translate, tryParse } from "@nota-lang/nota-syntax";
+import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import { isLeft } from "@nota-lang/nota-common/dist/either.js";
+import { Translator, babelPolyfill as t, terms, translate, tryParse } from "..";
 
 test("translate", () => {
   let input = "@h1{Hello world!}";

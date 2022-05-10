@@ -1,6 +1,6 @@
 node_modules
-yarn-error.log
 dist
 .env
-lerna-debug.log
 docs
+pnpm-lock.yaml
+.pnpm-debug.log

@@ -1,5 +1,5 @@
 import type { Tree } from "@lezer/common";
-import { Result, err, ok } from "@nota-lang/nota-common/dist/result";
+import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 //@ts-ignore
 import { parser } from "./nota.grammar.js";

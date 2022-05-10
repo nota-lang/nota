@@ -1,5 +1,0 @@
-{
-  "transform": {
-    "^.+\\.m?(j|t)sx?$": "esbuild-jest"
-  }  
-}

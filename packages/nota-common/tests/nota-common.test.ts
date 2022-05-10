@@ -1,4 +1,4 @@
-import * as nota_text from "@nota-lang/nota-common/dist/nota-text";
+import {notaText} from "..";
 
 let expectEach = (a: [any[], any][], f: (..._i: any[]) => any) =>
   a.forEach(([i, o]) => expect(f(...i)).toStrictEqual(o));
@@ -11,7 +11,7 @@ test("joinRecursive", () => {
       [[["a", "b"]], "ab"],
       [[["a", ["b", "c"]]], "abc"],
     ],
-    nota_text.joinRecursive
+    notaText.joinRecursive
   );
 });
 
@@ -29,6 +29,6 @@ test("addBetween", () => {
         ["a", ",", "b", ",", "c"],
       ],
     ],
-    nota_text.addBetween
+    notaText.addBetween
   );
 });

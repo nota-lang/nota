@@ -6,8 +6,8 @@ import React from "react";
 import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { References, BibliographyPlugin } from "@nota-lang/nota-components/dist/bibliography";
-import { DefinitionsPlugin, Ref } from "@nota-lang/nota-components/dist/definitions";
+import { References, BibliographyPlugin } from "../dist/bibliography";
+import { DefinitionsPlugin, Ref } from "../dist/definitions";
 
 describe("bibliography", () => {
   it("can do bibtex -> citation -> references", async () => {

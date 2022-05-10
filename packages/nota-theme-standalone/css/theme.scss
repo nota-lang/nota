@@ -1,4 +1,4 @@
-@use "@nota-lang/nota-common/dist/index" as *;
+@use "@nota-lang/nota-common/dist/index.scss" as *;
 
 .nota-document:not(.editing) {
   @include monitor {

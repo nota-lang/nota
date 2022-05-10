@@ -16,7 +16,7 @@ beforeAll(async () => {
   await fs.writeFile(inputPath, `@h1{Hello world}`);
 
   let modPath = path.join(process.cwd(), "packages", "nota");
-  await exec(`yarn add ${modPath}`, { cwd: dir });
+  await exec(`pnpm add ${modPath}`, { cwd: dir });
 });
 afterAll(async () => {
   await fs.rm(dir, { recursive: true });

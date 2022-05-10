@@ -570,21 +570,21 @@ ArgText { !nota lbrc TextBody rbrc | lverb VerbatimText rverb }
 
 ///////////// TOKENS
 
-@context context from "./nota_tokens"
-@external tokens notaNewline from "./nota_tokens" { NotaNewline }
-@external tokens text from "./nota_tokens" { Text }
-@external tokens verbatim from "./nota_tokens" { VerbatimText }
+@context context from "./nota_tokens.js"
+@external tokens notaNewline from "./nota_tokens.js" { NotaNewline }
+@external tokens text from "./nota_tokens.js" { Text }
+@external tokens verbatim from "./nota_tokens.js" { VerbatimText }
 
-@external specialize { identifier } tsExtends from "./js_tokens" { TSExtends[@name=extends] }
+@external specialize { identifier } tsExtends from "./js_tokens.js" { TSExtends[@name=extends] }
 
-@external tokens noSemicolon from "./js_tokens" { noSemi }
+@external tokens noSemicolon from "./js_tokens.js" { noSemi }
 
-@external tokens incdecToken from "./js_tokens" {
+@external tokens incdecToken from "./js_tokens.js" {
  incdec[@name=ArithOp],
  incdecPrefix[@name=ArithOp]
 }
 
-@external tokens template from "./js_tokens" {
+@external tokens template from "./js_tokens.js" {
   templateContent,
   templateDollarBrace,
   templateEnd
@@ -690,6 +690,6 @@ ArgText { !nota lbrc TextBody rbrc | lverb VerbatimText rverb }
   @precedence { JSXStartTag, tsAngleOpen }
 }
 
-@external tokens insertSemicolon from "./js_tokens" { insertSemi }
+@external tokens insertSemicolon from "./js_tokens.js" { insertSemi }
 
 @detectDelim

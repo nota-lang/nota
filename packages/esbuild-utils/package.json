@@ -31,23 +31,30 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
-    "@cspotcode/source-map-support": "^0.7.0",
-    "commander": "^8.3.0",
+    "@cspotcode/source-map-support": "^0.8.1",
+    "@types/puppeteer": "^5.4.6",
+    "commander": "^9.2.0",
     "common-path-prefix": "^3.0.0",
-    "glob": "^7.2.0",
-    "glob-promise": "^4.2.2",
-    "node-static": "^0.7.11",
-    "puppeteer-core": "^13.5.1",
-    "tcp-port-used": "^1.0.2",
-    "winston": "^3.3.3",
     "es-main": "^1.0.2",
-    "package-json-type": "^1.0.3"
+    "glob": "^7.1.6",
+    "glob-promise": "^4.2.2",
+    "lodash": "^4.17.21",
+    "node-static": "^0.7.11",
+    "package-json-type": "^1.0.3",
+    "puppeteer": "^14.0.0",
+    "tcp-port-used": "^1.0.2",
+    "winston": "^3.7.2"
   },
   "peerDependencies": {
     "esbuild": "^0.14.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/node-static": "^0.7.7",
-    "@types/puppeteer-core": "^5.4.0"
+    "@types/puppeteer-core": "^5.4.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "@types/tcp-port-used": "^1.0.1",
+    "esbuild": "^0.14.5"
   }
 }

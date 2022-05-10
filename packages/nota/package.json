@@ -30,33 +30,38 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/nota-common": "^0.3.6",
+    "@nota-lang/nota-common": "workspace:^0.3.6",
     "@types/express": "^4.17.13",
     "@types/express-ws": "^3.0.1",
-    "@types/tcp-port-used": "^1.0.0",
-    "@types/ws": "^8.2.0",
-    "esbuild-sass-plugin": "^1.8.1"
+    "@types/lodash": "^4.14.182",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "@types/tcp-port-used": "^1.0.1",
+    "@types/ws": "^8.5.3",
+    "esbuild-sass-plugin": "^2.2.6"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.19.0",
-    "@codemirror/lang-javascript": "^0.19.3",
-    "@cspotcode/source-map-support": "^0.7.0",
-    "@nota-lang/esbuild-utils": "^0.3.6",
-    "@nota-lang/nota-components": "^0.3.6",
-    "@nota-lang/nota-editor": "^0.3.6",
-    "@nota-lang/nota-theme-standalone": "^0.3.6",
+    "@codemirror/basic-setup": "^0.20.0",
+    "@codemirror/lang-javascript": "^0.20.0",
+    "@cspotcode/source-map-support": "^0.8.1",
+    "@nota-lang/esbuild-utils": "workspace:^0.3.6",
+    "@nota-lang/nota-components": "workspace:^0.3.6",
+    "@nota-lang/nota-editor": "workspace:^0.3.6",
+    "@nota-lang/nota-syntax": "workspace:^0.3.6",
+    "@nota-lang/nota-theme-standalone": "workspace:^0.3.6",
     "classnames": "^2.3.1",
-    "commander": "^8.3.0",
-    "esbuild": "^0.14.5",
-    "express": "^4.17.1",
+    "commander": "^9.2.0",
+    "esbuild": "^0.14.38",
+    "express": "^4.18.1",
     "express-ws": "^5.0.2",
     "katex": "^0.15.3",
+    "lodash": "^4.17.21",
     "mobx": "^6.3.7",
     "mobx-react": "^7.2.1",
     "open": "^8.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "tcp-port-used": "^1.0.2",
-    "ws": "^8.2.3"
+    "ws": "^8.6.0"
   }
 }

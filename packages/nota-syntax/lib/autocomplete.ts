@@ -46,13 +46,15 @@ export let autocomplete: CompletionSource = context => {
   // Factor this into a separate `ScopeAnalysis` extension or something?
   let definitions: Completion[] = [];
   tree.iterate({
-    enter(type, _from, _to, get) {
-      if (type.id == terms.VariableDefinition) {
+    enter(node) {
+      if (node.type.id == terms.VariableDefinition) {
         definitions.push({
-          label: text(get()),
+          label: text(node.node),
           type: "variable",
         });
         return false;
+      } else {
+        return true;
       }
     },
   });

@@ -5,11 +5,6 @@
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
   "license": "MIT",
-  "type": "module",
-  "main": "dist/index.js",
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
     "dist"
   ],
@@ -21,14 +16,16 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs",
-    "lint": "eslint --ext js,ts,tsx lib",
+    "build": "mkdir -p dist && cp -r css/assets dist && sass -I node_modules css/theme.scss dist/index.css",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.3.6"
+    "@nota-lang/nota-common": "workspace:^0.3.6"
+  },
+  "dependencies": {
+    "sass": "^1.51.0"
   }
 }

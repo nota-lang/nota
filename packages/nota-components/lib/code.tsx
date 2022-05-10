@@ -1,8 +1,6 @@
-import { lineNumbers } from "@codemirror/gutter";
-import { defaultHighlightStyle } from "@codemirror/highlight";
-import { LanguageSupport } from "@codemirror/language";
+import { LanguageSupport, defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { EditorState, Extension, StateEffect, StateField } from "@codemirror/state";
-import { Decoration, DecorationSet, EditorView } from "@codemirror/view";
+import { Decoration, DecorationSet, EditorView, lineNumbers } from "@codemirror/view";
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import _ from "lodash";
 import React, { useEffect, useRef } from "react";
@@ -175,7 +173,7 @@ export let Listing: React.FC<ListingProps> = props => {
         doc: code,
         extensions: [
           lineNumbers(),
-          defaultHighlightStyle,
+          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
           theme,
           EditorView.editable.of(props.editable || false),
           props.wrap || ctx.wrap ? EditorView.lineWrapping : [],

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { default as ReactLoader } from "react-loader-spinner";
 import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
-import classNames from "classnames";
+import { default as classNames } from "classnames";
 
 export class LoaderData {
   loaded: boolean;

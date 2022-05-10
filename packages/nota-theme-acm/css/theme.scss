@@ -1,11 +1,13 @@
+@use "@nota-lang/nota-common/dist/index.scss" as *;
+
 @mixin loadserif($suffix) {
   font-family: "Linux Libertine O";
-  src: url("../assets/LinLibertine_#{$suffix}.otf");
+  src: url("./assets/LinLibertine_#{$suffix}.otf");
 }
 
 @mixin loadsans($suffix) {
   font-family: "Linux Biolinum O";
-  src: url("../assets/LinBiolinum_#{$suffix}.otf");
+  src: url("./assets/LinBiolinum_#{$suffix}.otf");
 }
 
 @font-face {
@@ -31,15 +33,6 @@
   @include loadsans("RI");
   font-style: italic;
 }
-
-$size-footnote: 14px;
-$size-small: 16px;
-$size-normal: 18px;
-$size-large: 22px;
-$size-Large: 24px;
-$size-LARGE: 28px;
-$size-huge: 32px;
-$size-Huge: 36px;
 
 $serif: "Linux Libertine O", serif;
 $sans-serif: "Linux Biolinum O", sans-serif;

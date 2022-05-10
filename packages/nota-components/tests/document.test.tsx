@@ -13,7 +13,7 @@ import {
   Subsection,
   Footnote,
   TableOfContents,
-} from "@nota-lang/nota-components/dist/document";
+} from "../dist/document";
 
 describe("document", () => {
   it("automatically puts top-level content into paragraphs", () => {

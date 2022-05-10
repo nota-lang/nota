@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import { default as classNames } from "classnames";
 import CSS from "csstype";
 import _ from "lodash";
 import { observer } from "mobx-react";

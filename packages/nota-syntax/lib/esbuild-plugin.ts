@@ -1,4 +1,4 @@
-import { resUnwrap } from "@nota-lang/nota-common/dist/result";
+import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
 import type esbuild from "esbuild";
 import fs from "fs";
 import path from "path";

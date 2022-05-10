@@ -1,16 +1,16 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import _ from "lodash";
-import classNames from "classnames";
+import { default as classNames } from "classnames";
 import { makeObservable, observable, action } from "mobx";
 import { observer } from "mobx-react";
+import { Option, some, none, isSome, optUnwrap } from "@nota-lang/nota-common/dist/option.js";
+import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 
 import { Container, ReactConstructor, ReactNode } from "./utils.js";
 import { LocalLink } from "./scroll.js";
 import { Tooltip } from "./tooltip.js";
 import { Plugin, Pluggable, usePlugin } from "./plugin.js";
 import { HTMLAttributes, getOrRender } from "./utils.js";
-import { Option, some, none, isSome, optUnwrap } from "@nota-lang/nota-common/dist/option.js";
-import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 
 export interface DefinitionData {
   tooltip: Option<ReactConstructor | ReactNode>;

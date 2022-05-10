@@ -1,5 +1,6 @@
-import { HighlightStyle, Tag, styleTags, tags as t } from "@codemirror/highlight";
+import { Tag, styleTags, tags as t } from "@lezer/highlight";
 import {
+  HighlightStyle,
   LRLanguage,
   LanguageSupport,
   continuedIndent,
@@ -8,6 +9,7 @@ import {
   foldInside,
   foldNodeProp,
   indentNodeProp,
+  syntaxHighlighting,
 } from "@codemirror/language";
 
 import { autocomplete } from "./autocomplete.js";
@@ -138,4 +140,8 @@ let notaStyle = HighlightStyle.define([
   { tag: t.content, class: "nota-editor-text" },
 ]);
 
-export let nota = () => new LanguageSupport(notaLanguage, [notaCompletion, notaStyle]);
+export let nota = () =>
+  new LanguageSupport(notaLanguage, [
+    notaCompletion,
+    syntaxHighlighting(notaStyle, { fallback: true }),
+  ]);

@@ -8,7 +8,7 @@ import { observer } from "mobx-react";
 import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { LocalState, StateContext, OutputView } from "@nota-lang/nota-editor";
+import { LocalState, StateContext, OutputView } from "..";
 
 test("editor", async () => {
   // Create state and component

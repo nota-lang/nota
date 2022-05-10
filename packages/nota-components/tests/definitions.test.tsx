@@ -3,15 +3,15 @@
  */
 
 import React from "react";
-import { render, waitFor, screen, getByText } from "@testing-library/react";
+import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { Definition, Ref } from "@nota-lang/nota-components/dist/definitions";
-import { Document } from "@nota-lang/nota-components/dist/document";
+import { Definition, Ref } from "../dist/definitions";
+import { Document } from "../dist/document";
 
 describe("definitions", () => {
   it("has defs, refs, and tooltips", async () => {
-    let { baseElement } = render(
+    render(
       <Document>
         <Ref>foo</Ref>
         <Ref label={"override"}>foo</Ref>

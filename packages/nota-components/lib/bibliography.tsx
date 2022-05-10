@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import bibtexParse from "@orcid/bibtex-parse-js";
+import * as bibtexParse from "@orcid/bibtex-parse-js";
 import { observer } from "mobx-react";
 
 import { Section, SectionBody } from "./document.js";

@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import { default as classNames } from "classnames";
 import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";

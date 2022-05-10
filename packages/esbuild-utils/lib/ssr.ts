@@ -5,7 +5,7 @@ import http from "http";
 import _ from "lodash";
 import statik from "node-static";
 import path from "path";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import tcpPortUsed from "tcp-port-used";
 
 import { log } from "./log.js";
@@ -63,7 +63,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       let p = path.resolve(args.path);
       let { name, dir } = getPathParts(p);
       let script = `./${name}.mjs`;
-      let templatePath = "@nota-lang/esbuild-utils/dist/template";
+      let templatePath = "@nota-lang/esbuild-utils/dist/template.js";
       if (opts.template) {
         templatePath = "." + path.sep + path.relative(dir, opts.template);
       }
@@ -131,7 +131,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       }
       port++;
     }
-    let browser = await puppeteer.launch({ channel: "chrome" });
+    let browser = await puppeteer.launch();
     let fileServer = new statik.Server("./dist", {
       headers: {
         "Access-Control-Allow-Origin": "*",

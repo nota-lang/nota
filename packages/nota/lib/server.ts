@@ -1,11 +1,11 @@
 import { cli, fileExists, log } from "@nota-lang/esbuild-utils";
-import { err, ok } from "@nota-lang/nota-common/dist/result";
+import { err, ok } from "@nota-lang/nota-common/dist/result.js";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import type {
   TranslationResult,
   /*, Message*/
 } from "@nota-lang/nota-editor";
-import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin";
+import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin.js";
 import * as esbuild from "esbuild";
 import express from "express";
 import expressWs from "express-ws";

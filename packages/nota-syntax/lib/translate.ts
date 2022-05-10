@@ -12,9 +12,10 @@ import type {
   StringLiteral,
 } from "@babel/types";
 import type { SyntaxNode, Tree } from "@lezer/common";
-import { Either, isLeft, left, right } from "@nota-lang/nota-common/dist/either";
+import { Either, isLeft, left, right } from "@nota-lang/nota-common/dist/either.js";
 import { assert, unreachable } from "@nota-lang/nota-common";
 import _ from "lodash";
+import type React from "react";
 
 import * as t from "./babel-polyfill.js";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
@@ -242,7 +243,7 @@ export class Translator {
   }
 
   replaceNotaCalls(node: SyntaxNode): string {
-    let cursor = node.cursor;
+    let cursor = node.cursor();
     let replacements: [number, number, string][] = [];
     while (node.from <= cursor.from && cursor.to <= node.to) {
       if (matches(cursor.node, terms.AtCommand)) {
@@ -297,7 +298,7 @@ let toReact = (
 export type TranslatedFunction = (
   _symbols: { [key: string]: any },
   _imports: { [path: string]: any }
-) => JSX.Element;
+) => React.ReactElement;
 
 export interface Translation {
   js: string;

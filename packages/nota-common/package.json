@@ -8,9 +8,6 @@
   "type": "module",
   "main": "dist/index.js",
   "typedocMain": "lib/index.ts",
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
     "dist"
   ],
@@ -31,6 +28,10 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.3.6"
+    "@nota-lang/esbuild-utils": "workspace:^0.3.6"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.182",
+    "lodash": "^4.17.21"
   }
 }
