@@ -9,7 +9,8 @@
   "main": "dist/index.js",
   "typedocMain": "lib/index.ts",
   "files": [
-    "lib", "dist"
+    "lib",
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
@@ -19,7 +20,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs && tsc",
+    "build": "node build.mjs && sass -I node_modules css/nota-components.scss dist/index.css && tsc",
     "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
@@ -55,7 +56,8 @@
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "sass": "^1.51.0"
   },
   "peerDependencies": {
     "@codemirror/autocomplete": "^0.20.0",

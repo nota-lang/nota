@@ -2,13 +2,14 @@
   "private": true,
   "scripts": {
     "init-repo": "pnpm install && pnpm build",
-    "lint": "pnpm run -r lint",
+    "clean": "pnpm -r --parallel exec rimraf dist node_modules && rimraf node_modules",
+    "lint": "pnpm run --parallel -r lint",
     "build": "pnpm run -r build",
     "watch": "pnpm run --parallel --no-bail -r build -w",
     "test": "jest",
-    "doc": "typedoc",
+    "doc": "typedoc packages/*",
     "fmt": "prettier -w \"packages/*/lib/**/*.{ts,tsx}\"",
-    "commit-check": "pnpm init-repo && pnpm lint && pnpm test"
+    "commit-check": "pnpm clean; pnpm init-repo && pnpm lint && pnpm test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.22.0",
@@ -32,6 +33,7 @@
     "prettier": "^2.6.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "rimraf": "^3.0.2",
     "typedoc": "^0.22.13",
     "typescript": "4.6.4"
   }
