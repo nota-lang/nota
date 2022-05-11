@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-theme-acm",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Nota theme for the ACM paper template",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -22,7 +22,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/nota-common": "^0.3.6",
+    "@nota-lang/nota-common": "^0.3.7",
     "sass": "^1.51.0"
   }
 }

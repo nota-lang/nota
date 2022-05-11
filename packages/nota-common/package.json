@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-common",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Shared utilities amongst @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -9,7 +9,8 @@
   "main": "dist/index.js",
   "typedocMain": "lib/index.ts",
   "files": [
-    "lib", "dist"
+    "lib",
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
@@ -26,7 +27,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.3.6"
+    "@nota-lang/esbuild-utils": "^0.3.7"
   },
   "dependencies": {
     "@types/lodash": "^4.14.182",
