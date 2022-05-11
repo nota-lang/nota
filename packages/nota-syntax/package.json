@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "@babel/types": "^7.17.10",
-    "@nota-lang/esbuild-utils": "workspace:^0.3.6",
-    "@nota-lang/nota-common": "workspace:^0.3.6",
-    "@nota-lang/nota-components": "workspace:^0.3.6",
+    "@nota-lang/esbuild-utils": "^0.3.6",
+    "@nota-lang/nota-common": "^0.3.6",
+    "@nota-lang/nota-components": "^0.3.6",
     "@types/babel__core": "^7.1.19",
     "@types/babel__standalone": "^7.1.4",
     "@types/lodash": "^4.14.182",

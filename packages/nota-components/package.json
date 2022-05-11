@@ -27,7 +27,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
-    "@nota-lang/nota-common": "workspace:^0.3.6",
+    "@nota-lang/nota-common": "^0.3.6",
     "@orcid/bibtex-parse-js": "^0.0.25",
     "@popperjs/core": "^2.11.5",
     "classnames": "^2.3.1",
@@ -47,7 +47,7 @@
     "@codemirror/view": "^0.20.0",
     "@lezer/common": "^0.16.0",
     "@lezer/lr": "^0.16.0",
-    "@nota-lang/esbuild-utils": "workspace:^0.3.6",
+    "@nota-lang/esbuild-utils": "^0.3.6",
     "@types/katex": "0.11.1",
     "@types/lodash": "^4.14.182",
     "@types/react": "^17.0.2",
