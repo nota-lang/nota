@@ -692,4 +692,6 @@ ArgText { !nota lbrc TextBody rbrc | lverb VerbatimText rverb }
 
 @external tokens insertSemicolon from "./js_tokens.js" { insertSemi }
 
+@external propSource jsHighlight from "./highlight.js"
+
 @detectDelim
