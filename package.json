@@ -12,7 +12,6 @@
     "commit-check": "pnpm clean; pnpm init-repo && pnpm lint && pnpm test"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.22.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "12.1.5",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
