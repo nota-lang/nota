@@ -16,6 +16,8 @@ import { Either, isLeft, left, right } from "@nota-lang/nota-common/dist/either.
 import { assert, unreachable } from "@nota-lang/nota-common";
 import _ from "lodash";
 import type React from "react";
+import indentString from "indent-string";
+import { isSome, none, Option, some } from "@nota-lang/nota-common/dist/option.js";
 
 import * as t from "./babel-polyfill.js";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
@@ -24,9 +26,73 @@ import * as terms from "./nota.grammar.terms.js";
 //@ts-ignore
 import COMPONENTS from "./components.js";
 
+// TODO: change @lezer/markdown to export the enum
+export enum MdTerms {
+  Document = 1,
+
+  CodeBlock,
+  FencedCode,
+  Blockquote,
+  HorizontalRule,
+  BulletList,
+  OrderedList,
+  ListItem,
+  ATXHeading1,
+  ATXHeading2,
+  ATXHeading3,
+  ATXHeading4,
+  ATXHeading5,
+  ATXHeading6,
+  SetextHeading1,
+  SetextHeading2,
+  HTMLBlock,
+  LinkReference,
+  Paragraph,
+  CommentBlock,
+  ProcessingInstructionBlock,
+
+  // Inline
+  Escape,
+  Entity,
+  HardBreak,
+  Emphasis,
+  StrongEmphasis,
+  Link,
+  Image,
+  InlineCode,
+  HTMLTag,
+  Comment,
+  ProcessingInstruction,
+  URL,
+
+  // Smaller tokens
+  HeaderMark,
+  QuoteMark,
+  ListMark,
+  LinkMark,
+  EmphasisMark,
+  CodeMark,
+  CodeText,
+  CodeInfo,
+  LinkTitle,
+  LinkLabel,
+}
+
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
-let matchesNewline = (node: SyntaxNode): boolean =>
-  matches(node, terms.NotaNewline); /*|| matches(node, terms.Multinewline)*/
+
+let strLit = t.stringLiteral;
+
+let scopeStatements = (stmts: Statement[], expr: Expression): Expression => {
+  if (stmts.length == 0) {
+    return expr;
+  } else {
+    let body = t.blockStatement([...stmts, t.returnStatement(expr)]);
+    let fn_call = t.callExpression(t.arrowFunctionExpression([], body), []);
+    return fn_call;
+  }
+};
+
+type MarkdownChildren = Either<SyntaxNode, string>[];
 
 export class Translator {
   input: string;
@@ -41,86 +107,173 @@ export class Translator {
     return this.input.slice(cursor.from, cursor.to);
   }
 
-  translateTextbody(node: SyntaxNode): Expression {
-    assert(matches(node, terms.TextBody));
+  private markdownChildren(node: SyntaxNode): MarkdownChildren {
+    let children: MarkdownChildren = [];
+    let pos = node.from;
+    let child = node.firstChild;
 
-    let tokens = node.getChildren(terms.TextToken);
+    let pushStr = (from: number, to: number) => {
+      children.push(right(this.input.slice(from, to)));
+    };
 
-    // Remove whitespace on the last line
-    let last = _.last(tokens);
-    if (last && matches(last.firstChild!, terms.Text)) {
-      let s = this.text(last);
-      if (s.match(/^[\s]*$/)) {
-        tokens.pop();
+    while (child) {
+      if (child.from > pos) {
+        pushStr(pos, child.from);
       }
+
+      children.push(left(child));
+      pos = child.to;
+      child = child.nextSibling;
     }
 
-    // Remove leading whitespace
-    let lineStarts = tokens
-      .map((_t, i) => i)
-      .filter(i => {
-        let lineStart = i > 0 && matchesNewline(tokens[i - 1].firstChild!);
-        return lineStart && matches(tokens[i].firstChild!, terms.Text);
-      });
+    if (pos < node.to) {
+      pushStr(pos, node.to);
+    }
 
-    let minLeadingWhitespace =
-      lineStarts.length > 0
-        ? lineStarts
-            .map(i => {
-              let s = this.text(tokens[i]);
-              return s.match(/^( )*/)![0].length;
-            })
-            .reduce((a, b) => Math.min(a, b))
-        : 0;
+    return children;
+  }
 
-    let output: Either<Expression, Array<Statement>>[] = [];
-    tokens.forEach((token, i) => {
-      if (lineStarts.includes(i)) {
-        let stripped = this.text(token).slice(minLeadingWhitespace);
-        if (stripped.length > 0) {
-          output.push(left(processText(stripped)));
-        }
-      } else if (matchesNewline(token.firstChild!) && (i == 0 || i == tokens.length - 1)) {
-        // pass
-      } else {
-        output.push(this.translateToken(token));
-      }
-    });
+  translateMdDocument(node: SyntaxNode): Expression {
+    assert(matches(node, MdTerms.Document));
 
+    let child = node.firstChild;
     let array: (Expression | SpreadElement)[] = [];
     let curArray = array;
-    output.forEach(result => {
-      if (isLeft(result)) {
-        curArray.push(result.value);
-      } else {
-        let newArray: (Expression | SpreadElement)[] = [];
-        let body = t.blockStatement([
-          ...result.value,
-          t.returnStatement(t.arrayExpression(newArray)),
-        ]);
-        let fn = t.spreadElement(t.callExpression(t.arrowFunctionExpression([], body), []));
-        curArray.push(fn);
+    while (child) {
+      let [expr, stmts] = this.translateMdBlock(child);
+      if (stmts.length > 0) {
+        let newArray: (Expression | SpreadElement)[] = [expr];
+        let scopedExpr = scopeStatements(stmts, t.arrayExpression(newArray));
+        curArray.push(t.spreadElement(scopedExpr));
         curArray = newArray;
+      } else {
+        curArray.push(expr);
       }
-    });
+      child = child.nextSibling;
+    }
 
     return t.arrayExpression(array);
   }
 
-  translateToken(node: SyntaxNode): TranslatedToken {
-    assert(matches(node, terms.TextToken));
+  translateMdInline(node: SyntaxNode): [Option<Expression>, Statement[]] {
+    let type = node.type.id;
+    if (type == terms.Command) {
+      let trans = this.translateCommand(node);
+      if (isLeft(trans)) {
+        return [some(trans.value), []];
+      } else {
+        return [none(), trans.value];
+      }
+    } else {
+      let mdChildren = this.markdownChildren(node);
+      let delimitedTypes: { [ty: number]: string } = {
+        [MdTerms.StrongEmphasis]: "strong",
+        [MdTerms.Emphasis]: "em",
+        [MdTerms.InlineCode]: "code",
+      };
+      if (type in delimitedTypes) {
+        let [children, stmts] = this.translateMdInlineSequence(mdChildren.slice(1, -1));
+        return [some(toReact(strLit(delimitedTypes[type]), [], children)), stmts];
+      } else if (type == MdTerms.Link) {
+        let linkMarkIndexes = mdChildren
+          .map<[Either<SyntaxNode, string>, number]>((node, i) => [node, i])
+          .filter(([node]) => isLeft(node) && node.value.type.id == MdTerms.LinkMark)
+          .map(([_, i]) => i);
+        let display = mdChildren.slice(linkMarkIndexes[0] + 1, linkMarkIndexes[1]);
+        let url = node.getChild(MdTerms.URL)!;
+        let [children, stmts] = this.translateMdInlineSequence(display);
+        return [
+          some(toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children)),
+          stmts,
+        ];
+      } else if (type == MdTerms.QuoteMark) {
+        return [none(), []];
+      } else {
+        throw `Not yet implemented: ${node.name}`;
+      }
+    }
+  }
 
-    let child = node.firstChild!;
-    if (matches(child, terms.Command)) {
-      return this.translateCommand(child);
-    } else if (matches(child, terms.Text)) {
-      return left(processText(this.text(child)));
-    } else if (matches(child, terms.NotaNewline)) {
-      return left(t.stringLiteral("\n"));
-    } /*else if (matches(child, terms.Multinewline)) {
-    return left(t.stringLiteral("\n\n"));
-  }*/ else {
-      throw `Unhandled child type ${child.name}`;
+  translateMdInlineSequence(sequence: MarkdownChildren): [Expression[], Statement[]] {
+    let stmts: Statement[] = [];
+    let children: Expression[] = [];
+    sequence.forEach(child => {
+      if (isLeft(child)) {
+        let [child_expr, child_stmts] = this.translateMdInline(child.value);
+        if (isSome(child_expr)) {
+          children.push(child_expr.value);
+        }
+        stmts = stmts.concat(child_stmts);
+      } else {
+        children.push(strLit(child.value));
+      }
+    });
+    return [children, stmts];
+  }
+
+  translateMdBlock(node: SyntaxNode): [Expression, Statement[]] {
+    let type = node.type.id;
+    if (type == terms.Command) {
+      let trans = this.translateCommand(node);
+      if (isLeft(trans)) {
+        return [trans.value, []];
+      } else {
+        return [t.nullLiteral(), trans.value];
+      }
+    } else {
+      let mdChildren = this.markdownChildren(node);
+      switch (type) {
+        case MdTerms.Paragraph: {
+          let [children, stmts] = this.translateMdInlineSequence(mdChildren);
+          return [toReact(strLit("p"), [], children), stmts];
+        }
+
+        case MdTerms.ATXHeading1:
+        case MdTerms.ATXHeading2:
+        case MdTerms.ATXHeading3:
+        case MdTerms.ATXHeading4:
+        case MdTerms.ATXHeading5:
+        case MdTerms.ATXHeading6: {
+          let depth = type - MdTerms.ATXHeading1 + 1;
+          // slice(1) for HeaderMark
+          let [children, stmts] = this.translateMdInlineSequence(mdChildren.slice(1));
+          return [toReact(strLit(`h${depth}`), [], children), stmts];
+        }
+
+        case MdTerms.FencedCode: {
+          let _codeInfo = node.getChild(MdTerms.CodeInfo); // TODO
+          let codeText = node.getChild(MdTerms.CodeText)!;
+          return [toReact(strLit("pre"), [], [strLit(this.text(codeText))]), []];
+        }
+
+        case MdTerms.Blockquote: {
+          let [expr, stmts] = this.translateMdBlock(node.lastChild!);
+          return [toReact(strLit("blockquote"), [], [expr]), stmts];
+        }
+
+        case MdTerms.OrderedList:
+        case MdTerms.BulletList: {
+          let stmts: Statement[] = [];
+          let items = node.getChildren(MdTerms.ListItem).map(item => {
+            let children = collectSiblings(item.firstChild);
+            let exprs: Expression[] = [];
+            // slice(1) for ItemMark
+            children.slice(1).forEach(child => {
+              let [child_expr, child_stmts] = this.translateMdBlock(child);
+              exprs.push(child_expr);
+              stmts = stmts.concat(child_stmts);
+            });
+
+            return toReact(strLit("li"), [], exprs);
+          });
+          let tag = type == MdTerms.OrderedList ? "ol" : "ul";
+          return [toReact(strLit(tag), [], items), stmts];
+        }
+
+        default: {
+          throw `Not yet implements: ${node.name}`;
+        }
+      }
     }
   }
 
@@ -129,11 +282,11 @@ export class Translator {
 
     let child = node.firstChild!;
     if (matches(child, terms.PctCommand)) {
-      return right(this.translatePctcommand(child));
+      return right(this.translatePctCommand(child));
     } else if (matches(child, terms.HashCommand)) {
-      return left(this.translateHashcommand(child));
+      return left(this.translateHashCommand(child));
     } else if (matches(child, terms.AtCommand)) {
-      return left(this.translateAtcommand(child));
+      return left(this.translateAtCommand(child));
     } else {
       unreachable();
     }
@@ -157,13 +310,13 @@ export class Translator {
 
   translateArgText(node: SyntaxNode): Expression {
     assert(matches(node, terms.ArgText));
-    let child = node.firstChild!;
-    if (matches(child, terms.TextBody)) {
-      return this.translateTextbody(child);
-    } else if (matches(child, terms.VerbatimText)) {
-      return t.arrayExpression([t.stringLiteral(this.text(child))]);
+    let mdDoc = node.getChild(MdTerms.Document)!;
+    let firstBlock = mdDoc.firstChild;
+    if (firstBlock && !firstBlock.nextSibling && firstBlock.type.id == MdTerms.Paragraph) {
+      let [expr, stmts] = this.translateMdInlineSequence(this.markdownChildren(firstBlock));
+      return scopeStatements(stmts, t.arrayExpression(expr));
     } else {
-      throw `Unknown ArgText ${child.name}`;
+      return this.translateMdDocument(mdDoc);
     }
   }
 
@@ -172,14 +325,14 @@ export class Translator {
     return t.identifier(this.text(node));
   }
 
-  translateAtcommand(node: SyntaxNode): Expression {
+  translateAtCommand(node: SyntaxNode): Expression {
     assert(matches(node, terms.AtCommand));
 
     let nameNode, nameExpr;
     if ((nameNode = node.getChild(terms.CommandName))) {
       nameExpr = this.translateCommandName(nameNode);
       if (nameExpr.type == "Identifier" && INTRINSIC_ELEMENTS.has(nameExpr.name)) {
-        nameExpr = t.stringLiteral(nameExpr.name);
+        nameExpr = strLit(nameExpr.name);
       }
     } else {
       return t.arrayExpression(
@@ -210,17 +363,17 @@ export class Translator {
     }
   }
 
-  translateHashcommand(node: SyntaxNode): Expression {
+  translateHashCommand(node: SyntaxNode): Expression {
     assert(matches(node, terms.HashCommand));
 
     let name = node.getChild(terms.CommandName)!;
     let nameExpr = this.translateCommandName(name);
-    let args = collectArgs(name.nextSibling).map(arg => this.translateArg(arg));
+    let args = collectSiblings(name.nextSibling).map(arg => this.translateArg(arg));
 
     return args.length == 0 ? nameExpr : t.callExpression(nameExpr, args);
   }
 
-  translatePctcommand(node: SyntaxNode): Array<Statement> {
+  translatePctCommand(node: SyntaxNode): Statement[] {
     assert(matches(node, terms.PctCommand));
 
     let stmts = parse(this.replaceNotaCalls(node.getChild(terms.NotaStatement)!));
@@ -247,7 +400,7 @@ export class Translator {
     let replacements: [number, number, string][] = [];
     while (node.from <= cursor.from && cursor.to <= node.to) {
       if (matches(cursor.node, terms.AtCommand)) {
-        let expr = this.translateAtcommand(cursor.node);
+        let expr = this.translateAtCommand(cursor.node);
         let result = babel.transformFromAst(
           t.program([t.expressionStatement(expr)]),
           undefined,
@@ -375,10 +528,9 @@ export let lambda = (body: Expression) =>
 
 export let translateAst = (input: string, tree: Tree): Program => {
   let node = tree.topNode;
-  assert(matches(node, terms.Document));
   let translator = new Translator(input);
 
-  let docBody = translator.translateTextbody(node.getChild(terms.TextBody)!);
+  let docBody = translator.translateMdDocument(node);
   let docProps = t.identifier("docProps");
   let doc = toReact(
     t.identifier("Document"),
@@ -410,14 +562,14 @@ export let translateAst = (input: string, tree: Tree): Program => {
   let program: Statement[] = [
     t.importDeclaration(
       [t.importSpecifier(createEl, createElLong), t.importSpecifier(fragment, fragment)],
-      t.stringLiteral("react")
+      strLit("react")
     ),
-    t.importDeclaration([t.importSpecifier(observer, observer)], t.stringLiteral("mobx-react")),
+    t.importDeclaration([t.importSpecifier(observer, observer)], strLit("mobx-react")),
     t.importDeclaration(
       Object.keys(preludeImports).map(mod =>
         t.importSpecifier(t.identifier(mod), t.identifier(mod))
       ),
-      t.stringLiteral("@nota-lang/nota-components")
+      strLit("@nota-lang/nota-components")
     ),
     ..._.toPairs(preludeImports).map(([mod, ks]) =>
       t.variableDeclaration("const", [
@@ -430,7 +582,7 @@ export let translateAst = (input: string, tree: Tree): Program => {
     // ..._.toPairs(preludeImports).map(([path, ks]) =>
     //   t.importDeclaration(
     //     ks.map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
-    //     t.stringLiteral(path)
+    //     strLit(path)
     //   ),
     // ),
     ...Array.from(translator.imports),
@@ -443,7 +595,24 @@ export let translateAst = (input: string, tree: Tree): Program => {
   return t.program(program);
 };
 
+export let printTree = (tree: Tree, contents: string) => {
+  let depth = (node: any): number => (node.parent ? 1 + depth(node.parent) : 0);
+  let cursor = tree.cursor();
+  let output = "";
+  do {
+    let subInput = contents.slice(cursor.from, cursor.to);
+    if (subInput.length > 30) {
+      subInput = subInput.slice(0, 12) + "..." + subInput.slice(-12);
+    }
+    subInput = subInput.replace("\n", "\\n");
+    output += indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)) + "\n";
+  } while (cursor.next());
+
+  console.log(output);
+};
+
 export let translate = (input: string, tree: Tree): string => {
+  printTree(tree, input);
   let program = translateAst(input, tree);
   let result = babel.transformFromAst(program, undefined, {
     plugins: [optimizePlugin],
@@ -453,10 +622,11 @@ export let translate = (input: string, tree: Tree): string => {
   return js;
 };
 
-type TranslatedToken = Either<Expression, Array<Statement>>;
+type TranslatedToken = Either<Expression, Statement[]>;
 
-let processText = (text: string): StringLiteral => {
-  return t.stringLiteral(
+// TODO
+let _processText = (text: string): StringLiteral => {
+  return strLit(
     text
       .replace(/\\%/g, "%")
       .replace(/\\\[/g, "[")
@@ -467,7 +637,7 @@ let processText = (text: string): StringLiteral => {
   );
 };
 
-let collectArgs = (arg: SyntaxNode | null): SyntaxNode[] => {
+let collectSiblings = (arg: SyntaxNode | null): SyntaxNode[] => {
   let args = [];
   while (arg != null) {
     args.push(arg);

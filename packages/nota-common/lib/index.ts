@@ -12,7 +12,8 @@ export * as notaText from "./nota-text.js";
 
 export let assert = (b: boolean) => {
   if (!b) {
-    console.trace("Assertion failed");
+    console.trace();
+    throw `Assertion failed`;
   }
 };
 

@@ -1,13 +1,14 @@
 import type { BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
-import type { Expression, Statement } from "@babel/types";
+import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import { optUnwrap } from "@nota-lang/nota-common/dist/option.js";
 import { isLeft } from "@nota-lang/nota-common/dist/either.js";
-import { Translator, babelPolyfill as t, terms, translate, tryParse } from "..";
+import { Translator, printTree, babelPolyfill as t, terms, translate, tryParse, MdTerms } from "..";
 
-test("translate", () => {
-  let input = "@h1{Hello world!}";
+test("translate end-to-end", () => {
+  let input = `@em{**hello** world}`;
   let tree = resUnwrap(tryParse(input));
   let js = translate(input, tree);
   let expected = `
@@ -27,6 +28,7 @@ let gen =
   (input: string): string => {
     try {
       let tree = resUnwrap(tryParse(input));
+      printTree(tree, input);
       let translator = new Translator(input);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
@@ -38,28 +40,91 @@ let gen =
     }
   };
 
-test("translate textbody", () => {
-  let genTextbody = gen((translator, node) => {
-    let textbody = node.getChild(terms.TextBody)!;
-    let expr = translator.translateTextbody(textbody);
+test("translate markdown inline", () => {
+  let genInlineMarkdown = gen((translator, doc) => {
+    let para = doc.getChild(MdTerms.Paragraph)!;
+    let [expr] = translator.translateMdInline(para.firstChild!);
+    return t.expressionStatement(optUnwrap(expr));
+  });
+
+  let pairs = [
+    [`**hello**`, `el("strong", {}, "hello");`],
+    [`\`hello\``, `el("code", {}, "hello");`],
+    [`*hello*`, `el("em", {}, "hello");`],
+    [
+      `[hello](world)`,
+      `el("a", {
+  "href": "world"
+}, "hello");`,
+    ],
+  ];
+
+  pairs.forEach(([input, expected]) => {
+    let actual = genInlineMarkdown(input);
+    expect(actual).toBe(expected);
+  });
+});
+
+test("translate markdown block", () => {
+  let genBlockMarkdown = gen((translator, doc) => {
+    let block = doc.firstChild!;
+    // LMAO: the space between "MdBlock" and "(block)" is important
+    // because esbuild-jest will otherwise see the substring "ock (" (no space)
+    // in my code, and then cause a SyntaxError.
+    // See: https://github.com/aelbore/esbuild-jest/issues/57
+    let f = translator.translateMdBlock.bind(translator);
+    let [expr] = f(block);
     return t.expressionStatement(expr);
   });
 
   let pairs = [
-    [`a b c`, `["a b c"];`],
-    [`a\n\nb\nc`, `["a", "\\n", "\\n", "b", "\\n", "c"];`],
-    [`@h1{hello}`, `[el("h1", {}, ...["hello"])];`],
+    [`# hello`, `el("h1", {}, " hello");`],
+    [`## hello`, `el("h2", {}, " hello");`],
+    ["```\nhello\n```", `el("pre", {}, "hello");`],
+    [
+      `> hello
+> world`,
+      `el("blockquote", {}, el("p", {}, "hello\\n", " world"));`,
+    ],
+    [
+      "* hello\n\n  yes\n* world",
+      `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
+    ],
+    [
+      `@em{**a**} @strong{b}`,
+      `el("p", {}, el("em", {}, ...[el("strong", {}, "a")]), " ", el("strong", {}, ...["b"]));`,
+    ],
+    // [
+    //   `@code{
+    //     le code
+    //   }`,
+    //   `el("code", {}, ...["le code"])`,
+    // ],
   ];
 
   pairs.forEach(([input, expected]) => {
-    let actual = genTextbody(input);
+    let actual = genBlockMarkdown(input);
+    expect(actual).toBe(expected);
+  });
+});
+
+test("translate markdown doc", () => {
+  let genDocMarkdown = gen((translator, doc) => {
+    let expr = translator.translateMdDocument(doc);
+    return t.expressionStatement(expr);
+  });
+
+  let pairs = [[`@h1{a}\n\n@h2{b}`, `[el("h1", {}, ...["a"]), el("h2", {}, ...["b"])];`]];
+
+  pairs.forEach(([input, expected]) => {
+    let actual = genDocMarkdown(input);
     expect(actual).toBe(expected);
   });
 });
 
 test("translate command", () => {
   let genCommand = gen((translator, node) => {
-    let cmd = node.getChild(terms.TextBody)!.getChild(terms.TextToken)!.getChild(terms.Command)!;
+    let cmd = node.getChild(MdTerms.Paragraph)!.getChild(terms.Command)!;
     let result = translator.translateCommand(cmd);
     if (isLeft(result)) {
       return t.expressionStatement(result.value);
@@ -82,6 +147,12 @@ test("translate command", () => {
     [`#x`, `x;`],
     [`#f{hello}`, `f(["hello"]);`],
     [`#f[a]{b}["c"]{d}`, `f(a, ["b"], "c", ["d"]);`],
+    [
+      `%(let x = 1)`,
+      `{
+  let x = 1;
+}`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {

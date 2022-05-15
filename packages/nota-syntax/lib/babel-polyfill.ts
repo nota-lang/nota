@@ -21,6 +21,7 @@ import type {
   LVal,
   MemberExpression,
   Node,
+  NullLiteral,
   NumericLiteral,
   ObjectExpression,
   ObjectMethod,
@@ -265,5 +266,10 @@ export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSp
   type: "ExportSpecifier",
   local,
   exported,
+  ...baseNode,
+});
+
+export let nullLiteral = (): NullLiteral => ({
+  type: "NullLiteral",
   ...baseNode,
 });

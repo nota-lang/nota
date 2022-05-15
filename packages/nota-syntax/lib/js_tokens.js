@@ -1,6 +1,3 @@
-/* Hand-written tokenizers for JavaScript tokens that can't be
-  expressed by lezer's built-in tokenizer. */
-
 import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 import {
   insertSemi,
@@ -8,7 +5,7 @@ import {
   incdec,
   incdecPrefix,
   templateContent,
-  templateDollarBrace,
+  InterpolationStart,
   templateEnd,
   spaces,
   newline,
@@ -24,7 +21,6 @@ const space = [
 ];
 
 const braceR = 125,
-  parenR = 41,
   braceL = 123,
   semicolon = 59,
   slash = 47,
@@ -48,10 +44,7 @@ export const trackNewline = new ContextTracker({
 export const insertSemicolon = new ExternalTokenizer(
   (input, stack) => {
     let { next } = input;
-    if (
-      (next == braceR || next == parenR || next == -1 || stack.context.newline) &&
-      stack.canShift(insertSemi)
-    )
+    if ((next == braceR || next == -1 || stack.context) && stack.canShift(insertSemi))
       input.acceptToken(insertSemi);
   },
   { contextual: true, fallback: true }
@@ -67,7 +60,7 @@ export const noSemicolon = new ExternalTokenizer(
       next != braceR &&
       next != semicolon &&
       next != -1 &&
-      !stack.context.newline &&
+      !stack.context &&
       stack.canShift(noSemi)
     )
       input.acceptToken(noSemi);
@@ -82,7 +75,7 @@ export const incdecToken = new ExternalTokenizer(
       input.advance();
       if (next == input.next) {
         input.advance();
-        let mayPostfix = !stack.context.newline && stack.canShift(incdec);
+        let mayPostfix = !stack.context && stack.canShift(incdec);
         input.acceptToken(mayPostfix ? incdec : incdecPrefix);
       }
     }
@@ -101,7 +94,7 @@ export const template = new ExternalTokenizer(input => {
       else input.acceptToken(templateEnd, 1);
       break;
     } else if (next == braceL && afterDollar) {
-      if (i == 1) input.acceptToken(templateDollarBrace, 1);
+      if (i == 1) input.acceptToken(InterpolationStart, 1);
       else input.acceptToken(templateContent, -1);
       break;
     } else if (next == 10 /* "\n" */ && i) {
