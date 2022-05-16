@@ -21,62 +21,12 @@ import { isSome, none, Option, some } from "@nota-lang/nota-common/dist/option.j
 
 import * as t from "./babel-polyfill.js";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
+// import { Type as MdTerms } from "./parse.js";
+import { Type as MdTerms } from "./markdown.js";
 //@ts-ignore
 import * as terms from "./nota.grammar.terms.js";
 //@ts-ignore
 import COMPONENTS from "./components.js";
-
-// TODO: change @lezer/markdown to export the enum
-export enum MdTerms {
-  Document = 1,
-
-  CodeBlock,
-  FencedCode,
-  Blockquote,
-  HorizontalRule,
-  BulletList,
-  OrderedList,
-  ListItem,
-  ATXHeading1,
-  ATXHeading2,
-  ATXHeading3,
-  ATXHeading4,
-  ATXHeading5,
-  ATXHeading6,
-  SetextHeading1,
-  SetextHeading2,
-  HTMLBlock,
-  LinkReference,
-  Paragraph,
-  CommentBlock,
-  ProcessingInstructionBlock,
-
-  // Inline
-  Escape,
-  Entity,
-  HardBreak,
-  Emphasis,
-  StrongEmphasis,
-  Link,
-  Image,
-  InlineCode,
-  HTMLTag,
-  Comment,
-  ProcessingInstruction,
-  URL,
-
-  // Smaller tokens
-  HeaderMark,
-  QuoteMark,
-  ListMark,
-  LinkMark,
-  EmphasisMark,
-  CodeMark,
-  CodeText,
-  CodeInfo,
-  LinkTitle,
-  LinkLabel,
-}
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 

@@ -4,9 +4,9 @@ export {
   translateAst,
   Translator,
   optimizePlugin,
-  MdTerms,
   printTree,
 } from "./translate.js";
+export { Type as MdTerms } from "./markdown.js";
 export { nota } from "./language.js";
 export { CodeTag } from "./highlight.js";
 export * as babelPolyfill from "./babel-polyfill.js";
