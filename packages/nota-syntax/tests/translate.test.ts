@@ -78,28 +78,40 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    [`# hello`, `el("h1", {}, " hello");`],
-    [`## hello`, `el("h2", {}, " hello");`],
-    ["```\nhello\n```", `el("pre", {}, "hello");`],
+    //     [`# hello`, `el("h1", {}, " hello");`],
+    //     [`## hello`, `el("h2", {}, " hello");`],
+    //     ["```\nhello\n```", `el("pre", {}, "hello");`],
+    //     [
+    //       `> hello
+    // > world`,
+    //       `el("blockquote", {}, el("p", {}, "hello\\n", " world"));`,
+    //     ],
+    //     [
+    //       "* hello\n\n  yes\n* world",
+    //       `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
+    //     ],
+    //     [
+    //       `@em{**a**} @strong{b}`,
+    //       `el("p", {}, el("em", {}, ...[el("strong", {}, "a")]), " ", el("strong", {}, ...["b"]));`,
+    //     ],
+    // [`%let x = 1`, ``],
+    [`%%%
+let x = 1;
+let y = 2;
+%%%`, ``],
+    [`@h1: Hello *world*`, ``],
     [
-      `> hello
-> world`,
-      `el("blockquote", {}, el("p", {}, "hello\\n", " world"));`,
+      `@section:
+  | id: "foo"
+  | onClick:
+    () => {
+      console.log("heyo!")
+    }
+  Ceci n'est pas
+
+  une code.`,
+      `el("section", {"id": "foo"}, ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")a])`,
     ],
-    [
-      "* hello\n\n  yes\n* world",
-      `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
-    ],
-    [
-      `@em{**a**} @strong{b}`,
-      `el("p", {}, el("em", {}, ...[el("strong", {}, "a")]), " ", el("strong", {}, ...["b"]));`,
-    ],
-    // [
-    //   `@code{
-    //     le code
-    //   }`,
-    //   `el("code", {}, ...["le code"])`,
-    // ],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -134,25 +146,26 @@ test("translate command", () => {
   });
 
   let pairs = [
-    [`@h1{hello}`, `el("h1", {}, ...["hello"]);`],
-    [
-      `@a[href="https://yeah.com"]{das link}`,
-      `el("a", {
-  href: "https://yeah.com"
-}, ...["das link"]);`,
-    ],
-    [`@Custom`, `el(Custom, {});`],
-    [`@(A.field)`, `el(A.field, {});`],
-    [`#(1 + 2)`, `1 + 2;`],
-    [`#x`, `x;`],
-    [`#f{hello}`, `f(["hello"]);`],
-    [`#f[a]{b}["c"]{d}`, `f(a, ["b"], "c", ["d"]);`],
-    [
-      `%(let x = 1)`,
-      `{
-  let x = 1;
-}`,
-    ],
+    [`Hello @strong: wor*ld*`, ``],
+    [`Hello @strong{world, *yeah!*}`, `el("h1", {}, ...["hello"]);`],
+//     [
+//       `@a[href="https://yeah.com"]{das link}`,
+//       `el("a", {
+//   href: "https://yeah.com"
+// }, ...["das link"]);`,
+//     ],
+//     [`@Custom`, `el(Custom, {});`],
+//     [`@(A.field)`, `el(A.field, {});`],
+//     [`#(1 + 2)`, `1 + 2;`],
+//     [`#x`, `x;`],
+//     [`#f{hello}`, `f(["hello"]);`],
+//     [`#f[a]{b}["c"]{d}`, `f(a, ["b"], "c", ["d"]);`],
+//     [
+//       `%(let x = 1)`,
+//       `{
+//   let x = 1;
+// }`,
+//     ],
   ];
 
   pairs.forEach(([input, expected]) => {

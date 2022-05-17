@@ -18,10 +18,10 @@ import {
 } from "@lezer/common";
 import { styleTags, tags as t, Tag } from "@lezer/highlight";
 
-import { NotaInlineParser, NotaBlockParser, mdWrap } from "./markdown_ext";
+import { notaInlineParser, notaScriptParser, notaBlockAttributeParser, notaBlockComponentParser, mdWrap, skipForNota } from "./markdown_ext";
 
 
-class CompositeBlock {
+export class CompositeBlock {
   static create(type: number, value: number, from: number, parentHash: number, end: number) {
     let hash = (parentHash + (parentHash << 8) + type + (value << 4)) | 0;
     return new CompositeBlock(type, value, from, hash, end, [], []);
@@ -69,7 +69,15 @@ class CompositeBlock {
 export enum Type {
   Document = 1,
 
-  NotaCommand,
+  NotaComponent,
+  NotaIdent,
+  NotaInlineSequence,
+  NotaAttribute,
+  NotaAttributeKey,  
+  NotaAttributeValue,
+  NotaScript,
+  NotaJs,
+  NotaInlineComponentMark,
 
   CodeBlock,
   FencedCode,
@@ -264,6 +272,7 @@ const DefaultSkipMarkup: {
   },
   [Type.OrderedList]: skipForList,
   [Type.BulletList]: skipForList,
+  [Type.NotaComponent]: skipForNota,
   [Type.Document]() {
     return true;
   },
@@ -595,7 +604,9 @@ const DefaultBlockParsers: {
 
   SetextHeading: undefined, // Specifies relative precedence for block-continue function
 
-  NotaCommand: NotaBlockParser
+  NotaComponent: notaBlockComponentParser,
+  NotaScript: notaScriptParser,
+  NotaAttribute: notaBlockAttributeParser
 };
 
 
@@ -1559,7 +1570,7 @@ export class Element {
   }
 }
 
-class TreeElement {
+export class TreeElement {
   constructor(readonly tree: Tree, readonly from: number) {}
 
   get to() {
@@ -1584,11 +1595,11 @@ class TreeElement {
   }
 }
 
-function elt(type: Type, from: number, to: number, children?: readonly (Element | TreeElement)[]) {
+export function elt(type: Type, from: number, to: number, children?: readonly (Element | TreeElement)[]) {
   return new Element(type, from, to, children);
 }
 
-const enum Mark {
+export const enum Mark {
   Open = 1,
   Close = 2,
 }
@@ -1619,7 +1630,7 @@ const EmphasisAsterisk: DelimiterType = { resolve: "Emphasis", mark: "EmphasisMa
 const LinkStart: DelimiterType = {},
   ImageStart: DelimiterType = {};
 
-class InlineDelimiter {
+export class InlineDelimiter {
   constructor(
     readonly type: DelimiterType,
     readonly from: number,
@@ -1785,7 +1796,7 @@ const DefaultInline: { [name: string]: (cx: InlineContext, next: number, pos: nu
       return -1;
     },
 
-    NotaCommand: NotaInlineParser
+    NotaCommand: notaInlineParser
   };
 
 function finishLink(

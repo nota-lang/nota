@@ -541,13 +541,13 @@ questionOp[@name=LogicOp] { "?" }
 
 ///////////// NOTA nonterminals
 
-@top Command { PctCommand | HashCommand | AtCommand }
+@top NotaExpr { expressionNoComma }
+@top NotaStmts { statement+ }
+
+Command { PctCommand | HashCommand | AtCommand }
 
 NotaExpression { expressionNoComma }
-NotaStatement { statement+ }
 
-PctCommand { "%" "(" NotaStatement ")" }
-HashCommand { "#" CommandName (ArgCodeAnon | ArgText)* }
 AtCommand { 
   "@" CommandName ArgCodeNamed* ArgText*
 | "@" ArgText+ 
