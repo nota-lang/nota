@@ -8,7 +8,7 @@ import { isLeft } from "@nota-lang/nota-common/dist/either.js";
 import { Translator, printTree, babelPolyfill as t, terms, translate, tryParse, MdTerms } from "..";
 
 test("translate end-to-end", () => {
-  let input = `@em{**hello** world}`;
+  let input = `@h1: Hello world!`;
   let tree = resUnwrap(tryParse(input));
   let js = translate(input, tree);
   let expected = `
@@ -43,8 +43,8 @@ let gen =
 test("translate markdown inline", () => {
   let genInlineMarkdown = gen((translator, doc) => {
     let para = doc.getChild(MdTerms.Paragraph)!;
-    let [expr] = translator.translateMdInline(para.firstChild!);
-    return t.expressionStatement(optUnwrap(expr));
+    let expr = translator.translateMdInline(para.firstChild!);
+    return t.expressionStatement(expr);
   });
 
   let pairs = [
@@ -57,6 +57,9 @@ test("translate markdown inline", () => {
   "href": "world"
 }, "hello");`,
     ],
+    [`#x`, `x;`],
+    [`#(Foo.bar)`, `Foo.bar;`],
+    [`#f{a}{b}`, `f(["a"], ["b"]);`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -78,39 +81,46 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    //     [`# hello`, `el("h1", {}, " hello");`],
-    //     [`## hello`, `el("h2", {}, " hello");`],
-    //     ["```\nhello\n```", `el("pre", {}, "hello");`],
-    //     [
-    //       `> hello
-    // > world`,
-    //       `el("blockquote", {}, el("p", {}, "hello\\n", " world"));`,
-    //     ],
-    //     [
-    //       "* hello\n\n  yes\n* world",
-    //       `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
-    //     ],
-    //     [
-    //       `@em{**a**} @strong{b}`,
-    //       `el("p", {}, el("em", {}, ...[el("strong", {}, "a")]), " ", el("strong", {}, ...["b"]));`,
-    //     ],
-    // [`%let x = 1`, ``],
-    [`%%%
-let x = 1;
-let y = 2;
-%%%`, ``],
-    [`@h1: Hello *world*`, ``],
+    [`# hello`, `el("h1", {}, " hello");`],
+    [`## hello`, `el("h2", {}, " hello");`],
+    ["```\nhello\n```", `el("pre", {}, "hello");`],
+    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+    [
+      "* hello\n\n  yes\n* world",
+      `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
+    ],
+    [
+      `@em{**a**} @strong{b}`,
+      `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
+    ],
+    [
+      `Hello @em[id: "ex"]{world}`,
+      `el("p", {}, "Hello ", el("em", {
+  id: "ex"
+}, "world"));`,
+    ],
+    [`Hello @strong: world`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
     [
       `@section:
   | id: "foo"
-  | onClick:
-    () => {
-      console.log("heyo!")
-    }
   Ceci n'est pas
 
   une code.`,
-      `el("section", {"id": "foo"}, ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")a])`,
+      `el("section", {
+  "id": "foo"
+}, ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")]);`,
+    ],
+    [
+      `@h1:
+  Hello
+
+  @span:
+    world
+  
+  @span: yed
+ 
+p`,
+      `el("h1", {}, ...[el("p", {}, "Hello"), el("span", {}, ...[el("p", {}, "world")]), el("span", {}, "yed")]);`,
     ],
   ];
 
@@ -126,50 +136,24 @@ test("translate markdown doc", () => {
     return t.expressionStatement(expr);
   });
 
-  let pairs = [[`@h1{a}\n\n@h2{b}`, `[el("h1", {}, ...["a"]), el("h2", {}, ...["b"])];`]];
-
-  pairs.forEach(([input, expected]) => {
-    let actual = genDocMarkdown(input);
-    expect(actual).toBe(expected);
-  });
-});
-
-test("translate command", () => {
-  let genCommand = gen((translator, node) => {
-    let cmd = node.getChild(MdTerms.Paragraph)!.getChild(terms.Command)!;
-    let result = translator.translateCommand(cmd);
-    if (isLeft(result)) {
-      return t.expressionStatement(result.value);
-    } else {
-      return t.blockStatement(result.value);
-    }
-  });
-
   let pairs = [
-    [`Hello @strong: wor*ld*`, ``],
-    [`Hello @strong{world, *yeah!*}`, `el("h1", {}, ...["hello"]);`],
-//     [
-//       `@a[href="https://yeah.com"]{das link}`,
-//       `el("a", {
-//   href: "https://yeah.com"
-// }, ...["das link"]);`,
-//     ],
-//     [`@Custom`, `el(Custom, {});`],
-//     [`@(A.field)`, `el(A.field, {});`],
-//     [`#(1 + 2)`, `1 + 2;`],
-//     [`#x`, `x;`],
-//     [`#f{hello}`, `f(["hello"]);`],
-//     [`#f[a]{b}["c"]{d}`, `f(a, ["b"], "c", ["d"]);`],
-//     [
-//       `%(let x = 1)`,
-//       `{
-//   let x = 1;
-// }`,
-//     ],
+    [
+      `@h1: a
+
+@h2: b`,
+      `[el("h1", {}, "a"), el("h2", {}, "b")];`,
+    ],
+    [
+      `%let x = 1\n\n#x`,
+      `[...(() => {
+  let x = 1;
+  return [null, el("p", {}, x)];
+})()];`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {
-    let actual = genCommand(input);
+    let actual = genDocMarkdown(input);
     expect(actual).toBe(expected);
   });
 });

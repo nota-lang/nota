@@ -543,6 +543,7 @@ questionOp[@name=LogicOp] { "?" }
 
 @top NotaExpr { expressionNoComma }
 @top NotaStmts { statement+ }
+@top NotaInlineAttrs { "[" commaSep<Property> ~destructure "]" }
 
 Command { PctCommand | HashCommand | AtCommand }
 

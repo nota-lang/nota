@@ -1,4 +1,4 @@
-/// This file is copied directly from @lezer/markdown. 
+/// This file is copied directly from @lezer/markdown.
 /// https://github.com/lezer-parser/markdown/blob/main/src/markdown.ts
 
 import {
@@ -18,8 +18,16 @@ import {
 } from "@lezer/common";
 import { styleTags, tags as t, Tag } from "@lezer/highlight";
 
-import { notaInlineParser, notaScriptParser, notaBlockAttributeParser, notaBlockComponentParser, mdWrap, skipForNota } from "./markdown_ext";
-
+import {
+  notaComponentInlineStart,
+  notaInterpolationInlineStart,
+  notaInlineEnd,
+  notaScriptParser,
+  notaBlockAttributeParser,
+  notaComponentBlockParser,
+  mdWrap,
+  skipForNota,
+} from "./markdown_ext.js";
 
 export class CompositeBlock {
   static create(type: number, value: number, from: number, parentHash: number, end: number) {
@@ -69,16 +77,6 @@ export class CompositeBlock {
 export enum Type {
   Document = 1,
 
-  NotaComponent,
-  NotaIdent,
-  NotaInlineSequence,
-  NotaAttribute,
-  NotaAttributeKey,  
-  NotaAttributeValue,
-  NotaScript,
-  NotaJs,
-  NotaInlineComponentMark,
-
   CodeBlock,
   FencedCode,
   Blockquote,
@@ -125,6 +123,22 @@ export enum Type {
   CodeInfo,
   LinkTitle,
   LinkLabel,
+
+  // Nota
+  // TODO: it is possible for these to conflict with nota.grammar, need to figure out
+  // a way to disambiguate them
+  NotaComponent,
+  NotaInterpolation,
+  NotaCommandName,
+  NotaInlineAttributes,
+  NotaBlockAttribute,
+  NotaAttributeKey,
+  NotaAttributeValue,
+  NotaScript,
+  NotaJs,
+  NotaInlineComponentMark,
+  NotaInlineContentMark,
+  NotaInlineContent,
 }
 
 /// Data structure used to accumulate a block's content during [leaf
@@ -351,7 +365,7 @@ function isOrderedList(line: Line, cx: BlockContext, breaking: boolean) {
       !inList(cx, Type.OrderedList) &&
       (line.skipSpace(pos + 1) == line.text.length ||
         pos > line.pos + 1 ||
-        line.next != 49) /* '1' */)
+        line.next != 49)) /* '1' */
   )
     return -1;
   return pos + 1 - line.pos;
@@ -604,11 +618,10 @@ const DefaultBlockParsers: {
 
   SetextHeading: undefined, // Specifies relative precedence for block-continue function
 
-  NotaComponent: notaBlockComponentParser,
-  NotaScript: notaScriptParser,
-  NotaAttribute: notaBlockAttributeParser
+  notaComponentBlockParser,
+  notaScriptParser,
+  notaBlockAttributeParser,
 };
-
 
 const enum RefStage {
   Failed = -1,
@@ -1595,7 +1608,12 @@ export class TreeElement {
   }
 }
 
-export function elt(type: Type, from: number, to: number, children?: readonly (Element | TreeElement)[]) {
+export function elt(
+  type: Type,
+  from: number,
+  to: number,
+  children?: readonly (Element | TreeElement)[]
+) {
   return new Element(type, from, to, children);
 }
 
@@ -1796,7 +1814,9 @@ const DefaultInline: { [name: string]: (cx: InlineContext, next: number, pos: nu
       return -1;
     },
 
-    NotaCommand: notaInlineParser
+    notaComponentInlineStart,
+    notaInterpolationInlineStart,
+    notaInlineEnd,
   };
 
 function finishLink(

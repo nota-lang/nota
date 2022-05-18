@@ -22,7 +22,7 @@ export class Some<T> implements OptionMethods<T> {
 
 export class None<T> implements OptionMethods<T> {
   static mk<T>(): Option<T> {
-    return new None;
+    return new None();
   }
 
   unwrap(): T {

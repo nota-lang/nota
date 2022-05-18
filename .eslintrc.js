@@ -27,7 +27,11 @@ module.exports = {
         "ScrollLogicalPosition": true,
         "JSX": true
     },
-    "ignorePatterns": ["*.d.ts", "packages/nota-syntax/lib/nota.grammar.*"],
+    "ignorePatterns": [
+        "*.d.ts", 
+        "packages/nota-syntax/lib/nota.grammar.*",
+        "packages/nota-syntax/lib/markdown.ts"
+    ],
     "rules": {
         "react/prop-types": "off",
         "no-empty-pattern": "off",
