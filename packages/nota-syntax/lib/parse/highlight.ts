@@ -1,6 +1,7 @@
-import { styleTags, Tag, tags as t } from "@lezer/highlight";
+import { Tag, styleTags, tags as t } from "@lezer/highlight";
 
 export let CodeTag = Tag.define();
+
 export const jsHighlight = styleTags({
   "get set async static": t.modifier,
   "for while do if else switch try catch finally return throw break continue default case":

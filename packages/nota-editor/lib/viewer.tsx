@@ -1,17 +1,17 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup";
+import { javascript } from "@codemirror/lang-javascript";
 import type { SyntaxNode } from "@lezer/common";
+import { Result, err, isErr, isOk, ok, resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import type { DocumentProps } from "@nota-lang/nota-components/dist/document.js";
+import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
+import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import indentString from "indent-string";
-import { ErrorBoundary } from "react-error-boundary";
+import _ from "lodash";
+import { action } from "mobx";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
-import { basicSetup, EditorView, EditorState } from "@codemirror/basic-setup";
-import { javascript } from "@codemirror/lang-javascript";
-import { action } from "mobx";
-import { nota } from "@nota-lang/nota-syntax";
-import _ from "lodash";
-import { isErr, isOk, err, ok, Result, resUnwrap } from "@nota-lang/nota-common/dist/result";
-import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
-import type { DocumentProps } from "@nota-lang/nota-components/dist/document";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { StateContext, TranslationResult } from ".";
 import { theme } from "./editor.js";

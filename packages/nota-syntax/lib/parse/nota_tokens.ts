@@ -1,7 +1,7 @@
 import { ExternalTokenizer } from "@lezer/lr";
 
 //@ts-ignore
-import { Markdown } from "./nota.grammar.terms.js";
+import { Markdown } from "./notajs.grammar.terms.js";
 
 const [lbrc, rbrc] = ["{", "}"].map(s => s.charCodeAt(0));
 const eof = -1;

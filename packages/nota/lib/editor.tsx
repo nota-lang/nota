@@ -1,21 +1,21 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
-import ReactDOM from "react-dom";
-import { observer } from "mobx-react";
-import { makeAutoObservable, action, reaction } from "mobx";
+import { isOk } from "@nota-lang/nota-common/dist/result.js";
 import {
+  Editor,
   JsView,
   OutputView,
   ParseView,
-  Editor,
-  StateContext,
   RemoteState,
+  StateContext,
 } from "@nota-lang/nota-editor";
-import { isOk } from "@nota-lang/nota-common/dist/result";
 import classNames from "classnames";
+import { action, makeAutoObservable, reaction } from "mobx";
+import { observer } from "mobx-react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 
-import "../static/index.html";
-import "../static/favicon.ico";
 import "../css/editor.scss";
+import "../static/favicon.ico";
+import "../static/index.html";
 
 export class ViewerState {
   selected: number = 0;

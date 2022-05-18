@@ -1,9 +1,9 @@
-import React from "react";
+import _ from "lodash";
 import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
-import _ from "lodash";
+import React from "react";
 
-import { Plugin, Pluggable, usePlugin } from "./plugin.js";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 
 class LoggerData extends Pluggable {
   queue: { Message: React.FC; duration: number; id: string }[] = [];

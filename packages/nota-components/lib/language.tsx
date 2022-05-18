@@ -1,10 +1,10 @@
+import { zipExn } from "@nota-lang/nota-common";
 import {
   NestedArray,
   NotaFn,
   NotaText,
   addBetween,
 } from "@nota-lang/nota-common/dist/nota-text.js";
-import { zipExn } from "@nota-lang/nota-common";
 import { none, some } from "@nota-lang/nota-common/dist/option.js";
 import _ from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";

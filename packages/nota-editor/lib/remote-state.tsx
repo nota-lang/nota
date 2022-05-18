@@ -1,8 +1,8 @@
-import { makeAutoObservable, reaction, action } from "mobx";
-import _ from "lodash";
 import { err } from "@nota-lang/nota-common/dist/result";
+import _ from "lodash";
+import { action, makeAutoObservable, reaction } from "mobx";
 
-import { TranslationResult, State } from ".";
+import { State, TranslationResult } from ".";
 
 export interface InitialContent {
   type: "InitialContent";

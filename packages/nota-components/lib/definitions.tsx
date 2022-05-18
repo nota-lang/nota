@@ -1,15 +1,15 @@
-import React, { useState, useEffect, forwardRef } from "react";
-import _ from "lodash";
-import { default as classNames } from "classnames";
-import { makeObservable, observable, action } from "mobx";
-import { observer } from "mobx-react";
-import { Option, some, none, isSome, optUnwrap } from "@nota-lang/nota-common/dist/option.js";
 import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import { Option, isSome, none, optUnwrap, some } from "@nota-lang/nota-common/dist/option.js";
+import { default as classNames } from "classnames";
+import _ from "lodash";
+import { action, makeObservable, observable } from "mobx";
+import { observer } from "mobx-react";
+import React, { forwardRef, useEffect, useState } from "react";
 
-import { Container, ReactConstructor, ReactNode } from "./utils.js";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { LocalLink } from "./scroll.js";
 import { Tooltip } from "./tooltip.js";
-import { Plugin, Pluggable, usePlugin } from "./plugin.js";
+import { Container, ReactConstructor, ReactNode } from "./utils.js";
 import { HTMLAttributes, getOrRender } from "./utils.js";
 
 export interface DefinitionData {

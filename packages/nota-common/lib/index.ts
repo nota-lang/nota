@@ -2,7 +2,6 @@
  * Utilities shared across Nota frontend and backend packages.
  * @module
  */
-
 import _ from "lodash";
 
 export * as either from "./either.js";

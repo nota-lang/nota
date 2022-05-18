@@ -29,7 +29,7 @@ module.exports = {
     },
     "ignorePatterns": [
         "*.d.ts", 
-        "packages/nota-syntax/lib/nota.grammar.*",
+        "packages/nota-syntax/lib/notajs.grammar.*",
         "packages/nota-syntax/lib/markdown.ts"
     ],
     "rules": {

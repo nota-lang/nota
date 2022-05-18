@@ -1,10 +1,11 @@
-import { isErr, err, ok } from "@nota-lang/nota-common/dist/result";
-import { tryParse, translateAst, optimizePlugin } from "@nota-lang/nota-syntax";
-import { makeAutoObservable, reaction, runInAction } from "mobx";
-import * as babel from "@babel/standalone";
 import type { BabelFileResult } from "@babel/core";
+import * as babel from "@babel/standalone";
+import { err, isErr, ok } from "@nota-lang/nota-common/dist/result.js";
+import { tryParse } from "@nota-lang/nota-syntax/dist/parse/mod.js";
+import { optimizePlugin, translateAst } from "@nota-lang/nota-syntax/dist/translate/mod.js";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 
-import { TranslationResult, State } from ".";
+import { State, TranslationResult } from ".";
 
 export class LocalState implements State {
   contents: string;

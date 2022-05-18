@@ -3,14 +3,19 @@ import * as babel from "@babel/standalone";
 import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
-import { optUnwrap } from "@nota-lang/nota-common/dist/option.js";
-import { isLeft } from "@nota-lang/nota-common/dist/either.js";
-import { Translator, printTree, babelPolyfill as t, terms, translate, tryParse, MdTerms } from "..";
+
+import {
+  Translator,
+  translate as trans,
+  babelPolyfill as t,
+  printTree,
+} from "../dist/translate/mod.js";
+import { tryParse, mdTerms } from "../dist/parse/mod.js";
 
 test("translate end-to-end", () => {
   let input = `@h1: Hello world!`;
   let tree = resUnwrap(tryParse(input));
-  let js = translate(input, tree);
+  let js = trans(input, tree);
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
@@ -42,7 +47,7 @@ let gen =
 
 test("translate markdown inline", () => {
   let genInlineMarkdown = gen((translator, doc) => {
-    let para = doc.getChild(MdTerms.Paragraph)!;
+    let para = doc.getChild(mdTerms.Paragraph)!;
     let expr = translator.translateMdInline(para.firstChild!);
     return t.expressionStatement(expr);
   });

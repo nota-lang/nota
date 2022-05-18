@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useContext } from "react";
-import { action } from "mobx";
-import { nota /*CodeTag*/ } from "@nota-lang/nota-syntax";
 import { basicSetup } from "@codemirror/basic-setup";
-import { keymap, KeyBinding, EditorView } from "@codemirror/view";
-import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { indentWithTab } from "@codemirror/commands";
+import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { EditorSelection, EditorState } from "@codemirror/state";
+import { EditorView, KeyBinding, keymap } from "@codemirror/view";
+import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import classNames from "classnames";
+import { action } from "mobx";
+import React, { useContext, useEffect, useRef } from "react";
 
 import { StateContext } from ".";
 

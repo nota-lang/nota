@@ -3,9 +3,9 @@ import cp from 'child_process';
 import * as components from "@nota-lang/nota-components";
 
 async function main() {
-  await fs.mkdir("dist", {recursive: true});
-  cp.execSync('lezer-generator lib/nota.grammar -o dist/nota.grammar.js');
-  await fs.copyFile('lib/js_tokens.js', 'dist/js_tokens.js');
+  await fs.mkdir("dist/parse", {recursive: true});
+  cp.execSync('lezer-generator lib/parse/notajs.grammar -o dist/parse/notajs.grammar.js');
+  await fs.copyFile('lib/parse/js_tokens.js', 'dist/parse/js_tokens.js');
 
   let component_map = {};
   for (let k of Object.keys(components)) {
@@ -14,7 +14,7 @@ async function main() {
     }
   }
 
-  await fs.writeFile('dist/components.js', `
+  await fs.writeFile('dist/translate/components.js', `
 export default ${JSON.stringify(component_map)}
   `);
 }

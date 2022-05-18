@@ -1,15 +1,14 @@
+import "@cspotcode/source-map-support/register.js";
 import { program } from "commander";
 import esbuild, { BuildOptions, BuildResult, Loader, WatchMode } from "esbuild";
 import _ from "lodash";
 import type { IDependencyMap } from "package-json-type";
 import path from "path";
 
-import { log } from "./log.js";
-import { getManifest, fileExists } from "./index.js";
-import { tscPlugin } from "./tsc.js";
 import { esmExternalsPlugin } from "./esm-externals.js";
-
-import "@cspotcode/source-map-support/register.js";
+import { fileExists, getManifest } from "./index.js";
+import { log } from "./log.js";
+import { tscPlugin } from "./tsc.js";
 
 export interface CliOptions {
   watch?: boolean | WatchMode;

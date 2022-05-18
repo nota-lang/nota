@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { default as ReactLoader } from "react-loader-spinner";
+import { default as classNames } from "classnames";
 import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
-import { default as classNames } from "classnames";
+import React, { useState } from "react";
+import { default as ReactLoader } from "react-loader-spinner";
 
 export class LoaderData {
   loaded: boolean;

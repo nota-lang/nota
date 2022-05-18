@@ -1,5 +1,5 @@
-import { Plugin } from "esbuild";
 import * as cp from "child_process";
+import { Plugin } from "esbuild";
 
 // Detects ANSI codes in a string. Taken from https://github.com/chalk/ansi-regex
 const ANSI_REGEX = new RegExp(

@@ -1,25 +1,25 @@
-import { tags as t } from "@lezer/highlight";
 import {
   HighlightStyle,
   LRLanguage,
+  Language,
   LanguageSupport,
   continuedIndent,
+  defaultHighlightStyle,
+  defineLanguageFacet,
   delimitedIndent,
   flatIndent,
   foldInside,
   foldNodeProp,
   indentNodeProp,
   syntaxHighlighting,
-  defaultHighlightStyle,
 } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
 
+import { CodeTag, jsParser, mdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
-//@ts-ignore
-import { parser } from "./nota.grammar.js";
-import { CodeTag } from "./highlight.js";
 
-export let notaLanguage = LRLanguage.define({
-  parser: parser.configure({
+let notaJsLanguage = LRLanguage.define({
+  parser: jsParser.configure({
     props: [
       indentNodeProp.add({
         IfStatement: continuedIndent({ except: /^\s*({|else\b)/ }),
@@ -68,19 +68,26 @@ export let notaLanguage = LRLanguage.define({
   },
 });
 
-let notaCompletion = notaLanguage.data.of({
+let notaCompletion = notaJsLanguage.data.of({
   autocomplete,
 });
 
-let notaStyle = HighlightStyle.define([
-  { tag: t.variableName, color: "#256" },
+let notaJsStyle = HighlightStyle.define([
   { tag: CodeTag, class: "nota-editor-code" },
   { tag: t.content, class: "nota-editor-text" },
 ]);
 
-export let nota = () =>
-  new LanguageSupport(notaLanguage, [
-    notaCompletion,
-    syntaxHighlighting(notaStyle),
-    syntaxHighlighting(defaultHighlightStyle),
-  ]);
+let notaJs = new LanguageSupport(notaJsLanguage, [
+  notaCompletion,
+  syntaxHighlighting(notaJsStyle),
+  syntaxHighlighting(defaultHighlightStyle),
+]);
+
+let notaMdStyle = HighlightStyle.define([
+  /*{ tag: t.heading1, color: "red" }*/
+]);
+
+export let nota = (config: {} = {}): LanguageSupport => {
+  let notaLang = new Language(defineLanguageFacet({}), mdParser);
+  return new LanguageSupport(notaLang, [notaJs, syntaxHighlighting(notaMdStyle)]);
+};

@@ -3,8 +3,8 @@ import type esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 
-import { tryParse } from "./parse.js";
-import { translate } from "./translate.js";
+import { tryParse } from "./parse/mod.js";
+import { translate } from "./translate/mod.js";
 
 export interface NotaPluginOpts {}
 

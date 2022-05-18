@@ -1,3 +1,9 @@
+//@ts-ignore
+import esMain from "es-main";
+import fs from "fs";
+import _ from "lodash";
+import type { IPackageJson } from "package-json-type";
+
 /**
  * Node utilities for integrating Nota with esbuild.
  * @module
@@ -10,12 +16,6 @@ export { ExecutablePluginOptions, executablePlugin } from "./executable.js";
 export { EsmExternalsPluginOptions, esmExternalsPlugin } from "./esm-externals.js";
 export { tscPlugin } from "./tsc.js";
 export { cli, CliOptions } from "./cli.js";
-
-//@ts-ignore
-import esMain from "es-main";
-import fs from "fs";
-import _ from "lodash";
-import type { IPackageJson } from "package-json-type";
 
 /** Asynchronously check if a file exists, returning true if so.
  * @param path Path to the file.

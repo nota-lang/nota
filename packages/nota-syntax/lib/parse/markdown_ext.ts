@@ -1,23 +1,25 @@
-import { parseMixed } from "@lezer/common";
-import { LRParser } from "@lezer/lr";
+import { LRLanguage } from "@codemirror/language";
+import { NodeType, parseMixed } from "@lezer/common";
 import { Tree } from "@lezer/common";
+import { LRParser } from "@lezer/lr";
+import {
+  BlockContext,
+  DelimiterType,
+  Element,
+  InlineContext,
+  Line,
+  MarkdownConfig,
+  MarkdownParser,
+  NodeSpec,
+  parser as baseMdParser,
+} from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 import _ from "lodash";
-import {
-  InlineContext,
-  BlockContext,
-  Line,
-  Element,
-  DelimiterType,
-  parser as mdParser,
-  MarkdownConfig,
-  NodeSpec,
-} from "@lezer/markdown";
 
 //@ts-ignore
-import { parser as baseNotaParser } from "./nota.grammar.js";
+import { parser as baseJsParser } from "./notajs.grammar.js";
 //@ts-ignore
-import * as terms from "./nota.grammar.terms.js";
+import * as terms from "./notajs.grammar.terms.js";
 
 export enum Type {
   Document = 1,
@@ -123,7 +125,7 @@ let munchBalancedSubstring = (
 
 type BlockResult = boolean | null;
 
-export let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
+let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pct) {
     let start = cx.lineStart;
     if (line.text.length >= 3 && line.text.slice(0, 3) == "%%%") {
@@ -148,7 +150,7 @@ export let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
   return false;
 };
 
-export let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
+let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pipe) {
     let pos = cx.lineStart + line.pos;
     let icx = new (InlineContext as any)(
@@ -212,7 +214,7 @@ export let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResul
 // @Component{(key: value),*}: inline?
 //   | key: value
 //   sub-block
-export let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
+let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
   let next = line.next;
   if (next == atSign) {
     let pos = cx.lineStart + line.pos;
@@ -269,7 +271,7 @@ export let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResul
   return false;
 };
 
-export let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
+let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
   if (line.indent < line.baseIndent + value && line.next > -1) return false;
 
   line.moveBaseColumn(line.baseIndent + value);
@@ -296,7 +298,7 @@ const NotaInlineContentDelimiter: DelimiterType = {
   mark: "NotaInlineContentMark",
 };
 
-export let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): number => {
+let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): number => {
   if (next == hash) {
     let start = pos;
     pos += 1;
@@ -322,7 +324,7 @@ let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
   return cx.elt("NotaInlineContent", pos, cx.end, children);
 };
 
-export let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): number => {
+let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): number => {
   if (next == atSign) {
     let start = pos;
     pos += 1;
@@ -363,6 +365,7 @@ export let notaInlineComponentStart = (cx: InlineContext, next: number, pos: num
   return -1;
 };
 
+// TODO: rewrite this using stable APIs, i.e. findOpeningDelimiter
 export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): number => {
   if (next == rbrc) {
     cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
@@ -396,114 +399,103 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
   return -1;
 };
 
-let notaWrap = parseMixed((node, _input) => {
-  if (node.type.id == terms.Markdown) {
-    return { parser };
-  } else {
-    return null;
-  }
-});
+export type Terms = { [key: string]: number };
+export let configureParser = (
+  mdParser: MarkdownParser
+): {
+  mdParser: MarkdownParser;
+  mdTerms: Terms;
+  jsParser: LRParser;
+} => {
+  let parserRef = mdParser;
+  let mdTerms: { [key: string]: number };
 
-let notaParser: LRParser = baseNotaParser.configure({ wrap: notaWrap });
-let notaExprParser = notaParser.configure({ top: "NotaExpr" });
-let notaAttrParser = notaParser.configure({ top: "NotaInlineAttrs" });
-let notaStmtParser = notaParser.configure({ top: "NotaStmts" });
-
-export let mdWrap = parseMixed((node, _input) => {
-  if (node.name == "NotaAttributeValue") {
-    // TODO: when *any* overlay is added, the nested parse doesn't seem to work?
-    return { parser: notaExprParser /*overlay: node => node.type.id == Type.NotaJs*/ };
-  } else if (node.name == "NotaScript") {
-    return { parser: notaStmtParser };
-  } else if (node.name == "NotaInlineAttributes") {
-    return { parser: notaAttrParser };
-  } else {
-    return null;
-  }
-});
-
-let NotaMarkdown: MarkdownConfig = {
-  defineNodes: [
-    {
-      name: "NotaBlockComponent",
-      block: true,
-      composite: skipForNota,
-    },
-    { name: "NotaInlineComponent" },
-    { name: "NotaInterpolation" },
-    { name: "NotaCommandName" },
-    { name: "NotaInlineAttributes" },
-    {
-      name: "NotaBlockAttribute",
-      block: true,
-    },
-    { name: "NotaAttributeKey" },
-    { name: "NotaAttributeValue" },
-    { name: "NotaScript" },
-    { name: "NotaJs" },
-    { name: "NotaInlineContent" },
-    { name: "NotaInlineComponentMark" },
-    { name: "NotaInlineContentMark" },
-  ],
-  parseBlock: [
-    {
-      name: "NotaScript",
-      parse: notaScriptParser,
-    },
-    {
-      name: "NotaBlockAttribute",
-      parse: notaBlockAttributeParser,
-    },
-    {
-      name: "NotaBlockComponent",
-      parse: notaBlockComponentParser,
-    },
-  ],
-  parseInline: [
-    {
-      name: "NotaInlineComponentStart",
-      parse: notaInlineComponentStart,
-    },
-    {
-      name: "NotaInterpolationStart",
-      parse: notaInterpolationStart,
-    },
-    {
-      name: "NotaInlineEnd",
-      parse: notaInlineEnd,
-    },
-  ],
-  wrap: mdWrap,
-};
-
-export let parser = mdParser.configure([NotaMarkdown]);
-
-export let MdTermsExt: { [key: string]: number } = _.fromPairs(
-  NotaMarkdown.defineNodes!.map(node => {
-    let name = (node as NodeSpec).name;
-    return [name, parser.nodeSet.types.find(nodeType => nodeType.name == name)!.id];
-  })
-);
-
-export let tryParse = (contents: string): Result<Tree> => {
-  // TODO: configure markdown as strict?
-  let parse = parser.startParse(contents);
-  while (true) {
-    try {
-      let tree = parse.advance();
-      if (tree != null) {
-        return ok(tree);
-      }
-    } catch (e: any) {
-      console.error(e);
-      let pos = parseInt(e.toString().match(/\d+$/)[0]);
-      let prefix = contents.slice(Math.max(0, pos - 10), pos);
-      let suffix = contents.slice(pos + 1, pos + 10);
-      let msg = `Invalid parse at: "${prefix}>>>${
-        pos == contents.length ? "(end of file)" : contents[pos]
-      }<<<${suffix}"`;
-      return err(Error(msg));
+  let notaWrap = parseMixed((node, _input) => {
+    if (node.type.id == terms.Markdown) {
+      return { parser: parserRef };
+    } else {
+      return null;
     }
-  }
+  });
+
+  let jsParser: LRParser = baseJsParser.configure({ wrap: notaWrap });
+  let exprParser = jsParser.configure({ top: "NotaExpr" });
+  let attrParser = jsParser.configure({ top: "NotaInlineAttrs" });
+  let stmtParser = jsParser.configure({ top: "NotaStmts" });
+
+  let mdWrap = parseMixed((node, _input) => {
+    if (node.type.id == mdTerms.NotaAttributeValue) {
+      // TODO: when *any* overlay is added, the nested parse doesn't seem to work?
+      return { parser: exprParser /*overlay: node => node.type.id == Type.NotaJs*/ };
+    } else if (node.type.id == mdTerms.NotaScript) {
+      return { parser: stmtParser };
+    } else if (node.type.id == mdTerms.NotaInlineAttributes) {
+      return { parser: attrParser };
+    } else {
+      return null;
+    }
+  });
+
+  let extension: MarkdownConfig = {
+    defineNodes: [
+      {
+        name: "NotaBlockComponent",
+        block: true,
+        composite: skipForNota,
+      },
+      { name: "NotaInlineComponent" },
+      { name: "NotaInterpolation" },
+      { name: "NotaCommandName" },
+      { name: "NotaInlineAttributes" },
+      {
+        name: "NotaBlockAttribute",
+        block: true,
+      },
+      { name: "NotaAttributeKey" },
+      { name: "NotaAttributeValue" },
+      { name: "NotaScript" },
+      { name: "NotaJs" },
+      { name: "NotaInlineContent" },
+      { name: "NotaInlineComponentMark" },
+      { name: "NotaInlineContentMark" },
+    ],
+    parseBlock: [
+      {
+        name: "NotaScript",
+        parse: notaScriptParser,
+      },
+      {
+        name: "NotaBlockAttribute",
+        parse: notaBlockAttributeParser,
+      },
+      {
+        name: "NotaBlockComponent",
+        parse: notaBlockComponentParser,
+      },
+    ],
+    parseInline: [
+      {
+        name: "NotaInlineComponentStart",
+        parse: notaInlineComponentStart,
+      },
+      {
+        name: "NotaInterpolationStart",
+        parse: notaInterpolationStart,
+      },
+      {
+        name: "NotaInlineEnd",
+        parse: notaInlineEnd,
+      },
+    ],
+    wrap: mdWrap,
+  };
+
+  parserRef = mdParser.configure([extension]);
+  mdTerms = _.fromPairs(
+    parserRef.nodeSet.types
+      .filter(node => node instanceof NodeType)
+      .map(node => [node.name, node.id])
+  );
+
+  return { mdParser: parserRef, mdTerms, jsParser };
 };
-”

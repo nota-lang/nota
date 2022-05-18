@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import * as bibtexParse from "@orcid/bibtex-parse-js";
-import { observer } from "mobx-react";
-
-import { Section, SectionBody } from "./document.js";
-import { Definition, DefinitionsPlugin } from "./definitions.js";
-import { Plugin, Pluggable, usePlugin } from "./plugin.js";
-import { action, makeObservable, observable } from "mobx";
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import * as bibtexParse from "@orcid/bibtex-parse-js";
+import { action, makeObservable, observable } from "mobx";
+import { observer } from "mobx-react";
+import React, { useEffect } from "react";
+
+import { Definition, DefinitionsPlugin } from "./definitions.js";
+import { Section, SectionBody } from "./document.js";
+import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 
 function isString(x: any): x is string {
   return typeof x === "string";

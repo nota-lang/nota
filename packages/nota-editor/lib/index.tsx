@@ -1,5 +1,5 @@
-import React from "react";
 import type { Result } from "@nota-lang/nota-common/dist/result";
+import React from "react";
 
 export type TranslationResult = Result<
   {

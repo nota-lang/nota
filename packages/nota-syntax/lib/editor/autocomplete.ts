@@ -6,12 +6,10 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 
-import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
+import { jsTerms, mdTerms } from "../parse/mod.js";
 //@ts-ignore
-import * as terms from "./nota.grammar.terms.js";
-
-//@ts-ignore
-import COMPONENTS from "./components.js";
+import COMPONENTS from "../translate/components.js";
+import { INTRINSIC_ELEMENTS } from "../translate/intrinsic-elements.js";
 
 let notaElements = Object.keys(COMPONENTS as { [k: string]: string }).filter(
   name => name[0].match(/[A-Z$]/) !== null
@@ -47,7 +45,7 @@ export let autocomplete: CompletionSource = context => {
   let definitions: Completion[] = [];
   tree.iterate({
     enter(node) {
-      if (node.type.id == terms.VariableDefinition) {
+      if (node.type.id == jsTerms.VariableDefinition) {
         definitions.push({
           label: text(node.node),
           type: "variable",
@@ -59,34 +57,35 @@ export let autocomplete: CompletionSource = context => {
     },
   });
 
-  let nodeBefore = tree.resolveInner(context.pos, -1);
-  let completions = new Map<number, Completion[]>([
-    [terms.AtCommand, prelude],
-    [terms.HashCommand, definitions],
-  ]);
-  let cmds = Array.from(completions.keys());
+  // TODO!
+  // let nodeBefore = tree.resolveInner(context.pos, -1);
+  // let completions = new Map<number, Completion[]>([
+  //   [jsTerms.AtCommand, prelude],
+  //   [jsTerms.HashCommand, definitions],
+  // ]);
+  // let cmds = Array.from(completions.keys());
 
-  let parent = nodeBefore.parent;
+  // let parent = nodeBefore.parent;
 
-  // User has just typed "@"
-  if (cmds.includes(nodeBefore.type.id)) {
-    return {
-      from: context.pos,
-      options: completions.get(nodeBefore.type.id)!,
-      span: ident,
-    };
-  } // User is typing "@cmd"
-  else if (
-    parent &&
-    (parent.type.id == terms.CommandName || parent.type.id == terms.VariableName) &&
-    parent.parent &&
-    cmds.includes(parent.parent.type.id)
-  ) {
-    return {
-      from: nodeBefore.from,
-      options: completions.get(parent.parent.type.id)!,
-      span: ident,
-    };
-  }
+  // // User has just typed "@"
+  // if (cmds.includes(nodeBefore.type.id)) {
+  //   return {
+  //     from: context.pos,
+  //     options: completions.get(nodeBefore.type.id)!,
+  //     span: ident,
+  //   };
+  // } // User is typing "@cmd"
+  // else if (
+  //   parent &&
+  //   (parent.type.id == terms.CommandName || parent.type.id == terms.VariableName) &&
+  //   parent.parent &&
+  //   cmds.includes(parent.parent.type.id)
+  // ) {
+  //   return {
+  //     from: nodeBefore.from,
+  //     options: completions.get(parent.parent.type.id)!,
+  //     span: ident,
+  //   };
+  // }
   return null;
 };
