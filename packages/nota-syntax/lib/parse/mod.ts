@@ -1,14 +1,14 @@
 import { Tree } from "@lezer/common";
-import { parser as baseMdParser } from "@lezer/markdown";
+import { GFM, MarkdownConfig, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
-import { configureParser } from "./markdown_ext";
+import { configureParser } from "./markdown_ext.js";
 //@ts-ignore
 import * as terms from "./notajs.grammar.terms.js";
 
 export { CodeTag } from "./highlight.js";
 
-export let { mdParser, mdTerms, jsParser } = configureParser(baseMdParser);
+export let { mdParser, mdTerms, jsParser } = configureParser(baseMdParser.configure(GFM));
 export let jsTerms: { [key: string]: number } = terms;
 
 export let tryParse = (contents: string): Result<Tree> => {

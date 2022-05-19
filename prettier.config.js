@@ -1,4 +1,3 @@
-console.log(require("@trivago/prettier-plugin-sort-imports"));
 module.exports = {
   printWidth: 100,
   tabWidth: 2,

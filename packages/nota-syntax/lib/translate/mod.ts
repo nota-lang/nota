@@ -117,27 +117,44 @@ export class Translator {
       [mdTerms.StrongEmphasis]: "strong",
       [mdTerms.Emphasis]: "em",
       [mdTerms.InlineCode]: "code",
+      [mdTerms.Strikethrough]: "s",
     };
     if (type in delimitedTypes) {
       let children = this.translateMdInlineSequence(mdChildren.slice(1, -1));
       return toReact(strLit(delimitedTypes[type]), [], children);
-    } else if (type == mdTerms.Link) {
-      let linkMarkIndexes = mdChildren
-        .map<[Either<SyntaxNode, string>, number]>((node, i) => [node, i])
-        .filter(([node]) => isLeft(node) && node.value.type.id == mdTerms.LinkMark)
-        .map(([_, i]) => i);
-      let display = mdChildren.slice(linkMarkIndexes[0] + 1, linkMarkIndexes[1]);
-      let url = node.getChild(mdTerms.URL)!;
-      let children = this.translateMdInlineSequence(display);
-      return toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
-    } else if (type == mdTerms.QuoteMark) {
-      return t.nullLiteral();
-    } else if (type == mdTerms.NotaInlineComponent) {
-      return this.translateNotaComponent(node);
-    } else if (type == mdTerms.NotaInterpolation) {
-      return this.translateNotaInterpolation(node);
     } else {
-      throw `Not yet implemented: ${node.name}`;
+      switch (type) {
+        case mdTerms.Link: {
+          let linkMarkIndexes = mdChildren
+            .map<[Either<SyntaxNode, string>, number]>((node, i) => [node, i])
+            .filter(([node]) => isLeft(node) && node.value.type.id == mdTerms.LinkMark)
+            .map(([_, i]) => i);
+          let display = mdChildren.slice(linkMarkIndexes[0] + 1, linkMarkIndexes[1]);
+          let url = node.getChild(mdTerms.URL)!;
+          let children = this.translateMdInlineSequence(display);
+          return toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
+        }
+
+        case mdTerms.QuoteMark: {
+          return t.nullLiteral();
+        }
+
+        case mdTerms.Escape: {
+          return strLit(this.text(node).slice(1));
+        }
+
+        case mdTerms.NotaInlineComponent: {
+          return this.translateNotaComponent(node);
+        }
+
+        case mdTerms.NotaInterpolation: {
+          return this.translateNotaInterpolation(node);
+        }
+
+        default: {
+          throw `Inline element not yet implemented: ${node.name} (${this.text(node)})`;
+        }
+      }
     }
   }
 
@@ -220,7 +237,8 @@ export class Translator {
       }
 
       default: {
-        throw `Not yet implements: ${node.name}`;
+        console.trace();
+        throw `Block element not yet implemented: ${node.name} (${this.text(node)})`;
       }
     }
   }
@@ -256,7 +274,7 @@ export class Translator {
   }
 
   translateNotaComponent(node: SyntaxNode): Expression {
-    // assert(matches(node, mdTerms.NotaComponent));
+    assert(matches(node, mdTerms.NotaBlockComponent) || matches(node, mdTerms.NotaInlineComponent));
 
     let nameNode = node.getChild(mdTerms.NotaCommandName)!;
     let nameExpr = this.translateNotaCommandName(nameNode);
@@ -304,6 +322,7 @@ export class Translator {
       let subDoc = this.translateMdBlockSequence(node, [
         mdTerms.NotaCommandName,
         mdTerms.NotaBlockAttribute,
+        jsTerms.NotaInlineAttrs,
       ]);
       args.push(t.spreadElement(subDoc));
     }
@@ -315,8 +334,9 @@ export class Translator {
     let cursor = node.cursor();
     let replacements: [number, number, string][] = [];
     while (node.from <= cursor.from && cursor.to <= node.to) {
-      if (matches(cursor.node, jsTerms.AtCommand)) {
-        let expr = this.translateNotaComponent(cursor.node);
+      if (matches(cursor.node, mdTerms.Document)) {
+        let component = cursor.node.firstChild!.firstChild!;
+        let expr = this.translateNotaComponent(component);
         let result = babel.transformFromAst(
           t.program([t.expressionStatement(expr)]),
           undefined,

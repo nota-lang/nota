@@ -4,13 +4,13 @@ import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
 
+import { mdTerms, tryParse } from "../dist/parse/mod.js";
 import {
   Translator,
-  translate as trans,
-  babelPolyfill as t,
   printTree,
+  babelPolyfill as t,
+  translate as trans,
 } from "../dist/translate/mod.js";
-import { tryParse, mdTerms } from "../dist/parse/mod.js";
 
 test("translate end-to-end", () => {
   let input = `@h1: Hello world!`;
@@ -86,18 +86,22 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    [`# hello`, `el("h1", {}, " hello");`],
-    [`## hello`, `el("h2", {}, " hello");`],
-    ["```\nhello\n```", `el("pre", {}, "hello");`],
-    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-    [
-      "* hello\n\n  yes\n* world",
-      `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
-    ],
-    [
-      `@em{**a**} @strong{b}`,
-      `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
-    ],
+    // [`# hello`, `el("h1", {}, " hello");`],
+    // [`## hello`, `el("h2", {}, " hello");`],
+    // ["```\nhello\n```", `el("pre", {}, "hello");`],
+    // [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+    // [
+    //   "* hello\n\n  yes\n* world",
+    //   `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
+    // ],
+    // [
+    //   `@em{**a**} @strong{b}`,
+    //   `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
+    // ],
+    [`@div[id: "foo"]: bar`, `el("div", {
+  id: "foo"
+}, "bar");`],
+    [`@outer{@inner: test}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
     [
       `Hello @em[id: "ex"]{world}`,
       `el("p", {}, "Hello ", el("em", {
@@ -142,16 +146,19 @@ test("translate markdown doc", () => {
   });
 
   let pairs = [
-    [
-      `@h1: a
-
-@h2: b`,
-      `[el("h1", {}, "a"), el("h2", {}, "b")];`,
-    ],
+    [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+    [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
     [
       `%let x = 1\n\n#x`,
       `[...(() => {
   let x = 1;
+  return [null, el("p", {}, x)];
+})()];`,
+    ],
+    [
+      `%let x = @em{**content**}\n#x`,
+      `[...(() => {
+  let x = el("em", {}, el("strong", {}, "content"));
   return [null, el("p", {}, x)];
 })()];`,
     ],

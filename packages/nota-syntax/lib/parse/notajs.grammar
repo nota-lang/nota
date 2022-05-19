@@ -281,7 +281,7 @@ expressionNoComma {
   ArrowFunction[@dynamicPrecedence=1] {
     TypeParamList { tsAngleOpen commaSep<typeParam> ">" } ParamList TypeAnnotation? "=>" (Block | expressionNoComma)
   } |
-  AtCommand
+  Markdown
 }
 
 ParenthesizedExpression { "(" expression ")" }
@@ -545,24 +545,6 @@ questionOp[@name=LogicOp] { "?" }
 @top NotaStmts { statement+ }
 @top NotaInlineAttrs { "[" commaSep<Property> ~destructure "]" }
 
-Command { PctCommand | HashCommand | AtCommand }
-
-NotaExpression { expressionNoComma }
-
-AtCommand { 
-  "@" CommandName ArgCodeNamed* ArgText*
-| "@" ArgText+ 
-}
-
-CommandName { VariableName | Number | !nota "(" NotaExpression ")" }
-
-ArgCodeNamed { !nota "[" VariableName ("=" NotaExpression)? "]" }
-
-ArgCodeAnon { !nota "[" NotaExpression "]" }
-
-ArgText { !nota "{" Markdown "}" }
-
-
 
 ///////////// TOKENS
 
@@ -588,13 +570,7 @@ ArgText { !nota "{" Markdown "}" }
 }
 
 @tokens {    
-  /////// NOTA tokens
-  "%"[@name=Percent] 
-  "@"[@name=At] 
-  "#"[@name=Hash]
-    
-  ////// JS tokens
-   spaces[@export] { $[\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]+ }
+  spaces[@export] { $[\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]+ }
   newline[@export] { $[\r\n\u2028\u2029] }
 
   LineComment { "//" ![\n]* }

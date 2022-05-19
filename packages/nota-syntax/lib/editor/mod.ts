@@ -13,10 +13,12 @@ import {
   indentNodeProp,
   syntaxHighlighting,
 } from "@codemirror/language";
+import { KeyBinding, keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 
 import { CodeTag, jsParser, mdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
+import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";
 
 let notaJsLanguage = LRLanguage.define({
   parser: jsParser.configure({
@@ -83,11 +85,29 @@ let notaJs = new LanguageSupport(notaJsLanguage, [
   syntaxHighlighting(defaultHighlightStyle),
 ]);
 
-let notaMdStyle = HighlightStyle.define([
-  /*{ tag: t.heading1, color: "red" }*/
-]);
+let notaMdStyle = HighlightStyle.define([]);
+
+export let notaMdLang = new Language(
+  defineLanguageFacet({}),
+  mdParser.configure({
+    props: [
+      indentNodeProp.add({
+        NotaBlockComponent: continuedIndent(),
+      }),
+    ],
+  })
+);
+
+const markdownKeymap: readonly KeyBinding[] = [
+  { key: "Enter", run: insertNewlineContinueMarkup },
+  { key: "Backspace", run: deleteMarkupBackward },
+];
 
 export let nota = (config: {} = {}): LanguageSupport => {
-  let notaLang = new Language(defineLanguageFacet({}), mdParser);
-  return new LanguageSupport(notaLang, [notaJs, syntaxHighlighting(notaMdStyle)]);
+  return new LanguageSupport(notaMdLang, [
+    syntaxHighlighting(notaMdStyle),
+    syntaxHighlighting(defaultHighlightStyle),
+    notaJs,
+    keymap.of(markdownKeymap),
+  ]);
 };
