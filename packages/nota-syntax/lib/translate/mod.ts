@@ -187,9 +187,15 @@ export class Translator {
       }
 
       case mdTerms.FencedCode: {
-        let _codeInfo = node.getChild(mdTerms.CodeInfo); // TODO
+        let attributes: [Expression, Expression][] = [];
+        let codeInfo = node.getChild(mdTerms.CodeInfo);
+        if (codeInfo) {
+          attributes.push([strLit("language"), t.identifier(this.text(codeInfo))]);
+        }
+
         let codeText = node.getChild(mdTerms.CodeText)!;
-        return [toReact(strLit("pre"), [], [strLit(this.text(codeText))]), []];
+
+        return [toReact(t.identifier("Listing"), attributes, [strLit(this.text(codeText))]), []];
       }
 
       case mdTerms.Blockquote: {
@@ -318,12 +324,15 @@ export class Translator {
         node => isRight(node) || node.value.type.id != mdTerms.NotaInlineContentMark
       );
       args = args.concat(this.translateMdInlineSequence(subchildren));
-    } else {
-      let subDoc = this.translateMdBlockSequence(node, [
-        mdTerms.NotaCommandName,
-        mdTerms.NotaBlockAttribute,
-        jsTerms.NotaInlineAttrs,
-      ]);
+    }
+
+    let subDoc = this.translateMdBlockSequence(node, [
+      mdTerms.NotaCommandName,
+      mdTerms.NotaBlockAttribute,
+      mdTerms.NotaInlineContent,
+      jsTerms.NotaInlineAttrs,
+    ]);
+    if (subDoc.type != "ArrayExpression" || subDoc.elements.length > 0) {
       args.push(t.spreadElement(subDoc));
     }
 
@@ -556,21 +565,6 @@ export let translate = (input: string, tree: Tree): string => {
   let js = result.code!;
 
   return js;
-};
-
-type TranslatedToken = Either<Expression, Statement[]>;
-
-// TODO
-let _processText = (text: string): StringLiteral => {
-  return strLit(
-    text
-      .replace(/\\%/g, "%")
-      .replace(/\\\[/g, "[")
-      .replace(/\\\]/g, "]")
-      .replace(/\\@/g, "@")
-      .replace(/\\#/g, "#")
-      .replace(/---/g, "—")
-  );
 };
 
 let collectSiblings = (arg: SyntaxNode | null): SyntaxNode[] => {

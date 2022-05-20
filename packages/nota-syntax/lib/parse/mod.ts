@@ -1,5 +1,5 @@
 import { Tree } from "@lezer/common";
-import { GFM, MarkdownConfig, parser as baseMdParser } from "@lezer/markdown";
+import { GFM, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 import { configureParser } from "./markdown_ext.js";

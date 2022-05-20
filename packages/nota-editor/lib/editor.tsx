@@ -9,6 +9,7 @@ import { action } from "mobx";
 import React, { useContext, useEffect, useRef } from "react";
 
 import { StateContext } from ".";
+import { indentationGuides } from "./indentation-guides";
 
 export let theme = EditorView.theme({
   "&": {
@@ -97,8 +98,9 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       EditorView.lineWrapping,
       theme,
+      indentationGuides(),
     ];
-    let editingExts = [keymap.of([...keyBindings, indentWithTab])];
+    let editingExts = [keymap.of([...keyBindings, indentWithTab]), EditorState.tabSize.of(2)];
     let customExts = [
       EditorView.updateListener.of(
         action(update => {

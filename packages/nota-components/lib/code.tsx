@@ -144,7 +144,7 @@ export interface ListingDelimiterProps {
 export interface ListingProps {
   editable?: boolean;
   wrap?: boolean;
-  language?: LanguageSupport;
+  language?: LanguageSupport | (() => LanguageSupport);
   onLoad?: (editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
   extensions?: Extension[];
@@ -155,7 +155,16 @@ export let Listing: React.FC<ListingProps> = props => {
   let ref = useRef(null);
 
   useEffect(() => {
-    let language = props.language || ctx.language;
+    let language: LanguageSupport | undefined;
+    if (props.language) {
+      if (props.language instanceof Function) {
+        language = props.language();
+      } else {
+        language = props.language;
+      }
+    } else if (ctx.language) {
+      language = ctx.language;
+    }
 
     let code = joinRecursive(props.children as any);
     let parseResult = null;
@@ -173,7 +182,7 @@ export let Listing: React.FC<ListingProps> = props => {
         doc: code,
         extensions: [
           lineNumbers(),
-          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+          syntaxHighlighting(defaultHighlightStyle),
           theme,
           EditorView.editable.of(props.editable || false),
           props.wrap || ctx.wrap ? EditorView.lineWrapping : [],

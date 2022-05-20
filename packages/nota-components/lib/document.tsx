@@ -23,7 +23,7 @@ class DocumentData {
 
   footnotes: React.ReactNode[] = [];
   anonymous: boolean = false;
-  sectionNumbers: boolean = false;
+  sectionNumbers: boolean = true;
 }
 
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());

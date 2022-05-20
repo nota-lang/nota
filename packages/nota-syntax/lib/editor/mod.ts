@@ -103,7 +103,7 @@ const markdownKeymap: readonly KeyBinding[] = [
   { key: "Backspace", run: deleteMarkupBackward },
 ];
 
-export let nota = (config: {} = {}): LanguageSupport => {
+export let nota = (): LanguageSupport => {
   return new LanguageSupport(notaMdLang, [
     syntaxHighlighting(notaMdStyle),
     syntaxHighlighting(defaultHighlightStyle),

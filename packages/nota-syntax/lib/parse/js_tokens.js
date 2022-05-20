@@ -1,18 +1,19 @@
-import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
+import { ContextTracker, ExternalTokenizer } from "@lezer/lr";
+
 import {
-  insertSemi,
-  noSemi,
-  incdec,
-  incdecPrefix,
-  templateContent,
-  InterpolationStart,
-  templateEnd,
-  spaces,
-  newline,
   BlockComment,
+  Dialect_ts,
+  InterpolationStart,
   LineComment,
   TSExtends,
-  Dialect_ts,
+  incdec,
+  incdecPrefix,
+  insertSemi,
+  newline,
+  noSemi,
+  spaces,
+  templateContent,
+  templateEnd,
 } from "./notajs.grammar.terms.js";
 
 const space = [

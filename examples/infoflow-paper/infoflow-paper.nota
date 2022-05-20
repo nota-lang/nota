@@ -1,18 +1,22 @@
 %%%
 import "@nota-lang/nota-theme-acm/dist/index.css"
+import "@nota-lang/nota-theme-standalone/dist/index.css"
 import bibtex from "./bibliography.bib"
+import {rust} from "@codemirror/lang-rust"
+import {cpp} from "@codemirror/lang-cpp"
 
 let sysname = @Smallcaps{Flowistry};
 %%%
-
-
 
 @Title: Modular Information Flow through Ownership
 
 %let stanford = @Affiliation{@Institution: Stanford University}
 @Authors:
   @Author: @Name{Will Crichton} #stanford
-  @Author: @Name{Marco Patrignani} @Affiliation{@Institution: University of Trento}
+  @Author: 
+    @Name: Marco Patrignani
+    @Affiliation:
+      @Institution: University of Trento
   @Author: @Name{Maneesh Agrawala} #stanford
   @Author: @Name{Pat Hanrahan} #stanford
 
@@ -87,20 +91,12 @@ Due to space constraints, we omit many formal details, all auxiliary lemmas, and
 The interested reader can find them in the appendix.
 #sysname and our applications of it are publicly available, open-source, MIT-licensed projects at [https://github.com/willcrichton/flowistry](https://github.com/willcrichton/flowistry).
 
-@Section[label: "sec:analysis"]: Analysis
 
+@Section[label: "sec:analysis"]: Analysis
 
 Inspired by the dependency calculus of Abadi et al. @Ref{abadi1999core}, our analysis represents information flow as a set of dependencies for each variable in a given function. The analysis is flow-sensitive, computing a different dependency set at each program location, and field-sensitive, distinguishing between dependencies for fields of a data structure.
 
 While the analysis is implemented in and for Rust, our goal here is to provide a description of it that is both concise (for clarity of communication) and precise (for amenability to proof). We therefore base our description on Oxide @Ref{weiss2019oxide}, a formal model of Rust. At a high level, Oxide provides three ingredients: 
-
-TODOS for WILL:
-* comment syntax
-* fix headings, need to nest into `<section>`s
-* labels on #-headers
-* $-delimited tex
-* `@{...}` fragments in JS
-* `@fn` latex-like anon args
 
 %%%
 let hasType = (...args) => @span{#(args[0]) : #(args[1])};
@@ -109,6 +105,17 @@ let hasType = (...args) => @span{#(args[0]) : #(args[1])};
 1. A syntax of Rust-like programs with expressions $e$ and types $\tau$.
 2. A type-checker, expressed with the judgment $\tc{\Sigma}{\Delta}{\Gamma}{e}{\tau}{\Gamma'}$ using the contexts $\Gamma$ for types and lifetimes, $\Delta$ for type variables, and $\Sigma$ for global functions.
 3. An interpreter, expressed by a small-step operational semantics with the judgment $\stepsto{\sigma}{e}{\stepped{\sigma}}{e'}$ using $\sigma$ for a runtime stack.
+
+
+TODOS for WILL:
+* comment syntax
+* fix headings, need to nest into `<section>`s
+* labels on #-headers
+* $-delimited tex
+* `@{...}` fragments in JS
+* `@fn` latex-like anon args
+* newline at end of block should indent to current block
+* auto-import `@codemirror/lang-*` repos if they're in the package.json
 
 
 @References[bibtex]
