@@ -104,23 +104,23 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-//     [`# hello`, `el("h1", {}, " hello");`],
-//     [`## hello`, `el("h2", {}, " hello");`],
-//     ["```\nhello\n```", `el(Listing, {}, "hello");`],
-//     [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-//     [
-//       "* hello\n\n  yes\n* world",
-//       `el(
-//   "ul",
-//   {},
-//   el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
-//   el("li", {}, el("p", {}, "world"))
-// );`,
-//     ],
-//     [
-//       `@em{**a**} @strong{b}`,
-//       `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
-//     ],
+    [`# hello`, `el("h1", {}, " hello");`],
+    [`## hello`, `el("h2", {}, " hello");`],
+    ["```\nhello\n```", `el(Listing, {}, "hello");`],
+    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+    [
+      "* hello\n\n  yes\n* world",
+      `el(
+  "ul",
+  {},
+  el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
+  el("li", {}, el("p", {}, "world"))
+);`,
+    ],
+    [
+      `@em{**a**} @strong{b}`,
+      `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
+    ],
     [
       `@div[id: "foo"]: bar`,
       `el(
