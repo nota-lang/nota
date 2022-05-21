@@ -3,6 +3,7 @@ import { Strikethrough, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 import { MathExtension } from "./extensions/math.js";
+import { RefExtension } from "./extensions/ref.js";
 import { configureParserForNota } from "./extensions/nota.js";
 //@ts-ignore
 import * as terms from "./notajs.grammar.terms.js";
@@ -11,7 +12,7 @@ export { CodeTag } from "./highlight.js";
 export { MathTag } from "./extensions/math.js";
 
 export let { mdParser, mdTerms, jsParser } = configureParserForNota(
-  baseMdParser.configure([MathExtension, Strikethrough])
+  baseMdParser.configure([MathExtension, RefExtension, Strikethrough])
 );
 export let jsTerms: { [key: string]: number } = terms;
 

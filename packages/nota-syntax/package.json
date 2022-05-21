@@ -35,7 +35,7 @@
     "@lezer/generator": "^0.16.0",
     "@lezer/highlight": "^0.16.0",
     "@lezer/lr": "^0.16.0",
-    "@lezer/markdown": "^0.16.0",
+    "@lezer/markdown": "^0.16.1",
     "indent-string": "^5.0.0",
     "lodash": "^4.17.21"
   },

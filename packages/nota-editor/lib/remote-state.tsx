@@ -78,9 +78,6 @@ export class RemoteState implements State {
         this.contents = msg.contents;
         this.translation = msg.translation;
 
-        // TODO: this uses a similar dynamic code execution strategy
-        // as viewer.tsx for Nota documents. This code should be consolidated
-        // into a helper class or something.
         Object.keys(msg.availableLanguages).forEach(lang => {
           let script = (msg as InitialContent).availableLanguages[lang];
           let { [lang]: support } = dynamicLoad({ script });

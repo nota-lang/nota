@@ -3,6 +3,8 @@ import * as babel from "@babel/standalone";
 import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import parserBabel from "prettier/parser-babel";
+import prettier from "prettier/standalone";
 
 import { mdTerms, tryParse } from "../dist/parse/mod.js";
 import {
@@ -38,7 +40,7 @@ let gen =
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
       let result = babel.transformFromAst(program, undefined, {}) as any as BabelFileResult;
-      return result.code!;
+      return prettier.format(result.code!, { parser: "babel", plugins: [parserBabel] }).trimEnd();
     } catch (e) {
       console.error(input);
       throw e;
@@ -58,13 +60,29 @@ test("translate markdown inline", () => {
     [`*hello*`, `el("em", {}, "hello");`],
     [
       `[hello](world)`,
-      `el("a", {
-  "href": "world"
-}, "hello");`,
+      `el(
+  "a",
+  {
+    href: "world",
+  },
+  "hello"
+);`,
     ],
     [`#x`, `x;`],
     [`#(Foo.bar)`, `Foo.bar;`],
     [`#f{a}{b}`, `f(["a"], ["b"]);`],
+    [`&foo`, `el(Ref, {}, "foo");`],
+    [`&("foo")`, `el(Ref, {}, "foo");`],
+    [
+      `<http://www.google.com>`,
+      `el(
+  "a",
+  {
+    href: "http://www.google.com",
+  },
+  "http://www.google.com"
+);`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -86,30 +104,48 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    // [`# hello`, `el("h1", {}, " hello");`],
-    // [`## hello`, `el("h2", {}, " hello");`],
-    // ["```\nhello\n```", `el("pre", {}, "hello");`],
-    // [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-    // [
-    //   "* hello\n\n  yes\n* world",
-    //   `el("ul", {}, el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")), el("li", {}, el("p", {}, "world")));`,
-    // ],
-    // [
-    //   `@em{**a**} @strong{b}`,
-    //   `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
-    // ],
+//     [`# hello`, `el("h1", {}, " hello");`],
+//     [`## hello`, `el("h2", {}, " hello");`],
+//     ["```\nhello\n```", `el(Listing, {}, "hello");`],
+//     [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+//     [
+//       "* hello\n\n  yes\n* world",
+//       `el(
+//   "ul",
+//   {},
+//   el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
+//   el("li", {}, el("p", {}, "world"))
+// );`,
+//     ],
+//     [
+//       `@em{**a**} @strong{b}`,
+//       `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
+//     ],
     [
       `@div[id: "foo"]: bar`,
-      `el("div", {
-  id: "foo"
-}, "bar");`,
+      `el(
+  "div",
+  {
+    id: "foo",
+  },
+  "bar"
+);`,
     ],
     [`@outer{@inner: test}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
     [
       `Hello @em[id: "ex"]{world}`,
-      `el("p", {}, "Hello ", el("em", {
-  id: "ex"
-}, "world"));`,
+      `el(
+  "p",
+  {},
+  "Hello ",
+  el(
+    "em",
+    {
+      id: "ex",
+    },
+    "world"
+  )
+);`,
     ],
     [`Hello @strong: world`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
     [
@@ -118,9 +154,13 @@ test("translate markdown block", () => {
   Ceci n'est pas
 
   une code.`,
-      `el("section", {
-  "id": "foo"
-}, ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")]);`,
+      `el(
+  "section",
+  {
+    id: "foo",
+  },
+  ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")]
+);`,
     ],
     [
       `@h1:
@@ -132,9 +172,18 @@ test("translate markdown block", () => {
   @span: yed
  
 p`,
-      `el("h1", {}, ...[el("p", {}, "Hello"), el("span", {}, ...[el("p", {}, "world")]), el("span", {}, "yed")]);`,
+      `el(
+  "h1",
+  {},
+  ...[
+    el("p", {}, "Hello"),
+    el("span", {}, ...[el("p", {}, "world")]),
+    el("span", {}, "yed"),
+  ]
+);`,
     ],
     [`$$\n#x\n$$`, `el($$, {}, x);`],
+    [`@{hey}`, `el("p", {}, ["hey"]);`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -150,29 +199,35 @@ test("translate markdown doc", () => {
   });
 
   let pairs = [
-//     [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
-//     [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
-//     [
-//       `%let x = 1\n\n#x`,
-//       `[...(() => {
-//   let x = 1;
-//   return [null, el("p", {}, x)];
-// })()];`,
-//     ],
-//     [
-//       `%let x = @em{**content**}\n#x`,
-//       `[...(() => {
-//   let x = el("em", {}, el("strong", {}, "content"));
-//   return [null, el("p", {}, x)];
-// })()];`,
-//     ],
+    [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+    [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+    [
+      `%let x = 1\n\n#x`,
+      `[
+  ...(() => {
+    let x = 1;
+    return [null, el("p", {}, x)];
+  })(),
+];`,
+    ],
+    [
+      `%let x = @em{**content**}\n#x`,
+      `[
+  ...(() => {
+    let x = el("em", {}, el("strong", {}, "content"));
+    return [null, el("p", {}, x)];
+  })(),
+];`,
+    ],
     [
       `%let f = macro{#1.#2}\n#f{a}{b}`,
-      `[...(() => {
-  let f = (...args) => [args[0], ".", args[1]];
+      `[
+  ...(() => {
+    let f = (...args) => [args[0], ".", args[1]];
 
-  return [null, el("p", {}, f(["a"], ["b"]))];
-})()];`,
+    return [null, el("p", {}, f(["a"], ["b"]))];
+  })(),
+];`,
     ],
   ];
 

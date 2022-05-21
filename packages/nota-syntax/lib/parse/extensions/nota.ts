@@ -6,6 +6,8 @@ import {
   DelimiterType,
   Element,
   InlineContext,
+  LeafBlock,
+  LeafBlockParser,
   Line,
   MarkdownConfig,
   MarkdownParser,
@@ -31,6 +33,9 @@ let [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, s
   "|",
   " ",
 ].map(s => s.charCodeAt(0));
+
+let makeInlineContext = (cx: BlockContext, line: Line): InlineContext =>
+  new (InlineContext as any)(cx.parser, line.text.slice(line.pos), cx.lineStart + line.pos);
 
 let munchIdent = (text: string): number => {
   // TODO: handle unicode
@@ -110,12 +115,8 @@ let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
 
 let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pipe) {
-    let pos = cx.lineStart + line.pos;
-    let icx = new (InlineContext as any)(
-      cx.parser,
-      line.text.slice(line.pos),
-      pos
-    ) as InlineContext;
+    let icx = makeInlineContext(cx, line);
+    let pos = icx.offset;
     let start = pos;
 
     // |
@@ -175,13 +176,9 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
 let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
   let next = line.next;
   if (next == atSign) {
-    let pos = cx.lineStart + line.pos;
+    let icx = makeInlineContext(cx, line);
+    let pos = icx.offset;
     let start = pos;
-    let icx = new (InlineContext as any)(
-      cx.parser,
-      line.text.slice(line.pos),
-      pos
-    ) as InlineContext;
     let startRelative = line.pos;
 
     // @
@@ -246,7 +243,7 @@ let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
   return true;
 };
 
-let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
+export let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
   if (cx.slice(pos, pos + 1).match(/\d/)) {
     return cx.elt("NotaCommandName", pos, pos + 1, [cx.elt("NotaCommandNameAnon", pos, pos + 1)]);
   }
@@ -254,7 +251,9 @@ let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
   let balancedEnd = munchBalancedSubstring(cx, pos, lparen, rparen);
   if (balancedEnd > -1) {
     return cx.elt("NotaCommandName", pos, balancedEnd, [
-      cx.elt("NotaJs", pos + 1, balancedEnd - 1),
+      cx.elt("NotaCommandNameJs", pos + 1, balancedEnd - 1, [
+        cx.elt("NotaJs", pos + 1, balancedEnd - 1),
+      ]),
     ]);
   } else {
     let identLength = munchIdent(cx.slice(pos, cx.end));
@@ -303,7 +302,8 @@ let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
       if (cx.char(end) == rbrc) break;
     }
   } else {
-    end = cx.end;
+    let newlinePos = cx.slice(pos, cx.end).indexOf("\n");
+    end = newlinePos > 0 ? pos + newlinePos : cx.end;
   }
   let children = cx.parser.parseInline(cx.slice(pos, end), pos);
   return cx.elt("NotaInlineContent", pos, end, children);
@@ -317,11 +317,13 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
     let children = [cx.elt("@", pos, pos + 1)];
     pos += 1;
 
-    // Component
-    let nameEl = notaCommandName(cx, pos);
-    if (!nameEl) return -1;
-    pos = nameEl.to;
-    children.push(nameEl);
+    // Component?
+    if (cx.char(pos) != lbrc) {
+      let nameEl = notaCommandName(cx, pos);
+      if (!nameEl) return -1;
+      pos = nameEl.to;
+      children.push(nameEl);
+    }
 
     let fallback = () => cx.addElement(cx.elt("NotaInlineComponent", start, pos, children));
 
@@ -444,6 +446,9 @@ export let configureParserForNota = (
       return { parser: stmtParser };
     } else if (node.type.id == mdTerms.NotaInlineAttributes) {
       return { parser: attrParser };
+    } else if (node.type.id == mdTerms.NotaJs) {
+      // for NotaCommandName
+      return { parser: exprParser };
     } else {
       return null;
     }
@@ -461,6 +466,7 @@ export let configureParserForNota = (
       { name: "NotaCommandName" },
       { name: "NotaCommandNameText", style: t.special(t.variableName) },
       { name: "NotaCommandNameAnon", style: t.number },
+      { name: "NotaCommandNameJs" },
       { name: "NotaInlineAttributes" },
       {
         name: "NotaBlockAttribute",
@@ -490,7 +496,7 @@ export let configureParserForNota = (
       },
       {
         name: "NotaBlockComponent",
-        parse: notaBlockComponentParser,
+        parse: notaBlockComponentParser,      
       },
     ],
     parseInline: [

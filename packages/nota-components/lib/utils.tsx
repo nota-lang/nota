@@ -3,24 +3,34 @@ import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 export type HTMLAttributes = React.AllHTMLAttributes<HTMLElement>;
 export type ReactNode = React.ReactNode;
-export type ReactConstructor<P = {}> = React.FunctionComponent<P> | React.ComponentClass<P>;
+export type ReactConstructor<P = {}> =
+  | React.FunctionComponent<P>
+  | React.ComponentClass<P>
+  | React.ExoticComponent<P>;
 
-export let isConstructor = <P,>(t: ReactNode | ReactConstructor<P>): t is ReactConstructor<P> => {
-  let isCls = t !== null && typeof t === "object" && "type" in t && typeof t.type === "function";
-  let isWrapper =
-    t !== null &&
-    typeof t === "object" &&
-    "$$typeof" in t &&
-    t["$$typeof"] === Symbol.for("react.forward_ref");
-  let isFc = typeof t === "function";
-  return isCls || isWrapper || isFc;
+let isFunctionComponent = <P,>(t: any): t is React.FunctionComponent<P> => {
+  return typeof t === "function";
+};
+
+let isComponentClass = <P,>(t: any): t is React.ComponentClass<P> => {
+  // TODO: is there a better check here vs. isFunctionComponent? does it matter?
+  return typeof t === "function";
+};
+
+let isExoticComponent = <P,>(t: any): t is React.ExoticComponent<P> => {
+  let syms = ["react.forward_ref", "react.memo"].map(sym => Symbol.for(sym));
+  return typeof t === "object" && "$$typeof" in t && syms.includes(t["$$typeof"]);
+};
+
+export let isConstructor = <P,>(t: any): t is ReactConstructor<P> => {
+  return isFunctionComponent(t) || isComponentClass(t) || isExoticComponent(t);
 };
 
 export let getOrRender = <P extends object>(
   T: ReactNode | ReactConstructor<P>,
   p: P
 ): ReactNode => {
-  if (isConstructor(T)) {
+  if (isConstructor<P>(T)) {
     return <T {...p} />;
   } else {
     return T;
