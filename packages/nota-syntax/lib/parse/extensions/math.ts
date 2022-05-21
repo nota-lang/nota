@@ -1,4 +1,4 @@
-import { Tag, tags as t } from "@lezer/highlight";
+import { Tag } from "@lezer/highlight";
 import { BlockContext, DelimiterType, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
 
 import { BlockResult, notaVerbatimBlock } from "./nota.js";

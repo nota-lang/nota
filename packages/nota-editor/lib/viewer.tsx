@@ -3,7 +3,6 @@ import { javascript } from "@codemirror/lang-javascript";
 import type { SyntaxNode } from "@lezer/common";
 import { Result, err, isErr, isOk, ok, resUnwrap } from "@nota-lang/nota-common/dist/result.js";
 import type { DocumentProps } from "@nota-lang/nota-components/dist/document.js";
-import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import indentString from "indent-string";
 import _ from "lodash";
@@ -14,6 +13,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { StateContext, TranslationResult } from ".";
+import { dynamicLoad } from "./dynamic-load.js";
 import { theme } from "./editor.js";
 
 let ErrorView: React.FC = ({ children }) => <pre className="translate-error">{children}</pre>;
@@ -87,26 +87,13 @@ let execute = (
     return err(<>{result.value}</>);
   }
 
-  let notaRequire = (path: string): any => {
-    if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
-      return { peerImports };
-    }
-    if (path in imports) {
-      return imports[path];
-    }
-    if (path in peerImports) {
-      return peerImports[path];
-    }
-    throw `Cannot import ${path}`;
-  };
-
   let Doc;
   try {
-    let f = new Function(
-      "require",
-      result.value.lowered + `\n; return notaDocument.default; //# sourceURL=document.js`
-    );
-    Doc = f(notaRequire);
+    Doc = dynamicLoad({
+      script: result.value.lowered,
+      url: "document.js",
+      imports,
+    }).default;
   } catch (e: any) {
     console.error(e);
     return err(<>{e.stack}</>);

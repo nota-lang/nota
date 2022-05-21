@@ -9,7 +9,6 @@ import type {
   Program,
   SpreadElement,
   Statement,
-  StringLiteral,
 } from "@babel/types";
 import type { SyntaxNode, Tree } from "@lezer/common";
 import { assert, unreachable } from "@nota-lang/nota-common";

@@ -1,10 +1,10 @@
 import { LanguageSupport } from "@codemirror/language";
 import { err } from "@nota-lang/nota-common/dist/result";
-import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
 import _ from "lodash";
 import { action, makeAutoObservable, reaction } from "mobx";
 
 import { State, TranslationResult } from ".";
+import { dynamicLoad } from "./dynamic-load.js";
 
 export interface InitialContent {
   type: "InitialContent";
@@ -83,10 +83,8 @@ export class RemoteState implements State {
         // into a helper class or something.
         Object.keys(msg.availableLanguages).forEach(lang => {
           let script = (msg as InitialContent).availableLanguages[lang];
-          let f = new Function("require", script + `\n; return support;`);
-          let pkgExports = f((path: string) => peerImports[path]);
-          this.availableLanguages[lang] = pkgExports[lang]();
-          console.log(this.availableLanguages[lang]);
+          let { [lang]: support } = dynamicLoad({ script });
+          this.availableLanguages[lang] = support();
         });
 
         this.ready = true;
