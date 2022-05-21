@@ -2,7 +2,9 @@ import {
   HighlightStyle,
   LRLanguage,
   Language,
+  LanguageDescription,
   LanguageSupport,
+  ParseContext,
   continuedIndent,
   defaultHighlightStyle,
   defineLanguageFacet,
@@ -15,8 +17,9 @@ import {
 } from "@codemirror/language";
 import { KeyBinding, keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
+import { MarkdownParser, parseCode } from "@lezer/markdown";
 
-import { CodeTag, jsParser, mdParser } from "../parse/mod.js";
+import { CodeTag, MathTag, jsParser, mdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
 import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";
 
@@ -76,7 +79,9 @@ let notaCompletion = notaJsLanguage.data.of({
 
 let notaJsStyle = HighlightStyle.define([
   { tag: CodeTag, class: "nota-editor-code" },
+  { tag: MathTag, color: "rgb(31, 95, 31)" },
   { tag: t.content, class: "nota-editor-text" },
+  { tag: t.brace, color: "#333" },
 ]);
 
 let notaJs = new LanguageSupport(notaJsLanguage, [
@@ -87,24 +92,60 @@ let notaJs = new LanguageSupport(notaJsLanguage, [
 
 let notaMdStyle = HighlightStyle.define([]);
 
-export let notaMdLang = new Language(
-  defineLanguageFacet({}),
-  mdParser.configure({
-    props: [
-      indentNodeProp.add({
-        NotaBlockComponent: continuedIndent(),
-      }),
-    ],
-  })
-);
+export function mkLang(parser: MarkdownParser) {
+  return new Language(
+    defineLanguageFacet({}),
+    parser.configure({
+      props: [
+        indentNodeProp.add({
+          NotaBlockComponent: continuedIndent(),
+        }),
+      ],
+    })
+  );
+}
+
+export let notaMdLang = mkLang(mdParser);
 
 const markdownKeymap: readonly KeyBinding[] = [
   { key: "Enter", run: insertNewlineContinueMarkup },
   { key: "Backspace", run: deleteMarkupBackward },
 ];
 
-export let nota = (): LanguageSupport => {
-  return new LanguageSupport(notaMdLang, [
+// Copied from
+// https://github.com/codemirror/lang-markdown/blob/91c316431ab2df5649127af32e95fc74dbca0d97/src/markdown.ts#L35
+export type CodeLanguageDescriptions =
+  | readonly LanguageDescription[]
+  | ((info: string) => Language | LanguageDescription | null)
+  | undefined;
+export function getCodeParser(languages: CodeLanguageDescriptions, defaultLanguage?: Language) {
+  return (info: string) => {
+    if (info && languages) {
+      let found = null;
+      if (typeof languages == "function") found = languages(info);
+      else found = LanguageDescription.matchLanguageName(languages, info, true);
+      if (found instanceof LanguageDescription)
+        return found.support
+          ? found.support.language.parser
+          : ParseContext.getSkippingParser(found.load());
+      else if (found) return found.parser;
+    }
+    return defaultLanguage ? defaultLanguage.parser : null;
+  };
+}
+
+export let nota = (
+  config: {
+    codeLanguages?: CodeLanguageDescriptions;
+  } = {}
+): LanguageSupport => {
+  let mdExtensions = [
+    parseCode({
+      codeParser: getCodeParser(config.codeLanguages),
+    }),
+  ];
+  let lang = mkLang(mdParser.configure(mdExtensions));
+  return new LanguageSupport(lang, [
     syntaxHighlighting(notaMdStyle),
     syntaxHighlighting(defaultHighlightStyle),
     notaJs,

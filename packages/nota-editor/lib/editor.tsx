@@ -1,15 +1,19 @@
 import { basicSetup } from "@codemirror/basic-setup";
 import { indentWithTab } from "@codemirror/commands";
-import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import {
+  LanguageDescription,
+  defaultHighlightStyle,
+  syntaxHighlighting,
+} from "@codemirror/language";
 import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView, KeyBinding, keymap } from "@codemirror/view";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import classNames from "classnames";
 import { action } from "mobx";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { StateContext } from ".";
-import { indentationGuides } from "./indentation-guides";
+import { indentationGuides } from "./indentation-guides.js";
 
 export let theme = EditorView.theme({
   "&": {
@@ -83,8 +87,6 @@ let keyBindings: KeyBinding[] = [
   insertCommandAtCursor("Ctrl-3", "Subsubsection"),
 ];
 
-let notaLang = nota();
-
 export interface EditorProps {
   embedded?: boolean;
 }
@@ -92,6 +94,18 @@ export interface EditorProps {
 export let Editor: React.FC<EditorProps> = ({ embedded }) => {
   let ref = useRef<HTMLDivElement>(null);
   let state = useContext(StateContext)!;
+  let [notaLang] = useState(() =>
+    nota({
+      codeLanguages: (name: string) => {
+        if (name in state.availableLanguages) {
+          let support = state.availableLanguages[name];
+          return LanguageDescription.of({ name, support });
+        } else {
+          return null;
+        }
+      },
+    })
+  );
 
   useEffect(() => {
     let visualExts = [

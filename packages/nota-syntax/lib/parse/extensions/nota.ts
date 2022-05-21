@@ -13,9 +13,9 @@ import {
 import _ from "lodash";
 
 //@ts-ignore
-import { parser as baseJsParser } from "./notajs.grammar.js";
+import { parser as baseJsParser } from "../notajs.grammar.js";
 //@ts-ignore
-import * as jsTerms from "./notajs.grammar.terms.js";
+import * as jsTerms from "../notajs.grammar.terms.js";
 
 let [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, space] = [
   "@",
@@ -68,23 +68,36 @@ let munchBalancedSubstring = (
   return -1;
 };
 
-type BlockResult = boolean | null;
+export type BlockResult = boolean | null;
 
 let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pct) {
     let start = cx.lineStart;
     if (line.text.length >= 3 && line.text.slice(0, 3) == "%%%") {
+      let openDelim = cx.elt("%%%", start, start + 3);
       let marks: Element[] = [];
       while (cx.nextLine()) {
-        if (line.text == "%%%") break;
+        if (line.text == "%%%") {
+          break;
+        }
         marks.push(cx.elt("NotaJs", cx.lineStart, cx.lineStart + line.text.length));
       }
+      let closeDelim = cx.elt("%%%", cx.lineStart, cx.lineStart + 3);
       cx.nextLine();
-      cx.addElement(cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, marks));
+      cx.addElement(
+        cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, [
+          openDelim,
+          cx.elt("NotaScriptBody", marks[0].from, _.last(marks)!.to, marks),
+          closeDelim,
+        ])
+      );
     } else {
       cx.addElement(
         cx.elt("NotaScript", cx.lineStart + 1, cx.lineStart + line.text.length, [
-          cx.elt("NotaJs", cx.lineStart + 1, cx.lineStart + line.text.length),
+          cx.elt("%", cx.lineStart, cx.lineStart + 1),
+          cx.elt("NotaScriptBody", cx.lineStart + 1, cx.lineStart + line.text.length, [
+            cx.elt("NotaJs", cx.lineStart + 1, cx.lineStart + line.text.length),
+          ]),
         ])
       );
       cx.nextLine();
@@ -163,6 +176,7 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
   let next = line.next;
   if (next == atSign) {
     let pos = cx.lineStart + line.pos;
+    let start = pos;
     let icx = new (InlineContext as any)(
       cx.parser,
       line.text.slice(line.pos),
@@ -171,14 +185,14 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
     let startRelative = line.pos;
 
     // @
+    let children = [cx.elt("@", pos, pos + 1)];
     pos += 1;
 
     // Component
     let nameEl = notaCommandName(icx, pos);
     if (!nameEl) return false;
     pos = nameEl.to;
-
-    let children = [nameEl];
+    children.push(nameEl);
 
     // [(key: value),*]
     let attrStart = pos;
@@ -186,6 +200,13 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
     if (attrEnd != -1) {
       pos = attrEnd;
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
+    }
+
+    // EOL?
+    if (pos == icx.end) {
+      cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
+      cx.nextLine();
+      return true;
     }
 
     // :
@@ -226,6 +247,10 @@ let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
 };
 
 let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
+  if (cx.slice(pos, pos + 1).match(/\d/)) {
+    return cx.elt("NotaCommandName", pos, pos + 1, [cx.elt("NotaCommandNameAnon", pos, pos + 1)]);
+  }
+
   let balancedEnd = munchBalancedSubstring(cx, pos, lparen, rparen);
   if (balancedEnd > -1) {
     return cx.elt("NotaCommandName", pos, balancedEnd, [
@@ -234,7 +259,9 @@ let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
   } else {
     let identLength = munchIdent(cx.slice(pos, cx.end));
     if (identLength == -1) return null;
-    return cx.elt("NotaCommandName", pos, pos + identLength);
+    return cx.elt("NotaCommandName", pos, pos + identLength, [
+      cx.elt("NotaCommandNameText", pos, pos + identLength),
+    ]);
   }
 };
 
@@ -248,18 +275,21 @@ const NotaInlineContentDelimiter: DelimiterType = {
 let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): number => {
   if (next == hash) {
     let start = pos;
+
+    let children = [cx.elt("#", pos, pos + 1)];
     pos += 1;
 
     let nameEl = notaCommandName(cx, pos);
     if (!nameEl) return -1;
     pos = nameEl.to;
+    children.push(nameEl);
 
     if (pos < cx.end && cx.char(pos) == lbrc) {
       cx.addDelimiter(NotaInterpolationDelimiter, start, pos, true, false);
-      cx.addElement(nameEl);
+      children.forEach(el => cx.addElement(el));
       return cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, true, false);
     } else {
-      return cx.addElement(cx.elt("NotaInterpolation", start, pos, [nameEl]));
+      return cx.addElement(cx.elt("NotaInterpolation", start, pos, children));
     }
   }
 
@@ -284,14 +314,15 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
     let start = pos;
 
     // @
+    let children = [cx.elt("@", pos, pos + 1)];
     pos += 1;
 
     // Component
     let nameEl = notaCommandName(cx, pos);
     if (!nameEl) return -1;
     pos = nameEl.to;
+    children.push(nameEl);
 
-    let children = [nameEl];
     let fallback = () => cx.addElement(cx.elt("NotaInlineComponent", start, pos, children));
 
     if (pos == cx.end) return fallback();
@@ -363,8 +394,26 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
   return -1;
 };
 
+export let notaVerbatimBlock = (
+  cx: BlockContext,
+  line: Line,
+  parseEnd: (cx: BlockContext, line: Line) => BlockResult
+): Element[] => {
+  let elements: Element[] = [];
+  while (parseEnd(cx, line) == false) {
+    let icx = new (InlineContext as any)(cx.parser, line.text, cx.lineStart) as InlineContext;
+    for (let pos = icx.offset; pos < icx.end; pos++) {
+      if (notaInterpolationStart(icx, icx.char(pos), pos) > -1) continue;
+      else notaInlineEnd(icx, icx.char(pos), pos);
+    }
+    elements = elements.concat(icx.takeContent(0));
+    cx.nextLine();
+  }
+  return elements;
+};
+
 export type Terms = { [key: string]: number };
-export let configureParser = (
+export let configureParserForNota = (
   mdParser: MarkdownParser
 ): {
   mdParser: MarkdownParser;
@@ -375,7 +424,7 @@ export let configureParser = (
   let mdTerms: { [key: string]: number };
 
   let notaWrap = parseMixed((node, _input) => {
-    if (node.type.id == jsTerms.Markdown) {
+    if (node.type.id == jsTerms.NotaCommand || node.type.id == jsTerms.NotaMacroBody) {
       return { parser: parserRef };
     } else {
       return null;
@@ -391,7 +440,7 @@ export let configureParser = (
     if (node.type.id == mdTerms.NotaAttributeValue) {
       // TODO: when *any* overlay is added, the nested parse doesn't seem to work?
       return { parser: exprParser /*overlay: node => node.type.id == Type.NotaJs*/ };
-    } else if (node.type.id == mdTerms.NotaScript) {
+    } else if (node.type.id == mdTerms.NotaScriptBody) {
       return { parser: stmtParser };
     } else if (node.type.id == mdTerms.NotaInlineAttributes) {
       return { parser: attrParser };
@@ -409,10 +458,9 @@ export let configureParser = (
       },
       { name: "NotaInlineComponent" },
       { name: "NotaInterpolation" },
-      {
-        name: "NotaCommandName",
-        style: t.special(t.variableName),
-      },
+      { name: "NotaCommandName" },
+      { name: "NotaCommandNameText", style: t.special(t.variableName) },
+      { name: "NotaCommandNameAnon", style: t.number },
       { name: "NotaInlineAttributes" },
       {
         name: "NotaBlockAttribute",
@@ -421,10 +469,15 @@ export let configureParser = (
       { name: "NotaAttributeKey" },
       { name: "NotaAttributeValue" },
       { name: "NotaScript" },
+      { name: "NotaScriptBody" },
       { name: "NotaJs" },
       { name: "NotaInlineContent" },
       { name: "NotaInlineComponentMark" },
-      { name: "NotaInlineContentMark" },
+      { name: "NotaInlineContentMark", style: t.brace },
+      { name: "@", style: t.modifier },
+      { name: "#", style: t.modifier },
+      { name: "%", style: t.modifier },
+      { name: "%%%", style: t.modifier },
     ],
     parseBlock: [
       {

@@ -1,4 +1,4 @@
-import { cli, fileExists, log } from "@nota-lang/esbuild-utils";
+import { cli, fileExists, getManifest, log } from "@nota-lang/esbuild-utils";
 import { err, ok } from "@nota-lang/nota-common/dist/result.js";
 import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
 import type {
@@ -25,6 +25,8 @@ export interface ServerOptions {
 }
 
 export let main = async (opts: ServerOptions & CommonOptions) => {
+  let manifest = getManifest();
+
   let inputPath = path.resolve(opts.file);
   if (!(await fileExists(inputPath))) {
     await fs.writeFile(inputPath, "");
@@ -98,11 +100,41 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   app.ws("/", async (ws, _req) => {
     await loadOutput();
     let contents = await fs.readFile(inputPath, "utf-8");
+
+    let allPackages = Object.keys(manifest.dependencies || {}).concat(
+      Object.keys(manifest.devDependencies || {})
+    );
+    let availableLanguages = _.fromPairs(
+      await Promise.all(
+        allPackages
+          .filter(pkg => pkg.startsWith("@codemirror/lang-"))
+          .map(async pkg => {
+            let name = pkg.slice("@codemirror/lang-".length);
+
+            let {
+              outputFiles: [output],
+            } = await esbuild.build({
+              stdin: {
+                contents: `export {${name}} from "${pkg}"`,
+                resolveDir: process.cwd(),
+              },
+              globalName: "support",
+              external: peerDependencies,
+              bundle: true,
+              write: false,
+            });
+
+            return [name, output.text];
+          })
+      )
+    );
+
     ws.send(
       JSON.stringify({
         type: "InitialContent",
         contents,
         translation: output,
+        availableLanguages,
       })
     );
 

@@ -12,7 +12,7 @@ import type {
   StringLiteral,
 } from "@babel/types";
 import type { SyntaxNode, Tree } from "@lezer/common";
-import { assert } from "@nota-lang/nota-common";
+import { assert, unreachable } from "@nota-lang/nota-common";
 import { Either, isLeft, isRight, left, right } from "@nota-lang/nota-common/dist/either.js";
 import indentString from "indent-string";
 import _ from "lodash";
@@ -29,6 +29,8 @@ export let babelPolyfill = t;
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 
 let strLit = t.stringLiteral;
+
+let anonArgsId = t.identifier("args");
 
 let scopeStatements = (stmts: Statement[], expr: Expression): Expression => {
   if (stmts.length == 0) {
@@ -135,12 +137,18 @@ export class Translator {
           return toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
         }
 
+        case mdTerms.MathInlineMark:
         case mdTerms.QuoteMark: {
           return t.nullLiteral();
         }
 
         case mdTerms.Escape: {
           return strLit(this.text(node).slice(1));
+        }
+
+        case mdTerms.MathInline: {
+          let children = this.translateMdInlineSequence(this.markdownChildren(node));
+          return toReact(t.identifier("$"), [], children);
         }
 
         case mdTerms.NotaInlineComponent: {
@@ -222,8 +230,9 @@ export class Translator {
         return [toReact(strLit(tag), [], items), stmts];
       }
 
-      case jsTerms.NotaStmts: {
-        let stmts = parse(this.replaceNotaCalls(node));
+      case mdTerms.NotaScript: {
+        let child = node.getChild(jsTerms.NotaStmts)!;
+        let stmts = parse(this.replaceNotaCalls(child));
         let inlineStmts = stmts.filter(stmt => {
           if (stmt.type == "ImportDeclaration") {
             this.imports.add(stmt);
@@ -242,6 +251,11 @@ export class Translator {
         return [this.translateNotaComponent(node), []];
       }
 
+      case mdTerms.MathBlock: {
+        let children = this.translateMdInlineSequence(this.markdownChildren(node));
+        return [toReact(t.identifier("$$"), [], children), []];
+      }
+
       default: {
         console.trace();
         throw `Block element not yet implemented: ${node.name} (${this.text(node)})`;
@@ -252,11 +266,15 @@ export class Translator {
   translateNotaCommandName(node: SyntaxNode): Expression {
     assert(matches(node, mdTerms.NotaCommandName));
 
-    let jsNode = node.getChild(mdTerms.NotaJs);
-    if (jsNode) {
-      return parseExpr(this.replaceNotaCalls(jsNode));
-    } else {
+    let child;
+    if ((child = node.getChild(mdTerms.NotaJs))) {
+      return parseExpr(this.replaceNotaCalls(child));
+    } else if ((child = node.getChild(mdTerms.NotaCommandNameAnon))) {
+      return t.memberExpression(anonArgsId, t.numericLiteral(parseInt(this.text(child)) - 1));
+    } else if ((child = node.getChild(mdTerms.NotaCommandNameText))) {
       return t.identifier(this.text(node));
+    } else {
+      unreachable();
     }
   }
 
@@ -330,6 +348,7 @@ export class Translator {
       mdTerms.NotaCommandName,
       mdTerms.NotaBlockAttribute,
       mdTerms.NotaInlineContent,
+      mdTerms["@"],
       jsTerms.NotaInlineAttrs,
     ]);
     if (subDoc.type != "ArrayExpression" || subDoc.elements.length > 0) {
@@ -343,9 +362,22 @@ export class Translator {
     let cursor = node.cursor();
     let replacements: [number, number, string][] = [];
     while (node.from <= cursor.from && cursor.to <= node.to) {
-      if (matches(cursor.node, mdTerms.Document)) {
-        let component = cursor.node.firstChild!.firstChild!;
-        let expr = this.translateNotaComponent(component);
+      let expr: Expression | undefined;
+      if (matches(cursor.node, jsTerms.NotaMacro)) {
+        let body = cursor.node.getChild(mdTerms.Document)!.getChild(mdTerms.Paragraph)!;
+        let args = t.identifier("args");
+        expr = t.arrowFunctionExpression(
+          [t.restElement(args)],
+          t.arrayExpression(this.translateMdInlineSequence(this.markdownChildren(body)))
+        );
+      } else if (matches(cursor.node, mdTerms.Document)) {
+        let component = cursor.node
+          .getChild(mdTerms.Paragraph)!
+          .getChild(mdTerms.NotaInlineComponent)!;
+        expr = this.translateNotaComponent(component);
+      }
+
+      if (expr) {
         let result = babel.transformFromAst(
           t.program([t.expressionStatement(expr)]),
           undefined,

@@ -41,7 +41,7 @@ export class NestedCounter {
   values: ValueStack[] = [];
 
   constructor(styles: NumberStyle[] = ["1"]) {
-    this.stack = [0];
+    this.stack = [1];
     this.styles = styles;
     makeAutoObservable(this);
   }
@@ -62,7 +62,7 @@ export class NestedCounter {
         children: [],
       });
 
-    this.stack.push(0);
+    this.stack.push(1);
 
     return this.position();
   };

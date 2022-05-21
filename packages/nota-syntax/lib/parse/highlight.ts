@@ -58,11 +58,6 @@ export const jsHighlight = styleTags({
   "JSXIdentifier JSXNameSpacedName": t.tagName,
   "JSXAttribute/JSXIdentifier JSXAttribute/JSXNameSpacedName": t.attributeName,
 
-  CommandName: t.variableName,
-  // "CommandNamedArg/Number": t.definitionKeyword,
-  At: t.definitionKeyword,
-  Percent: t.definitionKeyword,
-  Hash: t.definitionKeyword,
-  "NotaExpression/...": CodeTag,
-  "NotaStatement/...": CodeTag,
+  // Nota additions
+  macro: t.definitionKeyword,
 });

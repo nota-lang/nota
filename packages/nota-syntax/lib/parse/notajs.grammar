@@ -249,6 +249,10 @@ SequenceExpression {
   expressionNoComma !comma ("," expressionNoComma)+
 }
 
+NotaMacro { 
+  kw<"macro"> "{" NotaMacroBody "}" 
+}
+
 expressionNoComma {
   Number |
   String |
@@ -281,7 +285,8 @@ expressionNoComma {
   ArrowFunction[@dynamicPrecedence=1] {
     TypeParamList { tsAngleOpen commaSep<typeParam> ">" } ParamList TypeAnnotation? "=>" (Block | expressionNoComma)
   } |
-  Markdown
+  NotaCommand |
+  NotaMacro
 }
 
 ParenthesizedExpression { "(" expression ")" }
@@ -548,7 +553,9 @@ questionOp[@name=LogicOp] { "?" }
 
 ///////////// TOKENS
 
-@external tokens markdown from "./nota_tokens.js" { Markdown }
+@external tokens notaMacroBody from "./nota_tokens.js" { NotaMacroBody }
+
+@external tokens notaCommand from "./nota_tokens.js" { NotaCommand }
 
 @skip { spaces | newline | LineComment | BlockComment }
 

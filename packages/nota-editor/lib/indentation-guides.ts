@@ -126,7 +126,6 @@ function makeIndentationDecorators(view: EditorView) {
         makeIndentationWidget(from, to, currentIndent, tabSize, builder);
       }
       spaceOnlyLines.length = 0;
-      console.log(text, from, to);
 
       makeIndentationMark(from, to, indent, tabSize, builder);
     }

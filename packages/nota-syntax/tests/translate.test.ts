@@ -98,9 +98,12 @@ test("translate markdown block", () => {
     //   `@em{**a**} @strong{b}`,
     //   `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
     // ],
-    [`@div[id: "foo"]: bar`, `el("div", {
+    [
+      `@div[id: "foo"]: bar`,
+      `el("div", {
   id: "foo"
-}, "bar");`],
+}, "bar");`,
+    ],
     [`@outer{@inner: test}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
     [
       `Hello @em[id: "ex"]{world}`,
@@ -131,6 +134,7 @@ test("translate markdown block", () => {
 p`,
       `el("h1", {}, ...[el("p", {}, "Hello"), el("span", {}, ...[el("p", {}, "world")]), el("span", {}, "yed")]);`,
     ],
+    [`$$\n#x\n$$`, `el($$, {}, x);`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -146,20 +150,28 @@ test("translate markdown doc", () => {
   });
 
   let pairs = [
-    [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
-    [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+//     [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+//     [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
+//     [
+//       `%let x = 1\n\n#x`,
+//       `[...(() => {
+//   let x = 1;
+//   return [null, el("p", {}, x)];
+// })()];`,
+//     ],
+//     [
+//       `%let x = @em{**content**}\n#x`,
+//       `[...(() => {
+//   let x = el("em", {}, el("strong", {}, "content"));
+//   return [null, el("p", {}, x)];
+// })()];`,
+//     ],
     [
-      `%let x = 1\n\n#x`,
+      `%let f = macro{#1.#2}\n#f{a}{b}`,
       `[...(() => {
-  let x = 1;
-  return [null, el("p", {}, x)];
-})()];`,
-    ],
-    [
-      `%let x = @em{**content**}\n#x`,
-      `[...(() => {
-  let x = el("em", {}, el("strong", {}, "content"));
-  return [null, el("p", {}, x)];
+  let f = (...args) => [args[0], ".", args[1]];
+
+  return [null, el("p", {}, f(["a"], ["b"]))];
 })()];`,
     ],
   ];

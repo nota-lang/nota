@@ -8,8 +8,9 @@ export type NotaFn<Input = NotaText> = (..._args: Input[]) => NotaText;
 let toString = (s: any): string => (typeof s == "string" ? s : String(s));
 
 /** Flattens a NotaText into a single string. */
+// TODO: should make this an Option<string> in the case of non-strings in the array
 export let joinRecursive = (t: NotaText): string =>
-  t instanceof Array ? t.map(joinRecursive).join("") : toString(t);
+  t instanceof Array ? t.map(joinRecursive).join("") : t == null ? "" : toString(t);
 
 /** Inserts an element between every pair of adajacent elements in the given Nota text. */
 export let addBetween = (t: NotaText, el: any): NotaText => {

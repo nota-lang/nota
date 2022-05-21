@@ -1,5 +1,6 @@
 import type { BabelFileResult } from "@babel/core";
 import * as babel from "@babel/standalone";
+import { LanguageSupport } from "@codemirror/language";
 import { err, isErr, ok } from "@nota-lang/nota-common/dist/result.js";
 import { tryParse } from "@nota-lang/nota-syntax/dist/parse/mod.js";
 import { optimizePlugin, translateAst } from "@nota-lang/nota-syntax/dist/translate/mod.js";
@@ -11,6 +12,7 @@ export class LocalState implements State {
   contents: string;
   translation: TranslationResult;
   ready: boolean = true;
+  availableLanguages: { [lang: string]: LanguageSupport } = {}; // TODO
 
   tryTranslate(): TranslationResult {
     let tree = tryParse(this.contents);

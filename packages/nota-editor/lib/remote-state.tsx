@@ -1,4 +1,6 @@
+import { LanguageSupport } from "@codemirror/language";
 import { err } from "@nota-lang/nota-common/dist/result";
+import { peerImports } from "@nota-lang/nota-components/dist/peer-imports.js";
 import _ from "lodash";
 import { action, makeAutoObservable, reaction } from "mobx";
 
@@ -8,6 +10,7 @@ export interface InitialContent {
   type: "InitialContent";
   contents: string;
   translation: TranslationResult;
+  availableLanguages: { [lang: string]: string };
 }
 
 export interface SyncText {
@@ -26,6 +29,7 @@ export class RemoteState implements State {
   contents: string = "";
   translation: TranslationResult = err("");
   ready: boolean = false;
+  availableLanguages: { [lang: string]: LanguageSupport } = {};
 
   private ws: WebSocket;
 
@@ -73,6 +77,18 @@ export class RemoteState implements State {
       if (msg.type == "InitialContent") {
         this.contents = msg.contents;
         this.translation = msg.translation;
+
+        // TODO: this uses a similar dynamic code execution strategy
+        // as viewer.tsx for Nota documents. This code should be consolidated
+        // into a helper class or something.
+        Object.keys(msg.availableLanguages).forEach(lang => {
+          let script = (msg as InitialContent).availableLanguages[lang];
+          let f = new Function("require", script + `\n; return support;`);
+          let pkgExports = f((path: string) => peerImports[path]);
+          this.availableLanguages[lang] = pkgExports[lang]();
+          console.log(this.availableLanguages[lang]);
+        });
+
         this.ready = true;
       } else if (msg.type == "NewOutput") {
         this.translation = msg.translation;

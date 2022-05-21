@@ -1,3 +1,4 @@
+import { LanguageSupport } from "@codemirror/language";
 import type { Result } from "@nota-lang/nota-common/dist/result";
 import React from "react";
 
@@ -14,6 +15,7 @@ export interface State {
   contents: string;
   translation: TranslationResult;
   ready: boolean;
+  availableLanguages: { [lang: string]: LanguageSupport };
 }
 
 export let StateContext = React.createContext<State | null>(null);
