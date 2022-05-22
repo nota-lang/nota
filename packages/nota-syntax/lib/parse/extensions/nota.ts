@@ -1,4 +1,12 @@
-import { NodeType, parseMixed } from "@lezer/common";
+import {
+  Input,
+  NodeType,
+  Parser,
+  PartialParse,
+  Tree,
+  TreeFragment,
+  parseMixed,
+} from "@lezer/common";
 import { tags as t } from "@lezer/highlight";
 import { LRParser } from "@lezer/lr";
 import {
@@ -89,12 +97,12 @@ let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
       }
       let closeDelim = cx.elt("%%%", cx.lineStart, cx.lineStart + 3);
       cx.nextLine();
+      let body =
+        marks.length > 0
+          ? cx.elt("NotaScriptBody", marks[0].from, _.last(marks)!.to, marks)
+          : cx.elt("NotaScriptBody", cx.lineStart, cx.lineStart);
       cx.addElement(
-        cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, [
-          openDelim,
-          cx.elt("NotaScriptBody", marks[0].from, _.last(marks)!.to, marks),
-          closeDelim,
-        ])
+        cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, [openDelim, body, closeDelim])
       );
     } else {
       cx.addElement(
@@ -341,12 +349,12 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
 
     next = cx.char(pos);
     pos += 1;
-    if (next == colon && pos < cx.end && cx.char(pos) == space) {
+    /*if (next == colon && pos < cx.end && cx.char(pos) == space) {
       let inlineContent = notaInlineContentToLineEnd(cx, pos + 1);
       pos = inlineContent.to;
       children.push(inlineContent);
       return fallback();
-    } else if (next == lbrc) {
+    } else*/ if (next == lbrc) {
       cx.addDelimiter(NotaComponentDelimiter, start, pos - 1, true, false);
       children.forEach(child => cx.addElement(child));
       cx.addDelimiter(NotaInlineContentDelimiter, pos - 1, pos, true, false);
@@ -360,34 +368,46 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
 
 // TODO: rewrite this using stable APIs, i.e. findOpeningDelimiter
 export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): number => {
-  if (
-    next == rbrc &&
-    (cx.findOpeningDelimiter(NotaComponentDelimiter) != null ||
-      cx.findOpeningDelimiter(NotaInterpolationDelimiter) != null)
-  ) {
-    cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
-    if (pos < cx.end && cx.char(pos + 1) == lbrc) {
-      cx.addDelimiter(NotaInlineContentDelimiter, pos + 1, pos + 2, true, false);
-      return pos + 2;
-    } else {
-      let parts = (cx as any).parts as Element[];
-      for (let i = parts.length - 1; i >= 0; i--) {
-        let part = parts[i];
-        if (
-          "type" in part &&
-          // part instanceof InlineDelimiter &&
-          (part.type == NotaComponentDelimiter || part.type == NotaInterpolationDelimiter)
-        ) {
-          let children = cx.takeContent(i);
-          let component = cx.elt(
-            part.type == NotaComponentDelimiter ? "NotaInlineComponent" : "NotaInterpolation",
-            part.from,
-            pos + 1,
-            children
-          );
-          parts[i] = component;
+  let inside =
+    cx.findOpeningDelimiter(NotaComponentDelimiter) != null ||
+    cx.findOpeningDelimiter(NotaInterpolationDelimiter) != null;
+  if (!inside) return -1;
 
-          return component.to;
+  let cxa = cx as any;
+  if (!("braces" in cxa)) {
+    cxa["braces"] = 0;
+  }
+
+  if (next == lbrc) {
+    ++cxa["braces"];
+  } else if (next == rbrc) {
+    if (cxa["braces"] > 0) {
+      --cxa["braces"];
+    } else {
+      cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
+      if (pos < cx.end && cx.char(pos + 1) == lbrc) {
+        cx.addDelimiter(NotaInlineContentDelimiter, pos + 1, pos + 2, true, false);
+        return pos + 2;
+      } else {
+        let parts = (cx as any).parts as Element[];
+        for (let i = parts.length - 1; i >= 0; i--) {
+          let part = parts[i];
+          if (
+            "type" in part &&
+            // part instanceof InlineDelimiter &&
+            (part.type == NotaComponentDelimiter || part.type == NotaInterpolationDelimiter)
+          ) {
+            let children = cx.takeContent(i);
+            let component = cx.elt(
+              part.type == NotaComponentDelimiter ? "NotaInlineComponent" : "NotaInterpolation",
+              part.from,
+              pos + 1,
+              children
+            );
+            parts[i] = component;
+
+            return component.to;
+          }
         }
       }
     }
@@ -396,22 +416,29 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
   return -1;
 };
 
+// TODO: need to have a general mechanism for using this outside custom notations
+// like $$..$$
 export let notaVerbatimBlock = (
   cx: BlockContext,
   line: Line,
+  name: string,
   parseEnd: (cx: BlockContext, line: Line) => BlockResult
-): Element[] => {
+): Element => {
+  let start = cx.lineStart;
   let elements: Element[] = [];
-  while (parseEnd(cx, line) == false) {
+  while (parseEnd(cx, line) === false) {
     let icx = new (InlineContext as any)(cx.parser, line.text, cx.lineStart) as InlineContext;
-    for (let pos = icx.offset; pos < icx.end; pos++) {
-      if (notaInterpolationStart(icx, icx.char(pos), pos) > -1) continue;
-      else notaInlineEnd(icx, icx.char(pos), pos);
+    for (let pos = icx.offset; pos < icx.end; ) {
+      let newPos;
+      if ((newPos = notaInterpolationStart(icx, icx.char(pos), pos)) > -1) pos = newPos;
+      else if ((newPos = notaInlineEnd(icx, icx.char(pos), pos)) > -1) pos = newPos;
+      else pos++;
     }
-    elements = elements.concat(icx.takeContent(0));
-    cx.nextLine();
+    let lineElements = icx.takeContent(0);
+    elements = elements.concat(lineElements);
+    if (!cx.nextLine()) break;
   }
-  return elements;
+  return cx.elt(name, start, cx.prevLineEnd(), elements);
 };
 
 export type Terms = { [key: string]: number };
@@ -426,7 +453,9 @@ export let configureParserForNota = (
   let mdTerms: { [key: string]: number };
 
   let notaWrap = parseMixed((node, _input) => {
-    if (node.type.id == jsTerms.NotaCommand || node.type.id == jsTerms.NotaMacroBody) {
+    if (node.type.id == jsTerms.NotaCommand) {
+      return { parser: parserRef };
+    } else if (node.type.id == jsTerms.NotaMacroBody) {
       return { parser: parserRef };
     } else {
       return null;
@@ -465,7 +494,7 @@ export let configureParserForNota = (
       { name: "NotaInterpolation" },
       { name: "NotaCommandName" },
       { name: "NotaCommandNameText", style: t.special(t.variableName) },
-      { name: "NotaCommandNameAnon", style: t.number },
+      { name: "NotaCommandNameAnon", style: t.special(t.variableName) },
       { name: "NotaCommandNameJs" },
       { name: "NotaInlineAttributes" },
       {
@@ -496,7 +525,7 @@ export let configureParserForNota = (
       },
       {
         name: "NotaBlockComponent",
-        parse: notaBlockComponentParser,      
+        parse: notaBlockComponentParser,
       },
     ],
     parseInline: [

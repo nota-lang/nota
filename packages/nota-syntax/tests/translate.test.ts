@@ -131,7 +131,7 @@ test("translate markdown block", () => {
   "bar"
 );`,
     ],
-    [`@outer{@inner: test}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
+    [`@outer{@inner{test}}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
     [
       `Hello @em[id: "ex"]{world}`,
       `el(
@@ -147,7 +147,7 @@ test("translate markdown block", () => {
   )
 );`,
     ],
-    [`Hello @strong: world`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
+    [`Hello @strong{world}`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
     [
       `@section:
   | id: "foo"
@@ -182,8 +182,9 @@ p`,
   ]
 );`,
     ],
-    [`$$\n#x\n$$`, `el($$, {}, x);`],
+    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, f([]), "\\n\\nx");`],
     [`@{hey}`, `el("p", {}, ["hey"]);`],
+    [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -220,15 +221,16 @@ test("translate markdown doc", () => {
 ];`,
     ],
     [
-      `%let f = macro{#1.#2}\n#f{a}{b}`,
+      `%let f = macro{**#1.#2**}\n#f{a}{b}`,
       `[
   ...(() => {
-    let f = (...args) => [args[0], ".", args[1]];
+    let f = (...args) => ["**", args[0], ".", args[1], "**"];
 
     return [null, el("p", {}, f(["a"], ["b"]))];
   })(),
 ];`,
     ],
+    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, f([])), el("p", {}, "hello world")];`],
   ];
 
   pairs.forEach(([input, expected]) => {

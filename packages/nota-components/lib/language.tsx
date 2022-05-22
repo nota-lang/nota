@@ -55,12 +55,13 @@ export class Language {
     });
 
     this._grammar.forEach(({ cmd, metavar, branches }) => {
-      (this as any)[cmd] = texRef([cmd], metavar);
+      (this as any)[cmd] = texRef([`tex_`, cmd], metavar);
       branches.forEach(({ subcmd, body }) => {
         if (typeof body != "function") {
           throw `Not a function: ${(body as any).toString()}`;
         }
-        (this as any)[cmd + subcmd] = (...args: any[]) => texRef([cmd + subcmd], body(...args));
+        (this as any)[cmd + subcmd] = (...args: any[]) =>
+          texRef([`tex_`, cmd, subcmd], body(...args));
       });
     });
   }
@@ -190,7 +191,7 @@ export class Language {
         branches.forEach(({ subcmd }) => {
           let rhs = makeRhs(subcmd);
           defs.push([
-            `tex:${cmd}${subcmd}`,
+            `tex_${cmd}${subcmd}`,
             {
               tooltip: some(() => (
                 <$$ className="nomargin">
@@ -212,7 +213,7 @@ export class Language {
 
         let rhs = makeRhs();
         defs.push([
-          `tex:${cmd}`,
+          `tex_${cmd}`,
           {
             tooltip: some(() => (
               <$$ className="nomargin">

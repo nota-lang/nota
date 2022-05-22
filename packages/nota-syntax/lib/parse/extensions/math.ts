@@ -1,18 +1,19 @@
 import { Tag } from "@lezer/highlight";
 import { BlockContext, DelimiterType, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
+import _ from "lodash";
 
 import { BlockResult, notaVerbatimBlock } from "./nota.js";
 
 let dollar = "$".charCodeAt(0);
 
-let mathDelimiter: DelimiterType = {
+export let MathDelimiter: DelimiterType = {
   resolve: "MathInline",
-  mark: "MathInlineMark",
+  mark: "MathMark",
 };
 
 let parseMathInline = (cx: InlineContext, next: number, pos: number): number => {
   if (next == dollar) {
-    cx.addDelimiter(mathDelimiter, pos, pos + 1, true, true);
+    cx.addDelimiter(MathDelimiter, pos, pos + 1, true, true);
   }
 
   return -1;
@@ -20,10 +21,14 @@ let parseMathInline = (cx: InlineContext, next: number, pos: number): number => 
 
 let parseMathBlock = (cx: BlockContext, line: Line): BlockResult => {
   if (line.text.startsWith("$$")) {
-    cx.nextLine();
     let start = cx.lineStart;
-    let elements = notaVerbatimBlock(cx, line, (_cx, line) => line.text.startsWith("$$"));
-    cx.addElement(cx.elt("MathBlock", start, cx.prevLineEnd(), elements));
+    let startDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
+    cx.nextLine();
+    let contents = notaVerbatimBlock(cx, line, "MathContents", (_cx, line) =>
+      line.text.startsWith("$$")
+    );
+    let endDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
+    cx.addElement(cx.elt("MathBlock", start, endDelim.to, [startDelim, contents, endDelim]));
     cx.nextLine();
     return true;
   }
@@ -39,18 +44,17 @@ export let MathExtension: MarkdownConfig = {
       name: "MathInline",
       style: {
         "MathInline/...": MathTag,
-        // "MathInline/NotaInterpolation/...": MathTag,
       },
     },
     {
-      name: "MathInlineMark",
+      name: "MathMark",
       style: MathTag,
     },
     {
       name: "MathBlock",
       block: true,
-      style: MathTag,
     },
+    { name: "MathContents", style: { "MathContents/...": MathTag } },
   ],
   parseBlock: [
     {

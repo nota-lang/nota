@@ -3,8 +3,8 @@ import { Strikethrough, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 import { MathExtension } from "./extensions/math.js";
-import { RefExtension } from "./extensions/ref.js";
 import { configureParserForNota } from "./extensions/nota.js";
+import { RefExtension } from "./extensions/ref.js";
 //@ts-ignore
 import * as terms from "./notajs.grammar.terms.js";
 

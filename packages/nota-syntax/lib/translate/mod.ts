@@ -13,6 +13,7 @@ import type {
 import type { SyntaxNode, Tree } from "@lezer/common";
 import { assert, unreachable } from "@nota-lang/nota-common";
 import { Either, isLeft, isRight, left, right } from "@nota-lang/nota-common/dist/either.js";
+import he from "he";
 import indentString from "indent-string";
 import _ from "lodash";
 import type React from "react";
@@ -125,6 +126,7 @@ export class Translator {
       return toReact(strLit(delimitedTypes[type]), [], children);
     } else {
       switch (type) {
+        // Markdown builtins:
         case mdTerms.Link: {
           let linkMarkIndexes = mdChildren
             .map<[Either<SyntaxNode, string>, number]>((node, i) => [node, i])
@@ -136,7 +138,7 @@ export class Translator {
           return toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
         }
 
-        case mdTerms.MathInlineMark:
+        case mdTerms.MathMark:
         case mdTerms.QuoteMark: {
           return t.nullLiteral();
         }
@@ -151,6 +153,11 @@ export class Translator {
           return toReact(strLit("a"), [[strLit("href"), strLit(url)]], [strLit(url)]);
         }
 
+        case mdTerms.Entity: {
+          return strLit(he.decode(this.text(node)));
+        }
+
+        // Nota extensions:
         case mdTerms.MathInline: {
           let children = this.translateMdInlineSequence(this.markdownChildren(node));
           return toReact(t.identifier("$"), [], children);
@@ -266,7 +273,9 @@ export class Translator {
       }
 
       case mdTerms.MathBlock: {
-        let children = this.translateMdInlineSequence(this.markdownChildren(node));
+        let children = this.translateMdInlineSequence(
+          this.markdownChildren(node.getChild(mdTerms.MathContents)!)
+        );
         return [toReact(t.identifier("$$"), [], children), []];
       }
 

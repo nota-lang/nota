@@ -26,14 +26,13 @@ export const notaCommand = new ExternalTokenizer((input, _stack) => {
   while (input.next != lbrc && input.next != eof) {
     input.advance();
   }
-  input.advance();
 
-  let balance = 1;
-  while (input.next != eof && balance > 0) {
+  let balance = 0;
+  do {
     if (input.next == lbrc) balance++;
     else if (input.next == rbrc) balance--;
     input.advance();
-  }
+  } while (input.next != eof && balance > 0);
 
   input.acceptToken(NotaCommand);
 });

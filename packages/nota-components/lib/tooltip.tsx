@@ -154,7 +154,7 @@ export let Tooltip = observer(({ children: Inner, Popup }: TooltipProps) => {
     }
   }, [stage, referenceElement, popperElement]);
 
-  let inner = isConstructor(Inner) ? (
+  let inner = isConstructor<TooltipChildProps>(Inner) ? (
     <Inner ref={setReferenceElement} onClick={trigger} />
   ) : (
     <Container ref={setReferenceElement} onClick={trigger}>
