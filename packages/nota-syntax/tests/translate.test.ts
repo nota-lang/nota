@@ -182,7 +182,7 @@ p`,
   ]
 );`,
     ],
-    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, f([]), "\\n\\nx");`],
+    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, ...[f([]), "\\n\\nx"]);`],
     [`@{hey}`, `el("p", {}, ["hey"]);`],
     [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
   ];
@@ -221,16 +221,16 @@ test("translate markdown doc", () => {
 ];`,
     ],
     [
-      `%let f = macro{**#1.#2**}\n#f{a}{b}`,
+      `%let f = macro{**{#1}.{#2}**}\n#f{a}{b}`,
       `[
   ...(() => {
-    let f = (...args) => ["**", args[0], ".", args[1], "**"];
+    let f = (...args) => ["**{", args[0], "}.{", args[1], "}**"];
 
     return [null, el("p", {}, f(["a"], ["b"]))];
   })(),
 ];`,
     ],
-    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, f([])), el("p", {}, "hello world")];`],
+    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, ...[f([])]), el("p", {}, "hello world")];`],
   ];
 
   pairs.forEach(([input, expected]) => {

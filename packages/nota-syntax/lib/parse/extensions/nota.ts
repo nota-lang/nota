@@ -1,12 +1,4 @@
-import {
-  Input,
-  NodeType,
-  Parser,
-  PartialParse,
-  Tree,
-  TreeFragment,
-  parseMixed,
-} from "@lezer/common";
+import { NodeType, parseMixed } from "@lezer/common";
 import { tags as t } from "@lezer/highlight";
 import { LRParser } from "@lezer/lr";
 import {
@@ -14,8 +6,6 @@ import {
   DelimiterType,
   Element,
   InlineContext,
-  LeafBlock,
-  LeafBlockParser,
   Line,
   MarkdownConfig,
   MarkdownParser,
@@ -253,13 +243,15 @@ let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
 
 export let notaCommandName = (cx: InlineContext, pos: number): Element | null => {
   if (cx.slice(pos, pos + 1).match(/\d/)) {
-    return cx.elt("NotaCommandName", pos, pos + 1, [cx.elt("NotaCommandNameAnon", pos, pos + 1)]);
+    return cx.elt("NotaCommandName", pos, pos + 1, [
+      cx.elt("NotaCommandNameInteger", pos, pos + 1),
+    ]);
   }
 
   let balancedEnd = munchBalancedSubstring(cx, pos, lparen, rparen);
   if (balancedEnd > -1) {
     return cx.elt("NotaCommandName", pos, balancedEnd, [
-      cx.elt("NotaCommandNameJs", pos + 1, balancedEnd - 1, [
+      cx.elt("NotaCommandNameExpression", pos + 1, balancedEnd - 1, [
         cx.elt("NotaJs", pos + 1, balancedEnd - 1),
       ]),
     ]);
@@ -267,7 +259,7 @@ export let notaCommandName = (cx: InlineContext, pos: number): Element | null =>
     let identLength = munchIdent(cx.slice(pos, cx.end));
     if (identLength == -1) return null;
     return cx.elt("NotaCommandName", pos, pos + identLength, [
-      cx.elt("NotaCommandNameText", pos, pos + identLength),
+      cx.elt("NotaCommandNameIdentifier", pos, pos + identLength),
     ]);
   }
 };
@@ -418,30 +410,30 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
 
 // TODO: need to have a general mechanism for using this outside custom notations
 // like $$..$$
-export let notaVerbatimBlock = (
+export let notaTemplateBlock = (
   cx: BlockContext,
   line: Line,
-  name: string,
   parseEnd: (cx: BlockContext, line: Line) => BlockResult
 ): Element => {
   let start = cx.lineStart;
-  let elements: Element[] = [];
   while (parseEnd(cx, line) === false) {
-    let icx = new (InlineContext as any)(cx.parser, line.text, cx.lineStart) as InlineContext;
-    for (let pos = icx.offset; pos < icx.end; ) {
-      let newPos;
-      if ((newPos = notaInterpolationStart(icx, icx.char(pos), pos)) > -1) pos = newPos;
-      else if ((newPos = notaInlineEnd(icx, icx.char(pos), pos)) > -1) pos = newPos;
-      else pos++;
-    }
-    let lineElements = icx.takeContent(0);
-    elements = elements.concat(lineElements);
     if (!cx.nextLine()) break;
   }
-  return cx.elt(name, start, cx.prevLineEnd(), elements);
+  return cx.elt("NotaTemplateBlock", start, cx.prevLineEnd());
 };
 
 export type Terms = { [key: string]: number };
+export let validateTermAccess = (terms: Terms): Terms =>
+  new Proxy(terms, {
+    get(target, prop, receiver) {
+      if (!(prop in target)) {
+        throw `Invalid key ${String(prop)}`;
+      }
+
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
 export let configureParserForNota = (
   mdParser: MarkdownParser
 ): {
@@ -455,8 +447,6 @@ export let configureParserForNota = (
   let notaWrap = parseMixed((node, _input) => {
     if (node.type.id == jsTerms.NotaCommand) {
       return { parser: parserRef };
-    } else if (node.type.id == jsTerms.NotaMacroBody) {
-      return { parser: parserRef };
     } else {
       return null;
     }
@@ -466,6 +456,7 @@ export let configureParserForNota = (
   let exprParser = jsParser.configure({ top: "NotaExpr" });
   let attrParser = jsParser.configure({ top: "NotaInlineAttrs" });
   let stmtParser = jsParser.configure({ top: "NotaStmts" });
+  let templateParser = jsParser.configure({ top: "NotaTemplateExternal" });
 
   let mdWrap = parseMixed((node, _input) => {
     if (node.type.id == mdTerms.NotaAttributeValue) {
@@ -478,6 +469,8 @@ export let configureParserForNota = (
     } else if (node.type.id == mdTerms.NotaJs) {
       // for NotaCommandName
       return { parser: exprParser };
+    } else if (node.type.id == mdTerms.NotaTemplateBlock) {
+      return { parser: templateParser };
     } else {
       return null;
     }
@@ -493,9 +486,9 @@ export let configureParserForNota = (
       { name: "NotaInlineComponent" },
       { name: "NotaInterpolation" },
       { name: "NotaCommandName" },
-      { name: "NotaCommandNameText", style: t.special(t.variableName) },
-      { name: "NotaCommandNameAnon", style: t.special(t.variableName) },
-      { name: "NotaCommandNameJs" },
+      { name: "NotaCommandNameIdentifier", style: t.special(t.variableName) },
+      { name: "NotaCommandNameInteger", style: t.special(t.variableName) },
+      { name: "NotaCommandNameExpression" },
       { name: "NotaInlineAttributes" },
       {
         name: "NotaBlockAttribute",
@@ -509,6 +502,7 @@ export let configureParserForNota = (
       { name: "NotaInlineContent" },
       { name: "NotaInlineComponentMark" },
       { name: "NotaInlineContentMark", style: t.brace },
+      { name: "NotaTemplateBlock" },
       { name: "@", style: t.modifier },
       { name: "#", style: t.modifier },
       { name: "%", style: t.modifier },
@@ -546,10 +540,12 @@ export let configureParserForNota = (
   };
 
   parserRef = mdParser.configure([extension]);
-  mdTerms = _.fromPairs(
-    parserRef.nodeSet.types
-      .filter(node => node instanceof NodeType)
-      .map(node => [node.name, node.id])
+  mdTerms = validateTermAccess(
+    _.fromPairs(
+      parserRef.nodeSet.types
+        .filter(node => node instanceof NodeType)
+        .map(node => [node.name, node.id])
+    )
   );
 
   return { mdParser: parserRef, mdTerms, jsParser };

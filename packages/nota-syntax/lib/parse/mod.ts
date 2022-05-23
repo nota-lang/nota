@@ -3,7 +3,7 @@ import { Strikethrough, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 import { MathExtension } from "./extensions/math.js";
-import { configureParserForNota } from "./extensions/nota.js";
+import { configureParserForNota, validateTermAccess } from "./extensions/nota.js";
 import { RefExtension } from "./extensions/ref.js";
 //@ts-ignore
 import * as terms from "./notajs.grammar.terms.js";
@@ -14,7 +14,7 @@ export { MathTag } from "./extensions/math.js";
 export let { mdParser, mdTerms, jsParser } = configureParserForNota(
   baseMdParser.configure([MathExtension, RefExtension, Strikethrough])
 );
-export let jsTerms: { [key: string]: number } = terms;
+export let jsTerms: { [key: string]: number } = validateTermAccess(terms);
 
 export let tryParse = (contents: string): Result<Tree> => {
   // TODO: configure markdown as strict?

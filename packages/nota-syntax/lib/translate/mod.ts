@@ -18,6 +18,7 @@ import indentString from "indent-string";
 import _ from "lodash";
 import type React from "react";
 
+import type { Terms } from "../parse/extensions/nota.js";
 import { jsTerms, mdTerms } from "../parse/mod.js";
 import * as t from "./babel-polyfill.js";
 //@ts-ignore
@@ -273,10 +274,9 @@ export class Translator {
       }
 
       case mdTerms.MathBlock: {
-        let children = this.translateMdInlineSequence(
-          this.markdownChildren(node.getChild(mdTerms.MathContents)!)
-        );
-        return [toReact(t.identifier("$$"), [], children), []];
+        let template = node.getChild(jsTerms.NotaTemplateExternal)!.getChild(jsTerms.NotaTemplate)!;
+        let children = this.translateNotaTemplate(template);
+        return [toReact(t.identifier("$$"), [], [t.spreadElement(children)]), []];
       }
 
       default: {
@@ -286,15 +286,15 @@ export class Translator {
     }
   }
 
-  translateNotaCommandName(node: SyntaxNode): Expression {
-    assert(matches(node, mdTerms.NotaCommandName));
+  translateNotaCommandName(node: SyntaxNode, terms: Terms = mdTerms): Expression {
+    assert(matches(node, terms.NotaCommandName));
 
     let child;
-    if ((child = node.getChild(mdTerms.NotaCommandNameJs))) {
+    if ((child = node.getChild(terms.NotaCommandNameExpression))) {
       return parseExpr(this.replaceNotaCalls(child));
-    } else if ((child = node.getChild(mdTerms.NotaCommandNameAnon))) {
+    } else if ((child = node.getChild(terms.NotaCommandNameInteger))) {
       return t.memberExpression(anonArgsId, t.numericLiteral(parseInt(this.text(child)) - 1));
-    } else if ((child = node.getChild(mdTerms.NotaCommandNameText))) {
+    } else if ((child = node.getChild(terms.NotaCommandNameIdentifier))) {
       return t.identifier(this.text(node));
     } else {
       unreachable();
@@ -388,17 +388,42 @@ export class Translator {
     }
   }
 
+  translateNotaTemplate(node: SyntaxNode): Expression {
+    assert(matches(node, jsTerms.NotaTemplate));
+
+    let children = collectSiblings(node.firstChild);
+    let childExprs = children.map(child => {
+      if (matches(child, jsTerms.NotaTemplateLiteral)) {
+        return strLit(this.text(child));
+      } else {
+        assert(matches(child, jsTerms.NotaTemplateCommand));
+        let nameNode = child.getChild(jsTerms.NotaCommandName)!;
+        let nameExpr = this.translateNotaCommandName(nameNode, jsTerms);
+        let args = child.getChildren(jsTerms.NotaCommandArg);
+        if (args.length == 0) {
+          return nameExpr;
+        } else {
+          return t.callExpression(
+            nameExpr,
+            args.map(arg => this.translateNotaTemplate(arg.getChild(jsTerms.NotaTemplate)!))
+          );
+        }
+      }
+    });
+    return t.arrayExpression(childExprs);
+  }
+
   replaceNotaCalls(node: SyntaxNode): string {
     let cursor = node.cursor();
     let replacements: [number, number, string][] = [];
     while (node.from <= cursor.from && cursor.to <= node.to) {
       let expr: Expression | undefined;
       if (matches(cursor.node, jsTerms.NotaMacro)) {
-        let body = cursor.node.getChild(mdTerms.Document)!.getChild(mdTerms.Paragraph)!;
+        let template = cursor.node.getChild(jsTerms.NotaTemplate)!;
         let args = t.identifier("args");
         expr = t.arrowFunctionExpression(
           [t.restElement(args)],
-          t.arrayExpression(this.translateMdInlineSequence(this.markdownChildren(body)))
+          this.translateNotaTemplate(template)
         );
       } else if (matches(cursor.node, mdTerms.Document)) {
         let component = cursor.node

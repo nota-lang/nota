@@ -2,7 +2,7 @@ import { Tag } from "@lezer/highlight";
 import { BlockContext, DelimiterType, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
 import _ from "lodash";
 
-import { BlockResult, notaVerbatimBlock } from "./nota.js";
+import { BlockResult, notaTemplateBlock } from "./nota.js";
 
 let dollar = "$".charCodeAt(0);
 
@@ -24,9 +24,7 @@ let parseMathBlock = (cx: BlockContext, line: Line): BlockResult => {
     let start = cx.lineStart;
     let startDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
     cx.nextLine();
-    let contents = notaVerbatimBlock(cx, line, "MathContents", (_cx, line) =>
-      line.text.startsWith("$$")
-    );
+    let contents = notaTemplateBlock(cx, line, (_cx, line) => line.text.startsWith("$$"));
     let endDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
     cx.addElement(cx.elt("MathBlock", start, endDelim.to, [startDelim, contents, endDelim]));
     cx.nextLine();

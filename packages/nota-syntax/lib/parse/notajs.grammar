@@ -3,7 +3,6 @@
 @dialects { jsx, ts }
 
 @precedence {
-  nota @left,
   typeargs,
   typeMember,
   typePrefix,
@@ -247,10 +246,6 @@ expression[@isGroup=Expression] {
 
 SequenceExpression {
   expressionNoComma !comma ("," expressionNoComma)+
-}
-
-NotaMacro { 
-  kw<"macro"> "{" NotaMacroBody "}" 
 }
 
 expressionNoComma {
@@ -544,16 +539,36 @@ Optional { "?" }
 
 questionOp[@name=LogicOp] { "?" }
 
+
 ///////////// NOTA nonterminals
 
 @top NotaExpr { expressionNoComma }
 @top NotaStmts { statement+ }
 @top NotaInlineAttrs { "[" commaSep<Property> ~destructure "]" }
+@top NotaTemplateExternal { NotaTemplate }
+
+NotaCommandNameInteger { integer } 
+NotaCommandNameIdentifier { identifier } 
+NotaCommandNameExpression { "(" expressionNoComma ")" }
+
+NotaCommandName {
+  NotaCommandNameInteger | NotaCommandNameIdentifier | NotaCommandNameExpression
+}
+
+NotaCommandArg { "{" NotaTemplate "}" }
+
+NotaTemplateCommand { "#" NotaCommandName NotaCommandArg* }
+
+NotaTemplate { (NotaTemplateLiteral | NotaTemplateCommand)* }
+
+NotaMacro { 
+  kw<"macro"> "{" NotaTemplate "}" 
+}
 
 
 ///////////// TOKENS
 
-@external tokens notaMacroBody from "./nota_tokens.js" { NotaMacroBody }
+@external tokens notaTemplateLiteral from "./nota_tokens.js" { NotaTemplateLiteral }
 
 @external tokens notaCommand from "./nota_tokens.js" { NotaCommand }
 
@@ -618,6 +633,8 @@ questionOp[@name=LogicOp] { "?" }
     "0o" $[0-7_]+ "n"?
   }
 
+  integer { std.digit+ }
+
   String {
     '"' (![\\\n"] | "\\" _)* '"'? |
     "'" (![\\\n'] | "\\" _)* "'"?
@@ -641,7 +658,7 @@ questionOp[@name=LogicOp] { "?" }
   "..."[@name=Spread]
   "=>"[@name=Arrow]
 
-  "(" ")" "[" "]" "{" "}"
+  "(" ")" "[" "]" "{"[@export=Lbrace] "}"
 
   "?." "." "," ";" ":"
 

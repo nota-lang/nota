@@ -1,5 +1,6 @@
 import { ContextTracker, ExternalTokenizer } from "@lezer/lr";
 
+import { handleReduce, handleShift } from "./nota_tokens.js";
 import {
   BlockComment,
   Dialect_ts,
@@ -33,11 +34,22 @@ const braceR = 125,
   backslash = 92;
 
 export const trackNewline = new ContextTracker({
-  start: false,
-  shift(context, term) {
-    return term == LineComment || term == BlockComment || term == spaces
-      ? context
-      : term == newline;
+  start: { trackNewline: false, templateBraceBalance: [0] },
+  shift(context, term, stack, input) {
+    let newContext = handleShift(context, term, stack, input);
+    if (newContext !== null) return newContext;
+
+    if (!(term == LineComment || term == BlockComment || term == spaces)) {
+      return { ...context, trackNewline: term == newline };
+    }
+
+    return context;
+  },
+  reduce(context, term) {
+    let newContext = handleReduce(context, term);
+    if (newContext !== null) return newContext;
+
+    return context;
   },
   strict: false,
 });
@@ -45,7 +57,7 @@ export const trackNewline = new ContextTracker({
 export const insertSemicolon = new ExternalTokenizer(
   (input, stack) => {
     let { next } = input;
-    if ((next == braceR || next == -1 || stack.context) && stack.canShift(insertSemi))
+    if ((next == braceR || next == -1 || stack.context.trackNewline) && stack.canShift(insertSemi))
       input.acceptToken(insertSemi);
   },
   { contextual: true, fallback: true }
@@ -61,7 +73,7 @@ export const noSemicolon = new ExternalTokenizer(
       next != braceR &&
       next != semicolon &&
       next != -1 &&
-      !stack.context &&
+      !stack.context.trackNewline &&
       stack.canShift(noSemi)
     )
       input.acceptToken(noSemi);
@@ -76,7 +88,7 @@ export const incdecToken = new ExternalTokenizer(
       input.advance();
       if (next == input.next) {
         input.advance();
-        let mayPostfix = !stack.context && stack.canShift(incdec);
+        let mayPostfix = !stack.context.trackNewline && stack.canShift(incdec);
         input.acceptToken(mayPostfix ? incdec : incdecPrefix);
       }
     }
