@@ -3,15 +3,15 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Definition } from "./definitions.js";
 import { DocumentContext, Smallcaps } from "./document.js";
 import { ToggleGroup, ToggleGroupButton } from "./togglebox.js";
-import { HTMLAttributes } from "./utils.js";
+import { HTMLAttributes, ReactNode, getOrRender } from "./utils.js";
 
 export let Premise: React.FC = ({ children }) => <div className="premise">{children}</div>;
 export let PremiseRow: React.FC = ({ children }) => <div className="premise-row">{children}</div>;
 
 export interface IRProps {
-  Top: React.FC;
-  Bot: React.FC;
-  Right?: React.FC;
+  Top?: ReactNode;
+  Bot: ReactNode;
+  Right?: ReactNode;
   toggle?: boolean;
 }
 
@@ -36,9 +36,7 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
       <table className="inferrule" {...props}>
         <tbody>
           <tr>
-            <td>
-              <Top />
-            </td>
+            <td>{Top ? getOrRender(Top, {}) : null}</td>
           </tr>
           <tr>
             <td>
@@ -47,15 +45,13 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
             <td>
               <div className="right">
                 <div style={{ bottom: rightHeight / 2 }} ref={rightRef}>
-                  {Right ? <Right /> : null}
+                  {Right ? getOrRender(Right, {}) : null}
                 </div>
               </div>
             </td>
           </tr>
           <tr>
-            <td>
-              <Bot />
-            </td>
+            <td>{getOrRender(Bot, {})}</td>
           </tr>
         </tbody>
       </table>

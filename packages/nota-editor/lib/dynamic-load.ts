@@ -23,8 +23,9 @@ export let dynamicLoad = (config: {
 
   let suffix = `\n; return ${GLOBAL_NAME};`;
   if (config.url) {
-    suffix += ` //# sourceURL=${config.url}`;
+    suffix += `\n//# sourceURL=${config.url}`;
   }
+
   let f = new Function("require", config.script + suffix);
   return f(require);
 };

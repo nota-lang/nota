@@ -5,9 +5,11 @@ import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
+import { MappingItem, SourceMapConsumer } from "source-map";
 
 import { mdTerms, tryParse } from "../dist/parse/mod.js";
 import {
+  LineMap,
   Translator,
   printTree,
   babelPolyfill as t,
@@ -17,7 +19,7 @@ import {
 test("translate end-to-end", () => {
   let input = `@h1: Hello world!`;
   let tree = resUnwrap(tryParse(input));
-  let js = trans(input, tree);
+  let { code } = trans({ input, tree });
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
@@ -27,7 +29,7 @@ const {
 } = document;
 export default observer(docProps => el(Document, docProps, el("h1", {}, "Hello world!")));
   `;
-  expect(js).toBe(expected.trim());
+  expect(code).toBe(expected.trim());
 });
 
 let gen =
@@ -71,8 +73,14 @@ test("translate markdown inline", () => {
     [`#x`, `x;`],
     [`#(Foo.bar)`, `Foo.bar;`],
     [`#f{a}{b}`, `f(["a"], ["b"]);`],
+    [
+      `#f{a}
+             {b}`,
+      `f(["a"], ["b"]);`,
+    ],
     [`&foo`, `el(Ref, {}, "foo");`],
     [`&("foo")`, `el(Ref, {}, "foo");`],
+    [`@foo{@bar}`, `el(foo, {}, el(bar, {}));`],
     [
       `<http://www.google.com>`,
       `el(
@@ -104,19 +112,19 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    [`# hello`, `el("h1", {}, " hello");`],
-    [`## hello`, `el("h2", {}, " hello");`],
-    ["```\nhello\n```", `el(Listing, {}, "hello");`],
-    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-    [
-      "* hello\n\n  yes\n* world",
-      `el(
-  "ul",
-  {},
-  el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
-  el("li", {}, el("p", {}, "world"))
-);`,
-    ],
+    //     [`# hello`, `el("h1", {}, " hello");`],
+    //     [`## hello`, `el("h2", {}, " hello");`],
+    //     ["```\nhello\n```", `el(Listing, {}, "hello");`],
+    //     [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+    //     [
+    //       "* hello\n\n  yes\n* world",
+    //       `el(
+    //   "ul",
+    //   {},
+    //   el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
+    //   el("li", {}, el("p", {}, "world"))
+    // );`,
+    //     ],
     [
       `@em{**a**} @strong{b}`,
       `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
@@ -184,7 +192,18 @@ p`,
     ],
     [`$$\n#f{}\n\nx\n$$`, `el($$, {}, ...[f([]), "\\n\\nx"]);`],
     [`@{hey}`, `el("p", {}, ["hey"]);`],
+    [`@span{hey}`, `el("p", {}, el("span", {}, "hey"));`],
     [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
+    [
+      `@foo[x: 1
+    
++ 
+
+2]`,
+      `el(foo, {
+  x: 1 + 2,
+});`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -230,11 +249,104 @@ test("translate markdown doc", () => {
   })(),
 ];`,
     ],
+    [
+      `%let f = ({x}) => @foo[attr: @bar{baz}]{#x}\n@f[x: "y"]`,
+      `[
+  ...(() => {
+    let f = ({ x }) =>
+      el(
+        foo,
+        {
+          attr: el(bar, {}, "baz"),
+        },
+        x
+      );
+
+    return [
+      null,
+      el(f, {
+        x: "y",
+      }),
+    ];
+  })(),
+];`,
+    ],
     [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, ...[f([])]), el("p", {}, "hello world")];`],
   ];
 
   pairs.forEach(([input, expected]) => {
     let actual = genDocMarkdown(input);
     expect(actual).toBe(expected);
+  });
+});
+
+test("line map", () => {
+  let input = `foo
+bar
+bleck`;
+  let map = new LineMap(input);
+  let pairs: [number, { line: number; column: number }][] = [
+    [0, { line: 1, column: 0 }],
+    [3, { line: 1, column: 3 }],
+    [4, { line: 2, column: 0 }],
+    [8, { line: 3, column: 0 }],
+    [13, { line: 3, column: 5 }],
+  ];
+  pairs.forEach(([pos, loc]) => {
+    // console.log(pos, loc, map.offsetToLocation(pos));
+    expect(map.offsetToLocation(pos)).toStrictEqual(loc);
+  });
+});
+
+test("translate source map", async () => {
+  let input = `@h1:
+  Hello *world*!`;
+
+  let tree = resUnwrap(tryParse(input));
+  let { code, map } = trans({ input, tree, sourceRoot: ".", filenameRelative: "test.nota" });
+
+  if (!code) {
+    throw new Error("No code");
+  }
+  let lines = code!.split("\n");
+  if (!map) {
+    throw new Error("No source map");
+  }
+
+  let pairs = [
+    ["@h1", `el("h1"`],
+    ["*world*", `el("em"`],
+  ];
+
+  let srcMap = new LineMap(input);
+  let dstMap = new LineMap(code);
+  console.log(code);
+
+  await SourceMapConsumer.with(map, null, consumer => {
+    let mappings: MappingItem[] = [];
+    consumer.eachMapping(m => {
+      mappings.push(m);
+    });
+
+    pairs.forEach(([src, dst]) => {
+      let srcIndex = input.indexOf(src);
+      if (srcIndex == -1) {
+        throw new Error(`Bad srcIndex for: ${src}`);
+      }
+      let dstIndex = code!.indexOf(dst);
+      if (dstIndex == -1) {
+        throw new Error(`Bad dstIndex for: ${dst}`);
+      }
+      let srcLoc = srcMap.offsetToLocation(srcIndex);
+      let dstLoc = dstMap.offsetToLocation(dstIndex);
+      let m = mappings.find(
+        m =>
+          m.generatedColumn == dstLoc.column &&
+          m.generatedLine == dstLoc.line &&
+          m.originalColumn == srcLoc.column &&
+          m.originalLine == srcLoc.line
+      );
+      expect(m).not.toBe(undefined);
+    });
   });
 });

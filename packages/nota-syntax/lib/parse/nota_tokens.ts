@@ -11,7 +11,9 @@ import {
   NotaTemplateLiteral,
 } from "./notajs.grammar.terms.js";
 
-const [atSign, hash, lbrc, rbrc] = ["@", "#", "{", "}"].map(s => s.charCodeAt(0));
+const [atSign, hash, lbrc, rbrc, lbrkt, rbrkt] = ["@", "#", "{", "}", "[", "]"].map(s =>
+  s.charCodeAt(0)
+);
 const eof = -1;
 
 /* TODO: LEAVE A COMMENT DOCUMENTING THIS DUMB ARCHITECTURE */
@@ -84,14 +86,20 @@ export const notaTemplateLiteral = new ExternalTokenizer(
 export const notaCommand = new ExternalTokenizer((input, _stack) => {
   if (input.next != atSign) return;
 
-  while (input.next != lbrc && input.next != eof) input.advance();
+  while (![lbrc, lbrkt, eof].includes(input.next)) input.advance();
 
-  let balance = 0;
+  let brcBalance = 0;
+  let brktBalance = 0;
   do {
-    if (input.next == lbrc) balance++;
-    else if (input.next == rbrc) balance--;
+    if (input.next == lbrc) brcBalance++;
+    else if (input.next == rbrc) brcBalance--;
+    else if (input.next == lbrkt) brktBalance++;
+    else if (input.next == rbrkt) brktBalance--;
     input.advance();
-  } while (input.next != eof && balance > 0);
+  } while (
+    input.next != eof &&
+    (brcBalance + brktBalance > 0 || [lbrc, lbrkt].includes(input.next))
+  );
 
   input.acceptToken(NotaCommand);
 });

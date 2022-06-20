@@ -44,31 +44,54 @@ let munchIdent = (text: string): number => {
   return match[0].length;
 };
 
-let munchBalancedSubstring = (
-  cx: InlineContext,
+let munchBalancedSubstringBlock = (
+  cx: BlockContext,
+  line: Line,
   pos: number,
   left: number,
   right: number
 ): number => {
-  if (cx.char(pos) == left) {
+  let icx = makeInlineContext(cx, line);
+  if (icx.char(pos) == left) {
     let balance = 0;
-    let end = -1;
+    do {
+      icx = makeInlineContext(cx, line);
+      let [end, newBalance] = munchBalancedSubstring(icx, pos, left, right, balance);
+      balance = newBalance;
+      if (balance == -1) {
+        return end;
+      }
+    } while (cx.nextLine());
+  }
+
+  return -1;
+};
+
+let munchBalancedSubstring = (
+  cx: InlineContext,
+  pos: number,
+  left: number,
+  right: number,
+  initialBalance: number = -1
+): [number, number] => {
+  if (cx.char(pos) == left || initialBalance != -1) {
+    let balance = initialBalance != -1 ? initialBalance : 0;
     for (pos = pos + 1; pos < cx.end; ++pos) {
       let cur = cx.char(pos);
       if (cur == left) {
         ++balance;
       } else if (cur == right) {
         if (balance == 0) {
-          end = pos + 1;
-          break;
+          return [pos + 1, -1];
         }
         balance--;
       }
     }
-    return end;
+
+    return [cx.end, balance];
   }
 
-  return -1;
+  return [-1, 0];
 };
 
 export type BlockResult = boolean | null;
@@ -150,7 +173,9 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
         }
       }
 
-      children.push(cx.elt("NotaAttributeValue", marks[0].from, _.last(marks)!.to, marks));
+      if (marks.length > 0) {
+        children.push(cx.elt("NotaAttributeValue", marks[0].from, _.last(marks)!.to, marks));
+      }
     } else {
       if (icx.char(pos) != space) return false;
       pos += 1;
@@ -191,10 +216,11 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
 
     // [(key: value),*]
     let attrStart = pos;
-    let attrEnd = munchBalancedSubstring(icx, attrStart, lbrkt, rbrkt);
+    let attrEnd = munchBalancedSubstringBlock(cx, line, attrStart, lbrkt, rbrkt);
     if (attrEnd != -1) {
       pos = attrEnd;
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
+      icx = makeInlineContext(cx, line);
     }
 
     // EOL?
@@ -248,7 +274,7 @@ export let notaCommandName = (cx: InlineContext, pos: number): Element | null =>
     ]);
   }
 
-  let balancedEnd = munchBalancedSubstring(cx, pos, lparen, rparen);
+  let [balancedEnd] = munchBalancedSubstring(cx, pos, lparen, rparen);
   if (balancedEnd > -1) {
     return cx.elt("NotaCommandName", pos, balancedEnd, [
       cx.elt("NotaCommandNameExpression", pos + 1, balancedEnd - 1, [
@@ -331,7 +357,7 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
 
     // [key: value, ...]
     let attrStart = pos;
-    let attrEnd = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
+    let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
     if (attrEnd != -1) {
       pos = attrEnd;
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
@@ -340,13 +366,13 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
     if (pos == cx.end) return fallback();
 
     next = cx.char(pos);
-    pos += 1;
     /*if (next == colon && pos < cx.end && cx.char(pos) == space) {
       let inlineContent = notaInlineContentToLineEnd(cx, pos + 1);
       pos = inlineContent.to;
       children.push(inlineContent);
       return fallback();
     } else*/ if (next == lbrc) {
+      pos += 1;
       cx.addDelimiter(NotaComponentDelimiter, start, pos - 1, true, false);
       children.forEach(child => cx.addElement(child));
       cx.addDelimiter(NotaInlineContentDelimiter, pos - 1, pos, true, false);
@@ -377,9 +403,13 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
       --cxa["braces"];
     } else {
       cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
-      if (pos < cx.end && cx.char(pos + 1) == lbrc) {
-        cx.addDelimiter(NotaInlineContentDelimiter, pos + 1, pos + 2, true, false);
-        return pos + 2;
+      pos += 1;
+
+      let afterWhitespace = cx.slice(pos, cx.end).match(/^\s*{/);
+      if (afterWhitespace) {
+        let n = afterWhitespace[0].length;
+        cx.addDelimiter(NotaInlineContentDelimiter, pos + n - 1, pos + n, true, false);
+        return pos + n;
       } else {
         let parts = (cx as any).parts as Element[];
         for (let i = parts.length - 1; i >= 0; i--) {
@@ -393,7 +423,7 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
             let component = cx.elt(
               part.type == NotaComponentDelimiter ? "NotaInlineComponent" : "NotaInterpolation",
               part.from,
-              pos + 1,
+              pos,
               children
             );
             parts[i] = component;

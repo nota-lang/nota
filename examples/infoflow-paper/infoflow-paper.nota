@@ -140,6 +140,7 @@ The core of Oxide is an imperative calculus with constants and variables. The ab
 %%%
 let msf = macro{\mathsf{#1}}
 let textsc = macro{\text{\tiny #1}}
+let repeat = macro{\overline{#1}}
 let L = new Language(function(){ return [
   ["Variable", "vr", "x"],
   ["Number", "num", "n"],
@@ -159,6 +160,7 @@ let L = new Language(function(){ return [
   ]],
   ["Base Type", "tyb", @{\tau^{#textsc{B}}}, [
     ["unit", macro{#msf{unit}}],
+    ["u32", macro{#msf{u32}}]
   ]],
   ["Sized Type", "tys", @{\tau^{#textsc{SI}}}, [
     ["base", macro{#1}, () => [this.tyb]],
@@ -185,11 +187,11 @@ let L = new Language(function(){ return [
     ["s", macro{#1^\dagger}, () => [this.tys]],
     ["tup", macro{(#1)}, () => [@{#(this.tyd)_1, \ldots, #(this.tyd)_n}]]
   ]],
-  /*["Maybe Unsized Type", "tyx", @{\tau^{#textsc{XI}}}, [
+  ["Maybe Unsized Type", "tyx", @{\tau^{#textsc{XI}}}, [
     ["s", macro{#1}, () => [this.tys]],
     ["d", macro{[#1]}, () => [this.tys]]
   ]],
-  ["Maybe Dead Type", "tysx", @{\tau^{#textsc{SX}}}, [
+ ["Maybe Dead Type", "tysx", @{\tau^{#textsc{SX}}}, [
     ["s", macro{#1}, () => [this.tys]],
     ["d", macro{#1}, () => [this.tyd]],
     ["tup", macro{(#1)}, () => [@{#(this.tysx)_1, \ldots, #(this.tysx)_n}]]
@@ -206,7 +208,7 @@ let L = new Language(function(){ return [
     ["wty", macro{#1, #2 : #3}, () => [this.ft, this.vr, this.tyx]],
     ["wlf", macro{#1, #2 \mapsto #3}, () => [this.ft, this.concrprov, @{\{#repeat{#(this.loan)}\}}]]
   ]],
-  ["Stack Typing", "stackenv", @{\Gamma}, [
+   ["Stack Typing", "stackenv", @{\Gamma}, [
     ["empty", macro{\bullet}],
     ["wfr", macro{#1 \mathrel{\natural} #2}, () => [this.stackenv, this.ft]]
   ]],
@@ -237,11 +239,79 @@ let L = new Language(function(){ return [
   ["Global Environment", "fenv", @{\Sigma}, [
     ["empty", macro{\bullet}],
     ["with", macro{#1, #2}, () => [this.fenv, this.fdef]]
-  ]]*/
+  ]]
 ]})
+let uty = L.tybu32();
+let olet = L.exprlet;
 %%%
 
-@(L.Bnf)
+@(L.Bnf)[subset: 
+  ["vr", "num", "path", "plc", "const", "tyb", "tys", 
+   ["expr", ["const", "plc", "let", "asgn", "seq"]]]
+]
+
+Constants are Oxide's atomic values and also the base-case for information flow. A constant's dependency is simply itself, expressed through the &tr_u32 rule:
+
+%%%
+let IRDef = ({name, ...props}) => {
+  let def_name = `tr_${name}`;
+  return @Definition[name: def_name, label: @Smallcaps{T-#name}]{@IR[...props]};
+}
+%%%
+
+@IRDef:
+  | name: "u32"
+  | Bot:
+    @{$#tcnew{\Sigma}{\Delta}{\Gamma}
+        {#hlt{#depctx}}{n_{#hlt{#loc}}}
+        {#uty #hlt{#withslice{#deps}}}
+        {\Gamma}{#hlt{#depctx}}$}
+
+Variables and mutation are introduced through let-bindings and assignment expressions, respectively. For example, this (location-annotated) program mutates a field of a tuple:
+
+$$
+#olet{t}{#(L.tystup){#uty, #uty}}{(1_{#loc _1}, 2_{#loc _2})}{#(L.exprasgn){t.1}{3_{#loc _3}}}
+$$
+
+Here, $t$ is a variable and $t.1$ is a *place*, or a description of a specific region in memory. For information flow, the key idea is that let-bindings introduce a set of places into $#depctx$, and then assignment expressions change a place's dependencies within $#depctx$.
+In the above example, after binding $t$, then $#depctx$ is: 
+
+$$
+#depctx = \{t, t.0, t.1 \mapsto \{#loc _1, #loc _2\}\}
+$$
+
+After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depctx(t.1)$, but not $#depctx(t.0)$. This is because the values of $t$ and $t.1$ have changed, but the value of $t.0$ has not. Formally, the let-binding rule is:
+
+```
+  {
+    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e_1}{\tyvar{si}_1 \hlight{\withslice{\kappa_1}}}{\Gamma_1}{\hlight{\Theta_1}} 
+    \\
+    \gray{\Gamma; \Delta_1 \vdash \tyvar{si}_1 \lesssim \tyvar{si}_a \Rightarrow \Gamma'_1}
+    \\
+    \hlight{\Theta_1' = \Theta_1[\forall \pi^\square[x] ~ . ~ \pi \mapsto \kappa_1]}
+    
+    \tcnew{\Sigma}{\Delta}
+      {\text{gc-loans}(\Gamma'_1, x : \tyvar{si}_a)}
+      {\hlight{\Theta_1'}}{e_2}
+      {\tyvar{si}_2 \hlight{\withslice{\kappa_2}}}
+      {\Gamma_2, x : \tyvar{sd}}{\hlight{\Theta_2}}
+  }
+  {
+    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}
+    {\olet{x}{\tyvar{si}_a}{e_1}{e_2}}
+    {\tyvar{si}_2 \hlight{\withslice{\kappa_2}}}
+    {\Gamma_2}{\hlight{\Theta_2}}
+  }{tlet}
+```
+
+@IRDef:
+  | name: "let"
+  | Top:
+    @{$
+      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{\Theta}}{e_1}{#(L.tys){}_1}
+    $}
+  | Bot:
+    @{$$}
 
 TODOS for WILL:
 * in-markdown comment syntax

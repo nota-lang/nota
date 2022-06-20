@@ -7,6 +7,7 @@ import type {
   ImportDeclaration,
   ObjectProperty,
   Program,
+  SourceLocation,
   SpreadElement,
   Statement,
 } from "@babel/types";
@@ -45,17 +46,54 @@ let scopeStatements = (stmts: Statement[], expr: Expression): Expression => {
 
 type MarkdownChildren = Either<SyntaxNode, string>[];
 
+export class LineMap {
+  lines: { start: number; end: number }[] = [];
+
+  constructor(input: string) {
+    let lineStart = 0;
+    for (let i = 0; i < input.length; ++i) {
+      if (input[i] == "\n") {
+        this.lines.push({ start: lineStart, end: i });
+        lineStart = i + 1;
+      }
+    }
+    this.lines.push({ start: lineStart, end: input.length });
+  }
+
+  offsetToLocation(n: number): { line: number; column: number } {
+    if (n < 0 || n > this.lines[this.lines.length - 1].end) {
+      throw new Error(`Invalid offset: ${n}`);
+    }
+
+    let line = this.lines.findIndex(l => l.start <= n && n <= l.end);
+    let column = n - this.lines[line].start;
+    line += 1;
+    return { line, column };
+  }
+}
+
 export class Translator {
   input: string;
+  lineMap: LineMap;
   imports: Set<ImportDeclaration> = new Set();
   exports: Set<ExportDeclaration> = new Set();
 
   constructor(input: string) {
     this.input = input;
+    this.lineMap = new LineMap(this.input);
   }
 
   text(cursor: SyntaxNode): string {
     return this.input.slice(cursor.from, cursor.to);
+  }
+
+  private spanned<T>(jsNode: T, lezerNode: SyntaxNode): T {
+    let nodeAny: any = jsNode;
+    let loc: SourceLocation = {
+      start: this.lineMap.offsetToLocation(lezerNode.from),
+      end: this.lineMap.offsetToLocation(lezerNode.to),
+    };
+    return { ...nodeAny, loc };
   }
 
   private markdownChildren(node: SyntaxNode): MarkdownChildren {
@@ -108,6 +146,7 @@ export class Translator {
 
     return t.arrayExpression(array);
   }
+
   translateMdDocument(node: SyntaxNode): Expression {
     assert(matches(node, mdTerms.Document));
     return this.translateMdBlockSequence(node, []);
@@ -122,9 +161,10 @@ export class Translator {
       [mdTerms.InlineCode]: "code",
       [mdTerms.Strikethrough]: "s",
     };
+    let expr: Expression;
     if (type in delimitedTypes) {
       let children = this.translateMdInlineSequence(mdChildren.slice(1, -1));
-      return toReact(strLit(delimitedTypes[type]), [], children);
+      expr = toReact(strLit(delimitedTypes[type]), [], children);
     } else {
       switch (type) {
         // Markdown builtins:
@@ -136,40 +176,48 @@ export class Translator {
           let display = mdChildren.slice(linkMarkIndexes[0] + 1, linkMarkIndexes[1]);
           let url = node.getChild(mdTerms.URL)!;
           let children = this.translateMdInlineSequence(display);
-          return toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
+          expr = toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
+          break;
         }
 
         case mdTerms.MathMark:
         case mdTerms.QuoteMark: {
-          return t.nullLiteral();
+          expr = t.nullLiteral();
+          break;
         }
 
         case mdTerms.Escape: {
-          return strLit(this.text(node).slice(1));
+          expr = strLit(this.text(node).slice(1));
+          break;
         }
 
         case mdTerms.URL: {
           // remove < and >
           let url = this.text(node).slice(1, -1);
-          return toReact(strLit("a"), [[strLit("href"), strLit(url)]], [strLit(url)]);
+          expr = toReact(strLit("a"), [[strLit("href"), strLit(url)]], [strLit(url)]);
+          break;
         }
 
         case mdTerms.Entity: {
-          return strLit(he.decode(this.text(node)));
+          expr = strLit(he.decode(this.text(node)));
+          break;
         }
 
         // Nota extensions:
         case mdTerms.MathInline: {
           let children = this.translateMdInlineSequence(this.markdownChildren(node));
-          return toReact(t.identifier("$"), [], children);
+          expr = toReact(t.identifier("$"), [], children);
+          break;
         }
 
         case mdTerms.NotaInlineComponent: {
-          return this.translateNotaComponent(node);
+          expr = this.translateNotaComponent(node);
+          break;
         }
 
         case mdTerms.NotaInterpolation: {
-          return this.translateNotaInterpolation(node);
+          expr = this.translateNotaInterpolation(node);
+          break;
         }
 
         case mdTerms.Ref: {
@@ -178,7 +226,8 @@ export class Translator {
           if (nameExpr.type == "Identifier") {
             nameExpr = strLit(nameExpr.name);
           }
-          return toReact(t.identifier("Ref"), [], [nameExpr]);
+          expr = toReact(t.identifier("Ref"), [], [nameExpr]);
+          break;
         }
 
         default: {
@@ -186,6 +235,8 @@ export class Translator {
         }
       }
     }
+
+    return this.spanned(expr, node);
   }
 
   translateMdInlineSequence(sequence: MarkdownChildren): Expression[] {
@@ -198,10 +249,13 @@ export class Translator {
     let type = node.type.id;
 
     let mdChildren = this.markdownChildren(node);
+    let expr: Expression;
+    let stmts: Statement[] = [];
     switch (type) {
       case mdTerms.Paragraph: {
         let children = this.translateMdInlineSequence(mdChildren);
-        return [toReact(strLit("p"), [], children), []];
+        expr = toReact(strLit("p"), [], children);
+        break;
       }
 
       case mdTerms.ATXHeading1:
@@ -213,7 +267,8 @@ export class Translator {
         let depth = type - mdTerms.ATXHeading1 + 1;
         // slice(1) for HeaderMark
         let children = this.translateMdInlineSequence(mdChildren.slice(1));
-        return [toReact(strLit(`h${depth}`), [], children), []];
+        expr = toReact(strLit(`h${depth}`), [], children);
+        break;
       }
 
       case mdTerms.FencedCode: {
@@ -225,17 +280,19 @@ export class Translator {
 
         let codeText = node.getChild(mdTerms.CodeText)!;
 
-        return [toReact(t.identifier("Listing"), attributes, [strLit(this.text(codeText))]), []];
+        expr = toReact(t.identifier("Listing"), attributes, [strLit(this.text(codeText))]);
+        break;
       }
 
       case mdTerms.Blockquote: {
-        let [expr, stmts] = this.translateMdBlock(node.lastChild!);
-        return [toReact(strLit("blockquote"), [], [expr]), stmts];
+        let [subexpr, substmts] = this.translateMdBlock(node.lastChild!);
+        expr = toReact(strLit("blockquote"), [], [subexpr]);
+        stmts = substmts;
+        break;
       }
 
       case mdTerms.OrderedList:
       case mdTerms.BulletList: {
-        let stmts: Statement[] = [];
         let items = node.getChildren(mdTerms.ListItem).map(item => {
           let children = collectSiblings(item.firstChild);
           let exprs: Expression[] = [];
@@ -249,13 +306,14 @@ export class Translator {
           return toReact(strLit("li"), [], exprs);
         });
         let tag = type == mdTerms.OrderedList ? "ol" : "ul";
-        return [toReact(strLit(tag), [], items), stmts];
+        expr = toReact(strLit(tag), [], items);
+        break;
       }
 
       case mdTerms.NotaScript: {
         let child = node.getChild(jsTerms.NotaStmts)!;
-        let stmts = parse(this.replaceNotaCalls(child));
-        let inlineStmts = stmts.filter(stmt => {
+        stmts = parse(this.replaceNotaCalls(child));
+        stmts = stmts.filter(stmt => {
           if (stmt.type == "ImportDeclaration") {
             this.imports.add(stmt);
             return false;
@@ -266,24 +324,29 @@ export class Translator {
             return true;
           }
         });
-        return [t.nullLiteral(), inlineStmts];
+        expr = t.nullLiteral();
+        break;
       }
 
       case mdTerms.NotaBlockComponent: {
-        return [this.translateNotaComponent(node), []];
+        expr = this.translateNotaComponent(node);
+        break;
       }
 
       case mdTerms.MathBlock: {
         let template = node.getChild(jsTerms.NotaTemplateExternal)!.getChild(jsTerms.NotaTemplate)!;
         let children = this.translateNotaTemplate(template);
-        return [toReact(t.identifier("$$"), [], [t.spreadElement(children)]), []];
+        expr = toReact(t.identifier("$$"), [], [t.spreadElement(children)]);
+        break;
       }
 
       default: {
         console.trace();
-        throw `Block element not yet implemented: ${node.name} (${this.text(node)})`;
+        throw new Error(`Block element not yet implemented: ${node.name} (${this.text(node)})`);
       }
     }
+
+    return [this.spanned(expr, node), stmts];
   }
 
   translateNotaCommandName(node: SyntaxNode, terms: Terms = mdTerms): Expression {
@@ -346,7 +409,8 @@ export class Translator {
     let blockAttrKvs: ObjectProperty[] = [];
     blockAttrs.forEach(child => {
       let key = strLit(this.text(child.getChild(mdTerms.NotaAttributeKey)!));
-      let value = parseExpr(this.replaceNotaCalls(child.getChild(jsTerms.NotaExpr)!));
+      let valueNode = child.getChild(jsTerms.NotaExpr);
+      let value = valueNode ? parseExpr(this.replaceNotaCalls(valueNode)) : t.nullLiteral();
       blockAttrKvs.push(t.objectProperty(key, value));
     });
     if (blockAttrKvs.length > 0) {
@@ -643,15 +707,27 @@ export let printTree = (tree: Tree, contents: string) => {
   console.log(output);
 };
 
-export let translate = (input: string, tree: Tree): string => {
-  printTree(tree, input);
-  let program = translateAst(input, tree);
-  let result = babel.transformFromAst(program, undefined, {
-    plugins: [optimizePlugin],
-  }) as any as BabelFileResult;
-  let js = result.code!;
+export interface TranslateOptions {
+  input: string;
+  tree: Tree;
+  sourceRoot?: string;
+  filenameRelative?: string;
+}
 
-  return js;
+export let translate = ({
+  input,
+  tree,
+  sourceRoot,
+  filenameRelative,
+}: TranslateOptions): BabelFileResult => {
+  // printTree(tree, input);
+  let program = translateAst(input, tree);
+  return babel.transformFromAst(program, undefined, {
+    sourceRoot,
+    filenameRelative,
+    sourceMaps: "both",
+    plugins: [optimizePlugin],
+  }) as any;
 };
 
 let collectSiblings = (arg: SyntaxNode | null): SyntaxNode[] => {

@@ -50,23 +50,23 @@ let baseNode = {
 };
 
 export let identifier = (name: string): Identifier => ({
+  ...baseNode,
   type: "Identifier",
   name,
-  ...baseNode,
 });
 
 export let stringLiteral = (value: string): StringLiteral => ({
+  ...baseNode,
   type: "StringLiteral",
   value,
-  ...baseNode,
 });
 
 export let objectExpression = (
   properties: Array<ObjectMethod | ObjectProperty | SpreadElement>
 ): ObjectExpression => ({
+  ...baseNode,
   type: "ObjectExpression",
   properties,
-  ...baseNode,
 });
 
 export let objectProperty = (
@@ -74,22 +74,22 @@ export let objectProperty = (
   value: Expression | PatternLike,
   shorthand: boolean = false
 ): ObjectProperty => ({
+  ...baseNode,
   type: "ObjectProperty",
   key,
   value,
   computed: false,
   shorthand,
-  ...baseNode,
 });
 
 export let callExpression = (
   callee: Expression,
   args: Array<Expression | SpreadElement>
 ): CallExpression => ({
+  ...baseNode,
   type: "CallExpression",
   callee,
   arguments: args,
-  ...baseNode,
 });
 
 export let spreadElement = (argument: Expression): SpreadElement => ({
@@ -99,27 +99,27 @@ export let spreadElement = (argument: Expression): SpreadElement => ({
 });
 
 export let blockStatement = (body: Array<Statement>): BlockStatement => ({
+  ...baseNode,
   type: "BlockStatement",
   body,
   directives: [],
-  ...baseNode,
 });
 
 export let variableDeclaration = (
   kind: "var" | "let" | "const",
   declarations: Array<VariableDeclarator>
 ): VariableDeclaration => ({
+  ...baseNode,
   type: "VariableDeclaration",
   kind,
   declarations,
-  ...baseNode,
 });
 
 export let variableDeclarator = (id: LVal, init?: Expression | null): VariableDeclarator => ({
+  ...baseNode,
   type: "VariableDeclarator",
   id,
   init,
-  ...baseNode,
 });
 
 export let memberExpression = (
@@ -127,109 +127,109 @@ export let memberExpression = (
   property: Expression | Identifier,
   computed: boolean = false
 ): MemberExpression => ({
+  ...baseNode,
   type: "MemberExpression",
   object,
   property,
   computed,
-  ...baseNode,
 });
 
 export let returnStatement = (argument?: Expression | null): ReturnStatement => ({
+  ...baseNode,
   type: "ReturnStatement",
   argument,
-  ...baseNode,
 });
 
 export let arrowFunctionExpression = (
   params: Array<Identifier | Pattern | RestElement>,
   body: BlockStatement | Expression
 ): ArrowFunctionExpression => ({
+  ...baseNode,
   type: "ArrowFunctionExpression",
   params,
   body,
   expression: false,
-  ...baseNode,
 });
 
 export let arrayExpression = (
   elements: Array<null | Expression | SpreadElement>
 ): ArrayExpression => ({
+  ...baseNode,
   type: "ArrayExpression",
   elements,
-  ...baseNode,
 });
 
 export let program = (body: Array<Statement>): Program => ({
+  ...baseNode,
   type: "Program",
   body,
   sourceType: "module",
   directives: [],
   sourceFile: "",
-  ...baseNode,
 });
 
 export let expressionStatement = (expression: Expression): ExpressionStatement => ({
+  ...baseNode,
   type: "ExpressionStatement",
   expression,
-  ...baseNode,
 });
 
 export let objectPattern = (properties: Array<RestElement | ObjectProperty>): ObjectPattern => ({
+  ...baseNode,
   type: "ObjectPattern",
   properties,
-  ...baseNode,
 });
 
 export let booleanLiteral = (value: boolean): BooleanLiteral => ({
+  ...baseNode,
   type: "BooleanLiteral",
   value,
-  ...baseNode,
 });
 
 export let restElement = (argument: LVal): RestElement => ({
+  ...baseNode,
   type: "RestElement",
   argument,
-  ...baseNode,
 });
 
 export let numericLiteral = (value: number): NumericLiteral => ({
+  ...baseNode,
   type: "NumericLiteral",
   value,
-  ...baseNode,
 });
 
 export let importDeclaration = (
   specifiers: Array<ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier>,
   source: StringLiteral
 ): ImportDeclaration => ({
+  ...baseNode,
   type: "ImportDeclaration",
   specifiers,
   source,
-  ...baseNode,
 });
 
 export let importSpecifier = (
   local: Identifier,
   imported: Identifier | StringLiteral
 ): ImportSpecifier => ({
+  ...baseNode,
   type: "ImportSpecifier",
   local,
   imported,
-  ...baseNode,
 });
 
 export let importDefaultSpecifier = (local: Identifier): ImportDefaultSpecifier => ({
+  ...baseNode,
   type: "ImportDefaultSpecifier",
   local,
-  ...baseNode,
 });
 
 export let exportDefaultDeclaration = (
   declaration: FunctionDeclaration | TSDeclareFunction | ClassDeclaration | Expression
 ): ExportDefaultDeclaration => ({
+  ...baseNode,
   type: "ExportDefaultDeclaration",
   declaration,
-  ...baseNode,
 });
 
 export let exportNamedDeclaration = (
@@ -237,16 +237,28 @@ export let exportNamedDeclaration = (
   source: StringLiteral | null = null,
   specifiers: ExportSpecifier[] = []
 ): ExportNamedDeclaration => ({
+  ...baseNode,
   type: "ExportNamedDeclaration",
   declaration,
   specifiers,
   source,
-  ...baseNode,
 });
 
 export let debuggerStatement = (): DebuggerStatement => ({
-  type: "DebuggerStatement",
   ...baseNode,
+  type: "DebuggerStatement",
+});
+
+export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSpecifier => ({
+  ...baseNode,
+  type: "ExportSpecifier",
+  local,
+  exported,
+});
+
+export let nullLiteral = (): NullLiteral => ({
+  ...baseNode,
+  type: "NullLiteral",
 });
 
 let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;
@@ -261,15 +273,3 @@ export let traverse = (node: Node, visit: (node: Node) => void) => {
     }
   });
 };
-
-export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSpecifier => ({
-  type: "ExportSpecifier",
-  local,
-  exported,
-  ...baseNode,
-});
-
-export let nullLiteral = (): NullLiteral => ({
-  type: "NullLiteral",
-  ...baseNode,
-});
