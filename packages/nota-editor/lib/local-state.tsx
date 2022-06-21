@@ -30,6 +30,7 @@ export class LocalState implements State {
     return ok({
       transpiled: transpiledResult.code!,
       lowered,
+      map: "", // todo
       css: null,
     });
   }

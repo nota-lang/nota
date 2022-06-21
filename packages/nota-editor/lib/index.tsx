@@ -2,14 +2,13 @@ import { LanguageSupport } from "@codemirror/language";
 import type { Result } from "@nota-lang/nota-common/dist/result";
 import React from "react";
 
-export type TranslationResult = Result<
-  {
-    transpiled: string;
-    lowered: string;
-    css: string | null;
-  },
-  string
->;
+export interface Translation {
+  transpiled: string;
+  lowered: string;
+  map: string;
+  css: string | null;
+}
+export type TranslationResult = Result<Translation, string>;
 
 export interface State {
   contents: string;
@@ -20,7 +19,7 @@ export interface State {
 
 export let StateContext = React.createContext<State | null>(null);
 
-export { Editor } from "./editor.js";
+export { Editor, EditorState, EditorStateContext } from "./editor.js";
 export { LocalState } from "./local-state.js";
 export { RemoteState } from "./remote-state.js";
 export { JsView, OutputView, ParseView } from "./viewer.js";

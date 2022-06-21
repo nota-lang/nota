@@ -20,7 +20,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "mkdir -p dist && sass -I node_modules css/nota-editor.scss dist/index.css && tsc",
+    "build": "mkdir -p dist && cp lib/source-map.js dist && sass -I node_modules css/nota-editor.scss dist/index.css && tsc",
     "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
@@ -40,7 +40,8 @@
     "indent-string": "^5.0.0",
     "lodash": "^4.17.21",
     "prettier": "^2.6.2",
-    "react-error-boundary": "^3.1.4"
+    "react-error-boundary": "^3.1.4",
+    "source-map": "^0.7.4"
   },
   "peerDependencies": {
     "mobx": "^6.5.0",

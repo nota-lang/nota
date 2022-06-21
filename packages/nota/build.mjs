@@ -16,5 +16,8 @@ build({
 build({
   entryPoints: ["lib/editor.tsx"],
   format: "iife",
+  loader: {
+    '.wasm': 'file'
+  },
   plugins: [sassPlugin(), copyPlugin({ extensions: [".html", ".ico"] })],
 });

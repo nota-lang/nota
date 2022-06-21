@@ -15,7 +15,7 @@ export let notaPlugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
       let input = await fs.promises.readFile(args.path, "utf8");
       let tree = resUnwrap(tryParse(input));
       let { dir, base } = path.parse(args.path);
-      let { code, map } = translate({
+      let { code } = translate({
         input,
         tree,
         sourceRoot: dir,

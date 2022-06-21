@@ -58,18 +58,22 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   let socketCbs: (() => void)[] = [];
   let output: TranslationResult | null = null;
   let loadOutput = async () => {
-    let [lowered, mapJson, css] = await Promise.all(
+    let [lowered, map, css] = await Promise.all(
       [OUTPUT_JS_PATH, OUTPUT_MAP_PATH, OUTPUT_CSS_PATH].map(async p =>
         (await fileExists(p)) ? fs.readFile(p, "utf-8") : null
       )
     );
-    let map = JSON.parse(mapJson!);
-    let idx = _.findIndex(map.sources, (p: string) => path.basename(p) == path.basename(inputPath));
-    let transpiled = map.sourcesContent[idx];
+    let mapJson = JSON.parse(map!);
+    let idx = _.findIndex(
+      mapJson.sources,
+      (p: string) => path.basename(p) == path.basename(inputPath)
+    );
+    let transpiled = mapJson.sourcesContent[idx];
     output = ok({
       lowered: lowered!,
       transpiled,
       css,
+      map: map!,
     });
   };
 
