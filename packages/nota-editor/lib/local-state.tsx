@@ -7,12 +7,14 @@ import { optimizePlugin, translateAst } from "@nota-lang/nota-syntax/dist/transl
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 
 import { State, TranslationResult } from ".";
+import { GLOBAL_NAME } from "./dynamic-load";
 
 export class LocalState implements State {
   contents: string;
   translation: TranslationResult;
   ready: boolean = true;
   availableLanguages: { [lang: string]: LanguageSupport } = {}; // TODO
+  runtimeError?: Error = undefined;
 
   tryTranslate(): TranslationResult {
     let tree = tryParse(this.contents);
@@ -26,7 +28,7 @@ export class LocalState implements State {
     let loweredResult = babel.transformFromAst(js, undefined, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
     }) as any as BabelFileResult;
-    let lowered = `let exports = {};\n${loweredResult.code}\nlet notaDocument = exports;`;
+    let lowered = `let exports = {};\n${loweredResult.code}\nlet ${GLOBAL_NAME} = exports;`;
     return ok({
       transpiled: transpiledResult.code!,
       lowered,

@@ -1,8 +1,6 @@
 import { isOk } from "@nota-lang/nota-common/dist/result.js";
 import {
   Editor,
-  EditorState,
-  EditorStateContext,
   JsView,
   OutputView,
   ParseView,
@@ -106,7 +104,6 @@ let Inner: React.FC<{ selected: number }> = observer(({ selected }) => {
 let App = observer(() => {
   let [state] = useState(() => new RemoteState());
   let [viewerState] = useState(() => new ViewerState());
-  let [editorState] = useState(() => new EditorState());
   let [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
@@ -133,19 +130,17 @@ let App = observer(() => {
         <>Loading...</>
       ) : (
         <StateContext.Provider value={state}>
-          <EditorStateContext.Provider value={editorState}>
-            <ViewerStateContext.Provider value={viewerState}>
-              <div className="header">
-                <h1>Nota Editor</h1>
-                <ViewerConfig />
-              </div>
-              <div className={classNames("panels", { fullscreen })}>
-                <Editor />
-                {separator}
-                <Viewer />
-              </div>
-            </ViewerStateContext.Provider>
-          </EditorStateContext.Provider>
+          <ViewerStateContext.Provider value={viewerState}>
+            <div className="header">
+              <h1>Nota Editor</h1>
+              <ViewerConfig />
+            </div>
+            <div className={classNames("panels", { fullscreen })}>
+              <Editor />
+              {separator}
+              <Viewer />
+            </div>
+          </ViewerStateContext.Provider>
         </StateContext.Provider>
       )}
     </div>

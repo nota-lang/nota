@@ -691,7 +691,7 @@ export let translateAst = (input: string, tree: Tree): Program => {
   return t.program(program);
 };
 
-export let printTree = (tree: Tree, contents: string) => {
+export let treeToString = (tree: Tree, contents: string): string => {
   let depth = (node: any): number => (node.parent ? 1 + depth(node.parent) : 0);
   let cursor = tree.cursor();
   let output = "";
@@ -704,7 +704,11 @@ export let printTree = (tree: Tree, contents: string) => {
     output += indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)) + "\n";
   } while (cursor.next());
 
-  console.log(output);
+  return output;
+};
+
+export let printTree = (tree: Tree, contents: string) => {
+  console.log(treeToString(tree, contents));
 };
 
 export interface TranslateOptions {
@@ -725,7 +729,7 @@ export let translate = ({
   return babel.transformFromAst(program, undefined, {
     sourceRoot,
     filenameRelative,
-    sourceMaps: "both",
+    sourceMaps: sourceRoot && filenameRelative ? "both" : undefined,
     plugins: [optimizePlugin],
   }) as any;
 };

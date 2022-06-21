@@ -13,13 +13,14 @@ export type TranslationResult = Result<Translation, string>;
 export interface State {
   contents: string;
   translation: TranslationResult;
+  runtimeError?: Error;
   ready: boolean;
   availableLanguages: { [lang: string]: LanguageSupport };
 }
 
 export let StateContext = React.createContext<State | null>(null);
 
-export { Editor, EditorState, EditorStateContext } from "./editor.js";
+export { Editor } from "./editor.js";
 export { LocalState } from "./local-state.js";
 export { RemoteState } from "./remote-state.js";
 export { JsView, OutputView, ParseView } from "./viewer.js";

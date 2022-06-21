@@ -12,7 +12,7 @@ import { LocalState, StateContext, OutputView } from "..";
 
 test("editor", async () => {
   // Create state and component
-  let state = new LocalState("@h1{Hello world}");
+  let state = new LocalState("@h1: Hello world");
   let Component = observer(() => (
     <StateContext.Provider value={state}>
       <OutputView result={state.translation} />
@@ -32,7 +32,7 @@ test("editor", async () => {
 
   // Simulate updating the contents
   runInAction(() => {
-    state.contents = "@h1{Hello 世界}";
+    state.contents = "@h1: Hello 世界";
   });
   await waitFor(() => screen.getByText("Hello 世界"));
 

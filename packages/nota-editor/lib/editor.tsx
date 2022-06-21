@@ -21,13 +21,22 @@ import {
   ViewPlugin,
   keymap,
 } from "@codemirror/view";
+import { isOk } from "@nota-lang/nota-common/dist/result";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import classNames from "classnames";
-import { action, makeAutoObservable, reaction } from "mobx";
+import { action, reaction } from "mobx";
 import React, { useContext, useEffect, useRef, useState } from "react";
+//@ts-ignore
+import sourceMapWasmUrl from "source-map/lib/mappings.wasm";
 
-import { StateContext } from ".";
+import { StateContext, TranslationResult } from ".";
 import { indentationGuides } from "./indentation-guides.js";
+//@ts-ignore
+import { default as sourceMap } from "./source-map.js";
+
+sourceMap.SourceMapConsumer.initialize({
+  "lib/mappings.wasm": sourceMapWasmUrl,
+});
 
 export let theme = EditorView.theme({
   "&": {
@@ -91,39 +100,28 @@ let keyBindings: KeyBinding[] = [
   insertCommandAtCursor("Ctrl-3", "Subsubsection"),
 ];
 
-export class EditorState {
-  error?: {
-    line: number;
-  } = undefined;
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-}
-
 let errorLine = Decoration.line({ class: "cm-error" });
 
-let clearErrorLine = StateEffect.define<null>();
-let setErrorLine = StateEffect.define<{ line: number }>();
+let setErrorLines = StateEffect.define<{ lines: number[] }>();
 
 let errorLineField = StateField.define<DecorationSet>({
   create: () => RangeSet.empty,
   update(lines, tr) {
     lines = lines.map(tr.changes);
     for (let e of tr.effects) {
-      if (e.is(setErrorLine)) {
-        let line = tr.state.doc.line(e.value.line);
-        lines = RangeSet.of([errorLine.range(line.from, line.from)]);
-      } else if (e.is(clearErrorLine)) {
-        lines = RangeSet.empty;
+      if (e.is(setErrorLines)) {
+        lines = RangeSet.of(
+          e.value.lines.map(i => {
+            let line = tr.state.doc.line(i);
+            return errorLine.range(line.from, line.from);
+          })
+        );
       }
     }
     return lines;
   },
   provide: f => EditorView.decorations.from(f),
 });
-
-export let EditorStateContext = React.createContext<EditorState | null>(null);
 
 export interface EditorProps {
   embedded?: boolean;
@@ -132,7 +130,6 @@ export interface EditorProps {
 export let Editor: React.FC<EditorProps> = ({ embedded }) => {
   let ref = useRef<HTMLDivElement>(null);
   let state = useContext(StateContext)!;
-  let editorState = useContext(EditorStateContext)!;
 
   let [notaLang] = useState(() =>
     nota({
@@ -173,14 +170,60 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
       parent: ref.current!,
     });
 
-    return reaction(
-      () => editorState.error,
-      error => {
-        let effects = [error ? setErrorLine.of(error) : clearErrorLine.of(null)];
-        console.log(error, effects);
-        editor.dispatch({ effects });
+    let showSyntaxError = (translation: TranslationResult) => {
+      if (!isOk(translation)) {
+        console.log("TODO");
       }
-    );
+    };
+
+    let disposeSyntaxErrorHandler = reaction(() => state.translation, showSyntaxError, {
+      fireImmediately: true,
+    });
+
+    let showRuntimeError = async (runtimeError: Error | undefined) => {
+      if (!isOk(state.translation)) {
+        console.log("race condition?");
+        return;
+      }
+
+      let dispatchErrorLines = (lines: number[]) => {
+        editor.dispatch({ effects: [setErrorLines.of({ lines })] });
+      };
+
+      if (!runtimeError) {
+        dispatchErrorLines([]);
+        return;
+      }
+
+      if (runtimeError.stack) {
+        let lines = runtimeError.stack.split("\n");
+        let lineInfo = lines[1].match(/\(([^:]*):(\d+):(\d+)\)$/)!;
+        let sourceFile = lineInfo[1];
+        let line = parseInt(lineInfo[2]);
+        let column = parseInt(lineInfo[3]);
+
+        let withConsumer = (consumer: any) => {
+          let position = consumer.originalPositionFor({
+            source: sourceFile,
+            line,
+            column,
+          });
+
+          dispatchErrorLines([position.line]);
+        };
+        await sourceMap.SourceMapConsumer.with(state.translation.value.map, null, withConsumer);
+      }
+    };
+
+    let disposeRuntimeErrorHandler = reaction(() => state.runtimeError, showRuntimeError, {
+      fireImmediately: true,
+    });
+
+    return () => {
+      disposeSyntaxErrorHandler();
+      disposeRuntimeErrorHandler();
+      editor.destroy();
+    };
   }, []);
 
   return <div className={classNames("nota-editor", { embedded })} ref={ref} />;

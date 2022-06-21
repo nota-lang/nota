@@ -30,6 +30,7 @@ export class RemoteState implements State {
   translation: TranslationResult = err("");
   ready: boolean = false;
   availableLanguages: { [lang: string]: LanguageSupport } = {};
+  runtimeError?: Error = undefined;
 
   private ws: WebSocket;
 

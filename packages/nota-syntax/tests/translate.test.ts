@@ -37,7 +37,7 @@ let gen =
   (input: string): string => {
     try {
       let tree = resUnwrap(tryParse(input));
-      printTree(tree, input);
+      // printTree(tree, input);
       let translator = new Translator(input);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
@@ -320,7 +320,6 @@ test("translate source map", async () => {
 
   let srcMap = new LineMap(input);
   let dstMap = new LineMap(code);
-  console.log(code);
 
   await SourceMapConsumer.with(map, null, consumer => {
     let mappings: MappingItem[] = [];
