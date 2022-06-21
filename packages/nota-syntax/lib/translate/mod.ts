@@ -230,6 +230,11 @@ export class Translator {
           break;
         }
 
+        case mdTerms.Comment: {
+          expr = t.nullLiteral();
+          break;
+        }
+
         default: {
           throw `Inline element not yet implemented: ${node.name} (${this.text(node)})`;
         }
@@ -337,6 +342,11 @@ export class Translator {
         let template = node.getChild(jsTerms.NotaTemplateExternal)!.getChild(jsTerms.NotaTemplate)!;
         let children = this.translateNotaTemplate(template);
         expr = toReact(t.identifier("$$"), [], [t.spreadElement(children)]);
+        break;
+      }
+
+      case mdTerms.Comment: {
+        expr = t.nullLiteral();
         break;
       }
 

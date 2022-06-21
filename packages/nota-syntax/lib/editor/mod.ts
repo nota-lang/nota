@@ -94,7 +94,9 @@ let notaMdStyle = HighlightStyle.define([]);
 
 export function mkLang(parser: MarkdownParser) {
   return new Language(
-    defineLanguageFacet({}),
+    defineLanguageFacet({
+      commentTokens: { line: "//" },
+    }),
     parser.configure({
       props: [
         indentNodeProp.add({

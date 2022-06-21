@@ -204,6 +204,7 @@ p`,
   x: 1 + 2,
 });`,
     ],
+    [`foo // bar`, `el("p", {}, "foo ", null);`],
   ];
 
   pairs.forEach(([input, expected]) => {

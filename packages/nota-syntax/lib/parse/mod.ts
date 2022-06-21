@@ -2,6 +2,7 @@ import { Tree } from "@lezer/common";
 import { Strikethrough, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
+import { CommentExtension } from "./extensions/comment.js";
 import { MathExtension } from "./extensions/math.js";
 import { configureParserForNota, validateTermAccess } from "./extensions/nota.js";
 import { RefExtension } from "./extensions/ref.js";
@@ -12,7 +13,7 @@ export { CodeTag } from "./highlight.js";
 export { MathTag } from "./extensions/math.js";
 
 export let { mdParser, mdTerms, jsParser } = configureParserForNota(
-  baseMdParser.configure([MathExtension, RefExtension, Strikethrough])
+  baseMdParser.configure([CommentExtension, MathExtension, RefExtension, Strikethrough])
 );
 export let jsTerms: { [key: string]: number } = validateTermAccess(terms);
 
