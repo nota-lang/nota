@@ -1,10 +1,14 @@
 import type {
   ArrayExpression,
+  ArrayPattern,
   ArrowFunctionExpression,
+  AssignmentPattern,
+  BinaryExpression,
   BlockStatement,
   BooleanLiteral,
   CallExpression,
   ClassDeclaration,
+  ConditionalExpression,
   DebuggerStatement,
   Declaration,
   ExportDefaultDeclaration,
@@ -13,6 +17,7 @@ import type {
   Expression,
   ExpressionStatement,
   FunctionDeclaration,
+  FunctionExpression,
   Identifier,
   ImportDeclaration,
   ImportDefaultSpecifier,
@@ -20,6 +25,7 @@ import type {
   ImportSpecifier,
   LVal,
   MemberExpression,
+  NewExpression,
   Node,
   NullLiteral,
   NumericLiteral,
@@ -35,7 +41,13 @@ import type {
   SpreadElement,
   Statement,
   StringLiteral,
+  Super,
   TSDeclareFunction,
+  TemplateElement,
+  TemplateLiteral,
+  ThisExpression,
+  ThrowStatement,
+  UnaryExpression,
   VariableDeclaration,
   VariableDeclarator,
 } from "@babel/types";
@@ -69,16 +81,22 @@ export let objectExpression = (
   properties,
 });
 
-export let objectProperty = (
-  key: Expression | Identifier | StringLiteral | NumericLiteral,
-  value: Expression | PatternLike,
-  shorthand: boolean = false
-): ObjectProperty => ({
+export let objectProperty = ({
+  key,
+  value,
+  shorthand = false,
+  computed = false,
+}: {
+  key: Expression | Identifier | StringLiteral | NumericLiteral;
+  value: Expression | PatternLike;
+  shorthand?: boolean;
+  computed?: boolean;
+}): ObjectProperty => ({
   ...baseNode,
   type: "ObjectProperty",
   key,
   value,
-  computed: false,
+  computed,
   shorthand,
 });
 
@@ -103,6 +121,12 @@ export let blockStatement = (body: Array<Statement>): BlockStatement => ({
   type: "BlockStatement",
   body,
   directives: [],
+});
+
+export let throwStatement = ({ argument }: { argument: Expression }): ThrowStatement => ({
+  ...baseNode,
+  type: "ThrowStatement",
+  argument,
 });
 
 export let variableDeclaration = (
@@ -138,6 +162,117 @@ export let returnStatement = (argument?: Expression | null): ReturnStatement => 
   ...baseNode,
   type: "ReturnStatement",
   argument,
+});
+
+export let newExpression = ({
+  callee,
+  args,
+}: {
+  callee: Expression;
+  args: (Expression | SpreadElement)[];
+}): NewExpression => ({
+  ...baseNode,
+  type: "NewExpression",
+  callee,
+  arguments: args,
+});
+
+export let binaryExpression = ({
+  left,
+  right,
+  operator,
+}: {
+  left: Expression;
+  right: Expression;
+  operator: any;
+}): BinaryExpression => ({
+  ...baseNode,
+  type: "BinaryExpression",
+  left,
+  right,
+  operator,
+});
+
+export let unaryExpression = ({
+  argument,
+  operator,
+  prefix = true,
+}: {
+  argument: Expression;
+  operator: any;
+  prefix?: boolean;
+}): UnaryExpression => ({
+  ...baseNode,
+  type: "UnaryExpression",
+  argument,
+  operator,
+  prefix,
+});
+
+export let functionExpression = (
+  id: Identifier | null,
+  params: Array<Identifier | Pattern | RestElement>,
+  body: BlockStatement
+): FunctionExpression => ({
+  ...baseNode,
+  type: "FunctionExpression",
+  id,
+  params,
+  body,
+});
+
+export let conditionalExpression = ({
+  test,
+  consequent,
+  alternate,
+}: {
+  test: Expression;
+  consequent: Expression;
+  alternate: Expression;
+}): ConditionalExpression => ({
+  ...baseNode,
+  type: "ConditionalExpression",
+  test,
+  consequent,
+  alternate,
+});
+
+export let thisExpression = (): ThisExpression => ({
+  ...baseNode,
+  type: "ThisExpression",
+});
+
+export let superExpression = (): Super => ({
+  ...baseNode,
+  type: "Super",
+});
+
+export let templateLiteral = ({
+  quasis,
+  expressions,
+}: {
+  quasis: TemplateElement[];
+  expressions: Expression[];
+}): TemplateLiteral => ({
+  ...baseNode,
+  type: "TemplateLiteral",
+  quasis,
+  expressions,
+});
+
+export let templateElement = ({
+  raw,
+  cooked = undefined,
+  tail = false,
+}: {
+  raw: string;
+  cooked?: string;
+  tail?: boolean;
+}): TemplateElement => ({
+  ...baseNode,
+  type: "TemplateElement",
+  value: { raw, cooked },
+  tail,
 });
 
 export let arrowFunctionExpression = (
@@ -178,6 +313,29 @@ export let objectPattern = (properties: Array<RestElement | ObjectProperty>): Ob
   ...baseNode,
   type: "ObjectPattern",
   properties,
+});
+
+export let arrayPattern = ({
+  elements,
+}: {
+  elements: (Identifier | Pattern | RestElement)[];
+}): ArrayPattern => ({
+  ...baseNode,
+  type: "ArrayPattern",
+  elements,
+});
+
+export let assignmentPattern = ({
+  left,
+  right,
+}: {
+  left: Identifier | ObjectPattern | ArrayPattern | MemberExpression;
+  right: Expression;
+}): AssignmentPattern => ({
+  ...baseNode,
+  type: "AssignmentPattern",
+  left,
+  right,
 });
 
 export let booleanLiteral = (value: boolean): BooleanLiteral => ({
@@ -221,6 +379,16 @@ export let importSpecifier = (
 export let importDefaultSpecifier = (local: Identifier): ImportDefaultSpecifier => ({
   ...baseNode,
   type: "ImportDefaultSpecifier",
+  local,
+});
+
+export let importNamespaceSpecifier = ({
+  local,
+}: {
+  local: Identifier;
+}): ImportNamespaceSpecifier => ({
+  ...baseNode,
+  type: "ImportNamespaceSpecifier",
   local,
 });
 

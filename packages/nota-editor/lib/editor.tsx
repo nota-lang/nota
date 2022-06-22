@@ -197,7 +197,14 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
 
       if (runtimeError.stack) {
         let lines = runtimeError.stack.split("\n");
+        if (lines.length < 2) return;
+
         let lineInfo = lines[1].match(/\(([^:]*):(\d+):(\d+)\)$/)!;
+        if (!lineInfo) {
+          console.warn(`Could not match: ${lines[1]}`);
+          return;
+        }
+
         let sourceFile = lineInfo[1];
         let line = parseInt(lineInfo[2]);
         let column = parseInt(lineInfo[3]);
@@ -205,11 +212,20 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
         let withConsumer = (consumer: any) => {
           let position = consumer.originalPositionFor({
             source: sourceFile,
-            line,
+            // -2 is because the JS evaluator adds an implicit 2 lines
+            // above the body of the eval'd code
+            line: line - 2,
             column,
+            bias: sourceMap.SourceMapConsumer.LEAST_UPPER_BOUND,
           });
 
-          dispatchErrorLines([position.line]);
+          if (position.line !== null) {
+            dispatchErrorLines([position.line]);
+          } else {
+            console.warn(
+              `Could not find source-map position for location in error: "${lines[1].trim()}"`
+            );
+          }
         };
         await sourceMap.SourceMapConsumer.with(state.translation.value.map, null, withConsumer);
       }

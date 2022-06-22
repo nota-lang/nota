@@ -1,15 +1,24 @@
 import type { BabelFileResult, PluginObj } from "@babel/core";
 import * as babel from "@babel/standalone";
 import type {
+  BlockStatement,
   ExportDeclaration,
   Expression,
   ExpressionStatement,
+  Identifier,
   ImportDeclaration,
+  ImportDefaultSpecifier,
+  ImportNamespaceSpecifier,
+  ImportSpecifier,
+  LVal,
   ObjectProperty,
+  PatternLike,
   Program,
   SourceLocation,
   SpreadElement,
   Statement,
+  StringLiteral,
+  TemplateElement,
 } from "@babel/types";
 import type { SyntaxNode, Tree } from "@lezer/common";
 import { assert, unreachable } from "@nota-lang/nota-common";
@@ -87,12 +96,20 @@ export class Translator {
     return this.input.slice(cursor.from, cursor.to);
   }
 
+  ident(cursor: SyntaxNode): Identifier {
+    return t.identifier(this.text(cursor));
+  }
+
   private spanned<T>(jsNode: T, lezerNode: SyntaxNode): T {
     let nodeAny: any = jsNode;
     let loc: SourceLocation = {
       start: this.lineMap.offsetToLocation(lezerNode.from),
       end: this.lineMap.offsetToLocation(lezerNode.to),
     };
+    // if (loc.start.column == 18) {
+    //   console.trace(`WAT`, lezerNode.name, loc);
+    // }
+
     return { ...nodeAny, loc };
   }
 
@@ -280,7 +297,7 @@ export class Translator {
         let attributes: [Expression, Expression][] = [];
         let codeInfo = node.getChild(mdTerms.CodeInfo);
         if (codeInfo) {
-          attributes.push([strLit("language"), t.identifier(this.text(codeInfo))]);
+          attributes.push([strLit("language"), this.ident(codeInfo)]);
         }
 
         let codeText = node.getChild(mdTerms.CodeText)!;
@@ -317,7 +334,7 @@ export class Translator {
 
       case mdTerms.NotaScript: {
         let child = node.getChild(jsTerms.NotaStmts)!;
-        stmts = parse(this.replaceNotaCalls(child));
+        stmts = collectSiblings(child.firstChild).map(node => this.translateJsStmt(node));
         stmts = stmts.filter(stmt => {
           if (stmt.type == "ImportDeclaration") {
             this.imports.add(stmt);
@@ -359,19 +376,33 @@ export class Translator {
     return [this.spanned(expr, node), stmts];
   }
 
+  translateNotaExpr(node: SyntaxNode): Expression {
+    assert(matches(node, jsTerms.NotaExpr));
+    return this.translateJsExpr(node.firstChild!);
+  }
+
   translateNotaCommandName(node: SyntaxNode, terms: Terms = mdTerms): Expression {
     assert(matches(node, terms.NotaCommandName));
 
     let child;
+    let expr;
     if ((child = node.getChild(terms.NotaCommandNameExpression))) {
-      return parseExpr(this.replaceNotaCalls(child));
+      let grandchild;
+      if ((grandchild = child.getChild(jsTerms.NotaExpr))) {
+        expr = this.translateNotaExpr(grandchild);
+      } else {
+        expr = this.translateJsExpr(child.firstChild!.nextSibling!);
+      }
     } else if ((child = node.getChild(terms.NotaCommandNameInteger))) {
-      return t.memberExpression(anonArgsId, t.numericLiteral(parseInt(this.text(child)) - 1));
+      expr = t.memberExpression(anonArgsId, t.numericLiteral(parseInt(this.text(child)) - 1));
     } else if ((child = node.getChild(terms.NotaCommandNameIdentifier))) {
-      return t.identifier(this.text(node));
+      expr = this.ident(node);
     } else {
       unreachable();
     }
+
+    // return this.spanned(expr, node);
+    return expr;
   }
 
   translateNotaInterpolation(node: SyntaxNode): Expression {
@@ -386,11 +417,8 @@ export class Translator {
       return t.arrayExpression(exprs);
     });
 
-    if (args.length > 0) {
-      return t.callExpression(nameExpr, args);
-    } else {
-      return nameExpr;
-    }
+    let expr = args.length > 0 ? t.callExpression(nameExpr, args) : nameExpr;
+    return this.spanned(expr, node);
   }
 
   translateNotaComponent(node: SyntaxNode): Expression {
@@ -410,9 +438,8 @@ export class Translator {
     if (inlineAttrs) {
       let properties = inlineAttrs
         .getChildren(jsTerms.Property)
-        .map(child => this.replaceNotaCalls(child))
-        .join(", ");
-      attrExprs.push(parseExpr(`{${properties}}`));
+        .map(child => this.translateJsProperty(child));
+      attrExprs.push(t.objectExpression(properties));
     }
 
     let blockAttrs = node.getChildren(mdTerms.NotaBlockAttribute);
@@ -420,8 +447,8 @@ export class Translator {
     blockAttrs.forEach(child => {
       let key = strLit(this.text(child.getChild(mdTerms.NotaAttributeKey)!));
       let valueNode = child.getChild(jsTerms.NotaExpr);
-      let value = valueNode ? parseExpr(this.replaceNotaCalls(valueNode)) : t.nullLiteral();
-      blockAttrKvs.push(t.objectProperty(key, value));
+      let value = valueNode ? this.translateNotaExpr(valueNode) : t.nullLiteral();
+      blockAttrKvs.push(t.objectProperty({ key, value }));
     });
     if (blockAttrKvs.length > 0) {
       attrExprs.push(t.objectExpression(blockAttrKvs));
@@ -455,11 +482,10 @@ export class Translator {
       args.push(t.spreadElement(subDoc));
     }
 
-    if (nameExpr) {
-      return t.callExpression(createEl, [nameExpr, attrExpr, ...args]);
-    } else {
-      return t.arrayExpression(args);
-    }
+    let expr = nameExpr
+      ? t.callExpression(createEl, [nameExpr, attrExpr, ...args])
+      : t.arrayExpression(args);
+    return this.spanned(expr, node);
   }
 
   translateNotaTemplate(node: SyntaxNode): Expression {
@@ -484,57 +510,416 @@ export class Translator {
         }
       }
     });
-    return t.arrayExpression(childExprs);
+    return this.spanned(t.arrayExpression(childExprs), node);
   }
 
-  replaceNotaCalls(node: SyntaxNode): string {
-    let cursor = node.cursor();
-    let replacements: [number, number, string][] = [];
-    while (node.from <= cursor.from && cursor.to <= node.to) {
-      let expr: Expression | undefined;
-      if (matches(cursor.node, jsTerms.NotaMacro)) {
-        let template = cursor.node.getChild(jsTerms.NotaTemplate)!;
+  translateJsPattern(node: SyntaxNode): PatternLike {
+    switch (node.type.id) {
+      case jsTerms.VariableDefinition: {
+        return this.ident(node);
+      }
+
+      case jsTerms.ArrayPattern: {
+        let elements = node.getChildren(jsTerms.SpreadablePatternAssign).map(child => {
+          let patternAssign = child.getChild(jsTerms.PatternAssign)!;
+          if (child.getChild(jsTerms.Spread)) {
+            return t.restElement(this.translateJsLval(patternAssign));
+          } else {
+            return this.translateJsPattern(patternAssign);
+          }
+        });
+        return t.arrayPattern({ elements });
+      }
+
+      case jsTerms.PatternAssign: {
+        let left = this.translateJsPattern(node.firstChild!) as any;
+        if (node.getChild(jsTerms.Equals)) {
+          let right = this.translateJsExpr(node.lastChild!);
+          return t.assignmentPattern({ left, right });
+        } else {
+          return left;
+        }
+      }
+
+      case jsTerms.ObjectPattern: {
+        let properties = node.getChildren(jsTerms.PatternProperty).map(child => {
+          let spread;
+          if ((spread = child.getChild(jsTerms.PatternAssign))) {
+            return t.restElement(this.translateJsLval(spread));
+          } else {
+            let keyNode = child.firstChild!;
+            let key = matches(keyNode, jsTerms.PropertyName)
+              ? this.ident(keyNode)
+              : this.translateJsExpr(keyNode);
+
+            // TODO: very not confident in this code
+            let aliasNode = child.getChild(jsTerms.PatternPropertyAlias);
+            let value = aliasNode ? this.translateJsPattern(aliasNode.lastChild!) : key;
+            let defaultNode = child.getChild(jsTerms.PatternPropertyDefault);
+            if (defaultNode) {
+              let right = this.translateJsExpr(defaultNode.lastChild!);
+              value = t.assignmentPattern({ left: value as any, right });
+            }
+
+            return t.objectProperty({
+              key,
+              value,
+              shorthand: aliasNode === null,
+            });
+          }
+        });
+        return t.objectPattern(properties);
+      }
+
+      default:
+        throw new Error(`Not yet implemented JS pattern: ${node.name}`);
+    }
+  }
+
+  translateJsLval(node: SyntaxNode): LVal {
+    switch (node.type.id) {
+      case jsTerms.VariableDefinition:
+        return this.ident(node);
+
+      case jsTerms.ObjectPattern:
+      case jsTerms.PatternAssign:
+        return this.translateJsPattern(node);
+
+      default:
+        throw new Error(`Not yet implemented JS lval: ${node.name}`);
+    }
+  }
+
+  private extractDelimited(
+    node: SyntaxNode,
+    ignore: number[] = [
+      jsTerms.Lparen,
+      jsTerms.Rparen,
+      jsTerms.Lbracket,
+      jsTerms.Rbracket,
+      jsTerms.Lbrace,
+      jsTerms.Rbrace,
+      jsTerms.Comma,
+    ]
+  ) {
+    return collectSiblings(node.firstChild).filter(child =>
+      _.every(ignore, id => !matches(child, id))
+    );
+  }
+
+  translateJsString(node: SyntaxNode): StringLiteral {
+    assert(matches(node, jsTerms.String));
+    return strLit(this.text(node).slice(1, -1));
+  }
+
+  translateJsProperty(node: SyntaxNode): ObjectProperty | SpreadElement {
+    assert(matches(node, jsTerms.Property));
+
+    let child = node.firstChild!;
+    if (matches(child, jsTerms.FunctionProperty)) {
+      throw new Error("TODO");
+    } else if (matches(child, jsTerms.SpreadProperty)) {
+      let expr = this.translateJsExpr(child.lastChild!);
+      return t.spreadElement(expr);
+    } else if (matches(child, jsTerms.ExpressionProperty)) {
+      let keyNode = child.getChild(jsTerms.PropName)!.firstChild!;
+      let key;
+      let computed = false;
+      if (matches(keyNode, jsTerms.PropertyDefinition)) {
+        key = this.ident(keyNode);
+      } else if (matches(keyNode, jsTerms.BracketedPropName)) {
+        computed = true;
+        key = this.translateJsExpr(keyNode.firstChild!.nextSibling!);
+      } else {
+        key = this.translateJsExpr(keyNode);
+      }
+
+      let grandchild, value;
+      if ((grandchild = child.getChild(jsTerms.Colon))) {
+        value = this.translateJsExpr(grandchild.nextSibling!);
+      } else {
+        value = key;
+      }
+
+      return t.objectProperty({ key, value, computed });
+    } else {
+      unreachable();
+    }
+  }
+
+  translateJsExpr(node: SyntaxNode): Expression {
+    let expr: Expression;
+    switch (node.type.id) {
+      case jsTerms.Number: {
+        expr = t.numericLiteral(parseInt(this.text(node)));
+        break;
+      }
+
+      case jsTerms.String: {
+        expr = this.translateJsString(node);
+        break;
+      }
+
+      case jsTerms.VariableName: {
+        expr = this.ident(node);
+        break;
+      }
+
+      case jsTerms.Boolean: {
+        expr = t.booleanLiteral(this.text(node) == "true");
+        break;
+      }
+
+      case jsTerms.FunctionExpression: {
+        let child, id;
+        if ((child = node.getChild(jsTerms.VariableDefinition))) {
+          id = this.ident(child);
+        } else {
+          id = null;
+        }
+        let params = this.extractDelimited(node.getChild(jsTerms.ParamList)!).map(node =>
+          this.translateJsLval(node)
+        );
+        let body = this.translateJsBlock(node.getChild(jsTerms.Block)!);
+        expr = t.functionExpression(id, params as any[], body);
+        break;
+      }
+
+      case jsTerms.ArrowFunction: {
+        let params = this.extractDelimited(node.getChild(jsTerms.ParamList)!).map(node =>
+          this.translateJsLval(node)
+        );
+
+        let child = node.getChild(jsTerms.Arrow)!.nextSibling!;
+        let body = matches(child, jsTerms.Block)
+          ? this.translateJsBlock(child)
+          : this.translateJsExpr(child);
+
+        expr = t.arrowFunctionExpression(params as any[], body);
+        break;
+      }
+
+      case jsTerms.CallExpression: {
+        let func = this.translateJsExpr(node.firstChild!);
+        let args = this.extractDelimited(node.getChild(jsTerms.ArgList)!).map(node =>
+          this.translateJsExpr(node)
+        );
+        expr = t.callExpression(func, args);
+        break;
+      }
+
+      case jsTerms.MemberExpression: {
+        let l = this.translateJsExpr(node.firstChild!);
+        let r = this.ident(node.lastChild!);
+        expr = t.memberExpression(l, r);
+        break;
+      }
+
+      case jsTerms.ArrayExpression: {
+        let elements = this.extractDelimited(node).map(elem => this.translateJsExpr(elem));
+        expr = t.arrayExpression(elements);
+        break;
+      }
+
+      case jsTerms.ObjectExpression: {
+        let properties = node
+          .getChildren(jsTerms.Property)
+          .map(node => this.translateJsProperty(node));
+        expr = t.objectExpression(properties);
+        break;
+      }
+
+      case jsTerms.NewExpression: {
+        let callee = this.translateJsExpr(node.firstChild!.nextSibling!);
+        let args = this.extractDelimited(node.getChild(jsTerms.ArgList)!).map(node =>
+          this.translateJsExpr(node)
+        );
+        expr = t.newExpression({ callee, args });
+        break;
+      }
+
+      case jsTerms.ParenthesizedExpression: {
+        expr = this.translateJsExpr(node.firstChild!.nextSibling!);
+        break;
+      }
+
+      case jsTerms.UnaryExpression: {
+        let argument = this.translateJsExpr(node.lastChild!);
+        let operator = this.text(node.firstChild!);
+        expr = t.unaryExpression({ argument, operator });
+        break;
+      }
+
+      case jsTerms.BinaryExpression: {
+        let left = this.translateJsExpr(node.firstChild!);
+        let right = this.translateJsExpr(node.lastChild!);
+        let operator = this.text(node.firstChild!.nextSibling!);
+        expr = t.binaryExpression({ left, right, operator });
+        break;
+      }
+
+      case jsTerms.ConditionalExpression: {
+        let child = node.firstChild!;
+        let test = this.translateJsExpr(child);
+        child = child.nextSibling!.nextSibling!;
+        let consequent = this.translateJsExpr(child);
+        child = child.nextSibling!.nextSibling!;
+        let alternate = this.translateJsExpr(child);
+        expr = t.conditionalExpression({ test, consequent, alternate });
+        break;
+      }
+
+      case jsTerms.This: {
+        expr = t.thisExpression();
+        break;
+      }
+
+      case jsTerms.Null: {
+        expr = t.nullLiteral();
+        break;
+      }
+
+      case jsTerms.Super: {
+        expr = t.superExpression();
+        break;
+      }
+
+      case jsTerms.TemplateString: {
+        let interpolations = node.getChildren(jsTerms.Interpolation);
+        let pos = node.from + 1;
+        let end = node.to - 1;
+        let quasis: TemplateElement[] = [];
+        let expressions: Expression[] = [];
+
+        let addQuasi = (end: number, tail: boolean = false) => {
+          let text = this.input.slice(pos, end);
+          quasis.push(t.templateElement({ raw: text, cooked: text, tail }));
+        };
+
+        interpolations.forEach(interp => {
+          if (pos < interp.from) addQuasi(interp.from);
+          pos = interp.to;
+
+          let expr = this.translateJsExpr(interp.firstChild!.nextSibling!);
+          expressions.push(expr);
+        });
+
+        addQuasi(end, true);
+
+        expr = t.templateLiteral({ quasis, expressions });
+        break;
+      }
+
+      case jsTerms.NotaMacro: {
+        let template = node.getChild(jsTerms.NotaTemplate)!;
         let args = t.identifier("args");
         expr = t.arrowFunctionExpression(
           [t.restElement(args)],
           this.translateNotaTemplate(template)
         );
-      } else if (matches(cursor.node, mdTerms.Document)) {
-        let component = cursor.node
-          .getChild(mdTerms.Paragraph)!
-          .getChild(mdTerms.NotaInlineComponent)!;
-        expr = this.translateNotaComponent(component);
-      }
-
-      if (expr) {
-        let result = babel.transformFromAst(
-          t.program([t.expressionStatement(expr)]),
-          undefined,
-          {}
-        ) as any as BabelFileResult;
-        let code = result.code!.slice(0, -1);
-        replacements.push([cursor.from - node.from, cursor.to - node.from, code]);
-
-        if (!cursor.next(false)) {
-          break;
-        }
-      } else if (!cursor.next()) {
         break;
       }
+
+      case mdTerms.Document: {
+        let component = node.getChild(mdTerms.Paragraph)!.getChild(mdTerms.NotaInlineComponent)!;
+        expr = this.translateNotaComponent(component);
+        break;
+      }
+
+      default:
+        throw new Error(`Not yet implemented JS expr: ${node.name}`);
     }
 
-    let code = this.text(node);
-    replacements = _.sortBy(replacements, [0]);
-    let expanded = "";
-    let i = 0;
-    replacements.forEach(([from, to, expr]) => {
-      expanded += code.slice(i, from);
-      expanded += expr;
-      i = to;
-    });
-    expanded += code.slice(i);
+    return this.spanned(expr, node);
+  }
 
-    return expanded;
+  translateJsBlock(node: SyntaxNode): BlockStatement {
+    assert(matches(node, jsTerms.Block));
+    let stmts = collectSiblings(node.firstChild)
+      .slice(1, -1)
+      .map(node => this.translateJsStmt(node));
+    return t.blockStatement(stmts);
+  }
+
+  translateJsStmt(node: SyntaxNode): Statement {
+    switch (node.type.id) {
+      case jsTerms.VariableDeclaration: {
+        let child = node.firstChild;
+        let kind = this.text(child!) as "let" | "var" | "const";
+        child = child!.nextSibling;
+        let declarators = [];
+        while (child && this.text(child) != ";") {
+          let lval = this.translateJsLval(child!);
+          child = child.nextSibling;
+          let expr = undefined;
+          if (child && matches(child, jsTerms.Equals)) {
+            child = child.nextSibling;
+            expr = this.translateJsExpr(child!);
+            child = child!.nextSibling;
+          }
+          declarators.push(t.variableDeclarator(lval, expr));
+        }
+        return t.variableDeclaration(kind, declarators);
+      }
+
+      case jsTerms.ExpressionStatement: {
+        let expr = this.translateJsExpr(node.firstChild!);
+        return t.expressionStatement(expr);
+      }
+
+      case jsTerms.ImportDeclaration: {
+        let child = node.firstChild!;
+        let specifiers: (ImportNamespaceSpecifier | ImportDefaultSpecifier | ImportSpecifier)[] =
+          [];
+        if (matches(child, jsTerms.ImportSymbols)) {
+          let grandchild;
+          if ((grandchild = child.getChild(jsTerms.ImportNamespaceSpecifier))) {
+            let local = this.ident(grandchild.getChild(jsTerms.VariableDefinition)!);
+            specifiers.push(t.importNamespaceSpecifier({ local }));
+          } else {
+            let defaultSpecifiers = child
+              .getChildren(jsTerms.ImportDefaultSpecifier)
+              .map(node => t.importDefaultSpecifier(this.ident(node)));
+
+            let namedSpecifiers = child
+              .getChildren(jsTerms.ImportSpecifier)
+              .map(node => {
+                return this.extractDelimited(node).map(imprt => {
+                  if (matches(imprt, jsTerms.AliasedImport)) {
+                    let importedNode = imprt.firstChild!;
+                    let imported = matches(importedNode, jsTerms.String)
+                      ? this.translateJsString(importedNode)
+                      : this.ident(importedNode);
+                    let local = this.ident(imprt.getChild(jsTerms.VariableDefinition)!);
+                    return t.importSpecifier(local, imported);
+                  } else {
+                    let local = this.ident(imprt);
+                    return t.importSpecifier(local, local);
+                  }
+                });
+              })
+              .flat();
+
+            specifiers = specifiers.concat(defaultSpecifiers).concat(namedSpecifiers);
+          }
+        }
+        let source = this.translateJsString(node.firstChild!.getChild(jsTerms.String)!);
+        return t.importDeclaration(specifiers, source);
+      }
+
+      case jsTerms.ThrowStatement: {
+        let argument = this.translateJsExpr(node.firstChild!.nextSibling!);
+        return t.throwStatement({ argument });
+      }
+
+      case jsTerms.ReturnStatement: {
+        let argument = this.translateJsExpr(node.firstChild!.nextSibling!);
+        return t.returnStatement(argument);
+      }
+
+      default:
+        throw new Error(`Not yet implemented JS stmt: ${node.name}`);
+    }
   }
 }
 
@@ -549,7 +934,9 @@ let toReact = (
 ): Expression => {
   let args: (Expression | SpreadElement)[] = [
     name,
-    t.objectExpression(props.map(p => (p instanceof Array ? t.objectProperty(p[0], p[1]) : p))),
+    t.objectExpression(
+      props.map(p => (p instanceof Array ? t.objectProperty({ key: p[0], value: p[1] }) : p))
+    ),
   ];
   return t.callExpression(createEl, args.concat(children));
 };
@@ -680,21 +1067,26 @@ export let translateAst = (input: string, tree: Tree): Program => {
     ..._.toPairs(preludeImports).map(([mod, ks]) =>
       t.variableDeclaration("const", [
         t.variableDeclarator(
-          t.objectPattern(ks.map(k => t.objectProperty(t.identifier(k), t.identifier(k), true))),
+          t.objectPattern(
+            ks.map(k =>
+              t.objectProperty({ key: t.identifier(k), value: t.identifier(k), shorthand: true })
+            )
+          ),
           t.identifier(mod)
         ),
       ])
     ),
-    // ..._.toPairs(preludeImports).map(([path, ks]) =>
-    //   t.importDeclaration(
-    //     ks.map(k => t.importSpecifier(t.identifier(k), t.identifier(k))),
-    //     strLit(path)
-    //   ),
-    // ),
     ...Array.from(translator.imports),
     ...Array.from(translator.exports),
     t.exportDefaultDeclaration(
-      t.callExpression(observer, [t.arrowFunctionExpression([docProps], doc)])
+      t.callExpression(observer, [
+        // Give this a name for more informative React errors
+        t.functionExpression(
+          t.identifier("TheDocument"),
+          [docProps],
+          t.blockStatement([t.returnStatement(doc)])
+        ),
+      ])
     ),
   ];
 
@@ -739,7 +1131,7 @@ export let translate = ({
   return babel.transformFromAst(program, undefined, {
     sourceRoot,
     filenameRelative,
-    sourceMaps: sourceRoot && filenameRelative ? "both" : undefined,
+    sourceMaps: sourceRoot && filenameRelative ? true : undefined,
     plugins: [optimizePlugin],
   }) as any;
 };

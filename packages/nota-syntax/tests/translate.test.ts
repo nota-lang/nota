@@ -3,6 +3,7 @@ import * as babel from "@babel/standalone";
 import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import _ from "lodash";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import { MappingItem, SourceMapConsumer } from "source-map";
@@ -27,8 +28,9 @@ import { document } from "@nota-lang/nota-components";
 const {
   Document
 } = document;
-export default observer(docProps => el(Document, docProps, el("h1", {}, "Hello world!")));
-  `;
+export default observer(function TheDocument(docProps) {
+  return el(Document, docProps, el("h1", {}, "Hello world!"));
+});`;
   expect(code).toBe(expected.trim());
 });
 
@@ -37,7 +39,7 @@ let gen =
   (input: string): string => {
     try {
       let tree = resUnwrap(tryParse(input));
-      // printTree(tree, input);
+      printTree(tree, input);
       let translator = new Translator(input);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
@@ -301,22 +303,19 @@ bleck`;
 
 test("translate source map", async () => {
   let input = `@h1:
-  Hello *world*!`;
+  Hello *world*! #yep{}`;
 
   let tree = resUnwrap(tryParse(input));
   let { code, map } = trans({ input, tree, sourceRoot: ".", filenameRelative: "test.nota" });
+  console.log(code);
 
-  if (!code) {
-    throw new Error("No code");
-  }
-  let lines = code!.split("\n");
-  if (!map) {
-    throw new Error("No source map");
-  }
+  if (!code) throw new Error("No code");
+  if (!map) throw new Error("No source map");
 
   let pairs = [
     ["@h1", `el("h1"`],
     ["*world*", `el("em"`],
+    ["#yep", `yep([])`],
   ];
 
   let srcMap = new LineMap(input);
@@ -327,6 +326,8 @@ test("translate source map", async () => {
     consumer.eachMapping(m => {
       mappings.push(m);
     });
+
+    console.log(mappings);
 
     pairs.forEach(([src, dst]) => {
       let srcIndex = input.indexOf(src);
@@ -339,14 +340,18 @@ test("translate source map", async () => {
       }
       let srcLoc = srcMap.offsetToLocation(srcIndex);
       let dstLoc = dstMap.offsetToLocation(dstIndex);
-      let m = mappings.find(
+
+      console.log(src, dst, srcLoc, dstLoc);
+
+      let ms = mappings.find(
         m =>
           m.generatedColumn == dstLoc.column &&
           m.generatedLine == dstLoc.line &&
           m.originalColumn == srcLoc.column &&
           m.originalLine == srcLoc.line
       );
-      expect(m).not.toBe(undefined);
+
+      expect(ms).not.toBe(undefined);
     });
   });
 });

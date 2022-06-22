@@ -63,12 +63,15 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
         (await fileExists(p)) ? fs.readFile(p, "utf-8") : null
       )
     );
+
+    // Extract intermediate transpilation from the source map
     let mapJson = JSON.parse(map!);
-    let idx = _.findIndex(
-      mapJson.sources,
-      (p: string) => path.basename(p) == path.basename(inputPath)
-    );
+    let idx = _.findIndex(mapJson.sources, (p: string) => {
+      let { name, ext } = path.parse(p);
+      return name == path.basename(inputPath) && ext == ".js";
+    });
     let transpiled = mapJson.sourcesContent[idx];
+
     output = ok({
       lowered: lowered!,
       transpiled,

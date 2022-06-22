@@ -308,7 +308,7 @@ After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depct
   | name: "let"
   | Top:
     @{$
-      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{\Theta}}{e_1}{#(L.tys){}_1}
+      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{\Theta}}{e_1}{#(L.tys)_1}
     $}
   | Bot:
     @{$$}

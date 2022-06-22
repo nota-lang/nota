@@ -51,17 +51,23 @@ statement[@isGroup=Statement] {
     CatchClause { kw<"catch"> ("(" pattern ")")? Block }?
     FinallyClause { kw<"finally"> Block }?
   } |
-  ReturnStatement { kw<"return"> (noSemi expression)? semi } |
-  ThrowStatement { kw<"throw"> expression semi } |
+  ReturnStatement |
+  ThrowStatement |
   BreakStatement { kw<"break"> (noSemi Label)? semi } |
   ContinueStatement { kw<"continue"> (noSemi Label)? semi } |
   DebuggerStatement { kw<"debugger"> semi } |
   Block |
   LabeledStatement { Label ":" statement } |
   declaration |
-  ExpressionStatement { expression semi } |
+  ExpressionStatement |
   ";"
 }
+
+ReturnStatement { kw<"return"> (noSemi expression)? semi } 
+
+ThrowStatement { kw<"throw"> expression semi }
+
+ExpressionStatement { expression semi }
 
 ExportDeclaration {
   kw<"export"> Star (ckw<"as"> (VariableName | String))? ckw<"from"> String semi |
@@ -75,15 +81,18 @@ ExportGroup {
   "{" commaSep<VariableName (ckw<"as"> (VariableName { word } | String))?> "}"
 }
 
-ImportDeclaration {
-  kw<"import"> tskw<"type">? (Star ckw<"as"> VariableDefinition | commaSep<VariableDefinition | ImportGroup>)
-    ckw<"from"> String semi |
-  kw<"import"> String semi
-}
 
-ImportGroup {
-  "{" commaSep<tskw<"type">? (VariableDefinition | (VariableName | String) ckw<"as"> VariableDefinition)> "}"
+AliasedImport { (VariableName | String) ckw<"as"> VariableDefinition }
+ImportSpecifier {
+  "{" commaSep<tskw<"type">? (VariableDefinition | AliasedImport)> "}"
 }
+ImportDefaultSpecifier { VariableDefinition }
+ImportNamespaceSpecifier { Star ckw<"as"> VariableDefinition }
+ImportSymbols { 
+  kw<"import"> tskw<"type">? ( ImportNamespaceSpecifier | commaSep<ImportDefaultSpecifier | ImportSpecifier>) ckw<"from"> String semi 
+}
+ImportFile { kw<"import"> String semi }
+ImportDeclaration { ImportSymbols | ImportFile }
 
 ForSpec {
   "("
@@ -113,7 +122,7 @@ declaration {
 }
 
 FunctionDeclaration {
-  async? !statement kw<"function"> Star? VariableDefinition? functionSignature Block
+  Async? !statement kw<"function"> Star? VariableDefinition? functionSignature Block
 }
 
 ClassDeclaration {
@@ -203,18 +212,22 @@ AmbientDeclaration {
       )* "}" }
     } |
     AmbientFunctionDeclaration {
-      async? kw<"function"> Star? VariableDefinition? TypeParamList? ParamList (TypeAnnotation | TypePredicate) semi
+      Async? kw<"function"> Star? VariableDefinition? TypeParamList? ParamList (TypeAnnotation | TypePredicate) semi
     }
   )
 }
 
 pattern { VariableDefinition | ArrayPattern | ObjectPattern }
 
-ArrayPattern { "[" commaSep<("..."? patternAssign)?> ~destructure "]" }
+ArrayPattern { "[" commaSep<SpreadablePatternAssign?> ~destructure "]" }
 
 ObjectPattern { "{" commaSep<PatternProperty> ~destructure "}" }
 
-patternAssign {
+SpreadablePatternAssign {
+  "..."? PatternAssign
+}
+
+PatternAssign {
   pattern ("=" expressionNoComma)?
 }
 
@@ -248,19 +261,23 @@ SequenceExpression {
   expressionNoComma !comma ("," expressionNoComma)+
 }
 
+This { kw<"this"> }
+Null { kw<"null"> }
+Super { kw<"super"> }
+
 expressionNoComma {
   Number |
   String |
   TemplateString |
   VariableName |
-  boolean |
-  kw<"this"> |
-  kw<"null"> |
-  kw<"super"> |
+  Boolean |
+  This |
+  Null |
+  Super |
   RegExp |
   ArrayExpression |
-  ObjectExpression { "{" commaSep<Property> ~destructure "}" } |
-  NewExpression { kw<"new"> expressionNoComma (!newArgs TypeArgList? ArgList)? } |
+  ObjectExpression |
+  NewExpression |
   UnaryExpression |
   ParenthesizedExpression |
   ClassExpression |
@@ -268,10 +285,10 @@ expressionNoComma {
   ArrowFunction |
   MemberExpression |
   BinaryExpression |
-  ConditionalExpression { expressionNoComma !ternary questionOp expressionNoComma LogicOp<":"> expressionNoComma } |
+  ConditionalExpression |
   AssignmentExpression |
+  CallExpression |
   PostfixExpression { expressionNoComma !postfix (incdec | LogicOp<"!">) } |
-  CallExpression { expressionNoComma !call TypeArgList? ArgList } |
   TaggedTemplateExpression { expressionNoComma !taggedTemplate TemplateString } |
   DynamicImport { kw<"import"> "(" expressionNoComma ")" } |
   ImportMeta { kw<"import"> "." PropertyName } |
@@ -284,23 +301,37 @@ expressionNoComma {
   NotaMacro
 }
 
+ConditionalExpression { expressionNoComma !ternary questionOp expressionNoComma LogicOp<":"> expressionNoComma }
+
+NewExpression { kw<"new"> expressionNoComma (!newArgs TypeArgList? ArgList)? }
+
+ObjectExpression { "{" commaSep<Property> ~destructure "}" }
+
+CallExpression { expressionNoComma !call TypeArgList? ArgList } 
+
 ParenthesizedExpression { "(" expression ")" }
 
 ArrayExpression {
   "[" commaSep1<"..."? expressionNoComma | ""> ~destructure "]"
 }
 
-propName { PropertyDefinition | "[" expression "]" | Number | String }
+BracketedPropName {  "[" expression "]" }
+PropName { PropertyDefinition | BracketedPropName | Number | String }
 
+FunctionProperty { pkwMod<"async">? (pkwMod<"get"> | pkwMod<"set"> | Star)? PropName functionSignature Block }
+ExpressionProperty { PropName ~destructure (":" expressionNoComma)? }
+SpreadProperty { "..." expressionNoComma }
 Property {
-  pkwMod<"async">? (pkwMod<"get"> | pkwMod<"set"> | Star)? propName functionSignature Block |
-  propName ~destructure (":" expressionNoComma)? |
-  "..." expressionNoComma
+  FunctionProperty |
+  ExpressionProperty |
+  SpreadProperty
 }
 
+PatternPropertyAlias { ":" pattern }
+PatternPropertyDefault { "=" expressionNoComma }
 PatternProperty {
-  "..." patternAssign |
-  (PropertyName | Number | String) ~destructure (":" pattern)? ("=" expressionNoComma)?
+  "..." PatternAssign |
+  (PropertyName | Number | String) ~destructure PatternPropertyAlias?  PatternPropertyDefault?
 }
 
 ClassExpression {
@@ -310,7 +341,7 @@ ClassExpression {
 functionSignature { TypeParamList? ParamList (TypeAnnotation | TypePredicate)? }
 
 FunctionExpression {
-  async? kw<"function"> Star? VariableDefinition? functionSignature Block
+  Async? kw<"function"> Star? VariableDefinition? functionSignature Block
 }
 
 UnaryExpression {
@@ -350,7 +381,7 @@ ArgList {
 }
 
 ArrowFunction {
-  async? (ParamList { VariableDefinition } | ParamList TypeAnnotation?) "=>" (Block | expressionNoComma)
+  Async? (ParamList { VariableDefinition } | ParamList TypeAnnotation?) "=>" (Block | expressionNoComma)
 }
 
 TypeArgList {
@@ -371,7 +402,7 @@ type[@isGroup=Type] {
   ThisType { kw<"this"> } |
   LiteralType {
    ArithOp<"+" | "-">? Number |
-   boolean |
+   Boolean |
    String
   } |
   TemplateType |
@@ -416,7 +447,7 @@ IndexSignature {
 }
 
 MethodType {
-  pkwMod<"async">?
+  pkwMod<"Async">?
   (pkwMod<"get"> | pkwMod<"set"> | Star)?
   PropertyDefinition
   functionSignature
@@ -435,7 +466,7 @@ ParamTypeList[@name=ParamList] {
 
 @skip {} {
   TemplateString {
-    templateStart (templateContent | templateExpr)* templateEnd
+    templateStart (templateContent | Interpolation)* templateEnd
   }
 
   TemplateType {
@@ -443,7 +474,7 @@ ParamTypeList[@name=ParamList] {
   }
 }
 
-templateExpr[@name=Interpolation] { InterpolationStart expression InterpolationEnd }
+Interpolation { InterpolationStart expression InterpolationEnd }
 
 templateType[@name=Interpolation] { InterpolationStart type InterpolationEnd }
 
@@ -503,7 +534,7 @@ ckw<term> { @extend[@name={term}]<identifier, term> }
 
 tskw<term> { @extend[@name={term},@dialect=ts]<identifier, term> }
 
-async { @extend[@name=async]<identifier, "async"> }
+Async { @extend[@name=async]<identifier, "async"> }
 
 // Contextual keyword in property context
 
@@ -513,7 +544,7 @@ tsPkwMod<term> { @extend[@name={term},@dialect=ts]<word, term> }
 
 semi { ";" | insertSemi }
 
-boolean { @specialize[@name=BooleanLiteral]<identifier, "true" | "false"> }
+Boolean { @specialize[@name=BooleanLiteral]<identifier, "true" | "false"> }
 
 Star { "*" }
 
@@ -654,13 +685,13 @@ NotaMacro {
 
   LessThan[@name=CompareOp] { "<" }
 
-  "="[@name=Equals]
-  "..."[@name=Spread]
-  "=>"[@name=Arrow]
+  "="[@name=Equals, @export=Equals]
+  "..."[@name=Spread, @export=Spread]
+  "=>"[@name=Arrow, @export=Arrow]
 
-  "(" ")" "[" "]" "{"[@export=Lbrace] "}"
+  "("[@export=Lparen] ")"[@export=Rparen] "["[@export=Lbracket] "]"[@export=Rbracket] "{"[@export=Lbrace] "}"[@export=Rbrace]
 
-  "?." "." "," ";" ":"
+  "?." "." ","[@export=Comma] ";" ":"[@export=Colon]
 
   JSXIdentifier { identifierChar (identifierChar | std.digit | "-")* }
 
