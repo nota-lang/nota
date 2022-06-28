@@ -102,9 +102,9 @@ While the analysis is implemented in and for Rust, our goal here is to provide a
 let tc = macro{#1; #2; #3 \vdash #4 : #5 \Rightarrow #6};
 let stepsto = macro{\Sigma \vdash (#1; #2) \rightarrow (#3; #4)};
 let stepped = macro{#1'};
-let loc = @{#texRef{tex_loc}{\ell}};
-let deps = @{#texRef{tex_deps}{\kappa}};
-let depctx = @{#texRef{tex_depctx}{\Theta}}
+let loc = #texRef{tex_loc}{\ell};
+let deps = #texRef{tex_deps}{\kappa};
+let depctx = #texRef{tex_depctx}{\Theta};
 %%%
 
 1. A syntax of Rust-like programs with expressions $e$ and types $\tau$.
@@ -130,7 +130,7 @@ $$
 
 This judgment is read as, "with type contexts $\Sigma, \Delta, \Gamma$ and dependency context $#hlt{#depctx}$, $e$ at location $#hlt{#loc}$ has type $\tau$ and dependencies $#hlt{#deps}$, producing a new dependency context $#hlt{#depctx'}$."
 
-Oxide is a large language &mdash; describing every feature, judgment, and inference rule would exceed our space constraints. Instead, in this section we focus on a few key rules that demonstrate the novel aspects of our system. We first lay the foundations for dealing with variables and mutation (&sec_places), and then describe how we modularly analyze references (&sec_references) and function calls (&sec_funcalls). 
+Oxide is a large language &mdash; describing every feature, judgment, and inference rule would exceed our space constraints. Instead, in this section we focus on a few key rules that demonstrate the novel aspects of our system. We first lay the foundations for dealing with variables and mutation (&sec_places), and then describe how we modularly analyze references (&sec_references) and function calls (&sec_funcalls).
 The remaining rules can be found in the appendix.
 
 @Subsection[label: "sec_places"]: Variables and Mutation
@@ -147,9 +147,9 @@ let L = new Language(function(){ return [
   ["Function", "fname", "f"],
   ["Path", "path", "q", [
     ["empty", macro{\varepsilon}],
-    ["with", macro{#1.#2}, () => [this.vr, this.path]]    
+    ["with", macro{#1.#2}, () => [this.vr, this.path]]
   ]],
-  ["Place", "plc", @{\pi}, [
+  ["Place", "plc", #{\pi}, [
     ["form", macro{#1.#2}, () => [this.vr, this.path]]
   ]],
   ["Constant", "const", "c", [
@@ -158,23 +158,23 @@ let L = new Language(function(){ return [
     ["true", macro{#msf{true}}],
     ["false", macro{#msf{false}}]
   ]],
-  ["Base Type", "tyb", @{\tau^{#textsc{B}}}, [
+  ["Base Type", "tyb", #{\tau^{#textsc{B}}}, [
     ["unit", macro{#msf{unit}}],
     ["u32", macro{#msf{u32}}]
   ]],
-  ["Sized Type", "tys", @{\tau^{#textsc{SI}}}, [
+  ["Sized Type", "tys", #{\tau^{#textsc{SI}}}, [
     ["base", macro{#1}, () => [this.tyb]],
-    ["tup", macro{(#1)}, () => [@{#(this.tys)_1, \ldots, #(this.tys)_n}]]    
+    ["tup", macro{(#1)}, () => [#{#(this.tys)_1, \ldots, #(this.tys)_n}]]
   ]],
   ["Expression", "expr", "e", [
     ["const", macro{#1}, () => [this.const]],
     ["plc", macro{#1}, () => [this.plc]],
     ["let", macro{#msf{let}~#1 : #2~=~#3;~#4},
-      () => [this.vr, this.tys, @{#(this.expr)_1}, @{#(this.expr)_2}]],
+      () => [this.vr, this.tys, #{#(this.expr)_1}, #{#(this.expr)_2}]],
     ["asgn", macro{#1 := #2}, () => [this.plc, this.expr]],
-    ["seq", macro{#1;~#2}, () => [@{#(this.expr)_1}, @{#(this.expr)_2}]],
+    ["seq", macro{#1;~#2}, () => [#{#(this.expr)_1}, #{#(this.expr)_2}]],
   ]],
-  ["Ownership Qualifier", "ownq", @{\omega}, [
+  ["Ownership Qualifier", "ownq", #{\omega}, [
     ["shrd", macro{#msf{shrd}}],
     ["uniq", macro{#msf{uniq}}]
   ]],
@@ -183,56 +183,56 @@ let L = new Language(function(){ return [
     ["elem", macro{#1.#2}, () => [this.pexp, this.num]],
     ["deref", macro{\ast #1}, () => [this.pexp]]
   ]],
-  ["Dead Type", "tyd", @{\tau^{#textsc{SD}}}, [
+  ["Dead Type", "tyd", #{\tau^{#textsc{SD}}}, [
     ["s", macro{#1^\dagger}, () => [this.tys]],
-    ["tup", macro{(#1)}, () => [@{#(this.tyd)_1, \ldots, #(this.tyd)_n}]]
+    ["tup", macro{(#1)}, () => [#{#(this.tyd)_1, \ldots, #(this.tyd)_n}]]
   ]],
-  ["Maybe Unsized Type", "tyx", @{\tau^{#textsc{XI}}}, [
+  ["Maybe Unsized Type", "tyx", #{\tau^{#textsc{XI}}}, [
     ["s", macro{#1}, () => [this.tys]],
     ["d", macro{[#1]}, () => [this.tys]]
   ]],
- ["Maybe Dead Type", "tysx", @{\tau^{#textsc{SX}}}, [
+ ["Maybe Dead Type", "tysx", #{\tau^{#textsc{SX}}}, [
     ["s", macro{#1}, () => [this.tys]],
     ["d", macro{#1}, () => [this.tyd]],
-    ["tup", macro{(#1)}, () => [@{#(this.tysx)_1, \ldots, #(this.tysx)_n}]]
+    ["tup", macro{(#1)}, () => [#{#(this.tysx)_1, \ldots, #(this.tysx)_n}]]
   ]],
-  ["Type", "ty", @{\tau}, [
+  ["Type", "ty", #{\tau}, [
     ["tyx", macro{#1}, () => [this.tyx]],
     ["tysx", macro{#1}, () => [this.tysx]]
   ]],
-  ["Loan", "loan", @{\ell}, [
-    ["form", macro{^{#1}#2}, () => [this.ownq, this.pexp]],    
+  ["Loan", "loan", #{\ell}, [
+    ["form", macro{^{#1}#2}, () => [this.ownq, this.pexp]],
   ]],
-  ["Frame Typing", "ft", @{\mathcal{F}}, [
+  ["Frame Typing", "ft", #{\mathcal{F}}, [
     ["empty", macro{\bullet}],
     ["wty", macro{#1, #2 : #3}, () => [this.ft, this.vr, this.tyx]],
-    ["wlf", macro{#1, #2 \mapsto #3}, () => [this.ft, this.concrprov, @{\{#repeat{#(this.loan)}\}}]]
+    ["wlf", macro{#1, #2 \mapsto #3}, () => [this.ft, this.concrprov, #{\{#repeat{#(this.loan)}\}}]]
   ]],
-   ["Stack Typing", "stackenv", @{\Gamma}, [
+   ["Stack Typing", "stackenv", #{\Gamma}, [
     ["empty", macro{\bullet}],
     ["wfr", macro{#1 \mathrel{\natural} #2}, () => [this.stackenv, this.ft]]
   ]],
-  ["Kind", "kind", @{\kappa}, [
+  ["Kind", "kind", #{\kappa}, [
     ["base", macro{\bigstar}],
     ["prov", macro{#msf{PRV}}],
     ["frm", macro{#msf{FRM}}],
   ]],
-  ["Type Var", "tyvar", @{\alpha}],
-  ["Type Environment", "tyenv", @{\Delta}, [
+  ["Type Var", "tyvar", #{\alpha}],
+  ["Type Environment", "tyenv", #{\Delta}, [
     ["empty", macro{\bullet}],
     ["wtfvar", macro{#1, #2 : #3}, () => [this.tyenv, this.tyvar, this.kindbase()]],
     ["wprov", macro{#1, #2 : #3}, () => [this.tyenv, this.abstrprov, this.kindprov()]],
     ["wfrm", macro{#1, #2 : #3}, () => [this.tyenv, this.frmvar, this.kindfrm()]],
-    ["wconstr", macro{#1, #2 \mathrel{:>} #3}, () => [this.tyenv, @{#(this.abstrprov)_1}, @{#(this.abstrprov)_2}]]
+    ["wconstr", macro{#1, #2 \mathrel{:>} #3}, () => [this.tyenv, #{#(this.abstrprov)_1}, #{#(this.abstrprov)_2}]]
   ]],
-  
+
   ["Global Entries", "fdef", @{\varepsilon}, [
-    ["form", 
+    ["form",
      macro{#msf{fn} ~ #1 \left\langle #2, #3, #4 \right\rangle\left(#5 : #6\right) \rightarrow #7 ~ #msf{where} #8 ~ \{ #9 \}},
      () => [
-       this.fname, @{#repeat{\psi}}, repeat(this.abstrprov),
-       repeat(this.tyvar), this.vr, this.tys, this.tys, 
-       @{#repeat{#(this.abstrprov)_1 : #(this.abstrprov)_2}}, 
+       this.fname, #{#repeat{\psi}}, repeat(this.abstrprov),
+       repeat(this.tyvar), this.vr, this.tys, this.tys,
+       #{#repeat{#(this.abstrprov)_1 : #(this.abstrprov)_2}},
        this.expr]
     ]
   ]],
@@ -245,8 +245,8 @@ let uty = L.tybu32();
 let olet = L.exprlet;
 %%%
 
-@(L.Bnf)[subset: 
-  ["vr", "num", "path", "plc", "const", "tyb", "tys", 
+@(L.Bnf)[subset:
+  ["vr", "num", "path", "plc", "const", "tyb", "tys",
    ["expr", ["const", "plc", "let", "asgn", "seq"]]]
 ]
 
@@ -274,7 +274,7 @@ $$
 $$
 
 Here, $t$ is a variable and $t.1$ is a *place*, or a description of a specific region in memory. For information flow, the key idea is that let-bindings introduce a set of places into $#depctx$, and then assignment expressions change a place's dependencies within $#depctx$.
-In the above example, after binding $t$, then $#depctx$ is: 
+In the above example, after binding $t$, then $#depctx$ is:
 
 $$
 #depctx = \{t, t.0, t.1 \mapsto \{#loc _1, #loc _2\}\}
@@ -284,12 +284,12 @@ After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depct
 
 ```
   {
-    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e_1}{\tyvar{si}_1 \hlight{\withslice{\kappa_1}}}{\Gamma_1}{\hlight{\Theta_1}} 
+    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e_1}{\tyvar{si}_1 \hlight{\withslice{\kappa_1}}}{\Gamma_1}{\hlight{\Theta_1}}
     \\
     \gray{\Gamma; \Delta_1 \vdash \tyvar{si}_1 \lesssim \tyvar{si}_a \Rightarrow \Gamma'_1}
     \\
     \hlight{\Theta_1' = \Theta_1[\forall \pi^\square[x] ~ . ~ \pi \mapsto \kappa_1]}
-    
+
     \tcnew{\Sigma}{\Delta}
       {\text{gc-loans}(\Gamma'_1, x : \tyvar{si}_a)}
       {\hlight{\Theta_1'}}{e_2}
@@ -304,11 +304,14 @@ After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depct
   }{tlet}
 ```
 
+// TODO: @$${..} doesn't work?
+// @{$$ .. $$} doesn't work? mb because @{ } needs to be parseable as a block element
 @IRDef:
   | name: "let"
   | Top:
     @{$
-      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{\Theta}}{e_1}{#(L.tys)_1}
+      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{e_1}
+        {#(L.tys)_1 #hlt{#withslice{#deps _1}}}{\Gamma}{#hlt{#depctx _1}}
     $}
   | Bot:
     @{$$}

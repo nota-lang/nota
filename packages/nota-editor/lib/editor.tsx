@@ -170,6 +170,8 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
       parent: ref.current!,
     });
 
+    // TODO: errors should disappear (or be sticky?) once user makes edits
+
     let showSyntaxError = (translation: TranslationResult) => {
       if (!isOk(translation)) {
         console.log("TODO");

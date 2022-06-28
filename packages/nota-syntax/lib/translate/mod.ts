@@ -139,6 +139,17 @@ export class Translator {
     return children;
   }
 
+  translateInlineOrBlockSequence(node: SyntaxNode): Expression {
+    let children = collectSiblings(node.firstChild);
+    let expr;
+    if (children.length == 1 && matches(children[0], mdTerms.Paragraph)) {
+      expr = t.arrayExpression(this.translateMdInlineSequence(this.markdownChildren(children[0])));
+    } else {
+      expr = this.translateMdBlockSequence(node, [mdTerms.NotaBlockAttribute]);
+    }
+    return expr;
+  }
+
   translateMdBlockSequence(node: SyntaxNode, ignore: number[] = []): Expression {
     let child = node.firstChild;
     let array: (Expression | SpreadElement)[] = [];
@@ -228,7 +239,7 @@ export class Translator {
         }
 
         case mdTerms.NotaInlineComponent: {
-          expr = this.translateNotaComponent(node);
+          expr = this.translateNotaInlineComponent(node);
           break;
         }
 
@@ -351,7 +362,7 @@ export class Translator {
       }
 
       case mdTerms.NotaBlockComponent: {
-        expr = this.translateNotaComponent(node);
+        expr = this.translateNotaBlockComponent(node);
         break;
       }
 
@@ -401,60 +412,105 @@ export class Translator {
       unreachable();
     }
 
-    // return this.spanned(expr, node);
     return expr;
   }
 
   translateNotaInterpolation(node: SyntaxNode): Expression {
     assert(matches(node, mdTerms.NotaInterpolation));
 
-    let nameNode = node.getChild(mdTerms.NotaCommandName)!;
-    let nameExpr = this.translateNotaCommandName(nameNode);
+    let nameNode = node.getChild(mdTerms.NotaCommandName);
+    let nameExpr = nameNode ? this.translateNotaCommandName(nameNode) : null;
 
-    let args = node.getChildren(mdTerms.NotaInlineContent).map(child => {
-      let subchildren = this.markdownChildren(child).slice(1, -1);
-      let exprs = this.translateMdInlineSequence(subchildren);
-      return t.arrayExpression(exprs);
-    });
+    let args = node
+      .getChildren(mdTerms.NotaInlineContent)
+      .map(child => t.arrayExpression(this.translateNotaInlineContent(child)));
 
-    let expr = args.length > 0 ? t.callExpression(nameExpr, args) : nameExpr;
+    let expr;
+    if (nameExpr) {
+      if (args.length > 0) {
+        expr = t.callExpression(nameExpr, args);
+      } else {
+        expr = nameExpr;
+      }
+    } else {
+      expr = t.arrayExpression(args);
+    }
+
     return this.spanned(expr, node);
   }
 
-  translateNotaComponent(node: SyntaxNode): Expression {
-    assert(matches(node, mdTerms.NotaBlockComponent) || matches(node, mdTerms.NotaInlineComponent));
+  translateNotaInlineAttrs(node: SyntaxNode): Expression {
+    assert(matches(node, jsTerms.NotaInlineAttrs));
+    let properties = node
+      .getChildren(jsTerms.Property)
+      .map(child => this.translateJsProperty(child));
+    return t.objectExpression(properties);
+  }
+
+  translateNotaInlineContent(node: SyntaxNode): Expression[] {
+    assert(matches(node, mdTerms.NotaInlineContent));
+    let subchildren = this.markdownChildren(node).filter(
+      node => isRight(node) || node.value.type.id != mdTerms.NotaInlineContentMark
+    );
+    return this.translateMdInlineSequence(subchildren);
+  }
+
+  translateNotaInlineComponent(node: SyntaxNode): Expression {
+    assert(matches(node, mdTerms.NotaInlineComponent));
 
     let nameNode = node.getChild(mdTerms.NotaCommandName);
-    let nameExpr: Expression | undefined;
-    if (nameNode) {
-      nameExpr = this.translateNotaCommandName(nameNode);
-      if (nameExpr.type == "Identifier" && INTRINSIC_ELEMENTS.has(nameExpr.name)) {
-        nameExpr = strLit(nameExpr.name);
-      }
+    let name = nameNode ? this.translateNotaCommandName(nameNode) : t.identifier("Fragment");
+    if (name.type == "Identifier" && INTRINSIC_ELEMENTS.has(name.name)) {
+      name = strLit(name.name);
+    }
+
+    let inlineAttrsNode = node.getChild(jsTerms.NotaInlineAttrs);
+    let attrs = inlineAttrsNode
+      ? this.translateNotaInlineAttrs(inlineAttrsNode)
+      : t.objectExpression([]);
+
+    let childrenNode;
+    let args: (Expression | SpreadElement)[];
+    if ((childrenNode = node.getChild(mdTerms.NotaInlineContent))) {
+      args = this.translateNotaInlineContent(childrenNode);
+    } else if ((childrenNode = node.getChild(mdTerms.Document))) {
+      let block = childrenNode.firstChild!;
+      args = this.translateMdInlineSequence(this.markdownChildren(block));
+    } else {
+      args = [];
+    }
+
+    let expr = t.callExpression(createEl, [name, attrs, ...args]);
+    return this.spanned(expr, node);
+  }
+
+  translateNotaBlockAttribute(node: SyntaxNode): ObjectProperty {
+    assert(matches(node, mdTerms.NotaBlockAttribute));
+    let key = strLit(this.text(node.getChild(mdTerms.NotaAttributeKey)!));
+    let valueNode = node.getChild(jsTerms.NotaExpr);
+    let value = valueNode ? this.translateNotaExpr(valueNode) : t.nullLiteral();
+    return t.objectProperty({ key, value });
+  }
+
+  translateNotaBlockComponent(node: SyntaxNode): Expression {
+    assert(matches(node, mdTerms.NotaBlockComponent));
+
+    let nameNode = node.getChild(mdTerms.NotaCommandName);
+    let name = nameNode ? this.translateNotaCommandName(nameNode) : t.identifier("Fragment");
+    if (name.type == "Identifier" && INTRINSIC_ELEMENTS.has(name.name)) {
+      name = strLit(name.name);
     }
 
     let attrExprs = [];
-    let inlineAttrs = node.getChild(jsTerms.NotaInlineAttrs);
-    if (inlineAttrs) {
-      let properties = inlineAttrs
-        .getChildren(jsTerms.Property)
-        .map(child => this.translateJsProperty(child));
-      attrExprs.push(t.objectExpression(properties));
-    }
+    let inlineAttrsNode = node.getChild(jsTerms.NotaInlineAttrs);
+    if (inlineAttrsNode) attrExprs.push(this.translateNotaInlineAttrs(inlineAttrsNode));
 
-    let blockAttrs = node.getChildren(mdTerms.NotaBlockAttribute);
-    let blockAttrKvs: ObjectProperty[] = [];
-    blockAttrs.forEach(child => {
-      let key = strLit(this.text(child.getChild(mdTerms.NotaAttributeKey)!));
-      let valueNode = child.getChild(jsTerms.NotaExpr);
-      let value = valueNode ? this.translateNotaExpr(valueNode) : t.nullLiteral();
-      blockAttrKvs.push(t.objectProperty({ key, value }));
-    });
-    if (blockAttrKvs.length > 0) {
-      attrExprs.push(t.objectExpression(blockAttrKvs));
-    }
+    let blockAttrs =
+      node.getChild(mdTerms.NotaBlockContent)?.getChildren(mdTerms.NotaBlockAttribute) || [];
+    let blockAttrKvs = blockAttrs.map(node => this.translateNotaBlockAttribute(node));
+    if (blockAttrs.length > 0) attrExprs.push(t.objectExpression(blockAttrKvs));
 
-    let attrExpr =
+    let attrs =
       attrExprs.length > 1
         ? t.objectExpression(attrExprs.map(expr => t.spreadElement(expr)))
         : attrExprs.length == 1
@@ -462,29 +518,15 @@ export class Translator {
         : t.objectExpression([]);
 
     let args: (Expression | SpreadElement)[] = [];
+    let inlineNode = node.getChild(mdTerms.NotaInlineContent);
+    if (inlineNode) args = args.concat(this.translateNotaInlineContent(inlineNode));
 
-    let childrenNode = node.getChild(mdTerms.NotaInlineContent);
-    if (childrenNode) {
-      let subchildren = this.markdownChildren(childrenNode).filter(
-        node => isRight(node) || node.value.type.id != mdTerms.NotaInlineContentMark
-      );
-      args = args.concat(this.translateMdInlineSequence(subchildren));
+    let blockNode = node.getChild(mdTerms.Document) || node.getChild(mdTerms.NotaBlockContent);
+    if (blockNode) {
+      args.push(t.spreadElement(this.translateInlineOrBlockSequence(blockNode)));
     }
 
-    let subDoc = this.translateMdBlockSequence(node, [
-      mdTerms.NotaCommandName,
-      mdTerms.NotaBlockAttribute,
-      mdTerms.NotaInlineContent,
-      mdTerms["@"],
-      jsTerms.NotaInlineAttrs,
-    ]);
-    if (subDoc.type != "ArrayExpression" || subDoc.elements.length > 0) {
-      args.push(t.spreadElement(subDoc));
-    }
-
-    let expr = nameExpr
-      ? t.callExpression(createEl, [nameExpr, attrExpr, ...args])
-      : t.arrayExpression(args);
+    let expr = t.callExpression(createEl, [name, attrs, ...args]);
     return this.spanned(expr, node);
   }
 
@@ -821,8 +863,23 @@ export class Translator {
       }
 
       case mdTerms.Document: {
-        let component = node.getChild(mdTerms.Paragraph)!.getChild(mdTerms.NotaInlineComponent)!;
-        expr = this.translateNotaComponent(component);
+        let child = node.firstChild!;
+        if (matches(child, mdTerms.NotaBlockComponent)) {
+          expr = this.translateNotaBlockComponent(child);
+        } else if (matches(child, mdTerms.Paragraph)) {
+          let grandchild = child.firstChild!;
+          if (matches(grandchild, mdTerms.NotaInterpolation)) {
+            expr = this.translateNotaInterpolation(grandchild);
+          } else if (matches(grandchild, mdTerms.NotaInlineComponent)) {
+            expr = this.translateNotaInlineComponent(grandchild);
+          } else {
+            console.warn(`Unexpected Nota inside JS of type: ${grandchild.name}`);
+            expr = t.nullLiteral();
+          }
+        } else {
+          console.warn(`Unexpected Nota inside JS of type: ${child.name}`);
+          expr = t.nullLiteral();
+        }
         break;
       }
 

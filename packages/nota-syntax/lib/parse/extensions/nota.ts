@@ -32,6 +32,13 @@ let [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, s
   " ",
 ].map(s => s.charCodeAt(0));
 
+let BLOCK_COMPLETE = true;
+let BLOCK_FAIL = false;
+let BLOCK_CONTINUE: null = null;
+let INLINE_FAIL = -1;
+let END_OF_LINE = -1;
+export type BlockResult = boolean | null;
+
 let makeInlineContext = (cx: BlockContext, line: Line): InlineContext =>
   new (InlineContext as any)(cx.parser, line.text.slice(line.pos), cx.lineStart + line.pos);
 
@@ -39,7 +46,7 @@ let munchIdent = (text: string): number => {
   // TODO: handle unicode
   let match = text.match(/^[_\w][_\w\d]*/);
   if (!match) {
-    return -1;
+    return INLINE_FAIL;
   }
   return match[0].length;
 };
@@ -94,8 +101,6 @@ let munchBalancedSubstring = (
   return [-1, 0];
 };
 
-export type BlockResult = boolean | null;
-
 let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pct) {
     let start = cx.lineStart;
@@ -128,10 +133,10 @@ let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
       );
       cx.nextLine();
     }
-    return true;
+    return BLOCK_COMPLETE;
   }
 
-  return false;
+  return BLOCK_FAIL;
 };
 
 let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
@@ -144,17 +149,17 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
     pos += 1;
 
     // " "
-    if (icx.char(pos) != space) return false;
+    if (icx.char(pos) != space) return BLOCK_FAIL;
     pos += 1;
 
     // id
     let identStart = pos;
     let identLength = munchIdent(icx.slice(identStart, icx.end));
-    if (identLength == -1) return false;
+    if (identLength == INLINE_FAIL) return BLOCK_FAIL;
     pos += identLength;
 
     // :
-    if (icx.char(pos) != colon) return false;
+    if (icx.char(pos) != colon) return BLOCK_FAIL;
     pos += 1;
 
     let children: Element[] = [cx.elt("NotaAttributeKey", identStart, identStart + identLength)];
@@ -164,7 +169,7 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
 
       let marks: Element[] = [];
       while (cx.nextLine()) {
-        if (line.next == -1) {
+        if (line.next == END_OF_LINE) {
           // Empty
         } else if (line.indent < indent) {
           break;
@@ -177,7 +182,7 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
         children.push(cx.elt("NotaAttributeValue", marks[0].from, _.last(marks)!.to, marks));
       }
     } else {
-      if (icx.char(pos) != space) return false;
+      if (icx.char(pos) != space) return BLOCK_FAIL;
       pos += 1;
 
       children.push(cx.elt("NotaAttributeValue", pos, icx.end));
@@ -187,10 +192,10 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
 
     cx.addElement(cx.elt("NotaBlockAttribute", start, cx.prevLineEnd(), children));
 
-    return true;
+    return BLOCK_COMPLETE;
   }
 
-  return false;
+  return BLOCK_FAIL;
 };
 
 // @Component[(key: value),*]: inline?
@@ -210,59 +215,81 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
 
     // Component
     let nameEl = notaCommandName(icx, pos);
-    if (!nameEl) return false;
+    if (!nameEl) return BLOCK_FAIL;
     pos = nameEl.to;
     children.push(nameEl);
 
     // [(key: value),*]
     let attrStart = pos;
     let attrEnd = munchBalancedSubstringBlock(cx, line, attrStart, lbrkt, rbrkt);
-    if (attrEnd != -1) {
+    if (attrEnd != INLINE_FAIL) {
       pos = attrEnd;
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
       icx = makeInlineContext(cx, line);
     }
 
-    // EOL?
-    if (pos == icx.end) {
-      cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
-      cx.nextLine();
-      return true;
-    }
+    let INDENT = 2;
 
-    // :
-    if (icx.char(pos) != colon) return false;
-    pos += 1;
-
-    // inline?
-    if (pos < icx.end) {
-      // " "
-      if (icx.char(pos) != space) return false;
+    if (icx.char(pos) == colon) {
+      // :
       pos += 1;
 
-      children.push(notaInlineContentToLineEnd(icx, pos));
-    }
+      if (pos < icx.end) {
+        // " "
+        if (icx.char(pos) == space) {
+          pos += 1;
+          children.push(notaInlineContentToLineEnd(icx, pos));
+        }
+      }
 
-    let INDENT = 2;
-    cx.startComposite("NotaBlockComponent", startRelative, INDENT);
-    children.forEach(child => cx.addElement(child));
+      let baseIndent = line.baseIndent;
+      cx.startComposite("NotaBlockComponent", startRelative, INDENT);
+      children.forEach(child => cx.addElement(child));
 
-    // If the next line is blank or not at the right level of indentation,
-    // then immediately finish the composite block.
-    cx.nextLine();
-    if (!skipForNota(cx, line, INDENT) || line.next == -1) {
-      return true;
+      while (cx.nextLine() && line.next == -1) {}
+
+      if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
+        cx.startComposite("NotaBlockContent", line.pos, 0);
+        return BLOCK_CONTINUE;
+      } else {
+        return BLOCK_COMPLETE;
+      }
+    } else if (icx.char(pos) == lbrc) {
+      // {
+      let holeStart = pos + 1;
+      pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
+      if (pos == INLINE_FAIL) return BLOCK_FAIL;
+      children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
+      let mkComponent = (ty: string) => cx.elt(ty, start, pos, children);
+
+      icx = makeInlineContext(cx, line);
+      if (pos < icx.end) {
+        let rest = cx.parser.parseInline(icx.slice(pos, icx.end), pos);
+        cx.addElement(
+          cx.elt("Paragraph", start, icx.end, [mkComponent("NotaInlineComponent"), ...rest])
+        );
+      } else {
+        cx.addElement(mkComponent("NotaBlockComponent"));
+      }
+
+      cx.nextLine();
+      return BLOCK_COMPLETE;
+    } else if (pos == icx.end) {
+      // EOL?
+
+      cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
+      cx.nextLine();
+      return BLOCK_COMPLETE;
     } else {
-      return null;
+      throw `TODO`;
     }
   }
 
-  return false;
+  return BLOCK_FAIL;
 };
 
 let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
-  if (line.indent < line.baseIndent + value && line.next > -1) return false;
-
+  if (line.indent < line.baseIndent + value && line.next > END_OF_LINE) return false;
   line.moveBaseColumn(line.baseIndent + value);
   return true;
 };
@@ -275,7 +302,7 @@ export let notaCommandName = (cx: InlineContext, pos: number): Element | null =>
   }
 
   let [balancedEnd] = munchBalancedSubstring(cx, pos, lparen, rparen);
-  if (balancedEnd > -1) {
+  if (balancedEnd > INLINE_FAIL) {
     return cx.elt("NotaCommandName", pos, balancedEnd, [
       cx.elt("NotaCommandNameExpression", pos + 1, balancedEnd - 1, [
         cx.elt("NotaJs", pos + 1, balancedEnd - 1),
@@ -283,7 +310,7 @@ export let notaCommandName = (cx: InlineContext, pos: number): Element | null =>
     ]);
   } else {
     let identLength = munchIdent(cx.slice(pos, cx.end));
-    if (identLength == -1) return null;
+    if (identLength == INLINE_FAIL) return null;
     return cx.elt("NotaCommandName", pos, pos + identLength, [
       cx.elt("NotaCommandNameIdentifier", pos, pos + identLength),
     ]);
@@ -305,9 +332,10 @@ let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): num
     pos += 1;
 
     let nameEl = notaCommandName(cx, pos);
-    if (!nameEl) return -1;
-    pos = nameEl.to;
-    children.push(nameEl);
+    if (nameEl) {
+      pos = nameEl.to;
+      children.push(nameEl);
+    }
 
     if (pos < cx.end && cx.char(pos) == lbrc) {
       cx.addDelimiter(NotaInterpolationDelimiter, start, pos, true, false);
@@ -318,7 +346,7 @@ let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): num
     }
   }
 
-  return -1;
+  return INLINE_FAIL;
 };
 
 let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
@@ -346,7 +374,7 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
     // Component?
     if (cx.char(pos) != lbrc) {
       let nameEl = notaCommandName(cx, pos);
-      if (!nameEl) return -1;
+      if (!nameEl) return INLINE_FAIL;
       pos = nameEl.to;
       children.push(nameEl);
     }
@@ -358,7 +386,7 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
     // [key: value, ...]
     let attrStart = pos;
     let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
-    if (attrEnd != -1) {
+    if (attrEnd != INLINE_FAIL) {
       pos = attrEnd;
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
     }
@@ -381,7 +409,7 @@ let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): n
       return fallback();
     }
   }
-  return -1;
+  return INLINE_FAIL;
 };
 
 // TODO: rewrite this using stable APIs, i.e. findOpeningDelimiter
@@ -389,7 +417,7 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
   let inside =
     cx.findOpeningDelimiter(NotaComponentDelimiter) != null ||
     cx.findOpeningDelimiter(NotaInterpolationDelimiter) != null;
-  if (!inside) return -1;
+  if (!inside) return INLINE_FAIL;
 
   let cxa = cx as any;
   if (!("braces" in cxa)) {
@@ -435,7 +463,7 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
     }
   }
 
-  return -1;
+  return INLINE_FAIL;
 };
 
 // TODO: need to have a general mechanism for using this outside custom notations
@@ -489,21 +517,24 @@ export let configureParserForNota = (
   let templateParser = jsParser.configure({ top: "NotaTemplateExternal" });
 
   let mdWrap = parseMixed((node, _input) => {
-    if (node.type.id == mdTerms.NotaAttributeValue) {
-      // TODO: when *any* overlay is added, the nested parse doesn't seem to work?
-      return { parser: exprParser /*overlay: node => node.type.id == Type.NotaJs*/ };
-    } else if (node.type.id == mdTerms.NotaScriptBody) {
-      return { parser: stmtParser };
-    } else if (node.type.id == mdTerms.NotaInlineAttributes) {
-      return { parser: attrParser };
-    } else if (node.type.id == mdTerms.NotaJs) {
-      // for NotaCommandName
-      return { parser: exprParser };
-    } else if (node.type.id == mdTerms.NotaTemplateBlock) {
-      return { parser: templateParser };
-    } else {
-      return null;
+    switch (node.type.id) {
+      case mdTerms.NotaAttributeValue:
+        // TODO: when *any* overlay is added, the nested parse doesn't seem to work?
+        return { parser: exprParser /*overlay: node => node.type.id == Type.NotaJs*/ };
+      case mdTerms.NotaScriptBody:
+        return { parser: stmtParser };
+      case mdTerms.NotaInlineAttributes:
+        return { parser: attrParser };
+      case mdTerms.NotaJs:
+        // for NotaCommandName
+        return { parser: exprParser };
+      case mdTerms.NotaTemplateBlock:
+        return { parser: templateParser };
+      case mdTerms.NotaMdHole:
+        return { parser: parserRef };
     }
+
+    return null;
   });
 
   let extension: MarkdownConfig = {
@@ -530,9 +561,11 @@ export let configureParserForNota = (
       { name: "NotaScriptBody" },
       { name: "NotaJs" },
       { name: "NotaInlineContent" },
+      { name: "NotaBlockContent", block: true, composite: () => true },
       { name: "NotaInlineComponentMark" },
       { name: "NotaInlineContentMark", style: t.brace },
       { name: "NotaTemplateBlock" },
+      { name: "NotaMdHole" },
       { name: "@", style: t.modifier },
       { name: "#", style: t.modifier },
       { name: "%", style: t.modifier },

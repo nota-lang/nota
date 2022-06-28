@@ -84,7 +84,7 @@ export const notaTemplateLiteral = new ExternalTokenizer(
 );
 
 export const notaCommand = new ExternalTokenizer((input, _stack) => {
-  if (input.next != atSign) return;
+  if (input.next != atSign && input.next != hash) return;
 
   while (![lbrc, lbrkt, eof].includes(input.next)) input.advance();
 

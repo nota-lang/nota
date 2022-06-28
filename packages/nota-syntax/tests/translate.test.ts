@@ -82,7 +82,6 @@ test("translate markdown inline", () => {
     ],
     [`&foo`, `el(Ref, {}, "foo");`],
     [`&("foo")`, `el(Ref, {}, "foo");`],
-    [`@foo{@bar}`, `el(foo, {}, el(bar, {}));`],
     [
       `<http://www.google.com>`,
       `el(
@@ -93,6 +92,10 @@ test("translate markdown inline", () => {
   "http://www.google.com"
 );`,
     ],
+    [`#{foo #bar}`, `[["foo ", bar]];`],
+    [`#(@{sup})`, `el(Fragment, {}, "sup");`],
+    [`#(#{a #b{c} d})`, `[["a ", b(["c"]), " d"]];`],
+    [`#(@{$hey$})`, `[el($, {}, null, "hey", null)];`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -114,19 +117,20 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
-    //     [`# hello`, `el("h1", {}, " hello");`],
-    //     [`## hello`, `el("h2", {}, " hello");`],
-    //     ["```\nhello\n```", `el(Listing, {}, "hello");`],
-    //     [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-    //     [
-    //       "* hello\n\n  yes\n* world",
-    //       `el(
-    //   "ul",
-    //   {},
-    //   el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
-    //   el("li", {}, el("p", {}, "world"))
-    // );`,
-    //     ],
+    [`# hello`, `el("h1", {}, " hello");`],
+    [`## hello`, `el("h2", {}, " hello");`],
+    ["```\nhello\n```", `el(Listing, {}, "hello");`],
+    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
+    [
+      "* hello\n\n  yes\n* world",
+      `el(
+  "ul",
+  {},
+  el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
+  el("li", {}, el("p", {}, "world"))
+);`,
+    ],
+    [`@foo{bar}`, `el(foo, {}, ...["bar"]);`],
     [
       `@em{**a**} @strong{b}`,
       `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
@@ -141,7 +145,7 @@ test("translate markdown block", () => {
   "bar"
 );`,
     ],
-    [`@outer{@inner{test}}`, `el("p", {}, el(outer, {}, el(inner, {}, "test")));`],
+    [`@outer{@inner{test}}`, `el(outer, {}, ...[el(inner, {}, ...["test"])]);`],
     [
       `Hello @em[id: "ex"]{world}`,
       `el(
@@ -180,21 +184,17 @@ test("translate markdown block", () => {
     world
   
   @span: yed
- 
-p`,
+
+not-in-block`,
       `el(
   "h1",
   {},
-  ...[
-    el("p", {}, "Hello"),
-    el("span", {}, ...[el("p", {}, "world")]),
-    el("span", {}, "yed"),
-  ]
+  ...[el("p", {}, "Hello"), el("span", {}, ...["world"]), el("span", {}, "yed")]
 );`,
     ],
     [`$$\n#f{}\n\nx\n$$`, `el($$, {}, ...[f([]), "\\n\\nx"]);`],
-    [`@{hey}`, `el("p", {}, ["hey"]);`],
-    [`@span{hey}`, `el("p", {}, el("span", {}, "hey"));`],
+    [`@{hey}`, `el("p", {}, el(Fragment, {}, "hey"));`],
+    [`@span{hey}`, `el("span", {}, ...["hey"]);`],
     [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
     [
       `@foo[x: 1
@@ -237,7 +237,7 @@ test("translate markdown doc", () => {
       `%let x = @em{**content**}\n#x`,
       `[
   ...(() => {
-    let x = el("em", {}, el("strong", {}, "content"));
+    let x = el("em", {}, ...[el("strong", {}, "content")]);
     return [null, el("p", {}, x)];
   })(),
 ];`,
@@ -260,9 +260,9 @@ test("translate markdown doc", () => {
       el(
         foo,
         {
-          attr: el(bar, {}, "baz"),
+          attr: el(bar, {}, ...["baz"]),
         },
-        x
+        ...[x]
       );
 
     return [
@@ -307,7 +307,7 @@ test("translate source map", async () => {
 
   let tree = resUnwrap(tryParse(input));
   let { code, map } = trans({ input, tree, sourceRoot: ".", filenameRelative: "test.nota" });
-  console.log(code);
+  // console.log(code);
 
   if (!code) throw new Error("No code");
   if (!map) throw new Error("No source map");
@@ -327,7 +327,7 @@ test("translate source map", async () => {
       mappings.push(m);
     });
 
-    console.log(mappings);
+    // console.log(mappings);
 
     pairs.forEach(([src, dst]) => {
       let srcIndex = input.indexOf(src);
@@ -341,7 +341,7 @@ test("translate source map", async () => {
       let srcLoc = srcMap.offsetToLocation(srcIndex);
       let dstLoc = dstMap.offsetToLocation(dstIndex);
 
-      console.log(src, dst, srcLoc, dstLoc);
+      // console.log(src, dst, srcLoc, dstLoc);
 
       let ms = mappings.find(
         m =>
