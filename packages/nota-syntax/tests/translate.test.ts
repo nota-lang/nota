@@ -12,10 +12,13 @@ import { mdTerms, tryParse } from "../dist/parse/mod.js";
 import {
   LineMap,
   Translator,
+  optimizePlugin,
   printTree,
   babelPolyfill as t,
   translate as trans,
 } from "../dist/translate/mod.js";
+
+const r = String.raw;
 
 test("translate end-to-end", () => {
   let input = `@h1: Hello world!`;
@@ -43,7 +46,9 @@ let gen =
       let translator = new Translator(input);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
-      let result = babel.transformFromAst(program, undefined, {}) as any as BabelFileResult;
+      let result = babel.transformFromAst(program, undefined, {
+        plugins: [optimizePlugin],
+      }) as any as BabelFileResult;
       return prettier.format(result.code!, { parser: "babel", plugins: [parserBabel] }).trimEnd();
     } catch (e) {
       console.error(input);
@@ -92,10 +97,16 @@ test("translate markdown inline", () => {
   "http://www.google.com"
 );`,
     ],
+    [r`$\Theta$`, r`el($, {}, "\\Theta");`],
     [`#{foo #bar}`, `[["foo ", bar]];`],
     [`#(@{sup})`, `el(Fragment, {}, "sup");`],
     [`#(#{a #b{c} d})`, `[["a ", b(["c"]), " d"]];`],
-    [`#(@{$hey$})`, `[el($, {}, null, "hey", null)];`],
+    [`#(@\${hey})`, `el($, {}, "hey");`],
+    [
+      `$#a
+  {b}$`,
+      `el($, {}, a(["b"]));`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -103,6 +114,11 @@ test("translate markdown inline", () => {
     expect(actual).toBe(expected);
   });
 });
+
+// TODO:
+//  - dedent block attributes (pipe is aligned with @)
+//  - allow block attribute keys to be prefixed with @ to assume
+//    that markdown content follows
 
 test("translate markdown block", () => {
   let genBlockMarkdown = gen((translator, doc) => {
@@ -117,6 +133,7 @@ test("translate markdown block", () => {
   });
 
   let pairs = [
+    // basic markdown
     [`# hello`, `el("h1", {}, " hello");`],
     [`## hello`, `el("h2", {}, " hello");`],
     ["```\nhello\n```", `el(Listing, {}, "hello");`],
@@ -130,11 +147,25 @@ test("translate markdown block", () => {
   el("li", {}, el("p", {}, "world"))
 );`,
     ],
-    [`@foo{bar}`, `el(foo, {}, ...["bar"]);`],
+
+    // markdown extensions
+    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, f([]), "\\n\\nx");`],
+    [`foo // bar`, `el("p", {}, "foo ", null);`],
+
+    // curly-brace components
+    [`@foo{bar}`, `el(foo, {}, "bar");`],
     [
       `@em{**a**} @strong{b}`,
       `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
     ],
+    [`@\${\\Theta}`, r`el($, {}, "\\Theta");`],
+    [`@outer{@inner{test}}`, `el(outer, {}, el(inner, {}, "test"));`],
+    [`@{hey}`, `el(Fragment, {}, "hey");`],
+    [`@span{hey}`, `el("span", {}, "hey");`],
+    [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
+    [`Hello @strong{world}`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
+
+    // block components
     [
       `@div[id: "foo"]: bar`,
       `el(
@@ -145,7 +176,6 @@ test("translate markdown block", () => {
   "bar"
 );`,
     ],
-    [`@outer{@inner{test}}`, `el(outer, {}, ...[el(inner, {}, ...["test"])]);`],
     [
       `Hello @em[id: "ex"]{world}`,
       `el(
@@ -161,19 +191,27 @@ test("translate markdown block", () => {
   )
 );`,
     ],
-    [`Hello @strong{world}`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
     [
-      `@section:
-  | id: "foo"
-  Ceci n'est pas
+      `@foo:
+  @bar:
+    @baz:
+      x`,
+      `el(foo, {}, el(bar, {}, el(baz, {}, "x")));`,
+    ],
+    [
+      `@lorem:
+  | ipsum: dolor
+    sit
+  amet
 
-  une code.`,
+  consectetur`,
       `el(
-  "section",
+  lorem,
   {
-    id: "foo",
+    ipsum: el(Fragment, {}, "dolor", "sit"),
   },
-  ...[el("p", {}, "Ceci n'est pas"), el("p", {}, "une code.")]
+  el("p", {}, "amet"),
+  el("p", {}, "consectetur")
 );`,
     ],
     [
@@ -189,13 +227,11 @@ not-in-block`,
       `el(
   "h1",
   {},
-  ...[el("p", {}, "Hello"), el("span", {}, ...["world"]), el("span", {}, "yed")]
+  el("p", {}, "Hello"),
+  el("span", {}, "world"),
+  el("span", {}, "yed")
 );`,
     ],
-    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, ...[f([]), "\\n\\nx"]);`],
-    [`@{hey}`, `el("p", {}, el(Fragment, {}, "hey"));`],
-    [`@span{hey}`, `el("span", {}, ...["hey"]);`],
-    [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
     [
       `@foo[x: 1
     
@@ -206,7 +242,16 @@ not-in-block`,
   x: 1 + 2,
 });`,
     ],
-    [`foo // bar`, `el("p", {}, "foo ", null);`],
+    [
+      `@foo:
+  | bar:
+    $$
+    baz
+    $$`,
+      `el(foo, {
+  bar: el(Fragment, {}, el($$, {}, "    baz")),
+});`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -237,7 +282,7 @@ test("translate markdown doc", () => {
       `%let x = @em{**content**}\n#x`,
       `[
   ...(() => {
-    let x = el("em", {}, ...[el("strong", {}, "content")]);
+    let x = el("em", {}, el("strong", {}, "content"));
     return [null, el("p", {}, x)];
   })(),
 ];`,
@@ -260,9 +305,9 @@ test("translate markdown doc", () => {
       el(
         foo,
         {
-          attr: el(bar, {}, ...["baz"]),
+          attr: el(bar, {}, "baz"),
         },
-        ...[x]
+        x
       );
 
     return [
@@ -274,7 +319,7 @@ test("translate markdown doc", () => {
   })(),
 ];`,
     ],
-    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, ...[f([])]), el("p", {}, "hello world")];`],
+    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, f([])), el("p", {}, "hello world")];`],
   ];
 
   pairs.forEach(([input, expected]) => {

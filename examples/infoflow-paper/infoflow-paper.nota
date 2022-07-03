@@ -259,13 +259,12 @@ let IRDef = ({name, ...props}) => {
 }
 %%%
 
-@IRDef:
-  | name: "u32"
+@IRDef[name: "u32"]:
   | Bot:
-    @{$#tcnew{\Sigma}{\Delta}{\Gamma}
+    $#tcnew{\Sigma}{\Delta}{\Gamma}
         {#hlt{#depctx}}{n_{#hlt{#loc}}}
         {#uty #hlt{#withslice{#deps}}}
-        {\Gamma}{#hlt{#depctx}}$}
+        {\Gamma}{#hlt{#depctx}}$
 
 Variables and mutation are introduced through let-bindings and assignment expressions, respectively. For example, this (location-annotated) program mutates a field of a tuple:
 
@@ -304,24 +303,22 @@ After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depct
   }{tlet}
 ```
 
-// TODO: @$${..} doesn't work?
-// @{$$ .. $$} doesn't work? mb because @{ } needs to be parseable as a block element
-@IRDef:
-  | name: "let"
+@IRDef[name: "let"]:
   | Top:
-    @{$
-      #tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{e_1}
-        {#(L.tys)_1 #hlt{#withslice{#deps _1}}}{\Gamma}{#hlt{#depctx _1}}
-    $}
-  | Bot:
-    @{$$}
+    @Premise:
+      $#tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{e_1}
+        {#(L.tys)_1 #hlt{#withslice{#deps _1}}}{\Gamma}{#hlt{#depctx _1}}$
+    @Premise:
+      $no$
 
-TODOS for WILL:
-* in-markdown comment syntax
-* labels on #-headers / all md-specific elements
-* newline at end of block should indent to current block
-* fix position of error box. show compiler errors inline
-* js commands (e.g. block comment) aren't working in script blocks
+  | Bot: $sup$
+
+// TODOS for WILL:
+// * in-markdown comment syntax
+// * labels on #-headers / all md-specific elements
+// * newline at end of block should indent to current block
+// * fix position of error box. show compiler errors inline
+// * js commands (e.g. block comment) aren't working in script blocks
 
 
 @References[bibtex]

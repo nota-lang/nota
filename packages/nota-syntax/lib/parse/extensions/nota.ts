@@ -10,6 +10,7 @@ import {
   MarkdownConfig,
   MarkdownParser,
 } from "@lezer/markdown";
+import { Type } from "@lezer/markdown/dist/markdown.js";
 import _ from "lodash";
 
 //@ts-ignore
@@ -17,7 +18,7 @@ import { parser as baseJsParser } from "../notajs.grammar.js";
 //@ts-ignore
 import * as jsTerms from "../notajs.grammar.terms.js";
 
-let [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, space] = [
+const [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, space, bslash] = [
   "@",
   "#",
   "%",
@@ -30,21 +31,24 @@ let [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, s
   ":",
   "|",
   " ",
+  "\\",
 ].map(s => s.charCodeAt(0));
 
-let BLOCK_COMPLETE = true;
-let BLOCK_FAIL = false;
-let BLOCK_CONTINUE: null = null;
-let INLINE_FAIL = -1;
-let END_OF_LINE = -1;
+const BLOCK_COMPLETE = true;
+const BLOCK_FAIL = false;
+const BLOCK_CONTINUE: null = null;
+const INLINE_FAIL = -1;
+const END_OF_LINE = -1;
 export type BlockResult = boolean | null;
+
+const INDENT = 2;
 
 let makeInlineContext = (cx: BlockContext, line: Line): InlineContext =>
   new (InlineContext as any)(cx.parser, line.text.slice(line.pos), cx.lineStart + line.pos);
 
 let munchIdent = (text: string): number => {
   // TODO: handle unicode
-  let match = text.match(/^[_\w][_\w\d]*/);
+  let match = text.match(/^[_\w$][_$\w\d]*/);
   if (!match) {
     return INLINE_FAIL;
   }
@@ -104,11 +108,13 @@ let munchBalancedSubstring = (
 let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pct) {
     let start = cx.lineStart;
-    if (line.text.length >= 3 && line.text.slice(0, 3) == "%%%") {
+    let text = line.text.slice(line.pos);
+    if (text.startsWith("%%%")) {
       let openDelim = cx.elt("%%%", start, start + 3);
       let marks: Element[] = [];
       while (cx.nextLine()) {
-        if (line.text == "%%%") {
+        text = line.text.slice(line.pos);
+        if (line.text.endsWith("%%%")) {
           break;
         }
         marks.push(cx.elt("NotaJs", cx.lineStart, cx.lineStart + line.text.length));
@@ -143,7 +149,7 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
   if (line.next == pipe) {
     let icx = makeInlineContext(cx, line);
     let pos = icx.offset;
-    let start = pos;
+    let startRelative = line.pos;
 
     // |
     pos += 1;
@@ -164,35 +170,26 @@ let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
 
     let children: Element[] = [cx.elt("NotaAttributeKey", identStart, identStart + identLength)];
 
-    if (pos == icx.end) {
-      let indent = line.baseIndent + 2;
-
-      let marks: Element[] = [];
-      while (cx.nextLine()) {
-        if (line.next == END_OF_LINE) {
-          // Empty
-        } else if (line.indent < indent) {
-          break;
-        } else {
-          marks.push(cx.elt("NotaJs", cx.lineStart + indent, cx.lineStart + line.text.length));
-        }
+    if (pos < icx.end) {
+      // " "
+      if (icx.char(pos) == space) {
+        pos += 1;
+        children.push(notaInlineContentToLineEnd(icx, pos));
       }
-
-      if (marks.length > 0) {
-        children.push(cx.elt("NotaAttributeValue", marks[0].from, _.last(marks)!.to, marks));
-      }
-    } else {
-      if (icx.char(pos) != space) return BLOCK_FAIL;
-      pos += 1;
-
-      children.push(cx.elt("NotaAttributeValue", pos, icx.end));
-
-      cx.nextLine();
     }
 
-    cx.addElement(cx.elt("NotaBlockAttribute", start, cx.prevLineEnd(), children));
+    let baseIndent = line.baseIndent;
+    cx.startComposite("NotaBlockAttribute", startRelative, INDENT);
+    children.forEach(child => cx.addElement(child));
 
-    return BLOCK_COMPLETE;
+    while (cx.nextLine() && line.next == -1) {}
+
+    if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
+      cx.startComposite("NotaBlockContent", line.pos, 0);
+      return BLOCK_CONTINUE;
+    } else {
+      return BLOCK_COMPLETE;
+    }
   }
 
   return BLOCK_FAIL;
@@ -215,9 +212,10 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
 
     // Component
     let nameEl = notaCommandName(icx, pos);
-    if (!nameEl) return BLOCK_FAIL;
-    pos = nameEl.to;
-    children.push(nameEl);
+    if (nameEl) {
+      pos = nameEl.to;
+      children.push(nameEl);
+    }
 
     // [(key: value),*]
     let attrStart = pos;
@@ -227,8 +225,6 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
       children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
       icx = makeInlineContext(cx, line);
     }
-
-    let INDENT = 2;
 
     if (icx.char(pos) == colon) {
       // :
@@ -289,6 +285,19 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
 };
 
 let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
+  // console.log(
+  //   _cx.parentType().name,
+  //   "indent",
+  //   line.indent,
+  //   "baseIndent",
+  //   line.baseIndent,
+  //   "value",
+  //   value,
+  //   "part of block?",
+  //   !(line.indent < line.baseIndent + value && line.next > END_OF_LINE),
+  //   "text",
+  //   line.text
+  // );
   if (line.indent < line.baseIndent + value && line.next > END_OF_LINE) return false;
   line.moveBaseColumn(line.baseIndent + value);
   return true;
@@ -466,18 +475,33 @@ export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): numbe
   return INLINE_FAIL;
 };
 
-// TODO: need to have a general mechanism for using this outside custom notations
-// like $$..$$
+export let notaTemplateInline = (cx: InlineContext, pos: number, delim: number): Element => {
+  let start = pos;
+  while (pos < cx.end) {
+    if (cx.char(pos) == bslash) {
+      pos = Math.min(pos + 2, cx.end);
+    } else if (cx.char(pos) == delim) {
+      break;
+    }
+    pos++;
+  }
+  return cx.elt("NotaTemplateBlock", start, pos);
+};
+
 export let notaTemplateBlock = (
   cx: BlockContext,
   line: Line,
   parseEnd: (cx: BlockContext, line: Line) => BlockResult
 ): Element => {
   let start = cx.lineStart;
-  while (parseEnd(cx, line) === false) {
+  let children = [];
+  while (parseEnd(cx, line) === BLOCK_FAIL) {
+    children.push(
+      cx.elt("NotaTemplateMark", cx.lineStart + line.pos, cx.lineStart + line.text.length)
+    );
     if (!cx.nextLine()) break;
   }
-  return cx.elt("NotaTemplateBlock", start, cx.prevLineEnd());
+  return cx.elt("NotaTemplateBlock", start, cx.prevLineEnd(), children);
 };
 
 export type Terms = { [key: string]: number };
@@ -529,7 +553,17 @@ export let configureParserForNota = (
         // for NotaCommandName
         return { parser: exprParser };
       case mdTerms.NotaTemplateBlock:
-        return { parser: templateParser };
+        // OK: we seem to get the issue. When you use `overlay`, rather than replacing
+        // the node, this "mounts" an "overlaid" tree. But the API for accessing these
+        // seems really wonky. Need to ask Marijn about this.
+        //
+        // let overlay = node.node
+        //   .getChildren(mdTerms.NotaTemplateMark)
+        //   .map(node => ({ from: node.from, to: node.to }));        
+        return {
+          parser: templateParser,
+          // overlay,
+        };
       case mdTerms.NotaMdHole:
         return { parser: parserRef };
     }
@@ -554,6 +588,7 @@ export let configureParserForNota = (
       {
         name: "NotaBlockAttribute",
         block: true,
+        composite: skipForNota,
       },
       { name: "NotaAttributeKey" },
       { name: "NotaAttributeValue" },
@@ -565,6 +600,7 @@ export let configureParserForNota = (
       { name: "NotaInlineComponentMark" },
       { name: "NotaInlineContentMark", style: t.brace },
       { name: "NotaTemplateBlock" },
+      { name: "NotaTemplateMark" },
       { name: "NotaMdHole" },
       { name: "@", style: t.modifier },
       { name: "#", style: t.modifier },

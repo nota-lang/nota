@@ -233,8 +233,11 @@ export class Translator {
 
         // Nota extensions:
         case mdTerms.MathInline: {
-          let children = this.translateMdInlineSequence(this.markdownChildren(node));
-          expr = toReact(t.identifier("$"), [], children);
+          let template = node
+            .getChild(jsTerms.NotaTemplateExternal)!
+            .getChild(jsTerms.NotaTemplate)!;
+          let children = this.translateNotaTemplate(template);
+          expr = toReact(t.identifier("$"), [], [t.spreadElement(children)]);
           break;
         }
 
@@ -304,6 +307,7 @@ export class Translator {
         break;
       }
 
+      case mdTerms.CodeBlock:
       case mdTerms.FencedCode: {
         let attributes: [Expression, Expression][] = [];
         let codeInfo = node.getChild(mdTerms.CodeInfo);
@@ -487,8 +491,17 @@ export class Translator {
   translateNotaBlockAttribute(node: SyntaxNode): ObjectProperty {
     assert(matches(node, mdTerms.NotaBlockAttribute));
     let key = strLit(this.text(node.getChild(mdTerms.NotaAttributeKey)!));
-    let valueNode = node.getChild(jsTerms.NotaExpr);
-    let value = valueNode ? this.translateNotaExpr(valueNode) : t.nullLiteral();
+    let child;
+    let children: (Expression | SpreadElement)[] = [];
+    if ((child = node.getChild(mdTerms.NotaInlineContent))) {
+      children = children.concat(this.translateNotaInlineContent(child));
+    }
+    if ((child = node.getChild(mdTerms.NotaBlockContent))) {
+      children.push(t.spreadElement(this.translateInlineOrBlockSequence(child)));
+    }
+
+    let value = toReact(t.identifier("Fragment"), [], children);
+
     return t.objectProperty({ key, value });
   }
 
@@ -536,6 +549,7 @@ export class Translator {
     let children = collectSiblings(node.firstChild);
     let childExprs = children.map(child => {
       if (matches(child, jsTerms.NotaTemplateLiteral)) {
+        let t = this.text(child);
         return strLit(this.text(child));
       } else {
         assert(matches(child, jsTerms.NotaTemplateCommand));
@@ -552,6 +566,7 @@ export class Translator {
         }
       }
     });
+
     return this.spanned(t.arrayExpression(childExprs), node);
   }
 
@@ -1153,17 +1168,17 @@ export let translateAst = (input: string, tree: Tree): Program => {
 export let treeToString = (tree: Tree, contents: string): string => {
   let depth = (node: any): number => (node.parent ? 1 + depth(node.parent) : 0);
   let cursor = tree.cursor();
-  let output = "";
+  let output = [];
   do {
     let subInput = contents.slice(cursor.from, cursor.to);
     if (subInput.length > 30) {
       subInput = subInput.slice(0, 12) + "..." + subInput.slice(-12);
     }
     subInput = subInput.replace("\n", "\\n");
-    output += indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)) + "\n";
+    output.push(indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)));
   } while (cursor.next());
 
-  return output;
+  return output.join('\n');
 };
 
 export let printTree = (tree: Tree, contents: string) => {

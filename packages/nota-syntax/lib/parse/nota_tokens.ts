@@ -11,9 +11,16 @@ import {
   NotaTemplateLiteral,
 } from "./notajs.grammar.terms.js";
 
-const [atSign, hash, lbrc, rbrc, lbrkt, rbrkt] = ["@", "#", "{", "}", "[", "]"].map(s =>
-  s.charCodeAt(0)
-);
+const [atSign, hash, lbrc, rbrc, lbrkt, rbrkt, space, newline] = [
+  "@",
+  "#",
+  "{",
+  "}",
+  "[",
+  "]",
+  " ",
+  "\n",
+].map(s => s.charCodeAt(0));
 const eof = -1;
 
 /* TODO: LEAVE A COMMENT DOCUMENTING THIS DUMB ARCHITECTURE */
@@ -60,8 +67,33 @@ export const notaTemplateLiteral = new ExternalTokenizer(
     // in a case like
     //   ... #foo{}
     //           ^- cursor
+    // or like this
+    //   ... #foo{}
+    //         {}  ^- cursor
+    //
     // then we stop tokenizing if we could shift an lbrace for the arg
-    if (stack.canShift(Lbrace) && input.next == lbrc) return;
+    let findLbrace = () => {
+      let sawNewline = false;
+      while (input.next != eof) {
+        if (input.next == newline) {
+          if (!sawNewline) {
+            sawNewline = true;
+          } else {
+            return false;
+          }
+        } else if (input.next == lbrc) {
+          return true;
+        } else if (input.next == space) {
+          sawNewline = false;
+          // pass
+        } else {
+          return false;
+        }
+        input.advance();
+      }
+      return false;
+    };
+    if (stack.canShift(Lbrace) && findLbrace()) return;
 
     let ctx = stack.context;
     let last = ctx.templateBraceBalance.length - 1;

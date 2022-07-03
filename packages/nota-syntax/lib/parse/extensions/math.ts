@@ -1,30 +1,34 @@
 import { Tag } from "@lezer/highlight";
-import { BlockContext, DelimiterType, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
+import { BlockContext, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
 import _ from "lodash";
 
-import { BlockResult, notaTemplateBlock } from "./nota.js";
+import { BlockResult, notaTemplateBlock, notaTemplateInline } from "./nota.js";
 
 let dollar = "$".charCodeAt(0);
 
-export let MathDelimiter: DelimiterType = {
-  resolve: "MathInline",
-  mark: "MathMark",
-};
-
 let parseMathInline = (cx: InlineContext, next: number, pos: number): number => {
   if (next == dollar) {
-    cx.addDelimiter(MathDelimiter, pos, pos + 1, true, true);
+    let elt = notaTemplateInline(cx, pos + 1, dollar);
+    return cx.addElement(
+      cx.elt("MathInline", pos, elt.to + 1, [
+        cx.elt("MathMark", pos, pos + 1),
+        elt,
+        cx.elt("MathMark", elt.to, elt.to + 1),
+      ])
+    );
   }
 
   return -1;
 };
 
 let parseMathBlock = (cx: BlockContext, line: Line): BlockResult => {
-  if (line.text.startsWith("$$")) {
+  if (line.text.slice(line.pos).startsWith("$$")) {
     let start = cx.lineStart;
     let startDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
     cx.nextLine();
-    let contents = notaTemplateBlock(cx, line, (_cx, line) => line.text.startsWith("$$"));
+    let contents = notaTemplateBlock(cx, line, (_cx, line) =>
+      line.text.slice(line.pos).startsWith("$$")
+    );
     let endDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
     cx.addElement(cx.elt("MathBlock", start, endDelim.to, [startDelim, contents, endDelim]));
     cx.nextLine();
