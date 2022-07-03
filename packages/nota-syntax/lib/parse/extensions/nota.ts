@@ -3,14 +3,16 @@ import { tags as t } from "@lezer/highlight";
 import { LRParser } from "@lezer/lr";
 import {
   BlockContext,
+  BlockParser,
   DelimiterType,
   Element,
   InlineContext,
+  InlineParser,
+  LeafBlock,
   Line,
   MarkdownConfig,
   MarkdownParser,
 } from "@lezer/markdown";
-import { Type } from "@lezer/markdown/dist/markdown.js";
 import _ from "lodash";
 
 //@ts-ignore
@@ -105,130 +107,77 @@ let munchBalancedSubstring = (
   return [-1, 0];
 };
 
-let notaScriptParser = (cx: BlockContext, line: Line): BlockResult => {
-  if (line.next == pct) {
-    let start = cx.lineStart;
-    let text = line.text.slice(line.pos);
-    if (text.startsWith("%%%")) {
-      let openDelim = cx.elt("%%%", start, start + 3);
-      let marks: Element[] = [];
-      while (cx.nextLine()) {
-        text = line.text.slice(line.pos);
-        if (line.text.endsWith("%%%")) {
-          break;
+class NotaScriptParser implements BlockParser {
+  name = "NotaScript";
+
+  parse(cx: BlockContext, line: Line): BlockResult {
+    if (line.next == pct) {
+      let start = cx.lineStart;
+      let text = line.text.slice(line.pos);
+      if (text.startsWith("%%%")) {
+        let openDelim = cx.elt("%%%", start, start + 3);
+        let marks: Element[] = [];
+        while (cx.nextLine()) {
+          text = line.text.slice(line.pos);
+          if (line.text.endsWith("%%%")) {
+            break;
+          }
+          marks.push(cx.elt("NotaJs", cx.lineStart, cx.lineStart + line.text.length));
         }
-        marks.push(cx.elt("NotaJs", cx.lineStart, cx.lineStart + line.text.length));
+        let closeDelim = cx.elt("%%%", cx.lineStart, cx.lineStart + 3);
+        cx.nextLine();
+        let body =
+          marks.length > 0
+            ? cx.elt("NotaScriptBody", marks[0].from, _.last(marks)!.to, marks)
+            : cx.elt("NotaScriptBody", cx.lineStart, cx.lineStart);
+        cx.addElement(
+          cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, [openDelim, body, closeDelim])
+        );
+      } else {
+        cx.addElement(
+          cx.elt("NotaScript", cx.lineStart + 1, cx.lineStart + line.text.length, [
+            cx.elt("%", cx.lineStart, cx.lineStart + 1),
+            cx.elt("NotaScriptBody", cx.lineStart + 1, cx.lineStart + line.text.length, [
+              cx.elt("NotaJs", cx.lineStart + 1, cx.lineStart + line.text.length),
+            ]),
+          ])
+        );
+        cx.nextLine();
       }
-      let closeDelim = cx.elt("%%%", cx.lineStart, cx.lineStart + 3);
-      cx.nextLine();
-      let body =
-        marks.length > 0
-          ? cx.elt("NotaScriptBody", marks[0].from, _.last(marks)!.to, marks)
-          : cx.elt("NotaScriptBody", cx.lineStart, cx.lineStart);
-      cx.addElement(
-        cx.elt("NotaScript", start + 3, cx.prevLineEnd() - 3, [openDelim, body, closeDelim])
-      );
-    } else {
-      cx.addElement(
-        cx.elt("NotaScript", cx.lineStart + 1, cx.lineStart + line.text.length, [
-          cx.elt("%", cx.lineStart, cx.lineStart + 1),
-          cx.elt("NotaScriptBody", cx.lineStart + 1, cx.lineStart + line.text.length, [
-            cx.elt("NotaJs", cx.lineStart + 1, cx.lineStart + line.text.length),
-          ]),
-        ])
-      );
-      cx.nextLine();
-    }
-    return BLOCK_COMPLETE;
-  }
-
-  return BLOCK_FAIL;
-};
-
-let notaBlockAttributeParser = (cx: BlockContext, line: Line): BlockResult => {
-  if (line.next == pipe) {
-    let icx = makeInlineContext(cx, line);
-    let pos = icx.offset;
-    let startRelative = line.pos;
-
-    // |
-    pos += 1;
-
-    // " "
-    if (icx.char(pos) != space) return BLOCK_FAIL;
-    pos += 1;
-
-    // id
-    let identStart = pos;
-    let identLength = munchIdent(icx.slice(identStart, icx.end));
-    if (identLength == INLINE_FAIL) return BLOCK_FAIL;
-    pos += identLength;
-
-    // :
-    if (icx.char(pos) != colon) return BLOCK_FAIL;
-    pos += 1;
-
-    let children: Element[] = [cx.elt("NotaAttributeKey", identStart, identStart + identLength)];
-
-    if (pos < icx.end) {
-      // " "
-      if (icx.char(pos) == space) {
-        pos += 1;
-        children.push(notaInlineContentToLineEnd(icx, pos));
-      }
-    }
-
-    let baseIndent = line.baseIndent;
-    cx.startComposite("NotaBlockAttribute", startRelative, INDENT);
-    children.forEach(child => cx.addElement(child));
-
-    while (cx.nextLine() && line.next == -1) {}
-
-    if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
-      cx.startComposite("NotaBlockContent", line.pos, 0);
-      return BLOCK_CONTINUE;
-    } else {
       return BLOCK_COMPLETE;
     }
+
+    return BLOCK_FAIL;
   }
+}
 
-  return BLOCK_FAIL;
-};
+class NotaBlockAttributeParser implements BlockParser {
+  name = "NotaBlockAttribute";
 
-// @Component[(key: value),*]: inline?
-//   | key: value
-//   sub-block
-let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
-  let next = line.next;
-  if (next == atSign) {
-    let icx = makeInlineContext(cx, line);
-    let pos = icx.offset;
-    let start = pos;
-    let startRelative = line.pos;
+  parse(cx: BlockContext, line: Line): BlockResult {
+    if (line.next == pipe) {
+      let icx = makeInlineContext(cx, line);
+      let pos = icx.offset;
+      let startRelative = line.pos;
 
-    // @
-    let children = [cx.elt("@", pos, pos + 1)];
-    pos += 1;
-
-    // Component
-    let nameEl = notaCommandName(icx, pos);
-    if (nameEl) {
-      pos = nameEl.to;
-      children.push(nameEl);
-    }
-
-    // [(key: value),*]
-    let attrStart = pos;
-    let attrEnd = munchBalancedSubstringBlock(cx, line, attrStart, lbrkt, rbrkt);
-    if (attrEnd != INLINE_FAIL) {
-      pos = attrEnd;
-      children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
-      icx = makeInlineContext(cx, line);
-    }
-
-    if (icx.char(pos) == colon) {
-      // :
+      // |
       pos += 1;
+
+      // " "
+      if (icx.char(pos) != space) return BLOCK_FAIL;
+      pos += 1;
+
+      // id
+      let identStart = pos;
+      let identLength = munchIdent(icx.slice(identStart, icx.end));
+      if (identLength == INLINE_FAIL) return BLOCK_FAIL;
+      pos += identLength;
+
+      // :
+      if (icx.char(pos) != colon) return BLOCK_FAIL;
+      pos += 1;
+
+      let children: Element[] = [cx.elt("NotaAttributeKey", identStart, identStart + identLength)];
 
       if (pos < icx.end) {
         // " "
@@ -239,7 +188,7 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
       }
 
       let baseIndent = line.baseIndent;
-      cx.startComposite("NotaBlockComponent", startRelative, INDENT);
+      cx.startComposite("NotaBlockAttribute", startRelative, INDENT);
       children.forEach(child => cx.addElement(child));
 
       while (cx.nextLine() && line.next == -1) {}
@@ -250,39 +199,108 @@ let notaBlockComponentParser = (cx: BlockContext, line: Line): BlockResult => {
       } else {
         return BLOCK_COMPLETE;
       }
-    } else if (icx.char(pos) == lbrc) {
-      // {
-      let holeStart = pos + 1;
-      pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
-      if (pos == INLINE_FAIL) return BLOCK_FAIL;
-      children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
-      let mkComponent = (ty: string) => cx.elt(ty, start, pos, children);
+    }
 
-      icx = makeInlineContext(cx, line);
-      if (pos < icx.end) {
-        let rest = cx.parser.parseInline(icx.slice(pos, icx.end), pos);
-        cx.addElement(
-          cx.elt("Paragraph", start, icx.end, [mkComponent("NotaInlineComponent"), ...rest])
-        );
-      } else {
-        cx.addElement(mkComponent("NotaBlockComponent"));
+    return BLOCK_FAIL;
+  }
+}
+
+// @Component[(key: value),*]: inline?
+//   | key: value
+//   sub-block
+class NotaBlockComponentParser implements BlockParser {
+  name = "NotaBlockComponent";
+
+  parse(cx: BlockContext, line: Line): BlockResult {
+    let next = line.next;
+    if (next == atSign) {
+      let icx = makeInlineContext(cx, line);
+      let pos = icx.offset;
+      let start = pos;
+      let startRelative = line.pos;
+
+      // @
+      let children = [cx.elt("@", pos, pos + 1)];
+      pos += 1;
+
+      // Component
+      let nameEl = notaCommandName(icx, pos);
+      if (nameEl) {
+        pos = nameEl.to;
+        children.push(nameEl);
       }
 
-      cx.nextLine();
-      return BLOCK_COMPLETE;
-    } else if (pos == icx.end) {
-      // EOL?
+      // [(key: value),*]
+      let attrStart = pos;
+      let attrEnd = munchBalancedSubstringBlock(cx, line, attrStart, lbrkt, rbrkt);
+      if (attrEnd != INLINE_FAIL) {
+        pos = attrEnd;
+        children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
+        icx = makeInlineContext(cx, line);
+      }
 
-      cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
-      cx.nextLine();
-      return BLOCK_COMPLETE;
-    } else {
-      throw `TODO`;
+      if (icx.char(pos) == colon) {
+        // :
+        pos += 1;
+
+        if (pos < icx.end) {
+          // " "
+          if (icx.char(pos) == space) {
+            pos += 1;
+            children.push(notaInlineContentToLineEnd(icx, pos));
+          }
+        }
+
+        let baseIndent = line.baseIndent;
+        cx.startComposite("NotaBlockComponent", startRelative, INDENT);
+        children.forEach(child => cx.addElement(child));
+
+        while (cx.nextLine() && line.next == -1) {}
+
+        if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
+          cx.startComposite("NotaBlockContent", line.pos, 0);
+          return BLOCK_CONTINUE;
+        } else {
+          return BLOCK_COMPLETE;
+        }
+      } else if (icx.char(pos) == lbrc) {
+        // {
+        let holeStart = pos + 1;
+        pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
+        if (pos == INLINE_FAIL) return BLOCK_FAIL;
+        children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
+        let mkComponent = (ty: string) => cx.elt(ty, start, pos, children);
+
+        icx = makeInlineContext(cx, line);
+        if (pos < icx.end) {
+          let rest = cx.parser.parseInline(icx.slice(pos, icx.end), pos);
+          cx.addElement(
+            cx.elt("Paragraph", start, icx.end, [mkComponent("NotaInlineComponent"), ...rest])
+          );
+        } else {
+          cx.addElement(mkComponent("NotaBlockComponent"));
+        }
+
+        cx.nextLine();
+        return BLOCK_COMPLETE;
+      } else if (pos == icx.end) {
+        // EOL?
+
+        cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
+        cx.nextLine();
+        return BLOCK_COMPLETE;
+      } else {
+        throw `TODO`;
+      }
     }
+
+    return BLOCK_FAIL;
   }
 
-  return BLOCK_FAIL;
-};
+  endLeaf(cx: BlockContext, line: Line, leaf: LeafBlock): boolean {
+    return cx.parentType().name == "NotaBlockContent" && !skipForNota(cx, line, INDENT);
+  }
+}
 
 let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
   // console.log(
@@ -333,30 +351,34 @@ const NotaInlineContentDelimiter: DelimiterType = {
   mark: "NotaInlineContentMark",
 };
 
-let notaInterpolationStart = (cx: InlineContext, next: number, pos: number): number => {
-  if (next == hash) {
-    let start = pos;
+class NotaInterpolationStartParser implements InlineParser {
+  name = "NotaInterpolationStart";
 
-    let children = [cx.elt("#", pos, pos + 1)];
-    pos += 1;
+  parse(cx: InlineContext, next: number, pos: number): number {
+    if (next == hash) {
+      let start = pos;
 
-    let nameEl = notaCommandName(cx, pos);
-    if (nameEl) {
-      pos = nameEl.to;
-      children.push(nameEl);
+      let children = [cx.elt("#", pos, pos + 1)];
+      pos += 1;
+
+      let nameEl = notaCommandName(cx, pos);
+      if (nameEl) {
+        pos = nameEl.to;
+        children.push(nameEl);
+      }
+
+      if (pos < cx.end && cx.char(pos) == lbrc) {
+        cx.addDelimiter(NotaInterpolationDelimiter, start, pos, true, false);
+        children.forEach(el => cx.addElement(el));
+        return cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, true, false);
+      } else {
+        return cx.addElement(cx.elt("NotaInterpolation", start, pos, children));
+      }
     }
 
-    if (pos < cx.end && cx.char(pos) == lbrc) {
-      cx.addDelimiter(NotaInterpolationDelimiter, start, pos, true, false);
-      children.forEach(el => cx.addElement(el));
-      return cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, true, false);
-    } else {
-      return cx.addElement(cx.elt("NotaInterpolation", start, pos, children));
-    }
+    return INLINE_FAIL;
   }
-
-  return INLINE_FAIL;
-};
+}
 
 let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
   let end;
@@ -372,108 +394,116 @@ let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
   return cx.elt("NotaInlineContent", pos, end, children);
 };
 
-let notaInlineComponentStart = (cx: InlineContext, next: number, pos: number): number => {
-  if (next == atSign) {
-    let start = pos;
+class NotaInlineComponentStartParser implements InlineParser {
+  name = "NotaInlineComponentStart";
 
-    // @
-    let children = [cx.elt("@", pos, pos + 1)];
-    pos += 1;
+  parse(cx: InlineContext, next: number, pos: number): number {
+    if (next == atSign) {
+      let start = pos;
 
-    // Component?
-    if (cx.char(pos) != lbrc) {
-      let nameEl = notaCommandName(cx, pos);
-      if (!nameEl) return INLINE_FAIL;
-      pos = nameEl.to;
-      children.push(nameEl);
-    }
-
-    let fallback = () => cx.addElement(cx.elt("NotaInlineComponent", start, pos, children));
-
-    if (pos == cx.end) return fallback();
-
-    // [key: value, ...]
-    let attrStart = pos;
-    let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
-    if (attrEnd != INLINE_FAIL) {
-      pos = attrEnd;
-      children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
-    }
-
-    if (pos == cx.end) return fallback();
-
-    next = cx.char(pos);
-    /*if (next == colon && pos < cx.end && cx.char(pos) == space) {
-      let inlineContent = notaInlineContentToLineEnd(cx, pos + 1);
-      pos = inlineContent.to;
-      children.push(inlineContent);
-      return fallback();
-    } else*/ if (next == lbrc) {
-      pos += 1;
-      cx.addDelimiter(NotaComponentDelimiter, start, pos - 1, true, false);
-      children.forEach(child => cx.addElement(child));
-      cx.addDelimiter(NotaInlineContentDelimiter, pos - 1, pos, true, false);
-      return pos;
-    } else {
-      return fallback();
-    }
-  }
-  return INLINE_FAIL;
-};
-
-// TODO: rewrite this using stable APIs, i.e. findOpeningDelimiter
-export let notaInlineEnd = (cx: InlineContext, next: number, pos: number): number => {
-  let inside =
-    cx.findOpeningDelimiter(NotaComponentDelimiter) != null ||
-    cx.findOpeningDelimiter(NotaInterpolationDelimiter) != null;
-  if (!inside) return INLINE_FAIL;
-
-  let cxa = cx as any;
-  if (!("braces" in cxa)) {
-    cxa["braces"] = 0;
-  }
-
-  if (next == lbrc) {
-    ++cxa["braces"];
-  } else if (next == rbrc) {
-    if (cxa["braces"] > 0) {
-      --cxa["braces"];
-    } else {
-      cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
+      // @
+      let children = [cx.elt("@", pos, pos + 1)];
       pos += 1;
 
-      let afterWhitespace = cx.slice(pos, cx.end).match(/^\s*{/);
-      if (afterWhitespace) {
-        let n = afterWhitespace[0].length;
-        cx.addDelimiter(NotaInlineContentDelimiter, pos + n - 1, pos + n, true, false);
-        return pos + n;
+      // Component?
+      if (cx.char(pos) != lbrc) {
+        let nameEl = notaCommandName(cx, pos);
+        if (!nameEl) return INLINE_FAIL;
+        pos = nameEl.to;
+        children.push(nameEl);
+      }
+
+      let fallback = () => cx.addElement(cx.elt("NotaInlineComponent", start, pos, children));
+
+      if (pos == cx.end) return fallback();
+
+      // [key: value, ...]
+      let attrStart = pos;
+      let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
+      if (attrEnd != INLINE_FAIL) {
+        pos = attrEnd;
+        children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
+      }
+
+      if (pos == cx.end) return fallback();
+
+      next = cx.char(pos);
+      /*if (next == colon && pos < cx.end && cx.char(pos) == space) {
+        let inlineContent = notaInlineContentToLineEnd(cx, pos + 1);
+        pos = inlineContent.to;
+        children.push(inlineContent);
+        return fallback();
+      } else*/ if (next == lbrc) {
+        pos += 1;
+        cx.addDelimiter(NotaComponentDelimiter, start, pos - 1, true, false);
+        children.forEach(child => cx.addElement(child));
+        cx.addDelimiter(NotaInlineContentDelimiter, pos - 1, pos, true, false);
+        return pos;
       } else {
-        let parts = (cx as any).parts as Element[];
-        for (let i = parts.length - 1; i >= 0; i--) {
-          let part = parts[i];
-          if (
-            "type" in part &&
-            // part instanceof InlineDelimiter &&
-            (part.type == NotaComponentDelimiter || part.type == NotaInterpolationDelimiter)
-          ) {
-            let children = cx.takeContent(i);
-            let component = cx.elt(
-              part.type == NotaComponentDelimiter ? "NotaInlineComponent" : "NotaInterpolation",
-              part.from,
-              pos,
-              children
-            );
-            parts[i] = component;
+        return fallback();
+      }
+    }
+    return INLINE_FAIL;
+  }
+}
 
-            return component.to;
+class NotaInlineEndParser implements InlineParser {
+  name = "NotaInlineEnd";
+
+  // TODO: rewrite this using stable APIs, i.e. findOpeningDelimiter
+  parse(cx: InlineContext, next: number, pos: number): number {
+    let inside =
+      cx.findOpeningDelimiter(NotaComponentDelimiter) != null ||
+      cx.findOpeningDelimiter(NotaInterpolationDelimiter) != null;
+    if (!inside) return INLINE_FAIL;
+
+    let cxa = cx as any;
+    if (!("braces" in cxa)) {
+      cxa["braces"] = 0;
+    }
+
+    if (next == lbrc) {
+      ++cxa["braces"];
+    } else if (next == rbrc) {
+      if (cxa["braces"] > 0) {
+        --cxa["braces"];
+      } else {
+        cx.addDelimiter(NotaInlineContentDelimiter, pos, pos + 1, false, true);
+        pos += 1;
+
+        let afterWhitespace = cx.slice(pos, cx.end).match(/^\s*{/);
+        if (afterWhitespace) {
+          let n = afterWhitespace[0].length;
+          cx.addDelimiter(NotaInlineContentDelimiter, pos + n - 1, pos + n, true, false);
+          return pos + n;
+        } else {
+          let parts = (cx as any).parts as Element[];
+          for (let i = parts.length - 1; i >= 0; i--) {
+            let part = parts[i];
+            if (
+              "type" in part &&
+              // part instanceof InlineDelimiter &&
+              (part.type == NotaComponentDelimiter || part.type == NotaInterpolationDelimiter)
+            ) {
+              let children = cx.takeContent(i);
+              let component = cx.elt(
+                part.type == NotaComponentDelimiter ? "NotaInlineComponent" : "NotaInterpolation",
+                part.from,
+                pos,
+                children
+              );
+              parts[i] = component;
+
+              return component.to;
+            }
           }
         }
       }
     }
-  }
 
-  return INLINE_FAIL;
-};
+    return INLINE_FAIL;
+  }
+}
 
 export let notaTemplateInline = (cx: InlineContext, pos: number, delim: number): Element => {
   let start = pos;
@@ -559,7 +589,7 @@ export let configureParserForNota = (
         //
         // let overlay = node.node
         //   .getChildren(mdTerms.NotaTemplateMark)
-        //   .map(node => ({ from: node.from, to: node.to }));        
+        //   .map(node => ({ from: node.from, to: node.to }));
         return {
           parser: templateParser,
           // overlay,
@@ -608,32 +638,14 @@ export let configureParserForNota = (
       { name: "%%%", style: t.modifier },
     ],
     parseBlock: [
-      {
-        name: "NotaScript",
-        parse: notaScriptParser,
-      },
-      {
-        name: "NotaBlockAttribute",
-        parse: notaBlockAttributeParser,
-      },
-      {
-        name: "NotaBlockComponent",
-        parse: notaBlockComponentParser,
-      },
+      new NotaScriptParser(),
+      new NotaBlockAttributeParser(),
+      new NotaBlockComponentParser(),
     ],
     parseInline: [
-      {
-        name: "NotaInlineComponentStart",
-        parse: notaInlineComponentStart,
-      },
-      {
-        name: "NotaInterpolationStart",
-        parse: notaInterpolationStart,
-      },
-      {
-        name: "NotaInlineEnd",
-        parse: notaInlineEnd,
-      },
+      new NotaInlineComponentStartParser(),
+      new NotaInlineEndParser(),
+      new NotaInterpolationStartParser(),
     ],
     wrap: mdWrap,
   };

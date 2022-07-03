@@ -119,7 +119,7 @@ Because expressions have effects on persistent memory, we further compute a *dep
 from memory locations $p$ to dependencies $#deps$. The computation of information flow is intertwined with type-checking, represented as a modified type-checking judgment (additions highlighted in red):
 
 %%%
-let tcnew = macro{#1; #2; #3; #4; \vdash #5 : #6 \Rightarrow #7; #8}
+let tcnew = macro{#1; #2; #3; #4 \vdash #5 : #6 \Rightarrow #7; #8}
 let hlt = macro{\htmlStyle{color: red}{#1}}
 let withslice = macro{\bullet #1}
 %%%
@@ -243,6 +243,10 @@ let L = new Language(function(){ return [
 ]})
 let uty = L.tybu32();
 let olet = L.exprlet;
+let plc = L.plc;
+let vr = L.vr;
+let expr = L.expr;
+let tys = L.tys;
 %%%
 
 @(L.Bnf)[subset:
@@ -254,9 +258,17 @@ Constants are Oxide's atomic values and also the base-case for information flow.
 
 %%%
 let IRDef = ({name, ...props}) => {
-  let def_name = `tr_${name}`;
-  return @Definition[name: def_name, label: @Smallcaps{T-#name}]{@IR[...props]};
+  let defName = `tr_${name}`;
+  let displayName =  @Smallcaps{T-#name};
+  return @Definition[
+    name: defName, 
+    label: displayName
+  ]{@IR[
+    Right: displayName,
+    ...props
+  ]};
 }
+let gray = macro{\htmlStyle{color: gray}{#1}};
 %%%
 
 @IRDef[name: "u32"]:
@@ -281,44 +293,63 @@ $$
 
 After checking "$t.1 := 3$", then $#loc _3$ is added to $#depctx(t)$ and $#depctx(t.1)$, but not $#depctx(t.0)$. This is because the values of $t$ and $t.1$ have changed, but the value of $t.0$ has not. Formally, the let-binding rule is:
 
-```
-  {
-    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e_1}{\tyvar{si}_1 \hlight{\withslice{\kappa_1}}}{\Gamma_1}{\hlight{\Theta_1}}
-    \\
-    \gray{\Gamma; \Delta_1 \vdash \tyvar{si}_1 \lesssim \tyvar{si}_a \Rightarrow \Gamma'_1}
-    \\
-    \hlight{\Theta_1' = \Theta_1[\forall \pi^\square[x] ~ . ~ \pi \mapsto \kappa_1]}
-
-    \tcnew{\Sigma}{\Delta}
-      {\text{gc-loans}(\Gamma'_1, x : \tyvar{si}_a)}
-      {\hlight{\Theta_1'}}{e_2}
-      {\tyvar{si}_2 \hlight{\withslice{\kappa_2}}}
-      {\Gamma_2, x : \tyvar{sd}}{\hlight{\Theta_2}}
-  }
-  {
-    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}
-    {\olet{x}{\tyvar{si}_a}{e_1}{e_2}}
-    {\tyvar{si}_2 \hlight{\withslice{\kappa_2}}}
-    {\Gamma_2}{\hlight{\Theta_2}}
-  }{tlet}
-```
-
 @IRDef[name: "let"]:
   | Top:
     @Premise:
       $#tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{e_1}
-        {#(L.tys)_1 #hlt{#withslice{#deps _1}}}{\Gamma}{#hlt{#depctx _1}}$
+        {#tys _1 #hlt{#withslice{#deps _1}}}{\Gamma}{#hlt{#depctx _1}}$
     @Premise:
-      $no$
+      $#gray{\Gamma; \Delta_1 \vdash #tys _1 \lesssim #tys _a \Rightarrow \Gamma'_1}$
+    @Premise:
+      $#hlt{#depctx _1' = #depctx _1[\forall #plc^\square[#vr] ~ . ~ #plc \mapsto #deps _1]}$
+    @Premise:
+      $#tcnew{\Sigma}{\Delta}
+        {\mathsf{gc}\text{-}\mathsf{loans}(\Gamma'_1, #vr : #tys _a)}
+        {#hlt{#depctx _1'}}{#expr _2}
+        {#tys _2 #hlt{#withslice{#deps _2}}}
+        {\Gamma_2, #vr : #(L.tyd)}{#hlt{#depctx _2}}$
+  | Bot:
+    $#tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}
+      {#olet{#vr}{#tys _a}{#expr _1}{#expr _2}}
+      {#tys _2 #hlt{#withslice{#deps _2}}}
+      {\Gamma_2}{#hlt{#depctx _2}}$
 
-  | Bot: $sup$
+Again, this rule (and many others) contain aspects of Oxide that are not essential for understanding information flow such as the subtyping judgment $#tys _1 \lesssim #tys _a$ or the metafunction $\mathsf{gc}\text{-}\mathsf{loans}$. For brevity we will not cover these aspects here, and instead refer the interested reader to @Ref[full: true]{weiss2019oxide}.
+We have deemphasized (in grey) the judgments which are not important to understanding our information flow additions.
+
+The key concept is the formula $ #depctx _1[\forall #plc^\square[#vr] ~ . ~ #plc \mapsto #deps _1]$. This introduces two shorthands: first, $#plc^\square[#vr]$ means "a place $#plc$ with root variable $#vr$ in a context $#plc^\square$", used to decompose a place. In &tr_let, the update to $#depctx _1$ happens for all places with a root variable $#vr$. Second, $#depctx _1[#plc \mapsto #deps _1]$ means "set $#plc$ to $#deps _1$ in $#depctx _1$". So this rule specifies that when checking $#expr _2$, all places within $#vr$ are initialized to the dependencies $#depctx _1$ of $#expr _1$.
+
+Next, the assignment expression rule is defined as updating all the *conflicts* of a place $#plc$:
+
+```
+\typerule{T-Assign}
+  {
+    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e}{\tyvar{si} \hlight{\withslice{\kappa}}}{\Gamma_1}{\hlight{\Theta_1}} 
+    \\
+    \gray{\Gamma_1(\pi) = \tyvar{sx} }
+    \\
+    \gray{(\tyvar{sx} = \tyvar{sd} \vee \Delta; \Gamma_1 \vdash_\uniq{} \pi \Rightarrow \{~^\uniq{} \pi\}) }
+    \\
+    \gray{\Delta; \Gamma_1 \vdash \tyvar{si} \lesssim \tyvar{sx} \Rightarrow \Gamma'}
+    \\
+    \hlight{\Theta_2 = \Theta_1[\updateconflicts{\Theta_1}{\pi}{\kappa}]}
+  }
+  {
+    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{\pi := e}{\unitty \hlight{\withslice{\varnothing}}}
+   {\Gamma'[\pi \mapsto \tyvar{si}] \vartriangleright \pi}{\hlight{\Theta_2}}
+  }{tassign}
+```
+
+@IRDef[name: "assign"]:
+  | Top:
+    @Premise:
+      who
 
 // TODOS for WILL:
-// * in-markdown comment syntax
 // * labels on #-headers / all md-specific elements
 // * newline at end of block should indent to current block
-// * fix position of error box. show compiler errors inline
-// * js commands (e.g. block comment) aren't working in script blocks
+// * fix position of error box.
+// * pass parameters to &-form, eg citet
 
 
 @References[bibtex]

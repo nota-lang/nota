@@ -1178,7 +1178,7 @@ export let treeToString = (tree: Tree, contents: string): string => {
     output.push(indentString(`${cursor.name}: "${subInput}"`, 2 * depth(cursor.node)));
   } while (cursor.next());
 
-  return output.join('\n');
+  return output.join("\n");
 };
 
 export let printTree = (tree: Tree, contents: string) => {
