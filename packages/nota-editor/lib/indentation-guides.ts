@@ -40,7 +40,8 @@ class IndentationWidget extends WidgetType {
     for (let indent of this.indents) {
       const marker = wrap.appendChild(document.createElement("span"));
       marker.className = "cm-indentation-guide";
-      marker.textContent = " ".repeat(indent);
+      marker.textContent = " ";
+      wrap.append(" ".repeat(indent - 1));
     }
     return wrap;
   }
@@ -78,18 +79,19 @@ function makeIndentationWidget(
     // if the indent <= length we just use the indentationMark
     return;
   }
-  const indents = [];
-  const toFill = indent - length;
-  let initialFill = toFill % tabSize;
-  if (length < tabSize) {
-    initialFill += length ? tabSize : 2 * tabSize;
-  }
-  if (initialFill) {
-    indents.push(initialFill);
-  }
-  const quotient = (toFill - initialFill) / tabSize;
-  indents.push(...Array(quotient).fill(tabSize));
-  builder.add(to, to, IndentationWidget.create(indents));
+  // const indents = [];
+  // const toFill = indent - length;
+  // let initialFill = toFill % tabSize;
+  // if (length < tabSize) {
+  //   initialFill += length ? tabSize : 2 * tabSize;
+  // }
+  // if (initialFill) {
+  //   indents.push(initialFill);
+  // }
+  // const quotient = Math.abs(toFill - initialFill) / tabSize;
+  // console.log(toFill, initialFill, tabSize);
+  // indents.push(...Array(quotient).fill(tabSize));
+  builder.add(to, to, IndentationWidget.create(Array(Math.floor(indent / tabSize)).fill(tabSize)));
 }
 
 function makeIndentationDecorators(view: EditorView) {
@@ -151,7 +153,7 @@ const showIndentations = ViewPlugin.fromClass(
 
 const indentationTheme = EditorView.baseTheme({
   ".cm-indentation-widget": {
-    display: "inline-block",
+    // display: "inline-block",
   },
   ".cm-indentation-guide": {
     position: "relative",

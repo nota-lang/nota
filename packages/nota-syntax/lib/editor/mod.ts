@@ -5,6 +5,7 @@ import {
   LanguageDescription,
   LanguageSupport,
   ParseContext,
+  TreeIndentContext,
   continuedIndent,
   defaultHighlightStyle,
   defineLanguageFacet,
@@ -19,13 +20,14 @@ import { KeyBinding, keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import { MarkdownParser, parseCode } from "@lezer/markdown";
 
-import { CodeTag, MathTag, jsParser, mdParser } from "../parse/mod.js";
+import { CodeTag, MathTag, jsParser, mdParser, mdTerms } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
 import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";
 
 let notaJsLanguage = LRLanguage.define({
   parser: jsParser.configure({
     props: [
+      // copied from @codemirror/javascript
       indentNodeProp.add({
         IfStatement: continuedIndent({ except: /^\s*({|else\b)/ }),
         TryStatement: continuedIndent({ except: /^\s*({|catch\b|finally\b)/ }),
@@ -60,9 +62,6 @@ let notaJsLanguage = LRLanguage.define({
           return { from: tree.from + 2, to: tree.to - 2 };
         },
       }),
-      indentNodeProp.add({
-        ArgText: continuedIndent(),
-      }),
     ],
   }),
   languageData: {
@@ -73,10 +72,6 @@ let notaJsLanguage = LRLanguage.define({
   },
 });
 
-let notaCompletion = notaJsLanguage.data.of({
-  autocomplete,
-});
-
 let notaJsStyle = HighlightStyle.define([
   { tag: CodeTag, class: "nota-editor-code" },
   { tag: MathTag, color: "rgb(31, 95, 31)" },
@@ -85,7 +80,6 @@ let notaJsStyle = HighlightStyle.define([
 ]);
 
 let notaJs = new LanguageSupport(notaJsLanguage, [
-  notaCompletion,
   syntaxHighlighting(notaJsStyle),
   syntaxHighlighting(defaultHighlightStyle),
 ]);
@@ -96,23 +90,29 @@ export function mkLang(parser: MarkdownParser) {
   return new Language(
     defineLanguageFacet({
       commentTokens: { line: "//" },
+      autocomplete,
     }),
     parser.configure({
       props: [
         indentNodeProp.add({
-          NotaBlockComponent: continuedIndent(),
+          // NotaBlockComponent: continuedIndent(),
+          Document: (context: TreeIndentContext) => {
+            let child = context.node.resolveInner(context.pos, -1);
+            let baseIndent = context.lineIndent(child.from);
+            if (
+              child.type.id == mdTerms.NotaBlockComponent ||
+              child.type.id == mdTerms.NotaBlockAttribute
+            ) {
+              return baseIndent + context.unit;
+            }
+
+            return baseIndent;
+          },
         }),
       ],
     })
   );
 }
-
-export let notaMdLang = mkLang(mdParser);
-
-const markdownKeymap: readonly KeyBinding[] = [
-  { key: "Enter", run: insertNewlineContinueMarkup },
-  { key: "Backspace", run: deleteMarkupBackward },
-];
 
 // Copied from
 // https://github.com/codemirror/lang-markdown/blob/91c316431ab2df5649127af32e95fc74dbca0d97/src/markdown.ts#L35
@@ -147,6 +147,11 @@ export let nota = (
     }),
   ];
   let lang = mkLang(mdParser.configure(mdExtensions));
+  let markdownKeymap: readonly KeyBinding[] = [
+    { key: "Enter", run: insertNewlineContinueMarkup(lang) },
+    { key: "Backspace", run: deleteMarkupBackward(lang) },
+  ];
+
   return new LanguageSupport(lang, [
     syntaxHighlighting(notaMdStyle),
     syntaxHighlighting(defaultHighlightStyle),

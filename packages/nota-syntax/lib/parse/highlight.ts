@@ -60,4 +60,7 @@ export const jsHighlight = styleTags({
 
   // Nota additions
   macro: t.definitionKeyword,
+  "#": t.modifier,
+  NotaCommandNameIdentifier: t.special(t.variableName),
+  NotaCommandNameInteger: t.special(t.variableName),
 });

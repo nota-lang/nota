@@ -249,7 +249,7 @@ not-in-block`,
     baz
     $$`,
       `el(foo, {
-  bar: el(Fragment, {}, el($$, {}, "    baz")),
+  bar: el(Fragment, {}, el($$, {}, "baz")),
 });`,
     ],
   ];

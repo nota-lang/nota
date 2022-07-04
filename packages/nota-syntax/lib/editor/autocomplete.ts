@@ -25,15 +25,18 @@ let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
   );
 
 // TODO: not working, figure out how snippets work
-let _snippets: Completion[] = [["list", "@ol{\n\t@li{}\n}"]].map(([label, snippet]) =>
-  snip(snippet, { label, type: "react" })
-);
+let _snippets: Completion[] = [
+  ["definition", `@Definition[name: \${name}]:\n\t| Label: \${label}\n\t\${definition}`],
+].map(([label, snippet]) => snip(snippet, { label, type: "react" }));
 
 let ident = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
 export let autocomplete: CompletionSource = context => {
+  console.log("hm?");
+
   // let snippet = completeFromList(snippets)(context);
   // if (snippet) {
+  //   console.log(snippet);
   //   return snippet;
   // }
 
@@ -57,35 +60,32 @@ export let autocomplete: CompletionSource = context => {
     },
   });
 
-  // TODO!
-  // let nodeBefore = tree.resolveInner(context.pos, -1);
-  // let completions = new Map<number, Completion[]>([
-  //   [jsTerms.AtCommand, prelude],
-  //   [jsTerms.HashCommand, definitions],
-  // ]);
-  // let cmds = Array.from(completions.keys());
+  let nodeBefore = tree.resolveInner(context.pos, -1);
+  let completions = new Map<number, Completion[]>([
+    [mdTerms["@"], prelude],
+    [mdTerms["HeaderMark"], definitions],
+    [mdTerms["#"], definitions],
+  ]);
+  let cmds = Array.from(completions.keys());
 
-  // let parent = nodeBefore.parent;
+  let parent = nodeBefore.parent;
 
-  // // User has just typed "@"
-  // if (cmds.includes(nodeBefore.type.id)) {
-  //   return {
-  //     from: context.pos,
-  //     options: completions.get(nodeBefore.type.id)!,
-  //     span: ident,
-  //   };
-  // } // User is typing "@cmd"
-  // else if (
-  //   parent &&
-  //   (parent.type.id == terms.CommandName || parent.type.id == terms.VariableName) &&
-  //   parent.parent &&
-  //   cmds.includes(parent.parent.type.id)
-  // ) {
-  //   return {
-  //     from: nodeBefore.from,
-  //     options: completions.get(parent.parent.type.id)!,
-  //     span: ident,
-  //   };
-  // }
+  // User has just typed "@"
+  if (cmds.includes(nodeBefore.type.id)) {
+    return {
+      from: context.pos,
+      options: completions.get(nodeBefore.type.id)!,
+      validFor: ident,
+    };
+  }
+  // User is typing "@cmd"
+  else if (parent && parent.type.id == mdTerms.NotaCommandName) {
+    return {
+      from: nodeBefore.from,
+      options: completions.get(parent.prevSibling!.type.id)!,
+      validFor: ident,
+    };
+  }
+
   return null;
 };

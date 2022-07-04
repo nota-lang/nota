@@ -28,9 +28,10 @@ module.exports = {
         "JSX": true
     },
     "ignorePatterns": [
-        "*.d.ts", 
+        "*.d.ts",
         "packages/nota-syntax/lib/notajs.grammar.*",
-        "packages/nota-syntax/lib/markdown.ts"
+        "packages/nota-syntax/lib/markdown.ts",
+        "packages/nota-editor/lib/source-map.js"
     ],
     "rules": {
         "react/prop-types": "off",

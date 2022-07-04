@@ -9,18 +9,10 @@ import {
   EditorState as CmEditorState,
   EditorSelection,
   RangeSet,
-  RangeSetBuilder,
   StateEffect,
   StateField,
 } from "@codemirror/state";
-import {
-  Decoration,
-  DecorationSet,
-  EditorView,
-  KeyBinding,
-  ViewPlugin,
-  keymap,
-} from "@codemirror/view";
+import { Decoration, DecorationSet, EditorView, KeyBinding, keymap } from "@codemirror/view";
 import { isOk } from "@nota-lang/nota-common/dist/result";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import classNames from "classnames";

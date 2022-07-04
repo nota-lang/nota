@@ -191,7 +191,7 @@ class NotaBlockAttributeParser implements BlockParser {
       cx.startComposite("NotaBlockAttribute", startRelative, INDENT);
       children.forEach(child => cx.addElement(child));
 
-      while (cx.nextLine() && line.next == -1) {}
+      while (cx.nextLine() && line.next == -1);
 
       if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
         cx.startComposite("NotaBlockContent", line.pos, 0);
@@ -255,7 +255,7 @@ class NotaBlockComponentParser implements BlockParser {
         cx.startComposite("NotaBlockComponent", startRelative, INDENT);
         children.forEach(child => cx.addElement(child));
 
-        while (cx.nextLine() && line.next == -1) {}
+        while (cx.nextLine() && line.next == -1);
 
         if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
           cx.startComposite("NotaBlockContent", line.pos, 0);
@@ -297,7 +297,7 @@ class NotaBlockComponentParser implements BlockParser {
     return BLOCK_FAIL;
   }
 
-  endLeaf(cx: BlockContext, line: Line, leaf: LeafBlock): boolean {
+  endLeaf(cx: BlockContext, line: Line, _leaf: LeafBlock): boolean {
     return cx.parentType().name == "NotaBlockContent" && !skipForNota(cx, line, INDENT);
   }
 }
@@ -523,7 +523,7 @@ export let notaTemplateBlock = (
   line: Line,
   parseEnd: (cx: BlockContext, line: Line) => BlockResult
 ): Element => {
-  let start = cx.lineStart;
+  let start = cx.lineStart + line.pos;
   let children = [];
   while (parseEnd(cx, line) === BLOCK_FAIL) {
     children.push(

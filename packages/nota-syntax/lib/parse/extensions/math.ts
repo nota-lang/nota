@@ -23,13 +23,13 @@ let parseMathInline = (cx: InlineContext, next: number, pos: number): number => 
 
 let parseMathBlock = (cx: BlockContext, line: Line): BlockResult => {
   if (line.text.slice(line.pos).startsWith("$$")) {
-    let start = cx.lineStart;
-    let startDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
+    let start = cx.lineStart + line.pos;
+    let startDelim = cx.elt("MathMark", cx.lineStart + line.pos, cx.lineStart + line.pos + 2);
     cx.nextLine();
     let contents = notaTemplateBlock(cx, line, (_cx, line) =>
       line.text.slice(line.pos).startsWith("$$")
     );
-    let endDelim = cx.elt("MathMark", cx.lineStart, cx.lineStart + 2);
+    let endDelim = cx.elt("MathMark", cx.lineStart + line.pos, cx.lineStart + line.pos + 2);
     cx.addElement(cx.elt("MathBlock", start, endDelim.to, [startDelim, contents, endDelim]));
     cx.nextLine();
     return true;
@@ -55,8 +55,10 @@ export let MathExtension: MarkdownConfig = {
     {
       name: "MathBlock",
       block: true,
+      style: {
+        "MathBlock/...": MathTag,
+      },
     },
-    { name: "MathContents", style: { "MathContents/...": MathTag } },
   ],
   parseBlock: [
     {

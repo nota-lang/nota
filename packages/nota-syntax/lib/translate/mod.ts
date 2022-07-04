@@ -549,7 +549,6 @@ export class Translator {
     let children = collectSiblings(node.firstChild);
     let childExprs = children.map(child => {
       if (matches(child, jsTerms.NotaTemplateLiteral)) {
-        let t = this.text(child);
         return strLit(this.text(child));
       } else {
         assert(matches(child, jsTerms.NotaTemplateCommand));

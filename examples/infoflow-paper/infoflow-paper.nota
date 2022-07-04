@@ -247,6 +247,9 @@ let plc = L.plc;
 let vr = L.vr;
 let expr = L.expr;
 let tys = L.tys;
+let uniq = L.ownquniq();
+let shrd = L.ownqshrd();
+let pexp = L.pexp;
 %%%
 
 @(L.Bnf)[subset:
@@ -321,29 +324,58 @@ The key concept is the formula $ #depctx _1[\forall #plc^\square[#vr] ~ . ~ #plc
 
 Next, the assignment expression rule is defined as updating all the *conflicts* of a place $#plc$:
 
-```
-\typerule{T-Assign}
-  {
-    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{e}{\tyvar{si} \hlight{\withslice{\kappa}}}{\Gamma_1}{\hlight{\Theta_1}} 
-    \\
-    \gray{\Gamma_1(\pi) = \tyvar{sx} }
-    \\
-    \gray{(\tyvar{sx} = \tyvar{sd} \vee \Delta; \Gamma_1 \vdash_\uniq{} \pi \Rightarrow \{~^\uniq{} \pi\}) }
-    \\
-    \gray{\Delta; \Gamma_1 \vdash \tyvar{si} \lesssim \tyvar{sx} \Rightarrow \Gamma'}
-    \\
-    \hlight{\Theta_2 = \Theta_1[\updateconflicts{\Theta_1}{\pi}{\kappa}]}
-  }
-  {
-    \tcnew{\Sigma}{\Delta}{\Gamma}{\hlight{\Theta}}{\pi := e}{\unitty \hlight{\withslice{\varnothing}}}
-   {\Gamma'[\pi \mapsto \tyvar{si}] \vartriangleright \pi}{\hlight{\Theta_2}}
-  }{tassign}
-```
+%%%
+let updateconflicts = macro{#texRef{updateconflicts}{#msf{update}\text{-}#msf{conflicts}(#1, #2, #3)}};
+%%%
 
 @IRDef[name: "assign"]:
   | Top:
     @Premise:
-      who
+      $#tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{#expr}{#tys #hlt{#withslice{#deps}}}{\Gamma_1}{#hlt{#depctx _1}}$
+    @Premise: $#gray{\Gamma_1(#plc) = #(L.tysx)}$
+    @Premise:
+      $#gray{(#(L.tysx) = #(L.tyd) \vee \Delta; \Gamma_1 \vdash_{#uniq} #plc \Rightarrow \{~^{#uniq} #plc\})}$
+    @Premise:
+      $#gray{\Delta; \Gamma_1 \vdash #tys \lesssim #(L.tysx) \Rightarrow \Gamma'}$
+    @Premise:
+      $#hlt{#depctx _2 = #depctx _1[#updateconflicts{#depctx _1}{#plc}{#deps}]}$
+  | Bot:
+    $#tcnew{\Sigma}{\Delta}{\Gamma}{#hlt{#depctx}}{#plc := #expr}
+      {#(L.tybunit){} #hlt{#withslice{\varnothing}}}
+      {\Gamma'[#plc \mapsto #tys] \vartriangleright #plc}{#hlt{#depctx _2}}$
+
+If you conceptualize a type as a tree and a path as a node in that tree, then a node's conflicts are its ancestors and descendants (but not siblings). Semantically, conflicts are the set of places whose value change if a given place is mutated. Recall from the previous example that $t.1$ conflicts with $t$ and $t.1$, but not $t.0$. Formally, we say two places are disjoint ($#("\#")$) or conflict ($\sqcap$) when:
+
+%%%
+let disjoint = macro{#texRef{disjoint}{#1 \mathop{#("\#")} #2}};
+let notdisjoint = macro{#texRef{notdisjoint}{#1 \sqcap #2}};
+let eqdef = #{\overset{\mathrm{def}}{=}};
+%%%
+
+@Definition[name: "disjoint"]:
+  @Definition[name: "notdisjoint"]:
+    $$
+    \begin{align*}
+      #disjoint{#vr _1 . q_1}{#vr _2 . q_2} &#eqdef #vr _1 \neq #vr _2 \vee (&&(q_1 \text{ is not a prefix of } q_2) ~ \wedge \\ & &&(q_2 \text{ is not a prefix of } q_1)) \\
+      #notdisjoint{#plc _1}{#plc _2} &#eqdef \neg(#disjoint{#plc _1}{#plc _2}) 
+    \end{align*}
+    $$
+
+Then to update a place's conflicts in $#depctx$, we define the metafunction $#msf{update}\text{-}#msf{conflicts}$ to add $#deps$ to all conflicting places $#pexp'$. (Note that this rule is actually defined over place *expressions* $#pexp$, which are explained in the next subsection.)
+
+@Definition[name: "updateconflicts"]:
+  $$
+  \begin{align*}
+       &#updateconflicts{#depctx}{#pexp}{#deps} #eqdef \\ 
+       &\hspace{20pt} \forall #pexp' \mapsto #deps _{#pexp'} \in #depctx _{#msf{cfl}}  ~ . ~ #pexp' \mapsto #deps _{#pexp'} \cup #deps \\
+       &\hspace{20pt} \text{where} ~ #depctx _{#msf{cfl}} = \{#pexp' \mapsto #deps _{#pexp'} \in #depctx \mid #notdisjoint{#pexp}{#pexp'}\}
+  \end{align*}
+  $$
+
+Finally, the rule for reading places is simply to look up the place's dependencies in $#depctx$:
+
+
+@(L.Bnf)[subset: ["ownq", "tysx", "tyd", "pexp"]]
 
 // TODOS for WILL:
 // * labels on #-headers / all md-specific elements
