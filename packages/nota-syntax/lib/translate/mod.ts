@@ -233,10 +233,7 @@ export class Translator {
 
         // Nota extensions:
         case mdTerms.MathInline: {
-          let template = node
-            .getChild(jsTerms.NotaTemplateExternal)!
-            .getChild(jsTerms.NotaTemplate)!;
-          let children = this.translateNotaTemplate(template);
+          let children = this.translateNotaTemplateExternal(node);
           expr = toReact(t.identifier("$"), [], [t.spreadElement(children)]);
           break;
         }
@@ -315,9 +312,10 @@ export class Translator {
           attributes.push([strLit("language"), this.ident(codeInfo)]);
         }
 
-        let codeText = node.getChild(mdTerms.CodeText)!;
+        let codeTexts = node.getChildren(mdTerms.CodeText)!;
+        let text = codeTexts.map(child => this.text(child)).join("");
 
-        expr = toReact(t.identifier("Listing"), attributes, [strLit(this.text(codeText))]);
+        expr = toReact(t.identifier("Listing"), attributes, [strLit(text)]);
         break;
       }
 
@@ -347,6 +345,29 @@ export class Translator {
         break;
       }
 
+      case mdTerms.Table: {
+        let parseRow = (node: SyntaxNode, cellType: string): Expression => {
+          let cellNodes = node.getChildren(mdTerms.TableCell);
+          let cells = cellNodes.map(child => {
+            let exprs = this.translateMdInlineSequence(this.markdownChildren(child));
+            return toReact(strLit(cellType), [], exprs);
+          });
+          return toReact(strLit("tr"), [], cells);
+        };
+
+        let headerNode = node.getChild(mdTerms.TableHeader)!;
+        let header = parseRow(headerNode, "th");
+        let thead = toReact(strLit("thead"), [], [header]);
+
+        let bodyNodes = node.getChildren(mdTerms.TableRow)!;
+        let rows = bodyNodes.map(child => parseRow(child, "td"));
+        let tbody = toReact(strLit("tbody"), [], rows);
+
+        expr = toReact(strLit("table"), [], [thead, tbody]);
+
+        break;
+      }
+
       case mdTerms.NotaScript: {
         let child = node.getChild(jsTerms.NotaStmts)!;
         stmts = collectSiblings(child.firstChild).map(node => this.translateJsStmt(node));
@@ -371,8 +392,7 @@ export class Translator {
       }
 
       case mdTerms.MathBlock: {
-        let template = node.getChild(jsTerms.NotaTemplateExternal)!.getChild(jsTerms.NotaTemplate)!;
-        let children = this.translateNotaTemplate(template);
+        let children = this.translateNotaTemplateExternal(node);
         expr = toReact(t.identifier("$$"), [], [t.spreadElement(children)]);
         break;
       }
@@ -389,6 +409,15 @@ export class Translator {
     }
 
     return [this.spanned(expr, node), stmts];
+  }
+
+  translateNotaTemplateExternal(parent: SyntaxNode): Expression {
+    let child;
+    if ((child = parent.getChild(jsTerms.NotaTemplateExternal))) {
+      return this.translateNotaTemplate(child.getChild(jsTerms.NotaTemplate)!);
+    } else {
+      return t.arrayExpression([]);
+    }
   }
 
   translateNotaExpr(node: SyntaxNode): Expression {
@@ -576,7 +605,8 @@ export class Translator {
       }
 
       case jsTerms.ArrayPattern: {
-        let elements = node.getChildren(jsTerms.SpreadablePatternAssign).map(child => {
+        // TODO: getting a weird type error around PatternLike
+        let elements: any = node.getChildren(jsTerms.SpreadablePatternAssign).map(child => {
           let patternAssign = child.getChild(jsTerms.PatternAssign)!;
           if (child.getChild(jsTerms.Spread)) {
             return t.restElement(this.translateJsLval(patternAssign));
@@ -1123,7 +1153,7 @@ export let translateAst = (input: string, tree: Tree): Program => {
   let createElLong = t.identifier("createElement");
   let observer = t.identifier("observer");
 
-  let program: Statement[] = [
+  let jsImportStmts = [
     t.importDeclaration(
       [t.importSpecifier(createEl, createElLong), t.importSpecifier(fragment, fragment)],
       strLit("react")
@@ -1135,18 +1165,31 @@ export let translateAst = (input: string, tree: Tree): Program => {
       ),
       strLit("@nota-lang/nota-components")
     ),
-    ..._.toPairs(preludeImports).map(([mod, ks]) =>
-      t.variableDeclaration("const", [
-        t.variableDeclarator(
-          t.objectPattern(
-            ks.map(k =>
-              t.objectProperty({ key: t.identifier(k), value: t.identifier(k), shorthand: true })
-            )
-          ),
-          t.identifier(mod)
+  ];
+
+  let preludeImportStmts = _.toPairs(preludeImports).map(([mod, ks]) =>
+    t.variableDeclaration("const", [
+      t.variableDeclarator(
+        t.objectPattern(
+          ks.map(k =>
+            t.objectProperty({ key: t.identifier(k), value: t.identifier(k), shorthand: true })
+          )
         ),
-      ])
-    ),
+        t.identifier(mod)
+      ),
+    ])
+  );
+
+  let cssFiles = ["@nota-lang/nota-components/dist/index.css"];
+  if ("tex" in preludeImports) {
+    cssFiles.push("katex/dist/katex.min.css");
+  }
+  let cssImportStmts = cssFiles.map(s => t.importDeclaration([], strLit(s)));
+
+  let program: Statement[] = [
+    ...jsImportStmts,
+    ...cssImportStmts,
+    ...preludeImportStmts,
     ...Array.from(translator.imports),
     ...Array.from(translator.exports),
     t.exportDefaultDeclaration(

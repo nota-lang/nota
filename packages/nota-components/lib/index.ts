@@ -15,3 +15,4 @@ export * as loader from "./loader.js";
 export * as logger from "./logger.js";
 export * as plugin from "./plugin.js";
 export * as portal from "./portal.js";
+export * as vega from "./vega.js";

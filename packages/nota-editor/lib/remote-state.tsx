@@ -32,17 +32,20 @@ export class RemoteState implements State {
   availableLanguages: { [lang: string]: LanguageSupport } = {};
   runtimeError?: Error = undefined;
 
-  private ws: WebSocket;
-
   constructor() {
-    let host = window.location.host;
-    this.ws = new WebSocket(`ws://${host}`);
+    this.connect();
+    makeAutoObservable(this);
+  }
 
-    this.ws.onerror = evt => {
+  connect() {
+    let host = window.location.host;
+    let ws = new WebSocket(`ws://${host}`);
+
+    ws.onerror = evt => {
       console.error(evt);
     };
 
-    this.ws.onopen = async () => {
+    ws.onopen = async () => {
       let needsSync = false;
       reaction(
         () => [this.contents],
@@ -58,7 +61,7 @@ export class RemoteState implements State {
             type: "SyncText",
             contents: this.contents,
           };
-          this.ws.send(JSON.stringify(sync));
+          ws.send(JSON.stringify(sync));
         }
       };
 
@@ -73,7 +76,7 @@ export class RemoteState implements State {
       // setInterval(sync, 1000);
     };
 
-    this.ws.onmessage = action(event => {
+    ws.onmessage = action(event => {
       let msg: Message = JSON.parse(event.data);
       if (msg.type == "InitialContent") {
         this.contents = msg.contents;
@@ -91,6 +94,9 @@ export class RemoteState implements State {
       }
     });
 
-    makeAutoObservable(this);
+    ws.onclose = () => {
+      // TODO: need to show somewhere that the connection is dropped
+      setTimeout(() => this.connect(), 1000);
+    };
   }
 }

@@ -13,6 +13,10 @@ export let dynamicLoad = (config: {
     if (path == "@nota-lang/nota-components/dist/peer-imports.js") {
       return { peerImports };
     }
+    if (path == "@nota-lang/nota-components/dist/index.css") {
+      return;
+    }
+
     if (path in imports) {
       return imports[path];
     }

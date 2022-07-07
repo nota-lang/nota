@@ -15,26 +15,30 @@ import {
 } from "@lezer/markdown";
 import _ from "lodash";
 
+import { mdTerms } from "../mod.js";
 //@ts-ignore
 import { parser as baseJsParser } from "../notajs.grammar.js";
 //@ts-ignore
 import * as jsTerms from "../notajs.grammar.terms.js";
 
-const [atSign, hash, pct, lbrc, rbrc, lparen, rparen, lbrkt, rbrkt, colon, pipe, space, bslash] = [
-  "@",
-  "#",
-  "%",
-  "{",
-  "}",
-  "(",
-  ")",
-  "[",
-  "]",
-  ":",
-  "|",
-  " ",
-  "\\",
-].map(s => s.charCodeAt(0));
+const [
+  atSign,
+  hash,
+  pct,
+  lbrc,
+  rbrc,
+  lparen,
+  rparen,
+  lbrkt,
+  rbrkt,
+  colon,
+  pipe,
+  space,
+  bslash,
+  period,
+] = ["@", "#", "%", "{", "}", "(", ")", "[", "]", ":", "|", " ", "\\", "."].map(s =>
+  s.charCodeAt(0)
+);
 
 const BLOCK_COMPLETE = true;
 const BLOCK_FAIL = false;
@@ -188,13 +192,13 @@ class NotaBlockAttributeParser implements BlockParser {
       }
 
       let baseIndent = line.baseIndent;
-      cx.startComposite("NotaBlockAttribute", startRelative, INDENT);
+      cx.startComposite("NotaBlockAttribute", startRelative, baseIndent + INDENT);
       children.forEach(child => cx.addElement(child));
 
       while (cx.nextLine() && line.next == -1);
 
       if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
-        cx.startComposite("NotaBlockContent", line.pos, 0);
+        cx.startComposite("NotaBlockContent", line.pos, baseIndent + INDENT);
         return BLOCK_CONTINUE;
       } else {
         return BLOCK_COMPLETE;
@@ -252,13 +256,13 @@ class NotaBlockComponentParser implements BlockParser {
         }
 
         let baseIndent = line.baseIndent;
-        cx.startComposite("NotaBlockComponent", startRelative, INDENT);
+        cx.startComposite("NotaBlockComponent", startRelative, baseIndent + INDENT);
         children.forEach(child => cx.addElement(child));
 
         while (cx.nextLine() && line.next == -1);
 
         if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
-          cx.startComposite("NotaBlockContent", line.pos, 0);
+          cx.startComposite("NotaBlockContent", line.pos, baseIndent + INDENT);
           return BLOCK_CONTINUE;
         } else {
           return BLOCK_COMPLETE;
@@ -269,19 +273,14 @@ class NotaBlockComponentParser implements BlockParser {
         pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
         if (pos == INLINE_FAIL) return BLOCK_FAIL;
         children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
-        let mkComponent = (ty: string) => cx.elt(ty, start, pos, children);
 
-        icx = makeInlineContext(cx, line);
-        if (pos < icx.end) {
-          let rest = cx.parser.parseInline(icx.slice(pos, icx.end), pos);
-          cx.addElement(
-            cx.elt("Paragraph", start, icx.end, [mkComponent("NotaInlineComponent"), ...rest])
-          );
-        } else {
-          cx.addElement(mkComponent("NotaBlockComponent"));
+        if (pos < cx.lineStart + line.text.length) {
+          return BLOCK_FAIL;
         }
 
+        cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
         cx.nextLine();
+
         return BLOCK_COMPLETE;
       } else if (pos == icx.end) {
         // EOL?
@@ -290,7 +289,7 @@ class NotaBlockComponentParser implements BlockParser {
         cx.nextLine();
         return BLOCK_COMPLETE;
       } else {
-        throw `TODO`;
+        return BLOCK_FAIL;
       }
     }
 
@@ -298,7 +297,12 @@ class NotaBlockComponentParser implements BlockParser {
   }
 
   endLeaf(cx: BlockContext, line: Line, _leaf: LeafBlock): boolean {
-    return cx.parentType().name == "NotaBlockContent" && !skipForNota(cx, line, INDENT);
+    let stack = (cx as any).stack;
+    if (stack.length >= 1) {
+      let block = stack[stack.length - 1];
+      return block.type == mdTerms.NotaBlockContent && line.indent < block.value;
+    }
+    return false;
   }
 }
 
@@ -316,8 +320,8 @@ let skipForNota = (_cx: BlockContext, line: Line, value: number): boolean => {
   //   "text",
   //   line.text
   // );
-  if (line.indent < line.baseIndent + value && line.next > END_OF_LINE) return false;
-  line.moveBaseColumn(line.baseIndent + value);
+  if (line.indent < value && line.next > END_OF_LINE) return false;
+  line.moveBaseColumn(value);
   return true;
 };
 
@@ -398,12 +402,13 @@ class NotaInlineComponentStartParser implements InlineParser {
   name = "NotaInlineComponentStart";
 
   parse(cx: InlineContext, next: number, pos: number): number {
-    if (next == atSign) {
+    if (next == atSign || (next == period && cx.char(pos + 1) == atSign)) {
       let start = pos;
 
       // @
-      let children = [cx.elt("@", pos, pos + 1)];
-      pos += 1;
+      let sigilSize = next == period ? 2 : 1;
+      let children = [cx.elt("@", pos, pos + sigilSize)];
+      pos += sigilSize;
 
       // Component?
       if (cx.char(pos) != lbrc) {
@@ -507,15 +512,17 @@ class NotaInlineEndParser implements InlineParser {
 
 export let notaTemplateInline = (cx: InlineContext, pos: number, delim: number): Element => {
   let start = pos;
+  let children = [];
   while (pos < cx.end) {
-    if (cx.char(pos) == bslash) {
-      pos = Math.min(pos + 2, cx.end);
+    if (pos < cx.end - 1 && cx.char(pos) == bslash && cx.char(pos + 1) == delim) {
+      children.push(cx.elt("Escape", pos, pos + 2));
+      pos += 2;
     } else if (cx.char(pos) == delim) {
       break;
     }
     pos++;
   }
-  return cx.elt("NotaTemplateBlock", start, pos);
+  return cx.elt("NotaTemplateBlock", start, pos, children);
 };
 
 export let notaTemplateBlock = (

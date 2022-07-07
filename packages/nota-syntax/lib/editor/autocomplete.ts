@@ -32,8 +32,6 @@ let _snippets: Completion[] = [
 let ident = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
 export let autocomplete: CompletionSource = context => {
-  console.log("hm?");
-
   // let snippet = completeFromList(snippets)(context);
   // if (snippet) {
   //   console.log(snippet);
@@ -65,10 +63,13 @@ export let autocomplete: CompletionSource = context => {
     [mdTerms["@"], prelude],
     [mdTerms["HeaderMark"], definitions],
     [mdTerms["#"], definitions],
+    [jsTerms["NotaTemplateCommand"], definitions],
   ]);
   let cmds = Array.from(completions.keys());
 
   let parent = nodeBefore.parent;
+
+  // console.log(nodeBefore.name, parent?.name);
 
   // User has just typed "@"
   if (cmds.includes(nodeBefore.type.id)) {

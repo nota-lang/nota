@@ -685,6 +685,8 @@ NotaMacro {
 
   LessThan[@name=CompareOp] { "<" }
 
+  "#"[@name=Hash, @export=Hash]
+
   "="[@name=Equals, @export=Equals]
   "..."[@name=Spread, @export=Spread]
   "=>"[@name=Arrow, @export=Arrow]

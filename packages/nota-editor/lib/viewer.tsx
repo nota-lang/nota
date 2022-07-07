@@ -1,6 +1,6 @@
 import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup";
 import { javascript } from "@codemirror/lang-javascript";
-import { Result, err, isErr, isOk, ok, resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import { Result, err, isErr, isOk, ok } from "@nota-lang/nota-common/dist/result.js";
 import type { DocumentProps } from "@nota-lang/nota-components/dist/document.js";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import { treeToString } from "@nota-lang/nota-syntax/dist/translate/mod";
@@ -98,33 +98,13 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
 
   let DocResult = execute(result, imports || {});
 
-  let errored = false;
-  useEffect(
-    action(() => {
-      if (errored) {
-        errored = false;
-        return;
-      }
-      let Doc = resUnwrap(DocResult);
-      lastTranslation.t = <Doc key={counter++} editing />;
-    }),
-    [result]
+  // TODO: lastTranslation thing is causing an infinite error loop?
+  let fallback = (err: JSX.Element) => (
+    <>
+      <ErrorView>{err}</ErrorView>
+      {/* {lastTranslation.t} */}
+    </>
   );
-
-  let fallback = (err: JSX.Element) => {
-    errored = true;
-    return (
-      <>
-        <ErrorView>{err}</ErrorView>
-        {lastTranslation.t}
-      </>
-    );
-  };
-
-  let ResetRuntimeError: React.FC<{ result: any }> = action(() => {
-    state.runtimeError = undefined;
-    return null;
-  });
 
   return (
     <>
@@ -145,8 +125,24 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
           return fallback(err);
         })}
       >
-        {isOk(DocResult) ? <DocResult.value key={counter++} editing /> : fallback(DocResult.value)}
-        <ResetRuntimeError result={result} />
+        {(() => {
+          if (isOk(DocResult)) {
+            let el = <DocResult.value key={counter++} editing />;
+            let ResetRuntimeError = action(() => {
+              state.runtimeError = undefined;
+              lastTranslation.t = el;
+              return null;
+            });
+            return (
+              <>
+                {el}
+                <ResetRuntimeError />
+              </>
+            );
+          } else {
+            return fallback(DocResult.value);
+          }
+        })()}
       </ErrorBoundary>
     </>
   );

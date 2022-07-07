@@ -119,110 +119,102 @@ export class Language {
 
     const MAX_ROW_WIDTH = 350;
 
-    let includedCmds: { [cmd: string]: boolean | string[] } | null = null;
-    if (props.subset) {
-      includedCmds = {};
-      props.subset.forEach(t => {
-        if (typeof t == "string") {
-          includedCmds![t] = true;
-        } else {
-          includedCmds![t[0]] = t[1];
+    let subset = props.subset?.map<[string, string[] | true]>(t => {
+      if (typeof t == "string") {
+        return [t, true];
+      } else {
+        return t;
+      }
+    });
+
+    let sizedProductions = zipExn(this._grammar, branchDims);
+    if (subset) {
+      sizedProductions = subset.map(([k]) => {
+        let prod = sizedProductions.find(([{ cmd }]) => k == cmd);
+        if (!prod) {
+          console.error(`No production named: ${k}`);
+          throw new Error(`No production named: ${k}`);
         }
+        return prod;
       });
     }
 
-    let rules = zipExn(this._grammar, branchDims)
-      .filter(([{ cmd }]) => !includedCmds || cmd in includedCmds)
-      .map(([{ kind, cmd, metavar, branches }, bdims]) => {
-        let makeRhs = (hl?: string) => {
-          if (branches.length == 0) {
-            return "";
+    let rules = sizedProductions.map(([{ kind, cmd, metavar, branches }, bdims]) => {
+      let makeRhs = (hl?: string) => {
+        if (branches.length == 0) {
+          return "";
+        }
+
+        let sizedBranches = zipExn(branches, bdims);
+        let branchesAreSubset = false;
+        if (subset) {
+          let [_k, subsetBranches] = subset.find(([k]) => k == cmd)!;
+          if (subsetBranches !== true) {
+            branchesAreSubset = true;
+            sizedBranches = subsetBranches.map(k2 => {
+              let branch = sizedBranches.find(([{ subcmd }]) => subcmd == k2);
+              if (!branch) {
+                console.error(`No branch in production ${cmd} named: ${k2}`);
+                throw new Error(`No branch in production ${cmd} named: ${k2}`);
+              }
+              return branch;
+            });
           }
+        }
 
-          let [rows] = zipExn(branches, bdims)
-            .filter(
-              ([{ subcmd }]) =>
-                !includedCmds ||
-                includedCmds[cmd] === true ||
-                (includedCmds[cmd] as any).includes(subcmd)
-            )
-            .reduce(
-              ([rows, curWidth], [branch, dims]) => {
-                let lastRow = rows[rows.length - 1];
-                if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
-                  rows.push([branch]);
-                  curWidth = dims.width;
-                } else {
-                  lastRow.push(branch);
-                  curWidth += dims.width;
-                }
-                return [rows, curWidth];
-              },
-              [[[]] as SyntaxBranch[][], 0]
-            );
-          let str = addBetween(
-            rows
-              // if we're highlighting a specific branch, then remove other rows
-              .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
-              .map(row => {
-                let addDots =
-                  (hl && rows.length > 1) ||
-                  (includedCmds && typeof includedCmds[cmd] != "boolean");
-                return (
-                  addBetween(
-                    row.map(branch => {
-                      let tex = branchToTex(cmd)(branch);
-                      if (hl && branch.subcmd == hl) {
-                        tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
-                      }
-                      return tex;
-                    }),
-                    r`\mid`
-                  ) as NestedArray<any>
-                ).concat(addDots ? [r`\mid \ldots`] : []);
-              }),
-            r`\\& & & && &&\mid`
-          );
-          return [`::= ~ &&`, str];
-        };
+        let [rows] = sizedBranches.reduce(
+          ([rows, curWidth], [branch, dims]) => {
+            let lastRow = rows[rows.length - 1];
+            if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
+              rows.push([branch]);
+              curWidth = dims.width;
+            } else {
+              lastRow.push(branch);
+              curWidth += dims.width;
+            }
+            return [rows, curWidth];
+          },
+          [[[]] as SyntaxBranch[][], 0]
+        );
+        let str = addBetween(
+          rows
+            // if we're highlighting a specific branch, then remove other rows
+            .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
+            .map(row => {
+              let addEllipsis = (hl && rows.length > 1) || branchesAreSubset;
+              return (
+                addBetween(
+                  row.map(branch => {
+                    let tex = branchToTex(cmd)(branch);
+                    if (hl && branch.subcmd == hl) {
+                      tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
+                    }
+                    return tex;
+                  }),
+                  r`\mid`
+                ) as NestedArray<any>
+              ).concat(addEllipsis ? [r`\mid \ldots`] : []);
+            }),
+          r`\\& & & && &&\mid`
+        );
+        return [`::= ~ &&`, str];
+      };
 
-        kind = kind.replace(/ /g, r`\ `);
+      kind = kind.replace(/ /g, r`\ `);
 
-        branches.forEach(({ subcmd }) => {
-          let rhs = makeRhs(subcmd);
-          defs.push([
-            `tex_${cmd}${subcmd}`,
-            {
-              tooltip: some(() => (
-                <$$ className="nomargin">
-                  {[
-                    r`\begin{aligned}&\mathsf{`,
-                    kind,
-                    `}& ~ &`,
-                    metavar,
-                    `&&`,
-                    rhs,
-                    r`\end{aligned}`,
-                  ]}
-                </$$>
-              )),
-              label: none(),
-            },
-          ]);
-        });
-
-        let rhs = makeRhs();
+      branches.forEach(({ subcmd }) => {
+        let rhs = makeRhs(subcmd);
         defs.push([
-          `tex_${cmd}`,
+          `tex_${cmd}${subcmd}`,
           {
             tooltip: some(() => (
               <$$ className="nomargin">
                 {[
                   r`\begin{aligned}&\mathsf{`,
                   kind,
-                  r`}& ~ &\htmlClass{tex-highlight}{`,
+                  `}& ~ &`,
                   metavar,
-                  `} &&`,
+                  `&&`,
                   rhs,
                   r`\end{aligned}`,
                 ]}
@@ -231,8 +223,30 @@ export class Language {
             label: none(),
           },
         ]);
-        return [r`&\htmlData{def=`, cmd, r`}{\mathsf{`, kind, `}}& ~ &`, metavar, ` &&`, rhs];
       });
+
+      let rhs = makeRhs();
+      defs.push([
+        `tex_${cmd}`,
+        {
+          tooltip: some(() => (
+            <$$ className="nomargin">
+              {[
+                r`\begin{aligned}&\mathsf{`,
+                kind,
+                r`}& ~ &\htmlClass{tex-highlight}{`,
+                metavar,
+                `} &&`,
+                rhs,
+                r`\end{aligned}`,
+              ]}
+            </$$>
+          )),
+          label: none(),
+        },
+      ]);
+      return [r`&\htmlData{def=`, cmd, r`}{\mathsf{`, kind, `}}& ~ &`, metavar, ` &&`, rhs];
+    });
 
     let layout = props.layout || {
       columns: 1,

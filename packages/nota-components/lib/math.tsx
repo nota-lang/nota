@@ -68,10 +68,7 @@ export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title
   return (
     <Definition name={name} label={`${label} ${suffix}`}>
       <div className="theorem">
-        <Smallcaps>
-          {label}
-          {suffix}
-        </Smallcaps>
+        <Smallcaps>{label + suffix}</Smallcaps>
         <div className="theorem-body">{children}</div>
       </div>
       <ctx.theorems.Pop />

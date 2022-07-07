@@ -47,9 +47,8 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
 
   app.use(express.static(__dirname));
   app.use(express.static(outdir));
-  if (opts.static) {
-    app.use(express.static(opts.static));
-  }
+  let staticDir = opts.static || "static";
+  app.use("/static", express.static(staticDir));
 
   const OUTPUT_JS_PATH = path.join(outdir, "document.js");
   const OUTPUT_MAP_PATH = OUTPUT_JS_PATH + ".map";

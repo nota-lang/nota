@@ -21,18 +21,23 @@ import {
 const r = String.raw;
 
 test("translate end-to-end", () => {
-  let input = `@h1: Hello world!`;
+  let input = `@h1: Hello $world!$`;
   let tree = resUnwrap(tryParse(input));
   let { code } = trans({ input, tree });
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
-import { document } from "@nota-lang/nota-components";
+import { document, tex } from "@nota-lang/nota-components";
+import "@nota-lang/nota-components/dist/index.css";
+import "katex/dist/katex.min.css";
 const {
   Document
 } = document;
+const {
+  $
+} = tex;
 export default observer(function TheDocument(docProps) {
-  return el(Document, docProps, el("h1", {}, "Hello world!"));
+  return el(Document, docProps, el("h1", {}, "Hello ", el($, {}, "world!")));
 });`;
   expect(code).toBe(expected.trim());
 });
@@ -107,6 +112,7 @@ test("translate markdown inline", () => {
   {b}$`,
       `el($, {}, a(["b"]));`,
     ],
+    [r`$\{foo\$\}$`, r`el($, {}, "\\{foo\\$\\}");`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -136,7 +142,7 @@ test("translate markdown block", () => {
     // basic markdown
     [`# hello`, `el("h1", {}, " hello");`],
     [`## hello`, `el("h2", {}, " hello");`],
-    ["```\nhello\n```", `el(Listing, {}, "hello");`],
+    ["```\nhello\nworld\n```", r`el(Listing, {}, "hello\nworld");`],
     [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
     [
       "* hello\n\n  yes\n* world",
@@ -145,6 +151,18 @@ test("translate markdown block", () => {
   {},
   el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
   el("li", {}, el("p", {}, "world"))
+);`,
+    ],
+    [
+      `
+| foo | bar |
+| --- | --- |
+| baz | bim |`,
+      `el(
+  "table",
+  {},
+  el("thead", {}, el("tr", {}, el("th", {}, "foo"), el("th", {}, "bar"))),
+  el("tbody", {}, el("tr", {}, el("td", {}, "baz"), el("td", {}, "bim")))
 );`,
     ],
 
@@ -164,6 +182,10 @@ test("translate markdown block", () => {
     [`@span{hey}`, `el("span", {}, "hey");`],
     [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
     [`Hello @strong{world}`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
+    [
+      `.@span{lorem}\nipsum\ndolor @span{sit}`,
+      r`el("p", {}, el("span", {}, "lorem"), "\nipsum\ndolor ", el("span", {}, "sit"));`,
+    ],
 
     // block components
     [
@@ -251,6 +273,29 @@ not-in-block`,
       `el(foo, {
   bar: el(Fragment, {}, el($$, {}, "baz")),
 });`,
+    ],
+    [
+      `@foo:
+  \`\`\`
+  foo
+  bar
+  \`\`\``,
+      r`el(foo, {}, el(Listing, {}, "foo\nbar"));`,
+    ],
+    [
+      `@div:
+  | foo |
+  | --- |`,
+      `el(
+  "div",
+  {},
+  el(
+    "table",
+    {},
+    el("thead", {}, el("tr", {}, el("th", {}, "foo"))),
+    el("tbody", {})
+  )
+);`,
     ],
   ];
 

@@ -125,6 +125,21 @@ $colors: (
     border-radius: 2px;
   }
 
+  @keyframes yellowflash-outline {
+    from {
+      outline-color: #ffdc00;
+    }
+    to {
+      outline-color: transparent;
+    }
+  }
+
+  .yellowflash-outline {
+    outline-width: 3px;
+    outline-style: solid;
+    animation: yellowflash-outline 1s;
+  }
+
   p {
     // Note: <html> must have a lang="..." attribute for hyphens to work!
     hyphens: auto;

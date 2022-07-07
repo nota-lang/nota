@@ -25,9 +25,9 @@ export class LocalState implements State {
     let transpiledResult = babel.transformFromAst(js, undefined, {
       plugins: [optimizePlugin],
     }) as any as BabelFileResult;
-    let loweredResult = babel.transformFromAst(js, undefined, {
+    let loweredResult = babel.transform(transpiledResult.code!, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
-    }) as any as BabelFileResult;
+    });
     let lowered = `let exports = {};\n${loweredResult.code}\nlet ${GLOBAL_NAME} = exports;`;
     return ok({
       transpiled: transpiledResult.code!,

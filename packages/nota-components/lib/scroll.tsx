@@ -10,7 +10,7 @@ function checkVisible(elm: any): boolean {
 }
 
 let getAncestors = (el: Node): Node[] => {
-  let nodes = [];
+  let nodes = [el];
   while (el.parentNode) {
     nodes.push(el.parentNode);
     el = el.parentNode;
@@ -64,7 +64,12 @@ export let ScrollPlugin = new Plugin(
     };
 
     scrollTo = (anchorId: string) => {
-      let anchorElem = document.getElementById(anchorId)!;
+      let anchorElem = document.getElementById(anchorId);
+      if (!anchorElem) {
+        console.warn(`Trying to scroll to missing element: ${anchorId}`);
+        return;
+      }
+
       let anchorHash = "#" + anchorId;
       window.history.pushState(null, "", anchorHash);
 
@@ -80,8 +85,8 @@ export let ScrollPlugin = new Plugin(
       // Expand any containers that wrap the anchor
       let ancestors = getAncestors(anchorElem);
       let expanded = false;
-      ancestors.forEach(node => {
-        if (node instanceof HTMLElement && node.id in this.scrollHooks) {
+      ancestors.forEach((node: any) => {
+        if ("id" in node && node.id in this.scrollHooks) {
           this.scrollHooks[node.id]();
           expanded = true;
         }

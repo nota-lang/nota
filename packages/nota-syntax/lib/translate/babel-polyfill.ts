@@ -42,7 +42,6 @@ import type {
   Statement,
   StringLiteral,
   Super,
-  TSDeclareFunction,
   TemplateElement,
   TemplateLiteral,
   ThisExpression,
@@ -393,7 +392,7 @@ export let importNamespaceSpecifier = ({
 });
 
 export let exportDefaultDeclaration = (
-  declaration: FunctionDeclaration | TSDeclareFunction | ClassDeclaration | Expression
+  declaration: FunctionDeclaration | ClassDeclaration | Expression
 ): ExportDefaultDeclaration => ({
   ...baseNode,
   type: "ExportDefaultDeclaration",

@@ -56,7 +56,7 @@ export let TableOfContents: React.FC = observer(({}) => {
   );
 });
 
-export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
+export let Section: React.FC<{ plain?: boolean; name?: string }> = ({
   children,
   plain,
   ...props
@@ -65,8 +65,8 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   let pos = docCtx.sections.position();
   let level = pos.level();
   let secNum = pos.toString();
-  let label = props.label || `section-${secNum}`;
-  docCtx.sections.saveValue(() => <Ref label={children}>{label}</Ref>);
+  let name = props.name || `section-${secNum}`;
+  docCtx.sections.saveValue(() => <Ref label={children}>{name}</Ref>);
 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
@@ -89,7 +89,7 @@ export let Section: React.FC<{ plain?: boolean; label?: string }> = ({
   );
 
   return (
-    <Definition name={label} label={`Section ${secNum}`} tooltip={null} block>
+    <Definition name={name} label={`Section ${secNum}`} tooltip={null} block>
       {inner}
     </Definition>
   );
@@ -116,7 +116,7 @@ class FigureData {
 
 let FigureContext = React.createContext<FigureData>(new FigureData());
 
-export let Figure: React.FC<{ label?: string }> = props => {
+export let Figure: React.FC<{ name?: string }> = props => {
   let docCtx = useContext(DocumentContext);
   let pos = docCtx.figures.push();
   let level = pos.level();
@@ -127,7 +127,7 @@ export let Figure: React.FC<{ label?: string }> = props => {
   let Caption = () => (
     <Definition
       attrs={{ style: { width: "100%" } }}
-      name={props.label}
+      name={props.name}
       label={`Figure ${figNum}`}
       tooltip={null}
       block

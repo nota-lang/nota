@@ -93,6 +93,7 @@ export let DefinitionAnchor: React.FC<{
 
 interface DefinitionProps {
   name?: NotaText;
+  names?: NotaText[];
   block?: boolean;
   tooltip?: ReactConstructor | ReactNode;
   label?: ReactConstructor<any> | ReactNode;
@@ -101,7 +102,15 @@ interface DefinitionProps {
 
 export let Definition: React.FC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [nameStr] = useState(props.name ? joinRecursive(props.name) : _.uniqueId());
+  let [nameStrs] = useState(() => {
+    if (props.names) {
+      return props.names.map(s => joinRecursive(s));
+    } else if (props.name) {
+      return [props.name];
+    } else {
+      return [_.uniqueId()];
+    }
+  });
 
   useEffect(() => {
     let tooltip: DefinitionData["tooltip"];
@@ -115,14 +124,21 @@ export let Definition: React.FC<DefinitionProps> = props => {
 
     let label: DefinitionData["label"] = props.label ? some(props.label) : none();
 
-    ctx.addDefinition(nameStr, { tooltip, label });
+    nameStrs.forEach(name => {
+      ctx.addDefinition(name, { tooltip, label });
+    });
   }, []);
 
-  return props.children ? (
-    <DefinitionAnchor block={props.block} name={nameStr} attrs={props.attrs}>
-      {props.children}
-    </DefinitionAnchor>
-  ) : null;
+  return props.children
+    ? nameStrs.reduce(
+        (child, name) => (
+          <DefinitionAnchor block={props.block} name={name} attrs={props.attrs}>
+            {child}
+          </DefinitionAnchor>
+        ),
+        props.children
+      )
+    : null;
 };
 
 interface RefProps {
