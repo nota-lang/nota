@@ -137,6 +137,7 @@ $colors: (
   .yellowflash-outline {
     outline-width: 3px;
     outline-style: solid;
+    outline-color: transparent;
     animation: yellowflash-outline 1s;
   }
 

@@ -25,12 +25,13 @@ export class LocalState implements State {
     let transpiledResult = babel.transformFromAst(js, undefined, {
       plugins: [optimizePlugin],
     }) as any as BabelFileResult;
-    let loweredResult = babel.transform(transpiledResult.code!, {
+    let transpiled = transpiledResult.code!;
+    let loweredResult = babel.transform(transpiled, {
       presets: [["env", { targets: { browsers: "last 1 safari version" } }]],
     });
-    let lowered = `let exports = {};\n${loweredResult.code}\nlet ${GLOBAL_NAME} = exports;`;
+    let lowered = `var exports = {};\n${loweredResult.code}\nvar ${GLOBAL_NAME} = exports;`;
     return ok({
-      transpiled: transpiledResult.code!,
+      transpiled,
       lowered,
       map: "", // todo
       css: null,

@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { BibliographyPlugin } from "./bibliography.js";
 import { ListingPlugin } from "./code.js";
 import { NestedCounter, ValueStack } from "./counter.js";
-import { Definition, DefinitionsPlugin, Ref } from "./definitions.js";
+import { Definition, DefinitionScope, DefinitionsPlugin, Ref } from "./definitions.js";
 import { Logger, LoggerPlugin } from "./logger.js";
 import { Plugin, usePlugin } from "./plugin.js";
 import { Portal, PortalPlugin } from "./portal.js";
@@ -138,10 +138,16 @@ export let Figure: React.FC<{ name?: string }> = props => {
     </Definition>
   );
 
+  let inner = props.name ? (
+    <DefinitionScope name={props.name}>{props.children}</DefinitionScope>
+  ) : (
+    props.children
+  );
+
   return (
     <FigureContext.Provider value={figCtx}>
       <div className={`figure level-${level}`}>
-        {props.children}
+        {inner}
         <Caption />
       </div>
       <docCtx.figures.Pop />

@@ -686,6 +686,7 @@ export class Translator {
       jsTerms.Lbrace,
       jsTerms.Rbrace,
       jsTerms.Comma,
+      jsTerms.LineComment,
     ]
   ) {
     return collectSiblings(node.firstChild).filter(child =>

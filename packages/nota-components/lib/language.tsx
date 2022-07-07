@@ -7,10 +7,10 @@ import {
 } from "@nota-lang/nota-common/dist/nota-text.js";
 import { none, some } from "@nota-lang/nota-common/dist/option.js";
 import _ from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAsync } from "react-async";
 
-import { DefinitionData, DefinitionsPlugin } from "./definitions.js";
+import { DefinitionData, DefinitionScopeContext, DefinitionsPlugin } from "./definitions.js";
 import { usePlugin } from "./plugin.js";
 import { $$, TexPlugin, texDefAnchor, texRef } from "./tex.js";
 
@@ -69,6 +69,7 @@ export class Language {
   BnfInner: React.FC<BnfProps & { containerRef: HTMLDivElement }> = props => {
     let defCtx = usePlugin(DefinitionsPlugin);
     let texCtx = usePlugin(TexPlugin);
+    let scope = useContext(DefinitionScopeContext);
 
     let branchToTex =
       (cmd: string) =>
@@ -104,7 +105,7 @@ export class Language {
     let defs: [string, DefinitionData][] = [];
     useEffect(() => {
       if (branchDims) {
-        defs.forEach(([name, def]) => defCtx.addDefinition(name, def));
+        defs.forEach(([name, def]) => defCtx.addDefinition(name, scope, def));
       }
     }, [branchDims]);
 

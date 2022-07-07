@@ -1,10 +1,10 @@
-import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import { NotaText, addBetween, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import { Option, isSome, none, optUnwrap, some } from "@nota-lang/nota-common/dist/option.js";
 import { default as classNames } from "classnames";
 import _ from "lodash";
 import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useContext, useEffect, useState } from "react";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { LocalLink } from "./scroll.js";
@@ -40,10 +40,23 @@ class DefinitionsData extends Pluggable {
     return this.defs[name];
   };
 
-  addDefinition = action((name: string, def: DefinitionData) => {
+  addDefinition = action((name: string, scope: string[], def: DefinitionData): string => {
+    if (scope.length > 0) {
+      name = [...scope, name].join("_");
+      let label = def.label;
+      def = {
+        ...def,
+        label: some(() => {
+          let labels = [...scope.map(name => this.defs[name].label), label];
+          return addBetween(labels.map(optUnwrap).map(getOrRender), "-");
+        }),
+      };
+    }
+
     if (!(name in this.defs)) {
       this.defs[name] = def;
     }
+    return name;
   });
 
   allDefinitions = (namespace?: string): { [name: string]: DefinitionData } => {
@@ -53,6 +66,8 @@ class DefinitionsData extends Pluggable {
         .map(name => [name, this.defs[name]])
     );
   };
+
+  nameToHtmlId = (name: string): string => `def-${name.replace(":", "-")}`;
 
   init() {
     // TODO: make this less annoying
@@ -79,17 +94,31 @@ class DefinitionsData extends Pluggable {
 
 export let DefinitionsPlugin = new Plugin(DefinitionsData);
 
-let nameToId = (name: string): string => `def-${name.replace(":", "-")}`;
-
 export let DefinitionAnchor: React.FC<{
   name: string;
   block?: boolean;
   attrs?: HTMLAttributes;
-}> = ({ name, block, attrs, children }) => (
-  <Container block={block} id={nameToId(name)} className="definition" {...attrs}>
-    {children}
-  </Container>
-);
+}> = ({ name, block, attrs, children }) => {
+  let ctx = usePlugin(DefinitionsPlugin);
+  return (
+    <Container block={block} id={ctx.nameToHtmlId(name)} className="definition" {...attrs}>
+      {children}
+    </Container>
+  );
+};
+
+export let DefinitionScopeContext = React.createContext<string[]>([]);
+
+export let DefinitionScope: React.FC<React.PropsWithChildren<{ name: string }>> = ({
+  children,
+  name,
+}) => {
+  let curScope = useContext(DefinitionScopeContext);
+  let newScope = [...curScope, name];
+  return (
+    <DefinitionScopeContext.Provider value={newScope}>{children}</DefinitionScopeContext.Provider>
+  );
+};
 
 interface DefinitionProps {
   name?: NotaText;
@@ -100,17 +129,16 @@ interface DefinitionProps {
   attrs?: HTMLAttributes;
 }
 
-export let Definition: React.FC<DefinitionProps> = props => {
+export let Definition: React.FC<React.PropsWithChildren<DefinitionProps>> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
-  let [nameStrs] = useState(() => {
-    if (props.names) {
-      return props.names.map(s => joinRecursive(s));
-    } else if (props.name) {
-      return [props.name];
-    } else {
-      return [_.uniqueId()];
-    }
-  });
+  let scope = useContext(DefinitionScopeContext);
+  let [nameStrs] = useState(() =>
+    props.names
+      ? props.names.map(s => joinRecursive(s))
+      : props.name
+      ? [joinRecursive(props.name)]
+      : [_.uniqueId()]
+  );
 
   useEffect(() => {
     let tooltip: DefinitionData["tooltip"];
@@ -123,10 +151,7 @@ export let Definition: React.FC<DefinitionProps> = props => {
     }
 
     let label: DefinitionData["label"] = props.label ? some(props.label) : none();
-
-    nameStrs.forEach(name => {
-      ctx.addDefinition(name, { tooltip, label });
-    });
+    nameStrs.forEach(name => ctx.addDefinition(name, scope, { tooltip, label }));
   }, []);
 
   return props.children
@@ -136,7 +161,9 @@ export let Definition: React.FC<DefinitionProps> = props => {
             {child}
           </DefinitionAnchor>
         ),
-        props.children
+
+        // weird that it wouldn't type check to just return props.children?
+        props.children as React.ReactElement<any, any>
       )
     : null;
 };
@@ -177,7 +204,7 @@ export let Ref: React.FC<RefProps> = observer(
         <LocalLink
           ref={ref}
           block={block}
-          target={nameToId(name)}
+          target={ctx.nameToHtmlId(name)}
           event={scrollEvent}
           className={classNames("ref", { nolink })}
           {...innerProps}

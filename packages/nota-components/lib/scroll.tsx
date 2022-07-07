@@ -73,14 +73,15 @@ export let ScrollPlugin = new Plugin(
       let anchorHash = "#" + anchorId;
       window.history.pushState(null, "", anchorHash);
 
-      anchorElem.classList.remove("yellowflash");
+      let flashClass = anchorElem instanceof HTMLElement ? "yellowflash" : "yellowflash-outline";
+      anchorElem.classList.remove(flashClass);
 
       // Hack to ensure that CSS animation will restart by forcing reflow of element.
       // Unclear what performance implications this has if any?
       // See: https://css-tricks.com/restart-css-animation/
-      void anchorElem.offsetWidth;
+      anchorElem.getBoundingClientRect();
 
-      anchorElem.classList.add("yellowflash");
+      anchorElem.classList.add(flashClass);
 
       // Expand any containers that wrap the anchor
       let ancestors = getAncestors(anchorElem);
