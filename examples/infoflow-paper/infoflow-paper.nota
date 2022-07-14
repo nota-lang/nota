@@ -4,7 +4,6 @@ import "@nota-lang/nota-theme-standalone/dist/index.css"
 import bibtex from "./bibliography.bib"
 import {rust} from "@codemirror/lang-rust"
 import {cpp} from "@codemirror/lang-cpp"
-import data from '/Users/will/Code/flowistry-pldi-experiments/data-small/full_dist.json'
 import _ from "lodash";
 
 let sysname = @Smallcaps{Flowistry};
@@ -77,7 +76,7 @@ fn push(&mut self, value: i32);
 fn iter<'a>(&'a self) -> Iter<'a, i32>;
 ```
 
-To determine that `push` mutates `v2`, we leverage *mutability modifiers*. All references in Rust are either immutable (i.e. the type is `&T`) or mutable (the type is `&mut T`). Therefore `iter` does not mutate `v` because it takes `&self` as input (excepting interior mutability, discussed in @Ref{sec:limitations}), while `push` may mutate `v2` because it takes `&mut self` as input.
+To determine that `push` mutates `v2`, we leverage *mutability modifiers*. All references in Rust are either immutable (i.e. the type is `&T`) or mutable (the type is `&mut T`). Therefore `iter` does not mutate `v` because it takes `&self` as input (excepting interior mutability, discussed in &sec_limitations), while `push` may mutate `v2` because it takes `&mut self` as input.
 
 To determine that `x` points to `v`, we leverage *lifetimes*. All references in Rust are annotated with a lifetime, either explicitly (such as `'a`) or implicitly. Shared lifetimes indicate aliasing: because `&self` in `iter` has lifetime `'a`, and because the returned `Iter` structure shares that lifetime, then we can determine that `Iter` may contain pointers to `self`.
 
@@ -542,7 +541,7 @@ $$
 \end{align*}
 $$
 
-First, what can $#msf{f}(t)$ mutate? Any data behind a shared reference is immutable, so only $#deref{t.0}$ could possibly be mutated, not $#deref{t.1}$. More generally, the argument's \textit{transitive mutable references} must be assumed to be mutated.
+First, what can $#msf{f}(t)$ mutate? Any data behind a shared reference is immutable, so only $#deref{t.0}$ could possibly be mutated, not $#deref{t.1}$. More generally, the argument's *transitive mutable references* must be assumed to be mutated.
 
 Second, what are the inputs to the mutation of $#deref{t.0}$? This could theoretically be any possible value in the input, so both $#deref{t.0}$ and $#deref{t.1}$. More generally, every *transitively readable place* from the argument must be assumed to be to be an input to the mutation. So in this example, a modular analysis of the information flow from calling $#msf{cp}$ would add $\{#loc _1, #loc _2\}$ to $#depctx(x)$ but not $#depctx(y)$.
 
@@ -818,30 +817,27 @@ We observed no meaningful patterns from the interaction of modifications --- for
 
 @Subsubsection[name: "sec_whole"]: &wholeprogram
 
-For &wholeprogram, we compare against &baseline to answer our first evaluation question: how much more precise is a whole-program analysis than a modular one? To quantify precision, we compare the \textit{percentage increase in size} of dependency sets for a given variable between two conditions. For instance, if &wholeprogram computes $|#depctx(x)| = 2$ and &baseline computes $|#depctx(x)| = 5$ for some $x$, then the difference is $(5 - 2) / 2 = 1.5 = 150\%$.
-
-&fig_recurse_whole_program_Left shows a histogram of the differences between &wholeprogram and &baseline for all variables. In 94% of all cases, the &wholeprogram and &baseline conditions produce the same result and hence have a difference of 0. In the remaining 6% of cases with a non-zero difference, visually enhanced with a log-scale in &fig_recurse_whole_program_Right, the metric follows a right-tailed log-normal distribution. We can summarize the log-normal by computing its median, which is 7%. This means that within the 6% of non-zero cases, the median difference is an increase in size by 7%. Thus, the modular approximation does not significantly increase the size of dependency sets in the vast majority of cases.
-
 %%%
+import wholeProgramData from './data/whole_program.json'
+
 let graphBase = {
-  encoding: {
-    y: { field: "count", type: "quantitative", },
-  },
+  encoding: {y: {field: "count", type: "quantitative"}},
   layer: [
     {
-      transform: [{"filter": "datum.bin > 0 && datum.count > 0"}],
-      mark: "bar",
-      encoding: {        
-        x: { field: "bin", type: "quantitative", scale: {type: "log"}, title: "% difference in dependency set size, log scale (with zero)", },
-      }
-    },    
-    {
-      transform: [{"filter": "datum.bin == 0"}],
+      transform: [{filter: "datum.bin > 0 && datum.count > 0"}],
       mark: "bar",
       encoding: {
-        x: { value: 0.0001 }
+        x: {field: "bin", type: "quantitative", scale: {type: "log"},
+             title: "% difference in dependency set size, log scale (with zero)"}
       }
-    },    
+    },
+    {
+      transform: [{filter: "datum.bin == 0"}],
+      mark: "bar",
+      encoding: {
+        x: {value: 0.0001}
+      }
+    },
   ]
 };
 
@@ -856,11 +852,264 @@ Object.assign(rightGraph.encoding.y, {
   title: "Count, log scale"
 });
 
-let wholeProgramGraph = {data: {values: data}, hconcat: [leftGraph, rightGraph]};
+let wholeProgramGraph = {data: {values: wholeProgramData}, hconcat: [leftGraph, rightGraph]};
 %%%
 
 @Figure[name: "fig_recurse"]:
   @VegaLite[spec: wholeProgramGraph, name: "whole_program"]
+  @Caption:
+    Distribution in differences of dependency set size between &wholeprogram and &baseline analyses. The x-axis is a log-scale with 0 added for comparison. Most sets are the same, so 0 dominates (left). A log-scale (right) shows the tail more clearly.
+
+For &wholeprogram, we compare against &baseline to answer our first evaluation question: how much more precise is a whole-program analysis than a modular one? To quantify precision, we compare the *percentage increase in size* of dependency sets for a given variable between two conditions. For instance, if &wholeprogram computes $|#depctx(x)| = 2$ and &baseline computes $|#depctx(x)| = 5$ for some $x$, then the difference is $(5 - 2) / 2 = 1.5 = 150\%$.
+
+&fig_recurse_whole_program_Left shows a histogram of the differences between &wholeprogram and &baseline for all variables. In 94% of all cases, the &wholeprogram and &baseline conditions produce the same result and hence have a difference of 0. In the remaining 6% of cases with a non-zero difference, visually enhanced with a log-scale in &fig_recurse_whole_program_Right, the metric follows a right-tailed log-normal distribution. We can summarize the log-normal by computing its median, which is 7%. This means that within the 6% of non-zero cases, the median difference is an increase in size by 7%. Thus, the modular approximation does not significantly increase the size of dependency sets in the vast majority of cases.
+
+@Subsubsection[name: "sec_blind"]: &mutblind and &pointerblind
+
+%%%
+import mutBlindData from './data/mut_blind.json'
+import pointerBlindData from './data/pointer_blind.json'
+
+let graphBase = {
+  encoding: {
+     x: {field: "bin", type: "quantitative", scale: {type: "log"},
+             title: "% difference in dependency set size, log scale"},
+    y: {field: "count", type: "quantitative", scale: {domain: [0, 13000]}}
+  },
+  transform: [{filter: "datum.bin > 0 && datum.count > 0"}],
+  mark: "bar",
+};
+
+let wholeProgramGraph = {
+  data: {values: wholeProgramData},
+  title: "Modular - Whole-Program",
+  ...graphBase
+};
+let mutBlindGraph = {
+  data: {values: mutBlindData},
+  title: "Mut-Blind - Modular",
+  ...graphBase
+};
+let pointerBlindGraph = {
+  data: {values: pointerBlindData},
+  title: "Pointer-Blind - Modular",
+  ...graphBase
+};
+let fullGraph = {hconcat: [wholeProgramGraph, mutBlindGraph, pointerBlindGraph]};
+%%%
+
+@Figure[name: "fig_all_dist"]:
+  @VegaLite[spec: fullGraph, name: "graph"]
+  @Caption:
+    Distribution in differences between &baseline and each alternative condition, with zeros excluded to highlight the shape of each distribution. &mutblind and &pointerblind both reduce the precision more often and more severely than &baseline does vs. &wholeprogram.
+
+Next, we address our second evaluation question: how much less precise is an analysis with weaker assumptions about the program than the &baseline analysis? For this question, we compare the size of dependency sets between the &mutblind and &pointerblind conditions versus &baseline. &fig_all_dist shows the corresponding histograms of differences, with the &wholeprogram vs. &baseline histogram included for comparison.
+
+First, the &mutblind and &pointerblind modifications reduce the precision of the analysis more often and with a greater magnitude than &baseline does vs. &wholeprogram. 39% of &mutblind cases and 17% of &pointerblind cases have a non-zero difference. Of those cases, the median difference in size is 50% for &mutblind and 56% for &pointerblind.
+
+Therefore, the information from ownership types is valuable in increasing the precision of our information flow analysis. Dependency sets are often larger without access to information about mutability or lifetimes.
+
+@Subsection[name: "sec_qual"]: Qualitative Results
+
+The statistics convey a sense of how often each condition influences precision. But it is equally valuable to understand the kind of code that leads to such differences. For each condition, we manually inspected a sample of cases with non-zero differences vs. &baseline.
+
+@Subsubsection[name: "sec_whole_vs_mod"]: Modularity
+
+One common source of imprecision in modular flows is when functions take a mutable reference as input for the purposes of passing the mutable permission off to an element of the input. 
+
+```rust
+fn crop<I: GenericImageView>(
+  image: &mut I, x: u32, y: u32, 
+  width: u32, height: u32
+) -> SubImage<&mut I> {
+  let (x, y, width, height) = 
+    crop_dimms(image, x, y, width, height);
+  SubImage::new(image, x, y, width, height)
+}
+```
+
+For example, the function `crop` from the `image` crate returns a mutable view on an image. No data is mutated, only the mutable permission is passed from whole image to sub-image. However, a modular analysis on the `image` input would assume that `image` is mutated by `crop`.
+
+Another common case is when a value only depends on a subset of a function's inputs. The modular approximation assumes all inputs are relevant to all possible mutations, but this is naturally not always the case.
+
+```rust
+fn solve_lower_triangular_with_diag_mut<R2,C2,S2>(
+  &self, b: &mut Matrix<N, R2, C2, S2>, diag: N,
+) -> bool {
+  if diag.is_zero() { return false; }
+  // logic mutating b...
+  true
+}
+```
+
+For example, this function from `nalgebra` returns a boolean whose value solely depends on the argument `diag`. However, a modular analysis of a call to this function would assume that `self` and `b` is relevant to the return value as well.
+
+@Subsubsection[name: "sec_mut"]: Mutability
+
+The reason &mutblind is less precise than &baseline is quite simple &mdash; many functions take immutable references as inputs, and so many more mutations have to be
+
+```rust
+fn read_until<R, F>(io: &mut R, func: F)
+  -> io::Result<Vec<u8>> 
+  where R: Read, F: Fn(&[u8]) -> bool
+{
+  let mut buf = vec![0; 8192]; let mut pos = 0;
+  loop {
+    let n = io.read(&mut buf[pos..])?; pos += n;
+    if func(&buf[..pos]) { break; } 
+    // ...
+  }
+}
+```
+
+For instance, this function from `hyper` repeatedly calls an input function `func` with segments of an input buffer. Without a control-flow analysis, it is impossible to know what functions `read_until` will be called with. And so &mutblind must always assume that `func` could mutate `buf`. However, &baseline can rely on the immutability of shared references and deduce that `func` could not mutate `buf`.
+
+@Subsubsection[name: "sec_life"]: Lifetimes
+
+Without lifetimes, our analysis has to make more conservative assumptions about objects that could possibly alias. We observed many cases in the &pointerblind condition where two references shared different lifetimes but the same type, and so had to be classified as aliases.
+
+```rust
+fn link_child_with_parent_component(
+  parent: &mut FbxComponent,
+  child: &mut FbxComponent,
+  child_handle: Handle<FbxComponent>,
+) { match parent {
+  FbxComponent::Model(model) => {
+    model.geoms.push(child_handle),
+  },
+  // ..
+}}
+```
+
+For example, the `link_child_with_parent_component` function in `rg3d` takes mutable references to a `parent` and `child`. These references are guaranteed not to alias by the rules of ownership, but a naive pointer analysis must assume they could, so modifying `parent` could modify `child`.
+
+@Subsection: Threats to Validity
+
+Finally, we address the issue: how meaningful are the results above? How likely would they generalize to arbitrary code rather than just our selected dataset? We discuss a few threats to validity below.
+
+1.  **Are the results due to only a few crates?**
+
+    If differences between techniques only arose in a small number of situations that happen to be in our dataset, then our technique would not be as generally applicable. To determine the variation between crates, we generated a histogram of non-zero differences for the &baseline vs. &mutblind comparison, broken down by crate in &fig_crates. 
+    
+    %%%
+    import byCrateData from "./data/by_crate.json";
+    
+    let graph = {
+      encoding: {
+         x: {field: "bin", type: "quantitative", scale: {type: "log"},
+                 title: "% difference in dependency set size, log scale"},
+        y: {field: "count", type: "quantitative"},
+        facet: {field: "krate", columns: 5}
+      },
+      transform: [{filter: "datum.bin > 0 && datum.count > 0"}],
+      mark: "bar",
+      data: {values: byCrateData}
+    }
+    %%%
+    
+    @Figure[name: "fig_crates"]:
+      @VegaLite[spec: graph, name: "graph"]
+      @Caption:
+        Distribution of non-zero differences between &baseline and &mutblind, broken down by crate.
+
+    As expected, the larger code bases (e.g. rav1e and RustPython) have more non-zero differences than smaller codebases --- in general the correlation between non-zero differences and total number of variables analyzed is strong, $R^2 = 0.79$. However variation also exists for crates with roughly the same number of variables like `image` and `hyper`. &mutblind reduces precision for variables in `hyper` more often than `image`. A qualitative inspection of the respective codebases suggests this may be because `hyper` simply makes greater use of immutable references in its API.
+    
+    These findings suggest that the impact of ownership types and the modular approximation likely do vary with code style, but a broader trend is still observable across all code.
+
+2.  **Would &wholeprogram be more precise with access to dependencies?**
+
+    A limitation of our whole-program analysis is our inability to access function definitions outside the current crate. Without this limitation, it may be that the &baseline analysis would be significantly worse than &wholeprogram. So for each variable analyzed by &wholeprogram, we additionally computed whether the information flow for that variable involved a function call across a crate boundary.
+    
+    Overall 96% of cases reached at least one crate boundary, suggesting that this limitation does occur quite often in practice. However, the impact of the limitation is less clear. Of the 96% of cases that hit a crate boundary, 6.6% had a non-zero difference between &baseline and &wholeprogram. Of the 4% that did not hit a crate boundary, 0.6% had a non-zero difference. One would expect that &wholeprogram would be the most precise when the whole program is available (no boundary), but instead it was much closer to &baseline. 
+    
+    Ultimately it is not clear how much more precise &wholeprogram would be given access to all a crate's dependencies, but it would not necessarily be a significant improvement over the benchmark presented.
+
+3.  **Is ownership actually important for precision?**
+
+    The finding that &pointerblind only makes a difference in 17% of cases may seem surprisingly small. For instance, @Ref[full: true]{shapiro1997effects} found in a empirical study of slices on C programs that "using a pointer analysis with an average points-to set size twice as large as a more precise pointer analysis led to an increase of about 70% in the size of \[slices\]."
+    
+    A limitation of our ablation is that the analyzed programs were written to satisfy Rust's ownership safety rules. Disabling lifetimes does not change the structure of the programs to become more C-like &mdash; Rust generally encourages a code style with fewer aliases to avoid dealing with lifetimes. A fairer comparison would be to implement an application idiomatically in both Rust and Rust-but-without-feature-X, but such an evaluation is not practical. It is therefore likely that our results understate the true impact of ownership types on precision given this limitation.
+
+@Section[name: "sec_applications"]: Applications
+
+@Figure[name: "fig_apps"]:
+  @Subfigure[name: "slicer"]:
+    @img[src: "./static/slice-demo.png", width: "500px"]
+    @img[src: "./static/slice-demo-2.png", width: "500px"]
+    @Caption:
+      A program slicer integrated into VSCode. Above, the user selects a slicing criterion like the variable `f`. Then the slicer highlights the criterion in green, and fades out lines that are not part of the backward slice on `f`. For example, `write_all` mutates the file so it is in the slice, while `metadata` reads the file so it is not in the slice.
+
+      Below, the user can manipulate aspects of a program such as commenting out code related to timing. The user computes a forward slice on `start`, adds this slice to their selection (in blue), then tells the IDE to comments out all lines in the selection.
+      
+  @Subfigure[name: "ifc"]:
+    @img[src: "./static/ifc-demo.png", width: "500px"]
+    @img[src: "./static/ifc-demo-2.png", width: "500px"]
+    @Caption:
+      An IFC checker. Above, the `ifc_traits` library exports a `Secure` for users to mark sensitive data, like `Password`, and insecure operations like `insecure_print`. Below, a compiler plugin invoked on the program checks for information flows from data with a type implementing `Secure` to insecure operations. Here `insecure_print` is conditionally executed based on a read from `PASSWORD`, so this flow is flagged.
+
+  @Caption:
+    Two applications of information flow built using #sysname.
+      
+
+We have demonstrated that ownership can be leveraged to build an information flow analysis that is static, modular, sound, and precise. Our hope is that this analysis can serve as a building block for future static analyses. To bootstrap this future, we have used #sysname to implement prototypes of a program slicer and an IFC checker, shown in &fig_apps. 
+
+The program slicer in &fig_apps_slicer is a VSCode extension that fades out all lines of code that are not relevant to the user's selection, i.e. not part of the modular slice. Rather than present a slice of the entire program like in prior slicing tools, we can use Flowistry's modular analysis to present lightweight slices of just within a given function. Users can apply the slicer for comprehension tasks such as reducing the scope of a bug, or for refactoring tasks such as removing an aspect of a program like timing or logging. 
+
+The IFC checker in &fig_apps_ifc is a Rust library and compiler plugin. It provides the user a library with the traits `Secure` and `Insecure` to indicate the relative security of data types and operations. Then the compiler plugin uses #sysname to determine whether information flows from `Insecure` variables to `Secure` variables. Users can apply the IFC checker to catch sensitive data leaks in an application. This prototype is purely intraprocedural, but future work could build an interprocedural analysis by using Flowistry's output as procedure summaries in a larger information flow graph.
+
+@Section[name: "sec_rw"]: Related Work
+
+Our work draws on three core concepts: information flow, modular static analysis, and ownership types.
+
+% let Citet = props => @Ref[...props, full: true];
+
+@Subsection: Information Flow
+
+Information flow has been historically studied in the context of security, such as ensuring low-security users of a program cannot infer anything about its high-security internals. Security-focused information flow analyses have been developed for Java &myers1999jflow, Javascript &austin2009efficient, OCaml &pottier2003information, Haskell &stefan2011flexible, and many other languages. 
+
+Each analysis satisfies some, but not all, of our requirements from &sec_intro. For instance, the JFlow &myers1999jflow and Flow-Caml &pottier2003information languages required adding features to the base language, violating our second requirement. Some methods like that of @Citet{austin2009efficient} for Javascript rely on dynamic analysis, violating our third requirement. And Haskell only supports effects like mutation through monads, violating our first requirement.
+
+Nonetheless, we draw significant inspiration from mechanisms in prior work. Our analysis resembles the slicing calculus of @Citet{abadi1999core}. The use of lifetimes for modular analysis of functions is comparable to security annotations in Flow-Caml &pottier2003information. The CFG analysis draws on techniques used in program slicers, such as the LLVM dg slicer &llvmslicer.
+
+@Subsection: Modular Static Analysis
+
+The key technique to making static analysis modular (or "compositional" or "separate") is symbolically summarizing a function's behavior, so that the summary can be used without the function's implementation. Starting from @Citet{rountev1999data} and @Citet{cousot2002modular}, one approach has been to design a system of "procedure summaries" understood by the static analyzer and distinct from the language being analyzed. This approach has been widely applied for static analysis of null pointer dereferences &yorsh2008generating, pointer aliases &dillig2011precise, data dependencies &tang2015summary, and other properties.
+
+Another approach, like ours, is to leverage the language's type system to summarize behavior. @Citet{tang1994separate} showed that an effect system could be used for a modular control-flow analysis. Later work in Haskell used its powerful type system and monadic effects to embed many forms of information flow control into the language &li2006encoding&russo2008library&stefan2011flexible&buiras2015hlio.
+
+@Subsection: Ownership Types
+
+Rust and Oxide's conceptions of ownership derive from @Citet{clarke1998ownership} and @Citet{grossman2002region}. For instance, the Cyclone language of Grossman et al. uses regions to restrict where a pointer can point-to, and uses region variables to express relationships between regions in a function's input and output types. A lifetime is similar in that it annotates the types of pointers, but differs in how it is analyzed.
+
+Recent works have demonstrated innovative applications of Rust's type system for modular program analysis. @Citet{astrauskas2019leveraging} embed Rust programs into a separation logic to verify pre/post conditions about functions. @Citet{jung2020stacked} use Rust's ownership-based guarantees to implement more aggressive program optimizations.
+
+Closer to our domain, @Citet{balasubramanian2017system} implemented a prototype IFC system for Rust by lowering programs to LLVM and verifying them with SMACK &rakamaric2014smack, although their system is hard to contrast with ours given the high-level description in their paper. @Citet{njor2021static} implemented a static taint analysis for Rust, although it is not field-sensitive, alias-sensitive, or modular.
+
+@Section[name: "sec_discussion"]: Discussion
+
+Looking forward, two interesting avenues for future work on #sysname are improving its precision and addressing soundness in unsafe code. For instance, the lifetime-based pointer analysis is sound but imprecise in some respects. Lifetimes often lose information about part-whole relationships. Consider the function that returns a mutable pointer to a specific index in a vector:
+
+```rust
+fn get_mut<'a>(&'a mut self, i: usize) 
+  -> Option<&'a mut T>;
+```
+
+These lifetimes indicate only that the return value points to *something* in the input vector. The expressions `v.get_mut(i)` and `v.get_mut(i + 1)` are considered aliases even though they are not. Future work could integrate #sysname with verification tools like Prusti &astrauskas2019leveraging to use abstract interpretation for a more precise pointer analysis in such cases.
+
+Additionally, Rust has many libraries built on unsafe code that can lose annotations essential to information flow, such as interior mutability. For example, shared-memory concurrency in Rust looks like this:
+
+```rust
+let n: Arc<Mutex<i32>> = Arc::new(Mutex::new(0));
+let n2: Arc<Mutex<i32>> = Arc::clone(&n);
+*n2.lock().unwrap() = 1;
+```
+
+`Arc::clone` does not share a lifetime between its input and output, so a lifetime-based pointer analysis therefore cannot deduce that `n2` is an alias of `n`, and #sysname would not recognize that the mutation on line 3 affects `n`. Future work can explore how unsafe libraries could be annotated with the necessary metadata needed to analyze information flow, similar to how RustBelt &jung2017rustbelt identifies the pre/post-conditions needed to ensure type safety within unsafe code.
+
+Overall, we are excited by the possibilities created by having a practical information flow analysis that can run today on any Rust program. Many exciting systems for tasks like debugging &ko2004designing, example generation &head2018interactive, and program repair &wen2018context rely on information flow in some form, and we hope that #sysname can support the development of these tools.
+
+@Acknowledgments:
+  This work was partially supported by the Italian Ministry of Education through funding for the Rita Levi Montalcini grant (call of 2019).
 
 // TODOS for WILL:
 // * labels on #-headers / all md-specific elements

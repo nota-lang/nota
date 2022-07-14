@@ -29,6 +29,7 @@ export class RemoteState implements State {
   contents: string = "";
   translation: TranslationResult = err("");
   ready: boolean = false;
+  rendered: boolean = false;
   availableLanguages: { [lang: string]: LanguageSupport } = {};
   runtimeError?: Error = undefined;
 

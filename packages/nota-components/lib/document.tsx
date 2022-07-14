@@ -347,6 +347,15 @@ let preprocessDocument = (children: React.ReactNode[]): React.ReactNode[] => {
   return sectionStack[0];
 };
 
+export let Acknowledgments: React.FC = ({ children }) => {
+  return (
+    <SectionBody>
+      <Section plain>Acknowledgments</Section>
+      {children}
+    </SectionBody>
+  );
+};
+
 export let DocumentInner: React.FC = observer(({ children }) => {
   let defCtx = usePlugin(DefinitionsPlugin);
   let processed = children instanceof Array ? preprocessDocument(children) : children;
@@ -370,7 +379,8 @@ export let DocumentInner: React.FC = observer(({ children }) => {
 export interface DocumentProps {
   anonymous?: boolean;
   editing?: boolean;
-  onLoad?: () => void;
+  onRender?: () => void;
+  renderTimeout?: number;
 }
 
 const PLUGINS = (): Plugin<any>[] => [
@@ -384,9 +394,25 @@ const PLUGINS = (): Plugin<any>[] => [
   PortalPlugin,
 ];
 
-export let Document: React.FC<DocumentProps> = ({ children, editing, onLoad }) => {
-  if (onLoad) {
-    useEffect(onLoad, []);
+export let Document: React.FC<DocumentProps> = ({ children, editing, onRender, renderTimeout }) => {
+  let ref = useRef<HTMLDivElement>(null);
+  if (onRender) {
+    useEffect(() => {
+      let last_change = Date.now();
+      let observer = new MutationObserver(_evt => {
+        last_change = Date.now();
+      });
+      observer.observe(ref.current!, { subtree: true, childList: true, attributes: true });
+
+      let timeout = renderTimeout || 1000;
+      let intvl = setInterval(() => {
+        if (Date.now() - last_change > timeout) {
+          clearInterval(intvl);
+          observer.disconnect();
+          onRender();
+        }
+      }, 50);
+    }, [onRender, children]);
   }
 
   let inner = PLUGINS().reduce(
@@ -395,7 +421,7 @@ export let Document: React.FC<DocumentProps> = ({ children, editing, onLoad }) =
   );
 
   return (
-    <div className={classNames("nota-document", { editing })}>
+    <div ref={ref} className={classNames("nota-document", { editing })}>
       <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
     </div>
   );

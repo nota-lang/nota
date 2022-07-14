@@ -15,6 +15,7 @@ export interface State {
   translation: TranslationResult;
   runtimeError?: Error;
   ready: boolean;
+  rendered: boolean;
   availableLanguages: { [lang: string]: LanguageSupport };
 }
 

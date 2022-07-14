@@ -13,6 +13,7 @@ export class LocalState implements State {
   contents: string;
   translation: TranslationResult;
   ready: boolean = true;
+  rendered: boolean = false;
   availableLanguages: { [lang: string]: LanguageSupport } = {}; // TODO
   runtimeError?: Error = undefined;
 

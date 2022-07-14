@@ -5,7 +5,7 @@ import type { DocumentProps } from "@nota-lang/nota-components/dist/document.js"
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import { treeToString } from "@nota-lang/nota-syntax/dist/translate/mod";
 import _ from "lodash";
-import { action } from "mobx";
+import { action, runInAction } from "mobx";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -106,6 +106,37 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
     </>
   );
 
+  runInAction(() => {
+    state.rendered = false;
+  });
+
+  let inner;
+  if (isOk(DocResult)) {
+    let el = (
+      <DocResult.value
+        key={counter++}
+        editing
+        renderTimeout={200}
+        onRender={action(() => {
+          state.rendered = true;
+        })}
+      />
+    );
+    let ResetRuntimeError = action(() => {
+      state.runtimeError = undefined;
+      lastTranslation.t = el;
+      return null;
+    });
+    inner = (
+      <>
+        {el}
+        <ResetRuntimeError />
+      </>
+    );
+  } else {
+    inner = fallback(DocResult.value);
+  }
+
   return (
     <>
       {isOk(result) && result.value.css ? <style>{result.value.css}</style> : null}
@@ -125,24 +156,7 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
           return fallback(err);
         })}
       >
-        {(() => {
-          if (isOk(DocResult)) {
-            let el = <DocResult.value key={counter++} editing />;
-            let ResetRuntimeError = action(() => {
-              state.runtimeError = undefined;
-              lastTranslation.t = el;
-              return null;
-            });
-            return (
-              <>
-                {el}
-                <ResetRuntimeError />
-              </>
-            );
-          } else {
-            return fallback(DocResult.value);
-          }
-        })()}
+        {inner}
       </ErrorBoundary>
     </>
   );

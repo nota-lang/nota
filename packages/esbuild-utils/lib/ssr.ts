@@ -68,12 +68,10 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
         templatePath = "." + path.sep + path.relative(dir, opts.template);
       }
 
-      let render_timeout = opts.inPageRenderTimeout || 1000;
+      let renderTimeout = opts.inPageRenderTimeout || 1000;
 
       // TODO 1: there should be some kind of indicator while the shadow page is rendering
-      // TODO 2: it would be ideal if Nota committed to having plugins say when they're done,
-      //   so we don't need to watch mutations
-      // TODO 3: this is a lot of code to exist as a string. can we factor it into a module?
+      // TODO 2: this is a lot of code to exist as a string. can we factor it into a module?
       let contents = `
       import React from "react";
       import ReactDOM from "react-dom";
@@ -82,41 +80,25 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
       let key = "metadata";
       let metadata = key in doc_mod ? doc_mod[key] : {};
-      let Page = (props) => <Template {...props}><div id="root"><Doc /></div></Template>;
+      let Page = ({onRender, ...props}) => <Template {...props}>
+        <div id="root">
+          <Doc onRender={onRender} renderTimeout={${renderTimeout}} />
+        </div>
+      </Template>;
 
-      let wait_to_render = async (element) => {
-        let last_change = Date.now();
-        let observer = new MutationObserver(evt => { last_change = Date.now(); });
-        observer.observe(element, {subtree: true, childList: true, attributes: true});
-        
-        return new Promise(resolve => {
-          let intvl = setInterval(() => {
-            if (Date.now() - last_change > ${render_timeout}) {
-              clearInterval(intvl);
-              observer.disconnect();
-              resolve();
-            }
-          }, 50);
-        });  
-      };  
-
-      let main = async () => {
-        let html = document.documentElement;
-        if (html.classList.contains("${SSR_CLASS}")) {
-          html.classList.remove("${SSR_CLASS}");      
-          ReactDOM.render(<Page {...metadata} script={"${script}"} />, html);
-          await wait_to_render(html);
-          ${NOTA_READY} = true;  
-        } else {
-          let root = document.getElementById("root");
-          let new_root = document.createElement('div');
-          ReactDOM.render(<Doc />, new_root);                            
-          await wait_to_render(new_root);
-          root.parentNode.replaceChild(new_root, root);
-        }
-      };                 
-
-      main();
+      let html = document.documentElement;
+      if (html.classList.contains("${SSR_CLASS}")) {
+        html.classList.remove("${SSR_CLASS}");      
+        ReactDOM.render(<Page {...metadata} script={"${script}"} onRender={() => {
+          ${NOTA_READY} = true; 
+        }} />, html);         
+      } else {
+        let root = document.getElementById("root");
+        let new_root = document.createElement('div');
+        ReactDOM.render(<Doc onRender={() => {
+          root.parentNode.replaceChild(new_root, root)
+        }} />, new_root);                            
+      }
       `;
 
       return { contents, loader: "jsx", resolveDir: dir };
@@ -126,9 +108,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
     const MAX_TRIES = 10;
     for (let i = 0; i < MAX_TRIES; i++) {
       let in_use = await tcpPortUsed.check(port, "localhost");
-      if (!in_use) {
-        break;
-      }
+      if (!in_use) break;
       port++;
     }
     let browser = await puppeteer.launch();

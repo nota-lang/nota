@@ -19,6 +19,8 @@ $colors: (
 }
 
 .nota-document {
+  font-family: var(--body-font);
+  font-size: $size-normal;
   text-align: justify;
 
   @include mobile {
@@ -160,8 +162,7 @@ $colors: (
   }
 
   .katex {
-    font-size: 1.1rem;
-    // line-height: 1.3em;
+    font-size: 1em;
 
     .newline {
       display: inline;
@@ -170,6 +171,10 @@ $colors: (
     .newline::before {
       content: "\a";
       white-space: pre;
+    }
+
+    .text {
+      font-family: var(--body-font);
     }
   }
 

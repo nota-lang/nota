@@ -60,22 +60,28 @@ export let Viewer = observer(() => {
       return;
     }
 
-    let lastScroll = 0;
+    const storageKey = "__nota_viewer_scroll_position";
+    let storedScroll = localStorage.getItem(storageKey);
+    let lastScroll = storedScroll ? parseInt(storedScroll) : 0;
+    let setScroll = (scroll: number) => {
+      localStorage.setItem(storageKey, scroll.toString());
+      lastScroll = scroll;
+    };
     el.addEventListener("scroll", _ => {
       let scroll = el!.scrollTop;
-      let t = state.translation;
-      if (isOk(t) && scroll > 0) {
-        lastScroll = scroll;
+      if (state.rendered && isOk(state.translation) && scroll > 0) {
+        setScroll(scroll);
       }
     });
 
     reaction(
-      () => [state.translation],
-      () => {
-        if (el!.scrollTop == 0) {
+      () => [state.rendered],
+      rendered => {
+        if (rendered) {
           el!.scrollTo(0, lastScroll);
         }
-      }
+      },
+      { fireImmediately: true }
     );
   }, [ref]);
 

@@ -7,7 +7,7 @@ import { useStateOnInterval } from "./utils.js";
 let DOCUMENT_WIDTH = 800;
 
 interface CommentaryProps {
-  Document: React.FC<{ onLoad: () => void }>;
+  Document: React.FC<{ onRender: () => void }>;
   commentWidth: 300;
 }
 
@@ -68,7 +68,7 @@ export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commen
       >
         <Row>
           <div ref={documentRef} className="object" style={{ width: DOCUMENT_WIDTH }}>
-            <Document onLoad={useCallback(() => setDocumentReady(true), [])} />
+            <Document onRender={useCallback(() => setDocumentReady(true), [])} />
           </div>
           <div className="comments" style={{ width: commentWidth }}>
             {documentReady ? children : null}

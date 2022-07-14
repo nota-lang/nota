@@ -109,7 +109,7 @@ export let VegaLite: React.FC<{ spec: TopLevelSpec; name?: string }> = ({ spec, 
   let onNewView: ViewListener = view => {
     if (name) {
       let labels = specToLabels(view, spec);
-      console.log(labels);
+      // console.log(labels);
 
       labels.forEach(({ spec, label: labelText, name: labelName, svg }) => {
         let tooltip = some(<VegaLiteBase spec={spec} renderer="svg" />);

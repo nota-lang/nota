@@ -372,8 +372,8 @@ export class Translator {
       }
 
       case mdTerms.NotaScript: {
-        let child = node.getChild(jsTerms.NotaStmts)!;
-        stmts = this.extractDelimited(child).map(node => this.translateJsStmt(node));
+        let child = node.getChild(jsTerms.NotaStmts);
+        stmts = child ? this.extractDelimited(child).map(node => this.translateJsStmt(node)) : [];
         stmts = stmts.filter(stmt => {
           if (stmt.type == "ImportDeclaration") {
             this.imports.add(stmt);

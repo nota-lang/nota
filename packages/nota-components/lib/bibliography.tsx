@@ -7,6 +7,7 @@ import React, { useEffect } from "react";
 import { Definition, DefinitionsPlugin } from "./definitions.js";
 import { Section, SectionBody } from "./document.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { $ } from "./tex.js";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -60,11 +61,15 @@ class BibliographyEntry {
     let location = this.tags.journal || this.tags.booktitle;
     return (
       <div className="bib-reference">
-        {names
-          ? (names.length > 1
-              ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1]
-              : names[0]) + ". "
-          : null}
+        <$>
+          {"\\text{"}
+          {names
+            ? (names.length > 1
+                ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1]
+                : names[0]) + ". "
+            : null}
+          {"}"}
+        </$>
         {this.year ? this.year + ". " : null}
         {this.title ? this.title + ". " : null}
         {location ? (
@@ -131,7 +136,7 @@ export class BibliographyData extends Pluggable {
         keys.map(key => {
           let entry = this.citations[key];
           let author = entry.displayAuthor();
-          return <span key={key}>{`${author} [${entry.year}${suffix}]`}</span>;
+          return <$ key={key}>{`\\text{${author} [${entry.year}${suffix}]}`}</$>;
         }),
         props => <span {...props}>{"; "}</span>
       )
@@ -145,7 +150,7 @@ export class BibliographyData extends Pluggable {
               return <span key={key}>{`${entry.year}${suffix}`}</span>;
             } else {
               let author = entry.displayAuthor();
-              return <span key={key}>{`${author} ${entry.year}${suffix}`}</span>;
+              return <$ key={key}>{`\\text{${author} ${entry.year}${suffix}}`}</$>;
             }
           }),
           props => (

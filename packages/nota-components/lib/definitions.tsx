@@ -156,8 +156,8 @@ export let Definition: React.FC<React.PropsWithChildren<DefinitionProps>> = prop
 
   return props.children
     ? nameStrs.reduce(
-        (child, name) => (
-          <DefinitionAnchor block={props.block} name={name} attrs={props.attrs}>
+        (child, name, i) => (
+          <DefinitionAnchor key={i} block={props.block} name={name} attrs={props.attrs}>
             {child}
           </DefinitionAnchor>
         ),
