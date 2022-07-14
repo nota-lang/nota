@@ -17,7 +17,7 @@ export interface DefinitionData {
   label: Option<ReactConstructor | ReactNode>;
 }
 
-class DefinitionsData extends Pluggable {
+export class DefinitionsData extends Pluggable {
   defs: { [name: string]: DefinitionData } = {};
   defMode: boolean = false;
   usedDefinitions: Set<string> = new Set();

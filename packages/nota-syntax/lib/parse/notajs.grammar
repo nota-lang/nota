@@ -312,7 +312,7 @@ CallExpression { expressionNoComma !call TypeArgList? ArgList }
 ParenthesizedExpression { "(" expression ")" }
 
 ArrayExpression {
-  "[" commaSep1<"..."? expressionNoComma | ""> ~destructure "]"
+  "[" commaSep1<SpreadProperty | expressionNoComma | ""> ~destructure "]"
 }
 
 BracketedPropName {  "[" expression "]" }
@@ -373,7 +373,11 @@ AssignmentExpression {
 }
 
 MemberExpression {
-  expressionNoComma !member (("." | "?.") (PropertyName | PrivatePropertyName) | "[" expression "]")
+  expressionNoComma !member (("." | "?.") (PropertyName | PrivatePropertyName) | ObjectBracket)
+}
+
+ObjectBracket {
+  "[" expression "]"
 }
 
 ArgList {
@@ -691,9 +695,9 @@ NotaMacro {
   "..."[@name=Spread, @export=Spread]
   "=>"[@name=Arrow, @export=Arrow]
 
-  "("[@export=Lparen] ")"[@export=Rparen] "["[@export=Lbracket] "]"[@export=Rbracket] "{"[@export=Lbrace] "}"[@export=Rbrace]
+  "("[@name=Lparen, @export=Lparen] ")"[@name=Rparen, @export=Rparen] "["[@name=Lbracket, @export=Lbracket] "]"[@name=Rbracket, @export=Rbracket] "{"[@name=Lbrace, @export=Lbrace] "}"[@name=Rbrace, @export=Rbrace]
 
-  "?." "." ","[@export=Comma] ";" ":"[@export=Colon]
+  "?." "." ","[@name=Comma, @export=Comma] ";" ":"[@name=Colon, @export=Colon]
 
   JSXIdentifier { identifierChar (identifierChar | std.digit | "-")* }
 

@@ -4,6 +4,8 @@ import "@nota-lang/nota-theme-standalone/dist/index.css"
 import bibtex from "./bibliography.bib"
 import {rust} from "@codemirror/lang-rust"
 import {cpp} from "@codemirror/lang-cpp"
+import data from '/Users/will/Code/flowistry-pldi-experiments/data-small/full_dist.json'
+import _ from "lodash";
 
 let sysname = @Smallcaps{Flowistry};
 %%%
@@ -281,7 +283,7 @@ Then for a given expression $#expr$, our analysis computes the set of dependenci
 @Definition[name: "deps"]{$#deps ::= \{\overline{#loc}\}$}.
 Because expressions have effects on persistent memory, we further compute a *dependency context*
 @Definition[name: "depctx"]{$#depctx ::= \{\overline{#pexp \mapsto #deps}\}$}
-from memory locations $#pexp$ to dependencies $#deps$. 
+from memory locations $#pexp$ to dependencies $#deps$.
 The computation of information flow is intertwined with type-checking, represented as a modified type-checking judgment (additions highlighted in red):
 
 $$
@@ -299,7 +301,7 @@ The remaining rules can be found in the appendix.
 The core of Oxide is an imperative calculus with constants and variables. The abstract syntax for these features is below:
 
 @(L.Bnf)[subset:
-  ["vr", "num", "path", "plc", "const", "tyb", 
+  ["vr", "num", "path", "plc", "const", "tyb",
    ["tys", ["base", "tup"]],
    ["expr", ["const", "plc", "let", "asgn", "seq"]]]
 ]
@@ -439,12 +441,12 @@ Finally, the rule for reading places is simply to look up the place's dependenci
 Beyond concrete places in memory, Oxide also contains references that point to places. As in Rust, these references have both a lifetime (called a "provenance") and a mutability qualifier (called an "ownership qualifier"). Their syntax is:
 
 @(L.Bnf)[subset: [
-  "concrprov", "abstrprov", "pexp", "prov", "ownq", 
-  ["tys", ["brw"]], 
+  "concrprov", "abstrprov", "pexp", "prov", "ownq",
+  ["tys", ["brw"]],
   ["expr", ["brw", "pasgn", "letprov"]]
 ]]
 
-%%% 
+%%%
 let msfb = macro{\mathbf{#msf{#1}}};
 let eref = macro{#(L.exprbrw){#2}{#1}{#3}};
 let r = L.concrprov;
@@ -463,7 +465,7 @@ $$
 \end{align*}
 $$
 
-Consider the information flow induced by $#deref{z} := 1_{#loc}$. We need to compute all places that $z$ could point-to, in this case $x.1$, so $#loc$ can be added to the conflicts of $x.1$. Essentially, we must perform a *pointer analysis* &smaragdakis2015pointer. 
+Consider the information flow induced by $#deref{z} := 1_{#loc}$. We need to compute all places that $z$ could point-to, in this case $x.1$, so $#loc$ can be added to the conflicts of $x.1$. Essentially, we must perform a *pointer analysis* &smaragdakis2015pointer.
 
 The key idea is that Oxide already does a pointer analysis! Performing one is an essential task in ensuring ownership-safety. All we have to do is extract the relevant information with Oxide's existing judgments. This is represented by the information flow extension to the reference-mutation rule:
 
@@ -474,7 +476,7 @@ The key idea is that Oxide already does a pointer analysis! Performing one is an
     @Premise: $#gray{#tyvarctx; #tyctx _1 \vdash_{#uniq} #pexp : #tys _o}$
     @Premise: $#ownsafe{#tyvarctx}{#tyctx _1}{#uniq}{#pexp}{#loanset}$
     @Premise: $#gray{#tyvarctx; #tyctx _1 \vdash #tys _n \lesssim #tys _o \Rightarrow #tyctx'}$
-    @Premise: 
+    @Premise:
       $#hlt{#depctx _2 = #depctx _1[\forall ~ ^{#(L.ownq)} #pexp' \in #loanset ~ . ~ #updateconflicts{#depctx _1}{#pexp'}{#deps}]}$
   | Bot:
     @Premise:
@@ -484,8 +486,8 @@ The key idea is that Oxide already does a pointer analysis! Performing one is an
         {#tyctx' \vartriangleright #pexp}{#hlt{#depctx _2}}$
 
 .@Definition[name: "ownsafe"]{Here, the important concept is Oxide's ownership safety judgment: $#tyvarctx; #tyctx \vdash_{#ownq} p \Rightarrow #loanset$, read as "in the contexts $#tyvarctx$ and $#tyctx$, $#pexp$ can be used $#ownq$-ly and points to a loan in $#loanset$."}
-@Definition[name: "loan"]{A loan $#loan ::= {^{#ownq} #pexp}$ is a place expression with an ownership-qualifier.} 
-In Oxide, this judgment is used to ensure that a place is used safely at a given level of mutability. For instance, in the example at the top of this column, if $#deref{z} := 1$ was replaced with $x.1 := 1$, then this would violate ownership-safety because $x$ is already borrowed by $y$ and $z$. 
+@Definition[name: "loan"]{A loan $#loan ::= {^{#ownq} #pexp}$ is a place expression with an ownership-qualifier.}
+In Oxide, this judgment is used to ensure that a place is used safely at a given level of mutability. For instance, in the example at the top of this column, if $#deref{z} := 1$ was replaced with $x.1 := 1$, then this would violate ownership-safety because $x$ is already borrowed by $y$ and $z$.
 
 In the example as written, the ownership-safety judgment for $#deref{z}$ would compute the loan set:
 
@@ -508,7 +510,7 @@ Note that $x.1$ is in the loan set of $#deref{z}$. That suggests the loan set ca
 
    That is, the loans for $#r _2$ are looked up in $#tyctx$ (to get $\{x\}$), and then the additional projection $\_.1$ is added on-top of each loan (to get $\{x.1\}$).
 5. Then $#tyctx(#r _4) = #tyctx(#r _3)$ because $#outlives{#r _3}{#r _4}$.
-6. Finally, the loan set for $#deref{z}$ is: 
+6. Finally, the loan set for $#deref{z}$ is:
 
    $$
    #tyctx(#r _4) \cup \{{^{#uniq} (#deref{z})}\} = \{{^{#uniq} x.1}, {^{#uniq} (#deref{y}).1}, {^{#uniq} (#deref{z})}\}
@@ -540,7 +542,7 @@ $$
 \end{align*}
 $$
 
-First, what can $#msf{f}(t)$ mutate? Any data behind a shared reference is immutable, so only $#deref{t.0}$ could possibly be mutated, not $#deref{t.1}$. More generally, the argument's \textit{transitive mutable references} must be assumed to be mutated. 
+First, what can $#msf{f}(t)$ mutate? Any data behind a shared reference is immutable, so only $#deref{t.0}$ could possibly be mutated, not $#deref{t.1}$. More generally, the argument's \textit{transitive mutable references} must be assumed to be mutated.
 
 Second, what are the inputs to the mutation of $#deref{t.0}$? This could theoretically be any possible value in the input, so both $#deref{t.0}$ and $#deref{t.1}$. More generally, every *transitively readable place* from the argument must be assumed to be to be an input to the mutation. So in this example, a modular analysis of the information flow from calling $#msf{cp}$ would add $\{#loc _1, #loc _2\}$ to $#depctx(x)$ but not $#depctx(y)$.
 
@@ -553,8 +555,8 @@ To formalize these concepts, we first need to describe the transitive references
   $$
   \begin{align*}
     #refs{#ownq}{#pexp, #(L.tyb)} &= \varnothing \\
-    #refs{#ownq}{#pexp, (#tys _1, \ldots, #tys _n)} &= 
-        \bigcup_i #refs{#ownq}{#pexp.i, #tys _i} \\ 
+    #refs{#ownq}{#pexp, (#tys _1, \ldots, #tys _n)} &=
+        \bigcup_i #refs{#ownq}{#pexp.i, #tys _i} \\
     #refs{#ownq}{#pexp, #eref{#ownq'}{#(L.prov)}{#(L.tyx)}} &= \begin{cases}
       \{#deref{#pexp}\} \cup #refs{#ownq}{#deref{p}, #(L.tyx)} & \text{if $#ownqcmp{#ownq}{#ownq'}$} \\
       \varnothing & \text{otherwise}
@@ -564,13 +566,13 @@ To formalize these concepts, we first need to describe the transitive references
 
 % let loans = macro{#texRef{loans}{#1\text{-}#msf{loans}(#2)}}
 
-.@Definition[name: "ownqcmp"]{Here, $#ownqcmp{#ownq}{#ownq'}$ means "a loan at $#ownq$ can be used as a loan at $#ownq'$", defined as $#uniq \not\lesssim #shrd$ and $#ownq \lesssim #ownq'$ otherwise.} 
+.@Definition[name: "ownqcmp"]{Here, $#ownqcmp{#ownq}{#ownq'}$ means "a loan at $#ownq$ can be used as a loan at $#ownq'$", defined as $#uniq \not\lesssim #shrd$ and $#ownq \lesssim #ownq'$ otherwise.}
 Then $#loans{#ownq}{#pexp, #ty, #tyvarctx, #tyctx}$ can be defined as the set of concrete places accessible from those transitive references:
 
 @Definition[name: "loans"]:
   $$
   \begin{align*}
-    &#loans{#ownq}{#pexp, #ty, #tyvarctx, #tyctx} #eqdef \\ 
+    &#loans{#ownq}{#pexp, #ty, #tyvarctx, #tyctx} #eqdef \\
     &\hspace{10pt} \bigcup_{#pexp _1 \in #refs{#ownq}{#pexp, #ty}} \{#pexp _2 \mid {^{#ownq} #pexp _2} \in #loanset\} &&\text{where $#ownsafe{#tyvarctx}{#tyctx}{#ownq}{#pexp _1}{#loanset}$}
   \end{align*}
   $$
@@ -584,7 +586,7 @@ Finally, the function application rule can be revised to include information flo
     @Premise: $#gray{#repeat{#fnctx; #tyvarctx; #tyctx \vdash #(L.frmexpr)}}$
     @Premise: $#gray{#repeat{#tyvarctx; #tyctx \vdash #(L.prov)} }$
     @Premise: $#gray{#repeat{#fnctx; #tyvarctx; #tyctx \vdash #tys}}$
-    @Premise: 
+    @Premise:
       $#fnctx(#(L.fname)) = #(L.fdefform){#(L.fname)}
         {#repeat{#(L.frmvar)}}{#repeat{#abstrprov}}{#repeat{#(L.tyvar)}}
         {#plc}{#tys _a}{#tys _r}{#repeat{#outlives{#abstrprov _1}{#abstrprov _2}}}{#expr}$
@@ -596,32 +598,34 @@ Finally, the function application rule can be revised to include information flo
             #repeat{[#tys / #(L.tyvar)]}
          #hlt{#withslice{#deps}}}
         {#tyctx _1}{#hlt{#depctx}}$
-    @Premise: 
-      $#gray{#tyvarctx; #tyctx _1 \vdash 
-        #repeat{#outlives{#abstrprov _2 #repeat{[#(L.prov) / #abstrprov]}}{#abstrprov _1 #repeat{[#(L.prov) / #abstrprov]}}}$
+    @Premise:
+      $#gray{#tyvarctx; #tyctx _1 \vdash
+        #repeat{
+          #outlives{#abstrprov _2 #repeat{[#(L.prov) / #abstrprov]}}
+            {#abstrprov _1 #repeat{[#(L.prov) / #abstrprov]}}}}$
     @Premise:
       $#hlt{#deps _{#arrg} = #deps \cup \bigcup_{#pexp \in #loans{#shrd}{#plc, #tys, #tyvarctx, #tyctx _2}} #depctx(#pexp)}$
     @Premise:
       $$
       #hlt{
         \begin{align*}
-        #depctx' = #depctx[&\forall #pexp \in #loans{#uniq}{#plc, #tys, #tyvarctx, #tyctx _2} ~ . 
+        #depctx' = #depctx[&\forall #pexp \in #loans{#uniq}{#plc, #tys, #tyvarctx, #tyctx _2} ~ .
         \\
-        &#updateconflicts{#depctx}{#pexp}{#deps _{#arrg}}] 
+        &#updateconflicts{#depctx}{#pexp}{#deps _{#arrg}}]
         \end{align*}
       }
       $$
   | Bot:
     $#tcnew{#fnctx}{#tyvarctx}{#tyctx}{#hlt{#depctx}}
       {#(L.exprcall){#(L.fname)}{\overline{\Phi}}{\overline{\rho}}{\overline{#tys}}{#plc}}
-      {#tys _r 
+      {#tys _r
           #repeat{[#(L.frmexpr) / #(L.frmvar)]}
           #repeat{[#(L.prov) / #abstrprov]}
           #repeat{[#tys / #(L.tyvar)]}
        #hlt{#withslice{#deps _{#arrg}}}}
       {#tyctx _2}{#hlt{#depctx '}}$
 
-The collective dependencies of the input $#plc$ are collected into $#deps _{#arrg}$, and then every unique reference is updated with $#deps _{#arrg}$. Additionally, the function's return value is assumed to be influenced by any input, and so has dependencies $#deps _{#arrg}$. 
+The collective dependencies of the input $#plc$ are collected into $#deps _{#arrg}$, and then every unique reference is updated with $#deps _{#arrg}$. Additionally, the function's return value is assumed to be influenced by any input, and so has dependencies $#deps _{#arrg}$.
 
 Note that this rule does not depend on the body $#expr$ of the function $#(L.fname)$, only its type signature in $#fnctx$. This is the key to the modular approximation. Additionally, it means that this analysis can trivially handle higher-order functions. If $#(L.fname)$ were a parameter to the function being analyzed, then no control-flow analysis is needed to guess its definition.
 
@@ -642,7 +646,7 @@ For example, in the empty stack $#(L.stackempty){}$, the expression "$#olet{x}{#
 
 The key ingredient for noninterference is the equivalence of dependencies between stacks. That is, for two stacks $#stack _1$ and $#stack _2$ and a set of dependencies $#deps$ in a context $#depctx$, we say those stacks are *the same up to $#deps$* if all $#pexp$ with $#depctx(#pexp) \subseteq #deps$ are the same between stacks. Formally, the dependencies of $#deps$ and equivalence of heaps are defined as:
 
-%%% 
+%%%
 let fdeps = macro{#texRef{fdeps}{#msf{deps}(#1, #2)}};
 let stackeq = macro{#texRef{stackeq}{\mathop{\sim}_{#1}}};
 let stackdepeq = macro{#texRef{stackdepeq}{\mathop{\sim}^{#1}_{#2}}};
@@ -665,25 +669,25 @@ let stacksafe = macro{#texRef{stacksafe}{#1 \vdash #3 : #4}};
 %%%
 
 @Theorem[name: "noninterference", title: "Noninterference"]:
-  Let $#expr$ such that: 
-  
+  Let $#expr$ such that:
+
   $$
   #tcnew{#fnctx}{\bullet}{#tyctx}{#depctx}{#expr}{#ty #withslice{#deps}}{#tyctx'}{#depctx'}
   $$
-  
-  For $i \in \{1, 2\}$, let $#stack _i$ such that: 
-  
+
+  For $i \in \{1, 2\}$, let $#stack _i$ such that:
+
   $$
   #stacksafe{#fnctx}{#stack _i}{#tyctx} \hspace{12pt} \text{and} \hspace{12pt} #evalsto{#stack _i}{#expr}{#stepped{#stack}_i}{#(L.value) _i}
   $$
-  
+
   Then:
   1. $#stack _1 #stackdepeq{#depctx}{#deps} #stack _2 \implies #(L.value)_1 = #(L.value)_2$
   2. $\forall #pexp \mapsto #deps _{#pexp} \in #depctx' ~ . ~ #stack _1 #stackdepeq{#depctx}{#deps _p} #stack _2 \implies #stepped{#stack}_1(#pexp) = #stepped{#stack}_2(#pexp)$
 
 This theorem states that given a well-typed expression $#expr$ and corresponding stacks $#stack _i$, then its output $#(L.value)_i$ should be equal if the expression's dependencies $#deps$ are initially equal. Moreover, for any place expression $#pexp$, if its dependencies in the output context $#depctx'$ are initially equal then the stack value will be the same after execution.
 
-Note that the context $#tyvarctx$ is required to be empty because an expression $e$ can only evaluate if it does not contain abstract type or provenance variables. 
+Note that the context $#tyvarctx$ is required to be empty because an expression $e$ can only evaluate if it does not contain abstract type or provenance variables.
 @Definition[name: "stacksafe"]{The judgment $#stacksafe{#fnctx}{#stack _i}{#tyctx}$ means "the stack $#stack _i$ is well-typed under $#stack$ and $#tyctx$".}
 That is, for all places $#plc$ in $#tyctx$, then $#plc \in #stack$ and $#stack(#plc)$ has type $#tyctx(#plc)$.
 
@@ -703,7 +707,7 @@ Our formal model provides a sound theoretical basis for analyzing information fl
   @Row:
     ```
     fn get_count(
-      h: &mut HashMap<String, u32>, 
+      h: &mut HashMap<String, u32>,
       k: String
     ) -> u32 {
       if !h.contains_key(&k) {
@@ -715,17 +719,17 @@ Our formal model provides a sound theoretical basis for analyzing information fl
     ```
 
     @object[data: "static/mir-example.svg", type: "image/svg+xml", width: "450px"]
-    
+
   @Caption:
     Example of how #sysname computes information flow. On the left is a Rust function `get_count` that finds a value in a hash map for a given key, and inserts 0 if none exists. On the right `get_count` is lowered into Rust's MIR control-flow graph, annotated with information flow. Each rectangle is a basic block, named at the top. Arrows indicate control flow (panics omitted).
-    
+
     Beside each instruction is the result of the information flow analysis, which maps place expressions to locations in the CFG (akin to $#depctx$ in &sec_analysis). For example, the `insert` function call adds dependencies to `*h` because it is assumed to be mutated, since it is a mutable reference. Additionally, the `switch` instructions and `_4` variable are added as dependencies to `h` because the call to `insert` is control-dependent on the switch.
 
 The Rust compiler lowers programs into a "mid-level representation", or MIR, that represents programs as a control-flow graph. Essentially, expressions are flattened into sequences of instructions (basic blocks) which terminate in instructions that can jump to other blocks, like a branch or function call.  &fig_mir_example shows an example CFG and its information flow.
 
 To implement the modular information flow analysis for MIR, we reused standard static analysis techniques for CFGs, i.e., a flow-sensitive, forward dataflow analysis pass where:
 
-* At each instruction, we maintain a mapping from place expressions to a set of locations in the CFG on which the place is dependent, comparable to $#depctx$ in &sec_analysis. 
+* At each instruction, we maintain a mapping from place expressions to a set of locations in the CFG on which the place is dependent, comparable to $#depctx$ in &sec_analysis.
 * A transfer function updates $\Theta$ for each instruction, e.g. $#pexp := #expr$ follows the same rules as in &tr_assignderef by adding the dependencies of $#expr$ to all conflicts of aliases of $p$.
 * The input $#depctx^{#msf{in}}$ to a basic block is the join of each of the output $#depctx^{#msf{out}}_i$ for each incoming edge, i.e. $#depctx^{#msf{in}} = \bigvee_i #depctx^{#msf{out}}_i$ . The join operation is key-wise set union, or more precisely:
 
@@ -767,7 +771,7 @@ To answer these questions, we created three modifications to Flowistry:
 * @Definition[name: "pointerblind", label: @Smallcaps{Pointer-Blind}]:
     The analysis does not use lifetimes to reason about references, and rather assumes all references of the same type can alias. For example, if a function takes as input `f(x: &mut i32, y: &mut i32)` then `x` and `y` are assumed to be aliases.
 
-The &wholeprogram modification represents the most precise information flow analysis we can feasibly implement. 
+The &wholeprogram modification represents the most precise information flow analysis we can feasibly implement.
 The &mutblind and &pointerblind modifications represent an ablation of the precision provided by ownership types.
 Each modification can be combined with the others, representing $2^3 = 8$ possible conditions for evaluation.
 
@@ -780,24 +784,24 @@ With these three modifications, we compare the number of flows computed from a d
 @Subsection[name: "sec_dataset"]: Dataset
 
 To empirically compare these modifications, we curated a dataset of Rust packages (or "crates") to analyze. We had two selection criteria:
-    
+
 1. To mitigate the single-crate limitation of &wholeprogram, we preferred large crates so as to see a greater impact from the &wholeprogram modification. We only considered crates with over 10,000 lines of code as measured by the `cloc` utility &cloc.
 2. To control for code styles specific to individual applications, we wanted crates from a wide range of domains.
 
 After a manual review of large crates in the Rust ecosystem, we selected 10 crates, shown in &tab_dataset. We built each crate with as many feature flags enabled as would work on our Ubuntu 16.04 machine. Details like the specific flags and commit hashes can be found in the appendix.
-  
+
 @Figure[name: "tab_dataset"]:
   | Project | Crate | Purpose | LOC | \# Vars | \# Funcs | Avg. Instrs/Func
   | ------- | ----- | ------- | --- | ------- | -------- | -----------------
   | [rayon](https://github.com/rayon-rs/rayon) | &nbsp; | Data parallelism library | 15,524 | 10,607 | 1,079 | 16.6
-  | [rustls](https://github.com/ctz/rustls) | rustls | TLS implementation | 16,866 | 23,407 | 868 | 42.4 
-  | [sccache](https://github.com/mozilla/sccache) | &nbsp; | Distributed build cache | 23,202 | 23,987 | 643 | 62.1 
-  | [nalgebra](https://github.com/dimforge/nalgebra) | &nbsp; | Numerics library | 31,951 | 35,886 | 1,785 | 26.7 
-  | [image](https://github.com/image-rs/image) | &nbsp; | Image processing library | 20,722 | 39,077 | 1,096 | 56.8 
-  | [hyper](https://github.com/hyperium/hyper) | &nbsp; | HTTP server | 15,082 | 44,900 | 790 | 82.9 
-  | [rg3d](https://github.com/mrDIMAS/rg3d) | &nbsp; | 3D game engine | 54,426 | 59,590 | 3,448 | 25.7 
-  | [rav1e](https://github.com/xiph/rav1e) | &nbsp; | Video encoder | 50,294 | 76,749 | 931 | 115.4 
-  | [RustPython](https://github.com/RustPython/RustPython) | vm | Python interpreter | 47,927 | 97,637 | 3,315 | 51.0 
+  | [rustls](https://github.com/ctz/rustls) | rustls | TLS implementation | 16,866 | 23,407 | 868 | 42.4
+  | [sccache](https://github.com/mozilla/sccache) | &nbsp; | Distributed build cache | 23,202 | 23,987 | 643 | 62.1
+  | [nalgebra](https://github.com/dimforge/nalgebra) | &nbsp; | Numerics library | 31,951 | 35,886 | 1,785 | 26.7
+  | [image](https://github.com/image-rs/image) | &nbsp; | Image processing library | 20,722 | 39,077 | 1,096 | 56.8
+  | [hyper](https://github.com/hyperium/hyper) | &nbsp; | HTTP server | 15,082 | 44,900 | 790 | 82.9
+  | [rg3d](https://github.com/mrDIMAS/rg3d) | &nbsp; | 3D game engine | 54,426 | 59,590 | 3,448 | 25.7
+  | [rav1e](https://github.com/xiph/rav1e) | &nbsp; | Video encoder | 50,294 | 76,749 | 931 | 115.4
+  | [RustPython](https://github.com/RustPython/RustPython) | vm | Python interpreter | 47,927 | 97,637 | 3,315 | 51.0
   | &nbsp; | &nbsp; | **Total:** | 286,682 | 435,979 | 14,696
 
   @Caption:
@@ -805,19 +809,58 @@ After a manual review of large crates in the Rust ecosystem, we selected 10 crat
 
 For each crate, we ran the information flow analysis on every function in the crate, repeated under each of the 8 conditions. Within a function, for each local variable $x$, we compute the size of $#depctx(x)$ at the exit of the CFG --- in terms of program slicing, we compute the size of the variable's backward slice at the function's return instructions. The resulting dataset then has four independent variables (crate, function, condition, variable name) and one dependent variable (size of dependency set) for a total of 3,487,832 data points.
 
-Our main goal in this evaluation is to analyze precision, not performance. Our baseline implementation is reasonably optimized --- the median per-function execution time was 370.24$\mu\text{s}$. But &wholeprogram is designed to be as precise as possible, so its naive recursion is sometimes extremely slow. For example, when analyzing the `GameEngine::render` function of the `rg3d` crate (with thousands of functions in its call graph), the modular analysis takes 0.13s while the recursive analysis takes 23.18s, a 178$\times$ slowdown. Future work could compare our modular analysis to whole-program analyses across the precision/performance spectrum, such as in the extensive literature on context-sensitivity &smaragdakis2015pointer. 
+Our main goal in this evaluation is to analyze precision, not performance. Our baseline implementation is reasonably optimized --- the median per-function execution time was 370.24$\mu\text{s}$. But &wholeprogram is designed to be as precise as possible, so its naive recursion is sometimes extremely slow. For example, when analyzing the `GameEngine::render` function of the `rg3d` crate (with thousands of functions in its call graph), the modular analysis takes 0.13s while the recursive analysis takes 23.18s, a 178$\times$ slowdown. Future work could compare our modular analysis to whole-program analyses across the precision/performance spectrum, such as in the extensive literature on context-sensitivity &smaragdakis2015pointer.
 
 @Subsection[name: "sec_quant"]: Quantitative Results
 
-We observed no meaningful patterns from the interaction of modifications --- for example, in a linear regression of the interaction of &mutblind and &pointerblind against the size of the dependency set, each condition is individually statistically significant ($p < 0.001$) while their interaction is not ($p = 0.337$). 
+We observed no meaningful patterns from the interaction of modifications --- for example, in a linear regression of the interaction of &mutblind and &pointerblind against the size of the dependency set, each condition is individually statistically significant ($p < 0.001$) while their interaction is not ($p = 0.337$).
 @Definition[name: "baseline", label: @Smallcaps{Baseline}]{So to simplify our presentation, we focus only on four conditions: three for each modification individually active with the rest disabled, and one for all modifications disabled, referred to as &baseline.}
 
 @Subsubsection[name: "sec_whole"]: &wholeprogram
 
-For &wholeprogram, we compare against &baseline to answer our first evaluation question: how much more precise is a whole-program analysis than a modular one? To quantify precision, we compare the \textit{percentage increase in size} of dependency sets for a given variable between two conditions. For instance, if &wholeprogram computes $|#depctx(x)| = 2$ and &baseline computes $|#depctx(x)| = 5$ for some $x$, then the difference is $(5 - 2) / 2 = 1.5 = 150\%$. 
+For &wholeprogram, we compare against &baseline to answer our first evaluation question: how much more precise is a whole-program analysis than a modular one? To quantify precision, we compare the \textit{percentage increase in size} of dependency sets for a given variable between two conditions. For instance, if &wholeprogram computes $|#depctx(x)| = 2$ and &baseline computes $|#depctx(x)| = 5$ for some $x$, then the difference is $(5 - 2) / 2 = 1.5 = 150\%$.
 
-&fig_recurse shows a histogram of the differences between &wholeprogram and &baseline for all variables. In 94% of all cases, the &wholeprogram and &baseline conditions produce the same result and hence have a difference of 0. In the remaining 6% of cases with a non-zero difference, visually enhanced with a log-scale in &fig_recurse-right, the metric follows a right-tailed log-normal distribution. We can summarize the log-normal by computing its median, which is 7%. This means that within the 6% of non-zero cases, the median difference is an increase in size by 7%. Thus, the modular approximation does not significantly increase the size of dependency sets in the vast majority of cases.
+&fig_recurse_whole_program_Left shows a histogram of the differences between &wholeprogram and &baseline for all variables. In 94% of all cases, the &wholeprogram and &baseline conditions produce the same result and hence have a difference of 0. In the remaining 6% of cases with a non-zero difference, visually enhanced with a log-scale in &fig_recurse_whole_program_Right, the metric follows a right-tailed log-normal distribution. We can summarize the log-normal by computing its median, which is 7%. This means that within the 6% of non-zero cases, the median difference is an increase in size by 7%. Thus, the modular approximation does not significantly increase the size of dependency sets in the vast majority of cases.
 
+%%%
+let graphBase = {
+  encoding: {
+    y: { field: "count", type: "quantitative", },
+  },
+  layer: [
+    {
+      transform: [{"filter": "datum.bin > 0 && datum.count > 0"}],
+      mark: "bar",
+      encoding: {        
+        x: { field: "bin", type: "quantitative", scale: {type: "log"}, title: "% difference in dependency set size, log scale (with zero)", },
+      }
+    },    
+    {
+      transform: [{"filter": "datum.bin == 0"}],
+      mark: "bar",
+      encoding: {
+        x: { value: 0.0001 }
+      }
+    },    
+  ]
+};
+
+let leftGraph = _.cloneDeep(graphBase);
+leftGraph.title = {text: "Y-Linear"}
+leftGraph.encoding.y.title = "Count"
+
+let rightGraph = _.cloneDeep(graphBase);
+rightGraph.title = {text: "Y-Log"}
+Object.assign(rightGraph.encoding.y, {
+  scale: {type: "log"},
+  title: "Count, log scale"
+});
+
+let wholeProgramGraph = {data: {values: data}, hconcat: [leftGraph, rightGraph]};
+%%%
+
+@Figure[name: "fig_recurse"]:
+  @VegaLite[spec: wholeProgramGraph, name: "whole_program"]
 
 // TODOS for WILL:
 // * labels on #-headers / all md-specific elements

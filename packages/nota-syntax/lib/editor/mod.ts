@@ -20,9 +20,11 @@ import { KeyBinding, keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import { MarkdownParser, parseCode } from "@lezer/markdown";
 
-import { CodeTag, MathTag, jsParser, mdParser, mdTerms } from "../parse/mod.js";
+import { CodeTag, MathTag, configureParserForNota, fullMdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
 import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";
+
+export let { mdParser, mdTerms, jsParser, jsTerms } = configureParserForNota(fullMdParser, false);
 
 let notaJsLanguage = LRLanguage.define({
   parser: jsParser.configure({

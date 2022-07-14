@@ -365,6 +365,19 @@ test("translate markdown doc", () => {
 ];`,
     ],
     [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, f([])), el("p", {}, "hello world")];`],
+    [
+      `%%%
+let x = [...y];
+foo.bar[0] = baz;
+%%%`,
+      `[
+  ...(() => {
+    let x = [...y];
+    foo.bar[0] = baz;
+    return [null];
+  })(),
+];`,
+    ],
   ];
 
   pairs.forEach(([input, expected]) => {

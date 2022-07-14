@@ -6,10 +6,10 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 
-import { jsTerms, mdTerms } from "../parse/mod.js";
 //@ts-ignore
 import COMPONENTS from "../translate/components.js";
 import { INTRINSIC_ELEMENTS } from "../translate/intrinsic-elements.js";
+import { jsTerms, mdTerms } from "./mod.js";
 
 let notaElements = Object.keys(COMPONENTS as { [k: string]: string }).filter(
   name => name[0].match(/[A-Z$]/) !== null

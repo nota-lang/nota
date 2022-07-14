@@ -2,6 +2,7 @@ import type {
   ArrayExpression,
   ArrayPattern,
   ArrowFunctionExpression,
+  AssignmentExpression,
   AssignmentPattern,
   BinaryExpression,
   BlockStatement,
@@ -426,6 +427,20 @@ export let exportSpecifier = (local: Identifier, exported: Identifier): ExportSp
 export let nullLiteral = (): NullLiteral => ({
   ...baseNode,
   type: "NullLiteral",
+});
+
+export let assignmentExpression = ({
+  left,
+  right,
+}: {
+  left: LVal;
+  right: Expression;
+}): AssignmentExpression => ({
+  ...baseNode,
+  type: "AssignmentExpression",
+  operator: "=",
+  left,
+  right,
 });
 
 let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;

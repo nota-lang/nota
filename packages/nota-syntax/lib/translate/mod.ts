@@ -39,6 +39,9 @@ export let babelPolyfill = t;
 
 export let matches = (node: SyntaxNode, term: number): boolean => node.type.id == term;
 
+// TODO: IMPORTANT:
+// need to replace EVERY instance of getChild(NUMBER) with getChild(STRING) due to dumb term clones
+
 let strLit = t.stringLiteral;
 
 let anonArgsId = t.identifier("args");
@@ -370,7 +373,7 @@ export class Translator {
 
       case mdTerms.NotaScript: {
         let child = node.getChild(jsTerms.NotaStmts)!;
-        stmts = collectSiblings(child.firstChild).map(node => this.translateJsStmt(node));
+        stmts = this.extractDelimited(child).map(node => this.translateJsStmt(node));
         stmts = stmts.filter(stmt => {
           if (stmt.type == "ImportDeclaration") {
             this.imports.add(stmt);
@@ -671,6 +674,9 @@ export class Translator {
       case jsTerms.PatternAssign:
         return this.translateJsPattern(node);
 
+      case jsTerms.MemberExpression:
+        return this.translateJsExpr(node) as LVal;
+
       default:
         throw new Error(`Not yet implemented JS lval: ${node.name}`);
     }
@@ -687,6 +693,7 @@ export class Translator {
       jsTerms.Rbrace,
       jsTerms.Comma,
       jsTerms.LineComment,
+      jsTerms.BlockComment,
     ]
   ) {
     return collectSiblings(node.firstChild).filter(child =>
@@ -773,7 +780,7 @@ export class Translator {
       }
 
       case jsTerms.ArrowFunction: {
-        let params = this.extractDelimited(node.getChild(jsTerms.ParamList)!).map(node =>
+        let params = this.extractDelimited(node.getChild("ParamList")!).map(node =>
           this.translateJsLval(node)
         );
 
@@ -797,13 +804,23 @@ export class Translator {
 
       case jsTerms.MemberExpression: {
         let l = this.translateJsExpr(node.firstChild!);
-        let r = this.ident(node.lastChild!);
+        let rNode = node.lastChild!;
+        let r = matches(rNode, jsTerms.ObjectBracket)
+          ? this.translateJsExpr(rNode.firstChild!.nextSibling!)
+          : this.ident(rNode);
         expr = t.memberExpression(l, r);
         break;
       }
 
       case jsTerms.ArrayExpression: {
-        let elements = this.extractDelimited(node).map(elem => this.translateJsExpr(elem));
+        let elements = this.extractDelimited(node).map(elem => {
+          if (matches(elem, jsTerms.SpreadProperty)) {
+            let expr = this.translateJsExpr(elem.lastChild!);
+            return t.spreadElement(expr);
+          } else {
+            return this.translateJsExpr(elem);
+          }
+        });
         expr = t.arrayExpression(elements);
         break;
       }
@@ -853,6 +870,15 @@ export class Translator {
         child = child.nextSibling!.nextSibling!;
         let alternate = this.translateJsExpr(child);
         expr = t.conditionalExpression({ test, consequent, alternate });
+        break;
+      }
+
+      case jsTerms.AssignmentExpression: {
+        let leftNode = node.firstChild!;
+        let rightNode = leftNode.nextSibling!.nextSibling!;
+        let left = this.translateJsLval(leftNode);
+        let right = this.translateJsExpr(rightNode);
+        expr = t.assignmentExpression({ left, right });
         break;
       }
 
@@ -937,9 +963,7 @@ export class Translator {
 
   translateJsBlock(node: SyntaxNode): BlockStatement {
     assert(matches(node, jsTerms.Block));
-    let stmts = collectSiblings(node.firstChild)
-      .slice(1, -1)
-      .map(node => this.translateJsStmt(node));
+    let stmts = this.extractDelimited(node).map(node => this.translateJsStmt(node));
     return t.blockStatement(stmts);
   }
 

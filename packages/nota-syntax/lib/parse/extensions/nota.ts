@@ -1,4 +1,4 @@
-import { NodeType, parseMixed } from "@lezer/common";
+import { NodeSet, NodeType, parseMixed } from "@lezer/common";
 import { tags as t } from "@lezer/highlight";
 import { LRParser } from "@lezer/lr";
 import {
@@ -542,11 +542,22 @@ export let notaTemplateBlock = (
 };
 
 export type Terms = { [key: string]: number };
-export let validateTermAccess = (terms: Terms): Terms =>
+
+let nodeSetToTerms = (nodeSet: NodeSet): Terms => {
+  let terms: Terms = {};
+  nodeSet.types.forEach(node => {
+    if (node instanceof NodeType && node.name != "" && !(node.name in terms)) {
+      terms[node.name] = node.id;
+    }
+  });
+  return terms;
+};
+
+let validateTermAccess = (terms: Terms): Terms =>
   new Proxy(terms, {
     get(target, prop, receiver) {
       if (!(prop in target)) {
-        throw `Invalid key ${String(prop)}`;
+        throw new Error(`Invalid key ${String(prop)}`);
       }
 
       return Reflect.get(target, prop, receiver);
@@ -554,14 +565,16 @@ export let validateTermAccess = (terms: Terms): Terms =>
   });
 
 export let configureParserForNota = (
-  mdParser: MarkdownParser
+  mdParser: MarkdownParser,
+  strict: boolean = true
 ): {
   mdParser: MarkdownParser;
   mdTerms: Terms;
   jsParser: LRParser;
+  jsTerms: Terms;
 } => {
   let parserRef = mdParser;
-  let mdTerms: { [key: string]: number };
+  let mdTerms: Terms;
 
   let notaWrap = parseMixed((node, _input) => {
     if (node.type.id == jsTerms.NotaCommand) {
@@ -571,7 +584,7 @@ export let configureParserForNota = (
     }
   });
 
-  let jsParser: LRParser = baseJsParser.configure({ wrap: notaWrap });
+  let jsParser: LRParser = baseJsParser.configure({ wrap: notaWrap, strict });
   let exprParser = jsParser.configure({ top: "NotaExpr" });
   let attrParser = jsParser.configure({ top: "NotaInlineAttrs" });
   let stmtParser = jsParser.configure({ top: "NotaStmts" });
@@ -658,13 +671,8 @@ export let configureParserForNota = (
   };
 
   parserRef = mdParser.configure([extension]);
-  mdTerms = validateTermAccess(
-    _.fromPairs(
-      parserRef.nodeSet.types
-        .filter(node => node instanceof NodeType)
-        .map(node => [node.name, node.id])
-    )
-  );
+  mdTerms = validateTermAccess(nodeSetToTerms(parserRef.nodeSet));
+  let jsTermsValid = validateTermAccess(jsTerms);
 
-  return { mdParser: parserRef, mdTerms, jsParser };
+  return { mdParser: parserRef, mdTerms, jsParser, jsTerms: jsTermsValid };
 };
