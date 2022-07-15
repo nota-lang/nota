@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import _ from "lodash";
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 
@@ -40,7 +41,7 @@ export let getOrRender = <P extends object>(
 export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
   function Container({ block, ...props }, ref) {
     if (block) {
-      return <div ref={ref} {...props} />;
+      return <div ref={ref} className={classNames("block", props.className)} {...props} />;
     } else {
       return <span ref={ref} {...props} />;
     }

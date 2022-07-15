@@ -33,7 +33,7 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
 
   return (
     <ToggleGroup>
-      <table className="inferrule" {...props}>
+      <table className="inferrule block" {...props}>
         <tbody>
           <tr>
             <td>{Top ? getOrRender(Top, {}) : null}</td>
@@ -67,7 +67,7 @@ export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title
 
   return (
     <Definition name={name} label={`${label} ${suffix}`}>
-      <div className="theorem">
+      <div className="theorem block">
         <Smallcaps>{label + suffix}</Smallcaps>
         <div className="theorem-body">{children}</div>
       </div>

@@ -1,0 +1,38 @@
+@import "katex/dist/katex.min.css";
+
+.katex {
+  font-size: 1em;
+
+  .newline {
+    display: inline;
+  }
+
+  .newline::before {
+    content: "\a";
+    white-space: pre;
+  }
+
+  .text {
+    font-family: var(--font-body);
+  }
+}
+
+.nomargin .katex-display {
+  margin: 0;
+}
+
+// Height of tex blocks seems to be getting consistently underestimated
+.katex-display .base {
+  margin-bottom: -0.33em;
+}
+
+// Fix overlapping span elements in align environments
+// See: https://github.com/KaTeX/KaTeX/issues/2815
+.katex .vlist-t2 > .vlist-r:nth-child(2) > .vlist {
+  pointer-events: none;
+  height: 0px !important;
+}
+
+.tex-highlight {
+  background: color("highlight");
+}

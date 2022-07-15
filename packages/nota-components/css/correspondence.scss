@@ -1,0 +1,22 @@
+.correspondence {
+  line-height: 1.5em;
+
+  .link {
+    border-bottom: 1px solid black;
+    padding-bottom: 1px;
+  }
+  @mixin type($num, $color) {
+    .link.type-#{$num} {
+      border-color: $color;
+    }
+    &.hover-type-#{$num} .link.type-#{$num} {
+      border-width: 3px;
+    }
+  }
+  @include type(1, rgb(214, 39, 40));
+  @include type(2, rgb(44, 160, 44));
+  @include type(3, rgb(31, 119, 180));
+  @include type(4, rgb(227, 119, 194));
+  @include type(5, rgb(148, 103, 189));
+  @include type(6, rgb(225, 127, 14));
+}

@@ -2,8 +2,7 @@ import fs from "fs/promises";
 import { getManifest } from "@nota-lang/esbuild-utils";
 
 async function main() {
-  await fs.mkdir('dist', { recursive: true });
-  await fs.copyFile("css/nota-components.scss", "dist/index.scss");
+  await fs.mkdir('dist', { recursive: true });  
 
   let manifest = getManifest();
   let modules = Object.keys(manifest.peerDependencies)

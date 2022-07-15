@@ -791,7 +791,7 @@ After a manual review of large crates in the Rust ecosystem, we selected 10 crat
 
 @Figure[name: "tab_dataset"]:
   | Project | Crate | Purpose | LOC | \# Vars | \# Funcs | Avg. Instrs/Func
-  | ------- | ----- | ------- | --- | ------- | -------- | -----------------
+  | ------- | ----- | ------- | --- | ------- | -------- | ----------------- |
   | [rayon](https://github.com/rayon-rs/rayon) | &nbsp; | Data parallelism library | 15,524 | 10,607 | 1,079 | 16.6
   | [rustls](https://github.com/ctz/rustls) | rustls | TLS implementation | 16,866 | 23,407 | 868 | 42.4
   | [sccache](https://github.com/mozilla/sccache) | &nbsp; | Distributed build cache | 23,202 | 23,987 | 643 | 62.1
@@ -801,7 +801,7 @@ After a manual review of large crates in the Rust ecosystem, we selected 10 crat
   | [rg3d](https://github.com/mrDIMAS/rg3d) | &nbsp; | 3D game engine | 54,426 | 59,590 | 3,448 | 25.7
   | [rav1e](https://github.com/xiph/rav1e) | &nbsp; | Video encoder | 50,294 | 76,749 | 931 | 115.4
   | [RustPython](https://github.com/RustPython/RustPython) | vm | Python interpreter | 47,927 | 97,637 | 3,315 | 51.0
-  | &nbsp; | &nbsp; | **Total:** | 286,682 | 435,979 | 14,696
+  | &nbsp; | &nbsp; | **Total:** | 286,682 | 435,979 | 14,696 | &nbsp; |
 
   @Caption:
     Dataset of crates used to evaluate information flow precision, ordered in increasing number of variables analyzed. Each project often contains many crates, so a sub-crate is specified where applicable, and the root crate is analyzed otherwise. Metrics displayed are LOC (lines of code), number of variables, number of functions, and the average number of MIR instructions per function (size of CFG).

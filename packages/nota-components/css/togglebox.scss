@@ -1,0 +1,31 @@
+
+  .togglebox-parent,
+  .togglebox-grandparent {
+    display: inline-block;
+  }
+
+  .toggle-button {
+    font-size: 0.65rem;
+    position: relative;
+    bottom: 2px;
+    margin-left: 0.5rem;
+    border: 1px solid var(--color-light-border);
+    border-radius: 2px;
+    padding: 0 2px;
+    vertical-align: middle;
+    color: #555;
+    cursor: pointer;
+
+    &.big {
+      font-size: 1rem;
+    }
+  }
+
+  .togglebox {
+    display: flex;
+    justify-content: center;
+
+    > div {
+      display: inline-block;
+    }
+  }

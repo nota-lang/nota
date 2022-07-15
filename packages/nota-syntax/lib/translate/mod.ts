@@ -1205,10 +1205,9 @@ export let translateAst = (input: string, tree: Tree): Program => {
     ])
   );
 
-  let cssFiles = ["@nota-lang/nota-components/dist/index.css"];
-  if ("tex" in preludeImports) {
-    cssFiles.push("katex/dist/katex.min.css");
-  }
+  let cssFiles = Object.keys(preludeImports).map(
+    mod => `@nota-lang/nota-components/dist/css/${mod}.css`
+  );
   let cssImportStmts = cssFiles.map(s => t.importDeclaration([], strLit(s)));
 
   let program: Statement[] = [

@@ -203,5 +203,5 @@ export let Listing: React.FC<ListingProps> = props => {
     }
   }, []);
 
-  return <div className="listing" ref={ref} />;
+  return <div className="listing block" ref={ref} />;
 };

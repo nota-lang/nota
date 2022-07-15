@@ -1,32 +1,49 @@
-$mobile-cutoff: 800px;
+:root {
+  --font-body: serif;
+  --font-header: serif;
+  --font-mono: monospace;
+
+  --size-footnote: 14px;
+  --size-small: 16px;
+  --size-normal: 18px;
+  --size-large: 22px;
+  --size-Large: 24px;
+  --size-LARGE: 28px;
+  --size-huge: 32px;
+  --size-Huge: 36px;
+
+  --mobile-cutoff: 800px;
+
+  --color-peach: rgb(250, 223, 203);
+  --color-forest-green: rgb(186, 220, 199);
+  --color-error: rgb(190, 34, 34);
+  --color-highlight: rgb(255, 249, 172);
+  --color-light-border: #ccc;
+}
 
 @mixin mobile {
-  @media (max-width: ($mobile-cutoff - 1)) {
+  @media (max-width: (var(--mobile-cutoff) - 1)) {
     @content;
   }
 }
 
 @mixin monitor {
-  @media (min-width: $mobile-cutoff) {
+  @media (min-width: var(--mobile-cutoff)) {
     @content;
   }
 }
 
-@mixin color-classes($name, $color) {
+@mixin color-classes($name) {
   .textcolor-#{$name} {
-    color: $color;
+    color: var(--color-#{$name});
   }
 
   .bgcolor-#{$name} {
-    background: $color;
+    background: var(--color-#{$name});
   }
 }
 
-$size-footnote: 14px;
-$size-small: 16px;
-$size-normal: 18px;
-$size-large: 22px;
-$size-Large: 24px;
-$size-LARGE: 28px;
-$size-huge: 32px;
-$size-Huge: 36px;
+$color-names: peach, forest-green, error, highlight, light-border;
+@each $name in $color-names {
+  @include color-classes($name);
+}

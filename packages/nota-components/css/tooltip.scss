@@ -1,0 +1,48 @@
+
+  .tooltip {
+    $border-color: #aaa;
+    border: 2px solid $border-color;
+    background: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: min(90vw, 600px);
+    width: max-content;
+    z-index: 1000;
+
+    .arrow {
+      visibility: hidden;
+
+      &,
+      &::before {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: inherit;
+        border-radius: 2px;
+        border: 2px solid transparent;
+      }
+
+      &::before {
+        visibility: visible;
+        content: "";
+        transform: rotate(45deg);
+      }
+    }
+
+    @mixin placement($placement, $offset, $dir, $ccwdir) {
+      &[data-popper-placement^="#{$placement}"] .arrow {
+        #{$dir}: $offset;
+
+        &::before {
+          border-#{$dir}-color: $border-color;
+          border-#{$ccwdir}-color: $border-color;
+        }
+      }
+    }
+
+    @include placement("top", -4px, bottom, right);
+    @include placement("bottom", -8px, top, left);
+    @include placement("left", -4px, right, top);
+    @include placement("right", -4px, left, bottom);
+  }

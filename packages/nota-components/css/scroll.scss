@@ -1,0 +1,32 @@
+@keyframes yellowflash {
+  from {
+    background: #ffdc00;
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.yellowflash,
+*:target {
+  animation: yellowflash 1s;
+  padding: 4px;
+  margin: -4px;
+  border-radius: 2px;
+}
+
+@keyframes yellowflash-outline {
+  from {
+    outline-color: #ffdc00;
+  }
+  to {
+    outline-color: transparent;
+  }
+}
+
+.yellowflash-outline {
+  outline-width: 3px;
+  outline-style: solid;
+  outline-color: transparent;
+  animation: yellowflash-outline 1s;
+}
