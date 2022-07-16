@@ -44,3 +44,4 @@ export let Logger: React.FC = observer(() => {
     </div>
   );
 });
+Logger.displayName = "Logger";

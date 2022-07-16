@@ -38,3 +38,4 @@ export let Loader: React.FC<{ initial?: boolean }> = observer(({ children, initi
     </LoaderContext.Provider>
   );
 });
+Loader.displayName = "Loader";

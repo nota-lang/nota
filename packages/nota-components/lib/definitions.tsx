@@ -48,7 +48,10 @@ export class DefinitionsData extends Pluggable {
         ...def,
         label: some(() => {
           let labels = [...scope.map(name => this.defs[name].label), label];
-          return addBetween(labels.map(optUnwrap).map(getOrRender), "-");
+          return addBetween(
+            labels.map(optUnwrap).map((label, i) => getOrRender(label, { key: i })),
+            "-"
+          );
         }),
       };
     }
@@ -199,7 +202,7 @@ export let Ref: React.FC<RefProps> = observer(
     );
 
     let scrollEvent = isSome(def.tooltip) ? "onDoubleClick" : "onClick";
-    let Inner = forwardRef<HTMLAnchorElement>(function Inner(innerProps, ref) {
+    let RefInner = forwardRef<HTMLAnchorElement>(function RefInner(innerProps, ref) {
       return (
         <LocalLink
           ref={ref}
@@ -215,9 +218,10 @@ export let Ref: React.FC<RefProps> = observer(
     });
 
     if (isSome(def.tooltip)) {
-      return <Tooltip Popup={optUnwrap(def.tooltip)}>{Inner}</Tooltip>;
+      return <Tooltip Popup={optUnwrap(def.tooltip)}>{RefInner}</Tooltip>;
     } else {
-      return <Inner />;
+      return <RefInner />;
     }
   }
 );
+Ref.displayName = "Ref";

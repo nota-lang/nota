@@ -629,6 +629,7 @@ The collective dependencies of the input $#plc$ are collected into $#deps _{#arr
 Note that this rule does not depend on the body $#expr$ of the function $#(L.fname)$, only its type signature in $#fnctx$. This is the key to the modular approximation. Additionally, it means that this analysis can trivially handle higher-order functions. If $#(L.fname)$ were a parameter to the function being analyzed, then no control-flow analysis is needed to guess its definition.
 
 **TODO: put this into an "extra" grammar somewhere**
+
 @(L.Bnf)[subset: ["tysx", "tyd", "tyx", "ty", "frmexpr", "frmty"]]
 
 @Section[name: "sec_soundness"]: Soundness

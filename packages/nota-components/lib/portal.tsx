@@ -20,6 +20,7 @@ export let ToplevelElem: React.FC = observer(({ children }) => {
   let portal = usePlugin(PortalPlugin);
   return portal.portal !== null ? ReactDOM.createPortal(children, portal.portal) : null;
 });
+ToplevelElem.displayName = "ToplevelElem";
 
 export let Portal = () => {
   let portal = usePlugin(PortalPlugin);

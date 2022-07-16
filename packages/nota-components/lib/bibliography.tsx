@@ -194,6 +194,7 @@ export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, child
     </SectionBody>
   );
 });
+References.displayName = "References";
 
 export interface CiteProps {
   name: string | string[];
@@ -207,3 +208,4 @@ export let Cite: React.FC<CiteProps> = observer(({ name, full, year, extra }) =>
   let keys = typeof name === "string" ? [name] : name;
   return <>{ctx.cite(keys, full || false, year || false, extra)}</>;
 });
+Cite.displayName = "Cite";

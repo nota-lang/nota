@@ -28,8 +28,7 @@ test("translate end-to-end", () => {
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
 import { document, tex } from "@nota-lang/nota-components";
-import "@nota-lang/nota-components/dist/css/document.css";
-import "@nota-lang/nota-components/dist/css/tex.css";
+import "@nota-lang/nota-components/dist/index.css";
 const {
   Document
 } = document;

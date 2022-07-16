@@ -20,7 +20,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "node build.mjs && sass -I node_modules css:dist/css && tsc",
+    "build": "node build.mjs && sass -I node_modules css/index.scss dist/index.css && tsc",
     "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {

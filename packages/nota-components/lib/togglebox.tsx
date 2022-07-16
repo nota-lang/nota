@@ -31,6 +31,7 @@ export let ToggleGroupButton: React.FC<{ big?: boolean }> = observer(({ big }) =
   });
   return <ToggleButton on={ctx.allOn} onClick={onClick} big={big} />;
 });
+ToggleGroupButton.displayName = "ToggleGroupButton";
 
 export let ToggleButton: React.FC<{
   on: boolean;

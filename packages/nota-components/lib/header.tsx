@@ -28,7 +28,7 @@ export let Institution: React.FC = ({ children }) => {
 export let Affiliation: React.FC = ({ children }) => {
   let authCtx = useContext(AuthorContext);
   let affCtx: AuthorAffiliation = {};
-  let Inner = () => {
+  let AffiliationInner = () => {
     if (!authCtx.affiliations) {
       authCtx.affiliations = [];
     }
@@ -38,7 +38,7 @@ export let Affiliation: React.FC = ({ children }) => {
   return (
     <>
       <AffiliationContext.Provider value={affCtx}>{children}</AffiliationContext.Provider>
-      <Inner />
+      <AffiliationInner />
     </>
   );
 };
@@ -51,7 +51,7 @@ export let Name: React.FC = ({ children }) => {
 
 export let Author: React.FC = ({ children }) => {
   let ctx: AuthorData = {};
-  let Inner = () => (
+  let AuthorInner = () => (
     <div className="author">
       {ctx.name ? (
         <span className="author-name">{ctx.name}</span>
@@ -74,7 +74,7 @@ export let Author: React.FC = ({ children }) => {
   return (
     <>
       <AuthorContext.Provider value={ctx}>{children}</AuthorContext.Provider>
-      <Inner />
+      <AuthorInner />
     </>
   );
 };

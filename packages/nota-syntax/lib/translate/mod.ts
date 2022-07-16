@@ -109,9 +109,6 @@ export class Translator {
       start: this.lineMap.offsetToLocation(lezerNode.from),
       end: this.lineMap.offsetToLocation(lezerNode.to),
     };
-    // if (loc.start.column == 18) {
-    //   console.trace(`WAT`, lezerNode.name, loc);
-    // }
 
     return { ...nodeAny, loc };
   }
@@ -1205,9 +1202,7 @@ export let translateAst = (input: string, tree: Tree): Program => {
     ])
   );
 
-  let cssFiles = Object.keys(preludeImports).map(
-    mod => `@nota-lang/nota-components/dist/css/${mod}.css`
-  );
+  let cssFiles = ["@nota-lang/nota-components/dist/index.css"];
   let cssImportStmts = cssFiles.map(s => t.importDeclaration([], strLit(s)));
 
   let program: Statement[] = [

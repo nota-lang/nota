@@ -1,3 +1,5 @@
+$mobile-cutoff: 800px;
+
 :root {
   --font-body: serif;
   --font-header: serif;
@@ -12,8 +14,6 @@
   --size-huge: 32px;
   --size-Huge: 36px;
 
-  --mobile-cutoff: 800px;
-
   --color-peach: rgb(250, 223, 203);
   --color-forest-green: rgb(186, 220, 199);
   --color-error: rgb(190, 34, 34);
@@ -22,13 +22,13 @@
 }
 
 @mixin mobile {
-  @media (max-width: (var(--mobile-cutoff) - 1)) {
+  @media (max-width: ($mobile-cutoff - 1)) {
     @content;
   }
 }
 
 @mixin monitor {
-  @media (min-width: var(--mobile-cutoff)) {
+  @media (min-width: $mobile-cutoff) {
     @content;
   }
 }

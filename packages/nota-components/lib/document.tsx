@@ -55,6 +55,7 @@ export let TableOfContents: React.FC = observer(({}) => {
     </div>
   );
 });
+TableOfContents.displayName = "TableOfContents";
 
 export let Section: React.FC<{ plain?: boolean; name?: string }> = ({
   children,
@@ -375,6 +376,7 @@ export let DocumentInner: React.FC = observer(({ children }) => {
     </>
   );
 });
+DocumentInner.displayName = "DocumentInner";
 
 export interface DocumentProps {
   anonymous?: boolean;
@@ -416,13 +418,15 @@ export let Document: React.FC<DocumentProps> = ({ children, editing, onRender, r
   }
 
   let inner = PLUGINS().reduce(
-    (el, plugin) => <plugin.Provide>{el}</plugin.Provide>,
+    (el, plugin, i) => <plugin.Provide key={i}>{el}</plugin.Provide>,
     <DocumentInner>{children}</DocumentInner>
   );
 
   return (
-    <div ref={ref} className={classNames("nota-document", { editing })}>
-      <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
-    </div>
+    <React.StrictMode>
+      <div ref={ref} className={classNames("nota-document", { editing })}>
+        <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
+      </div>
+    </React.StrictMode>
   );
 };

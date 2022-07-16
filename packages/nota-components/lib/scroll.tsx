@@ -25,7 +25,7 @@ export interface LocalLinkProps {
 }
 
 export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttributes>(
-  function LocalLinkInner({ children, target, block, event, ...attrs }, ref) {
+  function LocalLink({ children, target, block, event, ...attrs }, ref) {
     let plugin = usePlugin(ScrollPlugin);
 
     let callback: React.MouseEventHandler = e => {

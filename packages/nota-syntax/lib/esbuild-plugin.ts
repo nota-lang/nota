@@ -8,7 +8,7 @@ import { printTree, translate } from "./translate/mod.js";
 
 export interface NotaPluginOpts {}
 
-const VERBOSE = true;
+const VERBOSE = false;
 
 export let notaPlugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
   name: "notaSyntax",

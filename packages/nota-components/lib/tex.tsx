@@ -208,13 +208,10 @@ export interface TexProps {
 }
 
 // memo is important to avoid re-renders that include macro definitions
-export let Tex: React.FC<TexProps & HTMLAttributes> = React.memo(
-  function Tex({ children, raw, block, ...props }) {
-    let ctx = usePlugin(TexPlugin);
-    return ctx.render(joinRecursive(children as any), block, raw, props);
-  },
-  (prev, next) => prev.children == next.children
-);
+export let Tex: React.FC<TexProps & HTMLAttributes> = ({ children, raw, block, ...props }) => {
+  let ctx = usePlugin(TexPlugin);
+  return ctx.render(joinRecursive(children as any), block, raw, props);
+};
 
 export let $: typeof Tex = props => <Tex block={false} {...props} />;
 export let $$: typeof Tex = props => <Tex block={true} {...props} />;
