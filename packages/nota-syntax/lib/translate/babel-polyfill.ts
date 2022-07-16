@@ -219,6 +219,8 @@ export let functionExpression = (
   id,
   params,
   body,
+  async: false,
+  generator: false,
 });
 
 export let conditionalExpression = ({
@@ -284,6 +286,7 @@ export let arrowFunctionExpression = (
   params,
   body,
   expression: false,
+  async: false,
 });
 
 export let arrayExpression = (

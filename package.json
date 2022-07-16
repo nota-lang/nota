@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "init-repo": "pnpm install && pnpm build",
-    "clean": "pnpm -r --parallel exec rimraf dist node_modules && rimraf node_modules",
+    "clean": "pnpm -r --parallel exec rimraf dist node_modules && rimraf node_modules && rm -f pnpm-lock.yaml",
     "lint": "pnpm run --parallel -r lint",
     "build": "pnpm run -r build",
     "watch": "pnpm run --parallel --no-bail -r build -w",
