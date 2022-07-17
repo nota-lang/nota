@@ -422,11 +422,13 @@ export let Document: React.FC<DocumentProps> = ({ children, editing, onRender, r
     <DocumentInner>{children}</DocumentInner>
   );
 
+  // NOTE: at one point, we tried to add <React.StrictMode> to help users catch bugs.
+  // But this has some insane interactions with testing-library. StrictMode causes components
+  // to render twice, but the testing-library doesn't "understand" the second render,
+  // so it incorrectly calls React hooks again AND somehow silences stdout.
   return (
-    <React.StrictMode>
-      <div ref={ref} className={classNames("nota-document", { editing })}>
-        <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
-      </div>
-    </React.StrictMode>
+    <div ref={ref} className={classNames("nota-document", { editing })}>
+      <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
+    </div>
   );
 };
