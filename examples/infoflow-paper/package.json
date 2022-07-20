@@ -8,9 +8,9 @@
   "devDependencies": {
     "@codemirror/lang-cpp": "^6.0.1",
     "@codemirror/lang-rust": "^6.0.0",
-    "@nota-lang/nota": "workspace:^0.4.0",
-    "@nota-lang/nota-theme-acm": "workspace:^0.4.0",
-    "@nota-lang/nota-theme-standalone": "workspace:^0.4.0",
+    "@nota-lang/nota": "^0.3.8",
+    "@nota-lang/nota-theme-acm": "^0.3.8",
+    "@nota-lang/nota-theme-standalone": "^0.3.8",
     "lodash": "^4.17.21"
   }
 }
