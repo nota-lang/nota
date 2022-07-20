@@ -1,5 +1,7 @@
 import React, { useContext, useState } from "react";
 
+import { FCC } from "./utils";
+
 export class Pluggable {
   stateful: boolean = false;
   init() {}
@@ -14,7 +16,7 @@ export class Plugin<T extends Pluggable> {
     this.context = React.createContext(new ctor());
   }
 
-  Provide: React.FC = ({ children }) => {
+  Provide: FCC = ({ children }) => {
     let t = new this.ctor();
     if (t.stateful) {
       t = useState(t)[0];

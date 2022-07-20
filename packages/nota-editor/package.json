@@ -27,36 +27,37 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "dependencies": {
-    "@babel/standalone": "^7.17.11",
-    "@codemirror/basic-setup": "^0.20.0",
-    "@codemirror/commands": "^0.20.0",
-    "@codemirror/lang-javascript": "^0.20.0",
-    "@codemirror/language": "^0.20.0",
-    "@codemirror/state": "^0.20.0",
-    "@codemirror/view": "^0.20.0",
-    "@nota-lang/nota-components": "^0.4.0",
-    "@nota-lang/nota-syntax": "^0.4.0",
+    "@babel/standalone": "^7.18.9",
+    "codemirror": "^6.0.1",
+    "@codemirror/commands": "^6.0.1",
+    "@codemirror/lang-javascript": "^6.0.1",
+    "@codemirror/language": "^6.2.0",
+    "@codemirror/state": "^6.1.0",
+    "@codemirror/view": "^6.1.0",
+    "@nota-lang/nota-components": "workspace:^0.4.0",
+    "@nota-lang/nota-syntax": "workspace:^0.4.0",
     "classnames": "^2.3.1",
     "lodash": "^4.17.21",
-    "prettier": "^2.6.2",
+    "prettier": "^2.7.1",
     "react-error-boundary": "^3.1.4",
     "source-map": "^0.7.4"
   },
   "peerDependencies": {
-    "mobx": "^6.5.0",
-    "react": "^17.0.2"
+    "mobx": "^6.6.1",
+    "react": "^18.2.0"
   },
   "devDependencies": {
-    "@lezer/common": "^0.16.0",
-    "@nota-lang/esbuild-utils": "^0.4.0",
-    "@nota-lang/nota-common": "^0.4.0",
+    "@lezer/common": "^1.0.0",
+    "@nota-lang/esbuild-utils": "workspace:^0.4.0",
+    "@nota-lang/nota-common": "workspace:^0.4.0",
     "@types/babel__core": "^7.1.19",
     "@types/babel__standalone": "^7.1.4",
     "@types/lodash": "^4.14.182",
-    "@types/prettier": "^2.6.0",
-    "@types/react": "^17.0.2",
-    "mobx": "^6.5.0",
-    "react": "^17.0.2",
-    "sass": "^1.51.0"
-  }
+    "@types/prettier": "^2.6.3",
+    "@types/react": "^18.0.15",
+    "mobx": "^6.6.1",
+    "react": "^18.2.0",
+    "sass": "^1.53.0"
+  },
+  "gitHead": "e215a495a0080997414ce193d4faf5317c5ddc08"
 }

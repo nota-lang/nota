@@ -6,6 +6,7 @@ import _ from "lodash";
 import React, { useEffect, useRef } from "react";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { FCC } from "./utils.js";
 
 export const addHighlight = StateEffect.define<{ from: number; to: number; color: string }>();
 
@@ -150,7 +151,7 @@ export interface ListingProps {
   extensions?: Extension[];
 }
 
-export let Listing: React.FC<ListingProps> = props => {
+export let Listing: FCC<ListingProps> = props => {
   let ctx = usePlugin(ListingPlugin);
   let ref = useRef(null);
 

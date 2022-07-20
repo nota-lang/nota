@@ -1,4 +1,3 @@
-import { basicSetup } from "@codemirror/basic-setup";
 import { indentWithTab } from "@codemirror/commands";
 import {
   LanguageDescription,
@@ -16,6 +15,7 @@ import { Decoration, DecorationSet, EditorView, KeyBinding, keymap } from "@code
 import { isOk } from "@nota-lang/nota-common/dist/result";
 import { nota } from "@nota-lang/nota-syntax/dist/editor/mod.js";
 import classNames from "classnames";
+import { basicSetup } from "codemirror";
 import { action, reaction } from "mobx";
 import React, { useContext, useEffect, useRef, useState } from "react";
 //@ts-ignore

@@ -12,7 +12,7 @@ export interface TemplateProps {
 }
 
 /** The default page template for server-side rendering. */
-let Template: React.FC<TemplateProps> = ({ title, script, children }) => (
+let Template: React.FC<React.PropsWithChildren<TemplateProps>> = ({ title, script, children }) => (
   <>
     <head>
       <link href="index.css" rel="stylesheet" />

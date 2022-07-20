@@ -2,6 +2,7 @@ import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import React, { createContext, useContext } from "react";
 
 import { DocumentContext } from "./document.js";
+import { FCC } from "./utils.js";
 
 interface AuthorAffiliation {
   institution?: string;
@@ -15,17 +16,17 @@ interface AuthorData {
   affiliations?: AuthorAffiliation[];
 }
 
-let InlineError: React.FC = ({ children }) => <span className="inline-error">{children}</span>;
+let InlineError: FCC = ({ children }) => <span className="inline-error">{children}</span>;
 
 let AuthorContext = createContext<AuthorData>({});
 
-export let Institution: React.FC = ({ children }) => {
+export let Institution: FCC = ({ children }) => {
   let ctx = useContext(AffiliationContext);
   ctx.institution = joinRecursive(children as any);
   return null;
 };
 
-export let Affiliation: React.FC = ({ children }) => {
+export let Affiliation: FCC = ({ children }) => {
   let authCtx = useContext(AuthorContext);
   let affCtx: AuthorAffiliation = {};
   let AffiliationInner = () => {
@@ -43,13 +44,13 @@ export let Affiliation: React.FC = ({ children }) => {
   );
 };
 
-export let Name: React.FC = ({ children }) => {
+export let Name: FCC = ({ children }) => {
   let ctx = useContext(AuthorContext);
   ctx.name = joinRecursive(children as any);
   return <></>;
 };
 
-export let Author: React.FC = ({ children }) => {
+export let Author: FCC = ({ children }) => {
   let ctx: AuthorData = {};
   let AuthorInner = () => (
     <div className="author">
@@ -79,7 +80,7 @@ export let Author: React.FC = ({ children }) => {
   );
 };
 
-export let Authors: React.FC = ({ children }) => {
+export let Authors: FCC = ({ children }) => {
   let ctx = useContext(DocumentContext);
   return (
     <div className="authors">
@@ -94,6 +95,6 @@ export let Authors: React.FC = ({ children }) => {
   );
 };
 
-export let Title: React.FC = ({ children }) => <h1 className="document-title">{children}</h1>;
+export let Title: FCC = ({ children }) => <h1 className="document-title">{children}</h1>;
 
-export let Abstract: React.FC = ({ children }) => <div className="abstract">{children}</div>;
+export let Abstract: FCC = ({ children }) => <div className="abstract">{children}</div>;

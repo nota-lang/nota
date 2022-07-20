@@ -1,13 +1,12 @@
 /**
  * @jest-environment jsdom
  */
-
-import React from "react";
-import { render, waitFor, screen, getByText } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { getByText, render, screen } from "@testing-library/react";
+import React from "react";
 
-import { $, texDef, texRef } from "../dist/tex";
 import { DefinitionsPlugin } from "../dist/definitions";
+import { $, texDef, texRef } from "../dist/tex";
 
 describe("tex", () => {
   it("can render basic tex", () => {
@@ -25,7 +24,7 @@ describe("tex", () => {
         </$>
       </DefinitionsPlugin.Provide>
     );
-    await waitFor(() => screen.getByText("z"));
+    await screen.findByText("z");
 
     let def = baseElement.querySelector<HTMLElement>(`[data-def="x"]`)!;
     let ref = baseElement.querySelector<HTMLElement>(`[data-ref="x"]`)!;

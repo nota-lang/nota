@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { FullWidthContainer, Row } from "./document.js";
-import { useStateOnInterval } from "./utils.js";
+import { FCC, useStateOnInterval } from "./utils.js";
 
 // TODO: relate this to CSS somehow
 let DOCUMENT_WIDTH = 800;
@@ -18,7 +18,7 @@ interface CommentaryData {
 
 let CommentaryContext = React.createContext<CommentaryData | null>(null);
 
-export let Comment: React.FC<{ selector: string }> = ({ selector, children }) => {
+export let Comment: FCC<{ selector: string }> = ({ selector, children }) => {
   let ctx = useContext(CommentaryContext);
   let [node, setNode] = useState<Element | null>(null);
   let top = useStateOnInterval(0, 1000, () => {
@@ -56,7 +56,7 @@ export let Comment: React.FC<{ selector: string }> = ({ selector, children }) =>
   );
 };
 
-export let Commentary: React.FC<CommentaryProps> = ({ Document, children, commentWidth }) => {
+export let Commentary: FCC<CommentaryProps> = ({ Document, children, commentWidth }) => {
   let documentRef = useRef<HTMLDivElement>(null);
   let [documentReady, setDocumentReady] = useState(false);
 

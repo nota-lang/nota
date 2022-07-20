@@ -3,19 +3,19 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Definition } from "./definitions.js";
 import { DocumentContext, Smallcaps } from "./document.js";
 import { ToggleGroup, ToggleGroupButton } from "./togglebox.js";
-import { HTMLAttributes, ReactNode, getOrRender } from "./utils.js";
+import { FCC, HTMLAttributes, ReactConstructor, ReactNode, getOrRender } from "./utils.js";
 
-export let Premise: React.FC = ({ children }) => <div className="premise">{children}</div>;
-export let PremiseRow: React.FC = ({ children }) => <div className="premise-row">{children}</div>;
+export let Premise: FCC = ({ children }) => <div className="premise">{children}</div>;
+export let PremiseRow: FCC = ({ children }) => <div className="premise-row">{children}</div>;
 
 export interface IRProps {
-  Top?: ReactNode;
-  Bot: ReactNode;
-  Right?: ReactNode;
+  Top?: ReactNode | ReactConstructor;
+  Bot: ReactNode | ReactConstructor;
+  Right?: ReactNode | ReactConstructor;
   toggle?: boolean;
 }
 
-export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...props }) => {
+export let IR: FCC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...props }) => {
   let [rightHeight, setRightHeight] = useState(0);
   let rightRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +59,7 @@ export let IR: React.FC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, 
   );
 };
 
-export let Theorem: React.FC<{ name?: string; title?: string }> = ({ name, title, children }) => {
+export let Theorem: FCC<{ name?: string; title?: string }> = ({ name, title, children }) => {
   let ctx = useContext(DocumentContext);
   let thmNum = ctx.theorems.push().toString();
   let label = `Theorem ${thmNum}`;

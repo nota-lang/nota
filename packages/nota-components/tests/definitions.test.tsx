@@ -1,10 +1,9 @@
 /**
  * @jest-environment jsdom
  */
-
-import React from "react";
-import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { act, render, screen } from "@testing-library/react";
+import React from "react";
 
 import { Definition, Ref } from "../dist/definitions";
 import { Document } from "../dist/document";
@@ -21,11 +20,11 @@ describe("definitions", () => {
       </Document>
     );
 
-    await waitFor(() => screen.getByText("hello world"));
+    await screen.findByText("hello world");
     screen.getByText("override");
     screen.getByText("a def");
 
-    screen.getByText("hello world").click();
-    await waitFor(() => screen.getByText("tooltip"));
+    act(() => screen.getByText("hello world").click());
+    await screen.findByText("tooltip");
   });
 });

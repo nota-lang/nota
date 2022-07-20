@@ -2,9 +2,9 @@ import { default as classNames } from "classnames";
 import _ from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 
-import { Container, HTMLAttributes } from "./utils.js";
+import { Container, FCC, HTMLAttributes } from "./utils.js";
 
-export let Correspondence: React.FC<HTMLAttributes> = ({ children, ...props }) => {
+export let Correspondence: FCC<HTMLAttributes> = ({ children, ...props }) => {
   let ref = useRef<HTMLDivElement>(null);
   let [hover, setHover] = useState<string | null>(null);
 
@@ -35,7 +35,7 @@ export let Correspondence: React.FC<HTMLAttributes> = ({ children, ...props }) =
   );
 };
 
-export let Link: React.FC<{ name: string; block?: boolean }> = ({ name, block, children }) => {
+export let Link: FCC<{ name: string; block?: boolean }> = ({ name, block, children }) => {
   return (
     <Container className={classNames("link", `type-${name}`)} block={block}>
       {children}

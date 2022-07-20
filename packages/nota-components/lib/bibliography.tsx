@@ -8,6 +8,7 @@ import { Definition, DefinitionsPlugin } from "./definitions.js";
 import { Section, SectionBody } from "./document.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { $ } from "./tex.js";
+import { FCC } from "./utils.js";
 
 function isString(x: any): x is string {
   return typeof x === "string";
@@ -165,7 +166,7 @@ export class BibliographyData extends Pluggable {
 
 export let BibliographyPlugin = new Plugin(BibliographyData);
 
-export let References: React.FC<{ bibtex?: string }> = observer(({ bibtex, children }) => {
+export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }) => {
   let bibCtx = usePlugin(BibliographyPlugin);
   let defCtx = usePlugin(DefinitionsPlugin);
 

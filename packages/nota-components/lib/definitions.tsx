@@ -9,7 +9,7 @@ import React, { forwardRef, useContext, useEffect, useState } from "react";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { LocalLink } from "./scroll.js";
 import { Tooltip } from "./tooltip.js";
-import { Container, ReactConstructor, ReactNode } from "./utils.js";
+import { Container, FCC, ReactConstructor, ReactNode } from "./utils.js";
 import { HTMLAttributes, getOrRender } from "./utils.js";
 
 export interface DefinitionData {
@@ -97,7 +97,7 @@ export class DefinitionsData extends Pluggable {
 
 export let DefinitionsPlugin = new Plugin(DefinitionsData);
 
-export let DefinitionAnchor: React.FC<{
+export let DefinitionAnchor: FCC<{
   name: string;
   block?: boolean;
   attrs?: HTMLAttributes;
@@ -112,10 +112,7 @@ export let DefinitionAnchor: React.FC<{
 
 export let DefinitionScopeContext = React.createContext<string[]>([]);
 
-export let DefinitionScope: React.FC<React.PropsWithChildren<{ name: string }>> = ({
-  children,
-  name,
-}) => {
+export let DefinitionScope: FCC<{ name: string }> = ({ children, name }) => {
   let curScope = useContext(DefinitionScopeContext);
   let newScope = [...curScope, name];
   return (
@@ -132,7 +129,7 @@ interface DefinitionProps {
   attrs?: HTMLAttributes;
 }
 
-export let Definition: React.FC<React.PropsWithChildren<DefinitionProps>> = props => {
+export let Definition: FCC<DefinitionProps> = props => {
   let ctx = usePlugin(DefinitionsPlugin);
   let scope = useContext(DefinitionScopeContext);
   let [nameStrs] = useState(() =>
@@ -175,10 +172,9 @@ interface RefProps {
   block?: boolean;
   nolink?: boolean;
   label?: ReactConstructor | ReactNode;
-  children: NotaText;
 }
 
-export let Ref: React.FC<RefProps> = observer(
+export let Ref: FCC<RefProps> = observer(
   ({ block, nolink, children, label: userLabel, ...props }) => {
     let name = joinRecursive(children);
 

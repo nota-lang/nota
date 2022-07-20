@@ -86,7 +86,7 @@ class TooltipData extends Pluggable {
 export let TooltipPlugin: Plugin<TooltipData> = new Plugin(TooltipData);
 
 interface TooltipChildProps {
-  ref: React.Ref<HTMLElement>;
+  ref: React.Ref<any>;
   onClick: HTMLAttributes["onClick"];
 }
 

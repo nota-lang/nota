@@ -9,6 +9,8 @@ export type ReactConstructor<P = {}> =
   | React.ComponentClass<P>
   | React.ExoticComponent<P>;
 
+export type FCC<T = {}> = React.FC<React.PropsWithChildren<T>>;
+
 let isFunctionComponent = <P,>(t: any): t is React.FunctionComponent<P> => {
   return typeof t === "function";
 };

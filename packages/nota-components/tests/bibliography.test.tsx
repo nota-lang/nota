@@ -1,12 +1,11 @@
 /**
  * @jest-environment jsdom
  */
-
-import React from "react";
-import { render, waitFor, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
+import React from "react";
 
-import { References, BibliographyPlugin } from "../dist/bibliography";
+import { BibliographyPlugin, References } from "../dist/bibliography";
 import { DefinitionsPlugin, Ref } from "../dist/definitions";
 
 describe("bibliography", () => {
@@ -27,7 +26,7 @@ describe("bibliography", () => {
       </DefinitionsPlugin.Provide>
     );
 
-    await waitFor(() => screen.getByText("Aliprantis and Border 1994"));
+    await screen.findByText("Aliprantis and Border 1994");
     expect(
       baseElement
         .querySelector(".bib-reference")!

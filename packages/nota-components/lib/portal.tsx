@@ -4,6 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { FCC } from "./utils.js";
 
 class PortalData extends Pluggable {
   portal: HTMLDivElement | null = null;
@@ -16,7 +17,7 @@ class PortalData extends Pluggable {
 
 export let PortalPlugin = new Plugin(PortalData);
 
-export let ToplevelElem: React.FC = observer(({ children }) => {
+export let ToplevelElem: FCC = observer(({ children }) => {
   let portal = usePlugin(PortalPlugin);
   return portal.portal !== null ? ReactDOM.createPortal(children, portal.portal) : null;
 });

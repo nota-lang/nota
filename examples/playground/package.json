@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {},
   "devDependencies": {
-    "@nota-lang/nota": "^0.3.6",
-    "@nota-lang/nota-theme-acm": "^0.3.6"
+    "@nota-lang/nota": "workspace:^0.4.0",
+    "@nota-lang/nota-theme-acm": "workspace:^0.4.0"
   }
 }

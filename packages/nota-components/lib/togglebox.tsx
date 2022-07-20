@@ -3,7 +3,7 @@ import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { useStateOnInterval } from "./utils.js";
+import { FCC, useStateOnInterval } from "./utils.js";
 
 type ToggleCallback = (show: boolean) => void;
 
@@ -18,7 +18,7 @@ class ToggleGroupState {
 
 let ToggleGroupContext = React.createContext<ToggleGroupState | null>(null);
 
-export let ToggleGroup: React.FC = ({ children }) => {
+export let ToggleGroup: FCC = ({ children }) => {
   let state = new ToggleGroupState();
   return <ToggleGroupContext.Provider value={state}>{children}</ToggleGroupContext.Provider>;
 };

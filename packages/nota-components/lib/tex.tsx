@@ -6,7 +6,7 @@ import ReactDOM from "react-dom";
 
 import { Definition, DefinitionAnchor, Ref } from "./definitions.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
-import { Container, HTMLAttributes } from "./utils.js";
+import { Container, FCC, HTMLAttributes } from "./utils.js";
 
 const r = String.raw;
 
@@ -105,8 +105,8 @@ export let TexPlugin = new Plugin(
 
           displayMode: block,
         });
-      } catch (e) {
-        if (e instanceof katex.ParseError) {
+      } catch (e: any) {
+        if (e instanceof (katex as any).ParseError) {
           console.error(e);
           return (
             <Container ref={ref} className="error" block={block} {...props}>
@@ -208,7 +208,7 @@ export interface TexProps {
 }
 
 // memo is important to avoid re-renders that include macro definitions
-export let Tex: React.FC<TexProps & HTMLAttributes> = ({ children, raw, block, ...props }) => {
+export let Tex: FCC<TexProps & HTMLAttributes> = ({ children, raw, block, ...props }) => {
   let ctx = usePlugin(TexPlugin);
   return ctx.render(joinRecursive(children as any), block, raw, props);
 };

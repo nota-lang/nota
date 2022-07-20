@@ -27,10 +27,11 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.4.0"
+    "@nota-lang/esbuild-utils": "workspace:^0.4.0"
   },
   "dependencies": {
     "@types/lodash": "^4.14.182",
     "lodash": "^4.17.21"
-  }
+  },
+  "gitHead": "e215a495a0080997414ce193d4faf5317c5ddc08"
 }

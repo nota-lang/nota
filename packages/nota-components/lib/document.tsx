@@ -14,7 +14,7 @@ import { Portal, PortalPlugin } from "./portal.js";
 import { ScrollPlugin } from "./scroll.js";
 import { TexPlugin } from "./tex.js";
 import { TooltipPlugin } from "./tooltip.js";
-import { HTMLAttributes } from "./utils.js";
+import { FCC, HTMLAttributes } from "./utils.js";
 
 class DocumentData {
   sections: NestedCounter = new NestedCounter();
@@ -57,11 +57,7 @@ export let TableOfContents: React.FC = observer(({}) => {
 });
 TableOfContents.displayName = "TableOfContents";
 
-export let Section: React.FC<{ plain?: boolean; name?: string }> = ({
-  children,
-  plain,
-  ...props
-}) => {
+export let Section: FCC<{ plain?: boolean; name?: string }> = ({ children, plain, ...props }) => {
   let docCtx = useContext(DocumentContext);
   let pos = docCtx.sections.position();
   let level = pos.level();
@@ -99,7 +95,7 @@ export let Section: React.FC<{ plain?: boolean; name?: string }> = ({
 export let Subsection: typeof Section = props => <Section {...props} />;
 export let Subsubsection: typeof Section = props => <Section {...props} />;
 
-export let SectionBody: React.FC = ({ children }) => {
+export let SectionBody: FCC = ({ children }) => {
   let docCtx = useContext(DocumentContext);
   docCtx.sections.push();
 
@@ -117,7 +113,7 @@ class FigureData {
 
 let FigureContext = React.createContext<FigureData>(new FigureData());
 
-export let Figure: React.FC<{ name?: string }> = props => {
+export let Figure: FCC<{ name?: string }> = props => {
   let docCtx = useContext(DocumentContext);
   let pos = docCtx.figures.push();
   let level = pos.level();
@@ -158,13 +154,13 @@ export let Figure: React.FC<{ name?: string }> = props => {
 
 export let Subfigure: typeof Figure = Figure;
 
-export let Caption: React.FC = props => {
+export let Caption: FCC = props => {
   let ctx = useContext(FigureContext);
   ctx.caption = <>{props.children}</>;
   return null;
 };
 
-export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children }) => {
+export let Wrap: FCC<{ align: CSS.Property.Float }> = ({ align, children }) => {
   let margin = "1rem";
   let style;
   if (align == "left") {
@@ -178,7 +174,7 @@ export let Wrap: React.FC<{ align: CSS.Property.Float }> = ({ align, children })
   return <div style={{ float: align, ...style }}>{children}</div>;
 };
 
-export let Smallcaps: React.FC = ({ children }) => <span className="smallcaps">{children}</span>;
+export let Smallcaps: FCC = ({ children }) => <span className="smallcaps">{children}</span>;
 
 export let FullWidthContainer: React.FC<HTMLAttributes> = ({ style, className, ...props }) => {
   let ref = useRef<HTMLDivElement>(null);
@@ -199,7 +195,7 @@ export let FullWidthContainer: React.FC<HTMLAttributes> = ({ style, className, .
   );
 };
 
-export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) => {
+export let Row: FCC<HTMLAttributes> = ({ children, className, ...props }) => {
   return (
     <div {...props} className={classNames("row", className)}>
       {children}
@@ -207,11 +203,11 @@ export let Row: React.FC<HTMLAttributes> = ({ children, className, ...props }) =
   );
 };
 
-export let Center: React.FC = ({ children }) => {
+export let Center: FCC = ({ children }) => {
   return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
 };
 
-export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
+export let Expandable: FCC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
   let scrollPlugin = usePlugin(ScrollPlugin);
   let ref = useRef(null);
   let [show, setShow] = useState(false);
@@ -252,13 +248,13 @@ export let Expandable: React.FC<{ prompt: JSX.Element }> = ({ children, prompt }
   );
 };
 
-export let FootnoteDef: React.FC<{ name?: string }> = ({ children }) => {
+export let FootnoteDef: FCC<{ name?: string }> = ({ children }) => {
   let ctx = useContext(DocumentContext);
   ctx.footnotes.push(children);
   return null;
 };
 
-export let Footnote: React.FC = ({ children }) => {
+export let Footnote: FCC = ({ children }) => {
   let ctx = useContext(DocumentContext);
   let [i] = useState(ctx.footnotes.length);
   return (
@@ -348,7 +344,7 @@ let preprocessDocument = (children: React.ReactNode[]): React.ReactNode[] => {
   return sectionStack[0];
 };
 
-export let Acknowledgments: React.FC = ({ children }) => {
+export let Acknowledgments: FCC = ({ children }) => {
   return (
     <SectionBody>
       <Section plain>Acknowledgments</Section>
@@ -357,7 +353,7 @@ export let Acknowledgments: React.FC = ({ children }) => {
   );
 };
 
-export let DocumentInner: React.FC = observer(({ children }) => {
+export let DocumentInner: FCC = observer(({ children }) => {
   let defCtx = usePlugin(DefinitionsPlugin);
   let processed = children instanceof Array ? preprocessDocument(children) : children;
 
@@ -396,7 +392,7 @@ const PLUGINS = (): Plugin<any>[] => [
   PortalPlugin,
 ];
 
-export let Document: React.FC<DocumentProps> = ({ children, editing, onRender, renderTimeout }) => {
+export let Document: FCC<DocumentProps> = ({ children, editing, onRender, renderTimeout }) => {
   let ref = useRef<HTMLDivElement>(null);
   if (onRender) {
     useEffect(() => {
