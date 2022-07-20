@@ -1,20 +1,16 @@
 name: Tests
-on: [push]
+
+on:
+  push:
+    tags-ignore:
+      - "v*"
+        
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.1
-      - name: Build library
+      - name: Check library
         run: |
           sudo npm install -g pnpm
           pnpm commit-check
-
-      # TODO: make this only happen on release
-      - name: Build docs
-        run: pnpm doc
-      - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
