@@ -1,3 +1,4 @@
+import c from "ansi-colors";
 import commonPathPrefix from "common-path-prefix";
 import { Plugin } from "esbuild";
 import fs from "fs";
@@ -24,6 +25,40 @@ export interface SsrPluginOptions {
 
   /** Port for the static file server */
   port?: number;
+
+  /** Language for the webpage */
+  language?: string;
+}
+
+class FileServer {
+  constructor(private httpServer: http.Server, readonly port: number) {}
+
+  static async start(opts: SsrPluginOptions): Promise<FileServer> {
+    let port = opts.port || 8000;
+    const MAX_TRIES = 10;
+    for (let i = 0; i < MAX_TRIES; i++) {
+      let in_use = await tcpPortUsed.check(port, "localhost");
+      if (!in_use) break;
+      port++;
+    }
+    let fileServer = new statik.Server("./dist", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+    let httpServer = http
+      .createServer((request, response) =>
+        request.addListener("end", () => fileServer.serve(request, response)).resume()
+      )
+      .listen(port);
+    return new FileServer(httpServer, port);
+  }
+
+  dispose() {
+    this.httpServer.close();
+  }
 }
 
 /** Esbuild plugin for server-side rendering with Nota documents.
@@ -104,48 +139,36 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       return { contents, loader: "jsx", resolveDir: dir };
     });
 
-    let port = opts.port || 8000;
-    const MAX_TRIES = 10;
-    for (let i = 0; i < MAX_TRIES; i++) {
-      let in_use = await tcpPortUsed.check(port, "localhost");
-      if (!in_use) break;
-      port++;
-    }
-    let browser = await puppeteer.launch();
-    let fileServer = new statik.Server("./dist", {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
-    });
-    let httpServer = http
-      .createServer((request, response) =>
-        request.addListener("end", () => fileServer.serve(request, response)).resume()
-      )
-      .listen(port);
+    let browserPromise = puppeteer.launch();
+    let fileServerPromise = FileServer.start(opts);
 
     build.onEnd(async _args => {
+      let [browser, fileServer] = await Promise.all([browserPromise, fileServerPromise]);
+
       let entryPoints = build.initialOptions.entryPoints as string[];
       let commonPrefix =
         entryPoints.length == 1 ? path.dirname(entryPoints[0]) : commonPathPrefix(entryPoints);
 
       let promises = entryPoints.map(async p => {
         let { name, dir } = getPathParts(path.relative(commonPrefix, p));
+        let htmlPath = path.join("dist", dir, name + ".html");
 
+        log.info(`Rendering page: ${path.parse(p).name} -> ${htmlPath}`);
         let page = await browser.newPage();
 
         // Pipe in-page logging to the terminal for debugging purposes
         page
-          .on("console", message => log.info(message.text()))
+          .on("console", message => log.info(c.italic("console.log:") + " " + message.text()))
           .on("pageerror", err => log.error(err.toString()))
           .on("error", err => log.error(err.toString()));
 
         // Put the HTML into the page and wait for initial load
-        let html = `<!DOCTYPE html>
-        <html lang="en" class="${SSR_CLASS}">
-          <body><script src="http://localhost:${port}/${dir}/${name}.mjs" type="module"></script></body>
-        </html>`;
+        let scriptUrl = `http://localhost:${fileServer.port}/${dir}/${name}.mjs`;
+        let html = `
+<!DOCTYPE html>
+<html lang="${opts.language || "en"}" class="${SSR_CLASS}">
+  <body><script src="${scriptUrl}" type="module"></script></body>
+</html>`;
         await page.setContent(html, { waitUntil: "domcontentloaded" });
 
         // Then wait for NOTA_READY to be set by the SSR script
@@ -154,14 +177,13 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
         // And write the rendered HTML to disk once it's ready
         let content = await page.content();
-        let htmlPath = path.join("dist", dir, name + ".html");
         await fs.promises.writeFile(htmlPath, content);
       });
 
       await Promise.all(promises);
 
       if (!watch) {
-        httpServer.close();
+        fileServer.dispose();
         await browser.close();
       }
     });

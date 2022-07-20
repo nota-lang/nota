@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@cspotcode/source-map-support": "^0.8.1",
+    "ansi-colors": "^4.1.3",
     "commander": "^9.2.0",
     "common-path-prefix": "^3.0.0",
     "es-main": "^1.0.2",

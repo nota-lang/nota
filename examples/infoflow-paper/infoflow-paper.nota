@@ -80,7 +80,6 @@ To determine that `push` mutates `v2`, we leverage *mutability modifiers*. All r
 
 To determine that `x` points to `v`, we leverage *lifetimes*. All references in Rust are annotated with a lifetime, either explicitly (such as `'a`) or implicitly. Shared lifetimes indicate aliasing: because `&self` in `iter` has lifetime `'a`, and because the returned `Iter` structure shares that lifetime, then we can determine that `Iter` may contain pointers to `self`.
 
-
 Inspired by this insight, we built #sysname, a system for analyzing information flow in the safe subset of Rust programs. #sysname satisfies our four design criteria: (1) Rust supports pointers and mutation, (2) #sysname does not require any change to the Rust language or to Rust programs, (3) #sysname is a purely static analysis, and (4) Flowistry uses ownership types to analyze function calls without needing their definition. This paper presents a theoretical and empirical investigation into #sysname in five parts:
 
 1. We provide a precise description of how #sysname computes information flow by embedding its definition within Oxide @Ref{weiss2019oxide}, a formal model of Rust (&sec_analysis).
