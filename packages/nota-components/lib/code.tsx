@@ -167,7 +167,11 @@ export let Listing: FCC<ListingProps> = props => {
       language = ctx.language;
     }
 
-    let code = joinRecursive(props.children as any);
+    let children = props.children;
+    if (!(typeof children === "string" || children instanceof Array)) {
+      throw new Error(`Invalid input to listing: ${children?.toString()}`);
+    }
+    let code = joinRecursive(children);
     let parseResult = null;
     if (props.delimiters) {
       parseResult = parseWithDelimiters(code, props.delimiters.delimiters);

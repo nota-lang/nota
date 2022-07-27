@@ -21,5 +21,7 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
     plugins: [notaPlugin({}), ssrPlugin(), ...(opts.config.plugins || [])],
   });
 
-  await fs.copy("static", "dist/static");
+  if (fs.existsSync("static")) {
+    await fs.copy("static", "dist/static");
+  }
 };

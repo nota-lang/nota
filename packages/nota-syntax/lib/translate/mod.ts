@@ -2,6 +2,7 @@ import type { BabelFileResult, PluginObj } from "@babel/core";
 import * as babel from "@babel/standalone";
 import type {
   BlockStatement,
+  Declaration,
   ExportDeclaration,
   Expression,
   ExpressionStatement,
@@ -563,9 +564,14 @@ export class Translator {
     let inlineNode = node.getChild(mdTerms.NotaInlineContent);
     if (inlineNode) args = args.concat(this.translateNotaInlineContent(inlineNode));
 
-    let blockNode = node.getChild(mdTerms.Document) || node.getChild(mdTerms.NotaBlockContent);
-    if (blockNode) {
-      args.push(t.spreadElement(this.translateInlineOrBlockSequence(blockNode)));
+    let child;
+    if ((child = node.getChild(mdTerms.NotaVerbatimContent))) {
+      args.push(strLit(this.text(child)));
+    } else {
+      let blockNode = node.getChild(mdTerms.Document) || node.getChild(mdTerms.NotaBlockContent);
+      if (blockNode) {
+        args.push(t.spreadElement(this.translateInlineOrBlockSequence(blockNode)));
+      }
     }
 
     let expr = t.callExpression(createEl, [name, attrs, ...args]);
@@ -964,7 +970,7 @@ export class Translator {
     return t.blockStatement(stmts);
   }
 
-  translateJsStmt(node: SyntaxNode): Statement {
+  translateJsDeclaration(node: SyntaxNode): Declaration {
     switch (node.type.id) {
       case jsTerms.VariableDeclaration: {
         let child = node.firstChild;
@@ -985,57 +991,93 @@ export class Translator {
         return t.variableDeclaration(kind, declarators);
       }
 
-      case jsTerms.ExpressionStatement: {
+      default: {
+        throw new Error(`Not yet implemented JS declaration: ${node.name}`);
+      }
+    }
+  }
+
+  translateJsImportDeclaration(node: SyntaxNode): ImportDeclaration {
+    assert(matches(node, jsTerms.ImportDeclaration));
+    let child = node.firstChild!;
+    let specifiers: (ImportNamespaceSpecifier | ImportDefaultSpecifier | ImportSpecifier)[] = [];
+    if (matches(child, jsTerms.ImportSymbols)) {
+      let grandchild;
+      if ((grandchild = child.getChild(jsTerms.ImportNamespaceSpecifier))) {
+        let local = this.ident(grandchild.getChild(jsTerms.VariableDefinition)!);
+        specifiers.push(t.importNamespaceSpecifier({ local }));
+      } else {
+        let defaultSpecifiers = child
+          .getChildren(jsTerms.ImportDefaultSpecifier)
+          .map(node => t.importDefaultSpecifier(this.ident(node)));
+
+        let namedSpecifiers = child
+          .getChildren(jsTerms.ImportSpecifier)
+          .map(node => {
+            return this.extractDelimited(node).map(imprt => {
+              if (matches(imprt, jsTerms.AliasedImport)) {
+                let importedNode = imprt.firstChild!;
+                let imported = matches(importedNode, jsTerms.String)
+                  ? this.translateJsString(importedNode)
+                  : this.ident(importedNode);
+                let local = this.ident(imprt.getChild(jsTerms.VariableDefinition)!);
+                return t.importSpecifier(local, imported);
+              } else {
+                let local = this.ident(imprt);
+                return t.importSpecifier(local, local);
+              }
+            });
+          })
+          .flat();
+
+        specifiers = specifiers.concat(defaultSpecifiers).concat(namedSpecifiers);
+      }
+    }
+    let source = this.translateJsString(node.firstChild!.getChild(jsTerms.String)!);
+    return t.importDeclaration(specifiers, source);
+  }
+
+  translateJsExportDeclaration(node: SyntaxNode): ExportDeclaration {
+    let child = node.firstChild!;
+    switch (child.type.id) {
+      case jsTerms.ExportNamedDeclaration: {
+        let decl = this.translateJsDeclaration(child.lastChild!);
+        return t.exportNamedDeclaration(decl);
+      }
+
+      default: {
+        throw new Error(`Not yet implemented JS export declaration: ${node.name}`);
+      }
+    }
+  }
+
+  translateJsStmt(node: SyntaxNode): Statement {
+    switch (node.name) {
+      case "VariableDeclaration":
+      case "FunctionDeclaration":
+      case "ClassDeclaration": {
+        return this.translateJsDeclaration(node);
+      }
+
+      case "ExpressionStatement": {
         let expr = this.translateJsExpr(node.firstChild!);
         return t.expressionStatement(expr);
       }
 
-      case jsTerms.ImportDeclaration: {
-        let child = node.firstChild!;
-        let specifiers: (ImportNamespaceSpecifier | ImportDefaultSpecifier | ImportSpecifier)[] =
-          [];
-        if (matches(child, jsTerms.ImportSymbols)) {
-          let grandchild;
-          if ((grandchild = child.getChild(jsTerms.ImportNamespaceSpecifier))) {
-            let local = this.ident(grandchild.getChild(jsTerms.VariableDefinition)!);
-            specifiers.push(t.importNamespaceSpecifier({ local }));
-          } else {
-            let defaultSpecifiers = child
-              .getChildren(jsTerms.ImportDefaultSpecifier)
-              .map(node => t.importDefaultSpecifier(this.ident(node)));
-
-            let namedSpecifiers = child
-              .getChildren(jsTerms.ImportSpecifier)
-              .map(node => {
-                return this.extractDelimited(node).map(imprt => {
-                  if (matches(imprt, jsTerms.AliasedImport)) {
-                    let importedNode = imprt.firstChild!;
-                    let imported = matches(importedNode, jsTerms.String)
-                      ? this.translateJsString(importedNode)
-                      : this.ident(importedNode);
-                    let local = this.ident(imprt.getChild(jsTerms.VariableDefinition)!);
-                    return t.importSpecifier(local, imported);
-                  } else {
-                    let local = this.ident(imprt);
-                    return t.importSpecifier(local, local);
-                  }
-                });
-              })
-              .flat();
-
-            specifiers = specifiers.concat(defaultSpecifiers).concat(namedSpecifiers);
-          }
-        }
-        let source = this.translateJsString(node.firstChild!.getChild(jsTerms.String)!);
-        return t.importDeclaration(specifiers, source);
+      case "ImportDeclaration": {
+        return this.translateJsImportDeclaration(node);
       }
 
-      case jsTerms.ThrowStatement: {
+      case "ExportDeclaration": {
+        return this.translateJsExportDeclaration(node);
+      }
+
+      case "ThrowStatement": {
         let argument = this.translateJsExpr(node.firstChild!.nextSibling!);
         return t.throwStatement({ argument });
       }
 
-      case jsTerms.ReturnStatement: {
+      case "ReturnStatement": {
         let argument = this.translateJsExpr(node.firstChild!.nextSibling!);
         return t.returnStatement(argument);
       }

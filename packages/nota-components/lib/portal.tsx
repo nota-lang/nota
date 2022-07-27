@@ -1,7 +1,7 @@
 import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
 import React from "react";
-import ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { FCC } from "./utils.js";

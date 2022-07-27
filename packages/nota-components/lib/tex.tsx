@@ -2,7 +2,7 @@ import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.j
 import katex from "katex";
 import _ from "lodash";
 import React from "react";
-import ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom/client";
 
 import { Definition, DefinitionAnchor, Ref } from "./definitions.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
@@ -59,7 +59,7 @@ export let TexPlugin = new Plugin(
       el.style.display = "inline-block";
       el.style.position = "absolute";
       el.style.left = "-99999px";
-      ReactDOM.render(node, el);
+      ReactDOM.createRoot(el).render(node);
 
       let promise = new Promise((resolve, _) => {
         let observer = new MutationObserver(mutations => {

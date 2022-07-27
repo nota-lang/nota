@@ -11,7 +11,7 @@ import classNames from "classnames";
 import { action, makeAutoObservable, reaction } from "mobx";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom/client";
 
 import "../css/editor.scss";
 import "../static/favicon.ico";
@@ -153,4 +153,5 @@ let App = observer(() => {
   );
 });
 
-ReactDOM.render(<App />, document.getElementById("container"));
+let container = document.getElementById("container")!;
+ReactDOM.createRoot(container).render(<App />);

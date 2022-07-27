@@ -109,12 +109,12 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       // TODO 2: this is a lot of code to exist as a string. can we factor it into a module?
       let contents = `
       import React from "react";
-      import ReactDOM from "react-dom";
-      import Doc, * as doc_mod from "./${path.parse(p).name}.nota"
+      import * as ReactDOM from "react-dom/client";
+      import Doc, * as docMod from "./${path.parse(p).name}.nota"
       import Template from "${templatePath}";
 
       let key = "metadata";
-      let metadata = key in doc_mod ? doc_mod[key] : {};
+      let metadata = key in docMod ? docMod[key] : {};
       let Page = ({onRender, ...props}) => <Template {...props}>
         <div id="root">
           <Doc onRender={onRender} renderTimeout={${renderTimeout}} />
@@ -123,16 +123,18 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
       let html = document.documentElement;
       if (html.classList.contains("${SSR_CLASS}")) {
-        html.classList.remove("${SSR_CLASS}");      
-        ReactDOM.render(<Page {...metadata} script={"${script}"} onRender={() => {
-          ${NOTA_READY} = true; 
-        }} />, html);         
+        html.classList.remove("${SSR_CLASS}");
+        let root = ReactDOM.createRoot(html);
+        root.render(<Page {...metadata} script={"${script}"} onRender={() => {
+          ${NOTA_READY} = true;
+        }} />);
       } else {
-        let root = document.getElementById("root");
-        let new_root = document.createElement('div');
-        ReactDOM.render(<Doc onRender={() => {
-          root.parentNode.replaceChild(new_root, root)
-        }} />, new_root);                            
+        let rootEl = document.getElementById("root");
+        let newRootEl = document.createElement('div');
+        let root = ReactDOM.createRoot(newRootEl); 
+        root.render(<Doc onRender={() => {
+          rootEl.parentNode.replaceChild(newRootEl, rootEl);
+        }} />);
       }
       `;
 
@@ -167,7 +169,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
         let html = `
 <!DOCTYPE html>
 <html lang="${opts.language || "en"}" class="${SSR_CLASS}">
-  <body><script src="${scriptUrl}" type="module"></script></body>
+  <body><script src="${scriptUrl}" type="module" async></script></body>
 </html>`;
         await page.setContent(html, { waitUntil: "domcontentloaded" });
 

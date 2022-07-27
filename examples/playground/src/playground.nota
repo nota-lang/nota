@@ -1,14 +1,1 @@
-%(import "@nota-lang/nota-theme-acm/dist/index.css")
-%(import "@nota-lang/nota-theme-standalone/dist/index.css")
-
-@Title{Hello world}
-
-@Abstract{
-  This is a ponderous abstract.
-}
-
-@Section{Yes!}
-
-This is a Nota document, @strong{print edition.}
-
-Wow nice! oh what? no way....
+@h1: What's up

@@ -22,7 +22,7 @@ let Template: React.FC<React.PropsWithChildren<TemplateProps>> = ({ title, scrip
     </head>
     <body>
       {children}
-      <script src={script} type="module"></script>
+      <script src={script} type="module" async></script>
     </body>
   </>
 );

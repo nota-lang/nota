@@ -69,11 +69,27 @@ ThrowStatement { kw<"throw"> expression semi }
 
 ExpressionStatement { expression semi }
 
+ExportAllDeclaration {
+  kw<"export"> Star (ckw<"as"> (VariableName | String))? ckw<"from"> String semi 
+}
+
+ExportDefaultDeclaration {
+  kw<"export"> kw<"default"> (FunctionDeclaration | ClassDeclaration | expression semi)
+}
+
+ExportNamedDeclaration {
+  kw<"export"> tskw<"type">? declaration
+}
+
+ExportFromDeclaration {
+  kw<"export"> tskw<"type">? ExportGroup (ckw<"from"> String)? semi
+}
+
 ExportDeclaration {
-  kw<"export"> Star (ckw<"as"> (VariableName | String))? ckw<"from"> String semi |
-  kw<"export"> kw<"default"> (FunctionDeclaration | ClassDeclaration | expression semi) |
-  kw<"export"> tskw<"type">? declaration |
-  kw<"export"> tskw<"type">? ExportGroup (ckw<"from"> String)? semi |
+  ExportAllDeclaration |
+  ExportDefaultDeclaration |
+  ExportNamedDeclaration |
+  ExportFromDeclaration |
   kw<"export"> "=" expression semi
 }
 

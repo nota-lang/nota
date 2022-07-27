@@ -243,48 +243,70 @@ class NotaBlockComponentParser implements BlockParser {
         icx = makeInlineContext(cx, line);
       }
 
-      if (icx.char(pos) == colon) {
-        // :
-        pos += 1;
+      switch (icx.char(pos)) {
+        case colon: {
+          pos += 1;
 
-        if (pos < icx.end) {
-          // " "
-          if (icx.char(pos) == space) {
-            pos += 1;
-            children.push(notaInlineContentToLineEnd(icx, pos));
+          if (pos < icx.end) {
+            // " "
+            if (icx.char(pos) == space) {
+              pos += 1;
+              children.push(notaInlineContentToLineEnd(icx, pos));
+            }
+          }
+
+          let baseIndent = line.baseIndent;
+          cx.startComposite("NotaBlockComponent", startRelative, baseIndent + INDENT);
+          children.forEach(child => cx.addElement(child));
+
+          while (cx.nextLine() && line.next == -1);
+
+          if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
+            cx.startComposite("NotaBlockContent", line.pos, baseIndent + INDENT);
+            return BLOCK_CONTINUE;
+          } else {
+            return BLOCK_COMPLETE;
           }
         }
 
-        let baseIndent = line.baseIndent;
-        cx.startComposite("NotaBlockComponent", startRelative, baseIndent + INDENT);
-        children.forEach(child => cx.addElement(child));
+        case lbrc: {
+          let holeStart = pos + 1;
+          pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
+          if (pos == INLINE_FAIL || pos < cx.lineStart + line.text.length) return BLOCK_FAIL;
 
-        while (cx.nextLine() && line.next == -1);
+          children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
+          cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
+          cx.nextLine();
 
-        if (line.next > -1 && line.baseIndent == baseIndent + INDENT) {
-          cx.startComposite("NotaBlockContent", line.pos, baseIndent + INDENT);
-          return BLOCK_CONTINUE;
-        } else {
           return BLOCK_COMPLETE;
         }
-      } else if (icx.char(pos) == lbrc) {
-        // {
-        let holeStart = pos + 1;
-        pos = munchBalancedSubstringBlock(cx, line, pos, lbrc, rbrc);
-        if (pos == INLINE_FAIL) return BLOCK_FAIL;
-        children.push(cx.elt("NotaMdHole", holeStart, pos - 1));
 
-        if (pos < cx.lineStart + line.text.length) {
-          return BLOCK_FAIL;
+        case pipe: {
+          if (icx.char(pos + 1) == lbrc) {
+            pos += 2;
+            let holeStart = pos;
+            do {
+              icx = makeInlineContext(cx, line);
+              let i = icx.slice(pos, icx.end).indexOf("}|");
+              if (i > -1) {
+                pos += i + 2;
+                break;
+              } else {
+                pos = icx.end + 1;
+              }
+            } while (cx.nextLine());
+            if (pos < cx.lineStart + line.text.length) return BLOCK_FAIL;
+
+            children.push(cx.elt("NotaVerbatimContent", holeStart, pos - 2));
+            cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
+            cx.nextLine();
+            return BLOCK_COMPLETE;
+          }
         }
+      }
 
-        cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
-        cx.nextLine();
-
-        return BLOCK_COMPLETE;
-      } else if (pos == icx.end) {
+      if (pos == icx.end) {
         // EOL?
-
         cx.addElement(cx.elt("NotaBlockComponent", start, pos, children));
         cx.nextLine();
         return BLOCK_COMPLETE;
@@ -647,6 +669,7 @@ export let configureParserForNota = (
       { name: "NotaJs" },
       { name: "NotaInlineContent" },
       { name: "NotaBlockContent", block: true, composite: () => true },
+      { name: "NotaVerbatimContent" },
       { name: "NotaInlineComponentMark" },
       { name: "NotaInlineContentMark", style: t.brace },
       { name: "NotaTemplateBlock" },

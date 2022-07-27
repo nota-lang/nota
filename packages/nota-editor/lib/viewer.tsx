@@ -136,12 +136,17 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
     inner = fallback(DocResult.value);
   }
 
+  // Some kind of weird issue w/ @types/react incompatibility?
+  // TODO: Just hand-roll this component, the dependency isn't that important.
+  // See: https://reactjs.org/docs/error-boundaries.html
+  let Boundary: any = ErrorBoundary;
+
   return (
     <>
       {isOk(result) && result.value.css ? <style>{result.value.css}</style> : null}
-      <ErrorBoundary
+      <Boundary
         resetKeys={[result]}
-        FallbackComponent={action(({ error }) => {
+        FallbackComponent={action(({ error }: { error: Error }) => {
           // Place error into global state so editor can visualize it.
           state.runtimeError = error;
 
@@ -156,7 +161,7 @@ export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = 
         })}
       >
         {inner}
-      </ErrorBoundary>
+      </Boundary>
     </>
   );
 };

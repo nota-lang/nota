@@ -296,6 +296,7 @@ not-in-block`,
   )
 );`,
     ],
+    [`@foo|{@span{bar}}|`, `el(foo, {}, "@span{bar}");`]
   ];
 
   pairs.forEach(([input, expected]) => {

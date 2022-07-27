@@ -31,13 +31,13 @@ export let cli = (
 
   let pkg = getManifest();
   let keys = (map?: IDependencyMap) => Object.keys(map || {});
-  let pkgExternal = keys(pkg.dependencies).concat(keys(pkg.peerDependencies));
+  let pkgExternal = keys(pkg.peerDependencies).concat(keys(pkg.dependencies));
 
   return async (extra: BuildOptions = {}) => {
     let plugins = extra.plugins || [];
     let format = extra.format || "esm";
 
-    let external = (format != "iife" ? pkgExternal : []).concat(extra.external || []);
+    let external = format != "iife" ? extra.external || pkgExternal : [];
 
     if (format == "esm") {
       plugins.push(esmExternalsPlugin({ externals: external }));

@@ -16,6 +16,7 @@ export { ExecutablePluginOptions, executablePlugin } from "./executable.js";
 export { EsmExternalsPluginOptions, esmExternalsPlugin } from "./esm-externals.js";
 export { tscPlugin } from "./tsc.js";
 export { cli, CliOptions } from "./cli.js";
+export { PeerfixPluginOptions, peerfixPlugin } from "./peerfix.js";
 
 /** Asynchronously check if a file exists, returning true if so.
  * @param path Path to the file.
