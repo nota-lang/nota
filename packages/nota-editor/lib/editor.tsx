@@ -204,12 +204,17 @@ export let Editor: React.FC<EditorProps> = ({ embedded }) => {
         let column = parseInt(lineInfo[3]);
 
         let withConsumer = (consumer: any) => {
+          // console.log(consumer, sourceFile, line, column);
+          // consumer.eachMapping(m => console.log(m));
+
           let position = consumer.originalPositionFor({
             source: sourceFile,
             // -2 is because the JS evaluator adds an implicit 2 lines
             // above the body of the eval'd code
             line: line - 2,
-            column,
+            // -1 because... 1-index issue? not sure why this is needed,
+            // but it seems to work with both babel and esbuild
+            column: column - 1,
             bias: sourceMap.SourceMapConsumer.LEAST_UPPER_BOUND,
           });
 

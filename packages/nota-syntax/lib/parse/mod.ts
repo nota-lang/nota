@@ -6,6 +6,7 @@ import { CommentExtension } from "./extensions/comment.js";
 import { MathExtension } from "./extensions/math.js";
 import { configureParserForNota } from "./extensions/nota.js";
 import { RefExtension } from "./extensions/ref.js";
+import { SpecialExtension } from "./extensions/special.js";
 
 export { CodeTag } from "./highlight.js";
 export { MathTag } from "./extensions/math.js";
@@ -15,6 +16,7 @@ export let fullMdParser = baseMdParser.configure([
   CommentExtension,
   MathExtension,
   RefExtension,
+  SpecialExtension,
   Strikethrough,
   Table,
 ]);

@@ -5,7 +5,6 @@ import type {
   TranslationResult,
   /*, Message*/
 } from "@nota-lang/nota-editor";
-import { GLOBAL_NAME } from "@nota-lang/nota-editor/dist/dynamic-load.js";
 import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin.js";
 import * as esbuild from "esbuild";
 import express from "express";
@@ -97,9 +96,8 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
   await build({
     entryPoints: [inputPath],
     outfile: OUTPUT_JS_PATH,
-    globalName: GLOBAL_NAME,
     external: peerDependencies,
-    format: "iife",
+    format: "cjs",
     nodePaths,
     plugins: [notaPlugin({ pretty: true }), ...(opts.config.plugins || [])],
   });
@@ -125,7 +123,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
                 contents: `export {${name}} from "${pkg}"`,
                 resolveDir: process.cwd(),
               },
-              globalName: GLOBAL_NAME,
+              format: "cjs",
               external: peerDependencies,
               bundle: true,
               write: false,

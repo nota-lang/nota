@@ -1,7 +1,7 @@
 import { some } from "@nota-lang/nota-common/dist/option.js";
 import React, { useContext } from "react";
 import { VegaLite as VegaLiteBase, View, ViewListener } from "react-vega";
-import { TopLevelSpec } from "vega-lite";
+import type { TopLevelSpec } from "vega-lite";
 
 import { DefinitionScopeContext, DefinitionsPlugin } from "./definitions.js";
 import { usePlugin } from "./plugin.js";

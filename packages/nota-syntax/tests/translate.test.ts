@@ -168,6 +168,7 @@ test("translate markdown block", () => {
     // markdown extensions
     [`$$\n#f{}\n\nx\n$$`, `el($$, {}, f([]), "\\n\\nx");`],
     [`foo // bar`, `el("p", {}, "foo ", null);`],
+    ["foo --- bar", r`el("p", {}, "foo ", "\u2014", " bar");`],
 
     // curly-brace components
     [`@foo{bar}`, `el(foo, {}, "bar");`],
@@ -296,7 +297,7 @@ not-in-block`,
   )
 );`,
     ],
-    [`@foo|{@span{bar}}|`, `el(foo, {}, "@span{bar}");`]
+    [`@foo|{@span{bar}}|`, `el(foo, {}, "@span{bar}");`],
   ];
 
   pairs.forEach(([input, expected]) => {
@@ -409,10 +410,9 @@ test("translate source map", async () => {
   Hello *world*! #yep{}`;
 
   let tree = resUnwrap(tryParse(input));
-  let { code, map } = trans({ input, tree, sourceRoot: ".", filenameRelative: "test.nota" });
+  let { code, map } = trans({ input, tree, inputPath: "test.nota" });
   // console.log(code);
 
-  if (!code) throw new Error("No code");
   if (!map) throw new Error("No source map");
 
   let pairs = [

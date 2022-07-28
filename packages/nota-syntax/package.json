@@ -25,6 +25,9 @@
   "bugs": {
     "url": "https://github.com/nota-lang/nota/issues"
   },
+  "browser": {
+    "path": "path-browserify"
+  },
   "dependencies": {
     "@babel/standalone": "^7.18.9",
     "@codemirror/autocomplete": "^6.1.0",
@@ -38,7 +41,8 @@
     "@lezer/markdown": "^1.0.1",
     "he": "^1.2.0",
     "indent-string": "^5.0.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "path-browserify": "^1.0.1"
   },
   "devDependencies": {
     "@babel/types": "^7.18.9",
