@@ -14,6 +14,7 @@ export class LocalState implements State {
   rendered: boolean = false;
   availableLanguages: { [lang: string]: LanguageSupport } = {}; // TODO
   runtimeError?: Error = undefined;
+  imports?: { [key: string]: any } = undefined;
 
   tryTranslate(): TranslationResult {
     let tree = tryParse(this.contents);
@@ -40,8 +41,9 @@ export class LocalState implements State {
     });
   }
 
-  constructor(contents: string) {
+  constructor(contents: string, imports?: { [key: string]: any }) {
     this.contents = contents;
+    this.imports = imports;
     this.translation = this.tryTranslate();
 
     makeAutoObservable(this);

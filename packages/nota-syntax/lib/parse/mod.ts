@@ -1,5 +1,4 @@
 import { Tree } from "@lezer/common";
-import { Strikethrough, Table, parser as baseMdParser } from "@lezer/markdown";
 import { Result, err, ok } from "@nota-lang/nota-common/dist/result.js";
 
 import { CommentExtension } from "./extensions/comment.js";
@@ -7,6 +6,7 @@ import { MathExtension } from "./extensions/math.js";
 import { configureParserForNota } from "./extensions/nota.js";
 import { RefExtension } from "./extensions/ref.js";
 import { SpecialExtension } from "./extensions/special.js";
+import { Strikethrough, Table, parser as baseMdParser } from "./markdown/index.js";
 
 export { CodeTag } from "./highlight.js";
 export { MathTag } from "./extensions/math.js";

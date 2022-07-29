@@ -122,13 +122,7 @@ export let Figure: FCC<{ name?: string }> = props => {
   let figCtx = new FigureData();
 
   let Caption = () => (
-    <Definition
-      attrs={{ style: { width: "100%" } }}
-      name={props.name}
-      label={`Figure ${figNum}`}
-      tooltip={null}
-      block
-    >
+    <Definition name={props.name} label={`Figure ${figNum}`} tooltip={null} block>
       <div className="caption">
         Figure {figNum}: {figCtx.caption}
       </div>
@@ -144,7 +138,7 @@ export let Figure: FCC<{ name?: string }> = props => {
   return (
     <FigureContext.Provider value={figCtx}>
       <div className={`figure level-${level}`}>
-        {inner}
+        <div className="figure-content">{inner}</div>
         <Caption />
       </div>
       <docCtx.figures.Pop />

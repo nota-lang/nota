@@ -172,7 +172,7 @@ sup.footnote-marker {
 }
  
 .figure {
-  &.level-1 {
+  &.level-1 .figure-content {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;

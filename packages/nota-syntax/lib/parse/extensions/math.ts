@@ -1,7 +1,7 @@
 import { Tag } from "@lezer/highlight";
-import { BlockContext, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
 import _ from "lodash";
 
+import { BlockContext, InlineContext, Line, MarkdownConfig } from "../markdown/index.js";
 import { BlockResult, notaTemplateBlock, notaTemplateInline } from "./nota.js";
 
 let dollar = "$".charCodeAt(0);

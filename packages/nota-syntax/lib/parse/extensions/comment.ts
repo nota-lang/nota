@@ -1,15 +1,14 @@
-import { BlockContext, InlineContext, Line, MarkdownConfig } from "@lezer/markdown";
-
+import { BlockContext, InlineContext, Line, MarkdownConfig } from "../markdown/index.js";
 import { BlockResult } from "./nota";
 
 let [newline] = ["\n"].map(s => s.charCodeAt(0));
 
 let parseCommentBlock = (cx: BlockContext, line: Line): BlockResult => {
-  if (!line.text.startsWith("//")) return false;
+  if (!line.text.slice(line.pos).startsWith("//")) return false;
 
-  let start = line.pos;
+  let start = cx.lineStart + line.pos;
 
-  while (line.text.startsWith("//")) {
+  while (line.text.slice(line.pos).startsWith("//")) {
     if (!cx.nextLine()) break;
   }
 

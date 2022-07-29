@@ -17,6 +17,7 @@ export interface State {
   ready: boolean;
   rendered: boolean;
   availableLanguages: { [lang: string]: LanguageSupport };
+  imports?: { [key: string]: any };
 }
 
 export let StateContext = React.createContext<State | null>(null);

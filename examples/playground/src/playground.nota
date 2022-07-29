@@ -1,1 +1,2 @@
-@h1: What's up
+@div{Hello world}
+// Children can be delimited in curly braces...

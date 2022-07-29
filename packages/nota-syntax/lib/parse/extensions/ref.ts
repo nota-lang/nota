@@ -1,6 +1,6 @@
 import { tags as t } from "@lezer/highlight";
-import { InlineContext, MarkdownConfig } from "@lezer/markdown";
 
+import { InlineContext, MarkdownConfig } from "../markdown/index.js";
 import { notaCommandName } from "./nota.js";
 
 let amp = "&".charCodeAt(0);

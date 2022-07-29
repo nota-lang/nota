@@ -1,4 +1,4 @@
-import { InlineContext, MarkdownConfig } from "@lezer/markdown";
+import { InlineContext, MarkdownConfig } from "../markdown/index.js";
 
 let special = ["---"];
 let maxLen = special.map(s => s.length).reduce((n1, n2) => Math.max(n1, n2));

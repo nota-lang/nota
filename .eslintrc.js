@@ -30,7 +30,7 @@ module.exports = {
     "ignorePatterns": [
         "*.d.ts",
         "packages/nota-syntax/lib/notajs.grammar.*",
-        "packages/nota-syntax/lib/markdown.ts",
+        "packages/nota-syntax/lib/parse/markdown/*",        
         "packages/nota-editor/lib/source-map.js"
     ],
     "rules": {

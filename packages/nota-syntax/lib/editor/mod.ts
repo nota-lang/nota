@@ -18,8 +18,8 @@ import {
 } from "@codemirror/language";
 import { KeyBinding, keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
-import { MarkdownParser, parseCode } from "@lezer/markdown";
 
+import { MarkdownParser, parseCode } from "../parse/markdown/index.js";
 import { CodeTag, MathTag, configureParserForNota, fullMdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
 import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";

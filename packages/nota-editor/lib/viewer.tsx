@@ -11,7 +11,7 @@ import prettier from "prettier/standalone";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { StateContext, TranslationResult } from ".";
+import { State, StateContext, TranslationResult } from ".";
 import { dynamicLoad } from "./dynamic-load.js";
 import { theme } from "./editor.js";
 
@@ -66,7 +66,7 @@ export let JsView: React.FC<{ result: TranslationResult }> = ({ result }) => {
 
 let execute = (
   result: TranslationResult,
-  imports: any
+  state: State
 ): Result<React.FC<DocumentProps>, JSX.Element> => {
   if (isErr(result)) {
     return err(<>{result.value}</>);
@@ -77,7 +77,7 @@ let execute = (
     Doc = dynamicLoad({
       script: result.value.lowered,
       url: "document.js",
-      imports,
+      imports: state.imports || {},
     }).default;
   } catch (e: any) {
     console.error(e);
@@ -88,14 +88,11 @@ let execute = (
 };
 
 let counter = 0;
-export let OutputView: React.FC<{ result: TranslationResult; imports?: any }> = ({
-  result,
-  imports,
-}) => {
+export let OutputView: React.FC<{ result: TranslationResult }> = ({ result }) => {
   let state = useContext(StateContext)!;
   let [lastTranslation] = useState<{ t: JSX.Element | null }>({ t: null });
 
-  let DocResult = execute(result, imports || {});
+  let DocResult = execute(result, state);
 
   // TODO: lastTranslation thing is causing an infinite error loop?
   let fallback = (err: JSX.Element) => (

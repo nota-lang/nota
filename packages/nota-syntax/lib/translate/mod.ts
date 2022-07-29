@@ -686,6 +686,7 @@ export class Translator {
       case jsTerms.VariableDefinition:
         return this.ident(node);
 
+      case jsTerms.ArrayPattern:
       case jsTerms.ObjectPattern:
       case jsTerms.PatternAssign:
         return this.translateJsPattern(node);

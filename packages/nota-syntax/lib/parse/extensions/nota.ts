@@ -1,6 +1,8 @@
 import { NodeSet, NodeType, parseMixed } from "@lezer/common";
 import { tags as t } from "@lezer/highlight";
 import { LRParser } from "@lezer/lr";
+import _ from "lodash";
+
 import {
   BlockContext,
   BlockParser,
@@ -12,9 +14,7 @@ import {
   Line,
   MarkdownConfig,
   MarkdownParser,
-} from "@lezer/markdown";
-import _ from "lodash";
-
+} from "../markdown/index.js";
 import { mdTerms } from "../mod.js";
 //@ts-ignore
 import { parser as baseJsParser } from "../notajs.grammar.js";
