@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-theme-standalone",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Nota theme for standalone pages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -22,7 +22,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/nota-common": "^0.4.1",
+    "@nota-lang/nota-common": "^0.4.2",
     "sass": "^1.53.0"
   },
   "gitHead": "e215a495a0080997414ce193d4faf5317c5ddc08"

@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/esbuild-utils",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "esbuild utilities for @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
