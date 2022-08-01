@@ -3,7 +3,8 @@ import { LanguageSupport } from "@codemirror/language";
 import { err, isErr, ok } from "@nota-lang/nota-common/dist/result.js";
 import { tryParse } from "@nota-lang/nota-syntax/dist/parse/mod.js";
 import { translate } from "@nota-lang/nota-syntax/dist/translate/mod.js";
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import _ from "lodash";
+import { makeObservable, observable, reaction, runInAction } from "mobx";
 
 import { State, TranslationResult } from ".";
 
@@ -41,30 +42,54 @@ export class LocalState implements State {
     });
   }
 
-  constructor(contents: string, imports?: { [key: string]: any }) {
+  constructor({
+    contents,
+    imports,
+    syncDelay,
+  }: {
+    contents: string;
+    syncDelay?: number | ((contents: string) => number);
+    imports?: { [key: string]: any };
+  }) {
     this.contents = contents;
     this.imports = imports;
     this.translation = this.tryTranslate();
 
-    makeAutoObservable(this);
+    makeObservable(this, {
+      contents: observable,
+      translation: observable.deep,
+    });
 
     let needsSync = false;
+    let lastEdit = _.now();
     reaction(
       () => [this.contents],
       () => {
         needsSync = true;
+        lastEdit = _.now();
       }
     );
 
-    const SYNC_INTERVAL = 200;
-    setInterval(async () => {
-      if (needsSync) {
-        let translation = this.tryTranslate();
+    let defaultSyncDelay = (contents: string) => Math.min(Math.sqrt(contents.length) * 10, 3000);
+
+    let delayFunc = syncDelay
+      ? typeof syncDelay === "number"
+        ? () => syncDelay
+        : syncDelay
+      : defaultSyncDelay;
+
+    setInterval(() => {
+      if (!needsSync) return;
+
+      let elapsed = _.now() - lastEdit;
+      if (elapsed > delayFunc(this.contents)) {
         needsSync = false;
+        let translation = this.tryTranslate();
         runInAction(() => {
+          console.log("ok????", translation);
           this.translation = translation;
         });
       }
-    }, SYNC_INTERVAL);
+    }, 33);
   }
 }

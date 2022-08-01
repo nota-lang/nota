@@ -59,7 +59,7 @@ export function useMutationObserver<T extends HTMLElement = HTMLDivElement>(
   useEffect(() => {
     let observer = new MutationObserver(callback);
     if (!ref.current) {
-      throw `Invalid ref in useMutationObserver`;
+      throw new Error(`Invalid ref in useMutationObserver`);
     }
 
     observer.observe(ref.current, options);

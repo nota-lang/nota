@@ -99,7 +99,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
     external: peerDependencies,
     format: "cjs",
     nodePaths,
-    plugins: [notaPlugin({ pretty: true }), ...(opts.config.plugins || [])],
+    plugins: [notaPlugin(), ...(opts.config.plugins || [])],
   });
 
   app.ws("/", async (ws, _req) => {
@@ -148,7 +148,7 @@ export let main = async (opts: ServerOptions & CommonOptions) => {
       if (msg.type == "SyncText") {
         await fs.writeFile(inputPath, msg.contents);
       } else {
-        throw `Invalid request ${msg}`;
+        throw new Error(`Invalid request ${msg}`);
       }
     });
 

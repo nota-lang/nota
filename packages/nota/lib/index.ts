@@ -44,6 +44,7 @@ program.version(VERSION);
 
 commonOpts(program.command("build"))
   .option("-w, --watch", "Watch for changes and rebuild")
+  .option("-g, --debug", "Build in debug mode")
   .action(async (file, { config, ...opts }) => {
     await builder.main({ file, config: await loadConfig(config), ...opts });
   });

@@ -1,19 +1,18 @@
 /**
  * @jest-environment jsdom
  */
-
-import React from "react";
+import "@testing-library/jest-dom";
+import { render, screen, waitFor } from "@testing-library/react";
+import "jest-canvas-mock";
 import { runInAction } from "mobx";
 import { observer } from "mobx-react";
-import { render, waitFor, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import "jest-canvas-mock";
+import React from "react";
 
-import { LocalState, StateContext, OutputView } from "..";
+import { LocalState, OutputView, StateContext } from "..";
 
 test("editor", async () => {
   // Create state and component
-  let state = new LocalState("@h1: Hello world");  
+  let state = new LocalState({ contents: "@h1: Hello world" });
   let Component = observer(() => (
     <StateContext.Provider value={state}>
       <OutputView result={state.translation} />

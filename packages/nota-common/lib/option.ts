@@ -17,6 +17,6 @@ export let optUnwrap = <T>(opt: Option<T>): T => {
   if (isSome(opt)) {
     return opt.value;
   } else {
-    throw `Could not unwrap None`;
+    throw new Error(`Could not unwrap None`);
   }
 };

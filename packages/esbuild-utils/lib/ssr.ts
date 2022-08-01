@@ -98,6 +98,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       let p = path.resolve(args.path);
       let { name, dir } = getPathParts(p);
       let script = `./${name}.mjs`;
+      let notaPath = `./${path.parse(p).name}.nota`;
       let templatePath = "@nota-lang/esbuild-utils/dist/template.js";
       if (opts.template) {
         templatePath = "." + path.sep + path.relative(dir, opts.template);
@@ -110,7 +111,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       let contents = `
       import React from "react";
       import * as ReactDOM from "react-dom/client";
-      import Doc, * as docMod from "./${path.parse(p).name}.nota"
+      import Doc, * as docMod from "${notaPath}";
       import Template from "${templatePath}";
 
       let key = "metadata";
@@ -144,6 +145,8 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
     let browserPromise = puppeteer.launch();
     let fileServerPromise = FileServer.start(opts);
 
+    // TODO: make this incremental when watching many endpoints, right now they all get recompiled
+    // on every change
     build.onEnd(async _args => {
       let [browser, fileServer] = await Promise.all([browserPromise, fileServerPromise]);
 

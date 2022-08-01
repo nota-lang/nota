@@ -22,7 +22,7 @@ export class CounterPosition {
       let charCode = "a".charCodeAt(0) + n - 1;
       return String.fromCharCode(charCode);
     } else {
-      throw `Bad style ${style}`;
+      throw new Error(`Bad style ${style}`);
     }
   };
 

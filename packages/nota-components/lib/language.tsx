@@ -58,7 +58,7 @@ export class Language {
       (this as any)[cmd] = texRef([`tex_`, cmd], metavar);
       branches.forEach(({ subcmd, body }) => {
         if (typeof body != "function") {
-          throw `Not a function: ${(body as any).toString()}`;
+          throw new Error(`Not a function: ${(body as any).toString()}`);
         }
         (this as any)[cmd + subcmd] = (...args: any[]) =>
           texRef([`tex_`, cmd, subcmd], body(...args));
@@ -75,7 +75,7 @@ export class Language {
       (cmd: string) =>
       ({ subcmd, args }: SyntaxBranch): NotaText => {
         if (typeof args != "function") {
-          throw `Not a function: ${(args as any).toString()}`;
+          throw new Error(`Not a function: ${(args as any).toString()}`);
         }
         let argStr = (this as any)[cmd + subcmd](...args());
         return texDefAnchor([cmd + subcmd], argStr);
@@ -86,6 +86,7 @@ export class Language {
       isPending,
       error,
     } = useAsync(
+      // TODO: computing dimensions is really expensive, should make this optional for "fast builds"
       useCallback(async () => {
         let branchDims = await Promise.all(
           this._grammar.map(({ cmd, branches }) =>

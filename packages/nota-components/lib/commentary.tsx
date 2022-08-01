@@ -32,7 +32,7 @@ export let Comment: FCC<{ selector: string }> = ({ selector, children }) => {
 
   useEffect(() => {
     if (!ctx) {
-      throw `Missing CommentaryContext in Comment`;
+      throw new Error(`Missing CommentaryContext in Comment`);
     }
 
     if (!ctx.documentReady) {
@@ -43,7 +43,7 @@ export let Comment: FCC<{ selector: string }> = ({ selector, children }) => {
     let node = container.querySelector(selector);
     if (!node) {
       console.error(container);
-      throw `Missing selector "${selector}"`;
+      throw new Error(`Missing selector "${selector}"`);
     }
 
     setNode(node);

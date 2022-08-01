@@ -386,7 +386,13 @@ const PLUGINS = (): Plugin<any>[] => [
   PortalPlugin,
 ];
 
-export let Document: FCC<DocumentProps> = ({ children, editing, onRender, renderTimeout }) => {
+export let Document: FCC<DocumentProps & HTMLAttributes> = ({
+  children,
+  editing,
+  onRender,
+  renderTimeout,
+  ...htmlAttributes
+}) => {
   let ref = useRef<HTMLDivElement>(null);
   if (onRender) {
     useEffect(() => {
@@ -417,7 +423,7 @@ export let Document: FCC<DocumentProps> = ({ children, editing, onRender, render
   // to render twice, but the testing-library doesn't "understand" the second render,
   // so it incorrectly calls React hooks again AND somehow silences stdout.
   return (
-    <div ref={ref} className={classNames("nota-document", { editing })}>
+    <div ref={ref} className={classNames("nota-document", { editing })} {...htmlAttributes}>
       <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
     </div>
   );

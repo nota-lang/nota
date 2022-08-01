@@ -41,6 +41,35 @@ export default observer(function TheDocument(docProps) {
   expect(code).toBe(expected.trim());
 });
 
+test("translate with debug exports", () => {
+  let input = `% import _ from "lodash";`;
+  let tree = resUnwrap(tryParse(input));
+  let { code } = trans({ input, tree, debugExports: true });
+  console.log(code);
+  let expected = r`
+import { createElement as el, Fragment } from "react";
+import { observer } from "mobx-react";
+import { document } from "@nota-lang/nota-components";
+import "@nota-lang/nota-components/dist/index.css";
+const {
+  Document
+} = document;
+import _ from "lodash";
+import import0_default, * as import0 from "lodash";
+export let imports = {
+  "lodash": { ...import0,
+    "__esModule": true,
+    "default": import0_default
+  }
+};
+export let source = "% import _ from \"lodash\";";
+export default observer(function TheDocument(docProps) {
+  return el(Document, docProps, null);
+});
+`;
+  expect(code).toBe(expected.trim());
+});
+
 let gen =
   (f: (tr: Translator, node: SyntaxNode) => Statement) =>
   (input: string): string => {
@@ -80,6 +109,13 @@ test("translate markdown inline", () => {
   },
   "hello"
 );`,
+    ],
+    [
+      `![hello](world)`,
+      `el("img", {
+  src: "world",
+  alt: "hello",
+});`,
     ],
     [`#x`, `x;`],
     [`#(Foo.bar)`, `Foo.bar;`],

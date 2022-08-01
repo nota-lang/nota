@@ -6,11 +6,14 @@ import path from "path";
 import { tryParse } from "./parse/mod.js";
 import { printTree, translate } from "./translate/mod.js";
 
-export interface NotaPluginOpts {}
+export interface NotaPluginOpts {
+  debugExports?: boolean;
+  extraCss?: string[];
+}
 
 const VERBOSE = false;
 
-export let notaPlugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
+export let notaPlugin = ({ debugExports, extraCss }: NotaPluginOpts = {}): esbuild.Plugin => ({
   name: "notaSyntax",
   setup(build) {
     build.onLoad({ filter: /\.nota$/ }, async args => {
@@ -30,6 +33,8 @@ export let notaPlugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
           input,
           tree: tree.value,
           inputPath: args.path,
+          debugExports,
+          extraCss,
         });
         code = result.code;
         map = result.map;
@@ -43,7 +48,11 @@ export let notaPlugin = (_opts: NotaPluginOpts): esbuild.Plugin => ({
         code += `\n//# sourceMappingURL=${mapEncoded}`;
       }
 
-      return { contents: code, loader: "js", resolveDir: path.dirname(args.path) };
+      return {
+        contents: code,
+        loader: "js",
+        resolveDir: path.dirname(args.path),
+      };
     });
   },
 });

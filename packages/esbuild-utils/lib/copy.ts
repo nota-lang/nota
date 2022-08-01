@@ -14,7 +14,7 @@ export let copyPlugin = ({ extensions }: CopyPluginOptions): Plugin => ({
   setup(build) {
     let outdir = build.initialOptions.outdir;
     if (!outdir) {
-      throw `outdir must be specified`;
+      throw new Error(`outdir must be specified`);
     }
 
     let paths: [string, string][] = [];

@@ -21,7 +21,7 @@ export let dynamicLoad = (config: {
     if (path in peerImports) {
       return peerImports[path];
     }
-    throw `Cannot import ${path}`;
+    throw new Error(`Cannot import ${path}`);
   };
 
   let script = config.script.trim();

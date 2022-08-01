@@ -334,7 +334,7 @@ function isOrderedList(line: Line, cx: BlockContext, breaking: boolean) {
       !inList(cx, Type.OrderedList) &&
       (line.skipSpace(pos + 1) == line.text.length ||
         pos > line.pos + 1 ||
-        line.next != 49) /* '1' */)
+        line.next != 49)) /* '1' */
   )
     return -1;
   return pos + 1 - line.pos;

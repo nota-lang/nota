@@ -26,6 +26,6 @@ export class None<T> implements OptionMethods<T> {
   }
 
   unwrap(): T {
-    throw `Attempted to unwrap a None`;
+    throw new Error(`Attempted to unwrap a None`);
   }
 }

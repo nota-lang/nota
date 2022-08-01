@@ -232,6 +232,22 @@ export class Translator {
           break;
         }
 
+        case mdTerms.Image: {
+          let altLeft = node.firstChild!;
+          let altRight = altLeft.nextSibling!;
+          let alt = this.input.slice(altLeft.to, altRight.from);
+          let url = this.text(node.getChild("URL")!);
+          expr = toReact(
+            strLit("img"),
+            [
+              [strLit("src"), strLit(url)],
+              [strLit("alt"), strLit(alt)],
+            ],
+            []
+          );
+          break;
+        }
+
         // Nota extensions:
         case mdTerms.MathInline: {
           let children = this.translateNotaTemplateExternal(node);
@@ -1198,7 +1214,7 @@ export let parseExpr = (code: string): Expression => {
 export let lambda = (body: Expression) =>
   t.arrowFunctionExpression([t.restElement(argumentsId)], body);
 
-export let translateAst = (input: string, tree: Tree): Program => {
+export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOptions): Program => {
   let node = tree.topNode;
   let translator = new Translator(input);
 
@@ -1258,25 +1274,82 @@ export let translateAst = (input: string, tree: Tree): Program => {
     ])
   );
 
-  let cssFiles = ["@nota-lang/nota-components/dist/index.css"];
+  let cssFiles = ["@nota-lang/nota-components/dist/index.css"].concat(extraCss || []);
   let cssImportStmts = cssFiles.map(s => t.importDeclaration([], strLit(s)));
+
+  let defaultExport = t.exportDefaultDeclaration(
+    t.callExpression(observer, [
+      // Give this a name for more informative React errors
+      t.functionExpression(
+        t.identifier("TheDocument"),
+        [docProps],
+        t.blockStatement([t.returnStatement(doc)])
+      ),
+    ])
+  );
+
+  let imports: { [key: string]: boolean } = {};
+  translator.imports.forEach(decl => {
+    let src = decl.source.value;
+    if (!(src in imports)) {
+      imports[src] = false;
+    }
+
+    if (_.some(decl.specifiers, spec => spec.type == "ImportDefaultSpecifier")) {
+      imports[src] = true;
+    }
+  });
+  let importModules = Object.keys(imports);
+
+  let debugImports = importModules.map((mod, i) => {
+    let decls: any[] = [t.importNamespaceSpecifier({ local: t.identifier(`import${i}`) })];
+    if (imports[mod]) {
+      decls.unshift(t.importDefaultSpecifier(t.identifier(`import${i}_default`)));
+    }
+    return t.importDeclaration(decls, strLit(mod));
+  });
+  let debugImportExport = t.exportNamedDeclaration(
+    t.variableDeclaration("let", [
+      t.variableDeclarator(
+        t.identifier("imports"),
+        t.objectExpression(
+          importModules.map((mod, i) => {
+            let value = t.objectExpression([
+              t.spreadElement(t.identifier(`import${i}`)),
+              t.objectProperty({
+                key: strLit("__esModule"),
+                value: t.booleanLiteral(true),
+              }),
+            ]);
+
+            if (imports[mod]) {
+              value.properties.push(
+                t.objectProperty({
+                  key: strLit("default"),
+                  value: t.identifier(`import${i}_default`),
+                })
+              );
+            }
+
+            return t.objectProperty({ key: strLit(mod), value });
+          })
+        )
+      ),
+    ])
+  );
+  let debugSourceExport = t.exportNamedDeclaration(
+    t.variableDeclaration("let", [t.variableDeclarator(t.identifier("source"), strLit(input))])
+  );
 
   let program: Statement[] = [
     ...jsImportStmts,
     ...cssImportStmts,
     ...preludeImportStmts,
     ...Array.from(translator.imports),
+    ...(debugExports ? debugImports : []),
     ...Array.from(translator.exports),
-    t.exportDefaultDeclaration(
-      t.callExpression(observer, [
-        // Give this a name for more informative React errors
-        t.functionExpression(
-          t.identifier("TheDocument"),
-          [docProps],
-          t.blockStatement([t.returnStatement(doc)])
-        ),
-      ])
-    ),
+    ...(debugExports ? [debugImportExport, debugSourceExport] : []),
+    defaultExport,
   ];
 
   return t.program(program);
@@ -1306,14 +1379,13 @@ export interface TranslateOptions {
   input: string;
   tree: Tree;
   inputPath?: string;
+  debugExports?: boolean;
+  extraCss?: string[];
 }
 
-export let translate = ({
-  input,
-  tree,
-  inputPath,
-}: TranslateOptions): { code: string; map?: any } => {
+export let translate = (opts: TranslateOptions): { code: string; map?: any } => {
   let sourceRoot, filenameRelative;
+  let inputPath = opts.inputPath;
   if (inputPath) {
     let { dir, base } = path.parse(inputPath);
     sourceRoot = dir;
@@ -1321,7 +1393,7 @@ export let translate = ({
   }
 
   // printTree(tree, input);
-  let program = translateAst(input, tree);
+  let program = translateAst(opts);
   let result = babel.transformFromAst(program, undefined, {
     sourceRoot,
     filenameRelative,
