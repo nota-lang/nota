@@ -24,10 +24,11 @@
     line-height: 2rem;
   }
 
-  .right {
+  .right {    
     height: 0;
 
     > div {
+      width: max-content;
       position: relative;
     }
   }

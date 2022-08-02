@@ -3,6 +3,11 @@
 @mixin block {
   margin-block-start: 1em;
   margin-block-end: 1em;
+
+  @include mobile {
+    max-width: 100%;
+    overflow-x: auto;
+  }
 }
 
 .block {
@@ -172,6 +177,8 @@ sup.footnote-marker {
 }
  
 .figure {
+  @include block;
+
   &.level-1 .figure-content {
     display: flex;
     justify-content: center;
@@ -226,5 +233,19 @@ sup.footnote-marker {
     > .inner {
       margin-top: 10px;
     }
+  }
+}
+
+.wrap {
+  @include monitor {
+    &.left {
+      float: left;
+      margin-right: 2rem;
+    }
+  
+    &.right {
+      float: right;
+      margin-left: 2rem;
+    }  
   }
 }

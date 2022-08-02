@@ -154,19 +154,9 @@ export let Caption: FCC = props => {
   return null;
 };
 
-export let Wrap: FCC<{ align: CSS.Property.Float }> = ({ align, children }) => {
-  let margin = "1rem";
-  let style;
-  if (align == "left") {
-    style = { marginRight: margin };
-  } else if (align == "right") {
-    style = { marginLeft: margin };
-  } else {
-    style = {};
-  }
-
-  return <div style={{ float: align, ...style }}>{children}</div>;
-};
+export let Wrap: FCC<{ align: CSS.Property.Float }> = ({ align, children }) => (
+  <div className={`wrap ${align}`}>{children}</div>
+);
 
 export let Smallcaps: FCC = ({ children }) => <span className="smallcaps">{children}</span>;
 

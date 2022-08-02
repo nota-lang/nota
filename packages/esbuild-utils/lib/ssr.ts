@@ -132,8 +132,13 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       } else {
         let rootEl = document.getElementById("root");
         let newRootEl = document.createElement('div');
-        let root = ReactDOM.createRoot(newRootEl); 
+        newRootEl.style.position = 'absolute';
+        newRootEl.style.left = '-999999px';
+        let root = ReactDOM.createRoot(newRootEl);
+        rootEl.parentNode.appendChild(newRootEl);
         root.render(<Doc onRender={() => {
+          newRootEl.style.position = 'relative';
+          newRootEl.style.left = '0';
           rootEl.parentNode.replaceChild(newRootEl, rootEl);
         }} />);
       }

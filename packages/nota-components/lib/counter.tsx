@@ -47,7 +47,8 @@ export class NestedCounter {
   }
 
   saveValue = action((value: any) => {
-    let a = this.stack.slice(0, -2).reduce(a => _.last(a)!.children, this.values);
+    let stack = this.stack.slice(0, -2);
+    let a = stack.reduce(a => _.last(a)!.children, this.values);
     _.last(a)!.value = value;
   });
 

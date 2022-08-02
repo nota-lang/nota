@@ -121,5 +121,9 @@ export let VegaLite: React.FC<{ spec: TopLevelSpec; name?: string }> = ({ spec, 
     }
   };
 
-  return <VegaLiteBase spec={spec} renderer="svg" onNewView={onNewView} />;
+  return (
+    <div className="block">
+      <VegaLiteBase spec={spec} renderer="svg" onNewView={onNewView} />
+    </div>
+  );
 };

@@ -183,7 +183,7 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
   return (
     <SectionBody>
       <Section plain>References</Section>
-      <div className="bib-references">
+      <div className="bib-references block">
         {keys
           .filter(key => key in bibCtx.citations)
           .map(key => (
