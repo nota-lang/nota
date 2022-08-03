@@ -91,11 +91,16 @@ let gen =
   };
 
 let bless = "BLESS" in process.env;
+let only = process.env["ONLY"];
 
 let snapshotTests = async (dir: string, trans: (input: string) => string) => {
   let fullDir = path.join(__dirname, dir);
   let files = await fs.readdir(fullDir);
   let tests = files.filter(p => !p.endsWith(".expected"));
+  if (only) {
+    tests = tests.filter(p => p.startsWith(only!));
+  }
+
   await Promise.all(
     tests.map(async p => {
       let input = await fs.readFile(path.join(fullDir, p), "utf-8");

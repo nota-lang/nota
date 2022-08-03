@@ -376,11 +376,28 @@ export class Translator {
       }
 
       case mdTerms.Table: {
+        let delimNode = node.getChild(mdTerms.TableDelimiter)!;
+        let delims = this.text(delimNode)
+          .split("|")
+          .map(s => s.trim())
+          .filter(s => s != "");
+        let aligns: [Expression, Expression][][] = delims.map(s => {
+          let hasLeft = s.startsWith(":");
+          let hasRight = s.endsWith(":");
+          let alignment =
+            hasLeft && hasRight ? "center" : hasLeft ? "left" : hasRight ? "right" : undefined;
+          if (alignment) {
+            return [[strLit("align"), strLit(alignment)]];
+          } else {
+            return [];
+          }
+        });
+
         let parseRow = (node: SyntaxNode, cellType: string): Expression => {
           let cellNodes = node.getChildren(mdTerms.TableCell);
-          let cells = cellNodes.map(child => {
+          let cells = cellNodes.map((child, i) => {
             let exprs = this.translateMdInlineSequence(this.markdownChildren(child));
-            return toReact(strLit(cellType), [], exprs);
+            return toReact(strLit(cellType), aligns[i], exprs);
           });
           return toReact(strLit("tr"), [], cells);
         };

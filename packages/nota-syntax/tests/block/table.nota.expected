@@ -1,6 +1,36 @@
 el(
   "table",
   {},
-  el("thead", {}, el("tr", {}, el("th", {}, "foo"), el("th", {}, "bar"))),
-  el("tbody", {}, el("tr", {}, el("td", {}, "baz"), el("td", {}, "bim")))
+  el(
+    "thead",
+    {},
+    el(
+      "tr",
+      {},
+      el("th", {}, "foo"),
+      el(
+        "th",
+        {
+          align: "right",
+        },
+        "bar"
+      )
+    )
+  ),
+  el(
+    "tbody",
+    {},
+    el(
+      "tr",
+      {},
+      el("td", {}, "baz"),
+      el(
+        "td",
+        {
+          align: "right",
+        },
+        "bim"
+      )
+    )
+  )
 );
