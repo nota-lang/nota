@@ -1,12 +1,6 @@
 [
   ...(() => {
-    let x = el(
-      "em",
-      {
-        block: true,
-      },
-      el("strong", {}, "content")
-    );
+    let x = el("em", {}, el("strong", {}, "content"));
     return [null, el("p", {}, x)];
   })(),
 ];

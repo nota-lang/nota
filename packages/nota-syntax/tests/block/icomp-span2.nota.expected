@@ -1,12 +1,1 @@
-el(
-  "p",
-  {},
-  el(
-    "span",
-    {
-      block: false,
-    },
-    "a{b}c"
-  ),
-  "d"
-);
+el("p", {}, el("span", {}, "a{b}c"), "d");

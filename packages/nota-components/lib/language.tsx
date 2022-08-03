@@ -190,6 +190,8 @@ export class Language {
                     let tex = branchToTex(cmd)(branch);
                     if (hl && branch.subcmd == hl) {
                       tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
+                    } else {
+                      tex = [r`\htmlData{defanchor=`, `tex_${cmd}${branch.subcmd}`, `}{`, tex, `}`];
                     }
                     return tex;
                   }),
@@ -247,7 +249,16 @@ export class Language {
           label: none(),
         },
       ]);
-      return [r`&\htmlData{def=`, cmd, r`}{\mathsf{`, kind, `}}& ~ &`, metavar, ` &&`, rhs];
+      return [
+        r`&\htmlData{defanchor=`,
+        `tex_${cmd}`,
+        r`}{\mathsf{`,
+        kind,
+        `}}& ~ &`,
+        metavar,
+        ` &&`,
+        rhs,
+      ];
     });
 
     let layout = props.layout || {

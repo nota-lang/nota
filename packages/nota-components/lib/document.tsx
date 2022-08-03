@@ -4,7 +4,7 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { BibliographyPlugin } from "./bibliography.js";
+import { BibliographyPlugin, References } from "./bibliography.js";
 import { ListingPlugin } from "./code.js";
 import { NestedCounter, ValueStack } from "./counter.js";
 import { Definition, DefinitionsPlugin, Ref } from "./definitions.js";
@@ -29,7 +29,7 @@ class DocumentData {
 export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
 
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
-  <li>
+  <li className={!stack.enumerated ? "bullet" : undefined}>
     {typeof stack.value === "function" ? <stack.value /> : stack.value}
     {stack.children.length > 0 ? (
       <ol>
@@ -46,6 +46,7 @@ export let TableOfContents: React.FC = observer(({}) => {
   return (
     <div className="toc-wrapper">
       <div className="toc">
+        <div className="toc-header">Table of Contents</div>
         <ol>
           {docCtx.sections.values.map((child, i) => (
             <Stack key={i} stack={child} />
@@ -63,7 +64,7 @@ export let Section: FCC<{ plain?: boolean; name?: string }> = ({ children, plain
   let level = pos.level();
   let secNum = pos.toString();
   let name = props.name || `section-${secNum}`;
-  docCtx.sections.saveValue(() => <Ref label={children}>{name}</Ref>);
+  docCtx.sections.saveValue(() => <Ref label={children}>{name}</Ref>, !plain);
 
   let Header: React.FC<
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
@@ -93,10 +94,9 @@ export let Subsubsection: typeof Section = props => <Section {...props} />;
 
 export let SectionBody: FCC = ({ children }) => {
   let docCtx = useContext(DocumentContext);
-  docCtx.sections.push();
-
   return (
     <section>
+      <docCtx.sections.Push />
       {children}
       <docCtx.sections.Pop />
     </section>
@@ -302,6 +302,11 @@ let preprocessDocument = (children: React.ReactNode[]): React.ReactNode[] => {
 
   let sectionStack: React.ReactNode[][] = [[]];
   let depths: [any, number][] = [
+    // TODO: including Acknowledgements and References is a hack
+    // for the edge case. Need a general mechanism for custom components
+    // that induce section breaks.
+    [Acknowledgments, 0],
+    [References, 0],
     [Section, 0],
     [Subsection, 1],
     [Subsubsection, 2],
@@ -332,10 +337,10 @@ let preprocessDocument = (children: React.ReactNode[]): React.ReactNode[] => {
 
 export let Acknowledgments: FCC = ({ children }) => {
   return (
-    <SectionBody>
+    <>
       <Section plain>Acknowledgments</Section>
       {children}
-    </SectionBody>
+    </>
   );
 };
 

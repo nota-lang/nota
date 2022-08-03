@@ -42,6 +42,7 @@ export class CounterPosition {
 
 export interface ValueStack {
   value: any;
+  enumerated: boolean;
   children: ValueStack[];
 }
 
@@ -56,10 +57,12 @@ export class NestedCounter {
     makeAutoObservable(this);
   }
 
-  saveValue = action((value: any) => {
+  saveValue = action((value: any, enumerated: boolean = true) => {
     let stack = this.stack.slice(0, -2);
     let a = stack.reduce(a => _.last(a)!.children, this.values);
-    _.last(a)!.value = value;
+    let entry = _.last(a)!;
+    entry.value = value;
+    entry.enumerated = enumerated;
   });
 
   position = (): CounterPosition => new CounterPosition(this.stack.slice(0, -1), this.styles);
@@ -70,12 +73,18 @@ export class NestedCounter {
       .reduce(a => _.last(a)!.children, this.values)
       .push({
         value: undefined,
+        enumerated: true,
         children: [],
       });
 
     this.stack.push(1);
 
     return this.position();
+  };
+
+  Push: React.FC = () => {
+    this.push();
+    return null;
   };
 
   Pop: React.FC = () => {

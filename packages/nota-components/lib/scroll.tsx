@@ -30,6 +30,7 @@ export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttrib
 
     let callback: React.MouseEventHandler = e => {
       e.preventDefault();
+      e.stopPropagation();
       plugin.scrollTo(target);
     };
 

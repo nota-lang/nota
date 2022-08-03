@@ -1,12 +1,1 @@
-el(
-  "p",
-  {},
-  "Hello ",
-  el(
-    "strong",
-    {
-      block: false,
-    },
-    "world"
-  )
-);
+el("p", {}, "Hello ", el("strong", {}, "world"));

@@ -1,7 +1,6 @@
 el(
   "div",
   {
-    block: true,
     id: "foo",
   },
   "bar"

@@ -6,7 +6,6 @@ el(
     "em",
     {
       id: "ex",
-      block: false,
     },
     "world"
   )

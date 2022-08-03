@@ -45,6 +45,10 @@
     hyphens: auto;
     margin: 0;
 
+    // This isn't supported in most browsers right now, but once it is,
+    // it will fix the ugliest justify bugs.
+    text-justify: distribute;
+
     &.noindent {
       text-indent: 0;
     }
@@ -270,3 +274,16 @@ sup.footnote-marker {
     }  
   }
 }
+
+.toc-wrapper {
+  .toc {
+    .toc-header {
+      font: bold var(--size-LARGE) var(--font-header);
+    }
+  
+    li.bullet {
+      list-style: circle;
+    }
+  }
+}
+

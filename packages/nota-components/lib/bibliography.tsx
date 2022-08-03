@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import React, { useEffect } from "react";
 
 import { Definition, DefinitionsPlugin } from "./definitions.js";
-import { Section, SectionBody } from "./document.js";
+import { Section } from "./document.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { $ } from "./tex.js";
 import { FCC } from "./utils.js";
@@ -185,7 +185,7 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
   let keys = Object.keys(bibCtx.citations).filter(key => defCtx.usedDefinitions.has(key));
 
   return (
-    <SectionBody>
+    <>
       <Section plain>References</Section>
       <div className="bib-references">
         {keys
@@ -196,7 +196,7 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
             </Definition>
           ))}
       </div>
-    </SectionBody>
+    </>
   );
 });
 References.displayName = "References";

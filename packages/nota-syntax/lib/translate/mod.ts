@@ -531,10 +531,12 @@ export class Translator {
     let attrs = inlineAttrsNode
       ? this.translateNotaInlineAttrs(inlineAttrsNode)
       : t.objectExpression([]);
-    attrs = t.objectExpression([
-      t.spreadElement(attrs),
-      t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(false) }),
-    ]);
+    if (name.type != "StringLiteral") {
+      attrs = t.objectExpression([
+        t.spreadElement(attrs),
+        t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(false) }),
+      ]);
+    }
 
     let childrenNode;
     let args: (Expression | SpreadElement)[];
@@ -577,11 +579,14 @@ export class Translator {
       name = strLit(name.name);
     }
 
-    let attrExprs: Expression[] = [
-      t.objectExpression([
-        t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(true) }),
-      ]),
-    ];
+    let attrExprs: Expression[] = [];
+    if (name.type != "StringLiteral") {
+      attrExprs.push(
+        t.objectExpression([
+          t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(true) }),
+        ])
+      );
+    }
     let inlineAttrsNode = node.getChild(jsTerms.NotaInlineAttrs);
     if (inlineAttrsNode) attrExprs.push(this.translateNotaInlineAttrs(inlineAttrsNode));
 

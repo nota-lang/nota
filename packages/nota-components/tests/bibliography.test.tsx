@@ -5,8 +5,9 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 
-import { BibliographyPlugin, References } from "../dist/bibliography";
-import { DefinitionsPlugin, Ref } from "../dist/definitions";
+import { References } from "../dist/bibliography";
+import { Ref } from "../dist/definitions";
+import { Document } from "../dist/document";
 
 describe("bibliography", () => {
   it("can do bibtex -> citation -> references", async () => {
@@ -18,12 +19,10 @@ describe("bibliography", () => {
       address = {Berlin}
    }`;
     let { baseElement } = render(
-      <DefinitionsPlugin.Provide>
-        <BibliographyPlugin.Provide>
-          <Ref>ab94</Ref>
-          <References bibtex={bibtex} />
-        </BibliographyPlugin.Provide>
-      </DefinitionsPlugin.Provide>
+      <Document>
+        <Ref>ab94</Ref>
+        <References bibtex={bibtex} />
+      </Document>
     );
 
     await screen.findByText("Aliprantis and Border 1994");

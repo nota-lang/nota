@@ -1,21 +1,7 @@
 el(
   "h1",
-  {
-    block: true,
-  },
+  {},
   el("p", {}, "Hello"),
-  el(
-    "span",
-    {
-      block: true,
-    },
-    "world"
-  ),
-  el(
-    "span",
-    {
-      block: true,
-    },
-    "yed"
-  )
+  el("span", {}, "world"),
+  el("span", {}, "yed")
 );

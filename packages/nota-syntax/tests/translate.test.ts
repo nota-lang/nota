@@ -38,9 +38,7 @@ const {
   $
 } = tex;
 export default observer(function TheDocument(docProps) {
-  return el(Document, docProps, el("h1", {
-    "block": true
-  }, "Hello ", el($, {}, "world!")));
+  return el(Document, docProps, el("h1", {}, "Hello ", el($, {}, "world!")));
 });`;
   expect(code).toBe(expected.trim());
 });

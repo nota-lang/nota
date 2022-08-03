@@ -1,7 +1,1 @@
-el(
-  "span",
-  {
-    block: true,
-  },
-  "hey"
-);
+el("span", {}, "hey");
