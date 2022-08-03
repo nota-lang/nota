@@ -1,0 +1,7 @@
+el(
+  Fragment,
+  {
+    block: true,
+  },
+  "sup"
+);

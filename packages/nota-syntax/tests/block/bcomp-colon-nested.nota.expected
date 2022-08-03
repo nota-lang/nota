@@ -1,0 +1,19 @@
+el(
+  foo,
+  {
+    block: true,
+  },
+  el(
+    bar,
+    {
+      block: true,
+    },
+    el(
+      baz,
+      {
+        block: true,
+      },
+      "x"
+    )
+  )
+);

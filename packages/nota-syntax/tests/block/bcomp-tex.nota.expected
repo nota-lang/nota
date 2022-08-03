@@ -1,0 +1,7 @@
+el(
+  $,
+  {
+    block: true,
+  },
+  "\\Theta"
+);

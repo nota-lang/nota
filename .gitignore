@@ -5,3 +5,4 @@ docs
 pnpm-lock.yaml
 .pnpm-debug.log
 lerna-debug.log
+.DS_Store

@@ -1,0 +1,2 @@
+%let f = ({x}) => @foo[attr: @bar{baz}]{#x}
+@f[x: "y"]

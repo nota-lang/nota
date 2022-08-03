@@ -1,0 +1,19 @@
+el(
+  "p",
+  {},
+  el(
+    "span",
+    {
+      block: false,
+    },
+    "lorem"
+  ),
+  "\nipsum\ndolor ",
+  el(
+    "span",
+    {
+      block: false,
+    },
+    "sit"
+  )
+);

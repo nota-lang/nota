@@ -86,7 +86,6 @@ export class LocalState implements State {
         needsSync = false;
         let translation = this.tryTranslate();
         runInAction(() => {
-          console.log("ok????", translation);
           this.translation = translation;
         });
       }

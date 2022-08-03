@@ -1,7 +1,14 @@
 .inferrule {
   display: inline-block;
   text-align: center;
-  margin: 0.5rem 0;
+
+  .rules {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.5em;
+    column-gap: 2em;
+  }
 
   .divider {
     width: 100%;
@@ -11,17 +18,9 @@
   }
 
   .premise {
-    margin-right: 2rem;
-    display: inline-block;
-
-    &:last-child {
-      margin-right: 0;
+    > .block {
+      margin: 0;
     }
-  }
-
-  .premise-row {
-    display: block;
-    line-height: 2rem;
   }
 
   .right {    

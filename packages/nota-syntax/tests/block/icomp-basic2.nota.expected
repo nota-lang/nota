@@ -1,0 +1,12 @@
+el(
+  "p",
+  {},
+  "Hello ",
+  el(
+    "strong",
+    {
+      block: false,
+    },
+    "world"
+  )
+);

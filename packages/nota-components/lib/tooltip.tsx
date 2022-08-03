@@ -1,4 +1,4 @@
-import { Instance, createPopper } from "@popperjs/core";
+import { Instance, VirtualElement, createPopper } from "@popperjs/core";
 import _ from "lodash";
 import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
@@ -21,7 +21,14 @@ import {
 //   - better architecture for this??
 
 class TooltipData extends Pluggable {
-  elts: any = {};
+  elts: {
+    [id: string]: {
+      popperElement: HTMLElement;
+      referenceElement: HTMLElement | VirtualElement;
+      instance: Instance;
+      setShow: (show: boolean) => void;
+    };
+  } = {};
   queue: string[] = [];
   flushed = false;
   inEvent = false;
@@ -31,20 +38,25 @@ class TooltipData extends Pluggable {
     this.queue.push(id);
   };
 
-  checkQueue = () => {
+  checkQueue = async () => {
     if (!_.every(this.queue, id => id in this.elts)) {
       return;
     }
 
     let lastEl: Element | null = null;
-    this.queue.forEach(id => {
+    for (let id of this.queue) {
       let { popperElement, referenceElement, instance, setShow } = this.elts[id];
       let refEl = lastEl === null ? referenceElement : lastEl;
+
+      // TODO: double update is needed or else arrow doesn't get correctly positioned?
+      // not sure why
+      await instance.update();
       instance.state.elements.reference = refEl;
-      instance.update();
+      await instance.update();
+
       setShow(true);
       lastEl = popperElement;
-    });
+    }
 
     Object.keys(this.elts).forEach(id => {
       if (this.queue.indexOf(id) == -1) {
@@ -58,9 +70,9 @@ class TooltipData extends Pluggable {
     }
   };
 
-  onClick = () => {
+  onClick = async () => {
     if (!this.flushed) {
-      this.checkQueue();
+      await this.checkQueue();
     }
 
     this.flushed = false;
@@ -103,7 +115,7 @@ export let Tooltip: React.FC<TooltipProps> = observer(({ children: Inner, Popup 
 
   let ctx = usePlugin(TooltipPlugin);
   let [id] = useState(_.uniqueId());
-  let [stage, setStage] = useState("start");
+  let [stage, setStage] = useState<"start" | "mount" | "done">("start");
   let [show, setShow] = useState(false);
 
   let trigger: React.MouseEventHandler = e => {
@@ -120,38 +132,40 @@ export let Tooltip: React.FC<TooltipProps> = observer(({ children: Inner, Popup 
   };
 
   useEffect(() => {
-    if (stage == "mount" && referenceElement && popperElement) {
-      setStage("done");
+    (async () => {
+      if (stage == "mount" && referenceElement && popperElement) {
+        setStage("done");
 
-      // TODO: I noticed that when embedding a document within another,
-      //   the nested-document tooltips on math elements would be misaligned.
-      //   Unclear why, but a fix was to use the popperjs "virtual element"
-      //   feature that manually calls getBoundingClientRect(). Probably an issue
-      //   with whatever their getBoundingClientRect alternative is?
-      let popperRefEl = {
-        getBoundingClientRect: () => referenceElement.getBoundingClientRect(),
-      };
+        // TODO: I noticed that when embedding a document within another,
+        //   the nested-document tooltips on math elements would be misaligned.
+        //   Unclear why, but a fix was to use the popperjs "virtual element"
+        //   feature that manually calls getBoundingClientRect(). Probably an issue
+        //   with whatever their getBoundingClientRect alternative is?
+        let popperRefEl = {
+          getBoundingClientRect: () => referenceElement.getBoundingClientRect(),
+        };
 
-      let instance = createPopper(popperRefEl, popperElement, {
-        placement: "top",
-        modifiers: [
-          // Push tooltip farther away from content
-          { name: "offset", options: { offset: [0, 10] } },
+        let instance = createPopper(popperRefEl, popperElement, {
+          placement: "top",
+          modifiers: [
+            // Push tooltip farther away from content
+            { name: "offset", options: { offset: [0, 10] } },
 
-          // Add arrow
-          { name: "arrow", options: { element: arrowElement } },
-        ],
-      });
-      setInstance(instance);
+            // Add arrow
+            { name: "arrow", options: { element: arrowElement } },
+          ],
+        });
+        setInstance(instance);
 
-      ctx.elts[id] = {
-        popperElement,
-        referenceElement: popperRefEl,
-        instance,
-        setShow,
-      };
-      ctx.checkQueue();
-    }
+        ctx.elts[id] = {
+          popperElement,
+          referenceElement: popperRefEl,
+          instance,
+          setShow,
+        };
+        await ctx.checkQueue();
+      }
+    })();
   }, [stage, referenceElement, popperElement]);
 
   let inner = isConstructor<TooltipChildProps>(Inner) ? (

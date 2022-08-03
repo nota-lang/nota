@@ -1,0 +1,12 @@
+el(
+  "div",
+  {
+    block: true,
+  },
+  el(
+    "table",
+    {},
+    el("thead", {}, el("tr", {}, el("th", {}, "foo"))),
+    el("tbody", {})
+  )
+);

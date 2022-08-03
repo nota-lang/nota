@@ -531,6 +531,10 @@ export class Translator {
     let attrs = inlineAttrsNode
       ? this.translateNotaInlineAttrs(inlineAttrsNode)
       : t.objectExpression([]);
+    attrs = t.objectExpression([
+      t.spreadElement(attrs),
+      t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(false) }),
+    ]);
 
     let childrenNode;
     let args: (Expression | SpreadElement)[];
@@ -573,7 +577,11 @@ export class Translator {
       name = strLit(name.name);
     }
 
-    let attrExprs = [];
+    let attrExprs: Expression[] = [
+      t.objectExpression([
+        t.objectProperty({ key: strLit("block"), value: t.booleanLiteral(true) }),
+      ]),
+    ];
     let inlineAttrsNode = node.getChild(jsTerms.NotaInlineAttrs);
     if (inlineAttrsNode) attrExprs.push(this.translateNotaInlineAttrs(inlineAttrsNode));
 
@@ -1166,6 +1174,21 @@ export let optimizePlugin = (): PluginObj => ({
       /// {...e} => e
       if (props.length == 1 && props[0].type == "SpreadElement") {
         path.replaceWith(props[0].argument);
+      } else {
+        let changed = false;
+        let newProps = props
+          .map(e => {
+            if (e.type == "SpreadElement" && e.argument.type == "ObjectExpression") {
+              changed = true;
+              return e.argument.properties;
+            } else {
+              return [e];
+            }
+          })
+          .flat();
+        if (changed) {
+          path.replaceWith(t.objectExpression(newProps));
+        }
       }
     },
 

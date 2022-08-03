@@ -3,7 +3,9 @@ import * as babel from "@babel/standalone";
 import type { Statement } from "@babel/types";
 import type { SyntaxNode } from "@lezer/common";
 import { resUnwrap } from "@nota-lang/nota-common/dist/result.js";
+import fs from "fs/promises";
 import _ from "lodash";
+import path from "path";
 import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import { MappingItem, SourceMapConsumer } from "source-map";
@@ -36,7 +38,9 @@ const {
   $
 } = tex;
 export default observer(function TheDocument(docProps) {
-  return el(Document, docProps, el("h1", {}, "Hello ", el($, {}, "world!")));
+  return el(Document, docProps, el("h1", {
+    "block": true
+  }, "Hello ", el($, {}, "world!")));
 });`;
   expect(code).toBe(expected.trim());
 });
@@ -45,7 +49,6 @@ test("translate with debug exports", () => {
   let input = `% import _ from "lodash";`;
   let tree = resUnwrap(tryParse(input));
   let { code } = trans({ input, tree, debugExports: true });
-  console.log(code);
   let expected = r`
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
@@ -89,79 +92,44 @@ let gen =
     }
   };
 
-test("translate markdown inline", () => {
+let bless = "BLESS" in process.env;
+
+let snapshotTests = async (dir: string, trans: (input: string) => string) => {
+  let fullDir = path.join(__dirname, dir);
+  let files = await fs.readdir(fullDir);
+  let tests = files.filter(p => !p.endsWith(".expected"));
+  await Promise.all(
+    tests.map(async p => {
+      let input = await fs.readFile(path.join(fullDir, p), "utf-8");
+      let output = trans(input);
+
+      let expectedPath = path.join(fullDir, p + ".expected");
+      if (bless) {
+        await fs.writeFile(expectedPath, output);
+      } else {
+        let expected = await fs.readFile(expectedPath, "utf-8");
+        if (expected != output) {
+          console.log(`Input:\n${input}`);
+          console.log(`Expected:\n${expected}`);
+          console.log(`Actual:\n${output}`);
+          throw new Error(`Failed snapshot test: ${dir}/${p}`);
+        }
+      }
+    })
+  );
+};
+
+test("translate markdown inline", async () => {
   let genInlineMarkdown = gen((translator, doc) => {
     let para = doc.getChild(mdTerms.Paragraph)!;
     let expr = translator.translateMdInline(para.firstChild!);
     return t.expressionStatement(expr);
   });
 
-  let pairs = [
-    [`**hello**`, `el("strong", {}, "hello");`],
-    [`\`hello\``, `el("code", {}, "hello");`],
-    [`*hello*`, `el("em", {}, "hello");`],
-    [
-      `[hello](world)`,
-      `el(
-  "a",
-  {
-    href: "world",
-  },
-  "hello"
-);`,
-    ],
-    [
-      `![hello](world)`,
-      `el("img", {
-  src: "world",
-  alt: "hello",
-});`,
-    ],
-    [`#x`, `x;`],
-    [`#(Foo.bar)`, `Foo.bar;`],
-    [`#f{a}{b}`, `f(["a"], ["b"]);`],
-    [
-      `#f{a}
-             {b}`,
-      `f(["a"], ["b"]);`,
-    ],
-    [`&foo`, `el(Ref, {}, "foo");`],
-    [`&("foo")`, `el(Ref, {}, "foo");`],
-    [
-      `<http://www.google.com>`,
-      `el(
-  "a",
-  {
-    href: "http://www.google.com",
-  },
-  "http://www.google.com"
-);`,
-    ],
-    [r`$\Theta$`, r`el($, {}, "\\Theta");`],
-    [`#{foo #bar}`, `[["foo ", bar]];`],
-    [`#(@{sup})`, `el(Fragment, {}, "sup");`],
-    [`#(#{a #b{c} d})`, `[["a ", b(["c"]), " d"]];`],
-    [`#(@\${hey})`, `el($, {}, "hey");`],
-    [
-      `$#a
-  {b}$`,
-      `el($, {}, a(["b"]));`,
-    ],
-    [r`$\{foo\$\}$`, r`el($, {}, "\\{foo\\$\\}");`],
-  ];
-
-  pairs.forEach(([input, expected]) => {
-    let actual = genInlineMarkdown(input);
-    expect(actual).toBe(expected);
-  });
+  await snapshotTests("inline", genInlineMarkdown);
 });
 
-// TODO:
-//  - dedent block attributes (pipe is aligned with @)
-//  - allow block attribute keys to be prefixed with @ to assume
-//    that markdown content follows
-
-test("translate markdown block", () => {
+test("translate markdown block", async () => {
   let genBlockMarkdown = gen((translator, doc) => {
     let block = doc.firstChild!;
     // LMAO: the space between "MdBlock" and "(block)" is important
@@ -173,254 +141,16 @@ test("translate markdown block", () => {
     return t.expressionStatement(expr);
   });
 
-  let pairs = [
-    // basic markdown
-    [`# hello`, `el("h1", {}, " hello");`],
-    [`## hello`, `el("h2", {}, " hello");`],
-    ["```\nhello\nworld\n```", r`el(Listing, {}, "hello\nworld");`],
-    [`> hello\n> world`, `el("blockquote", {}, el("p", {}, "hello\\n", null, " world"));`],
-    [
-      "* hello\n\n  yes\n* world",
-      `el(
-  "ul",
-  {},
-  el("li", {}, el("p", {}, "hello"), el("p", {}, "yes")),
-  el("li", {}, el("p", {}, "world"))
-);`,
-    ],
-    [
-      `
-| foo | bar |
-| --- | --- |
-| baz | bim |`,
-      `el(
-  "table",
-  {},
-  el("thead", {}, el("tr", {}, el("th", {}, "foo"), el("th", {}, "bar"))),
-  el("tbody", {}, el("tr", {}, el("td", {}, "baz"), el("td", {}, "bim")))
-);`,
-    ],
-
-    // markdown extensions
-    [`$$\n#f{}\n\nx\n$$`, `el($$, {}, f([]), "\\n\\nx");`],
-    [`foo // bar`, `el("p", {}, "foo ", null);`],
-    ["foo --- bar", r`el("p", {}, "foo ", "\u2014", " bar");`],
-
-    // curly-brace components
-    [`@foo{bar}`, `el(foo, {}, "bar");`],
-    [
-      `@em{**a**} @strong{b}`,
-      `el("p", {}, el("em", {}, el("strong", {}, "a")), " ", el("strong", {}, "b"));`,
-    ],
-    [`@\${\\Theta}`, r`el($, {}, "\\Theta");`],
-    [`@outer{@inner{test}}`, `el(outer, {}, el(inner, {}, "test"));`],
-    [`@{hey}`, `el(Fragment, {}, "hey");`],
-    [`@span{hey}`, `el("span", {}, "hey");`],
-    [`@span{a{b}c}d`, `el("p", {}, el("span", {}, "a{b}c"), "d");`],
-    [`Hello @strong{world}`, `el("p", {}, "Hello ", el("strong", {}, "world"));`],
-    [
-      `.@span{lorem}\nipsum\ndolor @span{sit}`,
-      r`el("p", {}, el("span", {}, "lorem"), "\nipsum\ndolor ", el("span", {}, "sit"));`,
-    ],
-
-    // block components
-    [
-      `@div[id: "foo"]: bar`,
-      `el(
-  "div",
-  {
-    id: "foo",
-  },
-  "bar"
-);`,
-    ],
-    [
-      `Hello @em[id: "ex"]{world}`,
-      `el(
-  "p",
-  {},
-  "Hello ",
-  el(
-    "em",
-    {
-      id: "ex",
-    },
-    "world"
-  )
-);`,
-    ],
-    [
-      `@foo:
-  @bar:
-    @baz:
-      x`,
-      `el(foo, {}, el(bar, {}, el(baz, {}, "x")));`,
-    ],
-    [
-      `@lorem:
-  | ipsum: dolor
-    sit
-  amet
-
-  consectetur`,
-      `el(
-  lorem,
-  {
-    ipsum: el(Fragment, {}, "dolor", "sit"),
-  },
-  el("p", {}, "amet"),
-  el("p", {}, "consectetur")
-);`,
-    ],
-    [
-      `@h1:
-  Hello
-
-  @span:
-    world
-  
-  @span: yed
-
-not-in-block`,
-      `el(
-  "h1",
-  {},
-  el("p", {}, "Hello"),
-  el("span", {}, "world"),
-  el("span", {}, "yed")
-);`,
-    ],
-    [
-      `@foo[x: 1
-    
-+ 
-
-2]`,
-      `el(foo, {
-  x: 1 + 2,
-});`,
-    ],
-    [
-      `@foo:
-  | bar:
-    $$
-    baz
-    $$`,
-      `el(foo, {
-  bar: el(Fragment, {}, el($$, {}, "baz")),
-});`,
-    ],
-    [
-      `@foo:
-  \`\`\`
-  foo
-  bar
-  \`\`\``,
-      r`el(foo, {}, el(Listing, {}, "foo\nbar"));`,
-    ],
-    [
-      `@div:
-  | foo |
-  | --- |`,
-      `el(
-  "div",
-  {},
-  el(
-    "table",
-    {},
-    el("thead", {}, el("tr", {}, el("th", {}, "foo"))),
-    el("tbody", {})
-  )
-);`,
-    ],
-    [`@foo|{@span{bar}}|`, `el(foo, {}, "@span{bar}");`],
-  ];
-
-  pairs.forEach(([input, expected]) => {
-    let actual = genBlockMarkdown(input);
-    expect(actual).toBe(expected);
-  });
+  await snapshotTests("block", genBlockMarkdown);
 });
 
-test("translate markdown doc", () => {
+test("translate markdown doc", async () => {
   let genDocMarkdown = gen((translator, doc) => {
     let expr = translator.translateMdDocument(doc);
     return t.expressionStatement(expr);
   });
 
-  let pairs = [
-    [`@h1: a\n\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
-    [`@h1: a\n@h2: b`, `[el("h1", {}, "a"), el("h2", {}, "b")];`],
-    [
-      `%let x = 1\n\n#x`,
-      `[
-  ...(() => {
-    let x = 1;
-    return [null, el("p", {}, x)];
-  })(),
-];`,
-    ],
-    [
-      `%let x = @em{**content**}\n#x`,
-      `[
-  ...(() => {
-    let x = el("em", {}, el("strong", {}, "content"));
-    return [null, el("p", {}, x)];
-  })(),
-];`,
-    ],
-    [
-      `%let f = macro{**{#1}.{#2}**}\n#f{a}{b}`,
-      `[
-  ...(() => {
-    let f = (...args) => ["**{", args[0], "}.{", args[1], "}**"];
-
-    return [null, el("p", {}, f(["a"], ["b"]))];
-  })(),
-];`,
-    ],
-    [
-      `%let f = ({x}) => @foo[attr: @bar{baz}]{#x}\n@f[x: "y"]`,
-      `[
-  ...(() => {
-    let f = ({ x }) =>
-      el(
-        foo,
-        {
-          attr: el(bar, {}, "baz"),
-        },
-        x
-      );
-
-    return [
-      null,
-      el(f, {
-        x: "y",
-      }),
-    ];
-  })(),
-];`,
-    ],
-    [`$$\n#f{}\n$$\n\nhello world`, `[el($$, {}, f([])), el("p", {}, "hello world")];`],
-    [
-      `%%%
-let x = [...y];
-foo.bar[0] = baz;
-%%%`,
-      `[
-  ...(() => {
-    let x = [...y];
-    foo.bar[0] = baz;
-    return [null];
-  })(),
-];`,
-    ],
-  ];
-
-  pairs.forEach(([input, expected]) => {
-    let actual = genDocMarkdown(input);
-    expect(actual).toBe(expected);
-  });
+  await snapshotTests("doc", genDocMarkdown);
 });
 
 test("line map", () => {

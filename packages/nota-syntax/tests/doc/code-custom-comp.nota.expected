@@ -1,0 +1,27 @@
+[
+  ...(() => {
+    let f = ({ x }) =>
+      el(
+        foo,
+        {
+          block: true,
+          attr: el(
+            bar,
+            {
+              block: true,
+            },
+            "baz"
+          ),
+        },
+        x
+      );
+
+    return [
+      null,
+      el(f, {
+        block: true,
+        x: "y",
+      }),
+    ];
+  })(),
+];

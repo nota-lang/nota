@@ -17,13 +17,18 @@
   }
 }
 
-.nomargin .katex-display {
-  margin: 0;
-}
 
-// Height of tex blocks seems to be getting consistently underestimated
-.katex-display .base {
-  margin-bottom: -0.33em;
+.katex-display {
+  margin: 0;
+
+  > .katex {
+    text-align: left;
+  }
+
+  // Height of tex blocks seems to be getting consistently underestimated
+  .katex-display .base {
+    margin-bottom: -0.33em;
+  }
 }
 
 // Fix overlapping span elements in align environments

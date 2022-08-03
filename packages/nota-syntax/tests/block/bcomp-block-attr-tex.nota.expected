@@ -1,0 +1,4 @@
+el(foo, {
+  block: true,
+  bar: el(Fragment, {}, el($$, {}, "baz")),
+});

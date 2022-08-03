@@ -26,8 +26,18 @@ export class CounterPosition {
     }
   };
 
-  toString = (): string =>
-    this.stack.map((n, i) => this.stylize(n, this.styles[i % this.styles.length])).join(".");
+  toString = (): string => {
+    let parts: string[] = [];
+    this.stack.forEach((n, i) => {
+      let style = this.styles[i % this.styles.length];
+      let s = this.stylize(n, style);
+      if (i > 0 && style != "a") {
+        parts.push(".");
+      }
+      parts.push(s);
+    });
+    return parts.join("");
+  };
 }
 
 export interface ValueStack {

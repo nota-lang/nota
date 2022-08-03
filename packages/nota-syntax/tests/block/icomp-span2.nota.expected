@@ -1,0 +1,12 @@
+el(
+  "p",
+  {},
+  el(
+    "span",
+    {
+      block: false,
+    },
+    "a{b}c"
+  ),
+  "d"
+);

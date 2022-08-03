@@ -208,5 +208,5 @@ export let Listing: FCC<ListingProps> = props => {
     }
   }, []);
 
-  return <div className="listing block" ref={ref} />;
+  return <div className="listing" ref={ref} />;
 };

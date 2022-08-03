@@ -137,12 +137,16 @@ export class BibliographyData extends Pluggable {
         keys.map(key => {
           let entry = this.citations[key];
           let author = entry.displayAuthor();
-          return <$ key={key}>{`\\text{${author} [${entry.year}${suffix}]}`}</$>;
+          return (
+            <span className="cite" key={key}>
+              <$>{`\\text{${author} [${entry.year}${suffix}]}`}</$>
+            </span>
+          );
         }),
         props => <span {...props}>{"; "}</span>
       )
     ) : (
-      <span>
+      <span className="cite">
         [
         {intersperse(
           keys.map(key => {
@@ -183,7 +187,7 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
   return (
     <SectionBody>
       <Section plain>References</Section>
-      <div className="bib-references block">
+      <div className="bib-references">
         {keys
           .filter(key => key in bibCtx.citations)
           .map(key => (
@@ -207,6 +211,6 @@ export interface CiteProps {
 export let Cite: React.FC<CiteProps> = observer(({ name, full, year, extra }) => {
   let ctx = usePlugin(BibliographyPlugin);
   let keys = typeof name === "string" ? [name] : name;
-  return <>{ctx.cite(keys, full || false, year || false, extra)}</>;
+  return ctx.cite(keys, full || false, year || false, extra) as any;
 });
 Cite.displayName = "Cite";

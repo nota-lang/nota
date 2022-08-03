@@ -1,19 +1,5 @@
 @use "@nota-lang/nota-common/dist/index.scss" as *;
 
-@mixin block {
-  margin-block-start: 1em;
-  margin-block-end: 1em;
-
-  @include mobile {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-}
-
-.block {
-  @include block; 
-}
-
 .nota-document {
   font-family: var(--font-body);
   font-size: var(--size-normal);
@@ -99,8 +85,7 @@
 
   ul,
   ol {
-    @include block;
-    padding-left: 1.5em;
+    padding-left: 1em;
 
     > li {
       margin-bottom: 0.5em;
@@ -144,10 +129,34 @@
   table:not([class]) {
     border-collapse: collapse;
 
+    @include mobile {
+      table-layout: fixed;
+      width: 100%;
+    }
+
     th, td {
       border: 1px solid var(--color-light-border);
       padding: 2px 6px;
     }
+  }
+
+  // TODO: this is a clunky hack, can we avoid a whitelist of elements?
+  $sel: "*:not(p):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(section):not(.bib-references)";
+  & > #{$sel}, section > #{$sel}, .block > #{$sel} {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+  
+    @include monitor {
+      margin-left: 1.5em;
+    }
+  
+    @include mobile {
+      &:not(ul):not(ol) {
+        max-width: 100%;
+        overflow-x: auto;    
+        margin-left: 0.5em;
+      }    
+    }  
   }
 }
 
@@ -177,23 +186,35 @@ sup.footnote-marker {
 }
  
 .figure {
-  @include block;
-
   &.level-1 .figure-content {
-    display: flex;
-    justify-content: center;
+    display: flex;    
     flex-wrap: wrap;
+    gap: 1em;
+
+    @include monitor {
+      justify-content: center;
+    }
   }
 }
 
 .caption {
   font-size: var(--size-small);
   text-align: center;
+
+  .caption-layout {
+    display: inline-flex;
+    flex-wrap: wrap;
+    column-gap: 0.5em;
+    text-align: left;
+  }
+ 
+  .caption-title {
+    font-weight: bold;
+  }
 }
 
 
 .row {
-  @include block; 
 
   display: flex;
   justify-content: center;

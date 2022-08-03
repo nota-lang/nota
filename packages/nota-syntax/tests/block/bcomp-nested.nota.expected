@@ -1,0 +1,13 @@
+el(
+  outer,
+  {
+    block: true,
+  },
+  el(
+    inner,
+    {
+      block: true,
+    },
+    "test"
+  )
+);

@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { BibliographyPlugin } from "./bibliography.js";
 import { ListingPlugin } from "./code.js";
 import { NestedCounter, ValueStack } from "./counter.js";
-import { Definition, DefinitionScope, DefinitionsPlugin, Ref } from "./definitions.js";
+import { Definition, DefinitionsPlugin, Ref } from "./definitions.js";
 import { Logger, LoggerPlugin } from "./logger.js";
 import { Plugin, usePlugin } from "./plugin.js";
 import { Portal, PortalPlugin } from "./portal.js";
@@ -78,17 +78,13 @@ export let Section: FCC<{ plain?: boolean; name?: string }> = ({ children, plain
   }
   Header.displayName = "Header";
 
-  let inner = (
-    <Header className="section-title">
-      {!plain && docCtx.sectionNumbers ? <span className="section-number">{secNum}</span> : null}{" "}
-      {children}
-    </Header>
-  );
-
   return (
-    <Definition name={name} label={`Section ${secNum}`} tooltip={null} block>
-      {inner}
-    </Definition>
+    <Header className="section-title">
+      <Definition name={name} label={`Section ${secNum}`} tooltip={null} block>
+        {!plain && docCtx.sectionNumbers ? <span className="section-number">{secNum}</span> : null}{" "}
+        {children}
+      </Definition>
+    </Header>
   );
 };
 
@@ -120,20 +116,26 @@ export let Figure: FCC<{ name?: string }> = props => {
   let figNum = pos.toString();
 
   let figCtx = new FigureData();
-
+  let label = `Figure ${figNum}`;
   let Caption = () => (
-    <Definition name={props.name} label={`Figure ${figNum}`} tooltip={null} block>
+    <Definition name={props.name} label={label} tooltip={null} block>
       <div className="caption">
-        Figure {figNum}: {figCtx.caption}
+        <div className="caption-layout">
+          <div className="caption-title">{`${label}:`}</div>
+          <div className="caption-content">{figCtx.caption}</div>
+        </div>
       </div>
     </Definition>
   );
 
-  let inner = props.name ? (
-    <DefinitionScope name={props.name}>{props.children}</DefinitionScope>
-  ) : (
-    props.children
-  );
+  let inner = props.children;
+
+  //// TODO: this causes weird labels for ordinary subfigures, eg "Figure 6-Figure 6a"
+  // let inner = props.name ? (
+  //   <DefinitionScope name={props.name}>{props.children}</DefinitionScope>
+  // ) : (
+  //   props.children
+  // );
 
   return (
     <FigureContext.Provider value={figCtx}>

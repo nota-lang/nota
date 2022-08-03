@@ -1,0 +1,9 @@
+@h1:
+  Hello
+
+  @span:
+    world
+  
+  @span: yed
+
+not-in-block

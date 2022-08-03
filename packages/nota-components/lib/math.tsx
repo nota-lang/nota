@@ -6,16 +6,23 @@ import { ToggleGroup, ToggleGroupButton } from "./togglebox.js";
 import { FCC, HTMLAttributes, ReactConstructor, ReactNode, getOrRender } from "./utils.js";
 
 export let Premise: FCC = ({ children }) => <div className="premise">{children}</div>;
-export let PremiseRow: FCC = ({ children }) => <div className="premise-row">{children}</div>;
 
 export interface IRProps {
   Top?: ReactNode | ReactConstructor;
   Bot: ReactNode | ReactConstructor;
   Right?: ReactNode | ReactConstructor;
+  block?: boolean;
   toggle?: boolean;
 }
 
-export let IR: FCC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...props }) => {
+export let IR: FCC<IRProps & HTMLAttributes> = ({
+  Top,
+  Bot,
+  Right,
+  toggle,
+  block: _block,
+  ...props
+}) => {
   let [rightHeight, setRightHeight] = useState(0);
   let rightRef = useRef<HTMLDivElement>(null);
 
@@ -33,10 +40,10 @@ export let IR: FCC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...pr
 
   return (
     <ToggleGroup>
-      <table className="inferrule block" {...props}>
+      <table className="inferrule" {...props}>
         <tbody>
           <tr>
-            <td>{Top ? getOrRender(Top, {}) : null}</td>
+            <td className="rules">{Top ? getOrRender(Top, {}) : null}</td>
           </tr>
           <tr>
             <td>
@@ -51,7 +58,7 @@ export let IR: FCC<IRProps & HTMLAttributes> = ({ Top, Bot, Right, toggle, ...pr
             </td>
           </tr>
           <tr>
-            <td>{getOrRender(Bot, {})}</td>
+            <td className="rules">{getOrRender(Bot, {})}</td>
           </tr>
         </tbody>
       </table>
@@ -66,10 +73,10 @@ export let Theorem: FCC<{ name?: string; title?: string }> = ({ name, title, chi
   let suffix = title ? `: ${title}` : "";
 
   return (
-    <Definition name={name} label={`${label} ${suffix}`}>
-      <div className="theorem block">
+    <Definition name={name} label={label} block={true}>
+      <div className="theorem">
         <Smallcaps>{label + suffix}</Smallcaps>
-        <div className="theorem-body">{children}</div>
+        <div className="theorem-body block">{children}</div>
       </div>
       <ctx.theorems.Pop />
     </Definition>

@@ -1,0 +1,9 @@
+el(
+  lorem,
+  {
+    block: true,
+    ipsum: el(Fragment, {}, "dolor", "sit"),
+  },
+  el("p", {}, "amet"),
+  el("p", {}, "consectetur")
+);

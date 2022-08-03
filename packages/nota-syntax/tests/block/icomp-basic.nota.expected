@@ -1,0 +1,19 @@
+el(
+  "p",
+  {},
+  el(
+    "em",
+    {
+      block: false,
+    },
+    el("strong", {}, "a")
+  ),
+  " ",
+  el(
+    "strong",
+    {
+      block: false,
+    },
+    "b"
+  )
+);

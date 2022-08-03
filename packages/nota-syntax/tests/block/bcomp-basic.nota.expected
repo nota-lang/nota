@@ -1,0 +1,7 @@
+el(
+  foo,
+  {
+    block: true,
+  },
+  "bar"
+);

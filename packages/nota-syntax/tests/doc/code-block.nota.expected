@@ -1,0 +1,7 @@
+[
+  ...(() => {
+    let x = [...y];
+    foo.bar[0] = baz;
+    return [null];
+  })(),
+];

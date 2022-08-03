@@ -1,0 +1,6 @@
+el(
+  "table",
+  {},
+  el("thead", {}, el("tr", {}, el("th", {}, "foo"), el("th", {}, "bar"))),
+  el("tbody", {}, el("tr", {}, el("td", {}, "baz"), el("td", {}, "bim")))
+);
