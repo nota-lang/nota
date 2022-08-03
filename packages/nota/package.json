@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A document language for the browser",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota#readme",
@@ -26,7 +26,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/nota-common": "^0.4.2",
+    "@nota-lang/nota-common": "^0.4.3",
     "@types/express": "^4.17.13",
     "@types/express-ws": "^3.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -41,11 +41,11 @@
     "@codemirror/lang-javascript": "^6.0.1",
     "@codemirror/language": "^6.2.0",
     "@cspotcode/source-map-support": "^0.8.1",
-    "@nota-lang/esbuild-utils": "^0.4.2",
-    "@nota-lang/nota-components": "^0.4.2",
-    "@nota-lang/nota-editor": "^0.4.2",
-    "@nota-lang/nota-syntax": "^0.4.2",
-    "@nota-lang/nota-theme-standalone": "^0.4.2",
+    "@nota-lang/esbuild-utils": "^0.4.3",
+    "@nota-lang/nota-components": "^0.4.3",
+    "@nota-lang/nota-editor": "^0.4.3",
+    "@nota-lang/nota-syntax": "^0.4.3",
+    "@nota-lang/nota-theme-standalone": "^0.4.3",
     "classnames": "^2.3.1",
     "codemirror": "^6.0.1",
     "commander": "^9.4.0",
