@@ -10,7 +10,7 @@
     "doc": "typedoc packages/*",
     "fmt": "prettier -w \"packages/*/lib/**/*.{ts,tsx}\"",
     "commit-check": "pnpm clean; pnpm init-repo && pnpm lint && pnpm test",
-    "publish": "pnpm commit-check && lerna publish"
+    "lerna-publish": "pnpm commit-check && lerna publish"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
