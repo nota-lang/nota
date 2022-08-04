@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-syntax",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Compiler for Nota syntax",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
