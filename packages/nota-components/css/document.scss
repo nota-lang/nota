@@ -204,9 +204,10 @@ sup.footnote-marker {
     display: flex;    
     flex-wrap: wrap;
     gap: 1em;
-
+    
     @include monitor {
       justify-content: center;
+      align-items: center;
     }
   }
 }
