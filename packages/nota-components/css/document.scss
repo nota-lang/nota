@@ -132,6 +132,10 @@
     quotes: "“" "”" "‘" "’";
   }
 
+  section {
+    margin-top: 2rem;
+  }
+
   &.editing .error {
     color: var(--color-error);
     padding: 2px;
