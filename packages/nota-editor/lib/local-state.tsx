@@ -70,7 +70,8 @@ export class LocalState implements State {
       }
     );
 
-    let defaultSyncDelay = (contents: string) => Math.min(Math.sqrt(contents.length) * 10, 3000);
+    let defaultSyncDelay = (contents: string) =>
+      Math.max(Math.min(Math.sqrt(contents.length) * 10, 3000), 200);
 
     let delayFunc = syncDelay
       ? typeof syncDelay === "number"

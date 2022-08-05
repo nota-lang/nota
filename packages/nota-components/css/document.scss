@@ -295,6 +295,19 @@ sup.footnote-marker {
     li.bullet {
       list-style: circle;
     }
+
+    ol {
+      margin-block-start: 0.5em !important;
+      margin-block-end: 0 !important;
+
+      li {
+        margin-bottom: 0.5em;
+
+        > * {
+          margin-left: 0 !important;
+        }
+      }
+    }
   }
 }
 
