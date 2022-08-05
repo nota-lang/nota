@@ -1,9 +1,7 @@
-import { cli, log, peerfixPlugin, ssrPlugin } from "@nota-lang/esbuild-utils";
-import { peerDependencies } from "@nota-lang/nota-components/dist/peer-dependencies.mjs";
+import { cli, log, ssrPlugin } from "@nota-lang/esbuild-utils";
 import { notaPlugin } from "@nota-lang/nota-syntax/dist/esbuild-plugin.js";
 import fs from "fs-extra";
 import path from "path";
-import process from "process";
 
 import { CommonOptions, nodePaths } from "./index.js";
 
@@ -24,7 +22,6 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
     plugins: [
       notaPlugin({ extraCss: ["@nota-lang/nota-theme-standalone/dist/index.css"] }),
       ssrPlugin(),
-      peerfixPlugin({ modules: peerDependencies, meta: { url: process.cwd() } }),
       ...(opts.config.plugins || []),
     ],
   });

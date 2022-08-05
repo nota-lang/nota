@@ -165,25 +165,41 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
         log.info(`Rendering page: ${path.parse(p).name} -> ${htmlPath}`);
         let page = await browser.newPage();
+        await page.setViewport({ width: 1720, height: 720 });
 
         // Pipe in-page logging to the terminal for debugging purposes
         page
-          .on("console", message => log.info(c.italic("console.log:") + " " + message.text()))
+          .on("console", message =>
+            log.info(c.italic(`console.log(${dir}/${name}):`) + " " + message.text())
+          )
           .on("pageerror", err => log.error(err.toString()))
           .on("error", err => log.error(err.toString()));
 
         // Put the HTML into the page and wait for initial load
-        let scriptUrl = `http://localhost:${fileServer.port}/${dir}/${name}.mjs`;
-        let html = `
-<!DOCTYPE html>
-<html lang="${opts.language || "en"}" class="${SSR_CLASS}">
-  <body><script src="${scriptUrl}" type="module" async></script></body>
-</html>`;
-        await page.setContent(html, { waitUntil: "domcontentloaded" });
+        let url = `http://localhost:${fileServer.port}/${dir}/`;
+        let html = `<!DOCTYPE html>
+        <html lang="${opts.language || "en"}" class="${SSR_CLASS}">
+          <body><script src="${url}${name}.mjs" type="module" async></script></body>
+        </html>`;
+        await page.setRequestInterception(true);
+        page.on("request", req => {
+          if (req.url() == url) {
+            req.respond({
+              body: html,
+              contentType: "text/html",
+            });
+          } else {
+            req.continue();
+          }
+        });
+        await page.goto(url, { waitUntil: "domcontentloaded" });
 
         // Then wait for NOTA_READY to be set by the SSR script
         let timeout = opts.externalRenderTimeout || 10000;
         await page.waitForFunction(NOTA_READY, { timeout });
+        await page.waitForNetworkIdle({ timeout });
+
+        // await page.screenshot({ path: `./${name}.jpg` });
 
         // And write the rendered HTML to disk once it's ready
         let content = await page.content();
