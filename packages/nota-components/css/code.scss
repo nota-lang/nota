@@ -1,6 +1,14 @@
+@use "@nota-lang/nota-common/dist/index.scss" as *;
+
 pre,
-code {
+code,
+.cm-editor {
   font-family: var(--font-mono);
+  font-size: var(--size-small);
+
+  @include mobile {
+    font-size: var(--size-footnote);
+  }
 }
 
 code {

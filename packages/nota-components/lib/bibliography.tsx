@@ -58,19 +58,30 @@ class BibliographyEntry {
   }
 
   bibCite() {
-    let names = this.authors?.map(author => [...author.slice(1), author[0]].join(" "));
+    let names = this.authors
+      ?.map(author => [...author.slice(1), author[0]].join(" "))
+      .map(name => (
+        <$ key={name}>
+          {"\\text{"}
+          {name}
+          {"}"}
+        </$>
+      ));
     let location = this.tags.journal || this.tags.booktitle;
     return (
       <div className="bib-reference">
-        <$>
-          {"\\text{"}
-          {names
-            ? (names.length > 1
-                ? names.slice(0, -1).join(", ") + ", and " + names[names.length - 1]
-                : names[0]) + ". "
-            : null}
-          {"}"}
-        </$>
+        {names
+          ? [
+              names.length > 1
+                ? [
+                    ...intersperse(names.slice(0, -1), () => <>, </>),
+                    ", and ",
+                    names[names.length - 1],
+                  ]
+                : names[0],
+              ". ",
+            ]
+          : null}
         {this.year ? this.year + ". " : null}
         {this.title ? this.title + ". " : null}
         {location ? (

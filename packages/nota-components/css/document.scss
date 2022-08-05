@@ -91,9 +91,18 @@
   ol {
     padding-left: 1em;
 
+    // HACK: I observed that Safari on mobile doesn't show bullets??
+    // As a workaround, this is a Safari-specific media query
+    // (see: https://stackoverflow.com/a/53638872)
+    @media not all and (min-resolution:.001dpcm) { 
+      @include mobile {
+        list-style-position: inside;
+      }
+    }
+    
     > li {
       margin-bottom: 0.5em;
-      padding-left: 0.25em;
+      // padding-left: 0.25em;
 
       &:last-child {
         margin-bottom: 0;
@@ -133,20 +142,16 @@
   table:not([class]) {
     border-collapse: collapse;
 
-    @include mobile {
-      table-layout: fixed;
-      width: 100%;
-    }
-
     th, td {
       border: 1px solid var(--color-light-border);
       padding: 2px 6px;
+      overflow-wrap: break-word;
     }
   }
 
   // TODO: this is a clunky hack, can we avoid a whitelist of elements?
   $sel: "*:not(p):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(section):not(.bib-references)";
-  & > #{$sel}, section > #{$sel}, .block > #{$sel} {
+  section > #{$sel}, li > #{$sel}, .block > #{$sel} {
     margin-block-start: 1em;
     margin-block-end: 1em;
   
@@ -156,11 +161,16 @@
   
     @include mobile {
       &:not(ul):not(ol) {
-        max-width: 100%;
-        overflow-x: auto;    
         margin-left: 0.5em;
       }    
-    }  
+    }
+  }
+
+  @include mobile {
+    section > *, li > *, .block > * {
+      max-width: 100%;
+      overflow-x: auto;    
+   }
   }
 }
 

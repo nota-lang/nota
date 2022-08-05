@@ -23,22 +23,30 @@ import {
 const r = String.raw;
 
 test("translate end-to-end", () => {
-  let input = `@h1: Hello $world!$`;
+  let input = `@Title: Hello $world!$`;
   let tree = resUnwrap(tryParse(input));
   let { code } = trans({ input, tree });
   let expected = `
 import { createElement as el, Fragment } from "react";
 import { observer } from "mobx-react";
-import { document, tex } from "@nota-lang/nota-components";
+import { document, header, tex } from "@nota-lang/nota-components";
 import "@nota-lang/nota-components/dist/index.css";
 const {
   Document
 } = document;
 const {
+  Title
+} = header;
+const {
   $
 } = tex;
+export let metadata = {
+  title: ["Hello ", el($, {}, "world!")]
+};
 export default observer(function TheDocument(docProps) {
-  return el(Document, docProps, el("h1", {}, "Hello ", el($, {}, "world!")));
+  return el(Document, docProps, el(Title, {
+    "block": true
+  }, "Hello ", el($, {}, "world!")));
 });`;
   expect(code).toBe(expected.trim());
 });

@@ -45,8 +45,8 @@ let theme = EditorView.theme({
     border: "none",
   },
   ".cm-lineNumbers .cm-gutterElement": {
-    fontSize: "10px",
-    paddingTop: "3px",
+    fontSize: "12px",
+    paddingTop: "2px",
     paddingRight: "7px",
     minWidth: "10px",
   },

@@ -207,7 +207,7 @@ export let Expandable: FCC<{ prompt: JSX.Element }> = ({ children, prompt }) => 
     });
     observer.observe(ref.current!);
 
-    console.log("registering", id, "to", scrollPlugin);
+    // console.log("registering", id, "to", scrollPlugin);
     scrollPlugin.registerScrollHook(id, () => {
       setShow(true);
     });

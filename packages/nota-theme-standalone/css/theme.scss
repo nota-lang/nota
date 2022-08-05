@@ -1,4 +1,13 @@
 @use "@nota-lang/nota-common/dist/index.scss" as *;
+@import "normalize.css/normalize.css";
+
+body {
+  font-size: var(--size-normal);
+
+  @include mobile {
+    padding: 1rem;
+  }
+}
 
 .nota-document:not(.editing) {
   @include monitor {

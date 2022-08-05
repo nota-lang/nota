@@ -87,9 +87,13 @@ class TooltipData extends Pluggable {
     useEffect(() => {
       window.addEventListener("click", this.onClick);
       window.addEventListener("click", this.onClickCapture, true);
+      window.addEventListener("touchend", this.onClick);
+      window.addEventListener("touchend", this.onClickCapture, true);
       return () => {
         window.removeEventListener("click", this.onClick);
         window.removeEventListener("click", this.onClickCapture, true);
+        window.removeEventListener("touchend", this.onClick);
+        window.removeEventListener("touchend", this.onClickCapture, true);
       };
     }, []);
   };

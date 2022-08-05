@@ -25,5 +25,8 @@
     "@nota-lang/nota-common": "^0.4.3",
     "sass": "^1.53.0"
   },
+  "dependencies": {
+    "normalize.css": "^8.0.1"
+  },
   "gitHead": "e215a495a0080997414ce193d4faf5317c5ddc08"
 }

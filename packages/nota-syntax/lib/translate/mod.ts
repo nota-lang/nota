@@ -88,6 +88,8 @@ export class LineMap {
 export class Translator {
   input: string;
   lineMap: LineMap;
+  title?: Expression;
+  abstract?: Expression;
   imports: Set<ImportDeclaration> = new Set();
   exports: Set<ExportDeclaration> = new Set();
 
@@ -630,6 +632,14 @@ export class Translator {
       let blockNode = node.getChild(mdTerms.Document) || node.getChild(mdTerms.NotaBlockContent);
       if (blockNode) {
         args.push(t.spreadElement(this.translateInlineOrBlockSequence(blockNode)));
+      }
+    }
+
+    if (name.type == "Identifier") {
+      if (name.name == "Title") {
+        this.title = t.arrayExpression(args);
+      } else if (name.name == "Abstract") {
+        this.abstract = t.arrayExpression(args);
       }
     }
 
@@ -1319,7 +1329,7 @@ export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOpt
     ])
   );
 
-  let cssFiles = ["@nota-lang/nota-components/dist/index.css"].concat(extraCss || []);
+  let cssFiles = (extraCss || []).concat(["@nota-lang/nota-components/dist/index.css"]);
   let cssImportStmts = cssFiles.map(s => t.importDeclaration([], strLit(s)));
 
   let defaultExport = t.exportDefaultDeclaration(
@@ -1332,6 +1342,37 @@ export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOpt
       ),
     ])
   );
+
+  let metaExport;
+  if (
+    !_.some(Array.from(translator.exports), e => {
+      if (
+        e.type == "ExportNamedDeclaration" &&
+        e.declaration &&
+        e.declaration.type == "VariableDeclaration"
+      ) {
+        let decls = e.declaration.declarations;
+        if (decls.length > 0 && decls[0].id.type == "Identifier") {
+          return decls[0].id.name == "metadata";
+        }
+      }
+      return false;
+    })
+  ) {
+    let meta: ObjectProperty[] = [];
+    let addMeta = (id: string, expr: Expression) =>
+      meta.push(t.objectProperty({ key: t.identifier(id), value: expr }));
+    if (translator.title) addMeta("title", translator.title);
+    if (translator.abstract) addMeta("abstract", translator.abstract);
+
+    if (meta.length > 0) {
+      metaExport = t.exportNamedDeclaration(
+        t.variableDeclaration("let", [
+          t.variableDeclarator(t.identifier("metadata"), t.objectExpression(meta)),
+        ])
+      );
+    }
+  }
 
   let imports: { [key: string]: boolean } = {};
   translator.imports.forEach(decl => {
@@ -1394,6 +1435,7 @@ export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOpt
     ...(debugExports ? debugImports : []),
     ...Array.from(translator.exports),
     ...(debugExports ? [debugImportExport, debugSourceExport] : []),
+    ...(metaExport ? [metaExport] : []),
     defaultExport,
   ];
 

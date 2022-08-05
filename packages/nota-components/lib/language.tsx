@@ -56,13 +56,17 @@ export class Language {
 
     this._grammar.forEach(({ cmd, metavar, branches }) => {
       (this as any)[cmd] = texRef([`tex_`, cmd], metavar);
-      branches.forEach(({ subcmd, body }) => {
-        if (typeof body != "function") {
-          throw new Error(`Not a function: ${(body as any).toString()}`);
-        }
-        (this as any)[cmd + subcmd] = (...args: any[]) =>
-          texRef([`tex_`, cmd, subcmd], body(...args));
-      });
+      if (branches.length == 0) {
+        (this as any)[cmd + "form"] = (...args: any[]) => texRef([`tex_`, cmd], args);
+      } else {
+        branches.forEach(({ subcmd, body }) => {
+          if (typeof body != "function") {
+            throw new Error(`Not a function: ${(body as any).toString()}`);
+          }
+          (this as any)[cmd + subcmd] = (...args: any[]) =>
+            texRef([`tex_`, cmd, subcmd], body(...args));
+        });
+      }
     });
   }
 
@@ -142,42 +146,43 @@ export class Language {
     }
 
     let rules = sizedProductions.map(([{ kind, cmd, metavar, branches }, bdims]) => {
+      let sizedBranches = zipExn(branches, bdims);
+      let branchesAreSubset = false;
+      if (subset) {
+        let [_k, subsetBranches] = subset.find(([k]) => k == cmd)!;
+        if (subsetBranches !== true) {
+          branchesAreSubset = true;
+          sizedBranches = subsetBranches.map(k2 => {
+            let branch = sizedBranches.find(([{ subcmd }]) => subcmd == k2);
+            if (!branch) {
+              console.error(`No branch in production ${cmd} named: ${k2}`);
+              throw new Error(`No branch in production ${cmd} named: ${k2}`);
+            }
+            return branch;
+          });
+        }
+      }
+
+      let [rows] = sizedBranches.reduce(
+        ([rows, curWidth], [branch, dims]) => {
+          let lastRow = rows[rows.length - 1];
+          if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
+            rows.push([branch]);
+            curWidth = dims.width;
+          } else {
+            lastRow.push(branch);
+            curWidth += dims.width;
+          }
+          return [rows, curWidth];
+        },
+        [[[]] as SyntaxBranch[][], 0]
+      );
+
       let makeRhs = (hl?: string) => {
         if (branches.length == 0) {
           return "";
         }
 
-        let sizedBranches = zipExn(branches, bdims);
-        let branchesAreSubset = false;
-        if (subset) {
-          let [_k, subsetBranches] = subset.find(([k]) => k == cmd)!;
-          if (subsetBranches !== true) {
-            branchesAreSubset = true;
-            sizedBranches = subsetBranches.map(k2 => {
-              let branch = sizedBranches.find(([{ subcmd }]) => subcmd == k2);
-              if (!branch) {
-                console.error(`No branch in production ${cmd} named: ${k2}`);
-                throw new Error(`No branch in production ${cmd} named: ${k2}`);
-              }
-              return branch;
-            });
-          }
-        }
-
-        let [rows] = sizedBranches.reduce(
-          ([rows, curWidth], [branch, dims]) => {
-            let lastRow = rows[rows.length - 1];
-            if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
-              rows.push([branch]);
-              curWidth = dims.width;
-            } else {
-              lastRow.push(branch);
-              curWidth += dims.width;
-            }
-            return [rows, curWidth];
-          },
-          [[[]] as SyntaxBranch[][], 0]
-        );
         let str = addBetween(
           rows
             // if we're highlighting a specific branch, then remove other rows
@@ -206,7 +211,7 @@ export class Language {
 
       kind = kind.replace(/ /g, r`\ `);
 
-      branches.forEach(({ subcmd }) => {
+      sizedBranches.forEach(([{ subcmd }]) => {
         let rhs = makeRhs(subcmd);
         defs.push([
           `tex_${cmd}${subcmd}`,
