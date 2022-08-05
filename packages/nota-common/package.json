@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-common",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "description": "Shared utilities amongst @nota-lang packages",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -27,7 +27,7 @@
     "url": "https://github.com/nota-lang/nota/issues"
   },
   "devDependencies": {
-    "@nota-lang/esbuild-utils": "^0.4.3"
+    "@nota-lang/esbuild-utils": "^0.4.5"
   },
   "dependencies": {
     "@types/lodash": "^4.14.182",

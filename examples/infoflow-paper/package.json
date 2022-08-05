@@ -1,6 +1,6 @@
 {
   "name": "infoflow-paper",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "license": "MIT",
   "main": "dist/document/document.js",
   "private": true,
@@ -8,9 +8,9 @@
   "devDependencies": {
     "@codemirror/lang-cpp": "^6.0.1",
     "@codemirror/lang-rust": "^6.0.0",
-    "@nota-lang/nota": "^0.4.4",
-    "@nota-lang/nota-theme-acm": "^0.4.3",
-    "@nota-lang/nota-theme-standalone": "^0.4.3",
+    "@nota-lang/nota": "^0.4.5",
+    "@nota-lang/nota-theme-acm": "^0.4.5",
+    "@nota-lang/nota-theme-standalone": "^0.4.5",
     "lodash": "^4.17.21"
   }
 }
