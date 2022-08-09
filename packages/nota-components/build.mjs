@@ -35,30 +35,39 @@ let getComponents = () => {
     // for each exported member of the module...
     declTy.getProperties().forEach(member => {
       let memberTy = tc.getTypeOfSymbolAtLocation(member, member.valueDeclaration);
-      if (memberTy.getSymbol().getName() != "FunctionComponent") return;
+      let exportType =
+        memberTy.getSymbol().getName() == "FunctionComponent" ? "component" : "other";
+      if (exportType == "component") {
+        // assuming the component has the type React.FC<Props>, get the Props
+        let propsTy = memberTy.aliasTypeArguments[0];
 
-      // assuming the component has the type React.FC<Props>, get the Props
-      let propsTy = memberTy.aliasTypeArguments[0];
+        // extract description of props
+        let propTys = propsTy.getProperties();
+        let props = propTys.map(tySym => {
+          let propName = _.camelCase(tySym.getName());
+          let required = true;
+          let ty = tc.getTypeOfSymbolAtLocation(tySym, tySym.valueDeclaration);
+          if (ty.flags & ts.TypeFlags.UnionOrIntersection) {
+            required = !ty.types.some(fieldTy => fieldTy.flags & ts.TypeFlags.Undefined);
+          }
 
-      // extract description of props
-      let propTys = propsTy.getProperties();
-      let props = propTys.map(tySym => {
-        let propName = _.camelCase(tySym.getName());
-        let required = true;
-        let ty = tc.getTypeOfSymbolAtLocation(tySym, tySym.valueDeclaration);
-        if (ty.flags & ts.TypeFlags.UnionOrIntersection) {
-          required = !ty.types.some(fieldTy => fieldTy.flags & ts.TypeFlags.Undefined);
-        }
+          return { name: propName, comment: getComment(tySym), required };
+        });
 
-        return { name: propName, comment: getComment(tySym), required };
-      });
-
-      // extract description of component
-      components[exprt.getName()].members.push({
-        name: member.getName(),
-        comment: getComment(member),
-        props,
-      });
+        // extract description of component
+        components[exprt.getName()].members.push({
+          name: member.getName(),
+          exportType,
+          comment: getComment(member),
+          props,
+        });
+      } else {
+        components[exprt.getName()].members.push({
+          name: member.getName(),
+          exportType,
+          comment: getComment(member),
+        });
+      }
     });
   });
 
@@ -104,15 +113,24 @@ export interface ComponentPropMeta {
 }
 
 export interface ComponentMeta {
+  exportType: "component";
   name: string;
   comment?: string;
   props: ComponentPropMeta[];
 }
 
+export interface OtherMeta {
+  exportType: "other";
+  name: string;
+  comment?: string;
+}
+
+export type MemberMeta = ComponentMeta | OtherMeta;
+
 export interface ComponentModuleMeta {
   module: string;
   comment?: string;
-  members: ComponentMeta[];
+  members: MemberMeta[];
 }
 
 export const componentMeta: ComponentModuleMeta[];`.trim()

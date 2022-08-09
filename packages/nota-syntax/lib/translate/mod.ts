@@ -328,10 +328,14 @@ export class Translator {
       case mdTerms.ATXHeading4:
       case mdTerms.ATXHeading5:
       case mdTerms.ATXHeading6: {
-        let depth = type - mdTerms.ATXHeading1 + 1;
+        let depth = type - mdTerms.ATXHeading1;
+        let elNames = [`Section`, `Subsection`, `Subsubsection`];
+        if (depth > elNames.length) {
+          throw new Error("Can only do headings up to three ###");
+        }
         // slice(1) for HeaderMark
         let children = this.translateMdInlineSequence(mdChildren.slice(1));
-        expr = toReact(strLit(`h${depth}`), [], children);
+        expr = toReact(t.identifier(elNames[depth]), [], children);
         break;
       }
 

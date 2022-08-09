@@ -177,24 +177,26 @@ let ComponentToolbar = ({ viewState }: { viewState: ViewState }) => {
           <div className="subpanel">
             {(() => {
               let { members } = componentMeta.find(({ module }) => module == selected)!;
-              return members.map((meta, i) => (
-                <>
-                  {i > 0 ? <div className="divider" /> : null}
-                  <div
-                    className="component"
-                    key={i}
-                    onClick={action(() => {
-                      viewState.showComponents = false;
-                      insertComponent(viewState.editor!, meta);
-                    })}
-                  >
-                    <div>
-                      <code>@{meta.name}</code>
+              return members
+                .filter(({ exportType }) => exportType == "component")
+                .map((meta, i) => (
+                  <>
+                    {i > 0 ? <div className="divider" /> : null}
+                    <div
+                      className="component"
+                      key={i}
+                      onClick={action(() => {
+                        viewState.showComponents = false;
+                        insertComponent(viewState.editor!, meta as ComponentMeta);
+                      })}
+                    >
+                      <div>
+                        <code>@{meta.name}</code>
+                      </div>
+                      <div className="comment">{meta.comment}</div>
                     </div>
-                    <div className="comment">{meta.comment}</div>
-                  </div>
-                </>
-              ));
+                  </>
+                ));
             })()}
           </div>
           <div className="divider" />
@@ -202,7 +204,10 @@ let ComponentToolbar = ({ viewState }: { viewState: ViewState }) => {
       ) : null}
       <div className="subpanel">
         {componentMeta
-          .filter(({ members }) => members.length > 0)
+          .filter(
+            ({ members }) =>
+              members.filter(({ exportType }) => exportType == "component").length > 0
+          )
           .map(({ module, comment }, i) => (
             <>
               {i > 0 ? <div className="divider" /> : null}

@@ -1,1 +1,1 @@
-el("h2", {}, " hello");
+el(Subsection, {}, " hello");

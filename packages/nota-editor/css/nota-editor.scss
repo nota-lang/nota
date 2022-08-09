@@ -32,6 +32,7 @@
     display: flex;
     gap: 8px;
     height: 100%;
+    min-height: 500px;
 
     .comment {
       text-align: left;
@@ -65,8 +66,13 @@
 
   .editor-toolbar {
     .buttons {
+      padding: 5px;
       display: flex;
       gap: 5px;
+
+      button {
+        font-size: 12px;
+      }
     }
   }  
 }
