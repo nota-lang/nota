@@ -38,6 +38,7 @@ export let cli = (
     let format = extra.format || "esm";
 
     let external = format != "iife" ? extra.external || pkgExternal : [];
+    log.debug(`External: ${JSON.stringify(external)}`);
 
     if (format == "esm") {
       plugins.push(esmExternalsPlugin({ externals: external }));

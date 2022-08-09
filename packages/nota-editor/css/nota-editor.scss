@@ -10,6 +10,67 @@
   top: 2px;
 }
 
+.nota-editor {
+  height: 100%;
+  
+  .editor-wrapper {
+    position: relative;
+  }
+
+  .editor-el {
+    overflow-y: auto;
+    height: 100%;
+  }
+
+  .components-panel {
+    position: absolute;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    top: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    gap: 8px;
+    height: 100%;
+
+    .comment {
+      text-align: left;
+      font-size: 85%;
+      padding-left: 10px;
+      line-height: 1em;
+    }
+
+    .divider {      
+      background: #ccc;
+      flex: 0 0 1px;
+    }
+
+    .component, .module {
+      cursor: pointer;
+
+      &.selected {
+        font-weight: bold;
+      }
+    }
+
+    .subpanel {
+      height: 100%;
+      overflow-x: auto;
+      display: flex;      
+      flex-direction: column;
+      gap: 0.5em;
+      width: 250px;
+    }
+  }
+
+  .editor-toolbar {
+    .buttons {
+      display: flex;
+      gap: 5px;
+    }
+  }  
+}
+
 .translate-error {
   position: fixed;
   z-index: 1000;

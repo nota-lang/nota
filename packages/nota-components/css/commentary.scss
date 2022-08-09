@@ -1,18 +1,20 @@
-.comments {
-  position: relative;
-  height: 100%;
-}
-
-.comment {
-  border: 1px solid #999;
-  background: white;
-  padding: 0.5rem;
-  border-radius: 4px;
-  display: inline-block;
-  position: absolute;
-  left: 0;
-
-  > p:first-child {
-    text-indent: 0;
+.commentary {
+  .comments {
+    position: relative;
+    height: 100%;
+  }
+  
+  .comment {
+    border: 1px solid #999;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+  
+    > p:first-child {
+      text-indent: 0;
+    }
   }
 }

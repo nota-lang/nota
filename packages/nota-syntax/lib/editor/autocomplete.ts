@@ -6,14 +6,11 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 
-//@ts-ignore
-import COMPONENTS from "../translate/components.js";
+// import COMPONENTS from "../translate/components.js";
 import { INTRINSIC_ELEMENTS } from "../translate/intrinsic-elements.js";
 import { jsTerms, mdTerms } from "./mod.js";
 
-let notaElements = Object.keys(COMPONENTS as { [k: string]: string }).filter(
-  name => name[0].match(/[A-Z$]/) !== null
-);
+let notaElements = Object.keys({} /*COMPONENTS*/).filter(name => name[0].match(/[A-Z$]/) !== null);
 let prelude: Completion[] = Array.from(INTRINSIC_ELEMENTS)
   .map(label => ({ label, type: "react", boost: -1 }))
   .concat(

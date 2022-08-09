@@ -33,6 +33,9 @@
     "@codemirror/language": "^6.2.0",
     "@codemirror/state": "^6.1.0",
     "@codemirror/view": "^6.1.0",
+    "@fortawesome/fontawesome-svg-core": "^6.1.2",
+    "@fortawesome/free-solid-svg-icons": "^6.1.2",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@nota-lang/nota-components": "^0.4.7",
     "@nota-lang/nota-syntax": "^0.4.7",
     "classnames": "^2.3.1",
@@ -44,6 +47,7 @@
   },
   "peerDependencies": {
     "mobx": "^6.6.1",
+    "mobx-react": "^7.5.2",
     "react": "^18.2.0"
   },
   "devDependencies": {
@@ -56,6 +60,7 @@
     "@types/prettier": "^2.6.3",
     "@types/react": "^18.0.15",
     "mobx": "^6.6.1",
+    "mobx-react": "^7.5.2",
     "react": "^18.2.0",
     "sass": "^1.53.0"
   },

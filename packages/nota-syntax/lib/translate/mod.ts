@@ -24,6 +24,7 @@ import type {
 import type { SyntaxNode, Tree } from "@lezer/common";
 import { assert, unreachable } from "@nota-lang/nota-common";
 import { Either, isLeft, isRight, left, right } from "@nota-lang/nota-common/dist/either.js";
+import { componentMeta } from "@nota-lang/nota-components/dist/component-meta.js";
 import he from "he";
 import indentString from "indent-string";
 import _ from "lodash";
@@ -32,8 +33,6 @@ import path from "path";
 import type { Terms } from "../parse/extensions/nota.js";
 import { jsTerms, mdTerms } from "../parse/mod.js";
 import * as t from "./babel-polyfill.js";
-//@ts-ignore
-import COMPONENTS from "./components.js";
 import { INTRINSIC_ELEMENTS } from "./intrinsic-elements.js";
 
 export let babelPolyfill = t;
@@ -1281,7 +1280,9 @@ export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOpt
     [t.spreadElement(docBody)]
   );
 
-  let prelude: { [k: string]: string } = COMPONENTS;
+  let prelude: { [k: string]: string } = _.fromPairs(
+    componentMeta.map(({ module, members }) => members.map(({ name }) => [name, module])).flat()
+  );
 
   let usedPrelude: Set<string> = new Set();
   t.traverse(doc, node => {

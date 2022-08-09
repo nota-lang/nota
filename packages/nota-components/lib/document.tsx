@@ -41,6 +41,7 @@ let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   </li>
 );
 
+/** A list of links to each section in the document */
 export let TableOfContents: React.FC = observer(({}) => {
   let docCtx = useContext(DocumentContext);
   return (
@@ -58,7 +59,16 @@ export let TableOfContents: React.FC = observer(({}) => {
 });
 TableOfContents.displayName = "TableOfContents";
 
-export let Section: FCC<{ plain?: boolean; name?: string }> = ({ children, plain, ...props }) => {
+export interface SectionProps {
+  /** If true, then the section is not numbered */
+  plain?: boolean;
+
+  /** Name of the section for use with &-references */
+  name?: string;
+}
+
+/** The title to a section of the document */
+export let Section: FCC<SectionProps> = ({ children, plain, ...props }) => {
   let docCtx = useContext(DocumentContext);
   let pos = docCtx.sections.position();
   let level = pos.level();
@@ -109,7 +119,13 @@ class FigureData {
 
 let FigureContext = React.createContext<FigureData>(new FigureData());
 
-export let Figure: FCC<{ name?: string }> = props => {
+export interface FigureProps {
+  /** Name of the figure for use with &-references */
+  name?: string;
+}
+
+/** Content that should be visually separated from the page flow  */
+export let Figure: FCC<FigureProps> = props => {
   let docCtx = useContext(DocumentContext);
   let pos = docCtx.figures.push();
   let level = pos.level();
@@ -150,13 +166,20 @@ export let Figure: FCC<{ name?: string }> = props => {
 
 export let Subfigure: typeof Figure = Figure;
 
+/** The text beneath a figure */
 export let Caption: FCC = props => {
   let ctx = useContext(FigureContext);
   ctx.caption = <>{props.children}</>;
   return null;
 };
 
-export let Wrap: FCC<{ align: CSS.Property.Float }> = ({ align, children }) => (
+export interface WrapProps {
+  /** Whether the content should be on the left or right */
+  align: CSS.Property.Float;
+}
+
+/** Puts block-level content into the text flow by wrapping text around it */
+export let Wrap: FCC<WrapProps> = ({ align, children }) => (
   <div className={`wrap ${align}`}>{children}</div>
 );
 
@@ -181,6 +204,7 @@ export let FullWidthContainer: React.FC<HTMLAttributes> = ({ style, className, .
   );
 };
 
+/** Puts multiple blocks side-by-side */
 export let Row: FCC<HTMLAttributes> = ({ children, className, ...props }) => {
   return (
     <div {...props} className={classNames("row", className)}>
@@ -189,11 +213,18 @@ export let Row: FCC<HTMLAttributes> = ({ children, className, ...props }) => {
   );
 };
 
+/** Centers its children */
 export let Center: FCC = ({ children }) => {
   return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
 };
 
-export let Expandable: FCC<{ prompt: JSX.Element }> = ({ children, prompt }) => {
+export interface ExpandableProps {
+  /** Text to put on the button */
+  prompt: JSX.Element;
+}
+
+/** Hides its children by default and provides a button for the reader to expand it */
+export let Expandable: FCC<ExpandableProps> = ({ children, prompt }) => {
   let scrollPlugin = usePlugin(ScrollPlugin);
   let ref = useRef(null);
   let [show, setShow] = useState(false);
