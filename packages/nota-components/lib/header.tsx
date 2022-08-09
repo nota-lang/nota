@@ -95,6 +95,6 @@ export let Authors: FCC = ({ children }) => {
   );
 };
 
-export let Title: FCC = ({ children }) => <h1 className="document-title">{children}</h1>;
+export let Title: FCC = ({ children }) => <div className="document-title">{children}</div>;
 
 export let Abstract: FCC = ({ children }) => <div className="abstract">{children}</div>;

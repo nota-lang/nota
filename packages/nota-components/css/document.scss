@@ -294,7 +294,9 @@ sup.footnote-marker {
 .toc-wrapper {
   .toc {
     .toc-header {
-      font: bold var(--size-LARGE) var(--font-header);
+      font-weight: bold;
+      font-size: var(--size-LARGE);
+      font-family: var(--font-header);
     }
   
     li.bullet {

@@ -81,11 +81,11 @@ export let Section: FCC<SectionProps> = ({ children, plain, ...props }) => {
   >;
   /* eslint react/display-name: off */
   if (!level || level == 1) {
-    Header = props => <h2 {...props} />;
+    Header = props => <h1 {...props} />;
   } else if (level == 2) {
-    Header = props => <h3 {...props} />;
+    Header = props => <h2 {...props} />;
   } else {
-    Header = props => <h4 {...props} />;
+    Header = props => <h3 {...props} />;
   }
   Header.displayName = "Header";
 
