@@ -550,17 +550,26 @@ export let notaTemplateInline = (cx: InlineContext, pos: number, delim: number):
 export let notaTemplateBlock = (
   cx: BlockContext,
   line: Line,
-  parseEnd: (cx: BlockContext, line: Line) => BlockResult
-): Element => {
-  let start = cx.lineStart + line.pos;
+  start: number,
+  parseEnd: (contents: string) => number
+): Element | null => {
+  let first = start;
   let children = [];
-  while (parseEnd(cx, line) === BLOCK_FAIL) {
-    children.push(
-      cx.elt("NotaTemplateMark", cx.lineStart + line.pos, cx.lineStart + line.text.length)
-    );
-    if (!cx.nextLine()) break;
+  let end;
+  while (true) {
+    let index = parseEnd(line.text.slice(start - cx.lineStart));
+    if (index >= 0) {
+      end = start + index;
+      children.push(cx.elt("NotaTemplateMark", start, end));
+      break;
+    } else {
+      end = cx.lineStart + line.text.length;
+      children.push(cx.elt("NotaTemplateMark", start, end));
+      if (!cx.nextLine()) return null;
+      start = cx.lineStart + line.pos;
+    }
   }
-  return cx.elt("NotaTemplateBlock", start, cx.prevLineEnd(), children);
+  return cx.elt("NotaTemplateBlock", first, end, children);
 };
 
 export type Terms = { [key: string]: number };

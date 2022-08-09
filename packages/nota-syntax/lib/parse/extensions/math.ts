@@ -23,13 +23,14 @@ let parseMathInline = (cx: InlineContext, next: number, pos: number): number => 
 
 let parseMathBlock = (cx: BlockContext, line: Line): BlockResult => {
   if (line.text.slice(line.pos).startsWith("$$")) {
-    let start = cx.lineStart + line.pos;
-    let startDelim = cx.elt("MathMark", cx.lineStart + line.pos, cx.lineStart + line.pos + 2);
-    cx.nextLine();
-    let contents = notaTemplateBlock(cx, line, (_cx, line) =>
-      line.text.slice(line.pos).startsWith("$$")
-    );
-    let endDelim = cx.elt("MathMark", cx.lineStart + line.pos, cx.lineStart + line.pos + 2);
+    let pos = cx.lineStart + line.pos;
+    let start = pos;
+    let startDelim = cx.elt("MathMark", pos, pos + 2);
+    pos += 2;
+
+    let contents = notaTemplateBlock(cx, line, pos, text => text.indexOf("$$"));
+    if (!contents || contents.to + 2 < cx.lineStart + line.text.length) return false;
+    let endDelim = cx.elt("MathMark", contents.to, contents.to + 2);
     cx.addElement(cx.elt("MathBlock", start, endDelim.to, [startDelim, contents, endDelim]));
     cx.nextLine();
     return true;
