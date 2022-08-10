@@ -1,0 +1,23 @@
+[
+  el(
+    "p",
+    {},
+    el(
+      "a",
+      {
+        href: "http://example.com",
+      },
+      "link"
+    ),
+    " ",
+    el(
+      "a",
+      {
+        href: "http://other.com",
+      },
+      "Other"
+    )
+  ),
+  null,
+  null,
+];

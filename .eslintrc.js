@@ -38,6 +38,7 @@ module.exports = {
         "no-empty-pattern": "off",
         "no-undef": "off",
         "no-unused-vars": "off",
+        "no-cond-assign": "off",
         "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         "no-constant-condition": ["error", {"checkLoops": false}],
         "prettier/prettier": "error"

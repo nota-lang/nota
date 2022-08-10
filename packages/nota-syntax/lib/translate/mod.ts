@@ -21,7 +21,7 @@ import type {
   StringLiteral,
   TemplateElement,
 } from "@babel/types";
-import type { SyntaxNode, Tree } from "@lezer/common";
+import type { SyntaxNode, SyntaxNodeRef, Tree } from "@lezer/common";
 import { assert, unreachable } from "@nota-lang/nota-common";
 import { Either, isLeft, isRight, left, right } from "@nota-lang/nota-common/dist/either.js";
 import { componentMeta } from "@nota-lang/nota-components/dist/component-meta.js";
@@ -91,13 +91,27 @@ export class Translator {
   abstract?: Expression;
   imports: Set<ImportDeclaration> = new Set();
   exports: Set<ExportDeclaration> = new Set();
+  private refLinks: { [name: string]: string } = {};
 
-  constructor(input: string) {
+  constructor(input: string, tree: Tree) {
     this.input = input;
     this.lineMap = new LineMap(this.input);
+    this.findRefLinks(tree);
   }
 
-  text(cursor: SyntaxNode): string {
+  private findRefLinks(tree: Tree) {
+    tree.cursor().iterate(nodeRef => {
+      if (nodeRef.name == "LinkReference") {
+        let node = nodeRef.node;
+        let name = node.getChild("LinkLabel")!;
+        let url = node.getChild("URL")!;
+        this.refLinks[this.text(name).toLowerCase()] = this.text(url);
+      }
+      return true;
+    });
+  }
+
+  text(cursor: SyntaxNode | SyntaxNodeRef): string {
     return this.input.slice(cursor.from, cursor.to);
   }
 
@@ -199,14 +213,30 @@ export class Translator {
       switch (type) {
         // Markdown builtins:
         case mdTerms.Link: {
+          // link text
           let linkMarkIndexes = mdChildren
             .map<[Either<SyntaxNode, string>, number]>((node, i) => [node, i])
             .filter(([node]) => isLeft(node) && node.value.type.id == mdTerms.LinkMark)
             .map(([_, i]) => i);
           let display = mdChildren.slice(linkMarkIndexes[0] + 1, linkMarkIndexes[1]);
-          let url = node.getChild(mdTerms.URL)!;
           let children = this.translateMdInlineSequence(display);
-          expr = toReact(strLit("a"), [[strLit("href"), strLit(this.text(url))]], children);
+
+          // link url
+          let child;
+          let url;
+          if ((child = node.getChild(mdTerms.URL))) {
+            url = strLit(this.text(child));
+          } else {
+            let refName = (child = node.getChild(mdTerms.LinkLabel))
+              ? this.text(child)
+              : this.text(node);
+            refName = refName.toLowerCase();
+            if (!(refName in this.refLinks)) {
+              throw new Error(`Link to missing ref: ${refName}`);
+            }
+            url = strLit(this.refLinks[refName]);
+          }
+          expr = toReact(strLit("a"), [[strLit("href"), url]], children);
           break;
         }
 
@@ -377,6 +407,11 @@ export class Translator {
         });
         let tag = type == mdTerms.OrderedList ? "ol" : "ul";
         expr = toReact(strLit(tag), [], items);
+        break;
+      }
+
+      case mdTerms.LinkReference: {
+        expr = t.nullLiteral();
         break;
       }
 
@@ -1274,7 +1309,7 @@ export let lambda = (body: Expression) =>
 
 export let translateAst = ({ input, tree, debugExports, extraCss }: TranslateOptions): Program => {
   let node = tree.topNode;
-  let translator = new Translator(input);
+  let translator = new Translator(input, tree);
 
   let docBody = translator.translateMdDocument(node);
   let docProps = t.identifier("docProps");
