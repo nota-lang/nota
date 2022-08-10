@@ -1,7 +1,11 @@
 import { getManifest } from "@nota-lang/esbuild-utils";
-import fs from "fs/promises";
+import * as cp from "child_process";
+import fs from "fs-extra";
 import _ from "lodash";
 import ts from "typescript";
+import { promisify } from "util";
+
+let exec = promisify(cp.exec);
 
 let getComponents = () => {
   let host = ts.createCompilerHost({});
@@ -77,6 +81,10 @@ let getComponents = () => {
 let main = async () => {
   await fs.mkdir("dist", { recursive: true });
 
+  let watch = process.argv.includes("-w");
+  let sass = exec(`sass -I node_modules css/index.scss dist/index.css ${watch ? "-w" : ""}`);
+  let tsc = exec(`tsc ${watch ? "-w" : ""}`);
+
   let manifest = getManifest();
   let modules = Object.keys(manifest.peerDependencies).concat(["react-dom/client"]);
 
@@ -139,6 +147,8 @@ export const componentMeta: ComponentModuleMeta[];`.trim()
     "dist/component-meta.js",
     `export let componentMeta = ${JSON.stringify(components)}`
   );
+
+  await Promise.all([sass, tsc]);
 };
 
 main();

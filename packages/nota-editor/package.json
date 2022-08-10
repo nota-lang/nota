@@ -20,7 +20,7 @@
     "url": "git+https://github.com/nota-lang/nota.git"
   },
   "scripts": {
-    "build": "mkdir -p dist && cp lib/source-map.js dist && sass -I node_modules css/nota-editor.scss dist/index.css && tsc",
+    "build": "node build.mjs",
     "lint": "eslint --ext js,ts,tsx lib"
   },
   "bugs": {
