@@ -16,7 +16,7 @@ import { $$, TexPlugin, texDefAnchor, texRef } from "./tex.js";
 
 const r = String.raw;
 
-export type InputSyntaxBranch = [string, NotaFn, (() => NotaText[])?];
+export type InputSyntaxBranch = [string, NotaFn, (() => NotaText[])?, (() => NotaText)?];
 export type InputSyntaxSort = [string, string, NotaText, InputSyntaxBranch[]?];
 export type InputGrammar = InputSyntaxSort[];
 
@@ -24,6 +24,7 @@ type SyntaxBranch = {
   subcmd: string;
   body: NotaFn;
   args: () => NotaText[];
+  comment?: () => NotaText;
 };
 type SyntaxSort = {
   kind: string;
@@ -46,10 +47,11 @@ export class Language {
 
   constructor(grammar: () => InputGrammar) {
     this._grammar = grammar.call(this).map(([kind, cmd, metavar, inBranches]) => {
-      let branches = (inBranches || []).map(([subcmd, body, args]) => ({
+      let branches = (inBranches || []).map(([subcmd, body, args, comment]) => ({
         subcmd,
         body,
         args: args || (() => []),
+        comment,
       }));
       return { kind, cmd, metavar, branches };
     });
@@ -163,10 +165,11 @@ export class Language {
         }
       }
 
+      let hasComments = sizedBranches.some(([{ comment }]) => comment);
       let [rows] = sizedBranches.reduce(
         ([rows, curWidth], [branch, dims]) => {
           let lastRow = rows[rows.length - 1];
-          if (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0) {
+          if (hasComments || (curWidth + dims.width > MAX_ROW_WIDTH && lastRow.length > 0)) {
             rows.push([branch]);
             curWidth = dims.width;
           } else {
@@ -175,7 +178,7 @@ export class Language {
           }
           return [rows, curWidth];
         },
-        [[[]] as SyntaxBranch[][], 0]
+        [[] as SyntaxBranch[][], 0]
       );
 
       let makeRhs = (hl?: string) => {
@@ -183,30 +186,32 @@ export class Language {
           return "";
         }
 
-        let str = addBetween(
-          rows
-            // if we're highlighting a specific branch, then remove other rows
-            .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
-            .map(row => {
-              let addEllipsis = (hl && rows.length > 1) || branchesAreSubset;
-              return (
-                addBetween(
-                  row.map(branch => {
-                    let tex = branchToTex(cmd)(branch);
-                    if (hl && branch.subcmd == hl) {
-                      tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
-                    } else {
-                      tex = [r`\htmlData{defanchor=`, `tex_${cmd}${branch.subcmd}`, `}{`, tex, `}`];
-                    }
-                    return tex;
-                  }),
-                  r`\mid`
-                ) as NestedArray<any>
-              ).concat(addEllipsis ? [r`\mid \ldots`] : []);
-            }),
-          r`\\& & & && &&\mid`
-        );
-        return [`::= ~ &&`, str];
+        let addEllipsis = (hl && rows.length > 1) || branchesAreSubset;
+        let renderedBranches = rows
+          // if we're highlighting a specific branch, then remove other rows
+          .filter(row => !hl || _.some(row, branch => branch.subcmd == hl))
+          .map(row => {
+            return addBetween(
+              row.map(branch => {
+                let tex = branchToTex(cmd)(branch);
+                if (hl && branch.subcmd == hl) {
+                  tex = [r`\htmlClass{tex-highlight}{`, tex, `}`];
+                } else {
+                  tex = [r`\htmlData{defanchor=`, `tex_${cmd}${branch.subcmd}`, `}{`, tex, `}`];
+                }
+                if (branch.comment) {
+                  tex = tex.concat(r` && \text{`, branch.comment.bind(this)(), `}`);
+                }
+                return tex;
+              }),
+              r`\mid`
+            ) as NestedArray<any>;
+          });
+        if (addEllipsis) {
+          renderedBranches.unshift([r`\ldots`]);
+        }
+        let str = addBetween(renderedBranches, r`\\& & & && &&\mid`);
+        return [r`::= && \mid`, str];
       };
 
       kind = kind.replace(/ /g, r`\ `);

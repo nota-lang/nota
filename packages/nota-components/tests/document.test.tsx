@@ -24,7 +24,7 @@ describe("document", () => {
     );
 
     let paragraphs = Array.from(
-      baseElement.querySelectorAll<HTMLElement>(".nota-document-inner > p")
+      baseElement.querySelectorAll<HTMLElement>(".nota-document > p")
     );
     let contents = ["A B\nC", "D", "E<span>F</span>"];
     zipExn(paragraphs, contents).map(([p, html]) => {
@@ -49,7 +49,7 @@ describe("document", () => {
     await waitFor(() => expect(toc.querySelector("li")).not.toBeNull());
 
     let [intro, conclusion] = Array.from(
-      baseElement.querySelectorAll<HTMLElement>(".nota-document-inner > section")!
+      baseElement.querySelectorAll<HTMLElement>(".nota-document > section")!
     );
     getByText(intro, "Introduction");
     getByText(intro, "In this paper...");

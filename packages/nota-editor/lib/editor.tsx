@@ -343,7 +343,9 @@ export let Editor: React.FC<EditorProps> = observer(({ embedded }) => {
     <div className={classNames("nota-editor", { embedded })}>
       <EditorToolbar viewState={viewState} />
       <div className="editor-wrapper">
-        <div className="editor-el" ref={ref} />
+        <div className="editor-frame">
+          <div ref={ref} />
+        </div>
         {viewState.showComponents ? <ComponentToolbar viewState={viewState} /> : null}
       </div>
     </div>

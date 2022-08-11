@@ -11,15 +11,18 @@
 }
 
 .nota-editor {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   
   .editor-wrapper {
     position: relative;
+    min-height: 0;
   }
 
-  .editor-el {
-    overflow-y: auto;
+  .editor-frame {
     height: 100%;
+    overflow-y: auto;
   }
 
   .components-panel {
@@ -31,8 +34,9 @@
     background: white;
     display: flex;
     gap: 8px;
-    height: 100%;
+    height: calc(100% - 1rem);
     min-height: 500px;
+    box-sizing: border-box;
 
     .comment {
       text-align: left;

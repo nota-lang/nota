@@ -375,27 +375,6 @@ export let Acknowledgments: FCC = ({ children }) => {
   );
 };
 
-export let DocumentInner: FCC = observer(({ children }) => {
-  let defCtx = usePlugin(DefinitionsPlugin);
-  let processed = children instanceof Array ? preprocessDocument(children) : children;
-
-  return (
-    <>
-      <div
-        className={classNames("nota-document-inner", {
-          "def-mode": defCtx.defMode,
-        })}
-      >
-        {processed}
-        <Footnotes />
-        <Logger />
-      </div>
-      <Portal />
-    </>
-  );
-});
-DocumentInner.displayName = "DocumentInner";
-
 export interface DocumentProps {
   anonymous?: boolean;
   editing?: boolean;
@@ -441,9 +420,15 @@ export let Document: FCC<DocumentProps & HTMLAttributes> = ({
     }, [onRender, children]);
   }
 
+  let processed = children instanceof Array ? preprocessDocument(children) : children;
   let inner = PLUGINS().reduce(
     (el, plugin, i) => <plugin.Provide key={i}>{el}</plugin.Provide>,
-    <DocumentInner>{children}</DocumentInner>
+    <>
+      {processed}
+      <Footnotes />
+      <Logger />
+      <Portal />
+    </>
   );
 
   // NOTE: at one point, we tried to add <React.StrictMode> to help users catch bugs.

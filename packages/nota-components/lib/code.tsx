@@ -145,7 +145,7 @@ export interface ListingDelimiterProps {
 export interface ListingProps {
   editable?: boolean;
   wrap?: boolean;
-  language?: LanguageSupport | (() => LanguageSupport);
+  language?: LanguageSupport | (() => LanguageSupport) | "text";
   onLoad?: (editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
   extensions?: Extension[];
@@ -160,6 +160,8 @@ export let Listing: FCC<ListingProps> = props => {
     if (props.language) {
       if (props.language instanceof Function) {
         language = props.language();
+      } else if (props.language === "text") {
+        language = undefined;
       } else {
         language = props.language;
       }

@@ -374,7 +374,9 @@ export class Translator {
         let attributes: [Expression, Expression][] = [];
         let codeInfo = node.getChild(mdTerms.CodeInfo);
         if (codeInfo) {
-          attributes.push([strLit("language"), this.ident(codeInfo)]);
+          let lang = this.text(codeInfo);
+          let attrVal = lang == "text" ? strLit("text") : t.identifier(lang);
+          attributes.push([strLit("language"), attrVal]);
         }
 
         let codeTexts = node.getChildren(mdTerms.CodeText)!;
