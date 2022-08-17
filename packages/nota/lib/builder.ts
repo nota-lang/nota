@@ -8,6 +8,7 @@ import { CommonOptions, nodePaths } from "./index.js";
 export interface BuilderOptions {
   watch?: boolean;
   debug?: boolean;
+  port?: number;
 }
 
 export let main = async (opts: BuilderOptions & CommonOptions) => {
@@ -23,7 +24,7 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
     external: [],
     plugins: [
       notaPlugin({ extraCss: ["@nota-lang/nota-theme-standalone/dist/index.css"] }),
-      ssrPlugin(),
+      ssrPlugin({ port: opts.port }),
       ...(opts.config.plugins || []),
     ],
   });

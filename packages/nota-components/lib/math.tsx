@@ -74,9 +74,9 @@ export let Theorem: FCC<{ name?: string; title?: string }> = ({ name, title, chi
 
   return (
     <Definition name={name} label={label} block={true}>
-      <div className="theorem">
+      <div className="theorem block">
         <Smallcaps>{label + suffix}</Smallcaps>
-        <div className="theorem-body block">{children}</div>
+        <div className="theorem-body">{children}</div>
       </div>
       <ctx.theorems.Pop />
     </Definition>

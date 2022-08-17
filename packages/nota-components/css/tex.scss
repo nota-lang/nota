@@ -1,5 +1,13 @@
 @import "katex/dist/katex.min.css";
 
+.tex {
+  &:not(.nocenter) {
+    width: min-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .katex {
   font-size: 1em;
 
@@ -17,10 +25,9 @@
   }
 }
 
-
 .katex-display {
   margin: 0;
-
+  
   > .katex {
     text-align: left;
   }

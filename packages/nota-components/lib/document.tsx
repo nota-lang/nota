@@ -215,7 +215,7 @@ export let Row: FCC<HTMLAttributes> = ({ children, className, ...props }) => {
 
 /** Centers its children */
 export let Center: FCC = ({ children }) => {
-  return <div style={{ margin: "0 auto", width: "max-content" }}>{children}</div>;
+  return <div style={{ textAlign: "center" }}>{children}</div>;
 };
 
 export interface ExpandableProps {

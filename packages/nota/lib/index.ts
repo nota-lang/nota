@@ -50,6 +50,7 @@ program.version(VERSION);
 commonOpts(program.command("build"))
   .option("-w, --watch", "Watch for changes and rebuild")
   .option("-g, --debug", "Build in debug mode")
+  .option("-p, --port <port>", "Port to run SSR server", parseInt)
   .action(async (file, { config, verbose, ...opts }) => {
     if (verbose) log.level = "debug";
     await builder.main({ file, config: await loadConfig(config), ...opts });

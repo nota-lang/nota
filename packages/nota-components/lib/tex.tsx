@@ -90,6 +90,7 @@ export let TexPlugin = new Plugin(
       contents: string,
       block: boolean = false,
       raw: boolean = false,
+      nocenter: boolean = false,
       props: any = {},
       ref?: React.RefObject<HTMLDivElement>
     ) {
@@ -195,7 +196,12 @@ export let TexPlugin = new Plugin(
       };
 
       return (
-        <Container ref={ref} block={block} className={classNames({ block })} {...props}>
+        <Container
+          ref={ref}
+          block={block}
+          className={classNames("tex", { block, nocenter })}
+          {...props}
+        >
           {translate(node)}
         </Container>
       );
@@ -206,13 +212,14 @@ export let TexPlugin = new Plugin(
 export interface TexProps {
   raw?: boolean;
   block?: boolean;
+  nocenter?: boolean;
 }
 
 // memo is important to avoid re-renders that include macro definitions
-export let Tex: FCC<TexProps & HTMLAttributes> = ({ children, raw, block, ...props }) => {
+export let Tex: FCC<TexProps & HTMLAttributes> = ({ children, raw, block, nocenter, ...props }) => {
   let ctx = usePlugin(TexPlugin);
-  return ctx.render(joinRecursive(children as any), block, raw, props);
+  return ctx.render(joinRecursive(children as any), block, raw, nocenter, props);
 };
 
-export let $: typeof Tex = props => <Tex block={false} {...props} />;
-export let $$: typeof Tex = props => <Tex block={true} {...props} />;
+export let $: typeof Tex = props => <Tex {...props} block={false} />;
+export let $$: typeof Tex = props => <Tex {...props} block={true} />;
