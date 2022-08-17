@@ -143,7 +143,7 @@ function insertComponent(editor: EditorView, { name, props }: ComponentMeta) {
   });
 }
 
-let builtinActions = {
+let builtinActions: { [key: string]: CreateInsertion } = {
   bold: () => ({ before: "**", after: "**" }),
   italic: () => ({ before: "*", after: "*" }),
   underline: () => ({ before: "@u{", after: "}" }),
@@ -239,6 +239,9 @@ let EditorToolbar = ({ viewState }: { viewState: ViewState }) => {
         </button>
         <button onClick={applyAction(builtinActions.italic)}>
           <Icon icon={icons.faItalic} />
+        </button>
+        <button onClick={applyAction(builtinActions.underline)}>
+          <Icon icon={icons.faUnderline} />
         </button>
         {/* <button>
           <Icon icon={icons.faList} />
