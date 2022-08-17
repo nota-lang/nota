@@ -1,4 +1,5 @@
 import { NotaText, joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import classNames from "classnames";
 import katex from "katex";
 import _ from "lodash";
 import React from "react";
@@ -194,7 +195,7 @@ export let TexPlugin = new Plugin(
       };
 
       return (
-        <Container ref={ref} block={block} {...props}>
+        <Container ref={ref} block={block} className={classNames({ block })} {...props}>
           {translate(node)}
         </Container>
       );

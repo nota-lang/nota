@@ -40,11 +40,11 @@ const [
   s.charCodeAt(0)
 );
 
-const BLOCK_COMPLETE = true;
-const BLOCK_FAIL = false;
-const BLOCK_CONTINUE: null = null;
-const INLINE_FAIL = -1;
-const END_OF_LINE = -1;
+export const BLOCK_COMPLETE = true;
+export const BLOCK_FAIL = false;
+export const BLOCK_CONTINUE: null = null;
+export const INLINE_FAIL = -1;
+export const END_OF_LINE = -1;
 export type BlockResult = boolean | null;
 
 const INDENT = 2;
@@ -84,7 +84,7 @@ let munchBalancedSubstringBlock = (
   return -1;
 };
 
-let munchBalancedSubstring = (
+export let munchBalancedSubstring = (
   cx: InlineContext,
   pos: number,
   left: number,
@@ -420,6 +420,12 @@ let notaInlineContentToLineEnd = (cx: InlineContext, pos: number): Element => {
   return cx.elt("NotaInlineContent", pos, end, children);
 };
 
+export let parseInlineAttributes = (cx: InlineContext, pos: number): Element | null => {
+  let attrStart = pos;
+  let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
+  return attrEnd != INLINE_FAIL ? cx.elt("NotaInlineAttributes", attrStart, attrEnd) : null;
+};
+
 class NotaInlineComponentStartParser implements InlineParser {
   name = "NotaInlineComponentStart";
 
@@ -445,11 +451,10 @@ class NotaInlineComponentStartParser implements InlineParser {
       if (pos == cx.end) return fallback();
 
       // [key: value, ...]
-      let attrStart = pos;
-      let [attrEnd] = munchBalancedSubstring(cx, attrStart, lbrkt, rbrkt);
-      if (attrEnd != INLINE_FAIL) {
-        pos = attrEnd;
-        children.push(cx.elt("NotaInlineAttributes", attrStart, attrEnd));
+      let inlineAttrs = parseInlineAttributes(cx, pos);
+      if (inlineAttrs) {
+        pos = inlineAttrs.to;
+        children.push(inlineAttrs);
       }
 
       if (pos == cx.end) return fallback();

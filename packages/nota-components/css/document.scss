@@ -5,6 +5,14 @@
   font-size: var(--size-normal);
   text-align: justify;
 
+
+  // This isn't supported in most browsers right now, but once it is,
+  // it will fix the ugliest justify bugs.
+  text-justify: distribute;
+  
+  // Note: <html> must have a lang="..." attribute for hyphens to work!
+  hyphens: auto;
+
   @include mobile {
     text-align: left;
   }
@@ -19,7 +27,7 @@
   h5,
   h6 {
     font-family: var(--font-header);
-    margin: 0;
+    margin: 0 0 0.5em 0;
     text-align: left;
     line-height: 1em;
 
@@ -41,13 +49,7 @@
   }
 
   p {
-    // Note: <html> must have a lang="..." attribute for hyphens to work!
-    hyphens: auto;
-    margin: 0;
-
-    // This isn't supported in most browsers right now, but once it is,
-    // it will fix the ugliest justify bugs.
-    text-justify: distribute;
+    margin: 0;    
 
     &.noindent {
       text-indent: 0;
@@ -89,6 +91,7 @@
 
   ul,
   ol {
+    // Resets list to start at left-side of block w/ list-style-position: inside
     padding-left: 1em;
 
     // HACK: I observed that Safari on mobile doesn't show bullets??
@@ -99,10 +102,13 @@
         list-style-position: inside;
       }
     }
+
+    li {
+      padding-left: 0.25em;
+    }
     
     > li {
       margin-bottom: 0.5em;
-      // padding-left: 0.25em;
 
       &:last-child {
         margin-bottom: 0;
@@ -133,7 +139,7 @@
   }
 
   section {
-    margin-top: 2rem;
+    margin-top: 3em;
   }
 
   &.editing .error {
@@ -153,9 +159,7 @@
     }
   }
 
-  // TODO: this is a clunky hack, can we avoid a whitelist of elements?
-  $sel: "*:not(p):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(section):not(.bib-references)";
-  section > #{$sel}, li > #{$sel}, .block > #{$sel} {
+  @mixin blockstyles {
     margin-block-start: 1em;
     margin-block-end: 1em;
   
@@ -168,6 +172,19 @@
         margin-left: 0.5em;
       }    
     }
+  }
+
+  // TODO: this is a clunky hack, can we avoid a whitelist of elements?
+  $outer: "&", "section", "li";
+  $inner: "ol, ul, table, .listing";
+  @each $o in $outer {
+    #{$o} > #{$inner} {
+      @include blockstyles;
+    }
+  }
+
+  .block {
+    @include blockstyles;
   }
 
   @include mobile {

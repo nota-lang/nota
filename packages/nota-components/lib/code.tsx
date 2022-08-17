@@ -1,10 +1,17 @@
-import { LanguageSupport, defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import {
+  LanguageSupport,
+  defaultHighlightStyle,
+  syntaxHighlighting,
+  syntaxTree,
+} from "@codemirror/language";
 import { EditorState, Extension, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView, lineNumbers } from "@codemirror/view";
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import { some } from "@nota-lang/nota-common/dist/option.js";
 import _ from "lodash";
 import React, { useEffect, useRef } from "react";
 
+import { DefinitionsPlugin } from "./definitions.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { FCC } from "./utils.js";
 
@@ -38,7 +45,7 @@ const highlightField = StateField.define<DecorationSet>({
 
 let theme = EditorView.theme({
   ".cm-scroller": {
-    fontFamily: "Inconsolata, monospace",
+    fontFamily: "var(--font-mono)",
   },
   ".cm-gutters": {
     background: "none",
@@ -94,7 +101,7 @@ export let ListingConfigure: React.FC<{ language?: LanguageSupport; wrap?: boole
 
 let parseWithDelimiters = (
   code: string,
-  delimiters: string[][]
+  delimiters: [string, string][]
 ): { outputCode?: string; ranges?: number[][]; error?: string } => {
   let [open, close] = _.unzip(delimiters);
   let makeCheck = (arr: string[]) => {
@@ -138,7 +145,7 @@ let parseWithDelimiters = (
 };
 
 export interface ListingDelimiterProps {
-  delimiters: string[][];
+  delimiters: [string, string][];
   onParse: (ranges: number[][]) => void;
 }
 
@@ -149,10 +156,24 @@ export interface ListingProps {
   onLoad?: (editor: EditorView) => void;
   delimiters?: ListingDelimiterProps;
   extensions?: Extension[];
+  autodef?: { lang: string; prefix?: string } | string;
 }
+
+let autodefLangs: { [key: string]: { [node: string]: string } } = {
+  rust: {
+    TypeItem: "TypeIdentifier",
+    TraitItem: "TypeIdentifier",
+    StructItem: "TypeIdentifier",
+    EnumItem: "TypeIdentifier",
+    UnionItem: "TypeIdentifier",
+    FunctionItem: "BoundIdentifier",
+    LetDeclaration: "BoundIdentifier",
+  },
+};
 
 export let Listing: FCC<ListingProps> = props => {
   let ctx = usePlugin(ListingPlugin);
+  let defCtx = usePlugin(DefinitionsPlugin);
   let ref = useRef(null);
 
   useEffect(() => {
@@ -175,6 +196,7 @@ export let Listing: FCC<ListingProps> = props => {
     }
     let code = joinRecursive(children);
     let parseResult = null;
+
     if (props.delimiters) {
       parseResult = parseWithDelimiters(code, props.delimiters.delimiters);
       if (parseResult.error) {
@@ -200,6 +222,35 @@ export let Listing: FCC<ListingProps> = props => {
       }),
       parent: ref.current!,
     });
+
+    if (props.autodef) {
+      let lang, prefix: string | undefined;
+      if (typeof props.autodef === "string") {
+        lang = props.autodef;
+      } else {
+        lang = props.autodef.lang;
+        prefix = props.autodef.prefix;
+      }
+
+      let tree = syntaxTree(editor.state);
+      let contents = editor.state.doc.sliceString(0);
+      let defNodes = autodefLangs[lang];
+      tree.iterate({
+        enter(node) {
+          if (node.name in defNodes) {
+            let child = node.node.getChild(defNodes[node.name]);
+            if (!child) return;
+            let name = contents.slice(child.from, child.to);
+            let fullName = (prefix || "") + name;
+            let outer = contents.slice(node.from, node.to);
+            defCtx.addDefinition(fullName, [], {
+              tooltip: some(() => <pre>{outer}</pre>),
+              label: some(() => <code>{name}</code>),
+            });
+          }
+        },
+      });
+    }
 
     if (props.onLoad) {
       props.onLoad(editor);

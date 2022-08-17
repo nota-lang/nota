@@ -1,1 +1,7 @@
-el(Ref, {}, "foo");
+el(
+  Ref,
+  {
+    bar: true,
+  },
+  "foo"
+);

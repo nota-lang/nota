@@ -34,13 +34,6 @@ class FileServer {
   constructor(private httpServer: http.Server, readonly port: number) {}
 
   static async start(opts: SsrPluginOptions): Promise<FileServer> {
-    let port = opts.port || 8000;
-    const MAX_TRIES = 10;
-    for (let i = 0; i < MAX_TRIES; i++) {
-      let in_use = await tcpPortUsed.check(port, "localhost");
-      if (!in_use) break;
-      port++;
-    }
     let fileServer = new statik.Server("./dist", {
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -48,6 +41,15 @@ class FileServer {
         "Access-Control-Allow-Headers": "Content-Type",
       },
     });
+
+    let port = opts.port || 8000;
+    const MAX_TRIES = 10;
+    for (let i = 0; i < MAX_TRIES; i++) {
+      let in_use = await tcpPortUsed.check(port, "localhost");
+      if (!in_use) break;
+      port++;
+    }
+
     let httpServer = http
       .createServer((request, response) =>
         request.addListener("end", () => fileServer.serve(request, response)).resume()
@@ -203,7 +205,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
         // And write the rendered HTML to disk once it's ready
         let content = await page.content();
-        await fs.promises.writeFile(htmlPath, content);
+        await Promise.all([fs.promises.writeFile(htmlPath, content), page.close()]);
       });
 
       await Promise.all(promises);

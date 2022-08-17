@@ -420,6 +420,7 @@ const DefaultBlockParsers: {
 } = {
   LinkReference: undefined,
 
+  //// CHANGE 1: removed indented code
   // IndentedCode(cx, line) {
   //   let base = line.baseIndent + 4
   //   if (line.indent < base) return false
@@ -466,8 +467,15 @@ const DefaultBlockParsers: {
     let infoFrom = line.skipSpace(fenceEnd),
       infoTo = skipSpaceBack(line.text, line.text.length, infoFrom);
     let marks: (Element | TreeElement)[] = [elt(Type.CodeMark, from, from + len)];
-    if (infoFrom < infoTo)
-      marks.push(elt(Type.CodeInfo, cx.lineStart + infoFrom, cx.lineStart + infoTo));
+    if (infoFrom < infoTo) {
+      let infoElt;
+      if (line.text[infoFrom] == "[") {
+        infoElt = cx.elt("NotaInlineAttributes", cx.lineStart + infoFrom, cx.lineStart + infoTo);
+      } else {
+        infoElt = elt(Type.CodeInfo, cx.lineStart + infoFrom, cx.lineStart + infoTo);
+      }
+      marks.push(infoElt);
+    }
 
     for (let first = true; cx.nextLine() && line.depth >= cx.stack.length; first = false) {
       let i = line.pos;

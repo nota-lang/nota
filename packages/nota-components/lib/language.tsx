@@ -178,7 +178,8 @@ export class Language {
           }
           return [rows, curWidth];
         },
-        [[] as SyntaxBranch[][], 0]
+        // TODO: needed but producing weird visual??
+        [[[]] as SyntaxBranch[][], 0]
       );
 
       let makeRhs = (hl?: string) => {

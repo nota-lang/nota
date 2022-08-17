@@ -1,7 +1,7 @@
 import { tags as t } from "@lezer/highlight";
 
 import { InlineContext, MarkdownConfig } from "../markdown/index.js";
-import { notaCommandName } from "./nota.js";
+import { notaCommandName, parseInlineAttributes } from "./nota.js";
 
 let amp = "&".charCodeAt(0);
 
@@ -13,8 +13,15 @@ let parseRef = (cx: InlineContext, next: number, pos: number): number => {
     let nameEl = notaCommandName(cx, pos);
     if (!nameEl) return -1;
     pos = nameEl.to;
+    let children = [ampEl, nameEl];
 
-    return cx.addElement(cx.elt("Ref", start, pos, [ampEl, nameEl]));
+    let inlineAttrs = parseInlineAttributes(cx, pos);
+    if (inlineAttrs) {
+      pos = inlineAttrs.to;
+      children.push(inlineAttrs);
+    }
+
+    return cx.addElement(cx.elt("Ref", start, pos, children));
   }
 
   return -1;

@@ -302,7 +302,11 @@ export class Translator {
           if (nameExpr.type == "Identifier") {
             nameExpr = strLit(nameExpr.name);
           }
-          expr = toReact(t.identifier("Ref"), [], [nameExpr]);
+          let inlineAttrsNode = node.getChild(jsTerms.NotaInlineAttrs);
+          let attrs = inlineAttrsNode
+            ? this.translateNotaInlineAttrs(inlineAttrsNode)
+            : t.objectExpression([]);
+          expr = toReact(t.identifier("Ref"), [t.spreadElement(attrs)], [nameExpr]);
           break;
         }
 
@@ -371,12 +375,15 @@ export class Translator {
 
       case mdTerms.CodeBlock:
       case mdTerms.FencedCode: {
-        let attributes: [Expression, Expression][] = [];
-        let codeInfo = node.getChild(mdTerms.CodeInfo);
-        if (codeInfo) {
-          let lang = this.text(codeInfo);
+        let attributes: ([Expression, Expression] | SpreadElement)[] = [];
+
+        let child;
+        if ((child = node.getChild(mdTerms.CodeInfo))) {
+          let lang = this.text(child);
           let attrVal = lang == "text" ? strLit("text") : t.identifier(lang);
           attributes.push([strLit("language"), attrVal]);
+        } else if ((child = node.getChild("NotaInlineAttrs"))) {
+          attributes.push(t.spreadElement(this.translateNotaInlineAttrs(child)));
         }
 
         let codeTexts = node.getChildren(mdTerms.CodeText)!;

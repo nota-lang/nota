@@ -1,9 +1,10 @@
 $mobile-cutoff: 800px;
 
 :root {
-  --font-body: serif;
-  --font-header: serif;
-  --font-mono: monospace;
+  $sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: #{$sans-serif};
+  --font-header: #{$sans-serif};
+  --font-mono: Inconsolata, Monaco, monospace;
 
   --size-footnote: 14px;
   --size-small: 16px;

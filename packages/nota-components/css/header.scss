@@ -5,3 +5,14 @@
   margin-bottom: 1em; 
   line-height: 1em;
 }
+
+.author {
+  font-size: var(--size-Large)
+}
+
+.abstract {
+  margin: 1em 0 2em;
+  padding: 1em;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
