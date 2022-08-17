@@ -48,7 +48,7 @@ let theme = EditorView.theme({
     fontFamily: "var(--font-mono)",
   },
   ".cm-gutters": {
-    background: "none",
+    background: "var(--bg)",
     border: "none",
   },
   ".cm-lineNumbers .cm-gutterElement": {

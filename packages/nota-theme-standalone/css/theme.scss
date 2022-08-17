@@ -3,6 +3,8 @@
 
 body {
   font-size: var(--size-normal);
+  background: var(--bg);
+  color: var(--fg);
 
   @include mobile {
     padding: 1rem;

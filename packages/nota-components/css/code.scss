@@ -4,10 +4,9 @@ pre,
 code,
 .cm-editor {
   font-family: var(--font-mono);
-  font-size: var(--size-small);
 
   @include mobile {
-    font-size: var(--size-footnote);
+    font-size: var(--size-small);
   }
 }
 
