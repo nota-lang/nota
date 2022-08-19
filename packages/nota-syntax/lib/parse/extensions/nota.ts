@@ -460,12 +460,13 @@ class NotaInlineComponentStartParser implements InlineParser {
       if (pos == cx.end) return fallback();
 
       next = cx.char(pos);
-      /*if (next == colon && pos < cx.end && cx.char(pos) == space) {
-        let inlineContent = notaInlineContentToLineEnd(cx, pos + 1);
+      if (next == colon) {
+        pos += 1;
+        let inlineContent = notaInlineContentToLineEnd(cx, pos);
         pos = inlineContent.to;
         children.push(inlineContent);
         return fallback();
-      } else*/ if (next == lbrc) {
+      } else if (next == lbrc) {
         pos += 1;
         cx.addDelimiter(NotaComponentDelimiter, start, pos - 1, true, false);
         children.forEach(child => cx.addElement(child));
