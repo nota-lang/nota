@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/nota-syntax",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "Compiler for Nota syntax",
   "author": "Will Crichton <wcrichto@cs.stanford.edu>",
   "homepage": "https://github.com/nota-lang/nota",
@@ -39,7 +39,7 @@
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.2.0",
     "@lezer/markdown": "^1.0.1",
-    "@nota-lang/nota-components": "^0.4.11",
+    "@nota-lang/nota-components": "^0.4.12",
     "he": "^1.2.0",
     "indent-string": "^5.0.0",
     "lodash": "^4.17.21",
@@ -47,8 +47,8 @@
   },
   "devDependencies": {
     "@babel/types": "^7.18.9",
-    "@nota-lang/esbuild-utils": "^0.4.11",
-    "@nota-lang/nota-common": "^0.4.11",
+    "@nota-lang/esbuild-utils": "^0.4.12",
+    "@nota-lang/nota-common": "^0.4.12",
     "@types/babel__core": "^7.1.19",
     "@types/babel__standalone": "^7.1.4",
     "@types/he": "^1.1.2",
