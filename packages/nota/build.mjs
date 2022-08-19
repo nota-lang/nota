@@ -10,14 +10,14 @@ build({
   define: {
     VERSION: JSON.stringify(pkg.version),
   },
-  plugins: [executablePlugin({paths: ["dist/index.mjs"]})],
-})
+  plugins: [executablePlugin({ paths: ["dist/index.mjs"] })],
+});
 
 build({
   entryPoints: ["lib/editor.tsx"],
   format: "iife",
   loader: {
-    '.wasm': 'file'
+    ".wasm": "file",
   },
   plugins: [sassPlugin(), copyPlugin({ extensions: [".html", ".ico"] })],
 });

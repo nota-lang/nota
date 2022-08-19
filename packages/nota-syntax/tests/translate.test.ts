@@ -84,7 +84,7 @@ let gen =
   (input: string): string => {
     try {
       let tree = resUnwrap(tryParse(input));
-      printTree(tree, input);
+      // printTree(tree, input);
       let translator = new Translator(input, tree);
       let stmt = f(translator, tree.topNode);
       let program = t.program([stmt]);
