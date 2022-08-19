@@ -3,7 +3,7 @@ import commonPathPrefix from "common-path-prefix";
 import { Plugin } from "esbuild";
 import fs from "fs";
 import http from "http";
-import _, { eq } from "lodash";
+import _ from "lodash";
 import statik from "node-static";
 import path from "path";
 import puppeteer from "puppeteer";
@@ -158,7 +158,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
     // TODO: make this incremental when watching many endpoints, right now they all get recompiled
     // on every change
     build.onEnd(async _args => {
-      log.info("Waiting for headless browser to launch...");
+      log.info("Waiting for browser (may take ~15s the first build)...");
       let [browser, fileServer] = await Promise.all([browserPromise, fileServerPromise]);
 
       let entryPoints = build.initialOptions.entryPoints as string[];
@@ -175,12 +175,22 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
         await page.setViewport({ width: 1720, height: 720 });
 
         // Pipe in-page logging to the terminal for debugging purposes
+        let logPrefix = c.italic(`(${dir}/${name})`);
         page
-          .on("console", message =>
-            log.info(c.italic(`console.log(${dir}/${name}):`) + " " + message.text())
-          )
-          .on("pageerror", err => log.error(err.toString()))
-          .on("error", err => log.error(err.toString()));
+          .on("console", message => {
+            let text = message.text();
+            if (text.includes("Download the React DevTools")) return;
+            log.info(logPrefix + " " + text);
+          })
+          .on("pageerror", err => {
+            if (build.initialOptions.minify) {
+              log.info("Note: for better stack traces, try building with -g");
+            }
+            log.error(logPrefix + err.toString());
+          })
+          .on("error", err => {
+            log.error(logPrefix + err.toString());
+          });
 
         // Put the HTML into the page and wait for initial load
         let url = `http://localhost:${fileServer.port}/${dir}/`;
@@ -209,7 +219,13 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
 
         // Then wait for NOTA_READY to be set by the SSR script
         let timeout = opts.externalRenderTimeout || 10000;
-        await page.waitForFunction(NOTA_READY, { timeout });
+        try {
+          await page.waitForFunction(NOTA_READY, { timeout });
+        } catch (e) {
+          // TODO: this is incredibly verbose when piped through esbuild...
+          // can we make it better?
+          throw new Error(`${dir}/${name} failed to build`);
+        }
         await page.waitForNetworkIdle({ timeout });
 
         // await page.screenshot({ path: `./${name}.jpg` });
@@ -231,7 +247,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
           await Promise.all(
             files.map(async f => {
               if (!requestedFiles.has(f) && !f.endsWith(".html")) {
-                await fs.promises.rm(path.join("dist", f));
+                await fs.promises.rm(path.join("dist", f), { recursive: true });
               }
             })
           );
