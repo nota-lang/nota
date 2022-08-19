@@ -3,7 +3,7 @@ import commonPathPrefix from "common-path-prefix";
 import { Plugin } from "esbuild";
 import fs from "fs";
 import http from "http";
-import _ from "lodash";
+import _, { eq } from "lodash";
 import statik from "node-static";
 import path from "path";
 import puppeteer from "puppeteer";
@@ -28,6 +28,9 @@ export interface SsrPluginOptions {
 
   /** Language for the webpage */
   language?: string;
+
+  /** Automatically delete all files in dist/ directory that aren't used by Puppeteer */
+  removeUnusedFiles?: boolean;
 }
 
 class FileServer {
@@ -155,12 +158,14 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
     // TODO: make this incremental when watching many endpoints, right now they all get recompiled
     // on every change
     build.onEnd(async _args => {
+      log.info("Waiting for headless browser to launch...");
       let [browser, fileServer] = await Promise.all([browserPromise, fileServerPromise]);
 
       let entryPoints = build.initialOptions.entryPoints as string[];
       let commonPrefix =
         entryPoints.length == 1 ? path.dirname(entryPoints[0]) : commonPathPrefix(entryPoints);
 
+      let requestedFiles = new Set();
       let promises = entryPoints.map(async p => {
         let { name, dir } = getPathParts(path.relative(commonPrefix, p));
         let htmlPath = path.join("dist", dir, name + ".html");
@@ -185,7 +190,13 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
         </html>`;
         await page.setRequestInterception(true);
         page.on("request", req => {
-          if (req.url() == url) {
+          let reqUrl = req.url();
+          let prefix = `http://localhost:${fileServer.port}//`;
+          if (reqUrl.startsWith(prefix)) {
+            requestedFiles.add(reqUrl.slice(prefix.length));
+          }
+
+          if (reqUrl == url) {
             req.respond({
               body: html,
               contentType: "text/html",
@@ -213,6 +224,18 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       if (!watch) {
         fileServer.dispose();
         await browser.close();
+
+        if (opts.removeUnusedFiles) {
+          log.info("Cleaning up unused files...");
+          let files = await fs.promises.readdir("dist");
+          await Promise.all(
+            files.map(async f => {
+              if (!requestedFiles.has(f) && !f.endsWith(".html")) {
+                await fs.promises.rm(path.join("dist", f));
+              }
+            })
+          );
+        }
       }
     });
   },

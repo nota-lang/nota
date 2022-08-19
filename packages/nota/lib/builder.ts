@@ -24,7 +24,7 @@ export let main = async (opts: BuilderOptions & CommonOptions) => {
     external: [],
     plugins: [
       notaPlugin({ extraCss: ["@nota-lang/nota-theme-standalone/dist/index.css"] }),
-      ssrPlugin({ port: opts.port }),
+      ssrPlugin({ port: opts.port, removeUnusedFiles: true }),
       ...(opts.config.plugins || []),
     ],
   });
