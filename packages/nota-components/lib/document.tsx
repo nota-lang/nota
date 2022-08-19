@@ -420,7 +420,7 @@ export let Document: FCC<DocumentProps & HTMLAttributes> = ({
     }, [onRender, children]);
   }
 
-  let processed = children instanceof Array ? preprocessDocument(children) : children;
+  let processed = preprocessDocument(children instanceof Array ? children : [children]);
   let inner = PLUGINS().reduce(
     (el, plugin, i) => <plugin.Provide key={i}>{el}</plugin.Provide>,
     <>

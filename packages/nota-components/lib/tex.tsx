@@ -174,7 +174,7 @@ export let TexPlugin = new Plugin(
 
         if (node.dataset.ref) {
           return (
-            <Ref label={reactNode} nolink key={key}>
+            <Ref label={reactNode} hierarchical key={key}>
               {node.dataset.ref}
             </Ref>
           );

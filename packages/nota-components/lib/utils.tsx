@@ -39,15 +39,16 @@ export let getOrRender = <P extends object>(
   }
 };
 
-export let Container = forwardRef<HTMLDivElement, { block?: boolean } & HTMLAttributes>(
-  function Container({ block, ...props }, ref) {
-    if (block) {
-      return <div ref={ref} {...props} />;
-    } else {
-      return <span ref={ref} {...props} />;
-    }
+export let Container = forwardRef<
+  HTMLDivElement | HTMLSpanElement,
+  { block?: boolean } & HTMLAttributes
+>(function Container({ block, ...props }, ref) {
+  if (block) {
+    return <div ref={ref as any} {...props} />;
+  } else {
+    return <span ref={ref} {...props} />;
   }
-);
+});
 
 export function useMutationObserver<T extends HTMLElement = HTMLDivElement>(
   callback: MutationCallback,

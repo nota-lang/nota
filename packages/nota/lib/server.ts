@@ -24,12 +24,19 @@ export interface ServerOptions {
   static?: string;
 }
 
+const DEFAULT_CONTENTS = `\
+@Title: My Document
+
+# Introduction
+
+This document is about...`;
+
 export let main = async (opts: ServerOptions & CommonOptions) => {
   let manifest = getManifest();
 
   let inputPath = path.resolve(opts.file);
   if (!(await fileExists(inputPath))) {
-    await fs.writeFile(inputPath, "");
+    await fs.writeFile(inputPath, DEFAULT_CONTENTS);
   }
 
   let { app } = expressWs(express());

@@ -1,5 +1,12 @@
+.nota-document {
+  .ref.hierarchical {
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
 .def-mode {
-  .ref.nolink {
+  .ref.hierarchical {
     border: 1px solid rgba(19, 92, 202, 0.2);
     padding: 3px;
     display: inline-block;

@@ -170,12 +170,12 @@ export let Definition: FCC<DefinitionProps> = props => {
 
 interface RefProps {
   block?: boolean;
-  nolink?: boolean;
+  hierarchical?: boolean;
   label?: ReactConstructor | ReactNode;
 }
 
 export let Ref: FCC<RefProps> = observer(
-  ({ block, nolink, children, label: userLabel, ...props }) => {
+  ({ block, hierarchical, children, label: userLabel, ...props }) => {
     let name = joinRecursive(children);
 
     let ctx = usePlugin(DefinitionsPlugin);
@@ -205,7 +205,8 @@ export let Ref: FCC<RefProps> = observer(
           block={block}
           target={ctx.nameToHtmlId(name)}
           event={scrollEvent}
-          className={classNames("ref", { nolink })}
+          className={classNames("ref", { hierarchical })}
+          hierarchical={hierarchical}
           {...innerProps}
         >
           {inner}

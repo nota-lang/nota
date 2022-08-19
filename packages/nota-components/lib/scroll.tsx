@@ -1,7 +1,7 @@
 import React, { CSSProperties, forwardRef } from "react";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
-import { HTMLAttributes } from "./utils.js";
+import { Container, HTMLAttributes } from "./utils.js";
 
 // https://stackoverflow.com/questions/5353934/check-if-element-is-visible-on-screen
 function checkVisible(elm: any): boolean {
@@ -22,38 +22,54 @@ export interface LocalLinkProps {
   target: string;
   block?: boolean;
   event?: string;
+  hierarchical?: boolean;
 }
 
-export let LocalLink = forwardRef<HTMLAnchorElement, LocalLinkProps & HTMLAttributes>(
-  function LocalLink({ children, target, block, event, ...attrs }, ref) {
-    let plugin = usePlugin(ScrollPlugin);
+export let LocalLink = forwardRef<
+  HTMLAnchorElement | HTMLDivElement | HTMLSpanElement,
+  LocalLinkProps & HTMLAttributes
+>(function LocalLink({ children, target, block, event, hierarchical, ...attrs }, ref) {
+  let plugin = usePlugin(ScrollPlugin);
 
-    let callback: React.MouseEventHandler = e => {
+  let callback: React.MouseEventHandler = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    plugin.scrollTo(target);
+  };
+
+  event = event || "onClick";
+  let props = { [event]: callback };
+  if (event != "onClick") {
+    props.onClick = e => {
       e.preventDefault();
-      e.stopPropagation();
-      plugin.scrollTo(target);
     };
+  }
 
-    event = event || "onClick";
-    let props = { [event]: callback };
-    if (event != "onClick") {
-      props.onClick = e => {
-        e.preventDefault();
-      };
-    }
-
+  if (hierarchical) {
+    return (
+      <Container ref={ref} block={block} role="link" {...props} {...attrs}>
+        {children}
+      </Container>
+    );
+  } else {
     let style: CSSProperties = {};
     if (block) {
       style.display = "block";
     }
 
     return (
-      <a ref={ref} href={`#${target}`} style={style} {...props} {...attrs}>
+      <a
+        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+        href={`#${target}`}
+        style={style}
+        {...props}
+        {...attrs}
+      >
         {children}
       </a>
     );
   }
-);
+});
 
 export let ScrollPlugin = new Plugin(
   class extends Pluggable {
