@@ -246,8 +246,10 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
           let files = await fs.promises.readdir("dist");
           await Promise.all(
             files.map(async f => {
-              if (!requestedFiles.has(f) && !f.endsWith(".html")) {
-                await fs.promises.rm(path.join("dist", f), { recursive: true });
+              let full = path.join("dist", f);
+              let stat = await fs.promises.stat(full);
+              if (stat.isFile() && !requestedFiles.has(f) && !f.endsWith(".html")) {
+                await fs.promises.rm(full);
               }
             })
           );
