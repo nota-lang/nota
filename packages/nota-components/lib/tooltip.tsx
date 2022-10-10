@@ -1,6 +1,5 @@
 import { Instance, VirtualElement, createPopper } from "@popperjs/core";
 import _ from "lodash";
-import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
 
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
@@ -111,7 +110,7 @@ interface TooltipProps {
   Popup: ReactConstructor | ReactNode;
 }
 
-export let Tooltip: React.FC<TooltipProps> = observer(({ children: Inner, Popup }) => {
+export let Tooltip: React.FC<TooltipProps> = ({ children: Inner, Popup }) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
@@ -212,5 +211,4 @@ export let Tooltip: React.FC<TooltipProps> = observer(({ children: Inner, Popup 
       ) : null}
     </>
   );
-});
-Tooltip.displayName = "Tooltip";
+};

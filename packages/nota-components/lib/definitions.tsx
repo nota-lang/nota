@@ -2,11 +2,10 @@ import { NotaText, addBetween, joinRecursive } from "@nota-lang/nota-common/dist
 import { Option, isSome, none, optUnwrap, some } from "@nota-lang/nota-common/dist/option.js";
 import { default as classNames } from "classnames";
 import _ from "lodash";
-import { action, makeObservable, observable } from "mobx";
-import { observer } from "mobx-react";
-import React, { forwardRef, useContext, useEffect, useState } from "react";
+import React, { forwardRef, useContext, useEffect, useMemo, useState } from "react";
+import ReactDOMServer from "react-dom/server";
 
-import { Pluggable, Plugin, usePlugin } from "./plugin.js";
+import { Pluggable, Plugin, PluginContext, Plugins, usePlugin } from "./plugin.js";
 import { LocalLink } from "./scroll.js";
 import { Tooltip } from "./tooltip.js";
 import { Container, FCC, ReactConstructor, ReactNode } from "./utils.js";
@@ -23,24 +22,15 @@ export class DefinitionsData extends Pluggable {
   usedDefinitions: Set<string> = new Set();
   stateful = true;
 
-  constructor() {
-    super();
-    makeObservable(this, {
-      defs: observable.shallow,
-      defMode: observable,
-      usedDefinitions: observable,
-    });
-  }
-
-  registerUse = action((name: string) => {
+  registerUse = (name: string) => {
     this.usedDefinitions.add(name);
-  });
+  };
 
   getDefinition = (name: string): DefinitionData | undefined => {
     return this.defs[name];
   };
 
-  addDefinition = action((name: string, scope: string[], def: DefinitionData): string => {
+  addDefinition = (name: string, scope: string[], def: DefinitionData): string => {
     if (scope.length > 0) {
       name = [...scope, name].join("_");
       let label = def.label;
@@ -60,7 +50,7 @@ export class DefinitionsData extends Pluggable {
       this.defs[name] = def;
     }
     return name;
-  });
+  };
 
   allDefinitions = (namespace?: string): { [name: string]: DefinitionData } => {
     return _.fromPairs(
@@ -71,6 +61,22 @@ export class DefinitionsData extends Pluggable {
   };
 
   nameToHtmlId = (name: string): string => `def-${name.replace(":", "-")}`;
+
+  serialize(plugins: Plugins) {
+    let render = (el: Option<ReactConstructor | ReactNode>): string | undefined => {
+      if (!isSome(el)) return;
+      let rendered = getOrRender(optUnwrap(el), {});
+      return ReactDOMServer.renderToStaticMarkup(
+        <PluginContext.Provider value={plugins}>{rendered}</PluginContext.Provider>
+      );
+    };
+    return _.fromPairs(
+      Object.keys(this.defs).map(k => {
+        let def = this.defs[k];
+        return [k, { tooltip: render(def.tooltip), label: render(def.label) }];
+      })
+    );
+  }
 
   init() {
     // TODO: make this less annoying
@@ -140,7 +146,7 @@ export let Definition: FCC<DefinitionProps> = props => {
       : [_.uniqueId()]
   );
 
-  useEffect(() => {
+  useMemo(() => {
     let tooltip: DefinitionData["tooltip"];
     if (props.tooltip === null) {
       tooltip = none();
@@ -174,51 +180,50 @@ interface RefProps {
   label?: ReactConstructor | ReactNode;
 }
 
-export let Ref: FCC<RefProps> = observer(
-  ({ block, hierarchical, children, label: userLabel, ...props }) => {
-    let name = joinRecursive(children);
+export let Ref: FCC<RefProps> = ({ block, hierarchical, children, label: userLabel, ...props }) => {
+  let name = joinRecursive(children);
 
-    let ctx = usePlugin(DefinitionsPlugin);
-    useEffect(() => {
-      ctx.registerUse(name);
-    }, []);
+  let ctx = usePlugin(DefinitionsPlugin);
+  useEffect(() => {
+    ctx.registerUse(name);
+  }, []);
 
-    let def = ctx.getDefinition(name);
-    if (!def) {
-      return <span className="error">{name}</span>;
-    }
-
-    let label = userLabel !== undefined ? some(userLabel) : def.label;
-    let inner = isSome(label) ? (
-      getOrRender(optUnwrap(label), { name, ...props })
-    ) : (
-      <span className="error">
-        No label defined for <q>{name}</q>
-      </span>
-    );
-
-    let scrollEvent = isSome(def.tooltip) ? "onDoubleClick" : "onClick";
-    let RefInner = forwardRef<HTMLAnchorElement>(function RefInner(innerProps, ref) {
-      return (
-        <LocalLink
-          ref={ref}
-          block={block}
-          target={ctx.nameToHtmlId(name)}
-          event={scrollEvent}
-          className={classNames("ref", { hierarchical })}
-          hierarchical={hierarchical}
-          {...innerProps}
-        >
-          {inner}
-        </LocalLink>
-      );
-    });
-
-    if (isSome(def.tooltip)) {
-      return <Tooltip Popup={optUnwrap(def.tooltip)}>{RefInner}</Tooltip>;
-    } else {
-      return <RefInner />;
-    }
+  let def = ctx.getDefinition(name);
+  if (!def) {
+    return <span className="error">{name}</span>;
   }
-);
+
+  let label = userLabel !== undefined ? some(userLabel) : def.label;
+  let inner = isSome(label) ? (
+    getOrRender(optUnwrap(label), { name, ...props })
+  ) : (
+    <span className="error">
+      No label defined for <q>{name}</q>
+    </span>
+  );
+
+  let scrollEvent = isSome(def.tooltip) ? "onDoubleClick" : "onClick";
+  let RefInner = forwardRef<HTMLAnchorElement>(function RefInner(innerProps, ref) {
+    return (
+      <LocalLink
+        ref={ref}
+        block={block}
+        target={ctx.nameToHtmlId(name)}
+        event={scrollEvent}
+        className={classNames("ref", { hierarchical })}
+        hierarchical={hierarchical}
+        {...innerProps}
+      >
+        {inner}
+      </LocalLink>
+    );
+  });
+
+  if (isSome(def.tooltip)) {
+    return <Tooltip Popup={optUnwrap(def.tooltip)}>{RefInner}</Tooltip>;
+  } else {
+    return <RefInner />;
+  }
+};
+
 Ref.displayName = "Ref";

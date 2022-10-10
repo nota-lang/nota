@@ -22,7 +22,7 @@ import { tags as t } from "@lezer/highlight";
 import { MarkdownParser, parseCode } from "../parse/markdown/index.js";
 import { CodeTag, MathTag, configureParserForNota, fullMdParser } from "../parse/mod.js";
 import { autocomplete } from "./autocomplete.js";
-import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands";
+import { deleteMarkupBackward, insertNewlineContinueMarkup } from "./commands.js";
 
 export let { mdParser, mdTerms, jsParser, jsTerms } = configureParserForNota(fullMdParser, false);
 

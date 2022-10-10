@@ -9,14 +9,14 @@ import { ListingPlugin } from "./code.js";
 import { NestedCounter, ValueStack } from "./counter.js";
 import { Definition, DefinitionsPlugin, Ref } from "./definitions.js";
 import { Logger, LoggerPlugin } from "./logger.js";
-import { Plugin, usePlugin } from "./plugin.js";
+import { Pluggable, Plugin, PluginContext, Plugins, usePlugin } from "./plugin.js";
 import { Portal, PortalPlugin } from "./portal.js";
 import { ScrollPlugin } from "./scroll.js";
 import { TexPlugin } from "./tex.js";
 import { TooltipPlugin } from "./tooltip.js";
 import { FCC, HTMLAttributes } from "./utils.js";
 
-class DocumentData {
+export class DocumentData extends Pluggable {
   sections: NestedCounter = new NestedCounter();
   figures: NestedCounter = new NestedCounter(["1", "a"]);
   theorems: NestedCounter = new NestedCounter();
@@ -26,7 +26,7 @@ class DocumentData {
   sectionNumbers: boolean = true;
 }
 
-export let DocumentContext = React.createContext<DocumentData>(new DocumentData());
+export let DocumentPlugin = new Plugin(DocumentData);
 
 let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
   <li className={!stack.enumerated ? "bullet" : undefined}>
@@ -43,7 +43,7 @@ let Stack: React.FC<{ stack: ValueStack }> = ({ stack }) => (
 
 /** A list of links to each section in the document */
 export let TableOfContents: React.FC = observer(({}) => {
-  let docCtx = useContext(DocumentContext);
+  let docCtx = usePlugin(DocumentPlugin);
   return (
     <div className="toc-wrapper">
       <div className="toc">
@@ -69,7 +69,7 @@ export interface SectionProps {
 
 /** The title to a section of the document */
 export let Section: FCC<SectionProps> = ({ children, plain, ...props }) => {
-  let docCtx = useContext(DocumentContext);
+  let docCtx = usePlugin(DocumentPlugin);
   let pos = docCtx.sections.position();
   let level = pos.level();
   let secNum = pos.toString();
@@ -103,7 +103,7 @@ export let Subsection: typeof Section = props => <Section {...props} />;
 export let Subsubsection: typeof Section = props => <Section {...props} />;
 
 export let SectionBody: FCC = ({ children }) => {
-  let docCtx = useContext(DocumentContext);
+  let docCtx = usePlugin(DocumentPlugin);
   return (
     <section>
       <docCtx.sections.Push />
@@ -126,7 +126,7 @@ export interface FigureProps {
 
 /** Content that should be visually separated from the page flow  */
 export let Figure: FCC<FigureProps> = props => {
-  let docCtx = useContext(DocumentContext);
+  let docCtx = usePlugin(DocumentPlugin);
   let pos = docCtx.figures.push();
   let level = pos.level();
   let figNum = pos.toString();
@@ -238,10 +238,7 @@ export let Expandable: FCC<ExpandableProps> = ({ children, prompt }) => {
     });
     observer.observe(ref.current!);
 
-    // console.log("registering", id, "to", scrollPlugin);
-    scrollPlugin.registerScrollHook(id, () => {
-      setShow(true);
-    });
+    scrollPlugin.registerScrollHook(id, () => setShow(true));
 
     return () => {
       observer.disconnect();
@@ -266,13 +263,13 @@ export let Expandable: FCC<ExpandableProps> = ({ children, prompt }) => {
 };
 
 export let FootnoteDef: FCC<{ name?: string }> = ({ children }) => {
-  let ctx = useContext(DocumentContext);
+  let ctx = usePlugin(DocumentPlugin);
   ctx.footnotes.push(children);
   return null;
 };
 
 export let Footnote: FCC = ({ children }) => {
-  let ctx = useContext(DocumentContext);
+  let ctx = usePlugin(DocumentPlugin);
   let [i] = useState(ctx.footnotes.length);
   return (
     <>
@@ -283,7 +280,7 @@ export let Footnote: FCC = ({ children }) => {
 };
 
 let Footnotes: React.FC = _ => {
-  let ctx = useContext(DocumentContext);
+  let ctx = usePlugin(DocumentPlugin);
   return ctx.footnotes.length == 0 ? null : (
     <div className="footnotes">
       {ctx.footnotes.map((footnote, i) => (
@@ -378,11 +375,12 @@ export let Acknowledgments: FCC = ({ children }) => {
 export interface DocumentProps {
   anonymous?: boolean;
   editing?: boolean;
-  onRender?: () => void;
+  onRender?: (defs: any) => void;
   renderTimeout?: number;
 }
 
 const PLUGINS = (): Plugin<any>[] => [
+  DocumentPlugin,
   DefinitionsPlugin,
   TexPlugin,
   BibliographyPlugin,
@@ -401,35 +399,40 @@ export let Document: FCC<DocumentProps & HTMLAttributes> = ({
   ...htmlAttributes
 }) => {
   let ref = useRef<HTMLDivElement>(null);
-  if (onRender) {
-    useEffect(() => {
-      let last_change = Date.now();
-      let observer = new MutationObserver(_evt => {
-        last_change = Date.now();
-      });
-      observer.observe(ref.current!, { subtree: true, childList: true, attributes: true });
+  // if (onRender) {
+  //   useEffect(() => {
+  //     let last_change = Date.now();
+  //     let observer = new MutationObserver(_evt => {
+  //       last_change = Date.now();
+  //     });
+  //     observer.observe(ref.current!, { subtree: true, childList: true, attributes: true });
 
-      let timeout = renderTimeout || 1000;
-      let intvl = setInterval(() => {
-        if (Date.now() - last_change > timeout) {
-          clearInterval(intvl);
-          observer.disconnect();
-          onRender();
-        }
-      }, 50);
-    }, [onRender, children]);
-  }
+  //     let timeout = renderTimeout || 1000;
+  //     let intvl = setInterval(() => {
+  //       if (Date.now() - last_change > timeout) {
+  //         clearInterval(intvl);
+  //         observer.disconnect();
+
+  //       }
+  //     }, 50);
+  //   }, [onRender, children]);
+  // }
+
+  let plugins = new Plugins(PLUGINS());
+
+  let [rendered, setRendered] = useState(false);
+  console.debug(`Rendering ${rendered ? "second" : "first"} pass`);
+  useEffect(() => {
+    if (rendered) return;
+    setRendered(true);
+    if (onRender) {
+      let defs = plugins.getPlugin(DefinitionsPlugin);
+      let defsJson = defs.serialize(plugins);
+      onRender(defsJson);
+    }
+  });
 
   let processed = preprocessDocument(children instanceof Array ? children : [children]);
-  let inner = PLUGINS().reduce(
-    (el, plugin, i) => <plugin.Provide key={i}>{el}</plugin.Provide>,
-    <>
-      {processed}
-      <Footnotes />
-      <Logger />
-      <Portal />
-    </>
-  );
 
   // NOTE: at one point, we tried to add <React.StrictMode> to help users catch bugs.
   // But this has some insane interactions with testing-library. StrictMode causes components
@@ -437,7 +440,12 @@ export let Document: FCC<DocumentProps & HTMLAttributes> = ({
   // so it incorrectly calls React hooks again AND somehow silences stdout.
   return (
     <div ref={ref} className={classNames("nota-document", { editing })} {...htmlAttributes}>
-      <DocumentContext.Provider value={new DocumentData()}>{inner}</DocumentContext.Provider>
+      <PluginContext.Provider value={plugins}>
+        <div key={rendered.toString()}>{processed}</div>
+        <Footnotes />
+        <Logger />
+        <Portal />
+      </PluginContext.Provider>
     </div>
   );
 };

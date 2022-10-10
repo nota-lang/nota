@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Definition } from "./definitions.js";
-import { DocumentContext, Smallcaps } from "./document.js";
+import { DocumentPlugin, Smallcaps } from "./document.js";
+import { usePlugin } from "./plugin.js";
 import { ToggleGroup, ToggleGroupButton } from "./togglebox.js";
 import { FCC, HTMLAttributes, ReactConstructor, ReactNode, getOrRender } from "./utils.js";
 
@@ -67,7 +68,7 @@ export let IR: FCC<IRProps & HTMLAttributes> = ({
 };
 
 export let Theorem: FCC<{ name?: string; title?: string }> = ({ name, title, children }) => {
-  let ctx = useContext(DocumentContext);
+  let ctx = usePlugin(DocumentPlugin);
   let thmNum = ctx.theorems.push().toString();
   let label = `Theorem ${thmNum}`;
   let suffix = title ? `: ${title}` : "";

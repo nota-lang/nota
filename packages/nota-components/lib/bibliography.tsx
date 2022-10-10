@@ -1,10 +1,9 @@
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
+import { some } from "@nota-lang/nota-common/dist/option.js";
 import * as bibtexParse from "@orcid/bibtex-parse-js";
-import { action, makeObservable, observable } from "mobx";
-import { observer } from "mobx-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { Definition, DefinitionsPlugin } from "./definitions.js";
+import { Definition, DefinitionAnchor, DefinitionsData, DefinitionsPlugin } from "./definitions.js";
 import { Section } from "./document.js";
 import { Pluggable, Plugin, usePlugin } from "./plugin.js";
 import { $ } from "./tex.js";
@@ -120,19 +119,18 @@ export class BibliographyData extends Pluggable {
   citations: { [key: string]: BibliographyEntry } = {};
   stateful = true;
 
-  constructor() {
-    super();
-    makeObservable(this, {
-      citations: observable,
-    });
-  }
-
-  importBibtex = action((bibtex: string) => {
+  importBibtex = (bibtex: string, defs: DefinitionsData) => {
     let entries = bibtexParse.toJSON(bibtex);
-    entries.forEach((entry: any) => {
-      this.citations[entry.citationKey] = new BibliographyEntry(entry);
+    entries.forEach((texEntry: any) => {
+      let entry = new BibliographyEntry(texEntry);
+      let name = texEntry.citationKey;
+      this.citations[name] = entry;
+      defs.addDefinition(name, [], {
+        tooltip: some(entry.bibCite()),
+        label: some(<Cite name={name} />),
+      });
     });
-  });
+  };
 
   cite(keys: string[], full: boolean, yearonly: boolean, ex?: string) {
     let suffix = ex ? `, ${ex}` : "";
@@ -181,7 +179,7 @@ export class BibliographyData extends Pluggable {
 
 export let BibliographyPlugin = new Plugin(BibliographyData);
 
-export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }) => {
+export let References: FCC<{ bibtex?: string }> = ({ bibtex, children }) => {
   let bibCtx = usePlugin(BibliographyPlugin);
   let defCtx = usePlugin(DefinitionsPlugin);
 
@@ -189,9 +187,7 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
     bibtex = joinRecursive(children as any);
   }
 
-  useEffect(() => {
-    bibCtx.importBibtex(bibtex!);
-  }, []);
+  useMemo(() => bibCtx.importBibtex(bibtex!, defCtx), []);
 
   let keys = Object.keys(bibCtx.citations).filter(key => defCtx.usedDefinitions.has(key));
 
@@ -202,15 +198,14 @@ export let References: FCC<{ bibtex?: string }> = observer(({ bibtex, children }
         {keys
           .filter(key => key in bibCtx.citations)
           .map(key => (
-            <Definition key={key} name={key} label={Cite} block>
+            <DefinitionAnchor key={key} name={key} block>
               {bibCtx.citations[key].bibCite()}
-            </Definition>
+            </DefinitionAnchor>
           ))}
       </div>
     </>
   );
-});
-References.displayName = "References";
+};
 
 export interface CiteProps {
   name: string | string[];
@@ -219,9 +214,8 @@ export interface CiteProps {
   extra?: string;
 }
 
-export let Cite: React.FC<CiteProps> = observer(({ name, full, year, extra }) => {
+export let Cite: React.FC<CiteProps> = ({ name, full, year, extra }) => {
   let ctx = usePlugin(BibliographyPlugin);
   let keys = typeof name === "string" ? [name] : name;
   return ctx.cite(keys, full || false, year || false, extra) as any;
-});
-Cite.displayName = "Cite";
+};

@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { action, makeAutoObservable } from "mobx";
 import React from "react";
 
 export type NumberStyle = "1" | "a";
@@ -54,16 +53,15 @@ export class NestedCounter {
   constructor(styles: NumberStyle[] = ["1"]) {
     this.stack = [1];
     this.styles = styles;
-    makeAutoObservable(this);
   }
 
-  saveValue = action((value: any, enumerated: boolean = true) => {
+  saveValue = (value: any, enumerated: boolean = true) => {
     let stack = this.stack.slice(0, -2);
     let a = stack.reduce(a => _.last(a)!.children, this.values);
     let entry = _.last(a)!;
     entry.value = value;
     entry.enumerated = enumerated;
-  });
+  }
 
   position = (): CounterPosition => new CounterPosition(this.stack.slice(0, -1), this.styles);
 

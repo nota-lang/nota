@@ -70,58 +70,56 @@ export let LocalLink = forwardRef<
     );
   }
 });
+export class ScrollData extends Pluggable {
+  scrollHooks: { [id: string]: () => void } = {};
+  stateful = true;
 
-export let ScrollPlugin = new Plugin(
-  class extends Pluggable {
-    scrollHooks: { [id: string]: () => void } = {};
-    stateful = true;
+  registerScrollHook = (id: string, cb: () => void) => {
+    this.scrollHooks[id] = cb;
+  };
 
-    registerScrollHook = (id: string, cb: () => void) => {
-      this.scrollHooks[id] = cb;
-    };
+  scrollTo = (anchorId: string) => {
+    let anchorElem = document.getElementById(anchorId);
+    if (!anchorElem) {
+      console.warn(`Trying to scroll to missing element: ${anchorId}`);
+      return;
+    }
 
-    scrollTo = (anchorId: string) => {
-      let anchorElem = document.getElementById(anchorId);
-      if (!anchorElem) {
-        console.warn(`Trying to scroll to missing element: ${anchorId}`);
-        return;
+    let anchorHash = "#" + anchorId;
+    window.history.pushState(null, "", anchorHash);
+
+    let flashClass = anchorElem instanceof HTMLElement ? "yellowflash" : "yellowflash-outline";
+    anchorElem.classList.remove(flashClass);
+
+    // Hack to ensure that CSS animation will restart by forcing reflow of element.
+    // Unclear what performance implications this has if any?
+    // See: https://css-tricks.com/restart-css-animation/
+    anchorElem.getBoundingClientRect();
+
+    anchorElem.classList.add(flashClass);
+
+    // Expand any containers that wrap the anchor
+    let ancestors = getAncestors(anchorElem);
+    let expanded = false;
+    ancestors.forEach((node: any) => {
+      if ("id" in node && node.id in this.scrollHooks) {
+        this.scrollHooks[node.id]();
+        expanded = true;
       }
+    });
 
-      let anchorHash = "#" + anchorId;
-      window.history.pushState(null, "", anchorHash);
+    // Don't scroll if element is visible
+    // See: https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
+    if (!expanded && checkVisible(anchorElem)) {
+      return;
+    }
 
-      let flashClass = anchorElem instanceof HTMLElement ? "yellowflash" : "yellowflash-outline";
-      anchorElem.classList.remove(flashClass);
-
-      // Hack to ensure that CSS animation will restart by forcing reflow of element.
-      // Unclear what performance implications this has if any?
-      // See: https://css-tricks.com/restart-css-animation/
-      anchorElem.getBoundingClientRect();
-
-      anchorElem.classList.add(flashClass);
-
-      // Expand any containers that wrap the anchor
-      let ancestors = getAncestors(anchorElem);
-      let expanded = false;
-      ancestors.forEach((node: any) => {
-        if ("id" in node && node.id in this.scrollHooks) {
-          this.scrollHooks[node.id]();
-          expanded = true;
-        }
-      });
-
-      // Don't scroll if element is visible
-      // See: https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-      if (!expanded && checkVisible(anchorElem)) {
-        return;
-      }
-
-      let block: ScrollLogicalPosition =
-        anchorElem!.offsetHeight > window.innerHeight ? "start" : "center";
-      anchorElem!.scrollIntoView({
-        block,
-        inline: "center",
-      });
-    };
-  }
-);
+    let block: ScrollLogicalPosition =
+      anchorElem!.offsetHeight > window.innerHeight ? "start" : "center";
+    anchorElem!.scrollIntoView({
+      block,
+      inline: "center",
+    });
+  };
+}
+export let ScrollPlugin = new Plugin(ScrollData);

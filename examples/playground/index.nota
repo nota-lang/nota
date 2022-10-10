@@ -1,0 +1,6 @@
+@div: Hello world!!
+
+@Definition[name: "foo", label: @{**bar**}]:
+  baz
+
+&foo

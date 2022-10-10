@@ -7,6 +7,7 @@ export type ReactConstructor<P = {}> =
   | React.FunctionComponent<P>
   | React.ComponentClass<P>
   | React.ExoticComponent<P>;
+export type ReactUnknown<P = {}> = ReactNode | ReactConstructor<P>;
 
 export type FCC<T = {}> = React.FC<React.PropsWithChildren<T>>;
 
@@ -28,10 +29,7 @@ export let isConstructor = <P,>(t: any): t is ReactConstructor<P> => {
   return isFunctionComponent(t) || isComponentClass(t) || isExoticComponent(t);
 };
 
-export let getOrRender = <P extends object>(
-  T: ReactNode | ReactConstructor<P>,
-  p: P
-): ReactNode => {
+export let getOrRender = <P extends object>(T: ReactUnknown<P>, p: P): ReactNode => {
   if (isConstructor<P>(T)) {
     return <T {...p} />;
   } else {

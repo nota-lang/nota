@@ -97,7 +97,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
     };
 
     let SSR_CLASS = "ssr-env";
-    let NOTA_READY = "window.NOTA_READY";
+    let NOTA_OUTPUT = "window.NOTA_OUTPUT";
 
     build.onLoad({ filter: /./, namespace: "ssr" }, args => {
       let p = path.resolve(args.path);
@@ -131,8 +131,8 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       if (html.classList.contains("${SSR_CLASS}")) {
         html.classList.remove("${SSR_CLASS}");
         let root = ReactDOM.createRoot(html);
-        root.render(<Page {...metadata} script={"${script}"} onRender={() => {
-          ${NOTA_READY} = true;
+        root.render(<Page {...metadata} script={"${script}"} onRender={defs => {
+          ${NOTA_OUTPUT} = defs;
         }} />);
       } else {
         let rootEl = document.getElementById("root");
@@ -168,6 +168,7 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
       let requestedFiles = new Set();
       let promises = entryPoints.map(async p => {
         let { name, dir } = getPathParts(path.relative(commonPrefix, p));
+
         let htmlPath = path.join("dist", dir, name + ".html");
 
         log.info(`Rendering page: ${path.parse(p).name} -> ${htmlPath}`);
@@ -217,15 +218,17 @@ export let ssrPlugin = (opts: SsrPluginOptions = {}): Plugin => ({
         });
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
-        // Then wait for NOTA_READY to be set by the SSR script
+        // Then wait for NOTA_OUTPUT to be set by the SSR script
         let timeout = opts.externalRenderTimeout || 10000;
+        let notaOutputHandle;
         try {
-          await page.waitForFunction(NOTA_READY, { timeout });
+          notaOutputHandle = await page.waitForFunction(NOTA_OUTPUT, { timeout });
         } catch (e) {
           // TODO: this is incredibly verbose when piped through esbuild...
           // can we make it better?
           throw new Error(`${dir}/${name} failed to build`);
         }
+        // let notaOutput = await notaOutputHandle.jsonValue();
         await page.waitForNetworkIdle({ timeout });
 
         // await page.screenshot({ path: `./${name}.jpg` });

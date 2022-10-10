@@ -1,7 +1,8 @@
 import { joinRecursive } from "@nota-lang/nota-common/dist/nota-text.js";
 import React, { createContext, useContext } from "react";
 
-import { DocumentContext } from "./document.js";
+import { DocumentPlugin } from "./document.js";
+import { usePlugin } from "./plugin.js";
 import { FCC } from "./utils.js";
 
 interface AuthorAffiliation {
@@ -81,7 +82,7 @@ export let Author: FCC = ({ children }) => {
 };
 
 export let Authors: FCC = ({ children }) => {
-  let ctx = useContext(DocumentContext);
+  let ctx = usePlugin(DocumentPlugin);
   return (
     <div className="authors">
       {ctx.anonymous ? (

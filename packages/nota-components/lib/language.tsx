@@ -7,7 +7,7 @@ import {
 } from "@nota-lang/nota-common/dist/nota-text.js";
 import { none, some } from "@nota-lang/nota-common/dist/option.js";
 import _ from "lodash";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAsync } from "react-async";
 
 import { DefinitionData, DefinitionScopeContext, DefinitionsPlugin } from "./definitions.js";
@@ -72,7 +72,8 @@ export class Language {
     });
   }
 
-  BnfInner: React.FC<BnfProps & { containerRef: HTMLDivElement }> = props => {
+  Bnf: React.FC<BnfProps> = props => {
+    let ref = useRef<HTMLDivElement>(null);
     let defCtx = usePlugin(DefinitionsPlugin);
     let texCtx = usePlugin(TexPlugin);
     let scope = useContext(DefinitionScopeContext);
@@ -87,43 +88,21 @@ export class Language {
         return texDefAnchor([cmd + subcmd], argStr);
       };
 
-    let {
-      data: branchDims,
-      isPending,
-      error,
-    } = useAsync(
+    let { data } = useAsync(
       // TODO: computing dimensions is really expensive, should make this optional for "fast builds"
       useCallback(async () => {
         let branchDims = await Promise.all(
           this._grammar.map(({ cmd, branches }) =>
             Promise.all(
-              branches
-                .map(branchToTex(cmd))
-                .map(tex => texCtx.dimensions(tex, false, props.containerRef))
+              branches.map(branchToTex(cmd)).map(tex => texCtx.dimensions(tex, false, ref.current!))
             )
           )
         );
         return branchDims;
       }, [])
     );
-
-    // Have to pull out add_definition calls into an effect to avoid
-    // "setState while rendering component" errors
-    let defs: [string, DefinitionData][] = [];
-    useEffect(() => {
-      if (branchDims) {
-        defs.forEach(([name, def]) => defCtx.addDefinition(name, scope, def));
-      }
-    }, [branchDims]);
-
-    if (isPending) {
-      return null;
-    }
-
-    if (!branchDims) {
-      console.error(error);
-      return null;
-    }
+    let branchDims =
+      data || this._grammar.map(rule => rule.branches.map(() => ({ width: 100, height: 100 })));
 
     const MAX_ROW_WIDTH = 350;
 
@@ -147,6 +126,7 @@ export class Language {
       });
     }
 
+    let defs: [string, DefinitionData][] = [];
     let rules = sizedProductions.map(([{ kind, cmd, metavar, branches }, bdims]) => {
       let sizedBranches = zipExn(branches, bdims);
       let branchesAreSubset = false;
@@ -272,6 +252,12 @@ export class Language {
       ];
     });
 
+    // Have to pull out add_definition calls into an effect to avoid
+    // "setState while rendering component" errors
+    useMemo(() => {
+      defs.forEach(([name, def]) => defCtx.addDefinition(name, scope, def));
+    }, []);
+
     let layout = props.layout || {
       columns: 1,
       cutoff: 0,
@@ -288,19 +274,9 @@ export class Language {
       sep
     );
 
-    return <$$>{finalTex}</$$>;
-  };
-
-  Bnf: React.FC<BnfProps> = props => {
-    let ref = useRef<HTMLDivElement>(null);
-
-    // Needed for BnfInner to render once ref.current !== null
-    let [_, rerender] = useState(false);
-    useEffect(() => rerender(true), []);
-
     return (
       <div ref={ref}>
-        {ref.current ? <this.BnfInner containerRef={ref.current} {...props} /> : null}
+        <$$>{finalTex}</$$>
       </div>
     );
   };

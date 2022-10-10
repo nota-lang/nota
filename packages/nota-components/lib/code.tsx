@@ -82,12 +82,11 @@ export let posToLinecol = (editor: EditorView, pos: number): Linecol => {
   };
 };
 
-export let ListingPlugin = new Plugin(
-  class extends Pluggable {
-    language?: LanguageSupport;
-    wrap?: boolean;
-  }
-);
+export class ListingData extends Pluggable {
+  language?: LanguageSupport;
+  wrap?: boolean;
+}
+export let ListingPlugin = new Plugin(ListingData);
 
 export let ListingConfigure: React.FC<{ language?: LanguageSupport; wrap?: boolean }> = ({
   language,
