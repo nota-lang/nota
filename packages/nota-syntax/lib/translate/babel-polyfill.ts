@@ -20,6 +20,7 @@ import type {
   FunctionDeclaration,
   FunctionExpression,
   Identifier,
+  IfStatement,
   ImportDeclaration,
   ImportDefaultSpecifier,
   ImportNamespaceSpecifier,
@@ -444,6 +445,22 @@ export let assignmentExpression = ({
   operator: "=",
   left,
   right,
+});
+
+export let ifStatement = ({
+  test,
+  consequent,
+  alternate,
+}: {
+  test: Expression;
+  consequent: Statement;
+  alternate?: Statement | null;
+}): IfStatement => ({
+  ...baseNode,
+  type: "IfStatement",
+  test,
+  consequent,
+  alternate,
 });
 
 let is_node = (x: any): x is Node => typeof x == "object" && x && x.type;

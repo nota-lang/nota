@@ -1199,6 +1199,16 @@ export class Translator {
         return t.returnStatement(argument);
       }
 
+      case "IfStatement": {
+        let condNode = node.firstChild!.nextSibling!;
+        let cond = this.translateJsExpr(condNode);
+        let ifBlockNode = condNode.nextSibling!;
+        let ifBlock = this.translateJsBlock(ifBlockNode);
+        let elseBlockNode = ifBlockNode.nextSibling?.nextSibling;
+        let elseBlock = elseBlockNode ? this.translateJsBlock(elseBlockNode) : undefined;
+        return t.ifStatement({ test: cond, consequent: ifBlock, alternate: elseBlock });
+      }
+
       default:
         throw new Error(`Not yet implemented JS stmt: ${node.name}`);
     }

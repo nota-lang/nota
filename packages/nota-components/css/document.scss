@@ -4,11 +4,6 @@
   font-family: var(--font-body);
   font-size: var(--size-normal);
   text-align: justify;
-
-
-  // This isn't supported in most browsers right now, but once it is,
-  // it will fix the ugliest justify bugs.
-  text-justify: distribute;
   
   // Note: <html> must have a lang="..." attribute for hyphens to work!
   hyphens: auto;
@@ -72,15 +67,6 @@
 
     &:hover {
       text-decoration: underline;
-    }
-
-    &.nolink {
-      color: inherit;
-
-      &:hover {
-        text-decoration: none;
-        background: rgba(19, 92, 202, 0.1);
-      }
     }
   }
   

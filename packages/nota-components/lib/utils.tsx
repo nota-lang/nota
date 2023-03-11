@@ -7,6 +7,7 @@ export type ReactConstructor<P = {}> =
   | React.FunctionComponent<P>
   | React.ComponentClass<P>
   | React.ExoticComponent<P>;
+export type Reactable = ReactConstructor | ReactNode;
 
 export type FCC<T = {}> = React.FC<React.PropsWithChildren<T>>;
 

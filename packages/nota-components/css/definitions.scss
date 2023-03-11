@@ -3,6 +3,13 @@
     cursor: pointer;
     color: inherit;
   }
+
+  .ref {
+    &:hover {
+      text-decoration: none;
+      background: rgba(19, 92, 202, 0.1);
+    }    
+  }
 }
 
 .def-mode {

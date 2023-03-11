@@ -3,7 +3,7 @@ import { action, makeAutoObservable } from "mobx";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { FCC, useStateOnInterval } from "./utils.js";
+import { FCC, Reactable, getOrRender, useStateOnInterval } from "./utils.js";
 
 type ToggleCallback = (show: boolean) => void;
 
@@ -44,8 +44,8 @@ export let ToggleButton: React.FC<{
 );
 
 interface ToggleboxProps {
-  In: React.FC;
-  Out: React.FC;
+  In: Reactable;
+  Out: Reactable;
   resize?: boolean;
 }
 
@@ -88,10 +88,10 @@ export let Togglebox: React.FC<ToggleboxProps> = ({ In, Out, resize }) => {
       <div className="togglebox-parent">
         <div className="togglebox" style={style}>
           <div ref={outsideRef} style={innerStyle(!showInside)}>
-            <Out />
+            {getOrRender(Out, {})}
           </div>
           <div ref={insideRef} style={innerStyle(showInside)}>
-            <In />
+            {getOrRender(In, {})}
           </div>
         </div>
       </div>
