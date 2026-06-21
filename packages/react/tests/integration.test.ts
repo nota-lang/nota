@@ -27,6 +27,9 @@ import {
 import * as React from "react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+// The SAME golden but from the *reader's actual emit* (integration/golden.nota → oxc::nota::compile),
+// captured verbatim — closes the decode.md arc across BOTH halves (Part 1 reader → Part 2 runtime).
+import ReaderDoc from "./fixtures/golden.compiled";
 
 // ---------------------------------------------------------------------------------------------
 // contract §2 stage-3 — the emitted module, hand-written verbatim (keyless @for form, per R6)
@@ -132,5 +135,27 @@ describe("E5: React adapter Fragment(props, kids) sets the React key", () => {
     const el = reactAdapter.Fragment(null, ["a"]) as React.ReactElement;
     expect(el.key).toBeNull();
     expect(el.type).toBe(React.Fragment);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// The full decode.md arc across BOTH halves: the reader's ACTUAL emit (keyed `@for` + per-iteration
+// `Fragment({key:_i}, …)`) rendered through the runtime. The per-iteration fragments dissolve via
+// struct's transparency (§7), the `ulli` sentinels coalesce to one `<ul>`, and the islands SSR
+// identically to the hand-written keyless form above — proving producer and consumer agree on real
+// output, not just the contract.
+// ---------------------------------------------------------------------------------------------
+
+describe("reader-emit golden (Part 1 → Part 2, full loop)", () => {
+  test("the compiler's literal output renders to the identical stage-5", () => {
+    const { html, manifest } = render(ReaderDoc);
+    expect(html).toBe(
+      '<ul><li><nota-island data-hydration-id="1"><span style="color:red">a</span></nota-island></li>' +
+        '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'
+    );
+    expect(manifest).toEqual({
+      "1": { comp: "Colorized", props: {} },
+      "2": { comp: "Colorized", props: {} }
+    });
   });
 });
