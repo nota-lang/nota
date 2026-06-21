@@ -1,0 +1,4 @@
+[submodule "oxc"]
+	path = oxc
+	url = https://github.com/nota-lang/oxc.git
+	branch = nota

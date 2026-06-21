@@ -2,13 +2,8 @@ node_modules
 dist
 docs
 
-# Separate git repos, committed independently
-oxc/
+# Separate git repo, committed independently:
 references/
-
-# Local / OS
-.DS_Store
-.claude/settings.local.json
 
 # Integration harness scratch
 integration/.note.emitted.mjs
