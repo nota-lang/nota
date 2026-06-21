@@ -2,26 +2,26 @@
  * The shared CM6 highlight for every output pane (Generated JS, Post-SSG HTML + manifest). Lezer's
  * `tags` are language-agnostic — `@lezer/javascript`, `@lezer/html`, and `@lezer/json` all assign the
  * same standard set — so one {@link HighlightStyle} colors all three. We map those tags onto the
- * Catppuccin-Mocha palette already used by the `--*` vars and `.cm-nota-*` classes in `playground.css`,
- * rather than CM's light-tuned `defaultHighlightStyle`, so tokens sit cohesively on the dark theme.
+ * Catppuccin-Latte palette (the light variant matching the `--*` vars in `playground.css` and the
+ * editor's Shiki theme), so the panes' tokens sit cohesively on the light theme.
  */
 
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import type { Extension } from "@codemirror/state";
 import { tags as t } from "@lezer/highlight";
 
-// Catppuccin Mocha.
-const mauve = "#cba6f7";
-const green = "#a6e3a1";
-const peach = "#fab387";
-const blue = "#89b4fa";
-const yellow = "#f9e2af";
-const sky = "#89dceb";
-const overlay = "#9399b2";
-const muted = "#6c7086";
-const red = "#f38ba8";
+// Catppuccin Latte (light) — readable on the white/light panes; mirrors the editor's Shiki theme.
+const mauve = "#8839ef";
+const green = "#40a02b";
+const peach = "#fe640b";
+const blue = "#1e66f5";
+const yellow = "#df8e1d";
+const sky = "#04a5e5";
+const overlay = "#7c7f93";
+const muted = "#8c8fa1";
+const red = "#d20f39";
 
-const catppuccinMocha = HighlightStyle.define([
+const catppuccinLatte = HighlightStyle.define([
   // Keywords (JS): `import`/`export`, `let`/`const`, `return`/`for`, `typeof`, `this`, modifiers.
   {
     tag: [
@@ -85,4 +85,4 @@ const catppuccinMocha = HighlightStyle.define([
 
 /** The Catppuccin highlight as a ready-to-compose CM6 extension. */
 export const catppuccinHighlight: Extension =
-  syntaxHighlighting(catppuccinMocha);
+  syntaxHighlighting(catppuccinLatte);

@@ -1,12 +1,14 @@
 :root {
-  --bg: #1e1e2e;
-  --panel: #181825;
-  --panel-2: #11111b;
-  --fg: #cdd6f4;
-  --muted: #6c7086;
-  --accent: #89b4fa;
-  --border: #313244;
-  --error: #f38ba8;
+  /* Catppuccin Latte (light) — pairs with the Latte highlight-style + Shiki theme. */
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: #f6f8fa;
+  --panel-2: #eff1f5;
+  --fg: #4c4f69;
+  --muted: #8c8fa1;
+  --accent: #1e66f5;
+  --border: #d0d7de;
+  --error: #d20f39;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -139,7 +141,7 @@ body {
 .tab em {
   font-style: normal;
   font-size: 0.62rem;
-  color: var(--border);
+  color: var(--muted);
 }
 .tab.active {
   color: var(--fg);
@@ -176,7 +178,7 @@ body {
 .error {
   margin: 0;
   padding: 0.6rem 1rem;
-  background: rgba(243, 139, 168, 0.12);
+  background: rgba(210, 15, 57, 0.08);
   border-bottom: 1px solid var(--error);
   color: var(--error);
   font-family: var(--mono);

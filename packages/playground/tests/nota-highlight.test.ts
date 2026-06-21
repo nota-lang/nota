@@ -8,9 +8,14 @@
 import { EditorView } from "@codemirror/view";
 import { describe, expect, it } from "vitest";
 import { GOLDEN_NOTA } from "../src/golden";
-import { createNotaHighlighter, notaHighlighting } from "../src/nota-mode";
+import {
+  createNotaHighlighter,
+  NOTA_LANG,
+  NOTA_THEME,
+  notaHighlighting
+} from "../src/nota-mode";
 
-const OPTS = { lang: "nota", theme: "catppuccin-mocha" };
+const OPTS = { lang: NOTA_LANG, theme: NOTA_THEME };
 
 describe("Nota grammar via Shiki", () => {
   it("colors % statements, component heads, and embedded TS, with valid offsets", async () => {

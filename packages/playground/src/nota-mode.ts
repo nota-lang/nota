@@ -8,7 +8,7 @@
  * There's no published shiki↔CM6 integration, so the bridge is a tiny `ViewPlugin`: Shiki tokenizes
  * the whole document (its `ThemedToken.offset` is absolute, so it maps straight to CM positions) and
  * we paint each token as a `Decoration.mark` with an inline color/font-style from the
- * `catppuccin-mocha` theme (whose hues are the playground's `--*` palette). Shiki + the onig-wasm and
+ * `catppuccin-latte` theme (whose hues are the playground's `--*` palette). Shiki + the onig-wasm and
  * grammars load via dynamic `import()`, so they stay off the initial bundle; until the highlighter
  * resolves the editor simply shows plain text (see {@link App} wiring it in through a Compartment).
  */
@@ -38,14 +38,16 @@ export interface NotaHighlighter {
   ): { tokens: ThemedToken[][] };
 }
 
-const LANG = "nota";
-const THEME = "catppuccin-mocha";
+/** The Shiki language id (the Nota grammar registers under this name) and theme. Exported so tests
+ *  tokenize with the exact theme the bridge paints with. `catppuccin-latte` is the light variant. */
+export const NOTA_LANG = "nota";
+export const NOTA_THEME = "catppuccin-latte";
 const ITALIC = 1;
 const BOLD = 2;
 const UNDERLINE = 4;
 
 /**
- * Build the Shiki highlighter: the Nota grammar (renamed to `nota`) over the catppuccin-mocha theme,
+ * Build the Shiki highlighter: the Nota grammar (renamed to `nota`) over the catppuccin-latte theme,
  * with typescript/javascript/json loaded so the grammar's `source.ts|js|json` embeds resolve by scope.
  */
 export async function createNotaHighlighter(): Promise<NotaHighlighter> {
@@ -54,9 +56,9 @@ export async function createNotaHighlighter(): Promise<NotaHighlighter> {
     import("shiki/engine/oniguruma"),
     import("vscode-nota/syntaxes/nota.tmLanguage.json")
   ]);
-  const nota = { ...(grammar.default as object), name: LANG };
+  const nota = { ...(grammar.default as object), name: NOTA_LANG };
   const highlighter = await core.createHighlighterCore({
-    themes: [import("shiki/themes/catppuccin-mocha.mjs")],
+    themes: [import("shiki/themes/catppuccin-latte.mjs")],
     langs: [
       import("shiki/langs/typescript.mjs"),
       import("shiki/langs/javascript.mjs"),
@@ -73,8 +75,8 @@ function decorate(view: EditorView, hl: NotaHighlighter): DecorationSet {
   const builder = new RangeSetBuilder<Decoration>();
   const docLen = view.state.doc.length;
   const { tokens } = hl.codeToTokens(view.state.doc.toString(), {
-    lang: LANG,
-    theme: THEME
+    lang: NOTA_LANG,
+    theme: NOTA_THEME
   });
   // Tokens arrive in ascending absolute offset (line-major, then within line) — the order
   // RangeSetBuilder requires. Empty tokens are skipped so `from` stays strictly increasing.
