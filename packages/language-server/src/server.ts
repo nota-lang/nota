@@ -16,10 +16,10 @@ import {
   createConnection,
   createServer,
   createTypeScriptProject
-} from "@volar/language-server/node";
+} from "@volar/language-server/node.js";
 import ts from "typescript";
 import { create as createTypeScriptServices } from "volar-service-typescript";
-import { notaLanguagePlugin } from "./language-plugin";
+import { notaLanguagePlugin } from "./language-plugin.js";
 
 /**
  * Boot the language server on a Volar `Connection`. Registers the connection lifecycle handlers and

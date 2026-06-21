@@ -22,7 +22,7 @@ import type {
 import type { TypeScriptServiceScript } from "@volar/typescript";
 import ts from "typescript";
 import type { URI } from "vscode-uri";
-import { PREAMBLE, PREAMBLE_LENGTH } from "./preamble";
+import { PREAMBLE, PREAMBLE_LENGTH } from "./preamble.js";
 
 /** The `languageId` Volar tags `.nota` source scripts with. */
 export const NOTA_LANGUAGE_ID = "nota";

@@ -18,7 +18,9 @@
     "Programming Languages"
   ],
   "main": "./dist/extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:nota"
+  ],
   "contributes": {
     "languages": [
       {
@@ -54,6 +56,10 @@
     "test": "vscode-tmgrammar-test -g ./node_modules/tm-grammars/grammars/typescript.json -g ./syntaxes/nota.tmLanguage.json 'tests/**/*.test.nota'",
     "test:tokenize": "node --import tsx tests/tokenize.smoke.ts",
     "test:all": "pnpm run test && pnpm run test:tokenize"
+  },
+  "dependencies": {
+    "@nota-lang/language-server": "workspace:*",
+    "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^25.9.2",

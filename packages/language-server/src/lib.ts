@@ -23,6 +23,6 @@ export {
   notaLanguagePlugin,
   shiftMappings,
   VIRTUAL_LANGUAGE_ID
-} from "./language-plugin";
-export { PREAMBLE, PREAMBLE_LENGTH } from "./preamble";
-export { startServer } from "./server";
+} from "./language-plugin.js";
+export { PREAMBLE, PREAMBLE_LENGTH } from "./preamble.js";
+export { startServer } from "./server.js";
