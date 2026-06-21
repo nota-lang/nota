@@ -27,6 +27,17 @@ jobs:
         working-directory: oxc
         run: cargo build --example nota_compile
 
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Build nota_wasm
+        working-directory: oxc
+        run: |
+          rustup target add wasm32-unknown-unknown
+          wasm-pack build napi/nota_wasm --target web --out-dir pkg --out-name nota_wasm
+
       - name: Install depot
         uses: cognitive-engineering-lab/depot/actions/install@main
 
