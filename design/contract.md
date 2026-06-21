@@ -190,11 +190,15 @@ Whitespace-significant text is emitted as explicit string children per notation.
 the reader's actual Phase-A/B/C output). The reader does **not** emit the `@nota-lang/runtime` import
 (the compiler shim/integrator prepends it).
 
-**Integration status (Sync 2):** the reader's *actual* emit for a component-boundary fixture
-(`integration/note.nota`) was captured and traced through `render` to the exact stage-5 HTML +
-manifest, and Part 2's tests independently prove `render` on that shape. The standalone executable
-harness (`integration/run.mjs`) completes in Wave 3 (the runtime `dist` uses bundler-style
-extensionless ESM imports; resolve via `@nota-lang/compiler`/vite/vitest).
+**Integration status (Sync 3 — GREEN end-to-end).** The FULL canonical golden (`integration/golden.nota`
+= contract §2 stage-1, with keyed `@for`) compiles through the reader (`oxc::nota::compile`) to the
+literal emit captured in `packages/react/tests/fixtures/golden.compiled.ts`, and that emit renders
+through the runtime + React adapter to the **exact** stage-5 HTML + manifest — asserted by the
+`reader-emit golden (Part 1 → Part 2, full loop)` test in `packages/react/tests/integration.test.ts`.
+This closes the decode.md arc across both halves on real output (keyed `@for`, fragment transparency,
+`ulli` coalescing, island SSR). (`integration/run.mjs`, the standalone Node form, still needs
+vite-style module resolution — the canonical executable check is the vitest test; the `@nota-lang/compiler`
+shim, Wave 4, makes the live-compile path clean.)
 
 **Document mode** additionally emits: `export default function Doc()`, hoisted `import`/`export` +
 hoisted+exported component bindings (F1), the `decode(...)` wrap on Doc's returned fragment, and

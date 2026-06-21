@@ -1,0 +1,34 @@
+{
+  "name": "@nota-lang/vite",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "node",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/compiler": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.16"
+  },
+  "devDependencies": {
+    "@nota-lang/react": "workspace:*",
+    "@nota-lang/runtime": "workspace:*",
+    "@types/node": "^25.9.2",
+    "vite": "^8.0.16"
+  }
+}

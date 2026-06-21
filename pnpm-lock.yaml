@@ -30,6 +30,37 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
+  packages/compiler:
+    dependencies:
+      '@nota-lang/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+    devDependencies:
+      '@nota-lang/react':
+        specifier: workspace:*
+        version: link:../react
+      '@types/node':
+        specifier: ^25.9.2
+        version: 25.9.2
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.2
+        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+
   packages/react:
     dependencies:
       '@nota-lang/runtime':
@@ -82,6 +113,25 @@ importers:
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13
+
+  packages/vite:
+    dependencies:
+      '@nota-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+    devDependencies:
+      '@nota-lang/react':
+        specifier: workspace:*
+        version: link:../react
+      '@nota-lang/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@types/node':
+        specifier: ^25.9.2
+        version: 25.9.2
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
 
   packages/vscode-nota:
     devDependencies:

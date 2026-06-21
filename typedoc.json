@@ -6,9 +6,10 @@
   },
   "entryPointStrategy": "packages",
   "entryPoints": [
-    "packages/nota",
-    "packages/codemirror",
     "packages/runtime",
-    "packages/react"
+    "packages/react",
+    "packages/solid",
+    "packages/compiler",
+    "packages/vite"
   ]
 }
