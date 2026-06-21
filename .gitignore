@@ -1,0 +1,11 @@
+node_modules
+dist
+docs
+
+# Separate git repos, committed independently
+oxc/
+references/
+
+# Local / OS
+.DS_Store
+.claude/settings.local.json

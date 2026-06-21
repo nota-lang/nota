@@ -1,0 +1,10 @@
+packages:
+  - 'packages/*'
+  - 'wasm'
+
+allowBuilds:
+  esbuild: set this to true or false
+
+# pnpm >= 10 reads overrides from here, not package.json#pnpm
+overrides:
+  rollup: 'npm:@rollup/wasm-node'

@@ -1,0 +1,14 @@
+{
+  "name": "nota",
+  "validation": {
+    "invalidLink": true,
+    "notExported": true
+  },
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "packages/nota",
+    "packages/codemirror",
+    "packages/runtime",
+    "packages/react"
+  ]
+}
