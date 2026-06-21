@@ -1,21 +1,42 @@
 /**
- * Generated-JS pane view tests (feature: CM6-highlighted, read-only JS viewer). Two concerns:
- *   1. {@link jsLanguage} wires the JS parser + a Catppuccin highlight built from Lezer tags — a
- *      mistyped tag throws at define-time, so we assert it constructs.
- *   2. {@link JsPane} formats its `code` (async Prettier) into a *read-only* {@link CodeView}.
+ * Output-pane view tests (CM6-highlighted, read-only viewers). Three concerns:
+ *   1. `jsLanguage`/`htmlLanguage`/`jsonLanguage` wire a Lezer parser + the shared Catppuccin
+ *      highlight — a mistyped tag throws at define-time, so we assert each constructs.
+ *   2. `CodePane` formats its `code` (async Prettier) into a *read-only* `CodeView`.
+ *   3. `SsgPane` composes the formatted/highlighted HTML block + the highlighted JSON manifest.
  * Runs headless in jsdom; CM6 still builds its content DOM, so we assert against `.cm-content`.
  */
 
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { render, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { CodePane } from "../src/CodePane";
 import { CodeView } from "../src/CodeView";
-import { JsPane } from "../src/JsPane";
+import { compileNota, ensureCompiler } from "../src/compiler";
+import { GOLDEN_NOTA } from "../src/golden";
+import { htmlLanguage } from "../src/html-mode";
 import { jsLanguage } from "../src/js-mode";
+import { jsonLanguage } from "../src/json-mode";
+import { SsgPane } from "../src/SsgPane";
+import { runSSG } from "../src/ssg";
 
-describe("jsLanguage", () => {
-  it("builds the JS language + highlight extension without throwing", () => {
-    // The real failure mode is a mistyped `@lezer/highlight` tag — it throws when the style is defined.
-    const ext = jsLanguage();
+beforeAll(async () => {
+  const require = createRequire(import.meta.url);
+  const wasmPath = require
+    .resolve("nota_wasm")
+    .replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
+  await ensureCompiler(readFileSync(wasmPath));
+});
+
+describe("language extensions build without throwing", () => {
+  // The real failure mode is a mistyped `@lezer/highlight` tag — it throws when the style is defined.
+  it.each([
+    ["js", jsLanguage],
+    ["html", htmlLanguage],
+    ["json", jsonLanguage]
+  ])("%s", (_name, lang) => {
+    const ext = lang();
     expect(Array.isArray(ext)).toBe(true);
     expect((ext as unknown[]).length).toBeGreaterThan(0);
   });
@@ -36,15 +57,41 @@ describe("CodeView", () => {
   });
 });
 
-describe("JsPane", () => {
+describe("CodePane", () => {
   it("Prettier-formats the emitted code into the viewer", async () => {
-    const { getByTestId, container } = render(<JsPane code={"const  x=1\n"} />);
+    const { getByTestId, container } = render(
+      <CodePane code={"const  x=1\n"} mode="js" testid="pane-js" fill />
+    );
     expect(getByTestId("pane-js")).toBeTruthy();
     // The async format normalizes the messy spacing to canonical `const x = 1;`.
     await waitFor(() =>
       expect(container.querySelector(".cm-content")?.textContent).toContain(
         "const x = 1;"
       )
+    );
+  });
+});
+
+describe("SsgPane", () => {
+  it("shows a read-only HTML block and the highlighted JSON manifest", async () => {
+    const { html, manifest } = runSSG(compileNota(GOLDEN_NOTA));
+    const { getByTestId } = render(<SsgPane html={html} manifest={manifest} />);
+
+    const htmlPane = getByTestId("pane-ssg-html");
+    const manifestPane = getByTestId("pane-ssg-manifest");
+
+    await waitFor(() =>
+      expect(htmlPane.querySelector(".cm-editor")).toBeTruthy()
+    );
+    // Both blocks are read-only CM6 views.
+    for (const pane of [htmlPane, manifestPane]) {
+      expect(
+        pane.querySelector(".cm-content")?.getAttribute("contenteditable")
+      ).toBe("false");
+    }
+    // The manifest (already pretty JSON) shows the F1 island component name.
+    expect(manifestPane.querySelector(".cm-content")?.textContent).toContain(
+      "Colorized"
     );
   });
 });

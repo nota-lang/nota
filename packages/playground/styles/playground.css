@@ -91,21 +91,30 @@ body {
   font-size: 13px;
 }
 
-/* The Generated-JS pane: a read-only CM6 viewer filling the tab body. */
-.pane-js,
-.code-view {
-  height: 100%;
-  min-height: 0;
-}
-.code-view {
-  overflow: auto;
-}
-.code-view .cm-editor {
-  height: 100%;
-}
+/* Read-only output viewers (Generated-JS, Post-SSG). Default: grow to content; monospace. */
 .code-view .cm-scroller {
   font-family: var(--mono);
   font-size: 12.5px;
+}
+
+/* A fill-mode pane (the Generated-JS tab) fills the tab body and scrolls internally. */
+.code-pane--fill {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+.code-pane--fill .code-view,
+.code-pane--fill .cm-editor {
+  height: 100%;
+}
+
+/* Post-SSG: the HTML + manifest blocks stack, each framed and growing to its content. */
+.ssg .code-pane,
+.ssg .ssg-manifest {
+  margin: 0.35rem 1rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .tabs {

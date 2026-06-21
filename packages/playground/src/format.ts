@@ -1,47 +1,55 @@
 /**
- * Pretty-print the **Generated-JS** pane (decode.md stage 3). The wasm reader's codegen is valid but
- * unfriendly to read — it tab-indents yet emits the whole `Doc()` body as one long line of nested
- * `h(...)` calls. We reformat purely for *display*; the parity tests still compare the raw
- * {@link compileNotaRaw} emit, so this never touches the byte-identity invariant (contract §3).
+ * Pretty-print an output pane for *display only* (decode.md stage 3's JS emit, stage 5's SSG HTML).
+ * The wasm reader's codegen and React's `renderToString` are both valid but unfriendly to read — the
+ * JS emit puts the whole `Doc()` body on one line; the SSG HTML comes back with no indentation. We
+ * reformat purely for the pane, never touching the bytes the pipeline actually emits/serializes, so
+ * the parity tests still compare the raw output (contract §3).
  *
  * "Easiest formatter that runs in the browser" = **Prettier standalone**: plain JS, no wasm init,
- * `format()` is async. We pull it (and the babel parser + estree printer) via dynamic `import()` so
- * the ~1.5 MB of formatter stays off the initial bundle — it loads lazily on the first format, after
- * the editor + compiler are already interactive.
+ * async `format()`. Standalone + the parser plugins load via dynamic `import()` so the formatter
+ * stays off the initial bundle (it code-splits into lazy chunks), and each parser pulls only the
+ * plugins it needs — the JS pane never fetches the HTML plugin, and vice-versa.
  */
 
-type PrettierKit = {
-  format: (source: string, options: object) => Promise<string>;
-  plugins: object[];
-};
+type Parser = "babel" | "html";
 
-// Memoize the dynamic import so we pay the module fetch + parse once, not per keystroke.
-let kit: Promise<PrettierKit> | null = null;
-function loadPrettier(): Promise<PrettierKit> {
-  if (!kit) {
-    kit = Promise.all([
-      import("prettier/standalone"),
-      import("prettier/plugins/babel"),
-      import("prettier/plugins/estree")
-    ]).then(([standalone, babel, estree]) => ({
-      format: standalone.format,
-      // The plugin *is* the module namespace (Prettier's documented usage).
-      plugins: [babel, estree]
-    }));
+let standaloneP: Promise<typeof import("prettier/standalone")> | null = null;
+function loadStandalone() {
+  if (!standaloneP) standaloneP = import("prettier/standalone");
+  return standaloneP;
+}
+
+// Memoize each parser's plugin set so we pay its module fetch + parse once, not per keystroke.
+const pluginsP: Partial<Record<Parser, Promise<object[]>>> = {};
+function loadPlugins(parser: Parser): Promise<object[]> {
+  if (!pluginsP[parser]) {
+    pluginsP[parser] =
+      parser === "html"
+        ? import("prettier/plugins/html").then(html => [html])
+        : Promise.all([
+            import("prettier/plugins/babel"),
+            import("prettier/plugins/estree")
+          ]);
   }
-  return kit;
+  return pluginsP[parser];
 }
 
 /**
- * Format an emitted JS module for display. Falls back to the input unchanged on any parse/print
- * error — the emit is always valid JS (impl.md §1.6 validity invariant), so this only guards against
- * a transient half-applied edit, and a raw pane beats a blank one.
+ * Format `code` with the given Prettier parser for display. Falls back to the input unchanged on any
+ * parse/print error — the emit is always valid (impl.md §1.6 validity invariant), so this only guards
+ * against a transient half-applied edit, and a raw pane beats a blank one.
  */
-export async function formatJs(code: string): Promise<string> {
+export async function formatCode(
+  code: string,
+  parser: Parser
+): Promise<string> {
   if (!code.trim()) return code;
   try {
-    const { format, plugins } = await loadPrettier();
-    return await format(code, { parser: "babel", plugins });
+    const [{ format }, plugins] = await Promise.all([
+      loadStandalone(),
+      loadPlugins(parser)
+    ]);
+    return await format(code, { parser, plugins });
   } catch {
     return code;
   }

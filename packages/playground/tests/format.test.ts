@@ -1,17 +1,18 @@
 /**
- * Generated-JS formatter tests (feature: Prettier-format the stage-3 pane). We format the *real*
- * golden emit (compiled through the same wasm reader the pane uses), so the test tracks the actual
- * codegen. The formatter is display-only — it must reflow the emit (break the pathological one-line
- * `Doc()` body, drop the codegen's tabs) while preserving every token, and be a no-op on empty or
- * un-parseable input (it falls back to the raw text rather than blanking the pane).
+ * Output-pane formatter tests. We format the *real* artifacts the panes show — the stage-3 JS emit
+ * and the stage-5 SSG HTML, both produced by the same wasm reader + runtime the app uses — so the
+ * tests track the actual codegen/serializer. Formatting is display-only: it must reflow the output
+ * (break the one-line `Doc()` body / indent the unindented HTML) while preserving every token, and be
+ * a no-op on empty or un-parseable input (it falls back to the raw text rather than blanking a pane).
  */
 
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { beforeAll, describe, expect, it } from "vitest";
-import { compileNotaRaw, ensureCompiler } from "../src/compiler";
-import { formatJs } from "../src/format";
+import { compileNota, compileNotaRaw, ensureCompiler } from "../src/compiler";
+import { formatCode } from "../src/format";
 import { GOLDEN_NOTA } from "../src/golden";
+import { runSSG } from "../src/ssg";
 
 beforeAll(async () => {
   const require = createRequire(import.meta.url);
@@ -21,10 +22,10 @@ beforeAll(async () => {
   await ensureCompiler(readFileSync(wasmPath));
 });
 
-describe("formatJs", () => {
+describe("formatCode (babel) — Generated JS", () => {
   it("reflows the raw emit: no tabs, no pathological long lines", async () => {
     const raw = compileNotaRaw(GOLDEN_NOTA);
-    const pretty = await formatJs(raw);
+    const pretty = await formatCode(raw, "babel");
 
     // It actually ran (a thrown Prettier would fall back to `raw` unchanged).
     expect(pretty).not.toBe(raw);
@@ -41,7 +42,7 @@ describe("formatJs", () => {
   });
 
   it("preserves every token of the emitted module", async () => {
-    const pretty = await formatJs(compileNotaRaw(GOLDEN_NOTA));
+    const pretty = await formatCode(compileNotaRaw(GOLDEN_NOTA), "babel");
     for (const token of [
       "export let Colorized = inlineComponent(",
       'useState("red")',
@@ -59,17 +60,45 @@ describe("formatJs", () => {
   });
 
   it("is idempotent", async () => {
-    const once = await formatJs(compileNotaRaw(GOLDEN_NOTA));
-    expect(await formatJs(once)).toBe(once);
+    const once = await formatCode(compileNotaRaw(GOLDEN_NOTA), "babel");
+    expect(await formatCode(once, "babel")).toBe(once);
+  });
+});
+
+describe("formatCode (html) — Post-SSG HTML", () => {
+  it("indents the unindented renderToString output", async () => {
+    const { html } = runSSG(compileNota(GOLDEN_NOTA));
+    const pretty = await formatCode(html, "html");
+
+    // renderToString emits no newlines; Prettier breaks the markup across indented lines.
+    expect(pretty).not.toBe(html);
+    expect(pretty.split("\n").length).toBeGreaterThan(html.split("\n").length);
+    expect(pretty).toContain("\n");
   });
 
+  it("preserves the island markers, coalesced list, and baked styles", async () => {
+    const { html } = runSSG(compileNota(GOLDEN_NOTA));
+    const pretty = await formatCode(html, "html");
+    for (const token of [
+      "nota-island",
+      'data-hydration-id="1"',
+      'data-hydration-id="2"',
+      "color:red",
+      "<ul"
+    ]) {
+      expect(pretty).toContain(token);
+    }
+  });
+});
+
+describe("formatCode — degenerate input", () => {
   it("returns empty/whitespace input unchanged (nothing to format)", async () => {
-    expect(await formatJs("")).toBe("");
-    expect(await formatJs("  \n ")).toBe("  \n ");
+    expect(await formatCode("", "babel")).toBe("");
+    expect(await formatCode("  \n ", "html")).toBe("  \n ");
   });
 
   it("falls back to the input on unparseable JS rather than throwing", async () => {
     const broken = "const x = ";
-    expect(await formatJs(broken)).toBe(broken);
+    expect(await formatCode(broken, "babel")).toBe(broken);
   });
 });

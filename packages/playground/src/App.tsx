@@ -10,12 +10,13 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { CodePane } from "./CodePane";
 import { compileNota, compileNotaRaw, ensureCompiler } from "./compiler";
 import { Editor } from "./Editor";
 import { GOLDEN_NOTA } from "./golden";
-import { JsPane } from "./JsPane";
 import { notaLanguage } from "./nota-mode";
 import { RenderedPane } from "./RenderedPane";
+import { SsgPane } from "./SsgPane";
 import { type ManifestEntry, runSSG } from "./ssg";
 
 type Tab = "js" | "ssg" | "rendered";
@@ -132,16 +133,11 @@ export function App() {
           )}
 
           <div className="tab-body">
-            {tab === "js" && <JsPane code={result.code} />}
+            {tab === "js" && (
+              <CodePane code={result.code} mode="js" testid="pane-js" fill />
+            )}
             {tab === "ssg" && (
-              <div className="ssg" data-testid="pane-ssg">
-                <h4>HTML</h4>
-                <pre className="code">{result.html}</pre>
-                <h4>Island manifest</h4>
-                <pre className="code">
-                  {JSON.stringify(result.manifest, null, 2)}
-                </pre>
-              </div>
+              <SsgPane html={result.html} manifest={result.manifest} />
             )}
             {tab === "rendered" && (
               <RenderedPane
