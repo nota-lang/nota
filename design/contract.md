@@ -109,10 +109,10 @@ export let Colorized = inlineComponent((children) => {
 
 export default function Doc() {
   return decode(Fragment(
-    ["a", "b"].map(x =>
-      h("ulli", {}, [
+    ["a", "b"].map((x, _i) =>
+      Fragment({ key: _i }, h("ulli", {}, [
         h(Colorized, {}, [x])
-      ])
+      ]))
     )
   ));
 }
@@ -214,6 +214,8 @@ hoisted+exported component bindings (F1), the `decode(...)` wrap on Doc's return
   children)` → React `createElement(React.Fragment, props, ...children)` (React.Fragment accepts
   `key`); Solid best-effort. `@if` stays keyless (single branch, no list reconciliation). **This
   amends Part 2** (Fragment + both adapters) — coordinated in the same wave as Phase D.
+  **Requires struct FRAG-transparency (§7):** the per-iteration Fragment must dissolve into the
+  parent's grouping at `▸=false`, else the wrapped list items can't coalesce. Locked together with E5.
 - **F1 — hoist+export component definitions.** The reader hoists every `%let/%const Name =
   inlineComponent(...)|blockComponent(...)` binding to **module scope** and adds `export`, under its
   authored name (stable). The manifest's `comp` field is that name. Constraint (v1, like Astro):
@@ -314,9 +316,16 @@ only — so the golden's `@Colorized{a}` keeps `"a"` bare). `groupLists` runs in
 list authored inside any component still coalesces. Boundary stop still holds (decode children, never
 the body).
 
-**Fragment duality:** as a *sibling*, `FRAG` is **inline** (joins a paragraph run; literal
-`isBlock(FRAG)=false`); as a *container*, `FRAG` is a **flow** container. The document body is a
-`FRAG`, hence flow.
+**Fragment transparency (corrected — supersedes the earlier "FRAG-as-sibling is inline").** As a
+*container*, `FRAG` is a **flow** container (the document body is a `FRAG`, hence flow). As a
+*sibling*, `FRAG` is **transparent**: `struct` splices a FRAG sibling's children into the parent's
+sibling stream — recursively — *before* the grouping passes, so the children participate in the
+parent's grouping. This is what makes `@for`'s per-iteration keyed `Fragment({key:_i}, …)` (E5)
+dissolve at `▸=false`: the wrapped `ulli` sentinels become direct siblings and `groupLists` coalesces
+them into one `<ul>`. The key (in FRAG props) is dropped during the splice — static HTML needs none;
+at `▸=true` the Fragment still carries its key through `adapter.Fragment`. (A bare `@{…}` fragment of
+inline content splices identically — same visual result; block content inside it now correctly joins
+the parent's paragraph/section grouping.)
 
 **⟹ Paragraph-break representation (CRITICAL — the Phase-C reader contract):** a paragraph break in
 the child stream is a **whitespace-only text child containing a blank line** — regex

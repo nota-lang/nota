@@ -17,7 +17,9 @@ import {
   // aliased: importing it bare would shadow the legacy global `escape` (biome lint).
   escape as escapeHtml,
   FRAG,
+  Fragment,
   getManifest,
+  h,
   inlineComponent,
   island,
   isRaw,
@@ -26,6 +28,7 @@ import {
   reset,
   serialize,
   setAdapter,
+  struct,
   type VNode
 } from "../src/lib";
 
@@ -68,8 +71,8 @@ function makeStubAdapter() {
       hCalls.push(call);
       return { call };
     },
-    Fragment(children): StubEl {
-      const call = { tag: FRAG, props: null, children };
+    Fragment(props, children): StubEl {
+      const call = { tag: FRAG, props, children };
       hCalls.push(call);
       return { call };
     },
@@ -141,6 +144,47 @@ describe("serialize (host / text / fragment / void)", () => {
 
   test("fragment is transparent: children joined, no wrapper", () => {
     expect(serialize(frag(["one ", el("b", ["two"])]))).toBe("one <b>two</b>");
+  });
+
+  test("E5: a FRAG's props (e.g. a `key`) do NOT leak into serialized HTML", () => {
+    // Fragment({key}, child) sits the key in FRAG props; serialize renders FRAG as children joined,
+    // with no wrapper element and no attribute pass — so static SSG output never carries the key.
+    const f: ElementVNode = {
+      tag: FRAG,
+      props: { key: 7 },
+      children: [el("b", ["two"])]
+    };
+    const out = serialize(f);
+    expect(out).toBe("<b>two</b>");
+    expect(out).not.toContain("key");
+  });
+
+  test("E5: each keyed @for FRAG serializes transparently — its `key` never reaches the HTML", () => {
+    // The reader's E5 emit `["a","b"].map((x,_i) => Fragment({key:_i}, h("li",{},[x])))` produces
+    // an array of keyed FRAGs. Each FRAG is transparent on serialize (children joined, no wrapper,
+    // no attr pass), so the `key` it carries in props is dropped — only the inner <li> survives.
+    const items = ["a", "b"].map((x, _i) =>
+      Fragment({ key: _i }, h("li", {}, [x]))
+    );
+    // assert the FRAGs really hold the key (the ▸=false vnode), then that serialize drops it.
+    expect((items[0] as ElementVNode).props).toEqual({ key: 0 });
+    const html = items.map(serialize).join("");
+    expect(html).toBe("<li>a</li><li>b</li>");
+    expect(html).not.toContain("key");
+  });
+
+  test("E5: keyed @for FRAGs through struct→serialize — transparent splice coalesces the list", () => {
+    // The reader's @for over `-` items emits
+    //   ["a","b"].map((x,_i) => Fragment({key:_i}, h("ulli",{},[x])))
+    // struct splices each per-iteration FRAG transparently (contract §7), so the `ulli` sentinels
+    // become direct siblings of the flow container and groupLists coalesces them into ONE <ul>. The
+    // `key` is dropped (static HTML needs none). This is the canonical golden's list behavior.
+    const items = ["a", "b"].map((x, _i) =>
+      Fragment({ key: _i }, h("ulli", {}, [x]))
+    );
+    const html = serialize(struct(frag(items)));
+    expect(html).toBe("<ul><li>a</li><li>b</li></ul>");
+    expect(html).not.toContain("key");
   });
 
   test("void elements self-close and ignore children", () => {

@@ -5,10 +5,12 @@
  * `import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime"`,
  * and the SSG machinery (`struct`/`serialize`/`island`/`render`) lives in the same module.
  *
- * Wave scope (Phases G + H): the static `▸ = false` builders (`h`/`Fragment`), `decode`, the
- * component constructors, and the structural pass `struct` (with `groupLists`/`groupParas`/
- * `groupSections`). `serialize`/`island`/`render`/`bootIslands` are type stubs (Phases I/K) and
- * the `▸ = true` adapter paths throw "no adapter injected" until adapters land (Phase J).
+ * Phases G–K are implemented and green: the static `▸ = false` builders (`h`/`Fragment`, the latter
+ * with the E5 optional leading-props arg — contract §4), `decode`, the component constructors, the
+ * structural pass `struct` (`groupLists`/`groupParas`/`groupSections`), and the SSG machinery
+ * `serialize`/`island`/`render`/`bootIslands`. The `▸ = true` paths dispatch through an injected
+ * `@nota-lang/{react,solid}` adapter (Phase J); with **no** adapter set, `getAdapter()` throws a
+ * pointed "no adapter injected" error rather than a cryptic `undefined is not a function`.
  */
 
 export type { Adapter } from "./adapter";
@@ -41,7 +43,7 @@ export {
   serialize
 } from "./serialize";
 
-// --- the SSG machinery (struct is real this wave; the rest are Phase I/K stubs) ---
+// --- the SSG machinery (struct + serialize/island/render, all implemented) ---
 export {
   groupLists,
   groupParas,

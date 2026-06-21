@@ -13,6 +13,7 @@ import {
   h,
   inlineComponent,
   isComp,
+  raw,
   struct,
   type VNode,
   withFlag
@@ -107,6 +108,80 @@ describe("flatten / h / Fragment (Phase G)", () => {
       props: {},
       children: ["one ", { tag: "b", props: {}, children: ["two"] }]
     });
+  });
+
+  // ---- E5: Fragment's optional leading props object (contract §1 / §4) ----
+
+  test("E5: Fragment({key}, child) carries props.key and the right children", () => {
+    const child = h("li", {}, "x");
+    const f = Fragment({ key: 0 }, child) as ElementVNode;
+    expect(f).toEqual({ tag: FRAG, props: { key: 0 }, children: [child] });
+    expect(f.props.key).toBe(0);
+  });
+
+  test("E5: Fragment(child1, child2) (no leading props) is children-only, props {}", () => {
+    const f = Fragment("a", h("b", {}, "c")) as ElementVNode;
+    expect(f).toEqual({
+      tag: FRAG,
+      props: {},
+      children: ["a", { tag: "b", props: {}, children: ["c"] }]
+    });
+  });
+
+  test("E5 disambiguation: an array first arg is a CHILD, not props (bare Fragment(map(...)))", () => {
+    // decode.md's keyless `Fragment(xs.map(...))` — the array is spliced one level as children.
+    const f = Fragment(["a", "b"].map(x => h("li", {}, x))) as ElementVNode;
+    expect(f.props).toEqual({});
+    expect(f.children).toEqual([
+      { tag: "li", props: {}, children: ["a"] },
+      { tag: "li", props: {}, children: ["b"] }
+    ]);
+  });
+
+  test("E5 disambiguation: a string first arg is a CHILD, not props", () => {
+    const f = Fragment("hello") as ElementVNode;
+    expect(f.props).toEqual({});
+    expect(f.children).toEqual(["hello"]);
+  });
+
+  test("E5 disambiguation: a vnode first arg (has `tag`) is a CHILD, not props", () => {
+    const v = h("span", {}, "x");
+    const f = Fragment(v) as ElementVNode;
+    expect(f.props).toEqual({});
+    expect(f.children).toEqual([v]);
+  });
+
+  test("E5 disambiguation: a RawHtml first arg is a CHILD, not props", () => {
+    const slot = raw("<i>x</i>");
+    const f = Fragment(slot) as ElementVNode;
+    expect(f.props).toEqual({});
+    // raw survives flatten as an opaque vnode
+    expect(f.children).toEqual([slot]);
+  });
+
+  test("E5: Fragment({}) (empty props object) is treated as props, not a child", () => {
+    // an empty plain object has no `tag`, is not raw/array → props; children empty.
+    const f = Fragment({}) as ElementVNode;
+    expect(f.props).toEqual({});
+    expect(f.children).toEqual([]);
+  });
+
+  test("E5: the @for emit shape `xs.map((x,_i) => Fragment({key:_i}, h('li',{},[x])))`", () => {
+    const nodes = ["a", "b"].map((x, _i) =>
+      Fragment({ key: _i }, h("li", {}, [x]))
+    ) as ElementVNode[];
+    expect(nodes).toEqual([
+      {
+        tag: FRAG,
+        props: { key: 0 },
+        children: [{ tag: "li", props: {}, children: ["a"] }]
+      },
+      {
+        tag: FRAG,
+        props: { key: 1 },
+        children: [{ tag: "li", props: {}, children: ["b"] }]
+      }
+    ]);
   });
 
   test("▸=true branch with no adapter throws 'no adapter injected'", () => {

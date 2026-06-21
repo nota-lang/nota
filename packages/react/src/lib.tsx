@@ -10,7 +10,7 @@
  * | Adapter method        | React                                                   |
  * |-----------------------|---------------------------------------------------------|
  * | `h(tag, props, kids)` | `React.createElement(tag, props, …kids)`                |
- * | `Fragment(kids)`      | `React.createElement(React.Fragment, null, …kids)`      |
+ * | `Fragment(p, kids)`   | `React.createElement(React.Fragment, p ?? null, …kids)` |
  * | `renderToString(el)`  | `react-dom/server`'s `renderToString` (synchronous)     |
  * | `hydrate(el, node)`   | `react-dom/client`'s `hydrateRoot(node, el)`            |
  *
@@ -84,11 +84,14 @@ export const adapter: Adapter = {
     );
   },
 
-  Fragment(children) {
+  Fragment(props, children) {
     const { kids } = splitChildren(children);
+    // React.Fragment accepts `key` (and only `key`) via the props arg — so the reader's E5
+    // `Fragment({ key: _i }, …)` becomes `createElement(React.Fragment, { key: _i }, …kids)` and
+    // the key drives React's list reconciliation. A keyless fragment passes `null` (no props).
     return React.createElement(
       React.Fragment,
-      null,
+      (props as React.Attributes | null) ?? null,
       ...(kids as React.ReactNode[])
     );
   },

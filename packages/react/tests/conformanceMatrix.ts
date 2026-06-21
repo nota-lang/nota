@@ -131,11 +131,24 @@ export function runRenderMatrix(): void {
     test("Fragment renders children with no wrapper element", () => {
       const html = normalize(
         adapter.renderToString(
-          adapter.Fragment(["a", adapter.h("b", {}, ["c"])])
+          adapter.Fragment(null, ["a", adapter.h("b", {}, ["c"])])
         )
       );
       expect(html).toContain("a");
       expect(html).toMatch(/<b[^>]*>c<\/b>/);
+    });
+
+    test("Fragment forwards a leading props object (E5 key) without a wrapper", () => {
+      // The keyed `@for` shape: `adapter.Fragment({ key: 0 }, kids)`. The key drives reconciliation
+      // (React) / is ignored (Solid), but never surfaces as a DOM wrapper or attribute either way.
+      const html = normalize(
+        adapter.renderToString(
+          adapter.Fragment({ key: 0 }, ["a", adapter.h("b", {}, ["c"])])
+        )
+      );
+      expect(html).toContain("a");
+      expect(html).toMatch(/<b[^>]*>c<\/b>/);
+      expect(html).not.toContain("key");
     });
 
     test("raw() slot is injected as innerHTML, not escaped", () => {

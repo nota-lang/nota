@@ -42,7 +42,7 @@
  */
 
 import { isComp } from "./component";
-import { type ElementVNode, FRAG, isElement, type VNode } from "./vnode";
+import { type ElementVNode, FRAG, isElement, isFragment, type VNode } from "./vnode";
 
 // ---------------------------------------------------------------------------------------------
 // Contract constants (the reader must honor these — see report §2)
@@ -210,8 +210,31 @@ function isParaBreak(v: VNode): boolean {
 // ---------------------------------------------------------------------------------------------
 
 /**
+ * Splice **transparent fragments** (contract §7): a `FRAG` *sibling* contributes its children to the
+ * parent's sibling stream — recursively — so a fragment is transparent to grouping. This is what
+ * dissolves `@for`'s per-iteration keyed `Fragment({key:_i}, …)` (E5) at `▸=false`: the wrapped
+ * `ulli` sentinels become direct siblings and `groupLists` coalesces them into one `<ul>`. The FRAG's
+ * own props (the `key`) are dropped here — static HTML needs no key; the `▸=true` path keeps the key
+ * via `adapter.Fragment`. (A bare `@{…}` fragment splices identically.)
+ *
+ * Only `FRAG` nodes are spliced — host elements and component boundaries pass through untouched.
+ */
+function flattenFragments(children: readonly VNode[]): VNode[] {
+  const out: VNode[] = [];
+  for (const c of children) {
+    if (isFragment(c)) {
+      out.push(...flattenFragments(c.children));
+    } else {
+      out.push(c);
+    }
+  }
+  return out;
+}
+
+/**
  * Run the grouping passes over a sibling stream per the gate flags, then recurse `struct` into
- * each result. `groupLists` always runs (lists nest anywhere); `paras`/`sections` run only when
+ * each result. Fragments are spliced transparently first (so their children join this stream's
+ * grouping); `groupLists` always runs (lists nest anywhere); `paras`/`sections` run only when
  * requested.
  */
 function decodeChildren(
@@ -219,7 +242,7 @@ function decodeChildren(
   paras: boolean,
   sections: boolean
 ): VNode[] {
-  let k = groupLists(children);
+  let k = groupLists(flattenFragments(children));
   if (paras) {
     k = groupParas(k);
   }

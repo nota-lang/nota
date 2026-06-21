@@ -24,6 +24,7 @@ import {
   render,
   setAdapter
 } from "@nota-lang/runtime";
+import * as React from "react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
@@ -96,5 +97,40 @@ describe("headline integration (contract §2 stage-5)", () => {
     const second = render(Doc);
     expect(first.html).toBe(second.html);
     expect(Object.keys(second.manifest)).toEqual(["1", "2"]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// E5 — the React adapter forwards the leading-props `key` onto the React element (contract §4)
+// ---------------------------------------------------------------------------------------------
+
+describe("E5: React adapter Fragment(props, kids) sets the React key", () => {
+  test("a leading { key } lands as React's element.key (drives list reconciliation)", () => {
+    // The reader's keyed `@for` reaches the adapter as `Fragment({ key }, kids)`. React hoists
+    // `key` out of props into the element's top-level `.key` field (always a string), where the
+    // reconciler reads it — proving the key is live, not just dropped.
+    const el = reactAdapter.Fragment({ key: 7 }, [
+      "a",
+      reactAdapter.h("b", {}, ["c"])
+    ]) as React.ReactElement;
+    expect(React.isValidElement(el)).toBe(true);
+    expect(el.type).toBe(React.Fragment);
+    expect(el.key).toBe("7"); // React stringifies keys
+  });
+
+  test("the @for-shape array carries distinct per-iteration keys", () => {
+    const els = ["a", "b"].map((x, _i) =>
+      reactAdapter.Fragment({ key: _i }, [reactAdapter.h("li", {}, [x])])
+    ) as React.ReactElement[];
+    expect(els.map(e => e.key)).toEqual(["0", "1"]);
+    for (const e of els) {
+      expect(e.type).toBe(React.Fragment);
+    }
+  });
+
+  test("a keyless Fragment(null, kids) has a null key (no reconciliation hint)", () => {
+    const el = reactAdapter.Fragment(null, ["a"]) as React.ReactElement;
+    expect(el.key).toBeNull();
+    expect(el.type).toBe(React.Fragment);
   });
 });

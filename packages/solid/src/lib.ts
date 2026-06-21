@@ -11,7 +11,7 @@
  * |-----------------------|--------------------------------------------------|------------------------------|
  * | `h(host, …)`          | `ssrElement(tag, props, kids, needsId=true)`     | `solid-js/h`'s `h(tag, …)`   |
  * | `h(Component, …)`     | `createComponent(comp, props)`                   | `createComponent` / `h`      |
- * | `Fragment(kids)`      | the children array (Solid fragment)              | the children array           |
+ * | `Fragment(p, kids)`   | the children array (`p`/key ignored — see below) | the children array          |
  * | `renderToString(el)`  | `solid-js/web` `renderToString(() => el)` (sync) | (client build forbids it)    |
  * | `hydrate(el, node)`   | —                                                | `solid-js/web` `hydrate`     |
  *
@@ -97,9 +97,13 @@ export const adapter: Adapter = {
     return clientH(tag, base, ...kids);
   },
 
-  Fragment(children) {
+  Fragment(_props, children) {
     const { kids } = splitChildren(children);
-    // Solid treats an array of nodes as a fragment in both environments.
+    // Solid treats an array of nodes as a fragment in both environments. `_props` (the E5 `key`)
+    // is accepted for signature parity but **ignored — best-effort** (contract §4 E5): Solid's
+    // reconciliation is fine-grained/keyed via `<For>` and component `key`, not via a key on a raw
+    // fragment array, so there is no array-level slot for it. A keyless static fragment renders
+    // identically; dynamic-list keying under Solid would be the reader emitting `<For>`, not this.
     return kids;
   },
 

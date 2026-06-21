@@ -29,8 +29,14 @@ export interface Adapter {
     props: Record<string, unknown> | null,
     children: unknown
   ): unknown;
-  /** Framework fragment constructor. */
-  Fragment(children: unknown): unknown;
+  /**
+   * Framework fragment constructor. `props` is an optional leading props object — the Nota
+   * `Fragment(props?, …children)` surface (contract §1 / §4 E5) passes a `key` here for `@for`
+   * iterations (`Fragment({ key: _i }, …)`); `null`/`{}` for a keyless fragment. React forwards it
+   * to `createElement(React.Fragment, props, …)` (React.Fragment accepts `key`); Solid keys
+   * differently, so it is best-effort there.
+   */
+  Fragment(props: Record<string, unknown> | null, children: unknown): unknown;
   /** Synchronous SSR string render of a framework element. */
   renderToString(el: unknown): string;
   /** Client island boot: attach over server-rendered DOM. */
