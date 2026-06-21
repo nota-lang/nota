@@ -1,0 +1,51 @@
+/**
+ * The Nota Volar **language server** (implementation.md §5.1/§5.7-V, contract §9).
+ *
+ * Wires the standard Volar node server: a `createConnection` + `createServer`, a TypeScript project
+ * (`createTypeScriptProject`) that registers {@link notaLanguagePlugin} so the TS language service
+ * runs over each `.nota`'s virtual `.tsx`, and the `volar-service-typescript` language-service
+ * plugins that surface diagnostics / hover / completion / definition / references / rename. Phase V
+ * exercises **diagnostics**; the same wiring carries the Phase-W features for free.
+ *
+ * This module exports {@link startServer} (idempotent given a connection) so the thin `bin.ts` entry
+ * and any embedder can boot it; `bin.ts` is the executable the `vscode-nota` client launches.
+ */
+
+import {
+  type Connection,
+  createConnection,
+  createServer,
+  createTypeScriptProject
+} from "@volar/language-server/node";
+import ts from "typescript";
+import { create as createTypeScriptServices } from "volar-service-typescript";
+import { notaLanguagePlugin } from "./language-plugin";
+
+/**
+ * Boot the language server on a Volar `Connection`. Registers the connection lifecycle handlers and
+ * starts listening. Defaults to a fresh `createConnection()` (the standard stdio/IPC connection the
+ * editor client launches).
+ *
+ * @param connection the LSP connection (defaults to `createConnection()`)
+ */
+export function startServer(connection: Connection = createConnection()): void {
+  const server = createServer(connection);
+
+  connection.onInitialize(params =>
+    server.initialize(
+      params,
+      // A TS project so the TS language service runs over the virtual `.tsx`. The reader's emit +
+      // shifted mappings come from `notaLanguagePlugin`; `volar-service-typescript` is what actually
+      // produces TS diagnostics/hover/etc. over the virtual file.
+      createTypeScriptProject(ts, undefined, () => ({
+        languagePlugins: [notaLanguagePlugin]
+      })),
+      createTypeScriptServices(ts)
+    )
+  );
+
+  connection.onInitialized(() => server.initialized());
+  connection.onShutdown(() => server.shutdown());
+
+  connection.listen();
+}

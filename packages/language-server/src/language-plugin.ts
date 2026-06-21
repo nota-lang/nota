@@ -1,0 +1,191 @@
+/**
+ * The Nota Volar **`LanguagePlugin`** (implementation.md §5.1/§5.7-V, contract §9) — the load-bearing
+ * spine of the language server.
+ *
+ * It turns a `.nota` source into a {@link VirtualCode}: the typing preamble + the reader's virtual
+ * `.tsx` as the snapshot, plus the reader's `CodeMapping`s with every `generatedOffsets` shifted by
+ * the preamble length (the contract-§9 preamble-shift rule). Volar then drives the standard TS
+ * language service over the virtual `.tsx` (via `@volar/typescript`, keyed by the `typescript`
+ * field's `getServiceScript`), and maps results — diagnostics first (Phase V), then hover/completion/
+ * rename (Phase W) — back to `.nota` ranges through these mappings.
+ */
+
+import {
+  compileVirtual,
+  type CodeMapping as ReaderCodeMapping
+} from "@nota-lang/compiler";
+import type {
+  LanguagePlugin,
+  VirtualCode,
+  CodeMapping as VolarCodeMapping
+} from "@volar/language-core";
+import type { TypeScriptServiceScript } from "@volar/typescript";
+import ts from "typescript";
+import type { URI } from "vscode-uri";
+import { PREAMBLE, PREAMBLE_LENGTH } from "./preamble";
+
+/** The `languageId` Volar tags `.nota` source scripts with. */
+export const NOTA_LANGUAGE_ID = "nota";
+
+/**
+ * The `languageId` the virtual code is emitted as — `typescriptreact`, since the reader's virtual
+ * emit is `.tsx` (type-preserving, contract §9 H2) and the markup lowers to `h(...)` *call*
+ * expressions (contract R1), which are plain TS — but emitting as `.tsx` keeps the door open for any
+ * JSX the embedded JS might contain and matches the `.tsx` extension `@volar/typescript` is told to
+ * treat the script as.
+ */
+export const VIRTUAL_LANGUAGE_ID = "typescriptreact";
+
+/**
+ * Shift a reader `CodeMapping`'s `generatedOffsets` by {@link PREAMBLE_LENGTH} and adapt it to the
+ * Volar `Mapping` shape (contract §9 preamble-shift rule). **This is the core fidelity operation** —
+ * tested directly in `tests/mapping.test.ts`.
+ *
+ * - `generatedOffsets[k] → generatedOffsets[k] + shift` (the prepended preamble pushes the bare
+ *   `.tsx` forward by `shift` bytes).
+ * - `sourceOffsets` — **unchanged** (the `.nota` source is untouched; the reader omitted the import).
+ * - `lengths` — unchanged (segment lengths are invariant under a pure prepend).
+ * - `generatedLengths` — `null` (the byte-exact common case) becomes `undefined` (Volar's optional);
+ *   a present array is carried through verbatim (lengths are position-independent).
+ * - `data` — the reader's `MappingCapabilities` (all-boolean) is structurally a Volar
+ *   `CodeInformation` (each field `boolean | {…}`), passed through as the capability gate.
+ *
+ * Pure: returns fresh arrays, never mutates the input (the reader's result may be reused).
+ *
+ * @param mappings the reader's mappings over the *bare* `.tsx`
+ * @param shift    bytes to add to every generated offset (the preamble length)
+ */
+export function shiftMappings(
+  mappings: readonly ReaderCodeMapping[],
+  shift: number
+): VolarCodeMapping[] {
+  return mappings.map(m => ({
+    sourceOffsets: m.sourceOffsets.slice(),
+    generatedOffsets: m.generatedOffsets.map(o => o + shift),
+    lengths: m.lengths.slice(),
+    // Volar uses `generatedLengths?: number[]` (optional); the reader uses `number[] | null`.
+    ...(m.generatedLengths != null
+      ? { generatedLengths: m.generatedLengths.slice() }
+      : {}),
+    // `MappingCapabilities` (all booleans) is assignable to Volar's `CodeInformation`.
+    data: m.data
+  }));
+}
+
+/**
+ * Build the virtual `.tsx` source + shifted mappings for a `.nota` source string. Split out from the
+ * `LanguagePlugin` so it is unit-testable without any Volar/TS plumbing (the mapping-fidelity layer-1
+ * test calls this directly).
+ *
+ * @param source the `.nota` file contents
+ * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted to index it.
+ */
+export function buildVirtual(source: string): {
+  code: string;
+  mappings: VolarCodeMapping[];
+} {
+  const { code: bare, mappings } = compileVirtual(source);
+  return {
+    code: PREAMBLE + bare,
+    mappings: shiftMappings(mappings, PREAMBLE_LENGTH)
+  };
+}
+
+/**
+ * The Nota `VirtualCode` for one `.nota` file: a single root whose snapshot is the preamble +
+ * virtual `.tsx`, mapped back to the `.nota` via the shifted mappings. There are no nested
+ * `embeddedCodes` — the whole virtual file is one TS document (the markup lowered to `h(...)` calls
+ * inline), so Volar/TS treat it as a single `.tsx` script.
+ */
+export interface NotaVirtualCode extends VirtualCode {
+  id: "root";
+  languageId: typeof VIRTUAL_LANGUAGE_ID;
+}
+
+/**
+ * Create the {@link NotaVirtualCode} for a snapshot. On a reader error (a Nota *syntax* diagnostic —
+ * `compileVirtual` throws) we fall back to an **empty** virtual module with no mappings, so the
+ * server stays alive and simply reports no TS diagnostics until the source parses. (Nota syntax
+ * diagnostics themselves are a separate, future channel — Phase V is the TS/semantic layer.)
+ */
+function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
+  const source = snapshot.getText(0, snapshot.getLength());
+  let code: string;
+  let mappings: VolarCodeMapping[];
+  try {
+    ({ code, mappings } = buildVirtual(source));
+  } catch {
+    // Reader rejected the source (Nota syntax error). Degrade gracefully: an empty TS module.
+    code = PREAMBLE;
+    mappings = [];
+  }
+  return {
+    id: "root",
+    languageId: VIRTUAL_LANGUAGE_ID,
+    snapshot: ts.ScriptSnapshot.fromString(code),
+    mappings
+  };
+}
+
+/**
+ * The `getServiceScript` hook (the `@volar/typescript` `LanguagePlugin.typescript` extension):
+ * declares that the root virtual code **is** the TS-checkable script, as a `.tsx`. This is what
+ * routes the TS language service onto our virtual `.tsx` (and thus diagnostics/hover/etc. back
+ * through the mappings).
+ */
+function getServiceScript(
+  root: VirtualCode
+): TypeScriptServiceScript | undefined {
+  if (root.id !== "root") {
+    return undefined;
+  }
+  return {
+    code: root,
+    extension: ".tsx",
+    scriptKind: ts.ScriptKind.TSX
+  };
+}
+
+/**
+ * The Nota `LanguagePlugin<URI>` (generic param `URI` — Volar's node server keys scripts by `URI`).
+ *
+ * - `getLanguageId(uri)` → `"nota"` for `*.nota` (so unopened `.nota` files are still recognized),
+ *   `undefined` otherwise (defer to other plugins / TS itself).
+ * - `createVirtualCode(uri, languageId, snapshot)` → the {@link NotaVirtualCode} when `languageId`
+ *   is `"nota"`.
+ * - `typescript.extraFileExtensions` registers `.nota` with the TS project (deferred script kind, not
+ *   a TS extension itself — its *virtual* `.tsx` is what TS sees); `getServiceScript` points TS at
+ *   that virtual `.tsx`.
+ */
+export const notaLanguagePlugin: LanguagePlugin<URI, NotaVirtualCode> = {
+  getLanguageId(uri) {
+    if (uri.path.endsWith(".nota")) {
+      return NOTA_LANGUAGE_ID;
+    }
+    return undefined;
+  },
+
+  createVirtualCode(_uri, languageId, snapshot) {
+    if (languageId !== NOTA_LANGUAGE_ID) {
+      return undefined;
+    }
+    return createNotaVirtualCode(snapshot);
+  },
+
+  updateVirtualCode(_uri, _virtualCode, newSnapshot) {
+    // No incremental update — recompile from the new snapshot (the reader is fast).
+    return createNotaVirtualCode(newSnapshot);
+  },
+
+  typescript: {
+    extraFileExtensions: [
+      {
+        extension: "nota",
+        isMixedContent: true,
+        // `.nota` carries no TS by itself; its virtual `.tsx` is the deferred TS script.
+        scriptKind: ts.ScriptKind.Deferred
+      }
+    ],
+    getServiceScript
+  }
+};
