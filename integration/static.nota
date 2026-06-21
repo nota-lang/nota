@@ -1,0 +1,13 @@
+# Hello Nota
+
+This is a *static* document with _no_ islands.
+
+## A second section
+
+It has headings and paragraphs, and a list:
+
+- first item
+- second item
+- third item
+
+That should compile to a pure, zero-JS HTML page.

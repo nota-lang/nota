@@ -414,7 +414,21 @@ never null.
   Caps: embedded JS → full; `@Aside` → navigation+hover; host tags + boilerplate → unmapped.
   **Part 5 V must shift `generated_offsets` by the runtime-import preamble length it prepends**
   (`source_offsets` unchanged — the reader omits the import, §1). The binary/shim must grow a
-  `--virtual` mode (or a second entry) to expose `compile_virtual` to the language server.
+  `--virtual` mode to expose `compile_virtual` to the language server. **The `--virtual` JSON shape
+  (binary ↔ shim ↔ language-server contract):**
+  ```
+  nota_compile --virtual <file>  →  stdout JSON:
+  { "code": "<virtual .tsx>",
+    "mappings": [ { "sourceOffsets":[u32], "generatedOffsets":[u32], "lengths":[u32],
+                    "generatedLengths": [u32]|null,
+                    "data": {"completion":bool,"format":bool,"navigation":bool,
+                             "semantic":bool,"structure":bool,"verification":bool} } ] }
+  ```
+  The shim's `compileVirtual(source) → { code, mappings }` parses this. The language-server
+  `LanguagePlugin` prepends a runtime+ambient typing preamble to `code` and shifts every
+  `generatedOffsets` by the preamble length (`sourceOffsets` index the `.nota`, unchanged). A **wasm**
+  backend (wasm-bindgen over the same three entries) serves the browser playground (Part 4) and can
+  later replace the subprocess for the language server.
 
 **Ambient prelude (LOCKED).** The emitted module references `useState` (and, once shipped,
 `Math`/`CodeInline`/`CodeBlock`) as **free identifiers** — ambient, per §3.1 mechanism-not-policy. The
