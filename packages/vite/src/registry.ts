@@ -1,9 +1,8 @@
 /**
- * **Part 3 — M: the island registry / boot-entry helper** (implementation.md §3.3, §3.5-M;
- * contract §8 "Part-3 handoffs").
+ * The island registry / boot-entry helper.
  *
- * `bootIslands(manifest, registry)` (the Part-2 runtime contract) needs
- * `registry[name] → client component fn`. F1 (contract §1/§4) made every island-eligible component an
+ * `bootIslands(manifest, registry)` (the runtime's hydration entry point) needs
+ * `registry[name] → client component fn`. The reader makes every island-eligible component an
  * **independently importable module export** of the compiled `.nota` module, under a stable generated
  * name; the manifest's `comp` field *is* that exported name. So building the registry is mechanical:
  *
@@ -11,19 +10,19 @@
  * 2. emit a client boot-entry JS string that **imports each island component by its exported name**
  *    from the compiled module;
  * 3. build `registry = { [comp]: (props) => adapter.h(Component, props, []) }` — **BUILD the element,
- *    do NOT eagerly invoke** the component (contract §8: the framework must call it during render, so
- *    its hooks/signals run); and
+ *    do NOT eagerly invoke** the component (the framework must call it during render, so its
+ *    hooks/signals run); and
  * 4. `setAdapter(adapter)` + `bootIslands(manifest, registry)`.
  *
- * The generated string is **source for a bundler** — the CLI (Part 4 / §3.5-N) esbuild-bundles it
- * (registry + boot + island components + adapter + runtime) into one inlinable `<script>`; the
- * playground feeds the same shape to native-ESM + import maps. M itself stays bundler-agnostic: it is
- * a pure `manifest → string` code generator (impl §3.6 layer 2 tests it as such).
+ * The generated string is **source for a bundler** — the CLI esbuild-bundles it (registry + boot +
+ * island components + adapter + runtime) into one inlinable `<script>`; the playground feeds the same
+ * shape to native-ESM + import maps. This helper itself stays bundler-agnostic: it is a pure
+ * `manifest → string` code generator.
  *
  * **Why the manifest is embedded as a literal.** The entry embeds the manifest inline and calls
  * `bootIslands(<literal>, registry)`, so the bundle is self-contained — no separate fetch, no DOM
- * `<script type=application/json>` coupling (contract §F3 leaves manifest *delivery* to the
- * integrator; the CLI additionally inlines a JSON view as metadata, but boot never depends on it).
+ * `<script type=application/json>` coupling (manifest *delivery* is left to the integrator; the CLI
+ * additionally inlines a JSON view as metadata, but boot never depends on it).
  */
 
 import type { Manifest } from "@nota-lang/runtime";
@@ -32,15 +31,15 @@ import type { Manifest } from "@nota-lang/runtime";
 export interface ClientEntryOptions {
   /**
    * The module specifier of the **compiled `.nota` module** to import island components from. This is
-   * what F1's exported names (`manifest.comp`) are imported from — e.g. a relative path to the
-   * emitted module on disk (`"./doc.compiled.js"`), or a virtual id the bundler resolves. Required:
+   * what the manifest's exported names (`manifest.comp`) are imported from — e.g. a relative path to
+   * the emitted module on disk (`"./doc.compiled.js"`), or a virtual id the bundler resolves. Required:
    * an island registry is meaningless without the module that exports the components.
    */
   moduleId: string;
   /**
    * The framework **adapter** module specifier (default `"@nota-lang/react"`). Its *default export*
    * is the `Adapter`; the entry `setAdapter`s it before `bootIslands` (so islands hydrate through the
-   * chosen framework). One adapter per build (contract §F4).
+   * chosen framework). One adapter per build.
    */
   adapterModule?: string;
   /**
@@ -51,9 +50,9 @@ export interface ClientEntryOptions {
 }
 
 /**
- * A JS identifier safe to use as the local binding for an imported island component. F1 names are
- * authored JS identifiers already, but we defensively sanitize (and prefix) so a generated local can
- * never collide with the entry's own bindings (`adapter`, `registry`, `bootIslands`, …) or be an
+ * A JS identifier safe to use as the local binding for an imported island component. Component names
+ * are authored JS identifiers already, but we defensively sanitize (and prefix) so a generated local
+ * can never collide with the entry's own bindings (`adapter`, `registry`, `bootIslands`, …) or be an
  * invalid identifier. `Colorized` → `_island_Colorized`.
  */
 function localName(comp: string): string {
@@ -67,10 +66,10 @@ function localName(comp: string): string {
  * The emitted module:
  * - imports `setAdapter` + `bootIslands` from the runtime and the `adapter` (default export) from the
  *   adapter module;
- * - imports each **distinct** island component from `moduleId` **by its F1 exported name**
+ * - imports each **distinct** island component from `moduleId` **by its exported name**
  *   (`import { Colorized as _island_Colorized } from "<moduleId>"`);
- * - builds `registry[comp] = (props) => adapter.h(Component, props, [])` — the element-builder shape
- *   contract §8 mandates (the framework invokes the component; M never does);
+ * - builds `registry[comp] = (props) => adapter.h(Component, props, [])` — the required element-builder
+ *   shape (the framework invokes the component; this generator never does);
  * - embeds the manifest as a literal and calls `setAdapter(adapter); bootIslands(manifest, registry)`.
  *
  * @param manifest the manifest returned by `render(Doc)` (`Record<id, { comp, props }>`)
@@ -101,7 +100,7 @@ export function generateClientEntry(
       : "";
 
   // registry: name → **element-builder** taking `(props, slot)`. BUILD the element (`adapter.h`), do
-  // NOT eagerly invoke the component (contract §8) — the framework calls it during hydration so hooks
+  // NOT eagerly invoke the component — the framework calls it during hydration so hooks
   // run. `slot` is the reconstructed static-children `raw` HTML (see the boot loop), passed as the
   // component's children; the component forwards it via `@children` onto its host, where the adapter
   // injects it as innerHTML — reproducing the server shell so hydration matches. `[]` when childless.
@@ -115,7 +114,7 @@ export function generateClientEntry(
   // Embed the manifest as a literal so the bundle is self-contained (no fetch / DOM coupling).
   const manifestLiteral = JSON.stringify(manifest);
 
-  return `// Generated by @nota-lang/vite generateClientEntry (Part 3 M). Do not edit.
+  return `// Generated by @nota-lang/vite generateClientEntry. Do not edit.
 import { setAdapter, getAdapter, bootIslands, raw } from ${JSON.stringify(runtimeModule)};
 import adapter from ${JSON.stringify(adapterModule)};
 ${componentImports}
@@ -127,8 +126,8 @@ ${registryEntries}
 
 setAdapter(adapter);
 
-// Slot-aware boot (contract §8: slot rehydration is Part 3's job; the runtime's slot-agnostic
-// \`bootIslands\` is kept imported as the reference for the childless case). Specializes that
+// Slot-aware boot. This generator owns slot rehydration; the runtime's slot-agnostic
+// \`bootIslands\` is kept imported as the reference for the childless case. Specializes that
 // algorithm — select each island's \`[data-hydration-id]\` node, recover its **slot** (the component's
 // pre-rendered static children = the innerHTML of the SSR'd component root inside the marker), build
 // the element with that slot, and \`adapter.hydrate\` over the server DOM. The slot is recovered as the

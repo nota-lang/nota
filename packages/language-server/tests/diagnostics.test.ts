@@ -1,12 +1,12 @@
 /**
- * **Diagnostics** — implementation.md §5.8 layer 2. Drives the TS language service directly over the
- * virtual `.tsx` + the (shifted) `CodeMapping`s and maps each diagnostic back to its **`.nota`**
- * range through Volar's own `SourceMap` (`@volar/source-map`, re-exported by `@volar/language-core`).
- * This is the §5.8-sanctioned "drive the language service directly over the virtual code + mappings"
- * path — it exercises the exact Phase-V spine (`buildVirtual` → TS diagnostics → mapped to `.nota`)
- * using the production mapper, without the heavier Volar program/connection plumbing.
+ * **Diagnostics.** Drives the TS language service directly over the virtual `.tsx` + the (shifted)
+ * `CodeMapping`s and maps each diagnostic back to its **`.nota`** range through Volar's own
+ * `SourceMap` (`@volar/source-map`, re-exported by `@volar/language-core`). This drives the language
+ * service directly over the virtual code + mappings — it exercises the exact production path
+ * (`buildVirtual` → TS diagnostics → mapped to `.nota`) using the production mapper, without the
+ * heavier Volar program/connection plumbing.
  *
- * Headline case (§5.2): `@Unknown{}` lowers to `h(Unknown, {}, [])`, so TS reports
+ * Headline case: `@Unknown{}` lowers to `h(Unknown, {}, [])`, so TS reports
  * "Cannot find name 'Unknown'" — landing on the `.nota` `@Unknown` range after mapping back. A
  * positive control (a declared component) asserts no such error, so the diagnostic is real scope
  * analysis, not a blanket "everything is undefined".

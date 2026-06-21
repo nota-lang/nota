@@ -1,5 +1,5 @@
 /**
- * CM6 syntax highlighting for the **island manifest** (JSON) shown under the Post-SSG pane: the
+ * CM6 syntax highlighting for the **island manifest** (JSON) shown under the SSG-output pane: the
  * `@codemirror/lang-json` Lezer parser paired with the shared {@link catppuccinHighlight}.
  */
 

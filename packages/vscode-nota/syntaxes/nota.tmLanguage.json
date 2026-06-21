@@ -274,7 +274,7 @@
       "patterns": [
         {
           "comment": "TypeScript-tagged fence -> embed source.ts.",
-          "begin": "(`{3,})[ \\t]*(?i:(typescript|ts|tsx))[ \\t]*$",
+          "begin": "^\\s*(`{3,})[ \\t]*(?i:(typescript|ts|tsx))[ \\t]*$",
           "end": "(\\1)",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.raw.code.begin.nota" },
@@ -289,7 +289,7 @@
         },
         {
           "comment": "JavaScript-tagged fence -> embed source.js.",
-          "begin": "(`{3,})[ \\t]*(?i:(javascript|js|jsx))[ \\t]*$",
+          "begin": "^\\s*(`{3,})[ \\t]*(?i:(javascript|js|jsx))[ \\t]*$",
           "end": "(\\1)",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.raw.code.begin.nota" },
@@ -304,7 +304,7 @@
         },
         {
           "comment": "JSON-tagged fence -> embed source.json.",
-          "begin": "(`{3,})[ \\t]*(?i:(json|jsonc))[ \\t]*$",
+          "begin": "^\\s*(`{3,})[ \\t]*(?i:(json|jsonc))[ \\t]*$",
           "end": "(\\1)",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.raw.code.begin.nota" },
@@ -319,7 +319,7 @@
         },
         {
           "comment": "Generic fence: any other language tag, or none. Stays raw (the at-minimum scoping required by Phase U). The language tag, if present, is still captured for theming.",
-          "begin": "(`{3,})[ \\t]*([A-Za-z0-9_+#.-]+)?[ \\t]*$",
+          "begin": "^\\s*(`{3,})[ \\t]*([A-Za-z0-9_+#.-]+)?[ \\t]*$",
           "end": "(\\1)",
           "beginCaptures": {
             "1": { "name": "punctuation.definition.raw.code.begin.nota" },

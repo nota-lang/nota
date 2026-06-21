@@ -1,5 +1,5 @@
 /**
- * The in-browser Nota compiler (decode.md **stage 3**: `.nota` → emitted JS module).
+ * The in-browser Nota compiler: `.nota` → emitted JS module.
  *
  * Wraps the wasm-bindgen backend (`oxc/napi/nota_wasm/pkg`, README "JS API") so the playground runs
  * the reader **client-side, no server**. `init(input)` must be called once to fetch + instantiate the
@@ -8,15 +8,15 @@
  * wasm-bindgen `target web` default `init` accepts a `RequestInfo | URL | BufferSource | Module`).
  *
  * {@link compileNota} returns the emitted module **with the `@nota-lang/runtime` import prepended** —
- * the reader deliberately omits it (contract §1; the integrator supplies it). That matches what the
- * Post-SSG pane evaluates and what `@nota-lang/compiler` does on the Node side.
+ * the reader deliberately omits it (the integrator supplies it). That matches what the
+ * SSG-output pane evaluates and what `@nota-lang/compiler` does on the Node side.
  */
 
 import init, { compile, type InitInput } from "nota_wasm";
 // Vite resolves this to a served URL for the `.wasm` asset (hashed in build output).
 import wasmUrl from "nota_wasm/nota_wasm_bg.wasm?url";
 
-/** The runtime import the reader omits (contract §1) — prepended onto every emit. */
+/** The runtime import the reader omits — prepended onto every emit. */
 export const RUNTIME_IMPORT =
   'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";\n';
 
@@ -37,7 +37,7 @@ export function ensureCompiler(input?: InitInput): Promise<void> {
 }
 
 /**
- * Compile a `.nota` source to its emitted JS module (stage 3), runtime import prepended.
+ * Compile a `.nota` source to its emitted JS module, runtime import prepended.
  * Assumes {@link ensureCompiler} has resolved. Throws a normal `Error` on a Nota parse error
  * (the wasm backend rejects with a `JsError` whose `.message` is the rendered diagnostics).
  */

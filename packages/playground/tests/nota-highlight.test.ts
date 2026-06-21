@@ -47,6 +47,21 @@ describe("Nota grammar via Shiki", () => {
       prev = t.offset;
     }
   });
+
+  it("colors `#` headings (the catppuccin-latte theme has no generic markup.heading rule)", async () => {
+    const hl = await createNotaHighlighter();
+    const tokens = hl
+      .codeToTokens("# A heading\n\nprose\n", OPTS)
+      .tokens.flat();
+
+    // The heading line is colored and bold — not left in the default prose color. (Without the
+    // theme supplement in nota-mode, `markup.heading.nota` matches no rule and renders as plain text.)
+    const heading = tokens.find(t => t.content.includes("A heading"));
+    const prose = tokens.find(t => t.content.includes("prose"));
+    expect(heading?.color).toBeTruthy();
+    expect(heading?.color).not.toBe(prose?.color);
+    expect((heading?.fontStyle ?? 0) & 2).toBe(2); // FontStyle bold
+  });
 });
 
 describe("notaHighlighting CM6 bridge", () => {

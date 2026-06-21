@@ -40,10 +40,10 @@ const InlineC: CompFn = inlineComponent(children => children);
 const BlockC: CompFn = blockComponent(children => children);
 
 // =============================================================================================
-// Phase G — static core: h / Fragment / flatten
+// Static core: h / Fragment / flatten
 // =============================================================================================
 
-describe("flatten / h / Fragment (Phase G)", () => {
+describe("flatten / h / Fragment", () => {
   test("h builds an inert vnode; props default to {}", () => {
     expect(h("p", null, "Hello")).toEqual({
       tag: "p",
@@ -69,10 +69,10 @@ describe("flatten / h / Fragment (Phase G)", () => {
     expect(node.children).toEqual(["a"]);
   });
 
-  test('flatten: array child spliced one level (the h("ulli",{},[child]) shape)', () => {
+  test('flatten: array child spliced one level (the h("nota-ul-li",{},[child]) shape)', () => {
     const child = h("li", {}, "x");
-    expect(h("ulli", {}, [child])).toEqual({
-      tag: "ulli",
+    expect(h("nota-ul-li", {}, [child])).toEqual({
+      tag: "nota-ul-li",
       props: {},
       children: [child]
     });
@@ -110,16 +110,16 @@ describe("flatten / h / Fragment (Phase G)", () => {
     });
   });
 
-  // ---- E5: Fragment's optional leading props object (contract §1 / §4) ----
+  // ---- Fragment's optional leading props object ----
 
-  test("E5: Fragment({key}, child) carries props.key and the right children", () => {
+  test("Fragment({key}, child) carries props.key and the right children", () => {
     const child = h("li", {}, "x");
     const f = Fragment({ key: 0 }, child) as ElementVNode;
     expect(f).toEqual({ tag: FRAG, props: { key: 0 }, children: [child] });
     expect(f.props.key).toBe(0);
   });
 
-  test("E5: Fragment(child1, child2) (no leading props) is children-only, props {}", () => {
+  test("Fragment(child1, child2) (no leading props) is children-only, props {}", () => {
     const f = Fragment("a", h("b", {}, "c")) as ElementVNode;
     expect(f).toEqual({
       tag: FRAG,
@@ -128,8 +128,8 @@ describe("flatten / h / Fragment (Phase G)", () => {
     });
   });
 
-  test("E5 disambiguation: an array first arg is a CHILD, not props (bare Fragment(map(...)))", () => {
-    // decode.md's keyless `Fragment(xs.map(...))` — the array is spliced one level as children.
+  test("disambiguation: an array first arg is a CHILD, not props (bare Fragment(map(...)))", () => {
+    // A keyless `Fragment(xs.map(...))` — the array is spliced one level as children.
     const f = Fragment(["a", "b"].map(x => h("li", {}, x))) as ElementVNode;
     expect(f.props).toEqual({});
     expect(f.children).toEqual([
@@ -138,20 +138,20 @@ describe("flatten / h / Fragment (Phase G)", () => {
     ]);
   });
 
-  test("E5 disambiguation: a string first arg is a CHILD, not props", () => {
+  test("disambiguation: a string first arg is a CHILD, not props", () => {
     const f = Fragment("hello") as ElementVNode;
     expect(f.props).toEqual({});
     expect(f.children).toEqual(["hello"]);
   });
 
-  test("E5 disambiguation: a vnode first arg (has `tag`) is a CHILD, not props", () => {
+  test("disambiguation: a vnode first arg (has `tag`) is a CHILD, not props", () => {
     const v = h("span", {}, "x");
     const f = Fragment(v) as ElementVNode;
     expect(f.props).toEqual({});
     expect(f.children).toEqual([v]);
   });
 
-  test("E5 disambiguation: a RawHtml first arg is a CHILD, not props", () => {
+  test("disambiguation: a RawHtml first arg is a CHILD, not props", () => {
     const slot = raw("<i>x</i>");
     const f = Fragment(slot) as ElementVNode;
     expect(f.props).toEqual({});
@@ -159,14 +159,14 @@ describe("flatten / h / Fragment (Phase G)", () => {
     expect(f.children).toEqual([slot]);
   });
 
-  test("E5: Fragment({}) (empty props object) is treated as props, not a child", () => {
+  test("Fragment({}) (empty props object) is treated as props, not a child", () => {
     // an empty plain object has no `tag`, is not raw/array → props; children empty.
     const f = Fragment({}) as ElementVNode;
     expect(f.props).toEqual({});
     expect(f.children).toEqual([]);
   });
 
-  test("E5: the @for emit shape `xs.map((x,_i) => Fragment({key:_i}, h('li',{},[x])))`", () => {
+  test("the @for emit shape `xs.map((x,_i) => Fragment({key:_i}, h('li',{},[x])))`", () => {
     const nodes = ["a", "b"].map((x, _i) =>
       Fragment({ key: _i }, h("li", {}, [x]))
     ) as ElementVNode[];
@@ -204,29 +204,33 @@ describe("flatten / h / Fragment (Phase G)", () => {
 });
 
 // =============================================================================================
-// Phase H — struct: groupLists
+// struct: groupLists
 // =============================================================================================
 
 describe("groupLists", () => {
-  test("coalesces a run of ulli into one ul of li", () => {
-    const input = [el("ulli", ["a"]), el("ulli", ["b"]), el("ulli", ["c"])];
+  test("coalesces a run of nota-ul-li into one ul of li", () => {
+    const input = [
+      el("nota-ul-li", ["a"]),
+      el("nota-ul-li", ["b"]),
+      el("nota-ul-li", ["c"])
+    ];
     expect(groupLists(input)).toEqual([
       el("ul", [el("li", ["a"]), el("li", ["b"]), el("li", ["c"])])
     ]);
   });
 
-  test("olli → ol", () => {
-    expect(groupLists([el("olli", ["1"]), el("olli", ["2"])])).toEqual([
-      el("ol", [el("li", ["1"]), el("li", ["2"])])
-    ]);
+  test("nota-ol-li → ol", () => {
+    expect(
+      groupLists([el("nota-ol-li", ["1"]), el("nota-ol-li", ["2"])])
+    ).toEqual([el("ol", [el("li", ["1"]), el("li", ["2"])])]);
   });
 
-  test("adjacent ulli-run and olli-run stay separate lists", () => {
+  test("adjacent nota-ul-li-run and nota-ol-li-run stay separate lists", () => {
     const input = [
-      el("ulli", ["a"]),
-      el("ulli", ["b"]),
-      el("olli", ["1"]),
-      el("olli", ["2"])
+      el("nota-ul-li", ["a"]),
+      el("nota-ul-li", ["b"]),
+      el("nota-ol-li", ["1"]),
+      el("nota-ol-li", ["2"])
     ];
     expect(groupLists(input)).toEqual([
       el("ul", [el("li", ["a"]), el("li", ["b"])]),
@@ -234,8 +238,12 @@ describe("groupLists", () => {
     ]);
   });
 
-  test("a non-list sibling between two ulli runs splits them", () => {
-    const input = [el("ulli", ["a"]), el("p", ["mid"]), el("ulli", ["b"])];
+  test("a non-list sibling between two nota-ul-li runs splits them", () => {
+    const input = [
+      el("nota-ul-li", ["a"]),
+      el("p", ["mid"]),
+      el("nota-ul-li", ["b"])
+    ];
     expect(groupLists(input)).toEqual([
       el("ul", [el("li", ["a"])]),
       el("p", ["mid"]),
@@ -253,9 +261,9 @@ describe("groupLists", () => {
   test("nested list forms via struct recursion (no special case in groupLists)", () => {
     // - a
     //   - b
-    //   - c   (parser nests the inner ulli run inside item a's children)
+    //   - c   (parser nests the inner nota-ul-li run inside item a's children)
     const tree = frag([
-      el("ulli", ["a", el("ulli", ["b"]), el("ulli", ["c"])])
+      el("nota-ul-li", ["a", el("nota-ul-li", ["b"]), el("nota-ul-li", ["c"])])
     ]);
     expect(struct(tree)).toEqual(
       frag([
@@ -268,7 +276,7 @@ describe("groupLists", () => {
 });
 
 // =============================================================================================
-// Phase H — struct: groupParas + block/inline classification
+// struct: groupParas + block/inline classification
 // =============================================================================================
 
 describe("groupParas", () => {
@@ -329,7 +337,7 @@ describe("groupParas", () => {
 });
 
 // =============================================================================================
-// Phase H — struct: groupSections + heading ownership/nesting
+// struct: groupSections + heading ownership/nesting
 // =============================================================================================
 
 describe("groupSections", () => {
@@ -396,7 +404,10 @@ describe("struct (container gate + recursion)", () => {
   test("boundary stop: component passes through intact, static children decoded", () => {
     // A component's static children are list items → coalesced to <ul> (groupLists runs in any
     // component slot), but struct does NOT descend into the component body.
-    const tree = el(InlineC, [el("ulli", ["a"]), el("ulli", ["b"])]);
+    const tree = el(InlineC, [
+      el("nota-ul-li", ["a"]),
+      el("nota-ul-li", ["b"])
+    ]);
     expect(struct(tree)).toEqual(
       el(InlineC, [el("ul", [el("li", ["a"]), el("li", ["b"])])])
     );
@@ -436,7 +447,7 @@ describe("struct (container gate + recursion)", () => {
   });
 
   test("a tight <li> with a single inline child does NOT wrap it in <p>", () => {
-    const tree = frag([el("ulli", [el(InlineC, ["a"])])]);
+    const tree = frag([el("nota-ul-li", [el(InlineC, ["a"])])]);
     expect(struct(tree)).toEqual(
       frag([el("ul", [el("li", [el(InlineC, ["a"])])])])
     );
@@ -466,8 +477,8 @@ describe("struct (container gate + recursion)", () => {
     // # Title  then  - a  - b
     const tree = frag([
       el("h1", ["Title"]),
-      el("ulli", ["a"]),
-      el("ulli", ["b"])
+      el("nota-ul-li", ["a"]),
+      el("nota-ul-li", ["b"])
     ]);
     expect(struct(tree)).toEqual(
       frag([
@@ -485,15 +496,15 @@ describe("struct (container gate + recursion)", () => {
 });
 
 // =============================================================================================
-// THE HEADLINE FIXTURE — contract §2 / decode.md stage 4 → struct output
+// THE HEADLINE FIXTURE — the tree after Doc() runs → struct output
 // =============================================================================================
 
-describe("headline fixture (contract §2 stage-4 → struct)", () => {
-  test("the two ulli coalesce; each li holds the untouched Colorized boundary", () => {
-    // Stage-4 tree after Doc() runs (▸=false; Colorized deferred, not invoked):
+describe("headline fixture (tree after Doc() → struct)", () => {
+  test("the two nota-ul-li coalesce; each li holds the untouched Colorized boundary", () => {
+    // The structured tree after Doc() runs (▸=false; Colorized deferred, not invoked):
     const stage4 = frag([
-      el("ulli", [el(Colorized, ["a"])]),
-      el("ulli", [el(Colorized, ["b"])])
+      el("nota-ul-li", [el(Colorized, ["a"])]),
+      el("nota-ul-li", [el(Colorized, ["b"])])
     ]);
 
     const expected = frag([

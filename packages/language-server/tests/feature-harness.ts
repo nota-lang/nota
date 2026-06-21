@@ -1,11 +1,11 @@
 /**
- * **Shared feature harness** for the Phase-W language-feature tests (implementation.md §5.8 layer 3).
+ * **Shared feature harness** for the language-feature tests.
  *
  * Drives a real TS `LanguageService` directly over the virtual `.tsx` produced by {@link buildVirtual}
- * — the exact production spine (reader emit + typing preamble + shifted `CodeMapping`s) — and maps
+ * — the exact production pipeline (reader emit + typing preamble + shifted `CodeMapping`s) — and maps
  * positions/results back and forth through Volar's own `SourceMap` (`@volar/source-map`, re-exported by
- * `@volar/language-core`). This is the §5.8-sanctioned "drive the language service directly over the
- * virtual code + mappings" path, the same one `diagnostics.test.ts` uses; it lets every W feature
+ * `@volar/language-core`). This drives the language service directly over the virtual code + mappings,
+ * the same path `diagnostics.test.ts` uses; it lets every feature
  * (hover/completion/definition/references/rename) be asserted at a `.nota` cursor without the heavier
  * Volar program/connection plumbing — `volar-service-typescript` is the thin LSP adapter over exactly
  * these same TS calls + mappings, so a green result here is faithful to what the running server yields.
@@ -132,7 +132,7 @@ export function createFeatureHarness(notaSource: string): FeatureHarness {
 
 /** Hover (`quickInfo`) display string at a `.nota` offset, or `null` if TS reports none. */
 export function hoverAt(h: FeatureHarness, notaOffset: number): string | null {
-  // Hover is gated by `semantic` (contract §9: semantic = semantic tokens + hover).
+  // Hover is gated by `semantic` (the `semantic` capability covers semantic tokens + hover).
   const g = h.gen(notaOffset, d => d.semantic);
   if (g === null) {
     return null;
@@ -245,7 +245,7 @@ export const SEMANTIC_TOKEN_TYPES = [
  * TwentyTwenty)` over the virtual `.tsx` — decodes each `[offset, length, classification]` triplet to
  * a `(generated range, tokenType)` (the type index is `(classification >> 8) - 1`, exactly Volar's
  * `getTokenTypeFromClassification`), then maps the generated range back to `.nota` through the shifted
- * `SourceMap` **gated by `semantic`** (`toSourceRange(..., d => d.semantic)`) — the contract-§9
+ * `SourceMap` **gated by `semantic`** (`toSourceRange(..., d => d.semantic)`) — the
  * `MappingCapabilities.semantic` gate that Volar applies as `isSemanticTokensEnabled`. A token whose
  * generated range has no `semantic`-enabled `.nota` mapping (preamble, generated boilerplate, a host
  * tag's `"p"` literal) is dropped — so the result contains exactly the tokens the editor would paint

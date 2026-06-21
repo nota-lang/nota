@@ -1,11 +1,10 @@
 /**
- * Component constructors (contract §1 / decode.md §"Context-sensitive primitives"; R3).
+ * Component constructors.
  *
  * `inlineComponent` / `blockComponent` wrap a user function into a *marked* component function.
  * The mark (`isComp`, `kind`) is what `struct`/`serialize` branch on: `isComp` distinguishes a
  * component boundary from a host node, and `kind` drives `<p>` grouping (an inline component joins
- * a paragraph run; a block component flushes it). Needed in Phases G/H because `struct` already
- * branches on both.
+ * a paragraph run; a block component flushes it).
  */
 
 import { withFlag } from "./flag";
@@ -28,7 +27,7 @@ export interface CompFn {
   /** Drives `<p>` grouping in {@link "./struct"}: `"inline"` joins a run, `"block"` flushes it. */
   kind: "inline" | "block";
   /**
-   * The F1 stable/export name (contract §1, §4 F1). Set from the constructor's optional 2nd `name`
+   * The stable/export name. Set from the constructor's optional 2nd `name`
    * argument; `nameOf(CompFn) := CompFn.compName` is what {@link "./serialize".island} writes into
    * the manifest's `comp` field.
    *
@@ -53,7 +52,7 @@ export interface CompFn {
  *
  * Under the static build the function is *not* invoked — `h(C, …)` only records `C` as a boundary
  * tag (see {@link "./h".h}) — so `kind`/`isComp` are read structurally by `struct`, and the body
- * runs only later, inside SSR. `name` rides along as `compName` for `island`'s manifest (§1, F1).
+ * runs only later, inside SSR. `name` rides along as `compName` for `island`'s manifest.
  */
 function makeComponent(
   fn: CompBody,
@@ -71,7 +70,7 @@ function makeComponent(
 /**
  * An inline component: joins surrounding inline content inside a `<p>` (kind `"inline"`).
  *
- * `name` is the F1 stable/export name the reader passes (`inlineComponent(fn, "Colorized")`); it is
+ * `name` is the stable/export name the reader passes (`inlineComponent(fn, "Colorized")`); it is
  * recorded as `compName` and surfaces as the island manifest's `comp`. Optional so hand-written
  * fixtures that never island a component may omit it.
  */
@@ -97,15 +96,15 @@ export function isComp(tag: unknown): tag is CompFn {
 }
 
 /**
- * The component's manifest name (contract §1 `nameOf(CompFn) := CompFn.compName`).
- * {@link "./serialize".island} writes this into `manifest[id].comp`. If the reader omitted the F1
+ * The component's manifest name (`CompFn.compName`).
+ * {@link "./serialize".island} writes this into `manifest[id].comp`. If the reader omitted the
  * name (so `compName` is unset), this throws a pointed error — an island can't be hydrated by a
  * client that can't name its component, so a missing name is a build error, not a silent `""`.
  */
 export function nameOf(tag: CompFn): string {
   if (tag.compName === undefined) {
     throw new Error(
-      'island component has no name: a component used as a hydration island must be constructed with its F1 export name, e.g. inlineComponent(fn, "Colorized"). The reader passes this automatically; a hand-written fixture must supply it.'
+      'island component has no name: a component used as a hydration island must be constructed with its export name, e.g. inlineComponent(fn, "Colorized"). The reader passes this automatically; a hand-written fixture must supply it.'
     );
   }
   return tag.compName;

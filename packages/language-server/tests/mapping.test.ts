@@ -1,16 +1,16 @@
 /**
- * **Mapping fidelity** — implementation.md §5.8 layer 1, the *core* test. Wrong mappings break
- * every downstream feature, so this is tested first and hardest.
+ * **Mapping fidelity** — the *core* test. Wrong mappings break every downstream feature, so this is
+ * tested first and hardest.
  *
  * Two halves:
  *  1. **The preamble-shift math, explicitly** (`shiftMappings`): a synthetic reader mapping over a
  *     bare `.tsx`, shifted by a known constant — assert `generatedOffsets += shift`, `sourceOffsets`
  *     unchanged, `lengths` unchanged, `null` `generatedLengths` → absent (Volar's optional). This
- *     pins the contract-§9 rule independent of the reader's exact output.
+ *     pins the preamble-shift rule independent of the reader's exact output.
  *  2. **The live round-trip** (`buildVirtual` over a real `.nota` with embedded JS): a source offset
  *     inside an embedded-JS span maps to the **shifted** generated offset, and the generated slice
  *     equals the source token (`src.slice(so, so+len) === code.slice(go, go+len)`). This is the
- *     property that makes the whole spine correct.
+ *     property that makes the whole mapping correct.
  */
 
 import type { CodeMapping as ReaderCodeMapping } from "@nota-lang/compiler";
@@ -35,16 +35,16 @@ describe("preamble", () => {
   test("PREAMBLE is whole lines (every line ends in \\n) so the shift is a clean constant", () => {
     expect(PREAMBLE.endsWith("\n")).toBe(true);
     expect(PREAMBLE_LENGTH).toBe(PREAMBLE.length);
-    // The runtime import the reader omits (contract §1) is present, so h/decode/Fragment resolve.
+    // The runtime import the reader omits is present, so h/decode/Fragment resolve.
     expect(PREAMBLE).toContain(
       'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";'
     );
-    // The ambient prelude free identifiers (contract §9) are declared.
+    // The ambient prelude free identifiers are declared.
     expect(PREAMBLE).toContain("declare const useState:");
   });
 });
 
-describe("shiftMappings (the contract-§9 preamble-shift rule)", () => {
+describe("shiftMappings (the preamble-shift rule)", () => {
   test("shifts generatedOffsets by the constant, leaves sourceOffsets/lengths untouched", () => {
     const shift = 238;
     const bare: ReaderCodeMapping = {
@@ -97,7 +97,7 @@ describe("shiftMappings (the contract-§9 preamble-shift rule)", () => {
 });
 
 describe("buildVirtual (live round-trip over embedded JS)", () => {
-  // The §5.8 fixture: an embedded-JS `%` statement (with a TS type annotation) + a `@(user)`
+  // The fixture: an embedded-JS `%` statement (with a TS type annotation) + a `@(user)`
   // interpolation. Both `count`/`n` (the `%` body) and `user` are embedded-JS spans the reader maps.
   const SOURCE = "% const n: number = count()\n@p{@(user)}\n";
 
@@ -125,7 +125,7 @@ describe("buildVirtual (live round-trip over embedded JS)", () => {
         const genLen = m.generatedLengths?.[k] ?? len;
         const srcTok = SOURCE.slice(so, so + len);
         const genTok = code.slice(go, go + genLen);
-        // The reader produces byte-exact leaves (contract §9): generated slice === source slice.
+        // The reader produces byte-exact leaves: generated slice === source slice.
         expect(genTok).toBe(srcTok);
         segments++;
       }

@@ -1,9 +1,9 @@
 /**
- * `@nota-lang/vite` transform-plugin tests (impl §3.6 layer 1 — "Transform unit tests", mirroring
- * mdx's plugin test in `references/mdx/packages/rollup/lib/index.js`).
+ * `@nota-lang/vite` transform-plugin unit tests (mirroring mdx's plugin test in
+ * `references/mdx/packages/rollup/lib/index.js`).
  *
  * We invoke the plugin's `transform` hook **directly** — no full Vite build needed — and assert:
- *   - a `.nota` id → JS module + sourcemap shape out (with the contract §1 runtime import prepended,
+ *   - a `.nota` id → JS module + sourcemap shape out (with the runtime import prepended,
  *     since the hook delegates to the real `@nota-lang/compiler` → oxc reader);
  *   - a non-`.nota` id → `null` (passthrough);
  *   - extension filtering, including Vite's `?query` suffix (`foo.nota?import`, HMR `?t=…`);
@@ -58,10 +58,10 @@ describe("transform: .nota id → JS + sourcemap shape", () => {
     expect(result?.code).toContain(
       'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";'
     );
-    // it's real emitted JS from the reader (contract §1/§2 surface)
+    // it's real emitted JS from the reader
     expect(result?.code).toContain("export default function Doc()");
     expect(result?.code).toContain("blockComponent(");
-    // F1 name as 2nd arg (single-expression body → name lands after the body's closing paren).
+    // component name as 2nd arg (single-expression body → name lands after the body's closing paren).
     expect(result?.code).toContain(', "Note");');
     expect(result?.code).toContain('h("aside", {}');
     // the result carries a `map` key (undefined for now — CLI emits no v3 map yet, see plugin docs)

@@ -1,6 +1,5 @@
 /**
- * `@nota-lang/solid` — the Solid framework {@link Adapter} for the Nota runtime (implementation.md
- * §2.3 E3; decode.md §"Serialize + islands").
+ * `@nota-lang/solid` — the Solid framework {@link Adapter} for the Nota runtime.
  *
  * Mirror of `@nota-lang/react`, mapping the four-method `Adapter` surface onto Solid. **Solid has no
  * single hyperscript that works in both environments** — `solid-js/h` builds *DOM* (client only;
@@ -99,8 +98,8 @@ export const adapter: Adapter = {
 
   Fragment(_props, children) {
     const { kids } = splitChildren(children);
-    // Solid treats an array of nodes as a fragment in both environments. `_props` (the E5 `key`)
-    // is accepted for signature parity but **ignored — best-effort** (contract §4 E5): Solid's
+    // Solid treats an array of nodes as a fragment in both environments. `_props` (the `key`)
+    // is accepted for signature parity but **ignored — best-effort**: Solid's
     // reconciliation is fine-grained/keyed via `<For>` and component `key`, not via a key on a raw
     // fragment array, so there is no array-level slot for it. A keyless static fragment renders
     // identically; dynamic-list keying under Solid would be the reader emitting `<For>`, not this.
@@ -112,7 +111,8 @@ export const adapter: Adapter = {
   },
 
   hydrate(el, container) {
-    hydrate(() => el as never, container as Element);
+    // Solid's `hydrate` returns a dispose function; hand it back as the teardown handle.
+    return hydrate(() => el as never, container as Element);
   }
 };
 

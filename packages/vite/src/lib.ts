@@ -1,22 +1,22 @@
 /**
- * `@nota-lang/vite` — the Vite transform plugin (impl §3.5-L, the mdx-equivalent).
+ * `@nota-lang/vite` — the Vite transform plugin (the mdx-equivalent for `.nota`).
  *
  * This is the **only actual Vite surface** nota ships and the whole of `@nota-lang/vite`: a single
  * `transform` hook that turns `.nota` modules into JS + sourcemap, filtered by extension, leaving
  * everything else untouched. It is structurally the mdx Vite/Rollup plugin
  * (`references/mdx/packages/rollup/lib/index.js`) — one extension-filtered `transform`, no rendering.
- * The decode/SSG/islands machinery is *not* here (impl §3.1: mechanism, not policy); rendering is the
- * integrator's job via `@nota-lang/runtime`'s `render`/`bootIslands` (Part 3 phases M/N).
+ * The decode/SSG/islands machinery is *not* here (the plugin is mechanism, not policy); rendering is
+ * the integrator's job via `@nota-lang/runtime`'s `render`/`bootIslands`.
  *
  * The actual `.nota → JS` work is delegated to `@nota-lang/compiler` (`compile`), which spawns the
- * oxc reader and prepends the `@nota-lang/runtime` import (contract §1). This plugin is the thin Vite
- * adapter around it.
+ * oxc reader and prepends the `@nota-lang/runtime` import. This plugin is the thin Vite adapter
+ * around it.
  */
 
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 
-// --- Part 3 M: the island registry / boot-entry helper (impl §3.3, §3.5-M; contract §8) ---
+// --- the island registry / boot-entry helper ---
 export {
   type ClientEntryOptions,
   generateClientEntry
@@ -42,12 +42,12 @@ export interface NotaPluginOptions {
  * - **Extension filter.** Like mdx, we strip Vite's `?query`/`#hash` suffix before matching, so
  *   `foo.nota?import` and `foo.nota?t=123` (HMR cache-bust) still match.
  * - **Sourcemap.** Forwarded from the compiler (`undefined` for now — the CLI does not yet emit a
- *   v3 map; H1 is a forthcoming reader upgrade, contract §4). Returning `{ code, map }` is the
+ *   v3 map; sourcemap support is a forthcoming reader upgrade). Returning `{ code, map }` is the
  *   stable shape; once the compiler yields a map it flows through unchanged.
  * - **HMR.** v1 relies on Vite's **default transform-based HMR**: because the plugin participates in
  *   the module graph as a `transform`, an edited `.nota` re-runs `transform` and Vite invalidates
  *   importers. A bespoke `handleHotUpdate` (full-reload vs. partial, island-aware) is a later
- *   refinement (Part 3 phase M/N), not needed for the importable-and-hot-reloads baseline.
+ *   refinement, not needed for the importable-and-hot-reloads baseline.
  * - **`enforce: "pre"`.** Run before the core JS transforms (esbuild) so they see real JS, not the
  *   raw `.nota` source — the same ordering mdx/vue/svelte use for non-JS source modules.
  *

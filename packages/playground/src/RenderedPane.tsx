@@ -1,11 +1,10 @@
 /**
- * Phase S — the live **Rendered** pane (decode.md "hydrated"): the Post-SSG HTML booted live in a
- * sandboxed iframe, with each island hydrated in place so it becomes interactive (the golden's
- * `Colorized` click → red→green works).
+ * The live **Rendered** pane: the SSG HTML booted live in a sandboxed iframe, with each island
+ * hydrated in place so it becomes interactive (the golden's `Colorized` click → red→green works).
  *
- * Mechanism: write the stage-5 HTML into the (same-origin) iframe's document, then for each manifest
+ * Mechanism: write the SSG HTML into the (same-origin) iframe's document, then for each manifest
  * island find its `[data-hydration-id]` node and `adapter.hydrate` the island component over it —
- * recovering the component's `@children` slot from the SSR'd root's `innerHTML` (the M-helper /
+ * recovering the component's `@children` slot from the SSR'd root's `innerHTML` (the
  * `bootIslandsWithSlots` approach, so the client render matches the SSR and React doesn't bail).
  * The island components come from `runSSG`'s `registry` (the emitted module's named exports), so they
  * are the *same* component instances that produced the SSR HTML.
@@ -17,9 +16,9 @@ import { useEffect, useRef } from "react";
 import type { ManifestEntry } from "./ssg";
 
 export interface RenderedPaneProps {
-  /** The Post-SSG HTML (stage 5) to boot. */
+  /** The SSG HTML to boot. */
   html: string;
-  /** The island manifest from `render` (stage 5). */
+  /** The island manifest from `render`. */
   manifest: Record<string, ManifestEntry>;
   /** The island components, keyed by name (from `runSSG`). */
   registry: Record<string, unknown>;
@@ -43,7 +42,7 @@ export function RenderedPane({
     const doc = ref.current?.contentDocument;
     if (!doc) return;
 
-    // 1. Boot the Post-SSG HTML into the sandboxed (same-origin) iframe.
+    // 1. Boot the SSG HTML into the sandboxed (same-origin) iframe.
     doc.open();
     doc.write(
       `<!doctype html><html><head><meta charset="utf-8"><style>${FRAME_CSS}</style></head><body>${html}</body></html>`
@@ -52,6 +51,9 @@ export function RenderedPane({
 
     // 2. Hydrate each island in place, using the parent's React adapter on the iframe's nodes.
     setAdapter(reactAdapter as Parameters<typeof setAdapter>[0]);
+    // Collect each island's teardown so the next run (every debounced keystroke re-runs this effect
+    // and rewrites the iframe document) unmounts the prior React roots instead of leaking them.
+    const unmounts: Array<() => void> = [];
     for (const [id, entry] of Object.entries(manifest ?? {})) {
       const node = doc.querySelector(`[data-hydration-id="${id}"]`);
       const Component = registry?.[entry.comp];
@@ -61,18 +63,33 @@ export function RenderedPane({
         ? node.firstElementChild.innerHTML
         : node.innerHTML;
       try {
-        reactAdapter.hydrate(
-          reactAdapter.h(
-            Component as Parameters<typeof reactAdapter.h>[0],
-            entry.props,
-            raw(slot)
-          ),
-          node
+        unmounts.push(
+          reactAdapter.hydrate(
+            reactAdapter.h(
+              Component as Parameters<typeof reactAdapter.h>[0],
+              entry.props,
+              raw(slot)
+            ),
+            node
+          )
         );
       } catch {
         // A hydration mismatch shouldn't break the preview — the static SSR markup still shows.
       }
     }
+
+    // Cleanup before the next run (and on unmount): release the roots created above. React runs this
+    // before re-executing the effect, so the previous mounts are torn down ahead of the next
+    // `doc.write`, which would otherwise orphan them with no handle to unmount.
+    return () => {
+      for (const unmount of unmounts) {
+        try {
+          unmount();
+        } catch {
+          /* ignore — best-effort teardown of the live preview. */
+        }
+      }
+    };
   }, [html, manifest, registry, active]);
 
   return (

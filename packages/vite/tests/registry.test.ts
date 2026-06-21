@@ -1,35 +1,34 @@
 /**
- * **Part 3 M — `generateClientEntry` tests** (implementation.md §3.6 layer 2 — "Registry
- * generation"; contract §8 "Part-3 handoffs").
+ * `generateClientEntry` tests — registry generation.
  *
  * From a `render()` manifest, assert the generated client boot-entry module:
- *   - imports each **distinct** island component **by its F1 exported name** from the compiled module
- *     (validates F1 end-to-end — the manifest `comp` is an importable export);
+ *   - imports each **distinct** island component **by its exported name** from the compiled module
+ *     (validates that the manifest `comp` is an importable export, end-to-end);
  *   - **builds** the element (`adapter.h(Component, props, …)`) and does **NOT** eagerly invoke the
- *     component (contract §8: the framework must call it during render so hooks/signals run);
+ *     component (the framework must call it during render so hooks/signals run);
  *   - `setAdapter`s the adapter and calls `bootIslands(manifest, registry)`.
  *
- * M is a pure `manifest → string` generator, so these are string/AST assertions — no bundler needed
- * (the CLI's Q-path e2e exercises the bundled+booted form for real). We additionally parse the output
- * with the stock JS parser to prove it is a syntactically valid module.
+ * `generateClientEntry` is a pure `manifest → string` generator, so these are string/AST assertions —
+ * no bundler needed (the CLI's end-to-end tests exercise the bundled+booted form for real). We
+ * additionally parse the output with the stock JS parser to prove it is a syntactically valid module.
  */
 
 import type { Manifest } from "@nota-lang/runtime";
 import { describe, expect, test } from "vitest";
 import { generateClientEntry } from "../src/registry";
 
-// The canonical golden's manifest (contract §2 stage-5): two islands, both `Colorized`.
+// The canonical golden's manifest (the SSG output): two islands, both `Colorized`.
 const GOLDEN_MANIFEST: Manifest = {
   "1": { comp: "Colorized", props: {} },
   "2": { comp: "Colorized", props: {} }
 };
 
-describe("generateClientEntry (Part 3 M — registry/boot helper)", () => {
-  test("imports each DISTINCT island by its F1 exported name from the compiled module", () => {
+describe("generateClientEntry (registry/boot helper)", () => {
+  test("imports each DISTINCT island by its exported name from the compiled module", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
-    // F1: the manifest `comp` ("Colorized") is imported by name from the compiled module id.
+    // the manifest `comp` ("Colorized") is imported by name from the compiled module id.
     expect(out).toContain(
       'import { Colorized as _island_Colorized } from "./doc.compiled.js";'
     );
@@ -39,7 +38,7 @@ describe("generateClientEntry (Part 3 M — registry/boot helper)", () => {
     expect(importCount).toBe(1);
   });
 
-  test("BUILDS the element (adapter.h), does NOT eagerly invoke the component (contract §8)", () => {
+  test("BUILDS the element (adapter.h), does NOT eagerly invoke the component", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
@@ -57,7 +56,7 @@ describe("generateClientEntry (Part 3 M — registry/boot helper)", () => {
     });
     expect(out).toContain('import adapter from "@nota-lang/react";');
     // The runtime imports include `bootIslands` (the slot-agnostic reference) + the `raw`/`getAdapter`
-    // the slot-aware boot needs (contract §8: slot rehydration is Part 3's job).
+    // the slot-aware boot needs (slot rehydration is the generated entry's responsibility).
     expect(out).toContain(
       'import { setAdapter, getAdapter, bootIslands, raw } from "@nota-lang/runtime";'
     );
@@ -68,7 +67,7 @@ describe("generateClientEntry (Part 3 M — registry/boot helper)", () => {
     expect(out.indexOf("setAdapter(adapter)")).toBeLessThan(
       out.indexOf("bootIslandsWithSlots(manifest, registry)")
     );
-    // it selects islands by the contract §8 marker and recovers the slot from the DOM.
+    // it selects islands by the hydration-id marker and recovers the slot from the DOM.
     expect(out).toContain('[data-hydration-id="');
     expect(out).toContain("firstElementChild");
   });
@@ -113,7 +112,7 @@ describe("generateClientEntry (Part 3 M — registry/boot helper)", () => {
     expect(out).toContain("bootIslandsWithSlots(manifest, registry);");
   });
 
-  test("adapterModule / runtimeModule are overridable (one adapter per build, contract §F4)", () => {
+  test("adapterModule / runtimeModule are overridable (one adapter per build)", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./m.js",
       adapterModule: "@nota-lang/solid",

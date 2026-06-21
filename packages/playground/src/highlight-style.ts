@@ -1,5 +1,5 @@
 /**
- * The shared CM6 highlight for every output pane (Generated JS, Post-SSG HTML + manifest). Lezer's
+ * The shared CM6 highlight for every output pane (Generated JS, SSG-output HTML + manifest). Lezer's
  * `tags` are language-agnostic — `@lezer/javascript`, `@lezer/html`, and `@lezer/json` all assign the
  * same standard set — so one {@link HighlightStyle} colors all three. We map those tags onto the
  * Catppuccin-Latte palette (the light variant matching the `--*` vars in `playground.css` and the

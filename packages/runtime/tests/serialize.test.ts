@@ -1,9 +1,9 @@
 /**
- * Phase I — `serialize` + `island` unit tests (impl §2.7 layer 2), driven by a **stub adapter** that
+ * `serialize` + `island` unit tests, driven by a **stub adapter** that
  * records its calls and returns sentinel HTML. Asserts: host/text/fragment/void HTML emission,
  * attribute serialization (style object, booleans, event-handler omission, escaping), monotonic
  * hydration ids, manifest entries, static-slot pre-rendering (the boundary's children reach the
- * adapter as already-serialized HTML), and the non-JSON-serializable-prop throw (E4).
+ * adapter as already-serialized HTML), and the non-JSON-serializable-prop throw.
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -146,7 +146,7 @@ describe("serialize (host / text / fragment / void)", () => {
     expect(serialize(frag(["one ", el("b", ["two"])]))).toBe("one <b>two</b>");
   });
 
-  test("E5: a FRAG's props (e.g. a `key`) do NOT leak into serialized HTML", () => {
+  test("a FRAG's props (e.g. a `key`) do NOT leak into serialized HTML", () => {
     // Fragment({key}, child) sits the key in FRAG props; serialize renders FRAG as children joined,
     // with no wrapper element and no attribute pass — so static SSG output never carries the key.
     const f: ElementVNode = {
@@ -159,8 +159,8 @@ describe("serialize (host / text / fragment / void)", () => {
     expect(out).not.toContain("key");
   });
 
-  test("E5: each keyed @for FRAG serializes transparently — its `key` never reaches the HTML", () => {
-    // The reader's E5 emit `["a","b"].map((x,_i) => Fragment({key:_i}, h("li",{},[x])))` produces
+  test("each keyed @for FRAG serializes transparently — its `key` never reaches the HTML", () => {
+    // The reader's @for emit `["a","b"].map((x,_i) => Fragment({key:_i}, h("li",{},[x])))` produces
     // an array of keyed FRAGs. Each FRAG is transparent on serialize (children joined, no wrapper,
     // no attr pass), so the `key` it carries in props is dropped — only the inner <li> survives.
     const items = ["a", "b"].map((x, _i) =>
@@ -173,14 +173,14 @@ describe("serialize (host / text / fragment / void)", () => {
     expect(html).not.toContain("key");
   });
 
-  test("E5: keyed @for FRAGs through struct→serialize — transparent splice coalesces the list", () => {
+  test("keyed @for FRAGs through struct→serialize — transparent splice coalesces the list", () => {
     // The reader's @for over `-` items emits
-    //   ["a","b"].map((x,_i) => Fragment({key:_i}, h("ulli",{},[x])))
-    // struct splices each per-iteration FRAG transparently (contract §7), so the `ulli` sentinels
+    //   ["a","b"].map((x,_i) => Fragment({key:_i}, h("nota-ul-li",{},[x])))
+    // struct splices each per-iteration FRAG transparently, so the `nota-ul-li` sentinels
     // become direct siblings of the flow container and groupLists coalesces them into ONE <ul>. The
     // `key` is dropped (static HTML needs none). This is the canonical golden's list behavior.
     const items = ["a", "b"].map((x, _i) =>
-      Fragment({ key: _i }, h("ulli", {}, [x]))
+      Fragment({ key: _i }, h("nota-ul-li", {}, [x]))
     );
     const html = serialize(struct(frag(items)));
     expect(html).toBe("<ul><li>a</li><li>b</li></ul>");
@@ -335,10 +335,10 @@ describe("island (ids / manifest / slot / wiring)", () => {
 });
 
 // =============================================================================================
-// island — E4 non-JSON-serializable prop throws
+// island — non-JSON-serializable prop throws
 // =============================================================================================
 
-describe("island (E4 JSON-serializable prop validation)", () => {
+describe("island (JSON-serializable prop validation)", () => {
   const C: CompFn = inlineComponent(c => c, "C");
 
   test("a function prop throws a pointed error", () => {

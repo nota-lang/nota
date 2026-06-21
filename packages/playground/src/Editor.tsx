@@ -5,7 +5,12 @@
  * highlighter loads asynchronously, so `App` passes `[]` first and the real extension once ready.
  */
 
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab
+} from "@codemirror/commands";
 import { Compartment, type Extension } from "@codemirror/state";
 import {
   EditorView,
@@ -39,7 +44,9 @@ export function Editor({ value, onChange, language }: EditorProps) {
         lineNumbers(),
         history(),
         highlightActiveLine(),
-        keymap.of([...defaultKeymap, ...historyKeymap]),
+        // Tab indents / Shift-Tab dedents. CM6 leaves Tab unbound by default (it keeps Tab for
+        // focus traversal); this editor is the primary focus target, so we opt into tab-to-indent.
+        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
         langCompartment.current.of(language ?? []),
         EditorView.updateListener.of(update => {

@@ -29,7 +29,7 @@ lead with that, then build the machinery underneath it.
 ---->
 
 <>{["a", "b"].map(x =>
-  <ulli><Colorized>{x}</Colorized></ulli>)
+  <nota-ul-li><Colorized>{x}</Colorized></nota-ul-li>)
 }</>
 
 ----->
@@ -43,7 +43,7 @@ export default function Doc() {
       return decode(h("span", {onClick: () => setColor("green"), style: {color}}, children));
     });
     return Fragment(["a", "b"].map(x =>
-      h("ulli", {}, [
+      h("nota-ul-li", {}, [
         h(Colorized, {}, x)
       ])
     ));
@@ -55,10 +55,10 @@ export default function Doc() {
 decode({
   tag: "fragment", 
   children: [
-    {tag: "ulli", children: [
+    {tag: "nota-ul-li", children: [
       {tag: Colorized, children: ["a"]}
     ]},
-    {tag: "ulli", children: [
+    {tag: "nota-ul-li", children: [
       {tag: Colorized, children: ["b"]}
     ]}
   ]
@@ -89,7 +89,7 @@ what makes the bullets above fall out.
 ```
 vnode v ::= string                       // text leaf
           | ⟨t, p, k⟩                     // t = tag, p = props, k = child vnodes
-t       ::= "div" | "ulli" | …           // host string  → static, decode owns it
+t       ::= "div" | "nota-ul-li" | …           // host string  → static, decode owns it
           | CompFn                        // component fn → boundary, framework owns it
 ```
 A static build yields a tree of plain `⟨t,p,k⟩` (the stage-4 tree). Component-tagged nodes are
@@ -123,7 +123,7 @@ struct(v):
   return ⟨v.tag, v.props, map(struct, k)⟩                             // recurse into new host nodes
 
 groupLists(k):     // coalesce a same-kind sentinel run → one list
-  scan k; a maximal run of identical `ulli`/`olli` → ⟨ul|ol, {}, [⟨li,{},itemᵢ.children⟩…]⟩.
+  scan k; a maximal run of identical `nota-ul-li`/`nota-ol-li` → ⟨ul|ol, {}, [⟨li,{},itemᵢ.children⟩…]⟩.
   Nested lists need no case: the parser nests a deeper run inside the parent item's children,
   so struct's recursion forms the inner list.
 

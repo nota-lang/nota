@@ -1,5 +1,5 @@
 /**
- * **Definition / references / rename** — Phase W, implementation.md §5.7-W / §5.8 layer 3.
+ * **Definition / references / rename.**
  *
  * The navigation family — go-to-definition, find-references, rename — is produced by
  * `volar-service-typescript` over the virtual `.tsx` and mapped back through the shifted

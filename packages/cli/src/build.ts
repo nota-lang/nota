@@ -1,16 +1,16 @@
 /**
- * **Part 4 — the CLI build pipeline** (implementation.md §4.1, §4.4; contract §8).
+ * **The CLI build pipeline.**
  *
  * `buildNota(source) → BuildOutput`: one `.nota` source string → one **self-contained** HTML string,
- * every asset inlined (no external requests). This is the integrator (§3.1) that sequences the
- * Part-1/2/3 pieces:
+ * every asset inlined (no external requests). This is the integrator that sequences the compiler,
+ * runtime, and bundler pieces:
  *
  * ```
  * doc.nota
- *   → @nota-lang/compiler        // → JS module string (runtime import prepended; contract §1)
+ *   → @nota-lang/compiler        // → JS module string (runtime import prepended)
  *   → load in Node SSR + setAdapter
  *   → render(Doc)                 // → { html, manifest }
- *   → if islands:  esbuild the client bundle (M's boot entry + island components + adapter + runtime)
+ *   → if islands:  esbuild the client bundle (boot entry + island components + adapter + runtime)
  *                  → inline as <script>; inline the manifest as JSON metadata
  *   → emit one .html               // SSG body + inline <style> + inline <script>(s)
  * ```
@@ -19,7 +19,7 @@
  *
  * 1. **Loading/SSR-ing the compiled module.** The emitted module is ESM that (a) imports
  *    `@nota-lang/runtime` and (b) references `useState` as a **free identifier** (the reader emits it
- *    ambient — §3.1). The runtime `dist` further uses bundler-style **extensionless ESM imports**
+ *    ambient). The runtime `dist` further uses bundler-style **extensionless ESM imports**
  *    (`./adapter`, …) Node's native ESM can't resolve. So we **esbuild-bundle** an SSR entry (which
  *    imports `Doc` from the compiled module + `render`/`setAdapter` from the runtime + the adapter)
  *    into a Node-loadable CJS module, then load it and call `render`. esbuild's bundler resolution
@@ -67,12 +67,12 @@ const MODULE_FILE =
  * The ambient prelude source (snag 2) — the single source of truth for it. Written to the work dir
  * and `inject`ed into both bundles so a free `useState` in the compiled module resolves to React's.
  * Held here as a string (rather than a shipped file) so the bundled single-file CLI is self-contained
- * — it materializes the prelude on demand. The reader emits `useState` (and, once the math/code
- * phases land, `Math` / `CodeInline` / `CodeBlock`) as **free identifiers** (§3.1 mechanism, not
- * policy); the integrator supplies them, and esbuild `inject` rewrites the free references to these
- * exports. Extend with `CodeInline` / `CodeBlock` / `Math` (the *component*) once the runtime ships
- * them; `Math` (the object) is a JS global and needs nothing. **Contract delta:** the integrator
- * supplies the ambient prelude via esbuild `inject`; the minimal required member is `useState`.
+ * — it materializes the prelude on demand. The reader emits `useState` (and, eventually,
+ * `Math` / `CodeInline` / `CodeBlock`) as **free identifiers**; the integrator supplies them, and
+ * esbuild `inject` rewrites the free references to these exports. Extend with `CodeInline` /
+ * `CodeBlock` / `Math` (the *component*) once the runtime ships them; `Math` (the object) is a JS
+ * global and needs nothing. The integrator supplies the ambient prelude via esbuild `inject`; the
+ * minimal required member is `useState`.
  */
 export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";\n`;
 
@@ -86,8 +86,7 @@ export interface BuildOptions {
   /** Document `<title>` (default: the `sourcePath` basename, else `"Nota Document"`). */
   title?: string;
   /**
-   * Adapter package specifier for the client bundle (default `"@nota-lang/react"`). One per build
-   * (contract §F4).
+   * Adapter package specifier for the client bundle (default `"@nota-lang/react"`). One per build.
    */
   adapterModule?: string;
   /**
@@ -115,14 +114,14 @@ export interface BuildOutput {
   hasIslands: boolean;
 }
 
-/** `{ html, manifest }` from the SSR phase (P). */
+/** `{ html, manifest }` produced by the SSR step. */
 interface SsrResult {
   html: string;
   manifest: Manifest;
 }
 
 // ---------------------------------------------------------------------------------------------
-// P — static: compile → SSR → { html, manifest }
+// static: compile → SSR → { html, manifest }
 // ---------------------------------------------------------------------------------------------
 
 /**
@@ -132,8 +131,8 @@ interface SsrResult {
  * Mechanism (snag 1 + 2): write the compiled module to the work dir; esbuild-bundle an SSR entry —
  * `import Doc from "<compiled>"; import { render, setAdapter } from "@nota-lang/runtime"; import
  * adapter from "<adapter>"; setAdapter(adapter); export const result = render(Doc);` — to CJS with the
- * prelude `inject`ed; load it and read `result`. `render` is synchronous (contract §8), so the result
- * is available at module-load time.
+ * prelude `inject`ed; load it and read `result`. `render` is synchronous, so the result is available
+ * at module-load time.
  */
 async function ssrRender(
   workDir: string,
@@ -182,12 +181,12 @@ export const result = render(Doc);
 }
 
 // ---------------------------------------------------------------------------------------------
-// Q — islands: M boot entry → esbuild client bundle (single string)
+// islands: boot entry → esbuild client bundle (single string)
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Bundle the client island boot script to a single self-contained string (Q). Uses the Part-3 M
- * helper ({@link generateClientEntry}) for the boot entry (registry + `bootIslands` + embedded
+ * Bundle the client island boot script to a single self-contained string. Uses the
+ * {@link generateClientEntry} helper for the boot entry (registry + `bootIslands` + embedded
  * manifest), then esbuild-bundles it (boot + island components from the compiled module + adapter +
  * runtime + React client) for the **browser**, IIFE, minified. The prelude is `inject`ed so the
  * island bodies' free `useState` resolves on the client too.
@@ -253,9 +252,9 @@ function baseTitle(sourcePath?: string): string {
 /**
  * Assemble the final self-contained HTML document. The island `<script>` is inlined verbatim (an
  * esbuild IIFE bundle — no external `src`); the manifest is inlined as a
- * `<script type="application/json">` **metadata** view (contract §F3 — the boot does not depend on
- * it; it is embedded in the bundle). For an island-free doc, **no `<script>` is emitted at all**
- * (the zero-JS property, §4.1).
+ * `<script type="application/json">` **metadata** view (the boot does not depend on it; it is
+ * embedded in the bundle). For an island-free doc, **no `<script>` is emitted at all** (the zero-JS
+ * property).
  */
 function assembleHtml(args: {
   bodyHtml: string;
@@ -272,7 +271,7 @@ function assembleHtml(args: {
 
   const scripts: string[] = [];
   if (clientScript !== undefined) {
-    // Manifest as inspectable JSON metadata (boot reads the copy embedded in the bundle — §F3).
+    // Manifest as inspectable JSON metadata (boot reads the copy embedded in the bundle).
     scripts.push(
       `<script type="application/json" id="nota-manifest">${JSON.stringify(
         manifest
@@ -317,8 +316,8 @@ export async function buildNota(
   const resolveFrom = options.resolveFrom ?? join(MODULE_DIR, "..");
   const nodePaths = [join(resolveFrom, "node_modules")];
 
-  // 1. compile (.nota → JS module; runtime import prepended — contract §1). Throws on a reader
-  //    diagnostic (the message carries stderr); the CLI surfaces it.
+  // 1. compile (.nota → JS module; runtime import prepended). Throws on a reader diagnostic (the
+  //    message carries stderr); the CLI surfaces it.
   const { code } = compile(source, { sourcePath: options.sourcePath });
 
   const workDir = mkdtempSync(join(tmpdir(), "nota-build-"));
@@ -334,7 +333,7 @@ export async function buildNota(
     const nodeEnv = options.dev ? "development" : "production";
     const bundleOpts = { adapterModule, preludePath, nodePaths, nodeEnv };
 
-    // 2. P — SSR: render the document to HTML + manifest.
+    // 2. SSR: render the document to HTML + manifest.
     const { html: bodyHtml, manifest } = await ssrRender(
       workDir,
       compiledPath,
@@ -342,7 +341,7 @@ export async function buildNota(
     );
     const hasIslands = Object.keys(manifest).length > 0;
 
-    // 3. Q — islands: bundle the client boot script (only when there is an island to hydrate).
+    // 3. islands: bundle the client boot script (only when there is an island to hydrate).
     const clientScript = hasIslands
       ? await bundleClient(workDir, compiledPath, manifest, bundleOpts)
       : undefined;

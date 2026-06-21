@@ -67,7 +67,7 @@ struct, serialize, island, render                  // SSG machinery + driver (de
 ```
 
 `flatten(children)`: children args are flattened one level (arrays spliced in), text coerced, nullish
-dropped. Note both call shapes occur: `h("ulli", {}, [child])` (one array arg) and `h(C, {}, x)` (one
+dropped. Note both call shapes occur: `h("nota-ul-li", {}, [child])` (one array arg) and `h(C, {}, x)` (one
 scalar arg) — `flatten` normalizes both to a child list. See decode.md §"Context-sensitive primitives".
 
 ### vnode data model (Part 2 internal; Part 1 only emits the calls above)
@@ -110,7 +110,7 @@ export let Colorized = inlineComponent((children) => {
 export default function Doc() {
   return decode(Fragment(
     ["a", "b"].map((x, _i) =>
-      Fragment({ key: _i }, h("ulli", {}, [
+      Fragment({ key: _i }, h("nota-ul-li", {}, [
         h(Colorized, {}, [x])
       ]))
     )
@@ -118,18 +118,18 @@ export default function Doc() {
 }
 ```
 Notes: (a) `Colorized` hoisted to module scope + `export`ed (F1/R4); (b) component body markup wrapped
-in `decode(...)`; (c) `@children` → the bound `children` param; (d) `-` list marker → `"ulli"` sentinel
+in `decode(...)`; (c) `@children` → the bound `children` param; (d) `-` list marker → `"nota-ul-li"` sentinel
 (runtime `struct` later coalesces to `<ul><li>`); (e) Doc body wrapped in `decode(...)`.
 
 **Stage 4 — vnode tree after `Doc()` runs (`▸=false`; `Colorized` boundary deferred, not invoked)**
 ```
 ⟨FRAG, {}, [
-  ⟨"ulli", {}, [ ⟨Colorized, {}, ["a"]⟩ ]⟩,
-  ⟨"ulli", {}, [ ⟨Colorized, {}, ["b"]⟩ ]⟩
+  ⟨"nota-ul-li", {}, [ ⟨Colorized, {}, ["a"]⟩ ]⟩,
+  ⟨"nota-ul-li", {}, [ ⟨Colorized, {}, ["b"]⟩ ]⟩
 ]⟩
 ```
 
-**Stage 5 — HTML + manifest after `serialize(struct(...))`** (groupLists coalesces the `ulli` run;
+**Stage 5 — HTML + manifest after `serialize(struct(...))`** (groupLists coalesces the `nota-ul-li` run;
 each `Colorized` boundary → island, SSR'd with `▸=true` so `useState("red")` bakes `color:red`)
 ```html
 <ul>
@@ -169,8 +169,8 @@ left column is the source; its right column is the *JSX view* — translate to h
 | `_italic_` | `h("em", {}, ["italic"])` |
 | `# Title` | `h("h1", {}, ["Title"])` |
 | `### Sub *bit*` | `h("h3", {}, ["Sub ", h("strong", {}, ["bit"])])` |
-| `- a` (list item line) | `h("ulli", {}, ["a"])` (runtime `struct` groups runs → `<ul><li>`) |
-| `+ a` | `h("olli", {}, ["a"])` (→ `<ol><li>`) |
+| `- a` (list item line) | `h("nota-ul-li", {}, ["a"])` (runtime `struct` groups runs → `<ul><li>`) |
+| `+ a` | `h("nota-ol-li", {}, ["a"])` (→ `<ol><li>`) |
 | `@if (c) {a}` | `c ? Fragment("a") : null` |
 | `@if (c) {a} else {b}` | `c ? Fragment("a") : Fragment("b")` |
 | `@if (c) {a} else if (d) {b}` | `c ? Fragment("a") : d ? Fragment("b") : null` |
@@ -196,7 +196,7 @@ literal emit captured in `packages/react/tests/fixtures/golden.compiled.ts`, and
 through the runtime + React adapter to the **exact** stage-5 HTML + manifest — asserted by the
 `reader-emit golden (Part 1 → Part 2, full loop)` test in `packages/react/tests/integration.test.ts`.
 This closes the decode.md arc across both halves on real output (keyed `@for`, fragment transparency,
-`ulli` coalescing, island SSR). (`integration/run.mjs`, the standalone Node form, still needs
+`nota-ul-li` coalescing, island SSR). (`integration/run.mjs`, the standalone Node form, still needs
 vite-style module resolution — the canonical executable check is the vitest test; the `@nota-lang/compiler`
 shim, Wave 4, makes the live-compile path clean.)
 
@@ -325,7 +325,7 @@ the body).
 *sibling*, `FRAG` is **transparent**: `struct` splices a FRAG sibling's children into the parent's
 sibling stream — recursively — *before* the grouping passes, so the children participate in the
 parent's grouping. This is what makes `@for`'s per-iteration keyed `Fragment({key:_i}, …)` (E5)
-dissolve at `▸=false`: the wrapped `ulli` sentinels become direct siblings and `groupLists` coalesces
+dissolve at `▸=false`: the wrapped `nota-ul-li` sentinels become direct siblings and `groupLists` coalesces
 them into one `<ul>`. The key (in FRAG props) is dropped during the splice — static HTML needs none;
 at `▸=true` the Fragment still carries its key through `adapter.Fragment`. (A bare `@{…}` fragment of
 inline content splices identically — same visual result; block content inside it now correctly joins

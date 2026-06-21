@@ -1,5 +1,5 @@
 /**
- * **Part 4 — CLI golden / build tests** (implementation.md §4.5 layer 1).
+ * **CLI golden / build tests.**
  *
  * Drive {@link buildNota} on the two shared fixtures and assert the CLI's pinned properties:
  *
@@ -7,7 +7,7 @@
  *     real HTML attribute, ignoring substrings inside the inlined `<script>`/`<style>` text);
  *   - **zero-`<script>` for an island-free doc** (`static.nota`: headings/paragraphs/list) — no
  *     manifest ⇒ no client bundle ⇒ a pure static page;
- *   - the **islands path** (`golden.nota`) — the exact stage-5 body HTML, the inlined manifest, and an
+ *   - the **islands path** (`golden.nota`) — the exact SSG body HTML, the inlined manifest, and an
  *     inlined client `<script>` (no `src`);
  *   - structural snapshots of the inlined output.
  *
@@ -54,7 +54,7 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
     expect(out.manifest).toEqual({});
   });
 
-  test("ZERO <script>: a pure static page (the §4.1 zero-JS property)", () => {
+  test("ZERO <script>: a pure static page (the zero-JS property)", () => {
     expect(out.html).not.toMatch(/<script/i);
   });
 
@@ -97,7 +97,7 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     out = await build("golden.nota");
   });
 
-  test("two Colorized islands in the manifest (contract §2 stage-5)", () => {
+  test("two Colorized islands in the manifest", () => {
     expect(out.hasIslands).toBe(true);
     expect(out.manifest).toEqual({
       "1": { comp: "Colorized", props: {} },
@@ -105,7 +105,7 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     });
   });
 
-  test("the SSG body is the exact stage-5 HTML (ulli coalesced, islands SSR'd color:red)", () => {
+  test("the SSG body is the exact final HTML (nota-ul-li coalesced, islands SSR'd color:red)", () => {
     expect(out.html).toContain(
       '<ul><li><nota-island data-hydration-id="1"><span style="color:red">a</span></nota-island></li>' +
         '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'

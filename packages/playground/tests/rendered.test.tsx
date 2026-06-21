@@ -1,5 +1,5 @@
 /**
- * Phase S test (impl §4.5): the **Rendered** pane boots the Post-SSG HTML in the iframe and hydrates
+ * Rendered-pane test: the **Rendered** pane boots the SSG HTML in the iframe and hydrates
  * each island so it becomes interactive — the golden's `Colorized` click flips red→green. Same
  * hydrate-then-click assertion as the CLI's acceptance test, but driving the live `RenderedPane`.
  */
@@ -26,7 +26,7 @@ afterEach(cleanup);
 /** Let the `RenderedPane` effect (iframe write + hydrate) flush. */
 const tick = () => new Promise(r => setTimeout(r, 0));
 
-describe("Rendered pane (stage hydrated)", () => {
+describe("Rendered pane", () => {
   it("boots the SSG HTML into the iframe and hydrates islands interactively", async () => {
     const { html, manifest, registry } = runSSG(compileNota(GOLDEN_NOTA));
 
@@ -45,7 +45,7 @@ describe("Rendered pane (stage hydrated)", () => {
     const doc = iframe.contentDocument;
     if (!doc) throw new Error("iframe has no contentDocument");
 
-    // The Post-SSG structure is booted into the iframe: the coalesced <ul> + both islands.
+    // The SSG structure is booted into the iframe: the coalesced <ul> + both islands.
     expect(doc.body.innerHTML).toContain("<ul>");
     expect(doc.querySelector('[data-hydration-id="1"]')).toBeTruthy();
 

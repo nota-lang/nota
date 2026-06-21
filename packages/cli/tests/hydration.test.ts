@@ -1,6 +1,6 @@
 /**
- * **Part 4 — CLI hydration e2e: THE acceptance test** (implementation.md §4.5 layer 2; §3.6 layer 3,
- * now against a *file* rather than a dev server).
+ * **CLI hydration e2e: the acceptance test** (the same hydration arc the dev server proves, but now
+ * against a *file* rather than a dev server).
  *
  * Headless-load the golden's emitted single-file HTML into jsdom, execute its inlined client bundle,
  * and assert the island is **server-present AND interactive after boot** — the canonical `Colorized`

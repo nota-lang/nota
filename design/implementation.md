@@ -92,7 +92,7 @@ only emits the flat `h(…)`/sentinel calls that `decode` later restructures.
 
 **D1 — Lower at parse time; no intermediate Nota AST/CST.** The reader builds oxc JS AST
 (`h`/`decode`/`Fragment`/component CallExpressions) directly as it parses. Justification: every
-Nota desugaring is *local* — `@tag`→`h`, `-x`→`h("ulli",…)`, `*x*`→`h("strong",…)`, `@for`→`.map`,
+Nota desugaring is *local* — `@tag`→`h`, `-x`→`h("nota-ul-li",…)`, `*x*`→`h("strong",…)`, `@for`→`.map`,
 `@if`→ternary, `%`→statement/IIFE, whitespace→string children, interpolation→the JS expr. The only
 *non-local* transforms (paragraph/list/section grouping) are deferred to runtime `decode`, so the
 parser never needs a tree to walk. Revisit only if error quality demands a real CST.
@@ -123,7 +123,7 @@ fixtures directly.
 - **C — Document mode + whitespace.** file → `Doc`; Scribble whitespace → explicit `{"…"}` children;
   colon/block sugar; `%`/`%%%` statements + module hoisting + `await`→`async`.
 - **D — Control flow.** `@if` / `else` / `@for` → ternary / `.map`.
-- **E — Markup sugar.** `#` headings; `-`/`+` → `ulli`/`olli` sentinels; `*`/`_` word-boundary
+- **E — Markup sugar.** `#` headings; `-`/`+` → `nota-ul-li`/`nota-ol-li` sentinels; `*`/`_` word-boundary
   emphasis. Runtime `decode` does the grouping, so these stay local.
 - **F — Verbatim / code / math.** `|{}|`, fenced code, `$`/`$$` → `String.raw`.
 
@@ -297,7 +297,7 @@ bootIslands(manifest, registry)                     // client: for each id, find
 Mirrors §1.6. Tests are TypeScript (`vitest`), per package.
 
 1. **`struct` unit tests (primary).** Hand-built vnode trees → expected grouped trees: list-run
-   coalescing (`ulli`/`olli`, mixed kinds, nested via recursion), paragraph runs split by breaks,
+   coalescing (`nota-ul-li`/`nota-ol-li`, mixed kinds, nested via recursion), paragraph runs split by breaks,
    block vs. inline classification (incl. `inlineComponent` vs `blockComponent`), section ownership
    by heading rank (incl. nesting), and the **boundary stop** (components left intact, their static
    children decoded). decode.md stage-4→5 is the headline fixture.

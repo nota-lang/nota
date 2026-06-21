@@ -1,5 +1,5 @@
 /**
- * Phase J — injector + `▸` lifecycle (implementation.md §2.7 layer 4): the `▸` flag's save/restore
+ * Injector + `▸` lifecycle: the `▸` flag's save/restore
  * (`withFlag`), the "no adapter injected" throw, and the one-adapter singleton (`setAdapter`/
  * `getAdapter`/`clearAdapter`). No framework — a trivial fake adapter suffices.
  */

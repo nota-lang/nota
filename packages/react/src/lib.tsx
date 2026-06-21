@@ -1,6 +1,5 @@
 /**
- * `@nota-lang/react` — the React framework {@link Adapter} for the Nota runtime (implementation.md
- * §2.3 E3; decode.md §"Serialize + islands").
+ * `@nota-lang/react` — the React framework {@link Adapter} for the Nota runtime.
  *
  * The runtime is framework-agnostic: under `▸ = true` (inside a component body during island SSR /
  * client hydration) `h`/`Fragment` dispatch through whichever adapter was `setAdapter`'d, and
@@ -17,7 +16,7 @@
  * **The raw slot.** A boundary's pre-serialized static children arrive as a {@link RawHtml} marker
  * (via the runtime's `raw(slot)`). When it appears among an element's children, the element is
  * rendered with `dangerouslySetInnerHTML` and no React children — so the slot HTML is injected
- * verbatim rather than re-parsed/escaped (decode.md §"Component slots").
+ * verbatim rather than re-parsed/escaped.
  */
 
 import type { Adapter } from "@nota-lang/runtime";
@@ -86,7 +85,7 @@ export const adapter: Adapter = {
 
   Fragment(props, children) {
     const { kids } = splitChildren(children);
-    // React.Fragment accepts `key` (and only `key`) via the props arg — so the reader's E5
+    // React.Fragment accepts `key` (and only `key`) via the props arg — so the reader's keyed
     // `Fragment({ key: _i }, …)` becomes `createElement(React.Fragment, { key: _i }, …kids)` and
     // the key drives React's list reconciliation. A keyless fragment passes `null` (no props).
     return React.createElement(
@@ -102,7 +101,13 @@ export const adapter: Adapter = {
 
   hydrate(el, container) {
     // React 18+ argument order is (container, element).
-    hydrateRoot(container as Element | Document, el as React.ReactNode);
+    const root = hydrateRoot(
+      container as Element | Document,
+      el as React.ReactNode
+    );
+    // Hand back the teardown so callers (e.g. the playground's live preview) can unmount and
+    // release the root rather than leaking it on the next render.
+    return () => root.unmount();
   }
 };
 

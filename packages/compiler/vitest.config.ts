@@ -9,7 +9,7 @@ import { defineConfig } from "vite";
  *   spawn the reader, assert the emit surface. Node env, `node` conditions.
  * - **dom** — the *live* end-to-end (`tests/e2e.test.ts`): drive `compile()` on
  *   `integration/golden.nota` and render the reader's actual emit through `@nota-lang/runtime` +
- *   `@nota-lang/react` to the stage-5 HTML. jsdom env + *browser* conditions (so React's client
+ *   `@nota-lang/react` to the final SSG HTML. jsdom env + *browser* conditions (so React's client
  *   build loads) and `@vitejs/plugin-react`; `inlineDeps` makes the workspace `@nota-lang/*`
  *   packages get transformed (so the conditions apply). This is the live twin of the captured-
  *   fixture e2e in `packages/react/tests/integration.test.ts`.

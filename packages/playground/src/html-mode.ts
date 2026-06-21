@@ -1,5 +1,5 @@
 /**
- * CM6 syntax highlighting for the **Post-SSG HTML** pane: the `@codemirror/lang-html` Lezer parser
+ * CM6 syntax highlighting for the **SSG-output HTML** pane: the `@codemirror/lang-html` Lezer parser
  * paired with the shared {@link catppuccinHighlight} (which maps the HTML tag/attribute tags too).
  */
 

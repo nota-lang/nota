@@ -1,14 +1,14 @@
 /**
  * The Nota VSCode extension — a **thin client** that launches the Volar language server
- * (`@nota-lang/language-server`) and lets it drive all semantic features for `.nota` files
- * (implementation.md §5.7-W). The TextMate grammar + language registration stay declarative in
- * `package.json` (Phase U); this module adds the Phase-V/W layer: it spawns the server and hands it
- * `nota` documents over an LSP connection.
+ * (`@nota-lang/language-server`) and lets it drive all semantic features for `.nota` files.
+ * The TextMate grammar + language registration stay declarative in
+ * `package.json`; this module spawns the language server and hands it `nota` documents over an LSP
+ * connection.
  *
- * **What rides this connection (Phases V–W):** diagnostics (`@Unknown{}` → "Cannot find name"),
+ * **What rides this connection:** diagnostics (`@Unknown{}` → "Cannot find name"),
  * hover, completion, go-to-definition, find-references, and rename — each produced by the server's
  * `volar-service-typescript` over the per-file virtual `.tsx` and mapped back to `.nota` ranges via
- * the H1 `CodeMapping`s. The client itself is feature-agnostic: it only starts/stops the server and
+ * the generated `CodeMapping`s. The client itself is feature-agnostic: it only starts/stops the server and
  * declares which documents (`language: "nota"`) it owns.
  */
 

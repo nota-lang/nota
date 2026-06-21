@@ -1,22 +1,22 @@
 /**
- * `@nota-lang/compiler` — the Node shim around the oxc Nota *reader* (contract §1, impl §3.5).
+ * `@nota-lang/compiler` — the Node shim around the oxc Nota *reader*.
  *
  * The reader lives in the Rust fork (`oxc::nota::compile`); this package is the JS-side glue that
  * makes its output usable from Node. {@link compile} takes a `.nota` source string and returns the
  * emitted JS module (plus, eventually, a sourcemap), with the `@nota-lang/runtime` import the reader
- * deliberately omits **prepended** (contract §1: "The reader does **not** emit the
- * `@nota-lang/runtime` import — the compiler shim/integrator prepends it").
+ * deliberately omits **prepended**. The reader does not emit the `@nota-lang/runtime` import — the
+ * compiler shim (or integrator) prepends it.
  *
- * **v1 mechanism — Node subprocess.** We spawn the pre-built release CLI
+ * **Current mechanism — Node subprocess.** We spawn the pre-built release CLI
  * (`oxc/target/release/examples/nota_compile <file.nota>`), which prints the emitted module to
  * stdout (diagnostics → stderr, exit 1 on error). The source is written to a temp file the shim
  * owns, the binary runs over it, and stdout is captured.
  *
- * **Later upgrade — wasm/napi backend.** Part 4's browser playground (and a faster Node path) wants
- * the reader compiled to wasm (`oxc::nota::compile` behind `wasm-bindgen`) so there is no subprocess
- * and it runs in the browser. That is a drop-in replacement for {@link compile}'s body — the API
- * (string in → `{ code, map }` out, runtime import prepended) is backend-agnostic and stays fixed.
- * v1 is the subprocess; the wasm backend is a later, non-breaking swap.
+ * **Later upgrade — wasm/napi backend.** A browser playground (and a faster Node path) wants the
+ * reader compiled to wasm (`oxc::nota::compile` behind `wasm-bindgen`) so there is no subprocess and
+ * it runs in the browser. That is a drop-in replacement for {@link compile}'s body — the API (string
+ * in → `{ code, map }` out, runtime import prepended) is backend-agnostic and stays fixed. The
+ * subprocess is the current path; the wasm backend is a later, non-breaking swap.
  */
 
 import { execFileSync } from "node:child_process";
@@ -25,7 +25,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** The runtime import the reader omits — contract §1, prepended onto every emit. */
+/** The runtime import the reader omits — prepended onto every emit. */
 export const RUNTIME_IMPORT =
   'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";\n';
 
@@ -94,8 +94,8 @@ function resolveBinary(): string {
  * Compile a `.nota` source string to an emitted JS module.
  *
  * Writes `source` to a temp file, spawns the `nota_compile` binary over it, and captures stdout as
- * the emitted module. The {@link RUNTIME_IMPORT} (contract §1) is prepended to the result. On a
- * non-zero exit the binary's stderr diagnostics are surfaced as the thrown `Error`'s message.
+ * the emitted module. The {@link RUNTIME_IMPORT} is prepended to the result. On a non-zero exit the
+ * binary's stderr diagnostics are surfaced as the thrown `Error`'s message.
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
@@ -128,13 +128,13 @@ export function compile(
       throw toCompileError(err, opts.sourcePath);
     }
 
-    // Contract §1: prepend the runtime import the reader omits.
+    // Prepend the runtime import the reader omits.
     const code = RUNTIME_IMPORT + stdout;
 
-    // The CLI does not yet surface a sourcemap on stdout; H1's structured CodeMappings + a flat v3
-    // map are a forthcoming reader upgrade (contract §4 H1). Once present, parse + return them here.
-    // The prepended import shifts generated offsets by one leading line, which a real map must
-    // account for (trivial to offset). Kept undefined until the backend emits it.
+    // The CLI does not yet surface a sourcemap on stdout; structured CodeMappings + a flat v3 map are
+    // a forthcoming reader upgrade. Once present, parse + return them here. The prepended import
+    // shifts generated offsets by one leading line, which a real map must account for (trivial to
+    // offset). Kept undefined until the backend emits it.
     return { code, map: undefined };
   } finally {
     // Best-effort cleanup of the temp dir; never mask a compile error with a cleanup failure.
@@ -147,12 +147,12 @@ export function compile(
 }
 
 // ===================================================================================================
-// H1/H2 — the virtual (`.tsx`) emit for the language server (contract §9).
+// The virtual (`.tsx`) emit for the language server.
 // ===================================================================================================
 
 /**
  * A Volar `@volar/language-core` `CodeMapping`, as emitted by the reader's `compile_virtual`
- * (`oxc/crates/oxc/src/nota.rs`) and serialized by the binary's `--virtual` mode (contract §9).
+ * (`oxc/crates/oxc/src/nota.rs`) and serialized by the binary's `--virtual` mode.
  *
  * Parallel arrays — one *segment* per index `k`: source bytes `[sourceOffsets[k],
  * sourceOffsets[k]+lengths[k])` correspond to generated bytes `[generatedOffsets[k],
@@ -161,9 +161,9 @@ export function compile(
  * but the field is carried for fidelity. `data` is the capability flag set (Volar `CodeInformation`).
  *
  * Offsets index the **`.nota`** source (`sourceOffsets`) and the reader's **bare** virtual `.tsx`
- * (`generatedOffsets`) — i.e. *without* the runtime+ambient typing preamble, which the reader omits
- * (contract §1/§9). The language-server `LanguagePlugin` prepends that preamble and shifts every
- * `generatedOffsets` by its length (`sourceOffsets` unchanged).
+ * (`generatedOffsets`) — i.e. *without* the runtime+ambient typing preamble, which the reader omits.
+ * The language-server `LanguagePlugin` prepends that preamble and shifts every `generatedOffsets` by
+ * its length (`sourceOffsets` unchanged).
  */
 export interface CodeMapping {
   /** Source byte offsets into the `.nota` (one per segment). */
@@ -182,8 +182,8 @@ export interface CodeMapping {
 }
 
 /**
- * Volar `CodeInformation` capability flags for a mapped range (contract §9; `oxc`
- * `MappingCapabilities`). Each boolean gates a class of IDE feature when the TS service result maps
+ * Volar `CodeInformation` capability flags for a mapped range (the `oxc` `MappingCapabilities`).
+ * Each boolean gates a class of IDE feature when the TS service result maps
  * back to the `.nota`: `completion` (autocomplete), `format` (formatting/edits), `navigation`
  * (go-to-def / find-refs / rename), `semantic` (semantic tokens + **hover**), `structure` (outline /
  * folding), `verification` (**diagnostics**, incl. `@Unknown{}` → "Cannot find name").
@@ -205,22 +205,22 @@ export interface MappingCapabilities {
 export interface VirtualCompileResult {
   /** The emitted virtual `.tsx` module (type-preserving, no runtime/ambient preamble). */
   code: string;
-  /** The H1 {@link CodeMapping}s mapping `.tsx` offsets back to `.nota` offsets. */
+  /** The {@link CodeMapping}s mapping `.tsx` offsets back to `.nota` offsets. */
   mappings: CodeMapping[];
 }
 
-/** The exact `--virtual` stdout JSON shape (contract §9) `compileVirtual` parses. */
+/** The exact `--virtual` stdout JSON shape `compileVirtual` parses. */
 interface VirtualJson {
   code: string;
   mappings: CodeMapping[];
 }
 
 /**
- * Compile a `.nota` source to the **type-preserving virtual `.tsx`** emit + Volar CodeMappings
- * (H1/H2; contract §9). The language server (`@nota-lang/language-server`) consumes this.
+ * Compile a `.nota` source to the **type-preserving virtual `.tsx`** emit + Volar CodeMappings.
+ * The language server (`@nota-lang/language-server`) consumes this.
  *
  * Spawns the reader binary with `--virtual <file>` (same path resolution as {@link compile}) and
- * parses the contract-§9 JSON from stdout. Unlike {@link compile}, the runtime import is **not**
+ * parses the JSON from stdout. Unlike {@link compile}, the runtime import is **not**
  * prepended here — the language-server `LanguagePlugin` prepends a runtime+ambient typing preamble
  * (so `h`/`decode`/`useState`/… type-check) and shifts the mappings by its length; doing it here
  * would double-shift.
@@ -264,10 +264,10 @@ export function compileVirtual(
 }
 
 /**
- * Parse the `--virtual` stdout JSON (contract §9) into a {@link VirtualCompileResult}, validating the
- * shape so a malformed binary surfaces a clear error rather than a downstream `undefined`. Exported
- * for unit-testing the parse against a hand-written sample JSON while the binary's `--virtual` mode
- * is still landing (a parallel oxc stream).
+ * Parse the `--virtual` stdout JSON into a {@link VirtualCompileResult}, validating the shape so a
+ * malformed binary surfaces a clear error rather than a downstream `undefined`. Exported for
+ * unit-testing the parse against a hand-written sample JSON while the binary's `--virtual` mode is
+ * still landing in the reader.
  *
  * @internal
  */
@@ -287,7 +287,7 @@ export function parseVirtualJson(
   if (typeof parsed.code !== "string" || !Array.isArray(parsed.mappings)) {
     const where = sourcePath ? ` (${sourcePath})` : "";
     throw new Error(
-      `nota: --virtual JSON missing \`code\`/\`mappings\`${where} (contract §9 shape)`
+      `nota: --virtual JSON missing \`code\`/\`mappings\`${where}`
     );
   }
   // Light per-mapping validation: the parallel arrays must be present and equal-length. Cheap, and
@@ -301,7 +301,7 @@ export function parseVirtualJson(
       m.sourceOffsets.length !== m.lengths.length
     ) {
       throw new Error(
-        "nota: --virtual CodeMapping has missing or mismatched-length offset arrays (contract §9)"
+        "nota: --virtual CodeMapping has missing or mismatched-length offset arrays"
       );
     }
   }

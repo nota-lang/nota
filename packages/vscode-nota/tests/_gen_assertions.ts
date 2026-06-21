@@ -22,8 +22,16 @@ const require = createRequire(import.meta.url);
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, "..");
 const NOTA = join(pkgRoot, "syntaxes", "nota.tmLanguage.json");
-const TS = join(pkgRoot, "node_modules", "tm-grammars", "grammars", "typescript.json");
-const wasmBin = readFileSync(require.resolve("vscode-oniguruma/release/onig.wasm")).buffer;
+const TS = join(
+  pkgRoot,
+  "node_modules",
+  "tm-grammars",
+  "grammars",
+  "typescript.json"
+);
+const wasmBin = readFileSync(
+  require.resolve("vscode-oniguruma/release/onig.wasm")
+).buffer;
 const onigLib = oniguruma.loadWASM(wasmBin).then(() => ({
   createOnigScanner: (p: string[]) => new oniguruma.OnigScanner(p),
   createOnigString: (s: string) => new oniguruma.OnigString(s)
@@ -56,7 +64,9 @@ async function main() {
       // The "//" prefix occupies columns 0-1, so we need (startIndex-2) spaces
       // before the caret. Tokens at column 0/1 must use `<-` instead; skip them.
       if (t.startIndex < 2) {
-        out.push(`// (token at col ${t.startIndex} needs <- ; scope ${deepest})`);
+        out.push(
+          `// (token at col ${t.startIndex} needs <- ; scope ${deepest})`
+        );
         continue;
       }
       const pad = " ".repeat(t.startIndex - 2);

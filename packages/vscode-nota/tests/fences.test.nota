@@ -20,3 +20,12 @@ raw 50% @x stays literal here
 //      ^^ markup.raw.code.block.nota - punctuation.definition.interpolation.nota
 ```
 // <- punctuation.definition.raw.code.end.nota
+
+// --- a triple-backtick run mid-prose is INLINE raw, not a block fence opener ---
+// (the block `begin` is anchored to line-start, so it cannot fire after text and swallow
+//  the following lines as embedded code — the inline-code fallback handles it instead.)
+caption ``` x ``` end
+//      ^^^ markup.raw.code.inline.nota punctuation.definition.raw.code.begin.nota
+//      ^^^ - markup.raw.code.block.nota
+//          ^ markup.raw.code.inline.nota
+//            ^^^ punctuation.definition.raw.code.end.nota

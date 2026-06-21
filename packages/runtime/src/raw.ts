@@ -1,6 +1,6 @@
 /**
- * The pre-rendered-HTML marker `raw(html)` (decode.md §"Serialize + islands": the `raw(slot)` an
- * adapter injects as innerHTML instead of escaping).
+ * The pre-rendered-HTML marker `raw(html)`: a `raw(slot)` an adapter injects as innerHTML instead
+ * of escaping.
  *
  * `island()` pre-serializes a boundary's *static* children to an HTML string (the "slot"), then
  * hands them to the framework as `adapter.h(comp, props, raw(slot))`. The slot is already HTML — it

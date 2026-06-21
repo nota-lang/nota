@@ -1,5 +1,5 @@
 /**
- * **Hover & completion + capability gates** — Phase W, implementation.md §5.7-W / §5.8 layer 3.
+ * **Hover & completion + capability gates.**
  *
  * `volar-service-typescript` already yields hover (`quickInfo`) and completion over the virtual `.tsx`
  * and maps them back to `.nota` ranges via the shifted `CodeMapping`s, gated by each range's
@@ -10,7 +10,7 @@
  *     CompFn`);
  *   - **completion** inside a `%` block / interpolation offers in-scope bindings — including a
  *     component declared earlier in the document and the ambient `useState`;
- *   - the **capability gates** (contract §9): a *host* tag (`@p`) is unmapped → offers nothing; a
+ *   - the **capability gates**: a *host* tag (`@p`) is unmapped → offers nothing; a
  *     *component identifier* (`@Aside`) is navigation+hover but **not** completion/format/structure.
  */
 
@@ -68,7 +68,7 @@ describe("completion (TS completions mapped to .nota)", () => {
     // The earlier `%` bindings are in scope…
     expect(names.has("greeting")).toBe(true);
     expect(names.has("Aside")).toBe(true);
-    // …as is the ambient-prelude `useState` (contract §9 ambient prelude, supplied by the preamble).
+    // …as is the ambient-prelude `useState` (supplied by the preamble).
     expect(names.has("useState")).toBe(true);
   });
 
@@ -85,7 +85,7 @@ describe("completion (TS completions mapped to .nota)", () => {
   });
 });
 
-describe("capability gates (contract §9 MappingCapabilities)", () => {
+describe("capability gates (MappingCapabilities)", () => {
   test("a HOST tag (@p) is unmapped — no hover, no completion, no navigation", () => {
     const h = createFeatureHarness(DOC);
     // Host tags lower to string literals (`h("p", …)`) with no leverage to the `.nota`; the reader
@@ -106,7 +106,7 @@ describe("capability gates (contract §9 MappingCapabilities)", () => {
     expect(h.gen(ASIDE_USE, d => d.semantic)).not.toBeNull();
     expect(h.gen(ASIDE_USE, d => d.verification)).not.toBeNull();
     // …but completion / format / structure are gated OFF (a component reference is not a place to
-    // autocomplete-from, reformat, or fold — contract §9 `@Aside → navigation+hover`).
+    // autocomplete-from, reformat, or fold — `@Aside → navigation+hover`).
     expect(h.gen(ASIDE_USE, d => d.completion)).toBeNull();
     expect(h.gen(ASIDE_USE, d => d.format)).toBeNull();
     expect(h.gen(ASIDE_USE, d => d.structure)).toBeNull();

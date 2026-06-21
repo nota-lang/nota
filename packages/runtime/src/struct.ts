@@ -1,9 +1,9 @@
 /**
- * The structural pass `struct` (decode.md §"Structural pass — struct"; contract §1).
+ * The structural pass `struct`.
  *
  * `struct` turns a *flat* sibling stream of small content pieces into the *nested* HTML structure
  * a document wants, via three sibling-grouping passes over a child list — then recurses, **stopping
- * at component boundaries**. decode.md's core skeleton:
+ * at component boundaries**. The core skeleton:
  *
  * ```
  * struct(v):
@@ -18,9 +18,9 @@
  * and `groupParas` passes block-level `ul`/`ol`/`hN` through), and sections must see the
  * lists/paras they own (so `groupSections` runs last).
  *
- * ## Container gate (a decision decode.md leaves implicit — see report §2)
+ * ## Container gate
  *
- * decode.md applies all three passes to *every* host node uniformly, but that over-groups: it would
+ * Applying all three passes to *every* host node uniformly would over-group: it would
  * wrap `@p{Hello}`'s text in a *second* `<p>`, paragraph-wrap a list item's single inline child
  * (contradicting the canonical golden, whose `<li>` holds the `Colorized` boundary directly with
  * no `<p>`), and re-section a `<section>`'s own heading on the recursive descent. So paragraph- and
@@ -42,10 +42,16 @@
  */
 
 import { isComp } from "./component";
-import { type ElementVNode, FRAG, isElement, isFragment, type VNode } from "./vnode";
+import {
+  type ElementVNode,
+  FRAG,
+  isElement,
+  isFragment,
+  type VNode
+} from "./vnode";
 
 // ---------------------------------------------------------------------------------------------
-// Contract constants (the reader must honor these — see report §2)
+// Contract constants (the reader must honor these)
 // ---------------------------------------------------------------------------------------------
 
 /**
@@ -135,8 +141,8 @@ export const HOST_FLOW_TAGS: ReadonlySet<string> = new Set([
 
 /** The list-item sentinels the reader emits for `-` / `+`, and the list tag each coalesces into. */
 const LIST_SENTINEL = {
-  ulli: "ul",
-  olli: "ol"
+  "nota-ul-li": "ul",
+  "nota-ol-li": "ol"
 } as const;
 type ListSentinel = keyof typeof LIST_SENTINEL;
 
@@ -166,13 +172,12 @@ function headingRank(v: VNode): number | undefined {
 }
 
 /**
- * Block-level test for paragraph grouping (decode.md `isBlock`):
+ * Block-level test for paragraph grouping (`isBlock`):
  * `⟨t,…⟩ ∧ ( t ∈ HOST_BLOCK_TAGS ∨ (isComp(t) ∧ t.kind == "block") )`.
  *
- * Following the spec **literally**, a fragment (`tag === FRAG`) is *not* block: `FRAG` is neither
- * in `HOST_BLOCK_TAGS` nor a component, so `isBlock(FRAG) = false` → a fragment is treated as
- * inline and joins the surrounding paragraph run. (This is the chosen interpretation of the
- * underspecified fragment case; documented as a contract point.)
+ * A fragment (`tag === FRAG`) is *not* block: `FRAG` is neither in `HOST_BLOCK_TAGS` nor a
+ * component, so `isBlock(FRAG) = false` → a fragment is treated as inline and joins the surrounding
+ * paragraph run.
  */
 function isBlock(v: VNode): boolean {
   if (!isElement(v)) {
@@ -193,8 +198,8 @@ function isBlock(v: VNode): boolean {
  * blank line (a newline, optional non-newline whitespace, another newline). It *splits* paragraph
  * runs and is consumed (not emitted into output).
  *
- * Rationale (contract point — the reader must match): the reader emits each interior newline as an
- * individual `"\n"` text child (notation.md §Whitespace / contract §3). A *single* `"\n"` (or other
+ * Rationale (the reader must match): the reader emits each interior newline as an
+ * individual `"\n"` text child. A *single* `"\n"` (or other
  * whitespace with no blank line) is a soft break and stays **inline** — it joins the run, so the
  * `<p>` keeps the author's line breaks. A *blank line* (two or more newlines, i.e. an empty source
  * line between paragraphs) is the paragraph boundary. Matching on `/\n[^\S\n]*\n/` captures exactly
@@ -210,10 +215,10 @@ function isParaBreak(v: VNode): boolean {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Splice **transparent fragments** (contract §7): a `FRAG` *sibling* contributes its children to the
+ * Splice **transparent fragments**: a `FRAG` *sibling* contributes its children to the
  * parent's sibling stream — recursively — so a fragment is transparent to grouping. This is what
- * dissolves `@for`'s per-iteration keyed `Fragment({key:_i}, …)` (E5) at `▸=false`: the wrapped
- * `ulli` sentinels become direct siblings and `groupLists` coalesces them into one `<ul>`. The FRAG's
+ * dissolves `@for`'s per-iteration keyed `Fragment({key:_i}, …)` at `▸=false`: the wrapped
+ * `nota-ul-li` sentinels become direct siblings and `groupLists` coalesces them into one `<ul>`. The FRAG's
  * own props (the `key`) are dropped here — static HTML needs no key; the `▸=true` path keeps the key
  * via `adapter.Fragment`. (A bare `@{…}` fragment splices identically.)
  *
@@ -259,8 +264,8 @@ export function struct(v: VNode): VNode {
   }
   if (isComp(v.tag)) {
     // Boundary stop: a component's children were authored *outside* the component, so they are
-    // static nota vnodes — decode them (per decode.md §"Component slots", "lists/paras in @Aside{…}
-    // still group") — but do NOT descend into the component body.
+    // static nota vnodes — decode them (lists/paras in `@Aside{…}` still group) — but do NOT
+    // descend into the component body.
     //
     // The children slot is treated like the component's own grouping context, keyed on `kind`: a
     // BLOCK component holds flow content (paras + sections + lists group, like `@Aside{…}`); an
@@ -294,10 +299,10 @@ export function struct(v: VNode): VNode {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Coalesce each maximal run of identical `"ulli"`/`"olli"` sentinel nodes into one
- * `⟨ul|ol, {}, [⟨li, {}, itemᵢ.children⟩ …]⟩` (decode.md `groupLists`).
+ * Coalesce each maximal run of identical `"nota-ul-li"`/`"nota-ol-li"` sentinel nodes into one
+ * `⟨ul|ol, {}, [⟨li, {}, itemᵢ.children⟩ …]⟩` (`groupLists`).
  *
- * "Identical" means the *same* sentinel string: a `ulli` run and an adjacent `olli` run stay
+ * "Identical" means the *same* sentinel string: a `nota-ul-li` run and an adjacent `nota-ol-li` run stay
  * separate lists. Non-sentinel children pass through unchanged. Each `<li>` carries the original
  * item's children verbatim — `struct` recurses into the produced `ul`/`ol` afterward, which
  * recurses into each `<li>`, so a deeper sentinel run nested inside an item's children forms the
@@ -335,7 +340,7 @@ export function groupLists(k: readonly VNode[]): VNode[] {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Wrap each maximal run of inline siblings in a `⟨p, {}, [...run]⟩` (decode.md `groupParas`).
+ * Wrap each maximal run of inline siblings in a `⟨p, {}, [...run]⟩` (`groupParas`).
  *
  * - **Inline siblings** (text, inline host elements, inline components, fragments) accumulate into
  *   the current run.
@@ -383,7 +388,7 @@ export function groupParas(k: readonly VNode[]): VNode[] {
 
 /**
  * Make each heading own the siblings beneath it, up to the next heading of rank ≤ its own, inside a
- * `⟨section, {}, [heading, …groupSections(owned)]⟩` (decode.md `groupSections`).
+ * `⟨section, {}, [heading, …groupSections(owned)]⟩` (`groupSections`).
  *
  * Siblings appearing before any heading pass through unwrapped. The owned span is processed
  * recursively, so a deeper heading (greater rank) nests inside the shallower section; a heading of

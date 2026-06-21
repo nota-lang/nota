@@ -1,15 +1,15 @@
 /**
- * **Semantic tokens** — Phase X (the final polish), implementation.md §5.4 / §5.7-X, contract §9.
+ * **Semantic tokens.**
  *
- * Semantic tokens "mostly ride the V/W spine": `volar-service-typescript`'s `semantic` plugin already
- * (a) advertises `capabilities.semanticTokensProvider` with the standard TS token legend — which
- * Volar's language service de-dupes into the server's `initialize` capability — and (b) implements
- * `provideDocumentSemanticTokens` by running TS's `getEncodedSemanticClassifications` over the virtual
- * `.tsx` and mapping each token back to `.nota`, **gated by `semantic`** (`isSemanticTokensEnabled` =
- * `!!CodeInformation.semantic`, the contract-§9 `MappingCapabilities.semantic` flag).
+ * Semantic tokens come for free from the existing TS plumbing: `volar-service-typescript`'s `semantic`
+ * plugin already (a) advertises `capabilities.semanticTokensProvider` with the standard TS token
+ * legend — which Volar's language service de-dupes into the server's `initialize` capability — and (b)
+ * implements `provideDocumentSemanticTokens` by running TS's `getEncodedSemanticClassifications` over
+ * the virtual `.tsx` and mapping each token back to `.nota`, **gated by `semantic`**
+ * (`isSemanticTokensEnabled` = `!!CodeInformation.semantic`, the `MappingCapabilities.semantic` flag).
  *
- * So Phase X adds **no server code** — the capability + legend + provider come from the service over
- * the existing spine. This test asserts the *behaviour*: driving the same TS primitive over
+ * So this needs **no server code** — the capability + legend + provider come from the service over the
+ * existing mappings. This test asserts the *behaviour*: driving the same TS primitive over
  * `buildVirtual`'s output (see {@link "./feature-harness"}) and applying the same `semantic` gate, the
  * tokens land on the right **`.nota`** ranges:
  *   - a **component identifier** (`@Aside`, `semantic:true`) gets a `variable` token at its `.nota`
@@ -17,8 +17,8 @@
  *   - an **embedded variable** in an interpolation (`@(greeting)`, `semantic:true`) gets a `variable`
  *     token at its `.nota` offset;
  *   - a **host tag** (`@p`, *unmapped* → `semantic` gate closed) gets **no** token.
- * This is the §5.4 "identifier-accurate coloring (component vs host, binding refs)" win, mapped to
- * `.nota` exactly as the running server paints it.
+ * This gives identifier-accurate coloring (component vs host, binding refs), mapped to `.nota`
+ * exactly as the running server paints it.
  */
 
 import { describe, expect, test } from "vitest";
@@ -92,7 +92,7 @@ describe("semantic tokens (TS classifications mapped to .nota, gated by `semanti
   test("every emitted token lands on a `semantic`-gated .nota range (no preamble/boilerplate leakage)", () => {
     const h = createFeatureHarness(DOC);
     const tokens = semanticTokensAt(h);
-    // Some tokens are produced (the spine works)…
+    // Some tokens are produced (the pipeline works)…
     expect(tokens.length).toBeGreaterThan(0);
     // …and each maps to a `.nota` offset whose mapping has `semantic` open — i.e. the gate that drops
     // a token also drops its source range, so `gen(notaStart, semantic)` must round-trip non-null.

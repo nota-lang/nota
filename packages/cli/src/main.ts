@@ -1,8 +1,8 @@
 /**
- * **`@nota-lang/cli` entrypoint** — `nota build doc.nota → doc.html` (implementation.md §4.1, §4.4).
+ * **`@nota-lang/cli` entrypoint** — `nota build doc.nota → doc.html`.
  *
- * The first real Nota integrator (§3.1): one `.nota` file → one **self-contained** HTML file, every
- * asset inlined. Its page policy is trivial — the input file is the page (§G4). All the work is in
+ * The simplest Nota integrator: one `.nota` file → one **self-contained** HTML file, every asset
+ * inlined. Its page policy is trivial — the input file is the page. All the work is in
  * {@link "./build".buildNotaFile}; this is the thin argv/IO shell.
  *
  * Usage:

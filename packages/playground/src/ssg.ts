@@ -1,15 +1,15 @@
 /**
- * The in-browser Post-SSG runner (decode.md **stage 5**: emitted module → `{ html, manifest }`) and
- * the module evaluator the **Rendered** pane reuses to hydrate islands.
+ * The in-browser SSG runner (emitted module → `{ html, manifest }`) and the module evaluator the
+ * **Rendered** pane reuses to hydrate islands.
  *
  * Runs the compiled ESM string *in the main window* (react-dom/server SSR runs fine in the browser)
  * and returns `render(Doc)`'s output, exactly as the Node integrator does — but without a bundler or
- * a server. The mechanism (impl §4.2 / contract §9 "ambient prelude"):
+ * a server. The mechanism (the "ambient prelude"):
  *
  *   1. `setAdapter(reactAdapter)` once, so the runtime's `▸=true` paths dispatch through React.
  *   2. Evaluate the emitted module. It (a) `import`s the emitted surface from `@nota-lang/runtime`,
  *      (b) references `useState` as a **free identifier** the integrator supplies, and (c) `export`s
- *      `Doc` (default) + the F1-hoisted island components. We can't run an `import`/`export`-bearing
+ *      `Doc` (default) + the hoisted island components. We can't run an `import`/`export`-bearing
  *      ESM string in the main window without an import map, so we strip the runtime import + ALL
  *      `export`s (keeping the declarations) and append a `return { default: Doc, …components }` built
  *      from the export identifiers parsed out of the source, evaluating the remainder via
@@ -35,7 +35,7 @@ function ensureAdapter(): void {
   }
 }
 
-// The names the reader imports from "@nota-lang/runtime" (contract §1) — the emitted-code surface.
+// The names the reader imports from "@nota-lang/runtime" — the emitted-code surface.
 const RUNTIME_NAMES = [
   "h",
   "decode",
@@ -44,13 +44,13 @@ const RUNTIME_NAMES = [
   "blockComponent"
 ] as const;
 
-/** A manifest entry (contract §8): the island component name + its JSON props. */
+/** A manifest entry: the island component name + its JSON props. */
 export interface ManifestEntry {
   comp: string;
   props: Record<string, unknown>;
 }
 
-/** The Post-SSG result: stage-5 HTML, the island manifest, and the island component registry. */
+/** The SSG result: the HTML, the island manifest, and the island component registry. */
 export interface SSGResult {
   html: string;
   manifest: Record<string, ManifestEntry>;
@@ -75,7 +75,7 @@ export function evalModule(emitted: string): Record<string, unknown> {
   );
 
   // Parse export identifiers BEFORE stripping the keywords: `export default function Doc` and
-  // `export let/const/function/class Name` (F1 hoists+exports the island components).
+  // `export let/const/function/class Name` (the compiler hoists+exports the island components).
   const defMatch = body.match(
     /export\s+default\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/
   );
@@ -113,7 +113,7 @@ export function evalModule(emitted: string): Record<string, unknown> {
 }
 
 /**
- * Run the full Post-SSG step: emitted module → `{ html, manifest, registry }` (stage 5). The
+ * Run the full SSG step: emitted module → `{ html, manifest, registry }`. The
  * `registry` (the module's named island components) is reused by the Rendered pane to hydrate.
  */
 export function runSSG(emitted: string): SSGResult {

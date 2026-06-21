@@ -1,17 +1,17 @@
 /**
- * LIVE end-to-end (impl §3 optional / contract §2 stage-5) — the live twin of the captured-fixture
- * e2e in `packages/react/tests/integration.test.ts`.
+ * LIVE end-to-end — the live twin of the captured-fixture e2e in
+ * `packages/react/tests/integration.test.ts`.
  *
  * That test renders a *captured* copy of the reader's emit (`fixtures/golden.compiled.ts`). This one
  * runs the reader **live**: `compile(integration/golden.nota)` → the reader's actual emit → rendered
- * through `@nota-lang/runtime`'s `render` + the real `@nota-lang/react` adapter → the exact stage-5
- * HTML + island manifest. So it closes the decode.md arc on freshly-compiled output, end to end,
- * through the Part-3 shim.
+ * through `@nota-lang/runtime`'s `render` + the real `@nota-lang/react` adapter → the final SSG HTML
+ * + island manifest. So it closes the decode.md arc on freshly-compiled output, end to end, through
+ * the compiler shim.
  *
  * **Module-resolution note.** The reader's emit is a bare ES module that (a) imports
- * `@nota-lang/runtime` (the shim prepends this — contract §1) and (b) references `useState` as a
- * *free* identifier (the integrator supplies React — the reader emits no import; see §2's capture
- * note). Rather than fight extensionless-ESM `import()` resolution under vitest's Node runner (the
+ * `@nota-lang/runtime` (the shim prepends this) and (b) references `useState` as a *free* identifier
+ * (the integrator supplies React — the reader emits no import). Rather than fight extensionless-ESM
+ * `import()` resolution under vitest's Node runner (the
  * exact snag `integration/run.mjs` documents), we evaluate the emitted **body** with the runtime's
  * exports + `useState` injected as parameters via `new Function`. The runtime + adapter are the real
  * workspace packages (vitest inlines + transforms them under browser conditions — see vitest.config
@@ -41,7 +41,7 @@ const goldenPath = join(here, "..", "..", "..", "integration", "golden.nota");
 /**
  * Evaluate the reader's emitted module and return its default export (`Doc`).
  *
- * Strips the prepended runtime import (contract §1) and the `export` keywords, then runs the body in
+ * Strips the prepended runtime import and the `export` keywords, then runs the body in
  * a `Function` whose parameters are the runtime surface + `useState` — so the emit's free references
  * (`h`/`decode`/`Fragment`/`inlineComponent`/`useState`) resolve to the real implementations. This
  * is the live equivalent of an integrator wiring those imports for the bundler.
@@ -74,8 +74,8 @@ function evalDoc(code: string): () => unknown {
 beforeEach(() => setAdapter(reactAdapter));
 afterEach(() => clearAdapter());
 
-describe("LIVE e2e: compile(golden.nota) → render → stage-5", () => {
-  test("the freshly-compiled reader emit renders to the exact stage-5 HTML + manifest", () => {
+describe("LIVE e2e: compile(golden.nota) → render → SSG HTML", () => {
+  test("the freshly-compiled reader emit renders to the exact SSG HTML + manifest", () => {
     const { code } = compile(readFileSync(goldenPath, "utf8"), {
       sourcePath: "golden.nota"
     });
@@ -83,7 +83,7 @@ describe("LIVE e2e: compile(golden.nota) → render → stage-5", () => {
 
     const { html, manifest } = render(Doc);
 
-    // The same literal stage-5 bytes the captured-fixture e2e pins (contract §2/§8): the two `ulli`
+    // The same literal SSG HTML bytes the captured-fixture e2e pins: the two `nota-ul-li`
     // sentinels coalesced into one <ul>, each <li> an island wrapping a <span> with color:red baked
     // by useState("red"), onClick absent from static HTML.
     expect(html).toBe(

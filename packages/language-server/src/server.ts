@@ -1,11 +1,11 @@
 /**
- * The Nota Volar **language server** (implementation.md §5.1/§5.7-V, contract §9).
+ * The Nota Volar **language server**.
  *
  * Wires the standard Volar node server: a `createConnection` + `createServer`, a TypeScript project
  * (`createTypeScriptProject`) that registers {@link notaLanguagePlugin} so the TS language service
  * runs over each `.nota`'s virtual `.tsx`, and the `volar-service-typescript` language-service
- * plugins that surface diagnostics / hover / completion / definition / references / rename. Phase V
- * exercises **diagnostics**; the same wiring carries the Phase-W features for free.
+ * plugins that surface diagnostics / hover / completion / definition / references / rename. The same
+ * wiring carries all of those features over the single virtual-code mapping.
  *
  * This module exports {@link startServer} (idempotent given a connection) so the thin `bin.ts` entry
  * and any embedder can boot it; `bin.ts` is the executable the `vscode-nota` client launches.

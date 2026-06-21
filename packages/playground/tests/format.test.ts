@@ -1,6 +1,6 @@
 /**
- * Output-pane formatter tests. We format the *real* artifacts the panes show — the stage-3 JS emit
- * and the stage-5 SSG HTML, both produced by the same wasm reader + runtime the app uses — so the
+ * Output-pane formatter tests. We format the *real* artifacts the panes show — the emitted JS
+ * and the SSG HTML, both produced by the same wasm reader + runtime the app uses — so the
  * tests track the actual codegen/serializer. Formatting is display-only: it must reflow the output
  * (break the one-line `Doc()` body / indent the unindented HTML) while preserving every token, and be
  * a no-op on empty or un-parseable input (it falls back to the raw text rather than blanking a pane).
@@ -52,7 +52,7 @@ describe("formatCode (babel) — Generated JS", () => {
       'onClick: () => setColor("green")',
       "decode(",
       "export default function Doc()",
-      'h("ulli", {}',
+      'h("nota-ul-li", {}',
       "h(Colorized, {}"
     ]) {
       expect(pretty).toContain(token);
@@ -65,7 +65,7 @@ describe("formatCode (babel) — Generated JS", () => {
   });
 });
 
-describe("formatCode (html) — Post-SSG HTML", () => {
+describe("formatCode (html) — SSG-output HTML", () => {
   it("indents the unindented renderToString output", async () => {
     const { html } = runSSG(compileNota(GOLDEN_NOTA));
     const pretty = await formatCode(html, "html");

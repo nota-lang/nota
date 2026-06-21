@@ -47,18 +47,47 @@ const BOLD = 2;
 const UNDERLINE = 4;
 
 /**
+ * catppuccin-latte enumerates its heading and list-marker colors per source language
+ * (`markup.heading.atx.1.mdx`, `heading.1.markdown`, `markup.list.bullet`, …) and ships no generic
+ * `markup.heading` / `markup.list` rule. So the Nota grammar's `markup.heading.nota` and
+ * `markup.list.*.nota` scopes match nothing and render in the default text color. We add the missing
+ * rules here, reusing the theme's own palette (red `#d20f39` for headings — same hue as its Typst
+ * heading; teal `#179299` for list markers — same as `markup.list.bullet`). Most VSCode themes color
+ * `markup.heading` generically, so the extension doesn't need this; it's purely a gap in this theme.
+ */
+const NOTA_THEME_RULES = [
+  {
+    scope: "markup.heading.nota",
+    settings: { foreground: "#d20f39", fontStyle: "bold" }
+  },
+  {
+    scope: ["markup.list.unnumbered.nota", "markup.list.numbered.nota"],
+    settings: { foreground: "#179299" }
+  }
+];
+
+/** Append {@link NOTA_THEME_RULES} to a loaded Shiki theme, writing back to whichever key holds the
+ *  TextMate rules (`settings` or `tokenColors`). The new scopes don't overlap existing rules. */
+function augmentTheme(theme: Record<string, unknown>): Record<string, unknown> {
+  const key = Array.isArray(theme.tokenColors) ? "tokenColors" : "settings";
+  const rules = Array.isArray(theme[key]) ? (theme[key] as unknown[]) : [];
+  return { ...theme, [key]: [...rules, ...NOTA_THEME_RULES] };
+}
+
+/**
  * Build the Shiki highlighter: the Nota grammar (renamed to `nota`) over the catppuccin-latte theme,
  * with typescript/javascript/json loaded so the grammar's `source.ts|js|json` embeds resolve by scope.
  */
 export async function createNotaHighlighter(): Promise<NotaHighlighter> {
-  const [core, oniguruma, grammar] = await Promise.all([
+  const [core, oniguruma, grammar, theme] = await Promise.all([
     import("shiki/core"),
     import("shiki/engine/oniguruma"),
-    import("vscode-nota/syntaxes/nota.tmLanguage.json")
+    import("vscode-nota/syntaxes/nota.tmLanguage.json"),
+    import("shiki/themes/catppuccin-latte.mjs")
   ]);
   const nota = { ...(grammar.default as object), name: NOTA_LANG };
   const highlighter = await core.createHighlighterCore({
-    themes: [import("shiki/themes/catppuccin-latte.mjs")],
+    themes: [augmentTheme(theme.default as unknown as Record<string, unknown>)],
     langs: [
       import("shiki/langs/typescript.mjs"),
       import("shiki/langs/javascript.mjs"),

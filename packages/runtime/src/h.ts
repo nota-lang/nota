@@ -1,6 +1,5 @@
 /**
- * The context-sensitive primitives `h` / `Fragment` / `decode`
- * (contract §1; decode.md §"Context-sensitive primitives").
+ * The context-sensitive primitives `h` / `Fragment` / `decode`.
  *
  * Under `▸ = false` (a static build) these build inert Nota vnodes and run the SSG pass; under
  * `▸ = true` (inside a component body during SSR) they delegate to the ambient framework adapter
@@ -30,9 +29,9 @@ import {
  * ```
  *
  * Component tags are **not** invoked under the static build — `h(Colorized, …)` merely records
- * `Colorized` as the boundary `tag`; its body runs later, inside `island()`'s SSR (decode.md).
+ * `Colorized` as the boundary `tag`; its body runs later, inside `island()`'s SSR.
  *
- * Both emitted call shapes are handled by {@link flatten}: `h("ulli", {}, [child])` (one array
+ * Both emitted call shapes are handled by {@link flatten}: `h("nota-ul-li", {}, [child])` (one array
  * arg) and `h(C, {}, x)` (one scalar arg).
  */
 export function h(
@@ -41,7 +40,7 @@ export function h(
   ...children: ChildArg[]
 ): ElementVNode {
   if (flag()) {
-    // ▸ = true: framework owns this subtree. (No adapter in G/H → getAdapter() throws.)
+    // ▸ = true: framework owns this subtree. (With no adapter injected, getAdapter() throws.)
     return getAdapter().h(t, p, flatten(children)) as unknown as ElementVNode;
   }
   return { tag: t, props: p ?? {}, children: flatten(children) };
@@ -49,7 +48,7 @@ export function h(
 
 /**
  * Decide whether the first argument to {@link Fragment} is a **leading props object** (vs. a child).
- * Contract §1 / §4 E5: the reader's `@for` emits `Fragment({ key: _i }, …body)`, so a leading
+ * The reader's `@for` emits `Fragment({ key: _i }, …body)`, so a leading
  * **plain object** is props; everything else (the bare `Fragment(map(...))` form, text, vnodes,
  * raw slots) is a child.
  *
@@ -77,7 +76,7 @@ function isLeadingProps(
 }
 
 /**
- * Fragment constructor with an **optional leading props object** (contract §1 / §4 E5).
+ * Fragment constructor with an **optional leading props object**.
  *
  * ```
  * Fragment(props?, …children)
@@ -116,7 +115,7 @@ export function Fragment(
 }
 
 /**
- * The decode pass (contract §1; decode.md §"Context-sensitive primitives").
+ * The decode pass.
  *
  * ```
  * ▸ = false → serialize(struct(v))     // the SSG pass: restructure, then stringify
@@ -125,9 +124,7 @@ export function Fragment(
  *
  * Inside a component (`▸ = true`) every `h` already returned an opaque framework element, so there
  * is nothing for a restructuring pass to see and `decode` is the identity. Under the static build
- * it is `serialize ∘ struct`. **In Phases G/H `serialize` is a stub** (Phase I), so the
- * `▸ = false` branch here will throw via `serialize`; `struct` — the deliverable this wave — is
- * exercised directly by tests and by callers that want the structured tree.
+ * it is `serialize ∘ struct`: restructure the tree, then stringify it to HTML.
  */
 export function decode(v: VNode): unknown {
   if (flag()) {

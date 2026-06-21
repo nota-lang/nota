@@ -1,26 +1,23 @@
 /**
- * Serialization + islands + the SSG driver (decode.md §"Serialize + islands", §"SSG driver",
- * §"Component slots"; implementation.md §2.4). **Phases I + K.**
+ * Serialization + islands + the SSG driver.
  *
  * After {@link "./struct".struct}, a vnode tree contains only host nodes, fragments, text leaves,
  * and *boundary* `CompFn` nodes. {@link serialize} stringifies it to static HTML, rendering each
  * boundary as a hydration {@link island}: a fresh id, the component's shell SSR'd with `▸ = true`,
  * and a manifest entry the client later reads to hydrate.
  *
- * ## The hydration-id placement decision (a point decode.md idealizes — see report)
+ * ## The hydration-id placement decision
  *
- * decode.md's `island` passes `"hydration-id"` as a *prop* to the component (`adapter.h(comp,
- * {…props, "hydration-id": id}, …)`) and the golden shows it on the rendered `<span>`. But neither
- * React nor Solid forwards an unknown prop onto a component's rendered root unless the component
- * *spreads* it onto a host element — and the golden's `Colorized` does not (`h("span", {onClick,
- * style}, children)`). So the id would simply vanish. We therefore land the id on a **marker wrapper
- * element** instead: each island's SSR output is wrapped in `<nota-island data-hydration-id="N">…
- * </nota-island>`. {@link bootIslands} selects on `[data-hydration-id]` and hydrates the framework
- * element *into* that wrapper (its children are the SSR'd shell — exactly what React `hydrateRoot` /
- * Solid `hydrate` expect to attach over). This is framework-agnostic, requires no cooperation from
- * the component, and never risks an "unknown DOM attribute" warning from spreading the id onto a
- * host. **Deviation from §2's literal HTML:** the golden writes `<span hydration-id="1" …>`; we emit
- * `<nota-island data-hydration-id="1"><span …></nota-island>`. The integration test asserts this form.
+ * The natural design is to pass `"hydration-id"` as a *prop* to the component and let it land on the
+ * rendered root. But neither React nor Solid forwards an unknown prop onto a component's rendered
+ * root unless the component *spreads* it onto a host element — a component that renders
+ * `h("span", {onClick, style}, children)` does not, so the id would simply vanish. We therefore land
+ * the id on a **marker wrapper element** instead: each island's SSR output is wrapped in
+ * `<nota-island data-hydration-id="N">…</nota-island>`. {@link bootIslands} selects on
+ * `[data-hydration-id]` and hydrates the framework element *into* that wrapper (its children are the
+ * SSR'd shell — exactly what React `hydrateRoot` / Solid `hydrate` expect to attach over). This is
+ * framework-agnostic, requires no cooperation from the component, and never risks an "unknown DOM
+ * attribute" warning from spreading the id onto a host. The integration test asserts this form.
  */
 
 import { getAdapter } from "./adapter";
@@ -34,20 +31,20 @@ import { type ElementVNode, FRAG, isElement, type VNode } from "./vnode";
 // Manifest / result types
 // ---------------------------------------------------------------------------------------------
 
-/** The island manifest emitted alongside the HTML: `id → { comp, props }` (§2.4). */
+/** The island manifest emitted alongside the HTML: `id → { comp, props }`. */
 export type Manifest = Record<
   string,
   { comp: string; props: Record<string, unknown> }
 >;
 
-/** Result of the SSG `render` driver (Part 3 §3.2). */
+/** Result of the SSG `render` driver. */
 export interface RenderResult {
   html: string;
   manifest: Manifest;
 }
 
 // ---------------------------------------------------------------------------------------------
-// Module state (the SSG driver's `reset(ids=0, manifest={})` — decode.md §"SSG driver")
+// Module state (the SSG driver's per-render id counter and manifest)
 // ---------------------------------------------------------------------------------------------
 
 /** Monotonic hydration-id counter; minted by {@link island} as ids `"1"`, `"2"`, … */
@@ -56,8 +53,8 @@ let ids = 0;
 let manifest: Manifest = {};
 
 /**
- * Reset the per-render SSG state: id counter to `0` and a fresh empty manifest (decode.md's
- * `reset(ids=0, manifest={})`). Called by {@link render} before serializing a document, so ids are
+ * Reset the per-render SSG state: id counter to `0` and a fresh empty manifest.
+ * Called by {@link render} before serializing a document, so ids are
  * deterministic and manifests do not bleed between renders. (The `▸` flag is *not* reset here: the
  * only writer is {@link island}'s `withFlag`, which always restores, so `▸` is already `false`
  * outside any render.) Exposed for tests that drive `serialize`/`island` directly.
@@ -86,10 +83,10 @@ export function getManifest(): Manifest {
  * HTML-escape a text/attribute string. Escapes the five characters that are unsafe in PCDATA *or*
  * in a double-quoted attribute value (`& < > " '`). Conservative and context-free: a single escaper
  * is correct for both positions (over-escaping `>`/`'` in text is harmless), which keeps callers
- * from having to track context. (Named `escape` per decode.md's `escape()`; intentionally shadows the
- * legacy global `escape`, which this never uses.)
+ * from having to track context. (Intentionally shadows the legacy global `escape`, which this
+ * never uses.)
  */
-// biome-ignore lint/suspicious/noShadowRestrictedNames: `escape` is the decode.md-specified export name.
+// biome-ignore lint/suspicious/noShadowRestrictedNames: `escape` is the intended export name.
 export function escape(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -137,7 +134,7 @@ function isEventHandlerKey(k: string): boolean {
 /**
  * Serialize a `style` value to a CSS string. An object `{ color: "red", fontSize: 12 }` →
  * `"color: red; font-size: 12"` (keys kebab-cased; nullish entries dropped). A string passes through
- * verbatim (already CSS). decode.md: `style` object → `"k: v; …"`.
+ * verbatim (already CSS).
  */
 function serializeStyle(value: unknown): string {
   if (typeof value === "string") {
@@ -158,7 +155,7 @@ function serializeStyle(value: unknown): string {
 
 /**
  * Serialize one `props` object to an attribute string (leading space per attribute, so the caller
- * can splice it straight after the tag name). decode.md's attribute rules:
+ * can splice it straight after the tag name). The attribute rules:
  *
  * - **`style` object** → a `"k: v; …"` CSS string (camelCase keys kebab-cased).
  * - **boolean `true`** → a bare attribute (`disabled`); **`false`/nullish** → the attribute is omitted.
@@ -203,7 +200,7 @@ function serializeAttrs(props: Record<string, unknown>): string {
 
 /**
  * Stringify a `struct`'d vnode to static HTML, rendering each component boundary as a hydration
- * {@link island} (decode.md §"Serialize + islands"):
+ * {@link island}:
  *
  * ```
  * serialize(v):
@@ -244,7 +241,7 @@ export function serialize(v: VNode): string {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Detect a non-JSON-serializable island prop and throw a pointed error (E4 — island props cross the
+ * Detect a non-JSON-serializable island prop and throw a pointed error (island props cross the
  * server→client boundary as the manifest, so they must round-trip through JSON). Mirrors what
  * `JSON.stringify` *loses or rejects*: functions, symbols, `bigint`, and `undefined` *values* are
  * lossy (silently dropped/nulled by `JSON.stringify`); circular references throw. We surface all of
@@ -296,7 +293,7 @@ function assertJsonSerializable(
 }
 
 /**
- * Render a boundary node as a hydration island (decode.md §"island", §"Component slots"):
+ * Render a boundary node as a hydration island:
  *
  * 1. mint a fresh `id`;
  * 2. pre-serialize the boundary's *static* `children` to an HTML slot (they were authored outside
@@ -320,7 +317,7 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
   manifest[id] = { comp, props: v.props };
 
   const adapter = getAdapter();
-  // SSR the shell with ▸=true so the component body runs against the framework (decode.md §island).
+  // SSR the shell with ▸=true so the component body runs against the framework.
   const shell = withFlag(true, () =>
     adapter.renderToString(adapter.h(v.tag, { ...v.props }, raw(slot)))
   );
@@ -332,26 +329,23 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * The programmatic SSG entry (decode.md §"SSG driver"; Part 3 §3.2). Resets the per-render state,
- * runs the document, and returns the HTML plus the island manifest.
+ * The programmatic SSG entry. Resets the per-render state, runs the document, and returns the HTML
+ * plus the island manifest.
  *
  * ```
  * render(Doc):
- *   reset(ids=0, manifest={})
+ *   reset()
  *   html = decode( Doc() )                 // = serialize(struct(Doc()))
  *   return { html, manifest }
  * ```
  *
- * **Reconciliation (a point decode.md/the prompt idealize — see report).** decode.md's driver writes
- * `html = serialize(struct(Doc()))`, but the *emitted* `Doc` (contract §2 stage-3, note e) already
- * wraps its body in `decode(...)` — and at `▸ = false`, `decode = serialize ∘ struct`. So a real
- * emitted `Doc()` **already returns the decoded HTML string**; applying `serialize(struct(...))` to
- * it again would `escape` the whole document (`<ul>` → `&lt;ul&gt;`) and re-run `island`. The two
- * formulas are the *same* computation factored differently — decode.md folds the decode into the
- * driver, the emitted code folds it into `Doc`. `render` therefore decodes **once**: if `Doc()`
- * already produced a string (the emitted, self-decoding `Doc` — the golden case) it is the HTML as
- * is; if `Doc()` returned a raw stage-4 *tree* (a hand-built `Doc` that does not self-decode) we
- * apply `serialize(struct(...))`. Either way the document is decoded exactly once.
+ * **Decoding exactly once.** An *emitted* `Doc` already wraps its body in `decode(...)` — and at
+ * `▸ = false`, `decode = serialize ∘ struct`. So a real emitted `Doc()` **already returns the decoded
+ * HTML string**; applying `serialize(struct(...))` to it again would `escape` the whole document
+ * (`<ul>` → `&lt;ul&gt;`) and re-run `island`. `render` therefore decodes **once**: if `Doc()` already
+ * produced a string (the emitted, self-decoding `Doc`) it is the HTML as is; if `Doc()` returned a
+ * raw vnode *tree* (a hand-built `Doc` that does not self-decode) we apply `serialize(struct(...))`.
+ * Either way the document is decoded exactly once.
  *
  * The caller must have `setAdapter`'d a framework adapter first (islands SSR through it). The
  * returned `manifest` is a fresh snapshot, so a later `render` cannot mutate it.
@@ -368,11 +362,11 @@ export function render(Doc: () => VNode): RenderResult {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Client island boot (decode.md §"SSG driver" client side; §2.4). For each manifest entry, find the
- * island's marker node (`[data-hydration-id="id"]`) and `adapter.hydrate` the registered component —
- * constructed with the manifest props — *into* that node, attaching over the server-rendered shell
- * already in the DOM. `registry` maps a manifest `comp` name to the client component constructor
- * (Part 3's Vite plugin builds it; Part 2 fixes only this contract).
+ * Client island boot. For each manifest entry, find the island's marker node
+ * (`[data-hydration-id="id"]`) and `adapter.hydrate` the registered component — constructed with the
+ * manifest props — *into* that node, attaching over the server-rendered shell already in the DOM.
+ * `registry` maps a manifest `comp` name to the client component constructor (the build tooling
+ * builds it; this module just fixes the boot contract).
  *
  * Missing nodes / missing registry entries are skipped (an island present in one but not the other
  * is a misconfiguration the integrator surfaces) — kept lenient so a partial registry boots what it can.

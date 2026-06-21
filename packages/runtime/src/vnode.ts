@@ -1,21 +1,21 @@
 /**
- * The Nota vnode data model (contract §1 "vnode data model"; decode.md §"Data model").
+ * The Nota vnode data model.
  *
  * ```
  * v ::= string                       // text leaf
  *     | { tag, props, children }      // tag: host string (decode owns) | CompFn (boundary)
  * ```
  *
- * A static build (`▸ = false`) yields a tree of plain `{tag, props, children}` nodes — the
- * stage-4 tree. Component-tagged nodes are *deferred*: `h(Colorized, …)` records a boundary
+ * A static build (`▸ = false`) yields a tree of plain `{tag, props, children}` nodes.
+ * Component-tagged nodes are *deferred*: `h(Colorized, …)` records a boundary
  * rather than invoking `Colorized`. The `struct`/`serialize` passes consume this model.
  */
 
 import type { CompFn } from "./component";
 
 /**
- * The fragment tag sentinel. A unique `symbol` (per contract §1's "e.g. a unique symbol or
- * 'fragment'") so it can never collide with a host tag string or a component function, and so
+ * The fragment tag sentinel. A unique `symbol` so it can never collide with a host tag string or a
+ * component function, and so
  * `tag === FRAG` is an unambiguous structural test.
  */
 export const FRAG: unique symbol = Symbol("nota.fragment");
@@ -56,11 +56,10 @@ export function isFragment(v: VNode): v is ElementVNode & { tag: Frag } {
 export type ChildArg = VNode | number | boolean | null | undefined | ChildArg[];
 
 /**
- * Normalize the variadic child arguments of `h`/`Fragment` into a flat `VNode[]` (contract §1
- * "flatten(children)"; decode.md §"Context-sensitive primitives").
+ * Normalize the variadic child arguments of `h`/`Fragment` into a flat `VNode[]`.
  *
  * Rules (one pass; arrays flattened exactly **one level**, matching the two emitted call shapes
- * `h("ulli", {}, [child])` and `h(C, {}, x)` — see contract §1):
+ * `h("nota-ul-li", {}, [child])` and `h(C, {}, x)`):
  *
  * - **Arrays are spliced in** one level deep. `@for`/`@if` lowerings produce an array child
  *   (`xs.map(...)`); splicing it makes its elements direct siblings. Nested arrays recurse so a
@@ -72,7 +71,7 @@ export type ChildArg = VNode | number | boolean | null | undefined | ChildArg[];
  * - **Nullish and booleans are dropped**: `null`, `undefined`, `false`, **and** `true`. This is
  *   the usual JSX convention where `cond && <x/>` renders nothing for a falsy `cond`; we extend
  *   it to drop `true` as well so that `@if`-style guards never leak a stray `"true"` text node.
- *   (decode.md's `@if (c) {a}` lowers to `c ? Fragment("a") : null`, so a dropped `null` is the
+ *   (`@if (c) {a}` lowers to `c ? Fragment("a") : null`, so a dropped `null` is the
  *   common case; dropping bare booleans is the documented, conservative choice.)
  * - Existing `ElementVNode`s pass through untouched.
  */

@@ -1,5 +1,5 @@
 /**
- * The **Post-SSG** pane (decode.md stage 5): the two artifacts `render` produces, stacked. The HTML
+ * The **SSG output** pane: the two artifacts `render` produces, stacked. The HTML
  * comes back from `renderToString` with no indentation, so it gets the full treatment — Prettier
  * (html parser) + CM6 HTML highlighting via {@link CodePane}. The island manifest is built by
  * `JSON.stringify(…, 2)`, already pretty, so it only needs highlighting: a read-only JSON

@@ -89,7 +89,7 @@ describe("SsgPane", () => {
         pane.querySelector(".cm-content")?.getAttribute("contenteditable")
       ).toBe("false");
     }
-    // The manifest (already pretty JSON) shows the F1 island component name.
+    // The manifest (already pretty JSON) shows the island component name.
     expect(manifestPane.querySelector(".cm-content")?.textContent).toContain(
       "Colorized"
     );

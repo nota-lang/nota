@@ -1,13 +1,12 @@
 /**
- * The Nota Volar **`LanguagePlugin`** (implementation.md §5.1/§5.7-V, contract §9) — the load-bearing
- * spine of the language server.
+ * The Nota Volar **`LanguagePlugin`** — the core of the language server.
  *
  * It turns a `.nota` source into a {@link VirtualCode}: the typing preamble + the reader's virtual
  * `.tsx` as the snapshot, plus the reader's `CodeMapping`s with every `generatedOffsets` shifted by
- * the preamble length (the contract-§9 preamble-shift rule). Volar then drives the standard TS
+ * the preamble length (the preamble-shift rule). Volar then drives the standard TS
  * language service over the virtual `.tsx` (via `@volar/typescript`, keyed by the `typescript`
- * field's `getServiceScript`), and maps results — diagnostics first (Phase V), then hover/completion/
- * rename (Phase W) — back to `.nota` ranges through these mappings.
+ * field's `getServiceScript`), and maps results — diagnostics, hover, completion,
+ * rename — back to `.nota` ranges through these mappings.
  */
 
 import {
@@ -29,8 +28,8 @@ export const NOTA_LANGUAGE_ID = "nota";
 
 /**
  * The `languageId` the virtual code is emitted as — `typescriptreact`, since the reader's virtual
- * emit is `.tsx` (type-preserving, contract §9 H2) and the markup lowers to `h(...)` *call*
- * expressions (contract R1), which are plain TS — but emitting as `.tsx` keeps the door open for any
+ * emit is `.tsx` (type-preserving) and the markup lowers to `h(...)` *call*
+ * expressions, which are plain TS — but emitting as `.tsx` keeps the door open for any
  * JSX the embedded JS might contain and matches the `.tsx` extension `@volar/typescript` is told to
  * treat the script as.
  */
@@ -38,7 +37,7 @@ export const VIRTUAL_LANGUAGE_ID = "typescriptreact";
 
 /**
  * Shift a reader `CodeMapping`'s `generatedOffsets` by {@link PREAMBLE_LENGTH} and adapt it to the
- * Volar `Mapping` shape (contract §9 preamble-shift rule). **This is the core fidelity operation** —
+ * Volar `Mapping` shape (the preamble-shift rule). **This is the core fidelity operation** —
  * tested directly in `tests/mapping.test.ts`.
  *
  * - `generatedOffsets[k] → generatedOffsets[k] + shift` (the prepended preamble pushes the bare
@@ -74,7 +73,7 @@ export function shiftMappings(
 
 /**
  * Build the virtual `.tsx` source + shifted mappings for a `.nota` source string. Split out from the
- * `LanguagePlugin` so it is unit-testable without any Volar/TS plumbing (the mapping-fidelity layer-1
+ * `LanguagePlugin` so it is unit-testable without any Volar/TS plumbing (the mapping-fidelity
  * test calls this directly).
  *
  * @param source the `.nota` file contents
@@ -106,7 +105,7 @@ export interface NotaVirtualCode extends VirtualCode {
  * Create the {@link NotaVirtualCode} for a snapshot. On a reader error (a Nota *syntax* diagnostic —
  * `compileVirtual` throws) we fall back to an **empty** virtual module with no mappings, so the
  * server stays alive and simply reports no TS diagnostics until the source parses. (Nota syntax
- * diagnostics themselves are a separate, future channel — Phase V is the TS/semantic layer.)
+ * diagnostics themselves are a separate, future channel — this code handles only TS/semantic info.)
  */
 function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
   const source = snapshot.getText(0, snapshot.getLength());

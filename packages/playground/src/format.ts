@@ -1,9 +1,9 @@
 /**
- * Pretty-print an output pane for *display only* (decode.md stage 3's JS emit, stage 5's SSG HTML).
+ * Pretty-print an output pane for *display only* (the emitted JS module, the SSG HTML).
  * The wasm reader's codegen and React's `renderToString` are both valid but unfriendly to read — the
  * JS emit puts the whole `Doc()` body on one line; the SSG HTML comes back with no indentation. We
  * reformat purely for the pane, never touching the bytes the pipeline actually emits/serializes, so
- * the parity tests still compare the raw output (contract §3).
+ * the parity tests still compare the raw output.
  *
  * "Easiest formatter that runs in the browser" = **Prettier standalone**: plain JS, no wasm init,
  * async `format()`. Standalone + the parser plugins load via dynamic `import()` so the formatter
@@ -36,7 +36,7 @@ function loadPlugins(parser: Parser): Promise<object[]> {
 
 /**
  * Format `code` with the given Prettier parser for display. Falls back to the input unchanged on any
- * parse/print error — the emit is always valid (impl.md §1.6 validity invariant), so this only guards
+ * parse/print error — the emit is always valid, so this only guards
  * against a transient half-applied edit, and a raw pane beats a blank one.
  */
 export async function formatCode(

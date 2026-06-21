@@ -1,13 +1,14 @@
 /**
- * Phase K — `bootIslands` under jsdom (implementation.md §2.4, §2.7). Two angles:
+ * `bootIslands` under jsdom. Two angles:
  *
  * - **wiring** (stub adapter): `bootIslands` finds each island's DOM node by `data-hydration-id` and
  *   calls `adapter.hydrate(registry[comp](props), node)` once per manifest entry — and skips ids
  *   with no DOM node or no registry entry.
  * - **live** (real React adapter): a rendered island is actually hydrated over its server DOM and
- *   becomes interactive (click → state change). Closes the SSG→client arc Part 3 builds the registry
- *   for. Uses a *childless* island (a counter) so hydration needs no static-slot reconstruction —
- *   that slot-rehydration is Part 3's registry concern; Part 2 fixes only the boot contract.
+ *   becomes interactive (click → state change). This is the SSG → client handoff that the
+ *   registry/boot layer drives. Uses a *childless* island (a counter) so hydration needs no
+ *   static-slot reconstruction — slot rehydration is handled elsewhere; this fixes only the boot
+ *   contract.
  */
 
 import reactAdapter from "@nota-lang/react";
@@ -128,7 +129,7 @@ describe("bootIslands (live, React adapter)", () => {
   beforeEach(() => setAdapter(reactAdapter));
 
   // A childless counter island: `useState` count, +1 on click. Childless → no static-slot
-  // rehydration needed (that is Part 3's registry concern). It is the marked `CompFn`; React must
+  // rehydration needed (that is handled elsewhere). It is the marked `CompFn`; React must
   // *call* it during render (so its hooks run), which both `island` and the registry below do via
   // `adapter.h(Counter, props, …)` → `createElement(Counter, props)` (never invoking it eagerly).
   const Counter = inlineComponent((_children: CompProps["children"]) => {
@@ -160,7 +161,7 @@ describe("bootIslands (live, React adapter)", () => {
     document.body.innerHTML = html;
 
     // registry: name → an element factory that lets React *call* the component during render
-    // (so hooks run + hydration matches). This is the shape Part 3's registry generator emits.
+    // (so hooks run + hydration matches). This is the shape the registry generator emits.
     const registry = {
       Counter: (props: Record<string, unknown>) =>
         reactAdapter.h(Counter, props, [])

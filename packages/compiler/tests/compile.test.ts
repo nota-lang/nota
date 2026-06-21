@@ -1,12 +1,12 @@
 /**
- * `@nota-lang/compiler` shim tests (contract §1, impl §3.6 layer 1 analog for the shim).
+ * `@nota-lang/compiler` shim tests.
  *
  * Drives the real reader subprocess on the two shared integration fixtures and asserts the emit
- * surface the contract pins: the prepended `@nota-lang/runtime` import (§1 — the reader omits it),
- * `export default function Doc()`, the keyed `@for` Fragment (`Fragment({ key: _i }`, contract §2/§4
- * E5), the `ulli` list sentinel, and the F1-named component constructors `inlineComponent(fn,
- * "Colorized")` / `blockComponent(fn, "Note")`. A malformed `.nota` → `compile` throws with the
- * reader's diagnostics.
+ * surface the contract pins: the prepended `@nota-lang/runtime` import (the reader omits it),
+ * `export default function Doc()`, the keyed `@for` Fragment (`Fragment({ key: _i }`), the `nota-ul-li`
+ * list sentinel, and the named component constructors `inlineComponent(fn, "Colorized")` /
+ * `blockComponent(fn, "Note")`. A malformed `.nota` → `compile` throws with the reader's
+ * diagnostics.
  *
  * These tests exercise the *binary* (via `NOTA_COMPILE_BIN` or the package-relative default), so
  * they require the pre-built `oxc/target/release/examples/nota_compile`.
@@ -24,32 +24,32 @@ const integrationDir = join(here, "..", "..", "..", "integration");
 
 const read = (name: string) => readFileSync(join(integrationDir, name), "utf8");
 
-describe("compile (contract §1 — emit surface + prepended runtime import)", () => {
-  test("golden.nota: prepends the runtime import; component + Doc + keyed @for + ulli", () => {
+describe("compile (emit surface + prepended runtime import)", () => {
+  test("golden.nota: prepends the runtime import; component + Doc + keyed @for + nota-ul-li", () => {
     const src = read("golden.nota");
     const { code } = compile(src, { sourcePath: "golden.nota" });
 
-    // contract §1: the reader omits the runtime import; the shim prepends EXACTLY this line.
+    // the reader omits the runtime import; the shim prepends EXACTLY this line.
     expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
     expect(code).toContain(
       'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";'
     );
 
-    // contract §2 stage-3: document mode emits the default Doc.
+    // document mode emits the default Doc.
     expect(code).toContain("export default function Doc()");
 
-    // F1: the component binding hoists to module scope, is exported, and carries its stable name as
-    // the constructor's 2nd arg (so island()'s manifest `comp` resolves — contract §1/§4 F1).
+    // The component binding hoists to module scope, is exported, and carries its stable name as
+    // the constructor's 2nd arg (so island()'s manifest `comp` resolves).
     expect(code).toMatch(/export let Colorized = inlineComponent\(/);
     expect(code).toContain('}, "Colorized");');
 
-    // contract §4 E5: keyed @for — each iteration wraps in Fragment({ key: _i }, …).
+    // keyed @for — each iteration wraps in Fragment({ key: _i }, …).
     expect(code).toContain("Fragment({ key: _i }");
-    // the `-` list marker lowers to the `ulli` sentinel (runtime struct coalesces to <ul><li>).
-    expect(code).toContain('h("ulli", {}');
+    // the `-` list marker lowers to the `nota-ul-li` sentinel (runtime struct coalesces to <ul><li>).
+    expect(code).toContain('h("nota-ul-li", {}');
     // the component tag is invoked as a component (identifier, not string).
     expect(code).toContain("h(Colorized, {}");
-    // Doc's body is decode()-wrapped (contract §2 note e / §8).
+    // Doc's body is decode()-wrapped.
     expect(code).toContain("return decode(Fragment(");
   });
 
@@ -59,7 +59,7 @@ describe("compile (contract §1 — emit surface + prepended runtime import)", (
 
     expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
     expect(code).toContain("export default function Doc()");
-    // F1 name passed to blockComponent (drives the manifest `comp` for the island). note.nota's
+    // The stable name passed to blockComponent (drives the manifest `comp` for the island). note.nota's
     // body is a single expression, so the name lands right after the closing paren of the body
     // (`…[children])), "Note");`) rather than after a `}` (cf. golden's multi-line body).
     expect(code).toMatch(/export let Note = blockComponent\(/);
@@ -68,7 +68,7 @@ describe("compile (contract §1 — emit surface + prepended runtime import)", (
     expect(code).toContain('h("em", {}, ["world"])');
   });
 
-  test("the prepended emit re-parses as a valid ES module (validity invariant, §1.6)", () => {
+  test("the prepended emit re-parses as a valid ES module (validity invariant)", () => {
     // A cheap global catch for codegen/prepend bugs: the result must be syntactically valid JS.
     // `new Function` won't accept import statements, so strip the import line and check the body
     // parses (the import itself is a fixed literal we control).
@@ -82,7 +82,7 @@ describe("compile (contract §1 — emit surface + prepended runtime import)", (
     ).not.toThrow();
   });
 
-  test("map is currently undefined (CLI emits no sourcemap yet — H1 forthcoming)", () => {
+  test("map is currently undefined (CLI emits no sourcemap yet)", () => {
     const { map } = compile(read("note.nota"));
     expect(map).toBeUndefined();
   });

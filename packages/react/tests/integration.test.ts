@@ -1,12 +1,11 @@
 /**
- * HEADLINE integration test (implementation.md §2.7 layer 5) — **the canonical golden**, contract §2
- * / decode.md's worked example, end-to-end from the runtime side with the real `@nota-lang/react`
- * adapter.
+ * HEADLINE integration test — **the canonical golden**, the worked example run end-to-end from the
+ * runtime side with the real `@nota-lang/react` adapter.
  *
- * We hand-write contract §2's **stage-3** emitted module (the `Colorized` example, WITH the F1 name
- * arg `inlineComponent(fn, "Colorized")`, importing `useState` from `react`), run `render(Doc)`, and
- * assert **stage-5**: the `<ul><li>…<span … style="color: red">a</span>…</li>…</ul>` HTML (modulo
- * formatting / attr-order / our hydration-id mechanism) plus the island manifest
+ * We hand-write the emitted JS module (the `Colorized` example, WITH the name arg
+ * `inlineComponent(fn, "Colorized")`, importing `useState` from `react`), run `render(Doc)`, and
+ * assert the final SSG output: the `<ul><li>…<span … style="color: red">a</span>…</li>…</ul>` HTML
+ * (modulo formatting / attr-order / our hydration-id mechanism) plus the island manifest
  * `{"1":{comp:"Colorized",props:{}},"2":{comp:"Colorized",props:{}}}`.
  *
  * Runs in the `dom` vitest project (jsdom): React's `react-dom/server` `renderToString` runs there,
@@ -28,11 +27,11 @@ import * as React from "react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 // The SAME golden but from the *reader's actual emit* (integration/golden.nota → oxc::nota::compile),
-// captured verbatim — closes the decode.md arc across BOTH halves (Part 1 reader → Part 2 runtime).
+// captured verbatim — closes the loop across both halves (reader emit → runtime render).
 import ReaderDoc from "./fixtures/golden.compiled";
 
 // ---------------------------------------------------------------------------------------------
-// contract §2 stage-3 — the emitted module, hand-written verbatim (keyless @for form, per R6)
+// the emitted module, hand-written verbatim (keyless @for form)
 // ---------------------------------------------------------------------------------------------
 
 const Colorized = inlineComponent((children: CompProps["children"]) => {
@@ -44,7 +43,7 @@ const Colorized = inlineComponent((children: CompProps["children"]) => {
 
 function Doc() {
   return decode(
-    Fragment(["a", "b"].map(x => h("ulli", {}, [h(Colorized, {}, x)])))
+    Fragment(["a", "b"].map(x => h("nota-ul-li", {}, [h(Colorized, {}, x)])))
   );
 }
 
@@ -53,8 +52,8 @@ function Doc() {
 beforeEach(() => setAdapter(reactAdapter));
 afterEach(() => clearAdapter());
 
-describe("headline integration (contract §2 stage-5)", () => {
-  test("render(Doc) → stage-5 HTML + manifest", () => {
+describe("headline integration (final SSG output)", () => {
+  test("render(Doc) → SSG HTML + manifest", () => {
     const { html, manifest } = render(Doc);
 
     // --- manifest: two islands, both Colorized, empty props ---
@@ -64,7 +63,7 @@ describe("headline integration (contract §2 stage-5)", () => {
     });
 
     // --- structure: <ul> with two <li>, each an island wrapping a <span> with the slot text ---
-    // the two `ulli` sentinels coalesced into one <ul> (groupLists); each <li> holds the island.
+    // the two `nota-ul-li` sentinels coalesced into one <ul> (groupLists); each <li> holds the island.
     expect(html.startsWith("<ul><li>")).toBe(true);
     expect(html.endsWith("</li></ul>")).toBe(true);
 
@@ -86,9 +85,9 @@ describe("headline integration (contract §2 stage-5)", () => {
     expect(html).not.toContain("onclick");
   });
 
-  test("the exact rendered HTML (snapshot of the literal stage-5 output)", () => {
+  test("the exact rendered HTML (snapshot of the literal SSG output)", () => {
     const { html } = render(Doc);
-    // Pinned literal — the actual bytes `render` produces (report pastes this vs §2's idealized form).
+    // Pinned literal — the actual bytes `render` produces.
     expect(html).toBe(
       '<ul><li><nota-island data-hydration-id="1"><span style="color:red">a</span></nota-island></li>' +
         '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'
@@ -104,10 +103,10 @@ describe("headline integration (contract §2 stage-5)", () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// E5 — the React adapter forwards the leading-props `key` onto the React element (contract §4)
+// the React adapter forwards the leading-props `key` onto the React element
 // ---------------------------------------------------------------------------------------------
 
-describe("E5: React adapter Fragment(props, kids) sets the React key", () => {
+describe("React adapter Fragment(props, kids) sets the React key", () => {
   test("a leading { key } lands as React's element.key (drives list reconciliation)", () => {
     // The reader's keyed `@for` reaches the adapter as `Fragment({ key }, kids)`. React hoists
     // `key` out of props into the element's top-level `.key` field (always a string), where the
@@ -139,15 +138,15 @@ describe("E5: React adapter Fragment(props, kids) sets the React key", () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// The full decode.md arc across BOTH halves: the reader's ACTUAL emit (keyed `@for` + per-iteration
+// The full pipeline across both halves: the reader's ACTUAL emit (keyed `@for` + per-iteration
 // `Fragment({key:_i}, …)`) rendered through the runtime. The per-iteration fragments dissolve via
-// struct's transparency (§7), the `ulli` sentinels coalesce to one `<ul>`, and the islands SSR
-// identically to the hand-written keyless form above — proving producer and consumer agree on real
-// output, not just the contract.
+// struct transparency, the `nota-ul-li` sentinels coalesce to one `<ul>`, and the islands SSR identically
+// to the hand-written keyless form above — proving producer and consumer agree on real output, not
+// just the spec.
 // ---------------------------------------------------------------------------------------------
 
-describe("reader-emit golden (Part 1 → Part 2, full loop)", () => {
-  test("the compiler's literal output renders to the identical stage-5", () => {
+describe("reader-emit golden (reader → runtime, full loop)", () => {
+  test("the compiler's literal output renders to the identical HTML", () => {
     const { html, manifest } = render(ReaderDoc);
     expect(html).toBe(
       '<ul><li><nota-island data-hydration-id="1"><span style="color:red">a</span></nota-island></li>' +

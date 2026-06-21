@@ -1,5 +1,5 @@
 /**
- * The **shared** adapter-conformance matrix (implementation.md §2.7 layer 3). Defined ONCE here and
+ * The **shared** adapter-conformance matrix. Defined ONCE here and
  * run against BOTH `@nota-lang/react` and `@nota-lang/solid`, to prove the two frameworks are
  * substitutable behind the Nota {@link Adapter} contract.
  *
@@ -138,7 +138,7 @@ export function runRenderMatrix(): void {
       expect(html).toMatch(/<b[^>]*>c<\/b>/);
     });
 
-    test("Fragment forwards a leading props object (E5 key) without a wrapper", () => {
+    test("Fragment forwards a leading props object (key) without a wrapper", () => {
       // The keyed `@for` shape: `adapter.Fragment({ key: 0 }, kids)`. The key drives reconciliation
       // (React) / is ignored (Solid), but never surfaces as a DOM wrapper or attribute either way.
       const html = normalize(

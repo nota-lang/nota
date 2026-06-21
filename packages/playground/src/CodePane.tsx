@@ -5,7 +5,7 @@
  * and hold the result in state, showing the raw `code` until the first format lands.
  *
  * `mode` drives both halves: `"js"` → babel parser + JS highlight (the Generated-JS tab); `"html"` →
- * html parser + HTML highlight (the Post-SSG tab). `fill` makes the view fill its container and
+ * html parser + HTML highlight (the SSG-output tab). `fill` makes the view fill its container and
  * scroll internally (the JS tab); without it the view grows to its content (the stacked SSG blocks).
  */
 
