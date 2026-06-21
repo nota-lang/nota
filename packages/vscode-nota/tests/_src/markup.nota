@@ -1,0 +1,8 @@
+# Title with *bold*
+### Sub _em_ and a @ref tail
+- bullet item
++ numbered item
+3. explicit ordered
+Para with *strong* and _emph_ markers.
+Literal: my_var_name and a*b*c and 50% off.
+Escapes: \@ \{ \} \| \$ \* \_ \: \[ \] \` and \\ end.

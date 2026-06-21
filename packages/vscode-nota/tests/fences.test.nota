@@ -1,0 +1,22 @@
+// SYNTAX TEST "source.nota" "fenced code: language-tagged embeds source.ts; untagged stays raw"
+
+// --- a typescript-tagged fence embeds source.ts ---
+```typescript
+// <- punctuation.definition.raw.code.begin.nota
+// ^^^^^^^^^^ entity.name.tag.lang.nota
+const f = (x: number) => x + 1;
+//    ^ source.ts entity.name.function.ts
+//          ^ source.ts keyword.operator.type.annotation.ts
+//            ^^^^^^ source.ts support.type.primitive.ts
+//                    ^^ source.ts storage.type.function.arrow.ts
+```
+// <- punctuation.definition.raw.code.end.nota
+
+// --- an untagged fence is raw: @ and % stay literal text ---
+```
+// <- punctuation.definition.raw.code.begin.nota
+raw 50% @x stays literal here
+// <- markup.raw.code.block.nota
+//      ^^ markup.raw.code.block.nota - punctuation.definition.interpolation.nota
+```
+// <- punctuation.definition.raw.code.end.nota

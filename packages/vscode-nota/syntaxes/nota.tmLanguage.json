@@ -1,0 +1,404 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nota",
+  "scopeName": "source.nota",
+  "comment": "TextMate grammar for the Nota document language. Markup is the OUTER context (the inverse of JSX): a .nota file is markup at the top level, with JS embedded inside [props], @(expr), and %/%%% blocks (each delegated to source.ts). See design/notation.md for the full sigil inventory. TextMate is regex-only and cannot count balanced braces or track word boundaries across the document, so some constructs (intra-word emphasis, |@ re-arm, exact brace nesting) are best-effort here and finished by the Phase X semantic-tokens layer.",
+  "patterns": [{ "include": "#markup" }],
+  "repository": {
+    "markup": {
+      "comment": "The top-level / body markup context. Order matters: TextMate is first-match, so escapes precede sigils, line-leading constructs precede inline ones, and raw spans (code/math/verbatim) precede emphasis and @-interpolation.",
+      "patterns": [
+        { "include": "#escape" },
+        { "include": "#fence-statement" },
+        { "include": "#line-statement" },
+        { "include": "#heading" },
+        { "include": "#list" },
+        { "include": "#control-flow" },
+        { "include": "#element" },
+        { "include": "#interpolation" },
+        { "include": "#verbatim" },
+        { "include": "#code-block" },
+        { "include": "#code-inline" },
+        { "include": "#math-display" },
+        { "include": "#math-inline" },
+        { "include": "#bold" },
+        { "include": "#italic" },
+        { "include": "#props" },
+        { "include": "#body" }
+      ]
+    },
+
+    "escape": {
+      "comment": "Backslash escapes for the documented set (\\@ \\{ \\} \\| \\$ \\* \\_ \\: \\[ \\] \\` and \\\\), plus \\# \\- \\+ \\% for the line-leading sugar. A backslash before any other char is literal text, so we only scope the known set.",
+      "name": "constant.character.escape.nota",
+      "match": "\\\\[@{}|$*_:\\[\\]`#\\-+%\\\\]"
+    },
+
+    "fence-statement": {
+      "comment": "%%% ... %%% fence holds a raw JS block (embedded source.ts). Each fence is on its own line. We require the opening %%% to be alone on its line and end at a %%% alone on its line.",
+      "begin": "^\\s*(%%%)\\s*$",
+      "end": "^\\s*(%%%)\\s*$",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.statement.begin.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.statement.end.nota" }
+      },
+      "name": "meta.embedded.block.statement.nota",
+      "contentName": "meta.embedded.block.ts source.ts",
+      "patterns": [{ "include": "source.ts" }]
+    },
+
+    "line-statement": {
+      "comment": "% as first non-whitespace on a line begins a JS statement (the rest of the line + indented continuation; we approximate as the rest of the physical line). % is literal elsewhere (50%); \\% forces a literal. We require the % to be followed by a space/end so 50% and %%% (handled above) do not match.",
+      "begin": "^\\s*(%)(?=\\s|$)",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.statement.nota keyword.control.statement.nota" }
+      },
+      "name": "meta.embedded.line.statement.nota",
+      "contentName": "meta.embedded.line.ts source.ts",
+      "patterns": [{ "include": "source.ts" }]
+    },
+
+    "heading": {
+      "comment": "A line opening with 1-6 # followed by a space -> @h{n}. Body is the rest of the line and nests markup.",
+      "begin": "^\\s*(#{1,6})(\\s+)",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.heading.nota markup.heading.nota" }
+      },
+      "name": "markup.heading.nota",
+      "patterns": [{ "include": "#markup" }]
+    },
+
+    "list": {
+      "comment": "List item markers at line start: -· (bullet -> ul), +· (number -> ol), N.· (alternate ol). The marker is punctuation; the rest of the line is ordinary markup handled by the outer context.",
+      "patterns": [
+        {
+          "comment": "-· bullet -> @ul (unnumbered).",
+          "match": "^(\\s*)(-)(\\s+)",
+          "captures": {
+            "2": { "name": "punctuation.definition.list.begin.nota markup.list.unnumbered.nota" }
+          }
+        },
+        {
+          "comment": "+· -> @ol (numbered).",
+          "match": "^(\\s*)(\\+)(\\s+)",
+          "captures": {
+            "2": { "name": "punctuation.definition.list.begin.nota markup.list.numbered.nota" }
+          }
+        },
+        {
+          "comment": "N.· explicit ordered marker -> @ol (numbered); the written number is ignored at runtime.",
+          "match": "^(\\s*)(\\d+\\.)(\\s+)",
+          "captures": {
+            "2": { "name": "punctuation.definition.list.begin.nota markup.list.numbered.nota" }
+          }
+        }
+      ]
+    },
+
+    "control-flow": {
+      "comment": "Content control flow: @if (c) {...}, @for (bind of iter) {...}, with else / else if continuations. Heads (the (...) condition / iterator) are embedded source.ts. The trailing {...} body is matched by #body via the outer markup context. `else`/`else if` are contextual: they only continue a conditional as the next token after a closing } -- we approximate with a lookbehind on } with optional whitespace (no blank line). `for`/`if` keep their @, only else/else-if are sigil-less.",
+      "patterns": [
+        {
+          "comment": "@if / @for keyword + parenthesized head (embedded TS). The condition/iterator parens delegate to source.ts; `of` in @for is highlighted by source.ts as an operator.",
+          "begin": "(@)(if|for)\\b\\s*(?=\\()",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.keyword.nota" },
+            "2": { "name": "keyword.control.nota" }
+          },
+          "end": "(?<=\\))",
+          "name": "meta.control.head.nota",
+          "patterns": [{ "include": "#paren-expr" }]
+        },
+        {
+          "comment": "else if (d) {...} -- contextual continuation right after a closing }.",
+          "begin": "(?<=\\})\\s*(else)\\s+(if)\\b\\s*(?=\\()",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.conditional.nota" },
+            "2": { "name": "keyword.control.conditional.nota" }
+          },
+          "end": "(?<=\\))",
+          "name": "meta.control.head.nota",
+          "patterns": [{ "include": "#paren-expr" }]
+        },
+        {
+          "comment": "else {...} -- contextual continuation right after a closing }.",
+          "match": "(?<=\\})\\s*(else)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.conditional.nota" }
+          }
+        }
+      ]
+    },
+
+    "paren-expr": {
+      "comment": "A parenthesized embedded-JS span: ( ... ) delegating to source.ts. Used for @if/@for heads and @(expr). Balanced inner parens are tracked by re-including source.ts, which itself opens/closes nested () groups; the outer end matches the final ). Nested () balancing is best-effort (TextMate cannot truly count), but source.ts's own (..) rule absorbs nested pairs in practice.",
+      "begin": "(\\()",
+      "end": "(\\))",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.expression.begin.nota meta.brace.round.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.expression.end.nota meta.brace.round.nota" }
+      },
+      "name": "meta.embedded.expression.nota",
+      "contentName": "meta.embedded.ts source.ts",
+      "patterns": [{ "include": "source.ts" }]
+    },
+
+    "element": {
+      "comment": "The @-form heads. Ordered most-specific first: dynamic @(expr) tag, then Capitalized component, then lowercase host. Each head is just the sigil + name/parens; the optional [props] and {body} that follow are picked up by #props and #body in the surrounding markup context (TextMate cannot reliably balance the braces in a single begin/end, so we tokenize the head and let the generic block rules handle the body -- the same factoring the Typst grammar uses for #func then (...) / [...]).",
+      "patterns": [
+        {
+          "comment": "Dynamic tag head: @(expr) used AS A TAG, i.e. immediately followed by [ or {. The expr is embedded source.ts.",
+          "begin": "(@)(?=\\()",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.nota entity.name.tag.dynamic.nota" }
+          },
+          "end": "(?<=\\))",
+          "name": "meta.tag.dynamic.nota",
+          "patterns": [{ "include": "#paren-expr" }]
+        },
+        {
+          "comment": "Capitalized component head: @Cap{ / @Cap[ / @Cap: / @Cap|{ -- an element only when followed by an element trigger ({ [ : or a |{ verbatim body). A bare @Cap with no trigger is interpolation (handled by #interpolation), so we require the trigger via lookahead. The : (colon sugar) is captured; { [ and |{ are left for #body / #props / #verbatim.",
+          "match": "(@)([A-Z][A-Za-z0-9_]*)(?:(:)|(?=[\\[{]|\\|\\{))",
+          "captures": {
+            "1": { "name": "punctuation.definition.tag.nota" },
+            "2": { "name": "support.class.component.nota entity.name.tag.component.nota" },
+            "3": { "name": "punctuation.definition.tag.colon.nota keyword.operator.colon-sugar.nota" }
+          }
+        },
+        {
+          "comment": "Lowercase host element head: @tag{ / @tag[ / @tag: / @tag|{ -- an element only when followed by a trigger ({ [ : or a |{ verbatim body, e.g. @code|{...}|). A bare @tag with no trigger is interpolation. \\@foo\\: is a literal colon (handled by #escape on \\:).",
+          "match": "(@)([a-z][A-Za-z0-9_-]*)(?:(:)|(?=[\\[{]|\\|\\{))",
+          "captures": {
+            "1": { "name": "punctuation.definition.tag.nota" },
+            "2": { "name": "entity.name.tag.html.nota" },
+            "3": { "name": "punctuation.definition.tag.colon.nota keyword.operator.colon-sugar.nota" }
+          }
+        }
+      ]
+    },
+
+    "interpolation": {
+      "comment": "Bare @name identifier interpolation -> {name}. Only matches when NOT followed by { [ : ( (those are element triggers handled by #element). A bare identifier only (no member access at the @name form; @(expr) covers member access).",
+      "match": "(@)([A-Za-z_$][A-Za-z0-9_$]*)\\b(?![\\[{:(])",
+      "captures": {
+        "1": { "name": "punctuation.definition.interpolation.nota" },
+        "2": { "name": "variable.other.interpolation.nota" }
+      }
+    },
+
+    "props": {
+      "comment": "[k:v, ...] prop list: object-literal-ish, embedded JS. Delegates to source.ts so keys, string/expression values, shorthand, and spreads highlight. A value may itself be markup (@em{..}); since source.ts does not know @-forms, markup-valued props are best-effort (the @ head will look like a stray token to TS highlighting, but the bracket structure is preserved). Phase X semantic tokens refine this.",
+      "begin": "(\\[)",
+      "end": "(\\])",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.props.begin.nota meta.brace.square.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.props.end.nota meta.brace.square.nota" }
+      },
+      "name": "meta.props.nota",
+      "contentName": "meta.embedded.props.ts source.ts",
+      "patterns": [{ "include": "source.ts" }]
+    },
+
+    "body": {
+      "comment": "A { ... } body block: recursively the markup context. This also matches the @{...} fragment body (the @ is consumed by nothing special; bare @{ has its @ fall through to #interpolation's negative lookahead, leaving the { to open here). Brace NESTING is handled by re-entry: an inner { opens a nested #body. Unbalanced braces in prose should be escaped (\\{ \\}).",
+      "begin": "(\\{)",
+      "end": "(\\})",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.body.begin.nota meta.brace.curly.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.body.end.nota meta.brace.curly.nota" }
+      },
+      "name": "meta.body.nota",
+      "patterns": [{ "include": "#markup" }]
+    },
+
+    "bold": {
+      "comment": "*...* -> markup.bold (@strong). Word-boundary: opens only at a left word boundary, closes only at a right one, so intra-word * stays literal. Best-effort via lookarounds (TextMate cannot do true Unicode word segmentation). Ends at a line break too. Body nests markup.",
+      "begin": "(?<![\\p{L}\\p{N}])(\\*)(?=[^\\s*])",
+      "end": "(?<=[^\\s*])(\\*)(?![\\p{L}\\p{N}])|(?=\\n)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.bold.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.bold.nota" }
+      },
+      "name": "markup.bold.nota",
+      "patterns": [{ "include": "#markup" }]
+    },
+
+    "italic": {
+      "comment": "_..._ -> markup.italic (@em). Same word-boundary rule as bold, so my_var_name stays literal.",
+      "begin": "(?<![\\p{L}\\p{N}])(_)(?=[^\\s_])",
+      "end": "(?<=[^\\s_])(_)(?![\\p{L}\\p{N}])|(?=\\n)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.italic.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.italic.nota" }
+      },
+      "name": "markup.italic.nota",
+      "patterns": [{ "include": "#markup" }]
+    },
+
+    "verbatim": {
+      "comment": "|{ ... }| raw body: sigils off, braces literal, ends at }|. No embedded scopes. The armed escape |@ re-enters Nota to produce element children -- best-effort: we scope |@ as a re-arm punctuation but do NOT actually switch back to markup highlighting (a TextMate limitation; Phase X handles the real re-arm).",
+      "begin": "(\\|\\{)",
+      "end": "(\\}\\|)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.verbatim.begin.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.verbatim.end.nota" }
+      },
+      "name": "markup.raw.verbatim.nota string.unquoted.verbatim.nota",
+      "patterns": [
+        {
+          "comment": "|@ re-arm marker (best-effort scope only).",
+          "match": "(\\|@)",
+          "name": "punctuation.definition.verbatim.rearm.nota keyword.control.rearm.nota"
+        }
+      ]
+    },
+
+    "code-block": {
+      "comment": "```lang\\n ... \\n``` fenced code, optional language tag on the opening line. Raw (String.raw). When the language is one we ship a grammar for, the content is embedded as source.{lang}; otherwise it stays raw markup. Backtick runs shorter than the closing fence are literal inside. Each rule matches a >=3 backtick fence and closes on the same run length via the \\1 backreference. Language-specific rules come first; the generic raw fence is the fallback.",
+      "patterns": [
+        {
+          "comment": "TypeScript-tagged fence -> embed source.ts.",
+          "begin": "(`{3,})[ \\t]*(?i:(typescript|ts|tsx))[ \\t]*$",
+          "end": "(\\1)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.begin.nota" },
+            "2": { "name": "fenced_code.block.language.nota entity.name.tag.lang.nota" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.end.nota" }
+          },
+          "name": "markup.raw.code.block.nota",
+          "contentName": "meta.embedded.block.ts source.ts",
+          "patterns": [{ "include": "source.ts" }]
+        },
+        {
+          "comment": "JavaScript-tagged fence -> embed source.js.",
+          "begin": "(`{3,})[ \\t]*(?i:(javascript|js|jsx))[ \\t]*$",
+          "end": "(\\1)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.begin.nota" },
+            "2": { "name": "fenced_code.block.language.nota entity.name.tag.lang.nota" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.end.nota" }
+          },
+          "name": "markup.raw.code.block.nota",
+          "contentName": "meta.embedded.block.js source.js",
+          "patterns": [{ "include": "source.js" }]
+        },
+        {
+          "comment": "JSON-tagged fence -> embed source.json.",
+          "begin": "(`{3,})[ \\t]*(?i:(json|jsonc))[ \\t]*$",
+          "end": "(\\1)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.begin.nota" },
+            "2": { "name": "fenced_code.block.language.nota entity.name.tag.lang.nota" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.end.nota" }
+          },
+          "name": "markup.raw.code.block.nota",
+          "contentName": "meta.embedded.block.json source.json",
+          "patterns": [{ "include": "source.json" }]
+        },
+        {
+          "comment": "Generic fence: any other language tag, or none. Stays raw (the at-minimum scoping required by Phase U). The language tag, if present, is still captured for theming.",
+          "begin": "(`{3,})[ \\t]*([A-Za-z0-9_+#.-]+)?[ \\t]*$",
+          "end": "(\\1)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.begin.nota" },
+            "2": { "name": "fenced_code.block.language.nota entity.name.tag.lang.nota" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.raw.code.end.nota" }
+          },
+          "name": "markup.raw.code.block.nota"
+        }
+      ]
+    },
+
+    "code-inline": {
+      "comment": "`...` inline code -> CodeInline. Raw (String.raw). Backtick runs shorter than the closing fence are literal. We match a run of 1+ backticks and close on the same length.",
+      "begin": "(`+)",
+      "end": "(\\1)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.raw.code.begin.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.raw.code.end.nota" }
+      },
+      "name": "markup.raw.code.inline.nota string.unquoted.code.nota"
+    },
+
+    "math-display": {
+      "comment": "$$ ... $$ display math -> <Math display>. Content is raw LaTeX (String.raw); @ interpolates a string value; \\$ / \\@ are literal (the backslash is kept). Must precede inline math so $$ is not read as two empty $...$.",
+      "begin": "(\\$\\$)",
+      "end": "(\\$\\$)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.math.begin.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.math.end.nota" }
+      },
+      "name": "markup.math.display.nota string.other.math.nota",
+      "patterns": [{ "include": "#math-content" }]
+    },
+
+    "math-inline": {
+      "comment": "$ ... $ inline math -> <Math>. Raw LaTeX; @ interpolates.",
+      "begin": "(\\$)",
+      "end": "(\\$)|(?=\\n)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.math.begin.nota" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.math.end.nota" }
+      },
+      "name": "markup.math.inline.nota string.other.math.nota",
+      "patterns": [{ "include": "#math-content" }]
+    },
+
+    "math-content": {
+      "comment": "Inside math: \\$ and \\@ are literal LaTeX escapes (backslash kept); @name / @(expr) interpolate a string value.",
+      "patterns": [
+        {
+          "name": "constant.character.escape.math.nota",
+          "match": "\\\\[$@\\\\]"
+        },
+        {
+          "comment": "@(expr) interpolation inside math (embedded TS).",
+          "begin": "(@)(?=\\()",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.interpolation.nota" }
+          },
+          "end": "(?<=\\))",
+          "patterns": [{ "include": "#paren-expr" }]
+        },
+        {
+          "comment": "@name interpolation inside math. The identifier must NOT include $ (the math delimiter), so a closing $ right after the name -- $a_@i$ -- still ends the math rather than being eaten as an identifier char.",
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "punctuation.definition.interpolation.nota" },
+            "2": { "name": "variable.other.interpolation.nota" }
+          }
+        }
+      ]
+    }
+  }
+}

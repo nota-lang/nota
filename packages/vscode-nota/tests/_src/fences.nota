@@ -1,0 +1,6 @@
+```typescript
+const f = (x: number) => x + 1;
+```
+```
+raw 50% @x stays literal here
+```

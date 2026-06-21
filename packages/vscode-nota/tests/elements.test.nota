@@ -1,0 +1,58 @@
+// SYNTAX TEST "source.nota" "@-forms: elements, interpolation, props, dynamic & component tags"
+
+// --- host element + nested element + bare interpolation ---
+@p{Hello @em{world} and @name here.}
+// <- punctuation.definition.tag.nota
+// <~- entity.name.tag.html.nota
+//^ punctuation.definition.body.begin.nota meta.brace.curly.nota
+//       ^ punctuation.definition.tag.nota
+//        ^^ entity.name.tag.html.nota
+//                      ^ punctuation.definition.interpolation.nota
+//                       ^^^^ variable.other.interpolation.nota
+//                                 ^ punctuation.definition.body.end.nota
+
+// --- Capitalized component + [props] embedding source.ts ---
+@Aside[variant: "tip", count: n + 1]{Body}
+// <- punctuation.definition.tag.nota
+// <~- support.class.component.nota
+//    ^ punctuation.definition.props.begin.nota meta.brace.square.nota
+//     ^^^^^^^ source.ts entity.name.label.ts
+//            ^ source.ts punctuation.separator.label.ts
+//              ^ source.ts string.quoted.double.ts punctuation.definition.string.begin.ts
+//               ^^^ source.ts string.quoted.double.ts
+//                            ^ source.ts variable.other.readwrite.ts
+//                              ^ source.ts keyword.operator.arithmetic.ts
+//                                ^ source.ts constant.numeric.decimal.ts
+//                                 ^ punctuation.definition.props.end.nota meta.brace.square.nota
+//                                  ^ punctuation.definition.body.begin.nota
+
+// --- dynamic tag @(expr) with a call, expr embeds source.ts ---
+@(getTag()){dyn}
+// <- punctuation.definition.tag.nota entity.name.tag.dynamic.nota
+// <~- punctuation.definition.expression.begin.nota meta.brace.round.nota
+//^^^^^^ source.ts entity.name.function.ts
+//        ^ punctuation.definition.expression.end.nota meta.brace.round.nota
+//         ^ punctuation.definition.body.begin.nota
+
+// --- dynamic tag with a member expression ---
+@(ui.Card){x}
+//^^ source.ts variable.other.object.ts
+//  ^ source.ts punctuation.accessor.ts
+//   ^^^^ source.ts variable.other.property.ts
+
+// --- shorthand + spread props ---
+@input[disabled, ...rest]{}
+// <~- entity.name.tag.html.nota
+//     ^^^^^^^^ source.ts variable.other.readwrite.ts
+//               ^^^ source.ts keyword.operator.spread.ts
+//                  ^^^^ source.ts variable.other.readwrite.ts
+
+// --- colon sugar: @head: -> body is the rest of the line ---
+@foo: colon sugar body
+// <- punctuation.definition.tag.nota
+// <~- entity.name.tag.html.nota
+//  ^ keyword.operator.colon-sugar.nota
+
+@Cap: component colon sugar
+// <~- support.class.component.nota
+//  ^ keyword.operator.colon-sugar.nota

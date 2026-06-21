@@ -1,0 +1,56 @@
+// SYNTAX TEST "source.nota" "markup sugar: headings, lists, emphasis (word-boundary), escapes"
+
+// --- heading with nested emphasis ---
+# Title with *bold*
+// <- markup.heading.nota punctuation.definition.heading.nota
+//^^^^^^^^^^^ markup.heading.nota
+//           ^ markup.bold.nota punctuation.definition.bold.nota
+//            ^^^^ markup.bold.nota
+//                ^ markup.bold.nota punctuation.definition.bold.nota
+
+// --- deeper heading with italic + bare interpolation in body ---
+### Sub _em_ and a @ref tail
+// <- markup.heading.nota punctuation.definition.heading.nota
+//      ^ markup.italic.nota punctuation.definition.italic.nota
+//       ^^ markup.italic.nota
+//         ^ markup.italic.nota punctuation.definition.italic.nota
+//                 ^ punctuation.definition.interpolation.nota
+//                  ^^^ variable.other.interpolation.nota
+
+// --- list markers ---
+- bullet item
+// <- markup.list.unnumbered.nota
++ numbered item
+// <- markup.list.numbered.nota
+3. explicit ordered
+// <- markup.list.numbered.nota
+
+// --- emphasis at word boundaries inside prose ---
+Para with *strong* and _emph_ markers.
+//        ^ markup.bold.nota punctuation.definition.bold.nota
+//         ^^^^^^ markup.bold.nota
+//               ^ markup.bold.nota punctuation.definition.bold.nota
+//                     ^ markup.italic.nota punctuation.definition.italic.nota
+//                      ^^^^ markup.italic.nota
+//                          ^ markup.italic.nota punctuation.definition.italic.nota
+
+// --- intra-word * and _ stay LITERAL (no markup scopes): the whole run is plain ---
+Literal: my_var_name and a*b*c and 50% off.
+//          ^^^^^^^ source.nota - markup.italic.nota
+//                          ^^^ source.nota - markup.bold.nota
+//                                  ^^ source.nota
+
+// --- the documented escape set ---
+Escapes: \@ \{ \} \| \$ \* \_ \: \[ \] \` and \\ end.
+//       ^^ constant.character.escape.nota
+//          ^^ constant.character.escape.nota
+//             ^^ constant.character.escape.nota
+//                ^^ constant.character.escape.nota
+//                   ^^ constant.character.escape.nota
+//                      ^^ constant.character.escape.nota
+//                         ^^ constant.character.escape.nota
+//                            ^^ constant.character.escape.nota
+//                               ^^ constant.character.escape.nota
+//                                  ^^ constant.character.escape.nota
+//                                     ^^ constant.character.escape.nota
+//                                            ^^ constant.character.escape.nota

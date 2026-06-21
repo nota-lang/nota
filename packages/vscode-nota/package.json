@@ -1,0 +1,68 @@
+{
+  "name": "vscode-nota",
+  "displayName": "Nota",
+  "description": "Language support (syntax highlighting) for the Nota document language.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "nota-lang",
+  "depot": {
+    "platform": "node",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      {
+        "id": "nota",
+        "aliases": [
+          "Nota",
+          "nota"
+        ],
+        "extensions": [
+          ".nota"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nota",
+        "scopeName": "source.nota",
+        "path": "./syntaxes/nota.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.ts": "typescript",
+          "meta.embedded.line.ts": "typescript",
+          "meta.embedded.ts": "typescript",
+          "meta.embedded.props.ts": "typescript",
+          "meta.embedded.block.js": "javascript",
+          "meta.embedded.block.json": "json"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "test": "vscode-tmgrammar-test -g ./node_modules/tm-grammars/grammars/typescript.json -g ./syntaxes/nota.tmLanguage.json 'tests/**/*.test.nota'",
+    "test:tokenize": "node --import tsx tests/tokenize.smoke.ts",
+    "test:all": "pnpm run test && pnpm run test:tokenize"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/vscode": "^1.125.0",
+    "tm-grammars": "^1.31.15",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2",
+    "vscode-tmgrammar-test": "^0.1.3"
+  }
+}

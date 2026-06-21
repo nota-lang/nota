@@ -1,0 +1,7 @@
+@p{Hello @em{world} and @name here.}
+@Aside[variant: "tip", count: n + 1]{Body}
+@(getTag()){dyn}
+@(ui.Card){x}
+@input[disabled, ...rest]{}
+@foo: colon sugar body
+@Cap: component colon sugar

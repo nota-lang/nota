@@ -1,0 +1,68 @@
+// SYNTAX TEST "source.nota" "embedded JS (%, %%%, @(expr), @if/@for heads), raw, code, math"
+
+// --- % line statement -> embedded source.ts ---
+% const total = items.length
+// <- punctuation.definition.statement.nota keyword.control.statement.nota
+//^^^^^ source.ts storage.type.ts
+//      ^^^^^ source.ts variable.other.constant.ts
+//            ^ source.ts keyword.operator.assignment.ts
+//              ^^^^^ source.ts variable.other.object.ts
+//                    ^^^^^^ source.ts support.variable.property.ts
+
+// --- %%% fence -> embedded source.ts block (await highlights) ---
+%%%
+// <- punctuation.definition.statement.begin.nota
+const n = await load();
+//        ^^^^^ source.ts keyword.control.flow.ts
+//              ^^^^ source.ts entity.name.function.ts
+%%%
+// <- punctuation.definition.statement.end.nota
+
+// --- @if / else if / else with source.ts conditions ---
+@if (count > 0) {a} else if (x < 1) {b} else {c}
+// <- punctuation.definition.keyword.nota
+// <~- keyword.control.nota
+//   ^^^^^ source.ts variable.other.readwrite.ts
+//         ^ source.ts keyword.operator.relational.ts
+//           ^ source.ts constant.numeric.decimal.ts
+//                  ^^^^ keyword.control.conditional.nota
+//                       ^^ keyword.control.conditional.nota
+//                                      ^^^^ keyword.control.conditional.nota
+
+// --- @for head: `of` is a source.ts operator; the body nests markup ---
+@for (item of items) {@li{@item}}
+// <- punctuation.definition.keyword.nota
+// <~- keyword.control.nota
+//    ^^^^ source.ts variable.other.readwrite.ts
+//         ^^ source.ts keyword.operator.expression.of.ts
+//            ^^^^^ source.ts variable.other.readwrite.ts
+//                    ^ punctuation.definition.tag.nota
+//                     ^^ entity.name.tag.html.nota
+//                        ^ punctuation.definition.interpolation.nota
+//                         ^^^^ variable.other.interpolation.nota
+
+// --- verbatim |{ ... }|: raw, sigils off (the @foo{x} inside is literal) ---
+@code|{ raw @foo{x} }|
+// <- punctuation.definition.tag.nota
+// <~- entity.name.tag.html.nota
+//   ^^ punctuation.definition.verbatim.begin.nota
+//     ^^^^^^^^^^^^^ string.unquoted.verbatim.nota
+//                  ^^ punctuation.definition.verbatim.end.nota
+
+// --- inline code: raw ---
+Inline `code @x here` done.
+//     ^ punctuation.definition.raw.code.begin.nota
+//      ^^^^^^^^^^^^ string.unquoted.code.nota
+//                  ^ punctuation.definition.raw.code.end.nota
+
+// --- inline and display math: raw LaTeX with @ interpolation ---
+Math $a_@i$ and $$\sum_@n$$ end.
+//   ^ punctuation.definition.math.begin.nota
+//    ^^ string.other.math.nota
+//      ^ punctuation.definition.interpolation.nota
+//       ^ variable.other.interpolation.nota
+//        ^ punctuation.definition.math.end.nota
+//              ^^ punctuation.definition.math.begin.nota
+//                     ^ punctuation.definition.interpolation.nota
+//                      ^ variable.other.interpolation.nota
+//                       ^^ punctuation.definition.math.end.nota
