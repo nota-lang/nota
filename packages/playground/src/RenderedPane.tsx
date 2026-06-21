@@ -1,20 +1,87 @@
 /**
- * Phase S (placeholder until filled below): the live **Rendered** pane — boots the Post-SSG HTML in
- * a sandboxed iframe via blob-ESM + import map + `bootIslands`. Stubbed in phase R so `App` compiles.
+ * Phase S — the live **Rendered** pane (decode.md "hydrated"): the Post-SSG HTML booted live in a
+ * sandboxed iframe, with each island hydrated in place so it becomes interactive (the golden's
+ * `Colorized` click → red→green works).
+ *
+ * Mechanism: write the stage-5 HTML into the (same-origin) iframe's document, then for each manifest
+ * island find its `[data-hydration-id]` node and `adapter.hydrate` the island component over it —
+ * recovering the component's `@children` slot from the SSR'd root's `innerHTML` (the M-helper /
+ * `bootIslandsWithSlots` approach, so the client render matches the SSR and React doesn't bail).
+ * The island components come from `runSSG`'s `registry` (the emitted module's named exports), so they
+ * are the *same* component instances that produced the SSR HTML.
  */
+
+import reactAdapter from "@nota-lang/react";
+import { raw, setAdapter } from "@nota-lang/runtime";
+import { useEffect, useRef } from "react";
+import type { ManifestEntry } from "./ssg";
+
 export interface RenderedPaneProps {
-  /** The bare emitted module (stage 3). */
-  code: string;
+  /** The Post-SSG HTML (stage 5) to boot. */
+  html: string;
   /** The island manifest from `render` (stage 5). */
-  manifest: unknown;
+  manifest: Record<string, ManifestEntry>;
+  /** The island components, keyed by name (from `runSSG`). */
+  registry: Record<string, unknown>;
   /** Whether this tab is currently shown (avoid work when hidden). */
   active: boolean;
 }
 
-export function RenderedPane(_props: RenderedPaneProps) {
+const FRAME_CSS =
+  "body{margin:1rem;font-family:system-ui,-apple-system,sans-serif;color:#111;line-height:1.5}";
+
+export function RenderedPane({
+  html,
+  manifest,
+  registry,
+  active
+}: RenderedPaneProps) {
+  const ref = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const doc = ref.current?.contentDocument;
+    if (!doc) return;
+
+    // 1. Boot the Post-SSG HTML into the sandboxed (same-origin) iframe.
+    doc.open();
+    doc.write(
+      `<!doctype html><html><head><meta charset="utf-8"><style>${FRAME_CSS}</style></head><body>${html}</body></html>`
+    );
+    doc.close();
+
+    // 2. Hydrate each island in place, using the parent's React adapter on the iframe's nodes.
+    setAdapter(reactAdapter as Parameters<typeof setAdapter>[0]);
+    for (const [id, entry] of Object.entries(manifest ?? {})) {
+      const node = doc.querySelector(`[data-hydration-id="${id}"]`);
+      const Component = registry?.[entry.comp];
+      if (!node || typeof Component !== "function") continue;
+      // Recover the component's `@children` slot from its SSR'd root so the client render matches.
+      const slot = node.firstElementChild
+        ? node.firstElementChild.innerHTML
+        : node.innerHTML;
+      try {
+        reactAdapter.hydrate(
+          reactAdapter.h(
+            Component as Parameters<typeof reactAdapter.h>[0],
+            entry.props,
+            raw(slot)
+          ),
+          node
+        );
+      } catch {
+        // A hydration mismatch shouldn't break the preview — the static SSR markup still shows.
+      }
+    }
+  }, [html, manifest, registry, active]);
+
   return (
-    <div className="rendered" data-testid="pane-rendered">
-      <p className="placeholder">Live preview (phase S).</p>
-    </div>
+    <iframe
+      ref={ref}
+      className="rendered-frame"
+      data-testid="pane-rendered"
+      title="Rendered preview"
+      sandbox="allow-scripts allow-same-origin"
+    />
   );
 }

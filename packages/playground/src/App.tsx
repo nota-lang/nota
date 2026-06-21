@@ -15,7 +15,7 @@ import { Editor } from "./Editor";
 import { GOLDEN_NOTA } from "./golden";
 import { notaLanguage } from "./nota-mode";
 import { RenderedPane } from "./RenderedPane";
-import { runSSG } from "./ssg";
+import { type ManifestEntry, runSSG } from "./ssg";
 
 type Tab = "js" | "ssg" | "rendered";
 
@@ -28,7 +28,9 @@ interface PipelineResult {
   /** The Post-SSG HTML (stage 5). */
   html: string;
   /** The island manifest (stage 5). */
-  manifest: unknown;
+  manifest: Record<string, ManifestEntry>;
+  /** The island components, keyed by name (for the Rendered pane to hydrate). */
+  registry: Record<string, unknown>;
   /** A compile/render error, if the pipeline threw. */
   error: string | null;
 }
@@ -38,6 +40,7 @@ const EMPTY: PipelineResult = {
   full: "",
   html: "",
   manifest: {},
+  registry: {},
   error: null
 };
 
@@ -69,8 +72,8 @@ export function App() {
       try {
         const code = compileNotaRaw(source);
         const full = compileNota(source);
-        const { html, manifest } = runSSG(full);
-        setResult({ code, full, html, manifest, error: null });
+        const { html, manifest, registry } = runSSG(full);
+        setResult({ code, full, html, manifest, registry, error: null });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         setResult(prev => ({ ...prev, error: message }));
@@ -145,8 +148,9 @@ export function App() {
             )}
             {tab === "rendered" && (
               <RenderedPane
-                code={result.code}
+                html={result.html}
                 manifest={result.manifest}
+                registry={result.registry}
                 active={tab === "rendered"}
               />
             )}
