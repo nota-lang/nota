@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "typedocOptions": {
+    "entryPoints": [
+      "./src/lib.ts"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@nota-lang/solid",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "solid-js": "^1.9.3"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  }
+}
