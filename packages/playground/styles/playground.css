@@ -91,6 +91,23 @@ body {
   font-size: 13px;
 }
 
+/* The Generated-JS pane: a read-only CM6 viewer filling the tab body. */
+.pane-js,
+.code-view {
+  height: 100%;
+  min-height: 0;
+}
+.code-view {
+  overflow: auto;
+}
+.code-view .cm-editor {
+  height: 100%;
+}
+.code-view .cm-scroller {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+
 .tabs {
   display: flex;
   background: var(--panel-2);

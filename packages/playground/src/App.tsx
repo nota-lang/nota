@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { compileNota, compileNotaRaw, ensureCompiler } from "./compiler";
 import { Editor } from "./Editor";
 import { GOLDEN_NOTA } from "./golden";
+import { JsPane } from "./JsPane";
 import { notaLanguage } from "./nota-mode";
 import { RenderedPane } from "./RenderedPane";
 import { type ManifestEntry, runSSG } from "./ssg";
@@ -131,11 +132,7 @@ export function App() {
           )}
 
           <div className="tab-body">
-            {tab === "js" && (
-              <pre className="code" data-testid="pane-js">
-                {result.code}
-              </pre>
-            )}
+            {tab === "js" && <JsPane code={result.code} />}
             {tab === "ssg" && (
               <div className="ssg" data-testid="pane-ssg">
                 <h4>HTML</h4>
