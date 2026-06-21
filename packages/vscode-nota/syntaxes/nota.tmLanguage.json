@@ -50,8 +50,8 @@
     },
 
     "line-statement": {
-      "comment": "% as first non-whitespace on a line begins a JS statement (the rest of the line + indented continuation; we approximate as the rest of the physical line). % is literal elsewhere (50%); \\% forces a literal. We require the % to be followed by a space/end so 50% and %%% (handled above) do not match.",
-      "begin": "^\\s*(%)(?=\\s|$)",
+      "comment": "% as first non-whitespace on a line begins a JS statement (the rest of the line; embedded source.ts). The sigil binds tight -- `%let`/`%const`/`%import` are valid with no space (the reader accepts it; the canonical golden uses `%let`), so we match a line-leading % NOT followed by another %, which excludes %%% (the fence, handled above) and %%. 50% is unaffected (not line-leading); \\% forces a literal.",
+      "begin": "^\\s*(%)(?!%)",
       "end": "$",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.statement.nota keyword.control.statement.nota" }

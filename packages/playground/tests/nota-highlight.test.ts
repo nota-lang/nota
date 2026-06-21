@@ -13,19 +13,21 @@ import { createNotaHighlighter, notaHighlighting } from "../src/nota-mode";
 const OPTS = { lang: "nota", theme: "catppuccin-mocha" };
 
 describe("Nota grammar via Shiki", () => {
-  it("colors element heads and embedded TS, with valid absolute offsets", async () => {
+  it("colors % statements, component heads, and embedded TS, with valid offsets", async () => {
     const hl = await createNotaHighlighter();
     const tokens = hl.codeToTokens(GOLDEN_NOTA, OPTS).tokens.flat();
 
-    const find = (content: string) => tokens.find(t => t.content === content);
-    // Element heads tokenize even though they sit in markup: `@span` (host) and `@Colorized` (comp).
-    expect(find("span")?.color).toBeTruthy();
-    expect(find("Colorized")?.color).toBeTruthy();
-    // Embedded TS inside `[onClick: () => setColor("green")]` is colored by the source.ts grammar.
-    const green = tokens.find(t => t.content.includes("green"));
-    expect(green?.color).toBeTruthy();
+    // The `%let …` statement line is recognized and colored (the grammar's `%`-no-space fix).
+    const first = tokens.find(t => t.content.trim());
+    expect(first?.content.startsWith("%")).toBe(true);
+    expect(first?.color).toBeTruthy();
+    // A component head in a clean markup body (`- @Colorized{@x}`) is colored.
+    expect(tokens.find(t => t.content === "Colorized")?.color).toBeTruthy();
+    // Embedded TS (here the `setColor("green")` string inside the component body) is colored by
+    // the bundled source.ts grammar.
+    expect(tokens.find(t => t.content.includes("green"))?.color).toBeTruthy();
 
-    // Real highlighting ⇒ several distinct colors (the probe sees 6).
+    // Real highlighting ⇒ several distinct colors (the probe sees 7).
     const colors = new Set(tokens.map(t => t.color).filter(Boolean));
     expect(colors.size).toBeGreaterThanOrEqual(4);
 
