@@ -9,12 +9,13 @@
  *   | Rendered      | the hydrated result          | the HTML booted live in an iframe      |
  */
 
-import { useEffect, useMemo, useState } from "react";
+import type { Extension } from "@codemirror/state";
+import { useEffect, useState } from "react";
 import { CodePane } from "./CodePane";
 import { compileNota, compileNotaRaw, ensureCompiler } from "./compiler";
 import { Editor } from "./Editor";
 import { GOLDEN_NOTA } from "./golden";
-import { notaLanguage } from "./nota-mode";
+import { createNotaHighlight } from "./nota-mode";
 import { RenderedPane } from "./RenderedPane";
 import { SsgPane } from "./SsgPane";
 import { type ManifestEntry, runSSG } from "./ssg";
@@ -52,8 +53,19 @@ export function App() {
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState<PipelineResult>(EMPTY);
 
-  // The nota highlighting extension (phase T) — created once.
-  const language = useMemo(() => notaLanguage(), []);
+  // The Nota highlighting extension loads asynchronously (Shiki + onig-wasm + grammars); until it
+  // resolves the editor shows plain text. Highlighting is best-effort — a load failure is ignored.
+  const [language, setLanguage] = useState<Extension>([]);
+  useEffect(() => {
+    let live = true;
+    createNotaHighlight().then(
+      ext => live && setLanguage(ext),
+      () => {}
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
 
   // Load the wasm compiler once.
   useEffect(() => {

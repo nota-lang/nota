@@ -1,11 +1,12 @@
 /**
- * The CM6 editor (left pane). Plain text in phase R; the `nota` `StreamLanguage` highlighting
- * (phase T) is wired via the optional `language` extension. A thin React wrapper that owns the
- * `EditorView` lifecycle and pushes doc changes up through `onChange`.
+ * The CM6 editor (left pane). A thin React wrapper that owns the `EditorView` lifecycle and pushes
+ * doc changes up through `onChange`. The `language` extension (Nota highlighting) is held in a
+ * Compartment so it can be swapped in *after* mount without rebuilding the editor — the Shiki-backed
+ * highlighter loads asynchronously, so `App` passes `[]` first and the real extension once ready.
  */
 
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
-import type { Extension } from "@codemirror/state";
+import { Compartment, type Extension } from "@codemirror/state";
 import {
   EditorView,
   highlightActiveLine,
@@ -17,37 +18,36 @@ import { useEffect, useRef } from "react";
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
-  /** Optional language/highlighting extension (the `nota` StreamLanguage in phase T). */
+  /** Language/highlighting extension; hot-swappable (the Nota highlighter loads async). */
   language?: Extension;
 }
 
 export function Editor({ value, onChange, language }: EditorProps) {
   const host = useRef<HTMLDivElement | null>(null);
   const view = useRef<EditorView | null>(null);
+  const langCompartment = useRef(new Compartment());
   // Keep the latest onChange without recreating the editor.
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // Mount once. `language` is captured at mount; it is static for the app's lifetime.
+  // Mount once. `language` enters through the compartment and is reconfigured by the effect below.
   useEffect(() => {
     if (!host.current) return;
-    const extensions: Extension[] = [
-      lineNumbers(),
-      history(),
-      highlightActiveLine(),
-      keymap.of([...defaultKeymap, ...historyKeymap]),
-      EditorView.lineWrapping,
-      EditorView.updateListener.of(update => {
-        if (update.docChanged) {
-          onChangeRef.current(update.state.doc.toString());
-        }
-      })
-    ];
-    if (language) extensions.push(language);
-
     const v = new EditorView({
       doc: value,
-      extensions,
+      extensions: [
+        lineNumbers(),
+        history(),
+        highlightActiveLine(),
+        keymap.of([...defaultKeymap, ...historyKeymap]),
+        EditorView.lineWrapping,
+        langCompartment.current.of(language ?? []),
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            onChangeRef.current(update.state.doc.toString());
+          }
+        })
+      ],
       parent: host.current
     });
     view.current = v;
@@ -55,7 +55,14 @@ export function Editor({ value, onChange, language }: EditorProps) {
       v.destroy();
       view.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once; value handled below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once; value/language handled below.
+  }, []);
+
+  // Swap the language extension in/out when it changes (e.g. the async highlighter resolving).
+  useEffect(() => {
+    view.current?.dispatch({
+      effects: langCompartment.current.reconfigure(language ?? [])
+    });
   }, [language]);
 
   // Reflect external `value` changes (e.g. "load example") back into the editor.

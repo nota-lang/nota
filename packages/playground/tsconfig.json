@@ -6,6 +6,7 @@
   "compilerOptions": {
     "noEmit": true,
     "jsx": "react-jsx",
+    "resolveJsonModule": true,
     "types": [
       "vite/client",
       "node"

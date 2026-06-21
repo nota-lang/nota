@@ -200,35 +200,5 @@ body {
   padding: 1rem;
 }
 
-/* CM6 nota highlighting (phase T) */
-.cm-nota-sigil {
-  color: var(--accent);
-}
-.cm-nota-keyword {
-  color: #cba6f7;
-}
-.cm-nota-tag {
-  color: #f9e2af;
-}
-.cm-nota-comp {
-  color: #fab387;
-}
-.cm-nota-emph {
-  font-style: italic;
-  color: #a6e3a1;
-}
-.cm-nota-strong {
-  font-weight: 700;
-  color: #a6e3a1;
-}
-.cm-nota-heading {
-  font-weight: 700;
-  color: #f5c2e7;
-}
-.cm-nota-verbatim {
-  color: #94e2d5;
-}
-.cm-nota-comment {
-  color: var(--muted);
-  font-style: italic;
-}
+/* The Nota editor's syntax colors come from Shiki (inline-styled token spans), not CSS — see
+   nota-mode.ts. The shared output-pane highlight (highlight-style.ts) styles the JS/HTML/JSON panes. */
