@@ -46,9 +46,9 @@ h(t, p, ...children)          // t: string (host) | CompFn (component); p: props
     ▸=false → ⟨t, p, flatten(children)⟩            // inert nota vnode; component tags NOT invoked
     ▸=true  → Adapter.h(t, p, flatten(children))   // framework hyperscript
 
-Fragment(...children)         // variadic; flatten
-    ▸=false → ⟨FRAG, {}, flatten(children)⟩
-    ▸=true  → Adapter.Fragment(flatten(children))
+Fragment(props?, ...children) // optional leading props (for E5 `key`); else all args are children
+    ▸=false → ⟨FRAG, props ?? {}, flatten(children)⟩      // first arg is props iff plain non-vnode obj
+    ▸=true  → Adapter.Fragment(props, flatten(children))  // React: createElement(Fragment, props, …)
 
 decode(v)
     ▸=false → serialize(struct(v))                 // the SSG pass
@@ -104,14 +104,14 @@ import { h, decode, Fragment, inlineComponent } from "@nota-lang/runtime";
 
 export let Colorized = inlineComponent((children) => {
   let [color, setColor] = useState("red");
-  return decode(h("span", { onClick: () => setColor("green"), style: { color } }, children));
+  return decode(h("span", { onClick: () => setColor("green"), style: { color } }, [children]));
 }, "Colorized");   // ← F1 name passed as 2nd arg → manifest `comp` (see §1, §4 F1)
 
 export default function Doc() {
   return decode(Fragment(
     ["a", "b"].map(x =>
       h("ulli", {}, [
-        h(Colorized, {}, x)
+        h(Colorized, {}, [x])
       ])
     )
   ));
@@ -158,7 +158,7 @@ left column is the source; its right column is the *JSX view* — translate to h
 | `@Aside{hi}` | `h(Aside, {}, ["hi"])` (component: identifier; `@Unknown{}` → scope error) |
 | `@(getTag()){hi}` | `(() => { const _Tag = getTag(); return h(_Tag, {}, ["hi"]); })()` |
 | `@(Box){hi}` | `h(Box, {}, ["hi"])` (already a valid tag → no binding) |
-| `@(ui.Card){hi}` | `h(ui.Card, {}, ["hi"])` (member expr → no binding) |
+| `@(ui.Card){hi}` | `h(ui.Card, {}, ["hi"])` (**static** member → no binding; computed `@(comps[k])` → IIFE) |
 | `@a[href:"/x"]{go}` | `h("a", { href: "/x" }, ["go"])` |
 | `@a[href:url]{go}` | `h("a", { href: url }, ["go"])` |
 | `@input[disabled, ...rest]{}` | `h("input", { disabled, ...rest }, [])` (empty body → no children) |
@@ -174,7 +174,7 @@ left column is the source; its right column is the *JSX view* — translate to h
 | `@if (c) {a}` | `c ? Fragment("a") : null` |
 | `@if (c) {a} else {b}` | `c ? Fragment("a") : Fragment("b")` |
 | `@if (c) {a} else if (d) {b}` | `c ? Fragment("a") : d ? Fragment("b") : null` |
-| `@for (x of y) {@li{@x}}` | `y.map(x => Fragment(h("li", {}, [x])))` *(+ E5 key — see R6/§4)* |
+| `@for (x of y) {@li{@x}}` | `y.map((x, _i) => Fragment({ key: _i }, h("li", {}, [x])))` (E5; §4) |
 | `@code\|{@foo{x}}\|` | `h("code", {}, [String.raw`@foo{x}`])` |
 | `` `@x` `` | `h(CodeInline, {}, [String.raw`@x`])` |
 | ` ```python⏎f(x)⏎``` ` | `h(CodeBlock, { lang: "python" }, [String.raw`f(x)`])` |
@@ -184,6 +184,18 @@ left column is the source; its right column is the *JSX view* — translate to h
 Whitespace-significant text is emitted as explicit string children per notation.md §Whitespace
 (Scribble algorithm). `CodeInline`/`CodeBlock`/`Math` are ambient prelude bindings.
 
+**Children are always an array literal** — a single child becomes `[child]` (`@p{@x}` →
+`h("p", {}, [x])`; component body `@span{@children}` → `h("span", {}, [children])`). Part 2's
+`flatten` normalizes bare-vs-array, but always-array is the reader's canonical emit (verified against
+the reader's actual Phase-A/B/C output). The reader does **not** emit the `@nota-lang/runtime` import
+(the compiler shim/integrator prepends it).
+
+**Integration status (Sync 2):** the reader's *actual* emit for a component-boundary fixture
+(`integration/note.nota`) was captured and traced through `render` to the exact stage-5 HTML +
+manifest, and Part 2's tests independently prove `render` on that shape. The standalone executable
+harness (`integration/run.mjs`) completes in Wave 3 (the runtime `dist` uses bundler-style
+extensionless ESM imports; resolve via `@nota-lang/compiler`/vite/vitest).
+
 **Document mode** additionally emits: `export default function Doc()`, hoisted `import`/`export` +
 hoisted+exported component bindings (F1), the `decode(...)` wrap on Doc's returned fragment, and
 `await`→`async` on `Doc`/IIFE.
@@ -192,11 +204,16 @@ hoisted+exported component bindings (F1), the `decode(...)` wrap on Doc's return
 
 ## 4. Locked decisions (the cross-cutting ones)
 
-- **E5 — reader emits `@for` keys.** `@for (x of xs) {body}` → each iteration's top-level Fragment is
-  keyed by index. *Decision locked; mechanism deferred to Phase-D sync.* Candidate forms to settle
-  then: `Fragment({key:i}, …children)` (Fragment gains optional leading props obj, disambiguated from
-  children by not being array/string/vnode) vs. a `keyed(i, v)` helper. Until that sync, Part 1 emits
-  `@for` **keyless** (`xs.map(x => Fragment(...))`) and Part 2's adapter `.map` works keyless.
+- **E5 — reader emits `@for` keys. LOCKED (Phase-D sync).** `@for (x of xs) {body}` →
+  `xs.map((x, _i) => Fragment({ key: _i }, ...body-children))` — the reader adds its own map-index
+  param `_i` (fresh name) as the key on each iteration's wrapping `Fragment`. **Mechanism:** `Fragment`
+  gains an optional **leading props arg** — `Fragment(props?, ...children)` — where the first arg is
+  props iff it is a plain object that is *not* an array, string, `RawHtml`, or `ElementVNode` (no
+  `tag` key); otherwise all args are children. At `▸=false` the key sits in the FRAG vnode's props
+  (ignored by struct/serialize — static HTML needs no key). At `▸=true`, `adapter.Fragment(props,
+  children)` → React `createElement(React.Fragment, props, ...children)` (React.Fragment accepts
+  `key`); Solid best-effort. `@if` stays keyless (single branch, no list reconciliation). **This
+  amends Part 2** (Fragment + both adapters) — coordinated in the same wave as Phase D.
 - **F1 — hoist+export component definitions.** The reader hoists every `%let/%const Name =
   inlineComponent(...)|blockComponent(...)` binding to **module scope** and adds `export`, under its
   authored name (stable). The manifest's `comp` field is that name. Constraint (v1, like Astro):

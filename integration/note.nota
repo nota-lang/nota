@@ -1,0 +1,2 @@
+%let Note = blockComponent((children) => @aside{@children})
+@Note{Hello @em{world}}
