@@ -1,0 +1,34 @@
+{
+  "name": "@nota-lang/playground",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "site",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.6.2",
+    "@codemirror/language": "^6.10.3",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.34.1",
+    "@nota-lang/react": "workspace:*",
+    "@nota-lang/runtime": "workspace:*",
+    "@nota-lang/vite": "workspace:*",
+    "codemirror": "^6.0.1",
+    "nota_wasm": "file:../../oxc/napi/nota_wasm/pkg",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "normalize.css": "^8.0.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  }
+}
