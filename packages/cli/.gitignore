@@ -1,0 +1,2 @@
+# Hydration e2e build artifact (produced by tests/buildGolden.globalSetup.ts)
+tests/.golden.built.html

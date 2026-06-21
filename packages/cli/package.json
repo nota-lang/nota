@@ -1,0 +1,33 @@
+{
+  "name": "@nota-lang/cli",
+  "version": "0.1.0",
+  "bin": {
+    "nota": "dist/cli.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "depot": {
+    "platform": "node",
+    "target": "script",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/compiler": "workspace:*",
+    "@nota-lang/react": "workspace:*",
+    "@nota-lang/runtime": "workspace:*",
+    "@nota-lang/vite": "workspace:*",
+    "esbuild": "0.28.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.16"
+  }
+}

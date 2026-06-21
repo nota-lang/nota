@@ -16,6 +16,12 @@
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 
+// --- Part 3 M: the island registry / boot-entry helper (impl §3.3, §3.5-M; contract §8) ---
+export {
+  type ClientEntryOptions,
+  generateClientEntry
+} from "./registry";
+
 /** Options for the {@link nota} plugin. */
 export interface NotaPluginOptions {
   /**

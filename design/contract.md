@@ -391,3 +391,46 @@ never null.
 - **Solid SSR↔hydrate is cross-process:** the server build emits HTML + `_$HY` resume data; the
   client build resumes it. Part 3's Vite plugin must build Solid SSR and client as **separate Vite
   builds with the right export conditions** (`solid-js/web` resolves to `server.js` vs `web.js`).
+
+---
+
+## 9. Integrator + compiler-API findings — LOCKED (Wave 5: CLI + H1/H2)
+
+**Compiler API** (the reader exposes three entries; `oxc/crates/oxc/src/nota.rs`):
+- `compile(src) → {code, map}` — the **build** path (JS, `SourceType::default()`/mjs); the shim/CLI/vite
+  use this. ⚠ **Known gap:** parses mjs, so it **rejects embedded TS** (`% const n: number`). Proper
+  TS-in-`.nota` needs the build path on `tsx` **and** the downstream esbuild/vite to treat the emit as
+  `tsx` (since codegen would then keep the types) — deferred to a later wave.
+- `compile_with_mappings(src) → {code, map, mappings}` — build + H1 (parses tsx).
+- `compile_virtual(src) → {code /*.tsx, types preserved*/, mappings}` — **H2 + H1; Part 5 (Volar)
+  consumes this.** H2 finding: there is **no strip step** — `oxc_codegen` prints TS types (stripping
+  lives in `oxc_transformer`, never invoked), so H2 is a **parse-mode choice** (`SourceType::tsx()`),
+  not a separate codegen tail.
+- **H1 `CodeMapping`** = Volar's `@volar/language-core` shape (`source_offsets[]`,
+  `generated_offsets[]`, `lengths[]`, `data:{completion,format,navigation,semantic,structure,verification}`).
+  Mechanism: reader marks (embedded-JS / component-identifier spans) × a codegen offset-log (at the
+  existing `add_source_mapping` hooks; `Span::empty` boilerplate skipped → unmapped), reduced to
+  innermost leaves, then **byte-exact-filtered** (every segment's source slice == generated slice).
+  Caps: embedded JS → full; `@Aside` → navigation+hover; host tags + boilerplate → unmapped.
+  **Part 5 V must shift `generated_offsets` by the runtime-import preamble length it prepends**
+  (`source_offsets` unchanged — the reader omits the import, §1). The binary/shim must grow a
+  `--virtual` mode (or a second entry) to expose `compile_virtual` to the language server.
+
+**Ambient prelude (LOCKED).** The emitted module references `useState` (and, once shipped,
+`Math`/`CodeInline`/`CodeBlock`) as **free identifiers** — ambient, per §3.1 mechanism-not-policy. The
+**integrator supplies them**; the CLI does so via **esbuild `inject`** of a prelude module (minimal
+member: `useState` = the framework's; `Math` is a JS global; `CodeInline`/`CodeBlock`/`Math` components
+are the documented extension point once a prelude ships).
+
+**Slot rehydration (amends §8 — `bootIslands` alone is insufficient for slotted islands).** An island
+whose component forwards a `@children` slot SSRs *with* that slot content; the runtime's `bootIslands`
+passes only props, so a client re-render lacks the slot → **React hydration mismatch (#418)**. The M
+helper therefore generates a **slot-aware boot** (`bootIslandsWithSlots`): per `[data-hydration-id]`
+node, recover the slot from the SSR'd component-root's `innerHTML`, wrap `raw(slot)`, and
+`adapter.hydrate(build(props, raw(slot)), node)`. **v1 heuristic** — assumes a single root forwarding
+`@children`; general slots likely need the slot carried explicitly (Astro-style). The registry entry is
+`registry[comp] = (props, slot) => adapter.h(Component, props, slot ?? [])` (builds, never invokes).
+
+**Manifest delivery (F3, for the CLI):** the CLI embeds the manifest **in the boot bundle**
+(self-contained, no fetch) **and** inlines a `<script type="application/json" id="nota-manifest">`
+metadata view; the boot does not depend on the latter.
