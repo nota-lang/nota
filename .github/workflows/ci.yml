@@ -1,97 +1,34 @@
 name: CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
-
-# Cancel superseded runs on the same ref (e.g. rapid PR pushes).
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
+on: [push, pull_request]
+  
 permissions:
   contents: read
 
 jobs:
-  js-tests:
-    name: JS tests (depot)
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     env:
-      # The @nota-lang/compiler shim spawns the reader binary; resolve it by absolute path so it is
-      # found no matter what cwd depot runs each package from. (Defaults to oxc/target/release/...
-      # relative to the package, which also works here — this is belt-and-suspenders.)
-      NOTA_COMPILE_BIN: ${{ github.workspace }}/oxc/target/release/examples/nota_compile
+      NOTA_COMPILE_BIN: ${{ github.workspace }}/oxc/target/debug/examples/nota_compile
 
     steps:
-      # The Nota reader lives in the `oxc` submodule (a fork of oxc on branch `nota`). The JS tests
-      # shell out to its compiled binary, so it must be checked out and built first.
-      - name: Checkout (with oxc submodule)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      # --- Rust: build the `nota_compile` reader the JS tests depend on -------------------------
-      # Mirrors oxc/rust-toolchain.toml (channel 1.95.0); keep these in sync.
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.95.0"
 
       - name: Cache oxc cargo build
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: oxc
 
-      - name: Build nota_compile (release)
+      - name: Build nota_compile
         working-directory: oxc
-        run: cargo build --release --example nota_compile
-
-      # --- Node + pnpm: depot orchestrates tsc/biome/vitest and shells out to pnpm --------------
-      # pnpm must precede setup-node so the latter's `cache: pnpm` can find it.
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+        run: cargo build --example nota_compile
 
       - name: Install depot
         uses: cognitive-engineering-lab/depot/actions/install@main
 
-      - name: Install workspace dependencies
-        run: depot init
-
-      # --- Tests: per-package (a biome 2.x root-config conflict makes bare-root `depot test`
-      #     fail; per-package is clean). Run every package, then fail if any did. ---------------
-      - name: Run JS tests (per package)
-        env:
-          NO_COLOR: "1"
-        run: |
-          set -uo pipefail
-          packages="runtime react solid compiler vite cli language-server playground vscode-nota"
-          failed=""
-          for pkg in $packages; do
-            if [ ! -d "packages/$pkg/tests" ]; then
-              echo "::notice::skipping $pkg (no tests/ directory)"
-              continue
-            fi
-            echo "::group::depot test — $pkg"
-            if ( cd "packages/$pkg" && depot --no-fullscreen test ); then
-              echo "PASS $pkg"
-            else
-              echo "::error::depot test failed for $pkg"
-              failed="$failed $pkg"
-            fi
-            echo "::endgroup::"
-          done
-          if [ -n "$failed" ]; then
-            echo "::error::JS tests failed for:$failed"
-            exit 1
-          fi
-          echo "All JS test suites passed."
+      - name: Run tests
+        run: depot test
