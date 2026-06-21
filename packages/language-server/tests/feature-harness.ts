@@ -200,6 +200,99 @@ export function renameSitesAt(h: FeatureHarness, notaOffset: number): number[] {
   );
 }
 
+/**
+ * One semantic token, resolved back to the **`.nota`** source: where it starts, how long it is, and
+ * its standard LSP token-type name (`variable` / `function` / `parameter` / …). The `tokenType` is
+ * the TS classification's type index resolved through {@link SEMANTIC_TOKEN_TYPES}, the same legend
+ * `volar-service-typescript` advertises.
+ */
+export interface NotaSemanticToken {
+  /** `.nota` source offset of the token's first character. */
+  notaStart: number;
+  /** Token length in `.nota` characters (equal to the generated length under our byte-exact maps). */
+  length: number;
+  /** The standard LSP semantic-token-type name (e.g. `"variable"`). */
+  tokenType: string;
+}
+
+/**
+ * The TS semantic-token **type legend** — the `tokenTypes` array `volar-service-typescript`'s
+ * `semantic` plugin advertises in its `semanticTokensProvider.legend` (and which Volar's language
+ * service de-dupes into the server's `initialize` capability). Indexed by the TS `TokenType` enum
+ * (`class`=0 … `method`=11) that {@link semanticTokensAt} recovers from each classification — so the
+ * test asserts against the *same* names the running server emits.
+ */
+export const SEMANTIC_TOKEN_TYPES = [
+  "class",
+  "enum",
+  "interface",
+  "namespace",
+  "typeParameter",
+  "type",
+  "parameter",
+  "variable",
+  "property",
+  "enumMember",
+  "function",
+  "method"
+] as const;
+
+/**
+ * Semantic tokens for the whole document, each mapped back to its **`.nota`** range — the faithful
+ * stand-in for `volar-service-typescript`'s `provideDocumentSemanticTokens` over the virtual `.tsx`.
+ *
+ * It runs the *same* TS primitive the service runs — `getEncodedSemanticClassifications(...,
+ * TwentyTwenty)` over the virtual `.tsx` — decodes each `[offset, length, classification]` triplet to
+ * a `(generated range, tokenType)` (the type index is `(classification >> 8) - 1`, exactly Volar's
+ * `getTokenTypeFromClassification`), then maps the generated range back to `.nota` through the shifted
+ * `SourceMap` **gated by `semantic`** (`toSourceRange(..., d => d.semantic)`) — the contract-§9
+ * `MappingCapabilities.semantic` gate that Volar applies as `isSemanticTokensEnabled`. A token whose
+ * generated range has no `semantic`-enabled `.nota` mapping (preamble, generated boilerplate, a host
+ * tag's `"p"` literal) is dropped — so the result contains exactly the tokens the editor would paint
+ * on the `.nota`. Returned sorted by `.nota` offset.
+ */
+export function semanticTokensAt(h: FeatureHarness): NotaSemanticToken[] {
+  const classifications = h.ls.getEncodedSemanticClassifications(
+    h.virtualFileName,
+    { start: 0, length: h.code.length },
+    ts.SemanticClassificationFormat.TwentyTwenty
+  );
+  const spans = classifications.spans;
+  const out: NotaSemanticToken[] = [];
+  // The TwentyTwenty format packs spans as flat [offset, length, classification] triplets.
+  for (let i = 0; i + 2 < spans.length; i += 3) {
+    const genStart = spans[i];
+    const genLength = spans[i + 1];
+    const classification = spans[i + 2];
+    // Volar's `getTokenTypeFromClassification`: the type index is the high bits minus one; entries at
+    // or below the modifier mask carry no token type (skipped, as the service skips them).
+    if (classification <= 255) {
+      continue;
+    }
+    const typeIndex = (classification >> 8) - 1;
+    const tokenType = SEMANTIC_TOKEN_TYPES[typeIndex];
+    if (tokenType === undefined) {
+      continue;
+    }
+    // Map the generated [start,end) back to `.nota`, gated by `semantic` (the editor's gate). No
+    // `semantic` source range ⇒ the token is not painted on the `.nota` (host tag / preamble).
+    let mapped: NotaSemanticToken | undefined;
+    for (const [notaStart, notaEnd] of h.sourceMap.toSourceRange(
+      genStart,
+      genStart + genLength,
+      true,
+      d => d.semantic
+    )) {
+      mapped = { notaStart, length: notaEnd - notaStart, tokenType };
+      break;
+    }
+    if (mapped) {
+      out.push(mapped);
+    }
+  }
+  return out.sort((a, b) => a.notaStart - b.notaStart);
+}
+
 function dedupeSorted(xs: number[]): number[] {
   return [...new Set(xs)].sort((a, b) => a - b);
 }
