@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "node",
           environment: "node",
-          include: ["tests/compile.test.ts"],
+          include: ["tests/compile.test.ts", "tests/virtual.test.ts"],
           deps: inlineDeps
         }
       },
