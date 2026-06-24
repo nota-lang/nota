@@ -294,6 +294,17 @@ describe("groupParas", () => {
     ]);
   });
 
+  // The reader emits ONE "\n" child PER interior newline (no pre-coalescing, per contract §7), so a
+  // blank source line arrives as the TWO SEPARATE siblings below — NOT a single "\n\n" node like the
+  // test above. groupParas accumulates the whitespace run and tests the concatenation, so the blank
+  // line still splits into two <p>. (Regression test for the reader ⨯ runtime para-break mismatch.)
+  test("a blank line as the reader's separate '\\n' nodes splits into two <p>", () => {
+    expect(groupParas(["a", "\n", "\n", "b"])).toEqual([
+      el("p", ["a"]),
+      el("p", ["b"])
+    ]);
+  });
+
   test("a single '\\n' is a soft break and stays inside the <p>", () => {
     expect(groupParas(["a", "\n", "b"])).toEqual([el("p", ["a", "\n", "b"])]);
   });

@@ -194,20 +194,21 @@ function isBlock(v: VNode): boolean {
 }
 
 /**
- * A **paragraph-break marker** in the child stream: a whitespace-only text child that contains a
- * blank line (a newline, optional non-newline whitespace, another newline). It *splits* paragraph
- * runs and is consumed (not emitted into output).
+ * A **paragraph break** is a blank line in the child stream: a newline, optional non-newline
+ * whitespace, another newline. It splits paragraph runs and is consumed (not emitted into output).
  *
- * Rationale (the reader must match): the reader emits each interior newline as an
- * individual `"\n"` text child. A *single* `"\n"` (or other
- * whitespace with no blank line) is a soft break and stays **inline** — it joins the run, so the
- * `<p>` keeps the author's line breaks. A *blank line* (two or more newlines, i.e. an empty source
- * line between paragraphs) is the paragraph boundary. Matching on `/\n[^\S\n]*\n/` captures exactly
- * the blank-line case regardless of surrounding indentation that survived per-line trimming.
+ * The reader emits each interior newline as an *individual* `"\n"` text child and does NOT
+ * pre-coalesce them (contract §7), so a blank source line surfaces as **two or more adjacent
+ * whitespace-only siblings** (e.g. `"\n", "\n"`), not a single `"\n\n"` node. {@link groupParas}
+ * therefore accumulates a maximal run of whitespace-only siblings and tests the *concatenation*
+ * with `PARA_BREAK`: a run containing a blank line is a break; softer whitespace (a single `"\n"`,
+ * spaces) stays **inline** so the `<p>` keeps the author's line breaks.
  */
 const PARA_BREAK = /\n[^\S\n]*\n/;
-function isParaBreak(v: VNode): boolean {
-  return typeof v === "string" && v.trim() === "" && PARA_BREAK.test(v);
+
+/** Is `v` a whitespace-only text node (a candidate piece of an inter-paragraph gap)? */
+function isWhitespaceText(v: VNode): v is string {
+  return typeof v === "string" && v.trim() === "";
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -368,15 +369,35 @@ export function groupParas(k: readonly VNode[]): VNode[] {
     run = [];
   };
 
-  for (const c of k) {
-    if (isParaBreak(c)) {
-      flush();
-    } else if (isBlock(c)) {
+  let i = 0;
+  while (i < k.length) {
+    const c = k[i];
+    if (isWhitespaceText(c)) {
+      // Accumulate a maximal run of whitespace-only siblings and test the concatenation: the reader
+      // emits one "\n" per interior newline, so a blank line is ≥2 adjacent "\n" nodes. A run with a
+      // blank line is a paragraph break (flush + consume); softer whitespace joins the run inline.
+      let ws = "";
+      const start = i;
+      while (i < k.length && isWhitespaceText(k[i])) {
+        ws += k[i] as string;
+        i++;
+      }
+      if (PARA_BREAK.test(ws)) {
+        flush();
+      } else {
+        for (let j = start; j < i; j++) {
+          run.push(k[j]);
+        }
+      }
+      continue;
+    }
+    if (isBlock(c)) {
       flush();
       out.push(c);
     } else {
       run.push(c);
     }
+    i++;
   }
   flush();
   return out;
