@@ -12,41 +12,16 @@
 import type { Extension } from "@codemirror/state";
 import { useEffect, useState } from "react";
 import { CodePane } from "./CodePane";
-import { compileNota, compileNotaRaw, ensureCompiler } from "./compiler";
+import { ensureCompiler } from "./compiler";
 import { DEFAULT_SNIPPET } from "./default-snippet";
 import { Editor } from "./Editor";
 import { createNotaHighlight } from "./nota-mode";
+import { EMPTY, type PipelineResult, runPipeline } from "./pipeline";
 import { RenderedPane } from "./RenderedPane";
 import { SsgPane } from "./SsgPane";
-import { type ManifestEntry, runSSG } from "./ssg";
 import { loadSource, saveSource } from "./storage";
 
 type Tab = "js" | "ssg" | "rendered";
-
-/** The result of running the pipeline over the current editor value. */
-interface PipelineResult {
-  /** The bare emitted module, for the Generated-JS pane. */
-  code: string;
-  /** The emitted module with the runtime import prepended (fed to the SSG runner + iframe). */
-  full: string;
-  /** The SSG HTML. */
-  html: string;
-  /** The island manifest. */
-  manifest: Record<string, ManifestEntry>;
-  /** The island components, keyed by name (for the Rendered pane to hydrate). */
-  registry: Record<string, unknown>;
-  /** A compile/render error, if the pipeline threw. */
-  error: string | null;
-}
-
-const EMPTY: PipelineResult = {
-  code: "",
-  full: "",
-  html: "",
-  manifest: {},
-  registry: {},
-  error: null
-};
 
 export function App() {
   // Seed from the last-saved source (persisted in localStorage), falling back to the seed document.
@@ -91,15 +66,7 @@ export function App() {
   useEffect(() => {
     if (!ready) return;
     const handle = setTimeout(() => {
-      try {
-        const code = compileNotaRaw(source);
-        const full = compileNota(source);
-        const { html, manifest, registry } = runSSG(full);
-        setResult({ code, full, html, manifest, registry, error: null });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        setResult(prev => ({ ...prev, error: message }));
-      }
+      setResult(prev => runPipeline(source, prev));
     }, 150);
     return () => clearTimeout(handle);
   }, [source, ready]);

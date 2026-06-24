@@ -73,8 +73,10 @@ export function RenderedPane({
             node
           )
         );
-      } catch {
-        // A hydration mismatch shouldn't break the preview — the static SSR markup still shows.
+      } catch (err) {
+        // A runtime error in an island shouldn't break the preview — the static SSR markup still
+        // shows — but log it (with its stack) so it's visible in the JS console.
+        console.error("[nota] island hydration failed:", err);
       }
     }
 
@@ -85,8 +87,10 @@ export function RenderedPane({
       for (const unmount of unmounts) {
         try {
           unmount();
-        } catch {
-          /* ignore — best-effort teardown of the live preview. */
+        } catch (err) {
+          // Best-effort teardown of the live preview — log it (with its stack) so it's visible
+          // in the JS console, but don't let it break the next render.
+          console.error("[nota] island teardown failed:", err);
         }
       }
     };

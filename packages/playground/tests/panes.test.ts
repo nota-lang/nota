@@ -8,10 +8,11 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { compile as wasmCompile } from "nota_wasm";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { compileNota, compileNotaRaw, ensureCompiler } from "../src/compiler";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
+import { EMPTY, runPipeline } from "../src/pipeline";
 import { runSSG } from "../src/ssg";
 
 beforeAll(async () => {
@@ -68,6 +69,50 @@ describe("SSG-output pane", () => {
     const b = runSSG(compileNota(GOLDEN_NOTA));
     expect(b.html).toBe(a.html);
     expect(Object.keys(b.manifest)).toEqual(Object.keys(a.manifest));
+  });
+});
+
+describe("pipeline: Generated-JS survives an SSG error", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  // `\`hello\`` (backtick-wrapped inline code) lowers to a CodeInline, which currently throws during
+  // SSG — a compile-succeeds-but-SSG-throws doc. If the premise test below ever fails, that bug was
+  // fixed; swap in another such fixture.
+  const INLINE_CODE = "`hello`";
+
+  it("a CodeInline doc compiles but throws during SSG", () => {
+    expect(() => compileNotaRaw(INLINE_CODE)).not.toThrow();
+    expect(() => runSSG(compileNota(INLINE_CODE))).toThrow();
+  });
+
+  it("shows this run's emitted JS (not the prior run's) and surfaces the error", () => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    // A prior good run, whose JS would wrongly persist if the SSG-error path kept `prev.code`.
+    const prev = { ...EMPTY, code: "STALE", full: "STALE-FULL" };
+
+    const result = runPipeline(INLINE_CODE, prev);
+
+    // The Generated-JS pane shows *this* run's compile, not the stale prior run.
+    expect(result.code).toBe(compileNotaRaw(INLINE_CODE));
+    expect(result.code).not.toBe("STALE");
+    expect(result.full).toBe(compileNota(INLINE_CODE));
+    // The error is surfaced to the UI and logged (with its stack) to the console.
+    expect(result.error).toBeTruthy();
+    expect(logged).toHaveBeenCalled();
+  });
+
+  it("keeps the last-good render under the error", () => {
+    const good = runPipeline(GOLDEN_NOTA, EMPTY);
+    expect(good.error).toBeNull();
+
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const result = runPipeline(INLINE_CODE, good);
+
+    // SSG failed this run, so the SSG/Rendered panes retain the last-good output.
+    expect(result.html).toBe(good.html);
+    expect(result.manifest).toBe(good.manifest);
+    expect(result.registry).toBe(good.registry);
+    expect(result.error).toBeTruthy();
   });
 });
 

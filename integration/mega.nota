@@ -1,0 +1,102 @@
+%%%
+import { formatDate } from "./prelude";
+export const meta = { title: "Nota Mega-Test" };
+
+const Box = blockComponent((children) => @div[class: "box"]{@children});
+const Aside = blockComponent((children) => @aside{@children});
+const Colorized = inlineComponent((children) => {
+  let [color, setColor] = useState("red");
+  return @span[onClick: () => setColor("green")][style: {color}]{@children};
+});
+
+const name = "Will";
+const url = "/home";
+const disabled = true;
+const rest = { id: "demo" };
+const items = ["x", "y", "z"];
+const i = 1;
+const ui = { Card: Box };
+const comps = { card: Box };
+const k = "card";
+const getTag = () => "section";
+const load = async () => items;
+const loaded = await load();
+%%%
+
+# Nota Mega-Test
+
+A *terse* tour of _every_ Nota feature, written by @name on @(formatDate(meta.title)),
+spanning a soft line break and built from @(loaded.length) loaded items.
+
+@Aside{A block component nesting @b{markup} and an empty @span{}.}
+
+## Elements & props
+
+A @a[href:"/x"][title:"home"]{static link}, a @a[href:url]{dynamic link}, and an
+@input[type:"text", disabled, ...rest] self-closing field. A @figure[cap:@em{a caption}]{body}
+carries a markup-valued prop; balanced braces stay literal: @p{a set {1, 2, 3}}.
+
+Dynamic tags: @(Box){direct}, @(ui.Card){member}, @(getTag()){call}, @(comps[k])[n:1]{computed}.
+Also a @{bare @b{fragment}} and an expression @(1 + 2).
+
+## Control flow
+
+@if (items.length > 2) {Many}
+else if (items.length > 0) {Some}
+else {None} items.
+
+@ul{
+  @for (x of items) {@li{@x}}
+  @for ([key, val] of [["a", 1], ["b", 2]]) {@li{@key = @val}}
+  @for ({ id } of [{ id: 1 }, { id: 2 }]) {@if (id) {@li{row @id}}}
+}
+
+## Markup sugar
+
+Emphasis nests: *bold with _italic_ within*; intra-word stays literal in my_var_name and 2*3*4.
+
+###### A level-6 heading
+
+- bullet one
+- bullet two
+  - nested bullet
+- bullet three with a
+  wrapped continuation line
++ ordered one
++ ordered two
+1. explicit one
+2. explicit two
+
+## Raw spans
+
+Inline `f(x)` code, math $x^2$ with interpolation $a_@i$ and $b_@(i + 1)$, and display math:
+
+$$\sum_@(items.length) x_i$$
+
+Escapes render literally: \* \_ \# \$ \@ \{ \} and a backslash \\.
+
+```python
+def f(x):
+    return x
+```
+
+@pre|{
+@foo{x} is raw; |@Colorized{this is a child} and |@name interpolates.
+}|
+
+## Colon & block sugar
+
+@summary: A one-line colon-sugar element.
+
+@section:
+  | class: "tip"
+  A block-sugar body with a prop line
+  and a soft-broken continuation.
+
+## Nested statements
+
+@aside{
+  An intro sibling.
+  % const count = items.length
+  @p{Then @count items, wrapped in an IIFE.}
+}

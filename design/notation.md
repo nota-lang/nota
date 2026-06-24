@@ -142,7 +142,7 @@ hoist to module scope); nested in an element body, it wraps the remaining siblin
 an IIFE. `await` makes its host (`Doc` or the IIFE) `async`.
 ```
 % import {load} from "./posts"
-% const posts = await load()
+% const posts = await load();
 @h1{Posts}
 →
 import {load} from "./posts";

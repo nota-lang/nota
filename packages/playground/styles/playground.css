@@ -186,20 +186,12 @@ body {
   white-space: pre-wrap;
 }
 
-.rendered {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.rendered iframe {
-  flex: 1;
+.rendered-frame {
+  display: block;
   width: 100%;
+  height: 100%;
   border: none;
   background: #fff;
-}
-.rendered .placeholder {
-  color: var(--muted);
-  padding: 1rem;
 }
 
 /* The Nota editor's syntax colors come from Shiki (inline-styled token spans), not CSS — see
