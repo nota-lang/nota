@@ -412,3 +412,30 @@ describe("raw marker", () => {
     expect(isRaw({ html: "x" })).toBe(false);
   });
 });
+
+// =============================================================================================
+// Fuzzing findings, round 2 (2026-06) — NON-ignored, currently-FAILING runtime specs.
+// Each asserts the spec-correct behavior, so it FAILS today against a real bug found by the
+// `nota_inspect` fuzzing harness. (The reader-side findings live in the oxc integration suite,
+// `crates/oxc_codegen/tests/integration/nota.rs`, module `fuzz_findings_2`.)
+// =============================================================================================
+
+describe("fuzz findings (round 2)", () => {
+  // [RUNTIME-CRASH] a non-renderable interpolation child (an object / Date) crashes `struct` with a
+  // cryptic "children is not iterable" instead of rendering gracefully or raising a clear error.
+  // Repro: `@p{@({a: 1})}` → h("p", {}, [{ a: 1 }]).
+  test("non-renderable (object) child should not crash with a cryptic error", () => {
+    const tree = el("p", [{ a: 1 } as unknown as VNode]);
+    expect(() => serialize(struct(tree))).not.toThrow(
+      /children is not iterable/
+    );
+  });
+
+  // [WHITESPACE] a paragraph-break marker ("\n\n") inside a TIGHT element (`@p`, `@h1`, `@li`)
+  // survives as a literal double newline instead of being consumed/normalized.
+  // Repro: `@p{a\n\nb}` → h("p", {}, ["a", "\n", "\n", "b"]).
+  test("paragraph-break marker should not survive inside a tight element", () => {
+    const tree = el("p", ["a", "\n", "\n", "b"]);
+    expect(serialize(struct(tree))).not.toContain("\n\n");
+  });
+});

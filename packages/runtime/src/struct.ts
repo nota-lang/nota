@@ -211,6 +211,25 @@ function isWhitespaceText(v: VNode): v is string {
   return typeof v === "string" && v.trim() === "";
 }
 
+/**
+ * Scan the maximal run of whitespace-only siblings starting at index `start`, returning the run's
+ * nodes, the concatenated whitespace text (for the {@link PARA_BREAK} test), and the index just past
+ * the run. Shared by {@link groupParas} and {@link consumeParaBreaks}: both accumulate such a run and
+ * branch on whether its concatenation contains a blank line (a paragraph break vs. soft whitespace).
+ */
+function whitespaceRun(
+  k: readonly VNode[],
+  start: number
+): { nodes: readonly VNode[]; ws: string; next: number } {
+  let ws = "";
+  let next = start;
+  while (next < k.length && isWhitespaceText(k[next])) {
+    ws += k[next] as string;
+    next++;
+  }
+  return { nodes: k.slice(start, next), ws, next };
+}
+
 // ---------------------------------------------------------------------------------------------
 // struct
 // ---------------------------------------------------------------------------------------------
@@ -249,9 +268,10 @@ function decodeChildren(
   sections: boolean
 ): VNode[] {
   let k = groupLists(flattenFragments(children));
-  if (paras) {
-    k = groupParas(k);
-  }
+  // Flow containers wrap inline runs in <p> (which also consumes paragraph-break markers); tight
+  // containers (p/li/hN/…) do not wrap, but must still CONSUME the break marker so that a blank line
+  // authored inside a tight element does not leak as a literal "\n\n".
+  k = paras ? groupParas(k) : consumeParaBreaks(k);
   if (sections) {
     k = groupSections(k);
   }
@@ -262,6 +282,12 @@ function decodeChildren(
 export function struct(v: VNode): VNode {
   if (typeof v === "string") {
     return v;
+  }
+  // A child that is not a real vnode (e.g. an object/Date reaching the tree via `@(expr)`, which is
+  // not renderable markup) has no `children` array; recursing into it would crash with "children is
+  // not iterable". Coerce it to its string form instead of crashing.
+  if (!Array.isArray(v.children)) {
+    return String(v);
   }
   if (isComp(v.tag)) {
     // Boundary stop: a component's children were authored *outside* the component, so they are
@@ -373,21 +399,15 @@ export function groupParas(k: readonly VNode[]): VNode[] {
   while (i < k.length) {
     const c = k[i];
     if (isWhitespaceText(c)) {
-      // Accumulate a maximal run of whitespace-only siblings and test the concatenation: the reader
-      // emits one "\n" per interior newline, so a blank line is ≥2 adjacent "\n" nodes. A run with a
-      // blank line is a paragraph break (flush + consume); softer whitespace joins the run inline.
-      let ws = "";
-      const start = i;
-      while (i < k.length && isWhitespaceText(k[i])) {
-        ws += k[i] as string;
-        i++;
-      }
+      // The reader emits one "\n" per interior newline, so a blank line is ≥2 adjacent "\n" nodes: a
+      // whitespace run whose concatenation contains a blank line is a paragraph break (flush +
+      // consume); softer whitespace joins the run inline so the <p> keeps the author's line breaks.
+      const { nodes, ws, next } = whitespaceRun(k, i);
+      i = next;
       if (PARA_BREAK.test(ws)) {
         flush();
       } else {
-        for (let j = start; j < i; j++) {
-          run.push(k[j]);
-        }
+        run.push(...nodes);
       }
       continue;
     }
@@ -400,6 +420,34 @@ export function groupParas(k: readonly VNode[]): VNode[] {
     i++;
   }
   flush();
+  return out;
+}
+
+/**
+ * Consume **paragraph-break markers** ({@link PARA_BREAK}, a blank line) from a TIGHT container's
+ * child stream without wrapping inline runs in `<p>`. This mirrors {@link groupParas}'s whitespace
+ * handling: a whitespace run containing a blank line is dropped (consumed); softer whitespace (a
+ * single `"\n"` or spaces) stays inline so an author's line break inside `@p{…}` is preserved.
+ * Non-whitespace passes through unchanged. (Flow containers use {@link groupParas} instead, which
+ * already consumes the marker as it wraps runs.)
+ */
+function consumeParaBreaks(k: readonly VNode[]): VNode[] {
+  const out: VNode[] = [];
+  let i = 0;
+  while (i < k.length) {
+    const c = k[i];
+    if (isWhitespaceText(c)) {
+      // A whitespace run with a blank line is a break marker → consume; softer whitespace stays inline.
+      const { nodes, ws, next } = whitespaceRun(k, i);
+      i = next;
+      if (!PARA_BREAK.test(ws)) {
+        out.push(...nodes);
+      }
+      continue;
+    }
+    out.push(c);
+    i++;
+  }
   return out;
 }
 
