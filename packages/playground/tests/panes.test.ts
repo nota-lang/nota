@@ -9,7 +9,12 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { compile as wasmCompile } from "nota_wasm";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { compileNota, compileNotaRaw, ensureCompiler } from "../src/compiler";
+import {
+  compileNota,
+  compileNotaRaw,
+  ensureCompiler,
+  parseNotaAst
+} from "../src/compiler";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
 import { EMPTY, runPipeline } from "../src/pipeline";
@@ -40,6 +45,76 @@ describe("Generated-JS pane", () => {
     // The manifest's `comp` must be an exported binding of the emitted module.
     const code = compileNotaRaw(GOLDEN_NOTA);
     expect(code).toMatch(/export\s+(const|let|var|function)\s+Colorized/);
+  });
+});
+
+describe("AST pane", () => {
+  // The faithful Nota tree as ESTree JSON: a `Program` whose body is the Nota document, carrying the
+  // node kinds the seed exercises — a heading, elements, a `%` statement, and a `@for` loop.
+  // biome-ignore lint/suspicious/noExplicitAny: walking arbitrary ESTree JSON for the kind set.
+  const collectTypes = (node: any, out = new Set<string>()): Set<string> => {
+    if (Array.isArray(node)) for (const el of node) collectTypes(el, out);
+    else if (node && typeof node === "object") {
+      if (typeof node.type === "string") out.add(node.type);
+      for (const v of Object.values(node)) collectTypes(v, out);
+    }
+    return out;
+  };
+
+  // biome-ignore lint/suspicious/noExplicitAny: ad-hoc ESTree walk to the first node of a type.
+  const findNode = (node: any, type: string): any => {
+    if (Array.isArray(node)) {
+      for (const el of node) {
+        const hit = findNode(el, type);
+        if (hit) return hit;
+      }
+    } else if (node && typeof node === "object") {
+      if (node.type === type) return node;
+      for (const v of Object.values(node)) {
+        const hit = findNode(v, type);
+        if (hit) return hit;
+      }
+    }
+    return undefined;
+  };
+
+  it("serializes the post-parse Nota AST to ESTree JSON (parser stage, no lowering)", () => {
+    const tree = JSON.parse(parseNotaAst(DEFAULT_SNIPPET));
+    expect(tree.type).toBe("Program");
+    const types = collectTypes(tree);
+    for (const kind of [
+      "NotaHeading",
+      "NotaElement",
+      "NotaStatement",
+      "NotaFor"
+    ]) {
+      expect(types.has(kind)).toBe(true);
+    }
+    // Parser stage only: no lowered hyperscript — there are no `CallExpression` `h(...)` nodes.
+    expect(types.has("CallExpression")).toBe(false);
+  });
+
+  it("every node carries `start`/`end` offsets the tree slices previews from", () => {
+    const tree = JSON.parse(parseNotaAst(DEFAULT_SNIPPET));
+    const heading = findNode(tree, "NotaHeading");
+    expect(typeof heading.start).toBe("number");
+    // The heading spans `# Hello, Nota`; its source slice is what the tree row previews.
+    expect(DEFAULT_SNIPPET.slice(heading.start, heading.end)).toContain(
+      "Hello, Nota"
+    );
+  });
+
+  it("throws on a Nota parse error (same surface as compile)", () => {
+    // An unterminated element body (`Expected \`}\``) is a parse diagnostic; `parseAst` rejects with
+    // the rendered message, exactly as `compile*` does.
+    expect(() => parseNotaAst("@em{unterminated")).toThrow();
+  });
+
+  it("the pipeline carries a fresh AST paired with the source that produced it", () => {
+    const result = runPipeline(DEFAULT_SNIPPET, EMPTY);
+    expect(result.error).toBeNull();
+    expect(result.ast).toBe(parseNotaAst(DEFAULT_SNIPPET));
+    expect(result.astSource).toBe(DEFAULT_SNIPPET);
   });
 });
 

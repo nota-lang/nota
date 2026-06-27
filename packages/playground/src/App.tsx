@@ -1,9 +1,10 @@
 /**
  * The Nota playground: the **entire pipeline client-side** (wasm reader + pure-JS runtime, no server),
- * visualized live. A CM6 editor on the left; an output pane on the right whose three tabs each show
+ * visualized live. A CM6 editor on the left; an output pane on the right whose four tabs each show
  * one artifact of the pipeline:
  *
  *   | Tab           | Shows                        | Source                                 |
+ *   | AST           | the post-parse Nota AST      | `parseAst(src).ast` (wasm)             |
  *   | Generated JS  | the emitted JS module        | `compile(src).code` (wasm)             |
  *   | SSG output    | the SSG HTML + manifest      | `render(Doc)` run in-browser           |
  *   | Rendered      | the hydrated result          | the HTML booted live in an iframe      |
@@ -11,6 +12,7 @@
 
 import type { Extension } from "@codemirror/state";
 import { useEffect, useState } from "react";
+import { AstPane } from "./AstPane";
 import { CodePane } from "./CodePane";
 import { ensureCompiler } from "./compiler";
 import { DEFAULT_SNIPPET } from "./default-snippet";
@@ -21,7 +23,7 @@ import { RenderedPane } from "./RenderedPane";
 import { SsgPane } from "./SsgPane";
 import { loadSource, saveSource } from "./storage";
 
-type Tab = "js" | "ssg" | "rendered";
+type Tab = "ast" | "js" | "ssg" | "rendered";
 
 export function App() {
   // Seed from the last-saved source (persisted in localStorage), falling back to the seed document.
@@ -89,6 +91,14 @@ export function App() {
           <nav className="tabs">
             <button
               type="button"
+              className={tab === "ast" ? "tab active" : "tab"}
+              onClick={() => setTab("ast")}
+            >
+              AST
+              <em>parsed tree</em>
+            </button>
+            <button
+              type="button"
               className={tab === "js" ? "tab active" : "tab"}
               onClick={() => setTab("js")}
             >
@@ -120,6 +130,9 @@ export function App() {
           )}
 
           <div className="tab-body">
+            {tab === "ast" && (
+              <AstPane ast={result.ast} source={result.astSource} />
+            )}
             {tab === "js" && (
               <CodePane code={result.code} mode="js" testid="pane-js" fill />
             )}

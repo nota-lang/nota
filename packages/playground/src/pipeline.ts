@@ -12,11 +12,16 @@
  *   - **success**: every artifact fresh, no error.
  */
 
-import { compileNota, compileNotaRaw } from "./compiler";
+import { compileNota, compileNotaRaw, parseNotaAst } from "./compiler";
 import { type ManifestEntry, runSSG } from "./ssg";
 
 /** The result of running the pipeline over the current editor value. */
 export interface PipelineResult {
+  /** The post-parse Nota AST as ESTree JSON (with `start`/`end`), for the AST tree pane. */
+  ast: string;
+  /** The source that produced {@link ast} — kept paired so the tree's node offsets index the right
+   * text (on a parse error `ast` holds the last-good tree while the editor has raced ahead). */
+  astSource: string;
   /** The bare emitted module, for the Generated-JS pane. */
   code: string;
   /** The emitted module with the runtime import prepended (fed to the SSG runner + iframe). */
@@ -32,6 +37,8 @@ export interface PipelineResult {
 }
 
 export const EMPTY: PipelineResult = {
+  ast: "",
+  astSource: "",
   code: "",
   full: "",
   html: "",
@@ -48,9 +55,12 @@ export function runPipeline(
   source: string,
   prev: PipelineResult
 ): PipelineResult {
+  let ast: string;
   let code: string;
   let full: string;
   try {
+    // `parseAst` shares the reader's parse with `compile*`, so a parse error fails all three here.
+    ast = parseNotaAst(source);
     code = compileNotaRaw(source);
     full = compileNota(source);
   } catch (err) {
@@ -59,13 +69,29 @@ export function runPipeline(
   }
   try {
     const { html, manifest, registry } = runSSG(full);
-    return { code, full, html, manifest, registry, error: null };
+    return {
+      ast,
+      astSource: source,
+      code,
+      full,
+      html,
+      manifest,
+      registry,
+      error: null
+    };
   } catch (err) {
     // Runtime error executing the user's islands during SSG — log the full error so its stack trace
     // is visible in the JS console (the UI surfaces only the message). The compile succeeded, so the
     // Generated-JS pane still shows this run's `code`/`full`; the SSG/Rendered panes keep their
     // last-good output under the error.
     console.error("[nota] SSG runtime error:", err);
-    return { ...prev, code, full, error: errMessage(err) };
+    return {
+      ...prev,
+      ast,
+      astSource: source,
+      code,
+      full,
+      error: errMessage(err)
+    };
   }
 }

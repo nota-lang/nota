@@ -12,7 +12,12 @@
  * SSG-output pane evaluates and what `@nota-lang/compiler` does on the Node side.
  */
 
-import init, { compile, type InitInput } from "nota_wasm";
+import init, {
+  compile,
+  type InitInput,
+  type NotaParseAstResult,
+  parseAst
+} from "nota_wasm";
 // Vite resolves this to a served URL for the `.wasm` asset (hashed in build output).
 import wasmUrl from "nota_wasm/nota_wasm_bg.wasm?url";
 
@@ -49,4 +54,15 @@ export function compileNota(source: string): string {
 /** The bare emitted code (no runtime import), for the Generated-JS pane / parity tests. */
 export function compileNotaRaw(source: string): string {
   return compile(source).code;
+}
+
+/**
+ * Serialize the **post-parse Nota AST** (the parser stage only — no lowering, no codegen) to ESTree
+ * JSON, for the AST tree pane. The returned string is JSON the caller `JSON.parse`s: a faithful Nota
+ * tree (`NotaDocument` / `NotaHeading` / `NotaElement` / …) where every node carries a `type` plus
+ * `start`/`end` offsets. Assumes {@link ensureCompiler} has resolved; throws a normal `Error` on a
+ * Nota parse error (same `JsError` surface as {@link compileNotaRaw}).
+ */
+export function parseNotaAst(source: string): string {
+  return (parseAst(source) as NotaParseAstResult).ast;
 }

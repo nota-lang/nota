@@ -194,5 +194,70 @@ body {
   background: #fff;
 }
 
+/* AST tab — the collapsible tree (AstPane). Each row is a node: a disclosure arrow, an optional
+   faint field-path label, the node `type`, then a dimmed one-line source preview. */
+.ast-tree {
+  height: 100%;
+  overflow: auto;
+  padding: 0.4rem 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.ast-empty {
+  padding: 0.75rem 1rem;
+  color: var(--muted);
+}
+.ast-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 0.75rem;
+  /* button reset (rows with children are <button>s) */
+  appearance: none;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: var(--fg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ast-row.ast-leaf,
+.ast-row.ast-prop {
+  cursor: default;
+}
+button.ast-row:hover {
+  background: var(--panel-2);
+}
+.ast-toggle {
+  flex: none;
+  width: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+.ast-field {
+  flex: none;
+  color: var(--muted);
+}
+.ast-field::after {
+  content: ":";
+}
+.ast-type {
+  flex: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+.ast-preview,
+.ast-scalar {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+}
+
 /* The Nota editor's syntax colors come from Shiki (inline-styled token spans), not CSS — see
    nota-mode.ts. The shared output-pane highlight (highlight-style.ts) styles the JS/HTML/JSON panes. */
