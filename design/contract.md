@@ -14,7 +14,7 @@ Authority order: `implementation.md` (build plan) → **this file** (reconciliat
 
 | # | Conflict | Docs | **Ruling** |
 |---|----------|------|------------|
-| R1 | Emit target | notation.md shows `<p>Hello</p>`; decode.md stage-3 + impl.md D1/D2/§1.6 show `h("p",{},["Hello"])` | **Emit hyperscript `h`/`Fragment`/`decode` CallExpressions, NOT JSX.** notation.md's `<tag>` is a *readability view* (decode.md "stage 2"). The reader builds oxc `CallExpression` AST directly (D1/D2). The runtime `h` MUST be a real function so it can branch on `▸`. |
+| R1 | Emit target | notation.md shows `<p>Hello</p>`; decode.md stage-3 + impl.md D1/D2/§1.6 show `h("p",{},["Hello"])` | **Emit hyperscript `h`/`Fragment`/`decode` CallExpressions, NOT JSX.** notation.md's `<tag>` is a *readability view* (decode.md "stage 2"). The reader parses to a faithful Nota AST and a separate `oxc_transformer` pass lowers it to `CallExpression`s (impl.md D1/D2 REVISED — parse-then-lower, not lower-at-parse-time). The runtime `h` MUST be a real function so it can branch on `▸`. |
 | R2 | Import specifier | decode.md `from "nota"`; impl.md §2.1 `@nota-lang/runtime` | **`@nota-lang/runtime`.** |
 | R3 | Component constructor | decode.md `component(...)`; impl.md §2.1 + decode.md §primitives `inlineComponent`/`blockComponent` | **`inlineComponent` / `blockComponent`** (each sets `.isComp=true`, `.kind="inline"|"block"`; `kind` drives `<p>` grouping). `component(...)` in decode.md's worked example is shorthand for one of these. |
 | R4 | `%let` component placement | decode.md nests `Colorized` inside `Doc`; impl.md F1 says hoist+export | **F1 wins: component definitions hoist to module scope and are exported** under stable names (§4 F1). Other top-of-file `%` statements prepend into `Doc`; `import`/`export` hoist to module scope (notation.md). |
@@ -184,6 +184,14 @@ left column is the source; its right column is the *JSX view* — translate to h
 Whitespace-significant text is emitted as explicit string children per notation.md §Whitespace
 (Scribble algorithm). `CodeInline`/`CodeBlock`/`Math` are ambient prelude bindings.
 
+**`String.raw` emit caveat (implemented reality).** The `String.raw\`…\`` form above is emitted only
+when the raw content contains no *template-syntax breaker* — a backtick or a literal `${`. Those two
+cannot round-trip through `String.raw` (a backtick closes the template; `${` opens a substitution;
+`String.raw` does not process a `\` escape, so any escaping `\` would leak into the runtime string),
+so for content containing either, the reader falls back to a **cooked string literal** whose codegen
+escaping reproduces the raw text exactly. Both forms yield the identical runtime string; the
+`String.raw` form is kept for the common (breaker-free) case only for readability.
+
 **Children are always an array literal** — a single child becomes `[child]` (`@p{@x}` →
 `h("p", {}, [x])`; component body `@span{@children}` → `h("span", {}, [children])`). Part 2's
 `flatten` normalizes bare-vs-array, but always-array is the reader's canonical emit (verified against
@@ -201,8 +209,10 @@ vite-style module resolution — the canonical executable check is the vitest te
 shim, Wave 4, makes the live-compile path clean.)
 
 **Document mode** additionally emits: `export default function Doc()`, hoisted `import`/`export` +
-hoisted+exported component bindings (F1), the `decode(...)` wrap on Doc's returned fragment, and
-`await`→`async` on `Doc`/IIFE.
+hoisted+exported component bindings (F1), and the `decode(...)` wrap on Doc's returned fragment.
+`Doc` (and the nested-`%` IIFE) is emitted **synchronous** — the reader does NOT auto-`async`ify it
+from `await` (this reverses the earlier `await`→`async` plan; top-level `await` now emits
+non-parsing JS by design, aligning with the sync-only `▸` flag in §2.2).
 
 ---
 
@@ -396,16 +406,19 @@ never null.
 
 ## 9. Integrator + compiler-API findings — LOCKED (Wave 5: CLI + H1/H2)
 
-**Compiler API** (the reader exposes three entries; `oxc/crates/oxc/src/nota.rs`):
-- `compile(src) → {code, map}` — the **build** path (JS, `SourceType::default()`/mjs); the shim/CLI/vite
-  use this. ⚠ **Known gap:** parses mjs, so it **rejects embedded TS** (`% const n: number`). Proper
-  TS-in-`.nota` needs the build path on `tsx` **and** the downstream esbuild/vite to treat the emit as
-  `tsx` (since codegen would then keep the types) — deferred to a later wave.
-- `compile_with_mappings(src) → {code, map, mappings}` — build + H1 (parses tsx).
+**Compiler API** (the reader exposes three entries; `oxc/crates/oxc/src/nota.rs`). All three parse
+`SourceType::tsx()` (embedded TS admitted); they share one pipeline (`compile_internal`) and differ
+only in the strip / mapping tails:
+- `compile(src) → {code, map}` — the **build** path; the shim/CLI/vite use it. It **strips embedded
+  TS** to plain JS via `oxc_transformer`'s TypeScript pass (`strip_typescript`) — so `% const n:
+  number` is accepted and the annotation is removed. (This closes the earlier "rejects embedded TS"
+  gap: the build path is now `tsx`-parsed + type-stripped.)
+- `compile_with_mappings(src) → {code, map, mappings}` — build + H1; **preserves** types (stripping
+  would shift codegen offsets, breaking byte-exact mappings).
 - `compile_virtual(src) → {code /*.tsx, types preserved*/, mappings}` — **H2 + H1; Part 5 (Volar)
-  consumes this.** H2 finding: there is **no strip step** — `oxc_codegen` prints TS types (stripping
-  lives in `oxc_transformer`, never invoked), so H2 is a **parse-mode choice** (`SourceType::tsx()`),
-  not a separate codegen tail.
+  consumes this.** H2 finding: strip-vs-preserve is *not* a codegen choice — `oxc_codegen` always
+  prints whatever TS is in the AST. So preserving is the default (do nothing), and the build path is
+  the one that runs the extra strip pass; the virtual/mapping paths skip it.
 - **H1 `CodeMapping`** = Volar's `@volar/language-core` shape (`source_offsets[]`,
   `generated_offsets[]`, `lengths[]`, `data:{completion,format,navigation,semantic,structure,verification}`).
   Mechanism: reader marks (embedded-JS / component-identifier spans) × a codegen offset-log (at the

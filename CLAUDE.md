@@ -17,8 +17,7 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
 ## Repo layout
 - **`oxc/`** — a fork of oxc (branch `nota`) hosting the Nota *reader*, wired in as a **git submodule**
   (`.gitmodules`, url `nota-lang/oxc`). Commit inside `oxc/`, then bump the submodule pointer in the
-  main repo. Implementation memory: `oxc/NOTA_READER.md` (note: its `js/nota.rs` path refs are stale —
-  the reader is now `oxc/crates/oxc_parser/src/nota/mod.rs`).
+  main repo. Architecture notes: `oxc/NOTA_READER.md` (pipeline, fork seam, invariants, testing map).
 - **`packages/*`** — the `@nota-lang/*` TypeScript packages, a **Depot** + pnpm workspace:
   - **runtime** — framework-agnostic core: `h`/`Fragment`/`raw`, `decode`, HTML `serialize`,
     list/section coalescing (`struct.ts`), island slot recovery. The adapters build on it.
@@ -51,9 +50,10 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
 - Reader entry: **`oxc/crates/oxc_parser/src/nota/mod.rs`**. AST node: `oxc_ast/src/ast/nota.rs`;
   parse+lower entry: `oxc/crates/oxc/src/nota.rs`; e2e fixtures: `oxc/crates/oxc_codegen/tests/integration/nota.rs`.
 - Compile one file: `cd oxc && cargo run -q -p oxc --example nota_compile --features codegen -- ../<f>.nota`.
-- Reader tests: `cd oxc && cargo test -p oxc_codegen --test integration nota` (e2e golden) and
-  `cargo test -p oxc_parser --lib nota` (parser units). **`cargo test -p oxc` runs ZERO tests**
-  (`[lib] test=false`); the parse+lower tests need `cargo test -p oxc --features codegen nota`.
+- Reader tests: `cd oxc && cargo test -p oxc_codegen --test integration nota` (e2e golden, exact
+  emit + validity) and `cargo test -p oxc_transformer --lib nota` (Scribble whitespace + mapping
+  units; there are no parser-lib nota tests). **`cargo test -p oxc` runs ZERO tests**
+  (`[lib] test=false`); the compile-entry + H1/H2 tests need `cargo test -p oxc --features codegen nota`.
 - `just ast` (regenerate `#[ast]` code) **always exits 101 here** — it panics at the end on a missing
   `oxfmt` (JS formatter), but the Rust regen is complete and correct. Verify with `cargo build -p
   oxc_ast`, not the exit code. (Adding an AST variant: see memory `nota-oxc-add-expression-variant.md`.)

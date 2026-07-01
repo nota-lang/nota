@@ -130,24 +130,26 @@ JS block, with the same scoping and `@`-form rules as `%`; a `%` run shorter tha
 fence is literal inside it.
 ```
 %%%
-const xs = await load();
+const xs = load();
 const total = xs.reduce((a, b) => a + b, 0);
 %%%
 @p{Total: @total}
-→ const xs = await load(); const total = xs.reduce((a, b) => a + b, 0); return <><p>Total: {total}</p></>;
+→ const xs = load(); const total = xs.reduce((a, b) => a + b, 0); return <><p>Total: {total}</p></>;
 ```
 
 At the top of a file, `%`/`%%%` prepends to the document component (`import`/`export`
 hoist to module scope); nested in an element body, it wraps the remaining siblings in
-an IIFE. `await` makes its host (`Doc` or the IIFE) `async`.
+an IIFE. `Doc` (and the nested-`%` IIFE) is emitted **synchronous** — the reader does not
+auto-`async`ify it from the presence of `await`, so top-level `await` emits JS that does not
+parse (by design, not a silent rewrite). Load data synchronously, or outside the document.
 ```
 % import {load} from "./posts"
-% const posts = await load();
+% const posts = load();
 @h1{Posts}
 →
 import {load} from "./posts";
-export default async function Doc() {
-  const posts = await load();
+export default function Doc() {
+  const posts = load();
   return <><h1>Posts</h1></>;
 }
 ```

@@ -60,14 +60,14 @@ this. Hence the fork — but it can be shallow (§1.4, D2).
 
 ```
 .nota
- └─ fork additions:
-      ├─ markup lexer scan-methods           (next_markup_* alongside next_jsx_child)
+ └─ oxc_parser fork additions:
+      ├─ markup lexer scan-methods           (next_nota_child / next_nota_head alongside next_jsx_child)
       ├─ `@`-hook in the expression parser    (markup becomes valid in expr position)
-      └─ a `parse_nota` module                (document mode + element grammar + sugar)
-            ├─ markup → builds oxc JS AST directly:
-            │     h(…) / Fragment(…) / decode(…) / inlineComponent(…) / blockComponent(…)
+      └─ a `nota` module                      (document mode + element grammar + sugar)
+            ├─ markup → faithful Nota AST (Expression::NotaMarkup & friends), NOT lowered here
             └─ embedded JS spans → oxc_parser::parse_expr / parse_statement
                   (returns real oxc Expression/Statement nodes, spliced in — no re-parse, sourcemaps kept)
+ └─ oxc_transformer::NotaLowering    Nota AST → hyperscript (h/Fragment/decode/inlineComponent/…)
  └─ oxc_codegen → JS + sourcemap
 ```
 
@@ -90,18 +90,24 @@ only emits the flat `h(…)`/sentinel calls that `decode` later restructures.
 
 ## 1.4 Locked decisions
 
-**D1 — Lower at parse time; no intermediate Nota AST/CST.** The reader builds oxc JS AST
-(`h`/`decode`/`Fragment`/component CallExpressions) directly as it parses. Justification: every
-Nota desugaring is *local* — `@tag`→`h`, `-x`→`h("nota-ul-li",…)`, `*x*`→`h("strong",…)`, `@for`→`.map`,
-`@if`→ternary, `%`→statement/IIFE, whitespace→string children, interpolation→the JS expr. The only
-*non-local* transforms (paragraph/list/section grouping) are deferred to runtime `decode`, so the
-parser never needs a tree to walk. Revisit only if error quality demands a real CST.
+**D1 — Parse into a faithful Nota AST, then lower in a separate pass. (REVISED — see below.)**
+*Originally* the reader lowered at parse time (building `h`/`decode`/`Fragment` CallExpressions
+directly, no intermediate tree), on the grounds that every Nota desugaring is local. That was
+reversed during the build: the reader now parses `@`-markup into faithful Nota AST nodes
+(`Expression::NotaMarkup` & friends in `oxc_ast`) and a separate `oxc_transformer` pass
+(`NotaLowering`) lowers them to hyperscript — the exact shape oxc uses for JSX. The faithful tree
+buys a testable stage boundary, the playground's `parseAst` ESTree view, and Volar's virtual emit,
+and localizes the Scribble whitespace + `%`-routing + F1 logic in one lowering module instead of
+inline in the parser. (The non-local paragraph/list/section grouping is still deferred to runtime
+`decode`.) Reader architecture is documented in `oxc/NOTA_READER.md`.
 
-**D2 — Zero new oxc AST nodes.** The `@`-hook returns an ordinary `CallExpression`, so we never
-touch oxc's generated AST / visitor / estree / builder machinery — that generated-code churn is the
-real fork tax. The diff to oxc stays ≈ three sites: lexer scan-methods, an expression-parser hook,
-and a new `parse_nota` module; no core-AST edits. This is what keeps the fork shallow and the
-"do something more minimal later" path open.
+**D2 — A dedicated Nota AST node set. (REVISED — supersedes "zero new oxc AST nodes".)** D1's
+reversal implies a real `Expression::NotaMarkup` umbrella variant plus the Nota node set — so the
+fork *does* touch oxc's generated AST / visitor / estree / builder machinery (regenerated via
+`just ast`). This generated-code churn is paid once. The hand-written fork seam is still narrow —
+lexer scan-methods, the expression-parser `@`-hook, the `parse_nota` module, and the
+`oxc_transformer` lowering pass — and the emit surface (contract §1–§3) is unchanged from what the
+parse-time-lowering spike produced.
 
 **D3 — Parser-owned markup state.** Indent stack, at-line-start flag, and block context live in the
 parser; the lexer exposes only narrow scan methods. Matches oxc's parser-drives-lexer idiom and
