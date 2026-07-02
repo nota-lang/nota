@@ -51,8 +51,9 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   parse+lower entry: `oxc/crates/oxc/src/nota.rs`; e2e fixtures: `oxc/crates/oxc_codegen/tests/integration/nota.rs`.
 - Compile one file: `cd oxc && cargo run -q -p oxc --example nota_compile --features codegen -- ../<f>.nota`.
 - Reader tests: `cd oxc && cargo test -p oxc_codegen --test integration nota` (e2e golden, exact
-  emit + validity) and `cargo test -p oxc_transformer --lib nota` (Scribble whitespace + mapping
-  units; there are no parser-lib nota tests). **`cargo test -p oxc` runs ZERO tests**
+  emit + validity), `cargo test -p oxc_transformer --lib nota` (Scribble whitespace + mapping
+  units), and `cargo test -p oxc_parser --lib nota` (lexer scan units: boundaries, line
+  classifiers, string-aware skips). **`cargo test -p oxc` runs ZERO tests**
   (`[lib] test=false`); the compile-entry + H1/H2 tests need `cargo test -p oxc --features codegen nota`.
 - `just ast` (regenerate `#[ast]` code) **always exits 101 here** — it panics at the end on a missing
   `oxfmt` (JS formatter), but the Rust regen is complete and correct. Verify with `cargo build -p
