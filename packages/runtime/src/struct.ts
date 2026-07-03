@@ -8,6 +8,7 @@
  * ```
  * struct(v):
  *   v is string         → v
+ *   plain fn tag        → struct(expand(v))    // R10 static template: invoke + splice (expandTemplates)
  *   isComp(v.tag)       → ⟨v.tag, v.props, map(struct, v.children)⟩   // decode static CHILDREN,
  *                                                                      // do NOT descend into body
  *   k = groupSections(groupParas(groupLists(v.children)))
@@ -43,10 +44,13 @@
 
 import { isComp } from "./component";
 import {
+  type ChildArg,
   type ElementVNode,
   FRAG,
+  flatten,
   isElement,
   isFragment,
+  type TemplateFn,
   type VNode
 } from "./vnode";
 
@@ -234,6 +238,37 @@ function whitespaceRun(
 // struct
 // ---------------------------------------------------------------------------------------------
 
+/** Chain-expansion fuel for {@link expandTemplates} — a template returning a template-tagged node
+ *  is fine (composition); an unbounded chain is a cycle. */
+const MAX_TEMPLATE_EXPANSION = 1024;
+
+/**
+ * Expand a **plain-function tag** (a static template, contract R10): invoke it with
+ * `{ children, …props }` and keep expanding while the result is itself template-tagged. Marked
+ * components (`isComp`) are boundaries and are never expanded — the constructors buy deferral.
+ * The invocation runs under `▸ = false`, so markup inside the template builds static vnodes; the
+ * result is normalized like any `h` child (numbers → text, nullish/booleans dropped → empty
+ * fragment) and splices into the caller's sibling stream via {@link flattenFragments}, *before*
+ * grouping — a template's list sentinels coalesce with its siblings'.
+ */
+function expandTemplates(v: VNode): VNode {
+  let node = v;
+  let fuel = MAX_TEMPLATE_EXPANSION;
+  while (isElement(node) && typeof node.tag === "function" && !isComp(node.tag)) {
+    if (fuel-- === 0) {
+      throw new Error(
+        `template expansion did not terminate: <${node.tag.name || "anonymous"}> keeps returning template-tagged nodes (a cycle?)`
+      );
+    }
+    const template: TemplateFn = node.tag;
+    const result = template({ children: node.children, ...node.props });
+    const flat = flatten([result as ChildArg]);
+    node =
+      flat.length === 1 ? flat[0] : { tag: FRAG, props: {}, children: flat };
+  }
+  return node;
+}
+
 /**
  * Splice **transparent fragments**: a `FRAG` *sibling* contributes its children to the
  * parent's sibling stream — recursively — so a fragment is transparent to grouping. This is what
@@ -242,11 +277,14 @@ function whitespaceRun(
  * own props (the `key`) are dropped here — static HTML needs no key; the `▸=true` path keeps the key
  * via `adapter.Fragment`. (A bare `@{…}` fragment splices identically.)
  *
- * Only `FRAG` nodes are spliced — host elements and component boundaries pass through untouched.
+ * Plain-function tags are expanded first ({@link expandTemplates}), so a template returning a
+ * fragment splices its children into this stream too. Host elements and component boundaries pass
+ * through untouched.
  */
 function flattenFragments(children: readonly VNode[]): VNode[] {
   const out: VNode[] = [];
-  for (const c of children) {
+  for (const raw of children) {
+    const c = expandTemplates(raw);
     if (isFragment(c)) {
       out.push(...flattenFragments(c.children));
     } else {
@@ -279,7 +317,12 @@ function decodeChildren(
 }
 
 /** @see module docs. */
-export function struct(v: VNode): VNode {
+export function struct(root: VNode): VNode {
+  if (typeof root === "string") {
+    return root;
+  }
+  // Direct entry with a template-tagged node (children go through flattenFragments instead).
+  const v = expandTemplates(root);
   if (typeof v === "string") {
     return v;
   }

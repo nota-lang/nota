@@ -89,7 +89,9 @@ export function blockComponent(fn: CompBody, name?: string): CompFn {
 /**
  * True when `tag` is a Nota component function (a boundary). Used by `struct`/`serialize` to
  * decide whether to stop at a boundary vs. recurse into a host node. Narrowed by the `isComp`
- * mark so a plain function accidentally used as a tag is *not* treated as a component.
+ * mark: a *plain* function used as a tag is not a boundary but a **static template** (contract
+ * R10) — `struct` expands it eagerly, splicing its output into the sibling stream. The marked
+ * constructors buy what only a boundary can have: deferral, `kind`-driven grouping, islands.
  */
 export function isComp(tag: unknown): tag is CompFn {
   return typeof tag === "function" && (tag as Partial<CompFn>).isComp === true;

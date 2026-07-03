@@ -507,6 +507,57 @@ describe("struct (container gate + recursion)", () => {
 });
 
 // =============================================================================================
+// Plain-function tags — static templates (contract R10)
+// =============================================================================================
+
+describe("plain-function tags (static templates, R10)", () => {
+  test("a template's output splices before grouping: its sentinel joins the sibling run", () => {
+    // `% let Foo = () => @{- You're beautiful.}` … `- You don't know` `@Foo{}` — the template's
+    // list item coalesces with the sibling item into ONE <ul>.
+    const Foo = () => frag([el("nota-ul-li", ["You're beautiful."])]);
+    const tree = frag([el("nota-ul-li", ["You don't know"]), el(Foo)]);
+    expect(struct(tree)).toEqual(
+      frag([el("ul", [el("li", ["You don't know"]), el("li", ["You're beautiful."])])])
+    );
+  });
+
+  test("children and props forward as { children, …props }", () => {
+    const Wrap = ({ children, cls }: { children: VNode[]; cls?: unknown }) =>
+      el("div", children, { class: cls });
+    const tree = frag([el(Wrap, ["kid"], { cls: "x" })]);
+    // The expanded <div> is a flow container, so its bare text child paragraph-wraps as usual.
+    expect(struct(tree)).toEqual(
+      frag([el("div", [el("p", ["kid"])], { class: "x" })])
+    );
+  });
+
+  test("templates chain: a template returning a template-tagged node keeps expanding", () => {
+    const Inner = () => el("nota-ul-li", ["deep"]);
+    const Outer = () => el(Inner);
+    expect(struct(frag([el(Outer)]))).toEqual(
+      frag([el("ul", [el("li", ["deep"])])])
+    );
+  });
+
+  test("a template's nullish/boolean output normalizes like any h child", () => {
+    const Nothing = () => null;
+    // The template contributes nothing; the surviving inline run paragraph-wraps (flow FRAG).
+    expect(struct(frag(["a", el(Nothing), "b"]))).toEqual(
+      frag([el("p", ["a", "b"])])
+    );
+  });
+
+  test("marked components are NOT expanded — the boundary survives", () => {
+    expect(struct(el(InlineC, ["kid"]))).toEqual(el(InlineC, ["kid"]));
+  });
+
+  test("a cyclic template chain fails pointedly instead of hanging", () => {
+    const Loop = (): ElementVNode => el(Loop);
+    expect(() => struct(frag([el(Loop)]))).toThrow(/did not terminate/);
+  });
+});
+
+// =============================================================================================
 // THE HEADLINE FIXTURE — the tree after Doc() runs → struct output
 // =============================================================================================
 

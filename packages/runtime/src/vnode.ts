@@ -11,7 +11,17 @@
  * rather than invoking `Colorized`. The `struct`/`serialize` passes consume this model.
  */
 
-import type { CompFn } from "./component";
+import type { CompFn, CompProps } from "./component";
+
+/**
+ * A **plain function tag**: a static template (contract R10). `struct` expands it eagerly —
+ * invoking it with `{ children, …props }` and splicing the result into the sibling stream *before*
+ * grouping, so a template's list sentinels coalesce with its siblings'. Contrast {@link CompFn}:
+ * the marked constructors buy *deferral* (an island boundary, `kind`-driven paragraph grouping,
+ * hydration by name); a bare function buys none of that and needs none — it is inlined at decode
+ * time. Under `▸ = true` the framework adapter invokes plain function tags natively.
+ */
+export type TemplateFn = (props: CompProps) => unknown;
 
 /**
  * The fragment tag sentinel. A unique `symbol` so it can never collide with a host tag string or a
@@ -21,14 +31,15 @@ import type { CompFn } from "./component";
 export const FRAG: unique symbol = Symbol("nota.fragment");
 export type Frag = typeof FRAG;
 
-/** A non-text vnode: a host element, a fragment, or a component boundary. */
+/** A non-text vnode: a host element, a fragment, a template, or a component boundary. */
 export interface ElementVNode {
   /**
    * - `string` → host element (lowercase tag); `decode` owns and restructures it.
    * - {@link FRAG} → a fragment (transparent grouping; carries no DOM element of its own).
    * - {@link CompFn} → a component boundary; the framework owns its body, `struct` stops here.
+   * - {@link TemplateFn} (any unmarked function) → a static template; `struct` expands it eagerly.
    */
-  tag: string | Frag | CompFn;
+  tag: string | Frag | CompFn | TemplateFn;
   /** Props object. Always present (defaults to `{}`); never `null`/`undefined` on a built node. */
   props: Record<string, unknown>;
   /** Already-flattened child vnodes (see {@link flatten}). */

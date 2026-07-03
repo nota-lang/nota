@@ -146,6 +146,13 @@ describe("serialize (host / text / fragment / void)", () => {
     expect(serialize(frag(["one ", el("b", ["two"])]))).toBe("one <b>two</b>");
   });
 
+  test("a function tag reaching serialize (an un-struct'd tree) throws pointedly", () => {
+    // struct() expands plain templates (R10); reaching serialize with one means the tree skipped
+    // struct. The old behavior stringified the function into the HTML as a tag name.
+    const Foo = () => "x";
+    expect(() => serialize(el(Foo))).toThrow(/function tag/);
+  });
+
   test("a FRAG's props (e.g. a `key`) do NOT leak into serialized HTML", () => {
     // Fragment({key}, child) sits the key in FRAG props; serialize renders FRAG as children joined,
     // with no wrapper element and no attribute pass — so static SSG output never carries the key.

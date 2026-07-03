@@ -117,6 +117,11 @@ grouping; sections must see the lists/paras they own), then recurse — *stoppin
 ```
 struct(v):
   if v is string:    return v
+  if v.tag is a PLAIN function (not isComp):                          // R10: a static template —
+      return struct(splice(v.tag({children: v.children, …v.props})))  // invoke + splice its output
+                                                                      // into the sibling stream
+                                                                      // BEFORE grouping (sentinels
+                                                                      // coalesce with siblings')
   if isComp(v.tag):  return ⟨v.tag, v.props, map(struct, v.children)⟩  // decode static CHILDREN,
                                                                        // do NOT descend into body
   k = groupSections(groupParas(groupLists(v.children)))

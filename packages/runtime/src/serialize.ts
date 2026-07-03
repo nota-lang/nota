@@ -226,6 +226,14 @@ export function serialize(v: VNode): string {
     // fragment: transparent grouping, no wrapper element
     return v.children.map(serialize).join("");
   }
+  if (typeof v.tag === "function") {
+    // `struct` expands plain-function templates (R10) and `isComp` handled boundaries above, so a
+    // function tag here means serialize was called on an un-struct'd tree. Fail pointedly rather
+    // than stringify the function into the HTML as a tag name.
+    throw new Error(
+      `serialize: <${v.tag.name || "anonymous"}> is a function tag — run struct() first (plain functions are static templates it expands; island components come from inlineComponent/blockComponent)`
+    );
+  }
   // host element (tag is a string here)
   const tag = v.tag as string;
   const open = `<${tag}${serializeAttrs(v.props)}`;

@@ -76,9 +76,10 @@ A reader change is invisible to JS until you rebuild the artifact that consumes 
 - **Known reader bugs** live in **`TODO.md`** + `#[ignore]`'d tests in `integration/nota.rs` — check
   there before re-fuzzing/repro'ing. Feature mega-test: `integration/mega.nota`.
 - **decode model:** `h`/`Fragment`/`decode` branch on a runtime flag (`▸` = inside a `component`?).
-  SSG builds a vnode tree (components deferred, not invoked); `decode` = `serialize(struct(v))`,
-  coalescing `nota-ul-li`/`nota-ol-li` → lists, grouping paras/sections, stopping at component
-  boundaries. Only reactive islands hydrate client-side.
+  SSG builds a vnode tree (marked components deferred, not invoked; a *plain* function tag is a
+  static template `struct` expands eagerly — R10); `decode` = `serialize(struct(v))`, coalescing
+  `nota-ul-li`/`nota-ol-li` → lists, grouping paras/sections, stopping at component boundaries.
+  Only reactive islands hydrate client-side.
 - **macOS zsh:** `noclobber` (`>` fails on existing files — use `>|`); backticks in `git commit -m` run
   command substitution (use `-F`); Bash cwd resets each call (use absolute paths).
 

@@ -198,6 +198,10 @@ whitespace after `@for`/`@if` is insignificant. Imperative forms with no value-s
 Lightweight prose markers, after Typst (except headings, which use `#`). Each
 desugars to an ordinary element, so all the rules above (nesting, whitespace,
 escaping) carry over; the escaped form (`\* \_ \# \- \+`) is the literal character.
+Line-start markers (`#`/`-`/`+`/`N.`/`%`) fire at a line start — and the **start of a
+markup body counts as one** (Typst's content-block rule, contract R9): `@{- item}`
+opens a list item, clipped at the body's own `}`. Literal braces in prose do not
+open a body, so `a {- b} c` stays text.
 
 ### Emphasis
 `*…*` → `@strong{…}`, `_…_` → `@em{…}`; bodies nest markup like any element.
