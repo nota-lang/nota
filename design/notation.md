@@ -206,7 +206,9 @@ open a body, so `a {- b} c` stays text.
 ### Emphasis
 `*…*` → `@strong{…}`, `_…_` → `@em{…}`; bodies nest markup like any element.
 Following Typst, a marker opens only at a left word boundary and closes only at a
-right one, so intra-word `*`/`_` are literal without escaping.
+right one, so intra-word `*`/`_` are literal without escaping. A span is clamped to
+its line (CommonMark-style, contract R11): with no same-line close the marker is
+literal — `*foo⏎bar*` keeps both stars as text.
 ```
 *bold*           → <strong>bold</strong>
 _italic_         → <em>italic</em>
@@ -265,7 +267,9 @@ def f(x):
 
 `$…$` is inline, `$$…$$` is display; both lower to an ambient `<Math>` (resolved from the
 prelude, e.g. KaTeX/MathJax). Content is raw LaTeX (`String.raw`); `@` interpolates a string
-value; `\$` / `\@` are literal (the backslash is kept — it's LaTeX's own escape).
+value; `\$` / `\@` are literal (the backslash is kept — it's LaTeX's own escape). Inline `$`
+is clamped to its line (contract R11): with no same-line close the `$` is literal; display
+`$$…$$` is multi-line.
 ```
 $a_@i$            → <Math>{String.raw`a_${i}`}</Math>
 $$⏎\sum_@n x⏎$$   → <Math display>{String.raw`\sum_${n} x`}</Math>
@@ -275,7 +279,9 @@ $$⏎\sum_@n x⏎$$   → <Math display>{String.raw`\sum_${n} x`}</Math>
 
 `` `…` `` is inline code; ```` ```lang⏎…⏎``` ```` is fenced, with an optional language tag on the
 opening line. Both are raw (`String.raw`), lowering to ambient `<CodeInline>` / `<CodeBlock>`;
-backtick runs shorter than the closing fence are literal.
+backtick runs shorter than the closing fence are literal. Inline code is clamped to its line
+(contract R11): the close run must sit on the opening line, else the run is literal — so
+``- `foo⏎- bar` `` is two bullets, not one bullet holding a code span.
 ````
 `@x`                → <CodeInline>{String.raw`@x`}</CodeInline>
 ```python⏎f(x)⏎```  → <CodeBlock lang="python">{String.raw`f(x)`}</CodeBlock>
