@@ -24,9 +24,7 @@
     "nota_wasm": "file:../../oxc/napi/nota_wasm/pkg",
     "prettier": "^3.8.4",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "shiki": "^3.23.0",
-    "vscode-nota": "workspace:*"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",

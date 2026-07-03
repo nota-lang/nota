@@ -1,153 +1,180 @@
 /**
- * CM6 highlighting for the Nota editor (left pane) — Option B: run the project's *own* TextMate
- * grammar (`vscode-nota/syntaxes/nota.tmLanguage.json`, scope `source.nota`) through Shiki, so the
- * playground highlights identically to the VSCode extension from a single source of truth, and the
- * embedded host code (TS/JS/JSON in `%` lines, `[props]`, `{expr}`, ``` fences) is colored by Shiki's
- * bundled grammars for free.
+ * CM6 highlighting for the Nota editor (left pane) — **reader-driven**: the wasm reader's
+ * `highlight(source)` entry (an AST walk + embedded-JS re-lex inside `oxc::nota`) returns
+ * classified `[start, end, kind]` span triples, and a small `ViewPlugin` paints each as a
+ * `Decoration.mark` with a `cm-nota-<kind>` class themed on the Catppuccin-Latte palette below.
  *
- * There's no published shiki↔CM6 integration, so the bridge is a tiny `ViewPlugin`: Shiki tokenizes
- * the whole document (its `ThemedToken.offset` is absolute, so it maps straight to CM positions) and
- * we paint each token as a `Decoration.mark` with an inline color/font-style from the
- * `catppuccin-latte` theme (whose hues are the playground's `--*` palette). Shiki + the onig-wasm and
- * grammars load via dynamic `import()`, so they stay off the initial bundle; until the highlighter
- * resolves the editor simply shows plain text (see {@link App} wiring it in through a Compartment).
+ * This replaced the TextMate-grammar-through-Shiki bridge: the grammar is regex-only and cannot
+ * track Nota's context-sensitivity or markup⇄JS mutual nesting, so a markup-valued prop
+ * (`@figure[cap: @em{…}]`) or a stray `[` in prose derailed highlighting for the rest of the
+ * document (see `integration/mega.nota`, the regression fixture). The reader-driven spans cannot
+ * drift from the language — same parser, same parse.
+ *
+ * Spans arrive sorted start-ascending / end-descending: an *outer* span (a heading's whole-line
+ * under-layer) precedes the spans it contains. CM6 merges overlapping marks by combining their
+ * classes on the split text runs, so the theme below lists under-layer rules first and overlay
+ * rules after them — for equal specificity, the later rule wins the tie.
+ *
+ * While a document is mid-edit it frequently fails to parse; `highlight` then throws, and the
+ * plugin keeps the last-good decorations mapped through the edit (`RangeSet.map`), so colors don't
+ * flicker off between keystrokes.
  */
 
 import { type Extension, RangeSetBuilder } from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
-  type EditorView,
+  EditorView,
   ViewPlugin,
   type ViewUpdate
 } from "@codemirror/view";
+import { highlight, highlightKindNames } from "nota_wasm";
 
-/** The slice of Shiki's tokenizer output the bridge consumes. */
-interface ThemedToken {
-  content: string;
-  /** Offset from the start of the whole input — i.e. a CM document position. */
-  offset: number;
-  color?: string;
-  /** Bitfield: 1=italic, 2=bold, 4=underline (Shiki's `FontStyle`). */
-  fontStyle?: number;
-}
-export interface NotaHighlighter {
-  codeToTokens(
-    code: string,
-    options: { lang: string; theme: string }
-  ): { tokens: ThemedToken[][] };
-}
-
-/** The Shiki language id (the Nota grammar registers under this name) and theme. Exported so tests
- *  tokenize with the exact theme the bridge paints with. `catppuccin-latte` is the light variant. */
-export const NOTA_LANG = "nota";
-export const NOTA_THEME = "catppuccin-latte";
-const ITALIC = 1;
-const BOLD = 2;
-const UNDERLINE = 4;
+// Catppuccin Latte (light) — the same palette as highlight-style.ts (output panes) and the `--*`
+// vars in playground.css, so the editor sits cohesively on the light theme.
+const teal = "#179299";
+const blue = "#1e66f5";
+const yellow = "#df8e1d";
+const lavender = "#7287fd";
+const maroon = "#e64553";
+const mauve = "#8839ef";
+const red = "#d20f39";
+const green = "#40a02b";
+const peach = "#fe640b";
+const pink = "#ea76cb";
+const overlay = "#7c7f93";
+const muted = "#8c8fa1";
 
 /**
- * catppuccin-latte enumerates its heading and list-marker colors per source language
- * (`markup.heading.atx.1.mdx`, `heading.1.markdown`, `markup.list.bullet`, …) and ships no generic
- * `markup.heading` / `markup.list` rule. So the Nota grammar's `markup.heading.nota` and
- * `markup.list.*.nota` scopes match nothing and render in the default text color. We add the missing
- * rules here, reusing the theme's own palette (red `#d20f39` for headings — same hue as its Typst
- * heading; teal `#179299` for list markers — same as `markup.list.bullet`). Most VSCode themes color
- * `markup.heading` generically, so the extension doesn't need this; it's purely a gap in this theme.
+ * Kind-name → CSS style, keyed by the reader's stable kebab-case kind names
+ * (`highlightKindNames()`). Ordered under-layers → overlays: CM6 puts BOTH classes on a text run
+ * where spans overlap, and with equal specificity the *later* stylesheet rule wins — so `sigil`
+ * must come after `heading` for the `@`/`#` bytes inside a heading to read as markers.
  */
-const NOTA_THEME_RULES = [
-  {
-    scope: "markup.heading.nota",
-    settings: { foreground: "#d20f39", fontStyle: "bold" }
-  },
-  {
-    scope: ["markup.list.unnumbered.nota", "markup.list.numbered.nota"],
-    settings: { foreground: "#179299" }
+const KIND_STYLES: Record<string, Record<string, string>> = {
+  // Under-layers (whole-construct spans that children overlay).
+  heading: { color: red, fontWeight: "700" },
+  "emphasis-strong": { fontWeight: "700" },
+  "emphasis-em": { fontStyle: "italic" },
+  math: { color: green },
+  code: { color: green },
+  verbatim: { color: green },
+  // Overlays.
+  sigil: { color: teal },
+  "tag-host": { color: blue },
+  "tag-component": { color: yellow },
+  "prop-name": { color: lavender },
+  interpolation: { color: maroon },
+  "control-keyword": { color: mauve },
+  "heading-marker": { color: red },
+  "list-marker": { color: teal },
+  "math-delim": { color: overlay },
+  "code-delim": { color: overlay },
+  "code-lang": { color: blue },
+  escape: { color: pink },
+  "js-keyword": { color: mauve },
+  "js-string": { color: green },
+  "js-number": { color: peach },
+  "js-comment": { color: muted, fontStyle: "italic" },
+  "js-operator": { color: teal }
+};
+
+/** The editor theme: one rule per kind, in {@link KIND_STYLES} (tie-breaking) order. */
+const notaTheme: Extension = EditorView.baseTheme(
+  Object.fromEntries(
+    Object.entries(KIND_STYLES).map(([name, style]) => [`.cm-nota-${name}`, style])
+  )
+);
+
+/** `Decoration.mark`s indexed by kind discriminant (the third value of each wasm triple). */
+let kindDecorations: Decoration[] | null = null;
+
+function decorationsForKinds(): Decoration[] {
+  if (!kindDecorations) {
+    kindDecorations = highlightKindNames().map(name =>
+      Decoration.mark({ class: `cm-nota-${name}` })
+    );
   }
-];
-
-/** Append {@link NOTA_THEME_RULES} to a loaded Shiki theme, writing back to whichever key holds the
- *  TextMate rules (`settings` or `tokenColors`). The new scopes don't overlap existing rules. */
-function augmentTheme(theme: Record<string, unknown>): Record<string, unknown> {
-  const key = Array.isArray(theme.tokenColors) ? "tokenColors" : "settings";
-  const rules = Array.isArray(theme[key]) ? (theme[key] as unknown[]) : [];
-  return { ...theme, [key]: [...rules, ...NOTA_THEME_RULES] };
+  return kindDecorations;
 }
 
 /**
- * Build the Shiki highlighter: the Nota grammar (renamed to `nota`) over the catppuccin-latte theme,
- * with typescript/javascript/json loaded so the grammar's `source.ts|js|json` embeds resolve by scope.
+ * One classified span, for tests and the dump-tokens debug CLI. `kind` is the reader's stable
+ * kebab-case name. Requires the wasm compiler to be initialized (compiler.ts `ensureCompiler`).
  */
-export async function createNotaHighlighter(): Promise<NotaHighlighter> {
-  const [core, oniguruma, grammar, theme] = await Promise.all([
-    import("shiki/core"),
-    import("shiki/engine/oniguruma"),
-    import("vscode-nota/syntaxes/nota.tmLanguage.json"),
-    import("shiki/themes/catppuccin-latte.mjs")
-  ]);
-  const nota = { ...(grammar.default as object), name: NOTA_LANG };
-  const highlighter = await core.createHighlighterCore({
-    themes: [augmentTheme(theme.default as unknown as Record<string, unknown>)],
-    langs: [
-      import("shiki/langs/typescript.mjs"),
-      import("shiki/langs/javascript.mjs"),
-      import("shiki/langs/json.mjs"),
-      nota
-    ] as Parameters<typeof core.createHighlighterCore>[0]["langs"],
-    engine: oniguruma.createOnigurumaEngine(import("shiki/wasm"))
-  });
-  return highlighter as unknown as NotaHighlighter;
+export interface NotaSpan {
+  from: number;
+  to: number;
+  kind: string;
 }
 
-/** Tokenize the whole doc and turn each colored token into an inline-styled `Decoration.mark`. */
-function decorate(view: EditorView, hl: NotaHighlighter): DecorationSet {
+/** Highlight `source` → named spans (throws the reader's diagnostics on a parse error). */
+export function highlightSpans(source: string): NotaSpan[] {
+  const names = highlightKindNames();
+  const triples = highlight(source);
+  const spans: NotaSpan[] = [];
+  for (let i = 0; i + 2 < triples.length; i += 3) {
+    spans.push({
+      from: triples[i],
+      to: triples[i + 1],
+      kind: names[triples[i + 2]] ?? `unknown-${triples[i + 2]}`
+    });
+  }
+  return spans;
+}
+
+/** Compute the decoration set for `doc`, or `null` when it doesn't parse (keep last-good). */
+function computeDecorations(doc: string): DecorationSet | null {
+  let triples: Uint32Array;
+  try {
+    triples = highlight(doc);
+  } catch {
+    return null;
+  }
+  const marks = decorationsForKinds();
   const builder = new RangeSetBuilder<Decoration>();
-  const docLen = view.state.doc.length;
-  const { tokens } = hl.codeToTokens(view.state.doc.toString(), {
-    lang: NOTA_LANG,
-    theme: NOTA_THEME
-  });
-  // Tokens arrive in ascending absolute offset (line-major, then within line) — the order
-  // RangeSetBuilder requires. Empty tokens are skipped so `from` stays strictly increasing.
-  for (const line of tokens) {
-    for (const tk of line) {
-      const from = tk.offset;
-      const to = from + tk.content.length;
-      if (!tk.content || to > docLen) continue;
-      const css: string[] = [];
-      if (tk.color) css.push(`color:${tk.color}`);
-      if (tk.fontStyle && tk.fontStyle & ITALIC) css.push("font-style:italic");
-      if (tk.fontStyle && tk.fontStyle & BOLD) css.push("font-weight:700");
-      if (tk.fontStyle && tk.fontStyle & UNDERLINE)
-        css.push("text-decoration:underline");
-      if (css.length)
-        builder.add(
-          from,
-          to,
-          Decoration.mark({ attributes: { style: css.join(";") } })
-        );
+  // Triples are sorted start-ascending / end-descending — the order RangeSetBuilder requires,
+  // with outer spans added before the spans they contain.
+  for (let i = 0; i + 2 < triples.length; i += 3) {
+    const from = triples[i];
+    const to = triples[i + 1];
+    const mark = marks[triples[i + 2]];
+    if (mark && to > from && to <= doc.length) {
+      builder.add(from, to, mark);
     }
   }
   return builder.finish();
 }
 
-/** The CM6 extension: a ViewPlugin that repaints Shiki's tokens whenever the document changes. */
-export function notaHighlighting(hl: NotaHighlighter): Extension {
-  return ViewPlugin.fromClass(
+/**
+ * The CM6 extension: a ViewPlugin that re-highlights on every document change (the wasm parse is
+ * sub-millisecond at document scale), plus the kind theme. Assumes the wasm compiler is loaded —
+ * use {@link createNotaHighlight} to get the loading tied in.
+ */
+export function notaHighlighting(): Extension {
+  const plugin = ViewPlugin.fromClass(
     class {
       decorations: DecorationSet;
       constructor(view: EditorView) {
-        this.decorations = decorate(view, hl);
+        this.decorations = computeDecorations(view.state.doc.toString()) ?? Decoration.none;
       }
       update(update: ViewUpdate) {
-        if (update.docChanged) this.decorations = decorate(update.view, hl);
+        if (!update.docChanged) return;
+        const next = computeDecorations(update.state.doc.toString());
+        // Mid-edit parse error: keep the last-good spans, repositioned through the edit.
+        this.decorations = next ?? this.decorations.map(update.changes);
       }
     },
     { decorations: plugin => plugin.decorations }
   );
+  return [plugin, notaTheme];
 }
 
-/** Convenience: a fresh highlighter wired into the CM extension. Rejects if Shiki fails to load. */
+/** Convenience: load the wasm compiler (idempotent), then the highlighting extension. The
+ *  compiler module is imported lazily so this file stays importable outside Vite (the dump-tokens
+ *  CLI under tsx — compiler.ts's `?url` wasm import only resolves through Vite). */
 export async function createNotaHighlight(): Promise<Extension> {
-  return notaHighlighting(await createNotaHighlighter());
+  const { ensureCompiler } = await import("./compiler");
+  await ensureCompiler();
+  return notaHighlighting();
 }

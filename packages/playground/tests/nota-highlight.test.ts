@@ -1,82 +1,134 @@
 /**
- * Nota editor highlighting tests (Option B: the project's TextMate grammar run through Shiki). The
- * substantive assertions are at the tokenizer level — that the grammar colors Nota's element heads
- * and that the embedded TS inside `[props]` is colored by the bundled `source.ts` grammar — plus a
- * CM6 smoke that the bridge actually paints inline-styled spans into the editor DOM (jsdom).
+ * Nota editor highlighting tests — reader-driven (the wasm `highlight` entry painting CM6
+ * decorations; see src/nota-mode.ts). The substantive fixture is `integration/mega.nota`, the
+ * repo's feature mega-test: it broke the old TextMate-grammar highlighter catastrophically (a
+ * markup-valued prop switched the rest of the file into a runaway TS scope), so the assertions
+ * here pin exactly the constructs that used to derail — everything *after* the poison line still
+ * classifies as markup. Plus a CM6 smoke that the bridge paints classed spans into the editor DOM
+ * (jsdom) and keeps last-good decorations while the doc is mid-edit.
  */
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { EditorView } from "@codemirror/view";
-import { describe, expect, it } from "vitest";
-import { GOLDEN_NOTA } from "../src/golden";
-import {
-  createNotaHighlighter,
-  NOTA_LANG,
-  NOTA_THEME,
-  notaHighlighting
-} from "../src/nota-mode";
+import { beforeAll, describe, expect, it } from "vitest";
+import { ensureCompiler } from "../src/compiler";
+import { highlightSpans, type NotaSpan, notaHighlighting } from "../src/nota-mode";
 
-const OPTS = { lang: NOTA_LANG, theme: NOTA_THEME };
+// Vitest runs with cwd = packages/playground (import.meta.url is not a file: URL here).
+const MEGA_PATH = resolve(process.cwd(), "../../integration/mega.nota");
+const MEGA = readFileSync(MEGA_PATH, "utf8");
 
-describe("Nota grammar via Shiki", () => {
-  it("colors % statements, component heads, and embedded TS, with valid offsets", async () => {
-    const hl = await createNotaHighlighter();
-    const tokens = hl.codeToTokens(GOLDEN_NOTA, OPTS).tokens.flat();
+beforeAll(async () => {
+  // jsdom has no file:// fetch; hand the wasm bytes straight to init.
+  const wasmPath = fileURLToPath(import.meta.resolve("nota_wasm")).replace(
+    /nota_wasm\.js$/,
+    "nota_wasm_bg.wasm"
+  );
+  await ensureCompiler(readFileSync(wasmPath));
+});
 
-    // The `%let …` statement line is recognized and colored (the grammar's `%`-no-space fix).
-    const first = tokens.find(t => t.content.trim());
-    expect(first?.content.startsWith("%")).toBe(true);
-    expect(first?.color).toBeTruthy();
-    // A component head in a clean markup body (`- @Colorized{@x}`) is colored.
-    expect(tokens.find(t => t.content === "Colorized")?.color).toBeTruthy();
-    // Embedded TS (here the `setColor("green")` string inside the component body) is colored by
-    // the bundled source.ts grammar.
-    expect(tokens.find(t => t.content.includes("green"))?.color).toBeTruthy();
+/** The spans of `kind` rendered as source excerpts. */
+function excerpts(spans: NotaSpan[], source: string, kind: string): string[] {
+  return spans.filter(s => s.kind === kind).map(s => source.slice(s.from, s.to));
+}
 
-    // Real highlighting ⇒ several distinct colors (the probe sees 7).
-    const colors = new Set(tokens.map(t => t.color).filter(Boolean));
-    expect(colors.size).toBeGreaterThanOrEqual(4);
-
-    // Offsets are absolute, in-range, and strictly increasing across non-empty tokens.
-    let prev = -1;
-    for (const t of tokens) {
-      if (!t.content) continue;
-      expect(t.offset).toBeGreaterThan(prev);
-      expect(t.offset + t.content.length).toBeLessThanOrEqual(
-        GOLDEN_NOTA.length
-      );
-      prev = t.offset;
-    }
+describe("reader-driven highlighting of integration/mega.nota", () => {
+  it("classifies every heading — including all those after the markup-valued prop", () => {
+    const spans = highlightSpans(MEGA);
+    const headings = excerpts(spans, MEGA, "heading");
+    // The old grammar died at `@figure[cap:@em{a caption}]` (line 33); every section heading
+    // after it rendered inside a TS scope. All must classify.
+    //
+    // "## Nested statements" is MISSING by reader bug (see TODO.md): a heading immediately
+    // after a colon-block body is parsed as literal text — the reader itself emits it as prose
+    // (`h("h2", …)` absent from the compile), so the highlighter is faithfully reporting the
+    // parse. Add it here when the reader is fixed.
+    expect(headings).toEqual([
+      "# Nota Mega-Test",
+      "## Elements & props",
+      "## Control flow",
+      "## Markup sugar",
+      "###### A level-6 heading",
+      "## Raw spans",
+      "## Colon & block sugar"
+    ]);
   });
 
-  it("colors `#` headings (the catppuccin-latte theme has no generic markup.heading rule)", async () => {
-    const hl = await createNotaHighlighter();
-    const tokens = hl
-      .codeToTokens("# A heading\n\nprose\n", OPTS)
-      .tokens.flat();
+  it("keeps classifying markup constructs after the poison line", () => {
+    const spans = highlightSpans(MEGA);
+    // Constructs from the second half of the document (all post-poison).
+    expect(excerpts(spans, MEGA, "list-marker")).toEqual(
+      expect.arrayContaining(["-", "+", "1.", "2."])
+    );
+    expect(excerpts(spans, MEGA, "emphasis-strong")).toContain(
+      "*bold with _italic_ within*"
+    );
+    expect(excerpts(spans, MEGA, "code-lang")).toContain("python");
+    expect(excerpts(spans, MEGA, "math-delim")).toContain("$$");
+    expect(excerpts(spans, MEGA, "escape")).toEqual(
+      expect.arrayContaining(["\\*", "\\_", "\\#", "\\$", "\\@", "\\{", "\\}", "\\\\"])
+    );
+    expect(excerpts(spans, MEGA, "tag-host")).toEqual(
+      expect.arrayContaining(["figure", "pre", "section", "summary", "aside"])
+    );
+    expect(excerpts(spans, MEGA, "tag-component")).toEqual(
+      expect.arrayContaining(["Aside", "Colorized"])
+    );
+    expect(excerpts(spans, MEGA, "prop-name")).toEqual(
+      expect.arrayContaining(["cap", "class", "disabled"])
+    );
+    expect(excerpts(spans, MEGA, "control-keyword")).toEqual(
+      expect.arrayContaining(["if", "else", "for", "of"])
+    );
+  });
 
-    // The heading line is colored and bold — not left in the default prose color. (Without the
-    // theme supplement in nota-mode, `markup.heading.nota` matches no rule and renders as plain text.)
-    const heading = tokens.find(t => t.content.includes("A heading"));
-    const prose = tokens.find(t => t.content.includes("prose"));
-    expect(heading?.color).toBeTruthy();
-    expect(heading?.color).not.toBe(prose?.color);
-    expect((heading?.fontStyle ?? 0) & 2).toBe(2); // FontStyle bold
+  it("classifies the %%% fence as JS and the verbatim re-arm as markup", () => {
+    const spans = highlightSpans(MEGA);
+    expect(excerpts(spans, MEGA, "sigil")).toEqual(expect.arrayContaining(["%%%", "|{", "}|"]));
+    expect(excerpts(spans, MEGA, "js-keyword")).toEqual(
+      expect.arrayContaining(["export", "const", "let", "return"])
+    );
+    // `|@Colorized{…}` inside the `@pre|{…}|` body re-enters markup.
+    expect(excerpts(spans, MEGA, "verbatim").join("")).toContain("is raw;");
+  });
+
+  it("gives stray brackets in prose no JS classification", () => {
+    const spans = highlightSpans("see [1] and {2} here\n\n# H\n");
+    expect(excerpts(spans, "see [1] and {2} here\n\n# H\n", "heading")).toEqual(["# H"]);
+    expect(spans.some(s => s.kind.startsWith("js-") || s.kind === "prop-name")).toBe(false);
   });
 });
 
 describe("notaHighlighting CM6 bridge", () => {
-  it("paints inline-styled token spans into the editor DOM", async () => {
-    const hl = await createNotaHighlighter();
+  it("paints kind-classed spans into the editor DOM", () => {
     const view = new EditorView({
-      doc: GOLDEN_NOTA,
-      extensions: [notaHighlighting(hl)],
+      doc: "# Hello\n\nSome @em{markup} and @name.\n",
+      extensions: [notaHighlighting()],
       parent: document.body
     });
     try {
-      const colored = view.dom.querySelectorAll(
-        '.cm-line span[style*="color"]'
-      );
-      expect(colored.length).toBeGreaterThan(0);
+      expect(view.dom.querySelectorAll('.cm-line [class*="cm-nota-"]').length).toBeGreaterThan(0);
+      expect(view.dom.querySelector(".cm-nota-heading")).not.toBeNull();
+      expect(view.dom.querySelector(".cm-nota-tag-host")).not.toBeNull();
+      expect(view.dom.querySelector(".cm-nota-interpolation")).not.toBeNull();
+    } finally {
+      view.destroy();
+    }
+  });
+
+  it("keeps last-good decorations while the document is mid-edit (parse error)", () => {
+    const view = new EditorView({
+      doc: "@em{x}\n",
+      extensions: [notaHighlighting()],
+      parent: document.body
+    });
+    try {
+      expect(view.dom.querySelector(".cm-nota-tag-host")).not.toBeNull();
+      // `@em{x` (deleted `}`) does not parse — the previous spans must survive, remapped.
+      view.dispatch({ changes: { from: 5, to: 6 } });
+      expect(view.dom.querySelector(".cm-nota-tag-host")).not.toBeNull();
     } finally {
       view.destroy();
     }

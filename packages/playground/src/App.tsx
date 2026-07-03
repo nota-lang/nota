@@ -32,8 +32,9 @@ export function App() {
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState<PipelineResult>(EMPTY);
 
-  // The Nota highlighting extension loads asynchronously (Shiki + onig-wasm + grammars); until it
-  // resolves the editor shows plain text. Highlighting is best-effort — a load failure is ignored.
+  // The Nota highlighting extension waits on the wasm compiler (the reader highlights the doc);
+  // until it resolves the editor shows plain text. Highlighting is best-effort — a load failure
+  // is ignored (the compile pipeline surfaces the real error).
   const [language, setLanguage] = useState<Extension>([]);
   useEffect(() => {
     let live = true;
