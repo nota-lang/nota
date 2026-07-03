@@ -569,7 +569,7 @@ foo.nota  ──compiler──▶  virtual foo.nota.tsx   (generated TS)  +  Cod
 - **Syntax highlighting** — a TextMate grammar (fast, server-independent) for the sigils, with
   embedded `source.ts` patterns inside `[props]`, `@(expr)`, and `%` blocks; richer semantic tokens
   layer on later via Volar. *(Shipped since: the reader also exposes a faithful highlight pass —
-  `oxc::nota::highlight`, see §5.4 — which the playground editor consumes; the grammar remains
+  `Parser::parse_nota_highlights` in `oxc_parser`, see §5.4 — which the playground editor consumes; the grammar remains
   VSCode's instant base layer.)*
 - **VSCode extension** — a thin client: registers `.nota`, contributes the grammar, launches the
   Volar language server (`@volar/language-server`).
@@ -610,8 +610,9 @@ Two requirements Part 5 places back on the compiler:
   by construction: TextMate cannot track Nota's context-sensitivity or markup⇄JS mutual nesting
   (a markup-valued prop or a stray `[` derails it to end-of-document), which is why the faithful
   layer below exists.
-- **Reader highlight spans** (SHIPPED) — `oxc::nota::highlight(src)` (entry
-  `Parser::parse_nota_highlights`): parse with the real reader, walk the Nota AST for structural
+- **Reader highlight spans** (SHIPPED) — `Parser::parse_nota_highlights` (`oxc_parser`; a
+  parser-stage view like the document parse behind `parseAst`, consumed directly by the wasm
+  bindings — not part of `oxc::nota`'s compile seam): parse with the real reader, walk the Nota AST for structural
   spans, re-lex embedded-JS extents with the crate lexer; sorted `[start, end, kind)` spans that
   cannot drift from the language. The **playground editor** paints these via the wasm `highlight()`
   / `highlightKindNames()` entries (`packages/playground/src/nota-mode.ts`); regression fixture is
@@ -648,7 +649,7 @@ Two requirements Part 5 places back on the compiler:
   wire `@volar/typescript`; surface TS **diagnostics** mapped to `.nota`. Proves the mapping spine.
 - **W — Full language features.** hover, completion, definition, references, rename — all of which
   ride the V spine once mappings are correct.
-- **X — Polish.** semantic tokens (H4 — serve `oxc::nota::highlight` spans over LSP; the pass
+- **X — Polish.** semantic tokens (H4 — serve `parse_nota_highlights` spans over LSP; the pass
   itself already exists, §5.4), and (stretch) the H3 tsserver plugin for cross-file imports.
 
 U gives immediate editor value cheaply; V is the load-bearing step (mappings); W is breadth over V.

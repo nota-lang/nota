@@ -1,7 +1,7 @@
 /**
  * CM6 highlighting for the Nota editor (left pane) — **reader-driven**: the wasm reader's
- * `highlight(source)` entry (an AST walk + embedded-JS re-lex inside `oxc::nota`) returns
- * classified `[start, end, kind]` span triples, and a small `ViewPlugin` paints each as a
+ * `highlight(source)` entry (an AST walk + embedded-JS re-lex inside the reader, `oxc_parser`)
+ * returns classified `[start, end, kind]` span triples, and a small `ViewPlugin` paints each as a
  * `Decoration.mark` with a `cm-nota-<kind>` class themed on the Catppuccin-Latte palette below.
  *
  * This replaced the TextMate-grammar-through-Shiki bridge: the grammar is regex-only and cannot
