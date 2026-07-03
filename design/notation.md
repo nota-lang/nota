@@ -120,10 +120,16 @@ shaped, lowering to `.map`/ternary). A side-effecting loop lives in `%`; a conte
 loop is `@for` — so the two never collide and nothing is parsed two ways.
 
 ### Statements
-`%` as the first non-whitespace on a line begins JS: the rest of the line plus any
-indented continuation lines (the `@head:` block rule). `%` is literal elsewhere
-(`50%`); `\%` forces a literal at line-start. A `%` statement scopes the rest of its
-block, and never itself produces content — content comes only from markup.
+`%` as the first non-whitespace on a line begins JS: the rest of the line is JS
+statements — as many as fit (`% a(); b();`) — under JS's own rules (`;` and ASI; a
+statement continues across single newlines exactly where JS grammar allows, so a
+multi-line binding may close with an unindented `})`). The region hands back to
+markup at a clear boundary: end of line once the last statement completes there, a
+**blank line** (which always ends the statement — ASI applies as at end of input;
+a statement straddling one is a diagnostic), or the next line-leading `%`.
+Blank-line-separated code belongs in `%%%`. `%` is literal elsewhere (`50%`); `\%`
+forces a literal at line-start. A `%` statement scopes the rest of its block, and
+never itself produces content — content comes only from markup.
 
 For many statements at once, a `%%%` fence — each fence on its own line — holds a raw
 JS block, with the same scoping and `@`-form rules as `%`; a `%` run shorter than the
