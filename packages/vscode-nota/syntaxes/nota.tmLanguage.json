@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Nota",
   "scopeName": "source.nota",
-  "comment": "TextMate grammar for the Nota document language. Markup is the OUTER context (the inverse of JSX): a .nota file is markup at the top level, with JS embedded inside [props], @(expr), and %/%%% blocks (each delegated to source.ts). See design/notation.md for the full sigil inventory. TextMate is regex-only and cannot count balanced braces or track word boundaries across the document, so some constructs (intra-word emphasis, |@ re-arm, exact brace nesting) are best-effort here and finished by the Phase X semantic-tokens layer.",
+  "comment": "TextMate grammar for the Nota document language. Markup is the OUTER context (the inverse of JSX): a .nota file is markup at the top level, with JS embedded inside [props], @(expr), and %/%%% blocks (each delegated to source.ts). See design/notation.md for the full sigil inventory. TextMate is regex-only and cannot count balanced braces or track word boundaries across the document, so some constructs (intra-word emphasis, |@ re-arm, exact brace nesting) are best-effort here. The reader-faithful layer is oxc::nota::highlight (an AST walk + embedded-JS re-lex in the reader itself; the playground editor consumes it via wasm, and a future LSP semantic-tokens provider can serve the same spans in VSCode) -- this grammar remains the instant, server-independent base layer.",
   "patterns": [{ "include": "#markup" }],
   "repository": {
     "markup": {
@@ -193,7 +193,7 @@
     },
 
     "props": {
-      "comment": "[k:v, ...] prop list: object-literal-ish, embedded JS. Delegates to source.ts so keys, string/expression values, shorthand, and spreads highlight. A value may itself be markup (@em{..}); since source.ts does not know @-forms, markup-valued props are best-effort (the @ head will look like a stray token to TS highlighting, but the bracket structure is preserved). Phase X semantic tokens refine this.",
+      "comment": "[k:v, ...] prop list: object-literal-ish, embedded JS. Delegates to source.ts so keys, string/expression values, shorthand, and spreads highlight. A value may itself be markup (@em{..}); since source.ts does not know @-forms, markup-valued props are best-effort (the @ head will look like a stray token to TS highlighting, but the bracket structure is preserved). The reader highlight pass (oxc::nota::highlight) classifies markup-valued props faithfully; over LSP that refinement lands with the semantic-tokens provider.",
       "begin": "(\\[)",
       "end": "(\\])",
       "beginCaptures": {
@@ -250,7 +250,7 @@
     },
 
     "verbatim": {
-      "comment": "|{ ... }| raw body: sigils off, braces literal, ends at }|. No embedded scopes. The armed escape |@ re-enters Nota to produce element children -- best-effort: we scope |@ as a re-arm punctuation but do NOT actually switch back to markup highlighting (a TextMate limitation; Phase X handles the real re-arm).",
+      "comment": "|{ ... }| raw body: sigils off, braces literal, ends at }|. No embedded scopes. The armed escape |@ re-enters Nota to produce element children -- best-effort: we scope |@ as a re-arm punctuation but do NOT actually switch back to markup highlighting (a TextMate limitation; the reader highlight pass classifies the re-armed form faithfully).",
       "begin": "(\\|\\{)",
       "end": "(\\}\\|)",
       "beginCaptures": {

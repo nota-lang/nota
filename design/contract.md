@@ -407,9 +407,12 @@ never null.
 
 ## 9. Integrator + compiler-API findings — LOCKED (Wave 5: CLI + H1/H2)
 
-**Compiler API** (the reader exposes three entries; `oxc/crates/oxc/src/nota.rs`). All three parse
+**Compiler API** (`oxc/crates/oxc/src/nota.rs`). The three *compile* entries below all parse
 `SourceType::tsx()` (embedded TS admitted); they share one pipeline (`compile_internal`) and differ
-only in the strip / mapping tails:
+only in the strip / mapping tails. (Two non-compile entries sit beside them, same parse mode:
+`Parser::parse_nota_document` — the post-parse Nota AST, serving the playground's AST pane via the
+wasm `parseAst` — and `highlight(src)` — reader-faithful highlight spans, wasm `highlight()` /
+`highlightKindNames()`; see `oxc/NOTA_READER.md` §Highlighting.)
 - `compile(src) → {code, map}` — the **build** path; the shim/CLI/vite use it. It **strips embedded
   TS** to plain JS via `oxc_transformer`'s TypeScript pass (`strip_typescript`) — so `% const n:
   number` is accepted and the annotation is removed. (This closes the earlier "rejects embedded TS"
@@ -441,8 +444,9 @@ only in the strip / mapping tails:
   The shim's `compileVirtual(source) → { code, mappings }` parses this. The language-server
   `LanguagePlugin` prepends a runtime+ambient typing preamble to `code` and shifts every
   `generatedOffsets` by the preamble length (`sourceOffsets` index the `.nota`, unchanged). A **wasm**
-  backend (wasm-bindgen over the same three entries) serves the browser playground (Part 4) and can
-  later replace the subprocess for the language server.
+  backend (wasm-bindgen over the same entries, plus `parseAst` and `highlight`/`highlightKindNames`)
+  serves the browser playground (Part 4) and can later replace the subprocess for the language
+  server.
 
 **Ambient prelude (LOCKED).** The emitted module references `useState` (and, once shipped,
 `Math`/`CodeInline`/`CodeBlock`) as **free identifiers** — ambient, per §3.1 mechanism-not-policy. The

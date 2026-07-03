@@ -1,8 +1,8 @@
 /**
  * The CM6 editor (left pane). A thin React wrapper that owns the `EditorView` lifecycle and pushes
  * doc changes up through `onChange`. The `language` extension (Nota highlighting) is held in a
- * Compartment so it can be swapped in *after* mount without rebuilding the editor — the Shiki-backed
- * highlighter loads asynchronously, so `App` passes `[]` first and the real extension once ready.
+ * Compartment so it can be swapped in *after* mount without rebuilding the editor — the highlighter
+ * waits on the wasm compiler, so `App` passes `[]` first and the real extension once ready.
  */
 
 import {

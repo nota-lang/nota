@@ -30,7 +30,9 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`.
   - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`). **No depot/
     vitest**; grammar tests run via `vscode-tmgrammar-test` (`pnpm run test:all`).
-  - **playground** — browser editor (CM6 + Shiki); consumes the **wasm** reader, not the binary.
+  - **playground** — browser editor (CM6; the editor paints reader-driven highlight spans from the
+    wasm `highlight()` entry — see `oxc/NOTA_READER.md` §Highlighting); consumes the **wasm** reader,
+    not the binary.
 - `references/` — external reference repos (mdx, typst, scribble, pollen, oxc); gitignored.
 
 ## Tooling
@@ -47,13 +49,14 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   the *filter's* exit, masking the real one.
 
 ### The Rust reader (`oxc/`)
-- Reader entry: **`oxc/crates/oxc_parser/src/nota/mod.rs`**. AST node: `oxc_ast/src/ast/nota.rs`;
+- Reader entry: **`oxc/crates/oxc_parser/src/nota/mod.rs`** (highlight pass: sibling `highlight.rs`).
+  AST node: `oxc_ast/src/ast/nota.rs`;
   parse+lower entry: `oxc/crates/oxc/src/nota.rs`; e2e fixtures: `oxc/crates/oxc_codegen/tests/integration/nota.rs`.
 - Compile one file: `cd oxc && cargo run -q -p oxc --example nota_compile --features codegen -- ../<f>.nota`.
 - Reader tests: `cd oxc && cargo test -p oxc_codegen --test integration nota` (e2e golden, exact
   emit + validity), `cargo test -p oxc_transformer --lib nota` (Scribble whitespace + mapping
   units), and `cargo test -p oxc_parser --lib nota` (lexer scan units: boundaries, line
-  classifiers, string-aware skips). **`cargo test -p oxc` runs ZERO tests**
+  classifiers, string-aware skips; highlight-span units). **`cargo test -p oxc` runs ZERO tests**
   (`[lib] test=false`); the compile-entry + H1/H2 tests need `cargo test -p oxc --features codegen nota`.
 - `just ast` (regenerate `#[ast]` code) **always exits 101 here** — it panics at the end on a missing
   `oxfmt` (JS formatter), but the Rust regen is complete and correct. Verify with `cargo build -p

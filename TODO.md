@@ -20,7 +20,8 @@ start now consume a *run* of line-start constructs (each resumes at a line start
 next), and `list_marker_at` reports indentation *depth* rather than a byte offset so a dedented
 sibling is no longer kept inside an inner list. Bug 5 is fixed by bounding the JS parse of a `%`
 statement to the next line-leading `%` (a statement delimiter the lexer would otherwise read as
-modulo) — see `oxc_parser` `Source::set_end_offset`.
+modulo) — the bound scan is now `statement_bound`, which per contract R8 also stops at a blank
+line (bug 6).
 
 ## Remaining known gaps
 
@@ -29,10 +30,9 @@ The still-open reader gaps are tracked as `#[ignore]`d specs in the `fuzz_findin
 calls** — support-vs-diagnose decisions, not clear correctness bugs: `@else` (sigil), `await` inside a
 `@for` body, `@for(const x of …)`, a `%%` run, `@p[:]`, and `@br{children}` (void element).
 
-## Open reader bugs (found 2026-07-02 while building the highlight pass)
+## Reader bugs 6–7 (found 2026-07-02 while building the highlight pass — both fixed)
 
-Both are in the line-start-sugar / statement-extent machinery (the bug-2/3 cluster). Repro with
-`cargo run -q -p oxc --example nota_compile --features codegen -- <f>.nota`:
+Both were in the line-start-sugar / statement-extent machinery (the bug-2/3 cluster):
 
 | # | Bug | Status |
 |---|-----|--------|

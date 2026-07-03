@@ -3,14 +3,14 @@
  * `tags` are language-agnostic — `@lezer/javascript`, `@lezer/html`, and `@lezer/json` all assign the
  * same standard set — so one {@link HighlightStyle} colors all three. We map those tags onto the
  * Catppuccin-Latte palette (the light variant matching the `--*` vars in `playground.css` and the
- * editor's Shiki theme), so the panes' tokens sit cohesively on the light theme.
+ * editor's kind theme in nota-mode.ts), so the panes' tokens sit cohesively on the light theme.
  */
 
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import type { Extension } from "@codemirror/state";
 import { tags as t } from "@lezer/highlight";
 
-// Catppuccin Latte (light) — readable on the white/light panes; mirrors the editor's Shiki theme.
+// Catppuccin Latte (light) — readable on the white/light panes; mirrors the editor's kind theme.
 const mauve = "#8839ef";
 const green = "#40a02b";
 const peach = "#fe640b";

@@ -568,7 +568,9 @@ foo.nota  ──compiler──▶  virtual foo.nota.tsx   (generated TS)  +  Cod
   map back to `.nota` ranges. This is where *all* semantic features come from.
 - **Syntax highlighting** — a TextMate grammar (fast, server-independent) for the sigils, with
   embedded `source.ts` patterns inside `[props]`, `@(expr)`, and `%` blocks; richer semantic tokens
-  layer on later via Volar.
+  layer on later via Volar. *(Shipped since: the reader also exposes a faithful highlight pass —
+  `oxc::nota::highlight`, see §5.4 — which the playground editor consumes; the grammar remains
+  VSCode's instant base layer.)*
 - **VSCode extension** — a thin client: registers `.nota`, contributes the grammar, launches the
   Volar language server (`@volar/language-server`).
 
@@ -604,9 +606,20 @@ Two requirements Part 5 places back on the compiler:
 
 - **TextMate grammar** (`nota.tmLanguage.json`) — coarse, instant, works without the server:
   `@`-forms, `%`/`%%%`, `*`/`_`/`#`/`-`/`+`, fences, math, verbatim; with `include: source.ts`
-  embedded scopes inside `[props]`, `@(expr)`, `%` so embedded JS highlights correctly.
-- **Semantic tokens** via Volar/TS — a later refinement for identifier-accurate coloring (component
-  vs host, binding refs). Not required for v1.
+  embedded scopes inside `[props]`, `@(expr)`, `%` so embedded JS highlights correctly. Best-effort
+  by construction: TextMate cannot track Nota's context-sensitivity or markup⇄JS mutual nesting
+  (a markup-valued prop or a stray `[` derails it to end-of-document), which is why the faithful
+  layer below exists.
+- **Reader highlight spans** (SHIPPED) — `oxc::nota::highlight(src)` (entry
+  `Parser::parse_nota_highlights`): parse with the real reader, walk the Nota AST for structural
+  spans, re-lex embedded-JS extents with the crate lexer; sorted `[start, end, kind)` spans that
+  cannot drift from the language. The **playground editor** paints these via the wasm `highlight()`
+  / `highlightKindNames()` entries (`packages/playground/src/nota-mode.ts`); regression fixture is
+  `integration/mega.nota`. See `oxc/NOTA_READER.md` §Highlighting.
+- **Semantic tokens** via Volar/TS — TS-classification tokens for embedded JS ride the H1 `semantic`
+  capability today (`packages/language-server`); a *Nota-structural* semantic-tokens provider should
+  serve the reader highlight spans above rather than reimplementing classification. A later
+  refinement; not required for v1.
 
 ## 5.5 Packages
 
@@ -624,7 +637,8 @@ Two requirements Part 5 places back on the compiler:
   plain `.ts` file that imports a `.nota` type-check in the editor's own tsserver needs an additional
   **tsserver plugin** (as Vue/MDX ship). *Proposal:* defer the tsserver plugin; LSP-only for v1.
 - **H4 — highlighting depth.** Ship the TextMate grammar for v1; semantic tokens later. *Recommend
-  yes.*
+  yes.* *(Update: the reader-side highlight pass shipped early — §5.4 — and powers the playground;
+  the VSCode semantic-tokens provider serving those spans remains the deferred piece.)*
 
 ## 5.7 Build order
 
@@ -634,7 +648,8 @@ Two requirements Part 5 places back on the compiler:
   wire `@volar/typescript`; surface TS **diagnostics** mapped to `.nota`. Proves the mapping spine.
 - **W — Full language features.** hover, completion, definition, references, rename — all of which
   ride the V spine once mappings are correct.
-- **X — Polish.** semantic tokens (H4), and (stretch) the H3 tsserver plugin for cross-file imports.
+- **X — Polish.** semantic tokens (H4 — serve `oxc::nota::highlight` spans over LSP; the pass
+  itself already exists, §5.4), and (stretch) the H3 tsserver plugin for cross-file imports.
 
 U gives immediate editor value cheaply; V is the load-bearing step (mappings); W is breadth over V.
 
