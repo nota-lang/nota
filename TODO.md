@@ -28,3 +28,13 @@ The still-open reader gaps are tracked as `#[ignore]`d specs in the `fuzz_findin
 `integration/nota.rs` (each `#[ignore]` reason states the blocker). They are deferred **product
 calls** — support-vs-diagnose decisions, not clear correctness bugs: `@else` (sigil), `await` inside a
 `@for` body, `@for(const x of …)`, a `%%` run, `@p[:]`, and `@br{children}` (void element).
+
+## Open reader bugs (found 2026-07-02 while building the highlight pass)
+
+Both are in the line-start-sugar / statement-extent machinery (the bug-2/3 cluster). Repro with
+`cargo run -q -p oxc --example nota_compile --features codegen -- <f>.nota`:
+
+| # | Bug | Symptom |
+|---|-----|---------|
+| 6 | A blank line does **not** terminate a single-`%` statement's JS parse | `% const x = 1⏎⏎# Head` hard-errors (the JS lexer reads the `#`); worse, `% const x = 1⏎⏎- item` **silently** emits `const x = 1 - item;`. The statement's bound is the next line-leading `%` or EOF (`next_percent_line_or_end`), so the JS parse runs across the blank line into the sugar. Expected per notation.md: continuation = indented lines only; a blank line ends the statement. `%%%` fences are unaffected. |
+| 7 | A heading right after a **colon-sugar** element is literal text | `@section:⏎  body⏎⏎# H` and `@summary: inline⏎⏎# H` both emit `"# H"` as prose (after a *list* it works — bug 2's fix covered `consume_line_start_constructs` chaining, but a colon element consumes its trailing blank lines into `colon_block_extent` and resumes mid-line-start via `resume_at`, skipping the line-start hook). Visible in `integration/mega.nota`: `## Nested statements` renders as text — pinned by the playground highlight regression test (`nota-highlight.test.ts`). |
