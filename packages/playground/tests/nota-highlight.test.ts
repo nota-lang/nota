@@ -14,7 +14,11 @@ import { fileURLToPath } from "node:url";
 import { EditorView } from "@codemirror/view";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ensureCompiler } from "../src/compiler";
-import { highlightSpans, type NotaSpan, notaHighlighting } from "../src/nota-mode";
+import {
+  highlightSpans,
+  type NotaSpan,
+  notaHighlighting
+} from "../src/nota-mode";
 
 // Vitest runs with cwd = packages/playground (import.meta.url is not a file: URL here).
 const MEGA_PATH = resolve(process.cwd(), "../../integration/mega.nota");
@@ -31,7 +35,9 @@ beforeAll(async () => {
 
 /** The spans of `kind` rendered as source excerpts. */
 function excerpts(spans: NotaSpan[], source: string, kind: string): string[] {
-  return spans.filter(s => s.kind === kind).map(s => source.slice(s.from, s.to));
+  return spans
+    .filter(s => s.kind === kind)
+    .map(s => source.slice(s.from, s.to));
 }
 
 describe("reader-driven highlighting of integration/mega.nota", () => {
@@ -65,7 +71,16 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     expect(excerpts(spans, MEGA, "code-lang")).toContain("python");
     expect(excerpts(spans, MEGA, "math-delim")).toContain("$$");
     expect(excerpts(spans, MEGA, "escape")).toEqual(
-      expect.arrayContaining(["\\*", "\\_", "\\#", "\\$", "\\@", "\\{", "\\}", "\\\\"])
+      expect.arrayContaining([
+        "\\*",
+        "\\_",
+        "\\#",
+        "\\$",
+        "\\@",
+        "\\{",
+        "\\}",
+        "\\\\"
+      ])
     );
     expect(excerpts(spans, MEGA, "tag-host")).toEqual(
       expect.arrayContaining(["figure", "pre", "section", "summary", "aside"])
@@ -83,7 +98,9 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
 
   it("classifies the %%% fence as JS and the verbatim re-arm as markup", () => {
     const spans = highlightSpans(MEGA);
-    expect(excerpts(spans, MEGA, "sigil")).toEqual(expect.arrayContaining(["%%%", "|{", "}|"]));
+    expect(excerpts(spans, MEGA, "sigil")).toEqual(
+      expect.arrayContaining(["%%%", "|{", "}|"])
+    );
     expect(excerpts(spans, MEGA, "js-keyword")).toEqual(
       expect.arrayContaining(["export", "const", "let", "return"])
     );
@@ -93,8 +110,12 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
 
   it("gives stray brackets in prose no JS classification", () => {
     const spans = highlightSpans("see [1] and {2} here\n\n# H\n");
-    expect(excerpts(spans, "see [1] and {2} here\n\n# H\n", "heading")).toEqual(["# H"]);
-    expect(spans.some(s => s.kind.startsWith("js-") || s.kind === "prop-name")).toBe(false);
+    expect(excerpts(spans, "see [1] and {2} here\n\n# H\n", "heading")).toEqual(
+      ["# H"]
+    );
+    expect(
+      spans.some(s => s.kind.startsWith("js-") || s.kind === "prop-name")
+    ).toBe(false);
   });
 });
 
@@ -106,7 +127,9 @@ describe("notaHighlighting CM6 bridge", () => {
       parent: document.body
     });
     try {
-      expect(view.dom.querySelectorAll('.cm-line [class*="cm-nota-"]').length).toBeGreaterThan(0);
+      expect(
+        view.dom.querySelectorAll('.cm-line [class*="cm-nota-"]').length
+      ).toBeGreaterThan(0);
       expect(view.dom.querySelector(".cm-nota-heading")).not.toBeNull();
       expect(view.dom.querySelector(".cm-nota-tag-host")).not.toBeNull();
       expect(view.dom.querySelector(".cm-nota-interpolation")).not.toBeNull();

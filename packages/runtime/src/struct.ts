@@ -254,7 +254,11 @@ const MAX_TEMPLATE_EXPANSION = 1024;
 function expandTemplates(v: VNode): VNode {
   let node = v;
   let fuel = MAX_TEMPLATE_EXPANSION;
-  while (isElement(node) && typeof node.tag === "function" && !isComp(node.tag)) {
+  while (
+    isElement(node) &&
+    typeof node.tag === "function" &&
+    !isComp(node.tag)
+  ) {
     if (fuel-- === 0) {
       throw new Error(
         `template expansion did not terminate: <${node.tag.name || "anonymous"}> keeps returning template-tagged nodes (a cycle?)`

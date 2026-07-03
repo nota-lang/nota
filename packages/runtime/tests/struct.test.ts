@@ -517,7 +517,12 @@ describe("plain-function tags (static templates, R10)", () => {
     const Foo = () => frag([el("nota-ul-li", ["You're beautiful."])]);
     const tree = frag([el("nota-ul-li", ["You don't know"]), el(Foo)]);
     expect(struct(tree)).toEqual(
-      frag([el("ul", [el("li", ["You don't know"]), el("li", ["You're beautiful."])])])
+      frag([
+        el("ul", [
+          el("li", ["You don't know"]),
+          el("li", ["You're beautiful."])
+        ])
+      ])
     );
   });
 

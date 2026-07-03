@@ -82,7 +82,10 @@ const KIND_STYLES: Record<string, Record<string, string>> = {
 /** The editor theme: one rule per kind, in {@link KIND_STYLES} (tie-breaking) order. */
 const notaTheme: Extension = EditorView.baseTheme(
   Object.fromEntries(
-    Object.entries(KIND_STYLES).map(([name, style]) => [`.cm-nota-${name}`, style])
+    Object.entries(KIND_STYLES).map(([name, style]) => [
+      `.cm-nota-${name}`,
+      style
+    ])
   )
 );
 
@@ -156,7 +159,8 @@ export function notaHighlighting(): Extension {
     class {
       decorations: DecorationSet;
       constructor(view: EditorView) {
-        this.decorations = computeDecorations(view.state.doc.toString()) ?? Decoration.none;
+        this.decorations =
+          computeDecorations(view.state.doc.toString()) ?? Decoration.none;
       }
       update(update: ViewUpdate) {
         if (!update.docChanged) return;
