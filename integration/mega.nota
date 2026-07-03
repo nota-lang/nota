@@ -1,5 +1,4 @@
 %%%
-import { formatDate } from "./prelude";
 export const meta = { title: "Nota Mega-Test" };
 
 const Box = blockComponent((children) => @div[class: "box"]{@children});
@@ -19,14 +18,12 @@ const ui = { Card: Box };
 const comps = { card: Box };
 const k = "card";
 const getTag = () => "section";
-const load = async () => items;
-const loaded = await load();
 %%%
 
 # Nota Mega-Test
 
-A *terse* tour of _every_ Nota feature, written by @name on @(formatDate(meta.title)),
-spanning a soft line break and built from @(loaded.length) loaded items.
+A *terse* tour of _every_ Nota feature, written by @name,
+spanning a soft line break.
 
 @Aside{A block component nesting @b{markup} and an empty @span{}.}
 
