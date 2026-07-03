@@ -39,12 +39,8 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     const spans = highlightSpans(MEGA);
     const headings = excerpts(spans, MEGA, "heading");
     // The old grammar died at `@figure[cap:@em{a caption}]` (line 33); every section heading
-    // after it rendered inside a TS scope. All must classify.
-    //
-    // "## Nested statements" is MISSING by reader bug (see TODO.md): a heading immediately
-    // after a colon-block body is parsed as literal text — the reader itself emits it as prose
-    // (`h("h2", …)` absent from the compile), so the highlighter is faithfully reporting the
-    // parse. Add it here when the reader is fixed.
+    // after it rendered inside a TS scope. All 8 must classify — "## Nested statements" sits
+    // right after a colon-block body, the shape of fixed reader bug 7 (TODO.md).
     expect(headings).toEqual([
       "# Nota Mega-Test",
       "## Elements & props",
@@ -52,7 +48,8 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
       "## Markup sugar",
       "###### A level-6 heading",
       "## Raw spans",
-      "## Colon & block sugar"
+      "## Colon & block sugar",
+      "## Nested statements"
     ]);
   });
 
