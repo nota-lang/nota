@@ -53,7 +53,20 @@ let ids = 0;
 let manifest: Manifest = {};
 
 /**
- * Reset the per-render SSG state: id counter to `0` and a fresh empty manifest.
+ * Hooks run by {@link reset} — the seam for per-render *document* state owned outside the runtime
+ * (contract R14d: the prelude's `lstset` config restores its baseline here, so config set inside
+ * one document does not leak into the next). Returns an unsubscribe. Distinct from the component
+ * registry, which is global-persistent and deliberately NOT reset.
+ */
+const resetHooks = new Set<() => void>();
+export function onRenderReset(hook: () => void): () => void {
+  resetHooks.add(hook);
+  return () => resetHooks.delete(hook);
+}
+
+/**
+ * Reset the per-render SSG state: id counter to `0`, a fresh empty manifest, and any
+ * {@link onRenderReset} hooks (per-document config like the prelude's `lstset`).
  * Called by {@link render} before serializing a document, so ids are
  * deterministic and manifests do not bleed between renders. (The `▸` flag is *not* reset here: the
  * only writer is {@link island}'s `withFlag`, which always restores, so `▸` is already `false`
@@ -62,6 +75,9 @@ let manifest: Manifest = {};
 export function reset(): void {
   ids = 0;
   manifest = {};
+  for (const hook of resetHooks) {
+    hook();
+  }
 }
 
 /** Mint the next hydration id (string, monotonic from 1). */

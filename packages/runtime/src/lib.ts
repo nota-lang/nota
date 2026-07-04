@@ -45,6 +45,7 @@ export {
   getManifest,
   island,
   type Manifest,
+  onRenderReset,
   type RenderResult,
   render,
   reset,

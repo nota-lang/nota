@@ -184,6 +184,21 @@ describe("RawHtml in the static path (R14e)", () => {
     expect(html).toBe("<p>before <math><mi>x</mi></math> after</p>");
   });
 
+  test("a BLOCK raw sibling flushes the run and is never <p>-wrapped", () => {
+    const html = decodeStatic(
+      frag([
+        "text",
+        "\n",
+        "\n",
+        raw("<pre>x</pre>", { block: true }),
+        "\n",
+        "\n",
+        "tail"
+      ])
+    );
+    expect(html).toBe("<p>text</p><pre>x</pre><p>tail</p>");
+  });
+
   test("a template returning a raw leaf decodes verbatim (the KaTeX-default shape)", () => {
     const TexRaw = ({ children }: CompProps) =>
       raw(`<math><mi>${(children as string[]).join("")}</mi></math>`);

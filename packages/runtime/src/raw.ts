@@ -22,11 +22,18 @@ export interface RawHtml {
   readonly [RAW]: true;
   /** The raw HTML string (already escaped/serialized by {@link "./serialize".serialize}). */
   readonly html: string;
+  /**
+   * Block-level in the static path (contract R14e): `struct` treats a block raw like a block
+   * *sibling* — it flushes the surrounding paragraph run and is never `<p>`-wrapped. Default
+   * `false`: an inline raw (e.g. KaTeX MathML) joins the run. Set it for raw whose HTML is
+   * block-shaped (shiki's `<pre>`, display math) so grouping never nests it in a `<p>`.
+   */
+  readonly block?: boolean;
 }
 
 /** Wrap an already-serialized HTML string as a {@link RawHtml} marker. */
-export function raw(html: string): RawHtml {
-  return { [RAW]: true, html };
+export function raw(html: string, opts?: { block?: boolean }): RawHtml {
+  return { [RAW]: true, html, block: opts?.block === true };
 }
 
 /** True when `v` is a {@link RawHtml} marker (used by adapters to switch to innerHTML rendering). */

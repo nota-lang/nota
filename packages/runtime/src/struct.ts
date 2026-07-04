@@ -185,6 +185,11 @@ function headingRank(v: VNode): number | undefined {
  * paragraph run.
  */
 function isBlock(v: VNode): boolean {
+  // A RawHtml leaf declares its own blockness (contract R14e): block raw (shiki's <pre>, display
+  // math) flushes the paragraph run and passes through unwrapped; inline raw joins the run.
+  if (isRaw(v)) {
+    return v.block === true;
+  }
   if (!isElement(v)) {
     return false;
   }

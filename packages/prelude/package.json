@@ -1,0 +1,30 @@
+{
+  "name": "@nota-lang/prelude",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "node",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/runtime": "workspace:*",
+    "katex": "^0.16.22",
+    "shiki": "^3.9.2"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7"
+  }
+}
