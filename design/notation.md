@@ -78,9 +78,19 @@ export default function Doc() {
 
 `@head:` is sugar for a `{…}` body; `head` is a name, `@Cap`, or `@(expr)`. The body is the rest
 of the line plus any following lines indented past the `@head:` line (common indent stripped) —
-inline content and an indented continuation combine. `:` is an element trigger like `{`/`[`: `@foo`
-interpolates, but `@foo:` is an element (write a literal colon as `@foo\:`). Leading
-`|` lines of the body supply the `[…]` props (multiple accumulate, `[…]`-syntax).
+inline content and an indented continuation combine. The glued `:` is an element trigger like
+`{`/`[`, but **positionally** (contract R9): it fires only when the form is a markup-body child
+**and** its `@` sits at a *line start* — modulo leading whitespace, and a markup body's own start
+(braced/fragment body, document, or a bounded range) counts as a line start. So at a line start
+`@foo:` is an element; **mid-line `@foo:` is just `@foo` interpolated followed by a literal `:`** —
+`x @foo: y` is the text `x `, the value `foo`, then the literal `: y`. The `@foo\:` escape (a
+literal colon glued to an interpolated head) therefore only matters at a line start; mid-line the
+colon is already literal. In an embedded-JS host (`%` line, `[props]` value) or a `|@`-armed form
+inside any raw span (code / math / verbatim) the `:` never triggers. Leading `|` lines of the body supply the `[…]` props (multiple accumulate,
+`[…]`-syntax). A colon body nested in a bounded range (emphasis / heading / list item / another
+colon body) ends at that range's own end: `*@a: bar* rest` → `*@a{bar}*` then the sibling ` rest`.
+
+The examples below are all at line starts (so the `:` fires):
 ```
 @foo: hello world   → @foo{hello world}
 @(foo): hello       → @(foo){hello}
@@ -252,7 +262,8 @@ A backslash escapes any character
 (`` \@ \{ \} \| \$ \* \_ \: \[ \] \` ``) and itself, and is literal elsewhere.
 A `|{ … }|` body is raw: sigils off, braces literal, ends at `}|`; the armed escape `|@` re-enters
 Nota to produce element children. Raw text is emitted as a `String.raw` template so `\` and `{}`
-survive.
+survive. **Code and math spans share this same `|@`-armed content model** (contract R13) — the only
+difference is the close (a scanned delimiter vs. `}|`), and there is no escape for a literal `|@`.
 ```
 @code|{@foo{x}}|     → <code>{String.raw`@foo{x}`}</code>   // @ and { } are literal
 @code|{
@@ -265,25 +276,38 @@ def f(x):
 
 ## Math
 
-`$…$` is inline, `$$…$$` is display; both lower to an ambient `<Math>` (resolved from the
-prelude, e.g. KaTeX/MathJax). Content is raw LaTeX (`String.raw`); `@` interpolates a string
-value; `\$` / `\@` are literal (the backslash is kept — it's LaTeX's own escape). Inline `$`
-is clamped to its line (contract R11): with no same-line close the `$` is literal; display
-`$$…$$` is multi-line.
+`$…$` is inline; **display math is the fence form** — a standalone `$$` line, TeX body lines, and a
+closing `$$` line (a run of ≥2 dollars whose opener-line tail is whitespace-only). Both lower to an
+ambient `<Math>` (`display` set for the fence), resolved from the prelude (e.g. KaTeX/MathJax).
+Content is raw LaTeX (`String.raw`) under the **unified raw-span model** ([contract R13](contract.md)):
+raw runs interleaved with `|@`-armed `@`-forms. A bare `@` is **literal** — there is no direct
+interpolation; only `|@` re-enters Nota, spliced as a *sibling* (not a `${…}` substitution).
+
+Dollar spans mirror backtick spans: an opening run of N dollars closes at the next same-line run of
+≥N dollars (shorter runs are content). So `$$…$$` **inside a paragraph** (a nonempty opener tail) is
+inline math with run-2 delimiters, **not** display. The one divergence from backticks is the TeX
+escape: the dollar close scan skips `\<c>` pairs, so `\$` stays content and the backslash is kept
+(LaTeX's own escape). Inline `$` is clamped to its line (contract R11) — no same-line close → the
+`$` run is literal.
 ```
-$a_@i$            → <Math>{String.raw`a_${i}`}</Math>
-$$⏎\sum_@n x⏎$$   → <Math display>{String.raw`\sum_${n} x`}</Math>
+$a_|@i$              → <Math>{String.raw`a_`}{i}</Math>
+$E = @energy$        → <Math>{String.raw`E = @energy`}</Math>       // bare @ is literal
+$$x^2$$  (in prose)  → <Math>{String.raw`x^2`}</Math>              // run-2 inline, NOT display
+$$⏎\sum_|@n x⏎$$     → <Math display>{String.raw`\sum_`}{n}{String.raw` x`}</Math>
 ```
 
 ## Code
 
-`` `…` `` is inline code; ```` ```lang⏎…⏎``` ```` is fenced, with an optional language tag on the
-opening line. Both are raw (`String.raw`), lowering to ambient `<CodeInline>` / `<CodeBlock>`;
-backtick runs shorter than the closing fence are literal. Inline code is clamped to its line
-(contract R11): the close run must sit on the opening line, else the run is literal — so
-``- `foo⏎- bar` `` is two bullets, not one bullet holding a code span.
+`` `…` `` is inline code; ```` ```lang⏎…⏎``` ```` is fenced (threshold 3, optional language tag on
+the opening line). Both are raw (`String.raw`), lowering to ambient `<CodeInline>` / `<CodeBlock>`,
+and share the same **unified raw-span model** as math and verbatim: raw runs interleaved with
+`|@`-armed `@`-forms (a bare `@` is literal). Backtick runs shorter than the closing fence are
+literal; inline code is clamped to its line (contract R11) — the close run must sit on the opening
+line, else the run is literal, so ``- `foo⏎- bar` `` is two bullets, not one bullet holding a code
+span.
 ````
-`@x`                → <CodeInline>{String.raw`@x`}</CodeInline>
+`@x`                → <CodeInline>{String.raw`@x`}</CodeInline>    // @ is literal
+`a |@em{x} b`       → <CodeInline>{String.raw`a `}<em>x</em>{String.raw` b`}</CodeInline>
 ```python⏎f(x)⏎```  → <CodeBlock lang="python">{String.raw`f(x)`}</CodeBlock>
 ````
 
