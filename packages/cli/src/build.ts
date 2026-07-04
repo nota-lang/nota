@@ -67,12 +67,11 @@ const MODULE_FILE =
  * The ambient prelude source (snag 2) — the single source of truth for it. Written to the work dir
  * and `inject`ed into both bundles so a free `useState` in the compiled module resolves to React's.
  * Held here as a string (rather than a shipped file) so the bundled single-file CLI is self-contained
- * — it materializes the prelude on demand. The reader emits `useState` (and, eventually,
- * `Math` / `CodeInline` / `CodeBlock`) as **free identifiers**; the integrator supplies them, and
- * esbuild `inject` rewrites the free references to these exports. Extend with `CodeInline` /
- * `CodeBlock` / `Math` (the *component*) once the runtime ships them; `Math` (the object) is a JS
- * global and needs nothing. The integrator supplies the ambient prelude via esbuild `inject`; the
- * minimal required member is `useState`.
+ * — it materializes the prelude on demand. The reader emits `useState` and `Tex` / `CodeInline` /
+ * `CodeBlock` as **free identifiers**; the integrator supplies them, and esbuild `inject` rewrites
+ * the free references to these exports. Extend with the `Tex` / `CodeInline` / `CodeBlock` slots
+ * once `@nota-lang/prelude` ships (P3 of contract R14). (`Tex`, not `Math` — R14: `inject`
+ * rewrites free refs, so exporting a `Math` would capture `Math.floor` in embedded JS.)
  */
 export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";\n`;
 

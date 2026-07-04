@@ -278,7 +278,9 @@ def f(x):
 
 `$…$` is inline; **display math is the fence form** — a standalone `$$` line, TeX body lines, and a
 closing `$$` line (a run of ≥2 dollars whose opener-line tail is whitespace-only). Both lower to an
-ambient `<Math>` (`display` set for the fence), resolved from the prelude (e.g. KaTeX/MathJax).
+ambient `<Tex>` (`display` set for the fence), resolved from the prelude — the default renders
+KaTeX→MathML, and the binding is a registry slot users can override (contract R14). The name is
+`Tex`, not `Math`: an ambient `Math` would capture the JS global in embedded code.
 Content is raw LaTeX (`String.raw`) under the **unified raw-span model** ([contract R13](contract.md)):
 raw runs interleaved with `|@`-armed `@`-forms. A bare `@` is **literal** — there is no direct
 interpolation; only `|@` re-enters Nota, spliced as a *sibling* (not a `${…}` substitution).
@@ -290,10 +292,10 @@ escape: the dollar close scan skips `\<c>` pairs, so `\$` stays content and the 
 (LaTeX's own escape). Inline `$` is clamped to its line (contract R11) — no same-line close → the
 `$` run is literal.
 ```
-$a_|@i$              → <Math>{String.raw`a_`}{i}</Math>
-$E = @energy$        → <Math>{String.raw`E = @energy`}</Math>       // bare @ is literal
-$$x^2$$  (in prose)  → <Math>{String.raw`x^2`}</Math>              // run-2 inline, NOT display
-$$⏎\sum_|@n x⏎$$     → <Math display>{String.raw`\sum_`}{n}{String.raw` x`}</Math>
+$a_|@i$              → <Tex>{String.raw`a_`}{i}</Tex>
+$E = @energy$        → <Tex>{String.raw`E = @energy`}</Tex>       // bare @ is literal
+$$x^2$$  (in prose)  → <Tex>{String.raw`x^2`}</Tex>              // run-2 inline, NOT display
+$$⏎\sum_|@n x⏎$$     → <Tex display>{String.raw`\sum_`}{n}{String.raw` x`}</Tex>
 ```
 
 ## Code

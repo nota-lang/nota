@@ -4,7 +4,7 @@
  * The reader's `compileVirtual` emits a *bare* `.tsx` — it deliberately omits the
  * `@nota-lang/runtime` import (the reader does not emit it; the integrator prepends it) **and** the
  * ambient prelude bindings the emit references as free identifiers (`useState`, and the documented
- * `CodeInline`/`CodeBlock`/`Math` prelude components). For the TS language service to type-check the
+ * `CodeInline`/`CodeBlock`/`Tex` prelude components). For the TS language service to type-check the
  * virtual module (so `h`/`decode`/`Fragment`/component refs resolve and `@Unknown{}` →
  * "Cannot find name 'Unknown'" rather than a cascade of phantom errors), the language server
  * prepends this preamble.
@@ -34,11 +34,11 @@ const RUNTIME_IMPORT =
  *   `%let Colorized = inlineComponent((children) => { let [c, setC] = useState("red"); … })`
  *   references it as a free identifier). Typed as the React-shaped hook so destructuring + the
  *   setter type-check.
- * - `CodeInline` / `CodeBlock` / `Math` — the documented prelude *components* (`` `@x` ``
- *   → `h(CodeInline, …)`, fenced code → `h(CodeBlock, …)`, `$…$` → `h(Math, …)`). They are the
+ * - `CodeInline` / `CodeBlock` / `Tex` — the documented prelude *components* (`` `@x` ``
+ *   → `h(CodeInline, …)`, fenced code → `h(CodeBlock, …)`, `$…$` → `h(Tex, …)`). They are the
  *   documented extension point; until a real prelude `.d.ts` ships they are ambiently `any` so the
- *   emit type-checks without asserting their shape. (Note: `Math` the JS global is shadowed here only
- *   inside the virtual module; the Nota `Math` *component* is what the emit references.)
+ *   emit type-checks without asserting their shape. (`Tex`, not `Math` — contract R14: an ambient
+ *   `Math` would shadow the JS global, breaking `Math.floor` in embedded code.)
  *
  * `declare` + ambient `const` ⇒ no runtime footprint; this is types-only.
  */
@@ -46,7 +46,7 @@ const AMBIENT_PRELUDE =
   "declare const useState: <T>(init: T) => [T, (v: T) => void];\n" +
   "declare const CodeInline: any;\n" +
   "declare const CodeBlock: any;\n" +
-  "declare const Math: any;\n";
+  "declare const Tex: any;\n";
 
 /**
  * The full preamble prepended to the bare virtual `.tsx`. Whole lines only (every line ends in
