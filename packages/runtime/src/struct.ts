@@ -43,6 +43,7 @@
  */
 
 import { isComp } from "./component";
+import { isRaw } from "./raw";
 import {
   type ChildArg,
   type ElementVNode,
@@ -325,9 +326,19 @@ export function struct(root: VNode): VNode {
   if (typeof root === "string") {
     return root;
   }
+  // A RawHtml leaf is opaque (contract R14e): no structure to decode, passes through verbatim.
+  // As a *sibling* it is inline (isBlock → false), so inline raw output (e.g. KaTeX MathML) joins
+  // the surrounding paragraph run; a block default wraps its raw in a HOST_BLOCK_TAGS host.
+  if (isRaw(root)) {
+    return root;
+  }
   // Direct entry with a template-tagged node (children go through flattenFragments instead).
   const v = expandTemplates(root);
   if (typeof v === "string") {
+    return v;
+  }
+  // A template may *return* a RawHtml leaf (e.g. the prelude's KaTeX default) — opaque, as above.
+  if (isRaw(v)) {
     return v;
   }
   // A child that is not a real vnode (e.g. an object/Date reaching the tree via `@(expr)`, which is

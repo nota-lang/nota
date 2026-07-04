@@ -30,6 +30,14 @@ export { flag, withFlag } from "./flag";
 export { decode, Fragment, h } from "./h";
 // --- the pre-rendered-HTML marker (adapters import isRaw to inject innerHTML) ---
 export { isRaw, type RawHtml, raw } from "./raw";
+// --- the component registry (ambient-prelude slots + site-wide overrides, contract R14b) ---
+export {
+  clearRegisteredComponents,
+  type RegisteredTag,
+  registerComponents,
+  registeredComponent,
+  slot
+} from "./registry";
 // --- serialize + islands + the SSG driver ---
 export {
   bootIslands,
@@ -61,5 +69,6 @@ export {
   flatten,
   isElement,
   isFragment,
+  type TemplateFn,
   type VNode
 } from "./vnode";

@@ -23,7 +23,7 @@
 import { getAdapter } from "./adapter";
 import { type CompFn, isComp, nameOf } from "./component";
 import { withFlag } from "./flag";
-import { raw } from "./raw";
+import { isRaw, raw } from "./raw";
 import { struct } from "./struct";
 import { type ElementVNode, FRAG, isElement, type VNode } from "./vnode";
 
@@ -214,6 +214,10 @@ function serializeAttrs(props: Record<string, unknown>): string {
 export function serialize(v: VNode): string {
   if (typeof v === "string") {
     return escape(v);
+  }
+  // A RawHtml leaf is already-serialized HTML (contract R14e): emit verbatim, never re-escape.
+  if (isRaw(v)) {
+    return v.html;
   }
   if (!isElement(v)) {
     // unreachable for well-formed vnodes; be defensive rather than emit `undefined`

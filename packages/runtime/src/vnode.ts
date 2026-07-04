@@ -12,6 +12,7 @@
  */
 
 import type { CompFn, CompProps } from "./component";
+import { isRaw, type RawHtml } from "./raw";
 
 /**
  * A **plain function tag**: a static template (contract R10). `struct` expands it eagerly —
@@ -46,12 +47,18 @@ export interface ElementVNode {
   children: VNode[];
 }
 
-/** A vnode is either a text leaf or an element/fragment/boundary node. */
-export type VNode = string | ElementVNode;
+/**
+ * A vnode is a text leaf, an element/fragment/boundary node, or a {@link RawHtml} leaf —
+ * pre-rendered HTML that the static path passes through opaquely (`struct` never descends,
+ * `serialize` emits it verbatim; contract R14e). Raw leaves are how the prelude's KaTeX output
+ * enters the tree without re-escaping.
+ */
+export type VNode = string | ElementVNode | RawHtml;
 
-/** True when `v` is a non-text vnode (has a `tag`/`props`/`children` shape). */
+/** True when `v` is a non-text vnode (has a `tag`/`props`/`children` shape). A {@link RawHtml}
+ *  leaf is *not* an element — it is opaque to every structural pass. */
 export function isElement(v: VNode): v is ElementVNode {
-  return typeof v === "object" && v !== null;
+  return typeof v === "object" && v !== null && !isRaw(v);
 }
 
 /** True when `v` is a fragment node. */
@@ -106,7 +113,7 @@ function flattenInto(children: readonly ChildArg[], out: VNode[]): void {
       // splice arrays in; recurse so a `.map` returning arrays flattens fully
       flattenInto(c, out);
     } else {
-      // an ElementVNode
+      // an ElementVNode, or a RawHtml leaf (opaque; §8 "survives flatten")
       out.push(c);
     }
   }
