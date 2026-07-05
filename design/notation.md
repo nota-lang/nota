@@ -88,8 +88,12 @@ inline content and an indented continuation combine. The glued `:` is an element
 `@foo:` is an element; **mid-line `@foo:` is just `@foo` interpolated followed by a literal `:`** —
 `x @foo: y` is the text `x `, the value `foo`, then the literal `: y`. The `@foo\:` escape (a
 literal colon glued to an interpolated head) therefore only matters at a line start; mid-line the
-colon is already literal. In an embedded-JS host (`%` line, `[props]` value) or a `|@`-armed form
-inside any raw span (code / math / verbatim) the `:` never triggers. Leading `|` lines of the body supply the `[…]` props (multiple accumulate,
+colon is already literal. A `[props]` group (or a run of them) on the head **composes** with the
+colon body exactly as it does with a braced or verbatim body (contract R21): `@aside[class: "x"]: body`
+opens the same colon body a bare `@aside: body` would — the identical R12 positional gate, with the
+props threaded through — emitting `h("aside", { class: "x" }, ["body"])`. In an embedded-JS host
+(`%` line, `[props]` value) or a `|@`-armed form inside any raw span (code / math / verbatim) the `:`
+never triggers. Leading `|` lines of the body supply the `[…]` props (multiple accumulate,
 `[…]`-syntax). A colon body nested in a bounded range (emphasis / heading / list item / another
 colon body) ends at that range's own end: `*@a: bar* rest` → `*@a{bar}*` then the sibling ` rest`.
 
@@ -278,18 +282,22 @@ ignored, the browser renders the sequence.
 ### Doc-state references
 Four inline sugars for the ambient doc-state family, each a **rewrite to the element
 form** so it inherits the element machinery (line clamp R11, positional rules R12) —
-[contract R20a](contract.md) pins the exact rules. Identifiers are Typst-like:
-`[A-Za-z_][A-Za-z0-9_.:-]*`, no spaces. `<` and `&` carry a **left-boundary guard** —
-they fire only at the start of a body/line or after whitespace or opening punctuation
-(`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose; `[^…]` needs
-no guard (the digraph is unambiguous and glues after a word, Markdown-style). The whole
-family is ambient (R20c) — **no `%import` needed**.
+[contract R20a](contract.md) (amended charset) pins the exact rules. Identifiers are a
+JS **IdentifierName** (the reader's own `is_identifier_start`/`is_identifier_part`; `$`
+and Unicode ID chars legal, but `.`/`:`/`-` are **not** ident chars — so `&sec.` reads
+the id as `sec` and leaves the `.` literal, and `<sec-intro>` is literal text). `<` and
+`&` carry a **left-boundary guard** — they fire only at the start of a body/line or after
+whitespace or opening punctuation (`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b`
+stay literal prose; `[^…]` needs no guard (the digraph is unambiguous and glues after a
+word, Markdown-style). The element forms themselves are charset-free (`@Label[id: "…"]`
+accepts any string); only the *sugar* is IdentifierName-restricted. The whole family is
+ambient (R20c) — **no `%import` needed**.
 ```
-<sec-intro>          → @Label[id: "sec-intro"]{}          // anchor; must close > on its line
-&sec-intro           → @Ref[id: "sec-intro"]{}            // cross-reference
+<sec_intro>          → @Label[id: "sec_intro"]{}          // anchor; must close > on its line
+&sec_intro           → @Ref[id: "sec_intro"]{}            // cross-reference
 [^n1]                → @FootnoteMark[label: "n1"]{}        // footnote reference
 [^n1]: body          → @FootnoteText[label: "n1"]: body    // line-start definition (colon body)
-Vec<T> and R&D       → Vec<T> and R&D                      // guard: literal, no rewrite
+&sec.  Vec<T>  R&D   → Ref("sec") + "."  ; Vec<T> ; R&D   // amended charset / guard: literal tails
 ```
 Repeated `[^n1]` references share one number and one list entry; the list auto-appends
 at document end unless `@Footnotes` places it (R18d). The escapes `\<`, `\&`, `\[` yield

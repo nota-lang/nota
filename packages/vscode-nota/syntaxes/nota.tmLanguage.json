@@ -25,6 +25,7 @@
         { "include": "#bold" },
         { "include": "#italic" },
         { "include": "#props" },
+        { "include": "#props-colon" },
         { "include": "#body" }
       ]
     },
@@ -185,11 +186,11 @@
     },
 
     "doc-state": {
-      "comment": "The R20a doc-state inline sugars, each a rewrite to an element form: `<ident>` -> @Label[id], `&ident` -> @Ref[id], `[^ident]` -> @FootnoteMark[label], and line-start `[^ident]: body` -> @FootnoteText[label]: body. Ident charset [A-Za-z_][A-Za-z0-9_.:-]* (Typst-like, no spaces). `<` and `&` carry a LEFT-BOUNDARY GUARD -- they fire only at start-of-body/line or after whitespace / opening punctuation ( [ { \" ' -- so Vec<T>, R&D, a<b, a&b stay literal prose; the guard is a fixed-width negative lookbehind `(?<![^\\s(\\[{\"'])` (no preceding char, i.e. line/body start, also passes). `[^` needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). Escapes \\< \\& \\[ (handled by #escape, which runs first) force literals. Ordered definition-before-mark so a line-start `[^x]:` is the multi-arg definition, not a mark plus stray colon.",
+      "comment": "The R20a doc-state inline sugars, each a rewrite to an element form: `<ident>` -> @Label[id], `&ident` -> @Ref[id], `[^ident]` -> @FootnoteMark[label], and line-start `[^ident]: body` -> @FootnoteText[label]: body. Ident charset (R20a amended 2026-07-05): a JS IdentifierName -- the reader uses oxc's own is_identifier_start/part predicates (`$` and Unicode ID chars legal; `.`/`:`/`-` are NOT ident chars, so `&sec.` never glues the trailing punctuation and `<sec-intro>` is literal). TextMate cannot run the full Unicode ID predicate, so we APPROXIMATE it with the ASCII JS-ident class `[A-Za-z_$][A-Za-z0-9_$]*` (non-ASCII identifiers fall back to plain-text scoping here; the reader highlight pass classifies them faithfully). `<` and `&` carry a LEFT-BOUNDARY GUARD -- they fire only at start-of-body/line or after whitespace / opening punctuation ( [ { \" ' -- so Vec<T>, R&D, a<b, a&b stay literal prose; the guard is a fixed-width negative lookbehind `(?<![^\\s(\\[{\"'])` (no preceding char, i.e. line/body start, also passes). `[^` needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). Escapes \\< \\& \\[ (handled by #escape, which runs first) force literals. Ordered definition-before-mark so a line-start `[^x]:` is the multi-arg definition, not a mark plus stray colon.",
       "patterns": [
         {
           "comment": "Line-start footnote DEFINITION `[^ident]: body` -> @FootnoteText[label]: body. The `]:` closes the head; the rest of the line is the colon-sugar body, left to the outer markup context (so nested @em{...}/@name in it still highlight).",
-          "match": "^(\\s*)(\\[\\^)([A-Za-z_][A-Za-z0-9_.:-]*)(\\]:)",
+          "match": "^(\\s*)(\\[\\^)([A-Za-z_$][A-Za-z0-9_$]*)(\\]:)",
           "captures": {
             "2": { "name": "punctuation.definition.footnote.begin.nota" },
             "3": { "name": "entity.name.footnote.nota" },
@@ -198,7 +199,7 @@
         },
         {
           "comment": "Footnote REFERENCE `[^ident]` -> @FootnoteMark[label]. No boundary guard (glues after a word like Markdown).",
-          "match": "(\\[\\^)([A-Za-z_][A-Za-z0-9_.:-]*)(\\])",
+          "match": "(\\[\\^)([A-Za-z_$][A-Za-z0-9_$]*)(\\])",
           "captures": {
             "1": { "name": "punctuation.definition.footnote.begin.nota" },
             "2": { "name": "variable.other.footnote.nota" },
@@ -206,8 +207,8 @@
           }
         },
         {
-          "comment": "Label ANCHOR `<ident>` -> @Label[id]. Boundary-guarded on `<`; must close with `>` on the opening line (so Vec<T> and `< b` / `<2x>` stay literal).",
-          "match": "(?<![^\\s(\\[{\"'])(<)([A-Za-z_][A-Za-z0-9_.:-]*)(>)",
+          "comment": "Label ANCHOR `<ident>` -> @Label[id]. Boundary-guarded on `<`; must close with `>` on the opening line (so Vec<T>, `<sec-intro>` (the `-` breaks the ident before `>`), `< b` and `<2x>` stay literal).",
+          "match": "(?<![^\\s(\\[{\"'])(<)([A-Za-z_$][A-Za-z0-9_$]*)(>)",
           "captures": {
             "1": { "name": "punctuation.definition.label.begin.nota" },
             "2": { "name": "entity.name.label.nota" },
@@ -215,8 +216,8 @@
           }
         },
         {
-          "comment": "Cross-REFERENCE `&ident` -> @Ref[id]. Boundary-guarded on `&`; ends at the first non-ident char (so R&D and `a&b` stay literal).",
-          "match": "(?<![^\\s(\\[{\"'])(&)([A-Za-z_][A-Za-z0-9_.:-]*)",
+          "comment": "Cross-REFERENCE `&ident` -> @Ref[id]. Boundary-guarded on `&`; ends at the first non-ident char (so R&D and `a&b` stay literal, and `&sec.` reads the ident as `sec` with the `.` left literal -- R20a amended charset).",
+          "match": "(?<![^\\s(\\[{\"'])(&)([A-Za-z_$][A-Za-z0-9_$]*)",
           "captures": {
             "1": { "name": "punctuation.definition.reference.nota" },
             "2": { "name": "variable.other.reference.nota" }
@@ -247,6 +248,14 @@
       "name": "meta.props.nota",
       "contentName": "meta.embedded.props.ts source.ts",
       "patterns": [{ "include": "source.ts" }]
+    },
+
+    "props-colon": {
+      "comment": "R21: `@head[props]: body` -- a colon glued to a [props] group's closing `]` is the same colon-sugar element trigger as a bare `@head:` (identical R12 gate + colon-body extent, props threaded through). #props consumes the `[...]` and returns; this scopes the immediately-following `:` (the body is the rest of the line, handled by the outer markup context, so nested @em{...}/@name still highlight). Lookbehind-anchored on the props close `]` so a bare prose colon never matches; TextMate cannot check that the `]` actually closed an element's props (best-effort, like the rest of this grammar -- the reader highlight pass is faithful).",
+      "match": "(?<=\\])(:)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.colon.nota keyword.operator.colon-sugar.nota" }
+      }
     },
 
     "body": {

@@ -100,8 +100,25 @@ def f(x):
 
 ## Doc-state sugar
 
-An anchor <sec-flow> and a reference &sec-flow resolve; a footnote[^n1] and a
-repeat[^n1] share a number, plus a second[^n2]. Literal Vec<T> and R&D stay text.
+An anchor <sec_flow> and a reference &sec_flow resolve; a footnote[^n1] and a
+repeat[^n1] share a number, plus a second[^n2]. Trailing punctuation stays literal:
+&sec_flow. keeps the dot. Literal Vec<T> and R&D stay text.
 
 [^n1]: The first footnote body, with @em{markup}.
 [^n2]: The second footnote body.
+
+## Doc-state constructs
+
+% secset({ numberDepth: 2 })
+% bibset({ src: { knuth84: { author: "Knuth", title: "The TeXbook", year: 1984 } } })
+
+A table of contents, @Toc{}, lists the headings above.
+
+Knuth's classic @Cite{knuth84} anchors a bibliography; an anonymous @Footnote{a one-shot note}
+sits beside a labeled one[^n3] defined by the element colon form.
+
+@FootnoteText[label: "n3"]: A third footnote body, via the R21 element colon form.
+
+@aside[class: "x"]: A styled colon-body aside; props compose with the colon (R21).
+
+@Bibliography{}

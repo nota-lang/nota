@@ -47,7 +47,7 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     const spans = highlightSpans(MEGA);
     const headings = excerpts(spans, MEGA, "heading");
     // The old grammar died at `@figure[cap:@em{a caption}]` (line 33); every section heading
-    // after it rendered inside a TS scope. All 8 must classify — "## Nested statements" sits
+    // after it rendered inside a TS scope. All 10 must classify — "## Nested statements" sits
     // right after a colon-block body, the shape of fixed reader bug 7 (TODO.md).
     expect(headings).toEqual([
       "# Nota Mega-Test",
@@ -58,7 +58,8 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
       "## Raw spans",
       "## Colon & block sugar",
       "## Nested statements",
-      "## Doc-state sugar"
+      "## Doc-state sugar",
+      "## Doc-state constructs"
     ]);
   });
 
@@ -107,7 +108,7 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
       expect.arrayContaining(["<", ">", "&", "[^", "]:"])
     );
     expect(excerpts(spans, MEGA, "interpolation")).toEqual(
-      expect.arrayContaining(["sec-flow", "n1", "n2"])
+      expect.arrayContaining(["sec_flow", "n1", "n2", "n3"])
     );
     // The boundary guard held: `Vec<T>` / `R&D` stayed literal, so their `<` / `&` / `T` produced no
     // doc-state spans — the ident set is exactly the four sugar keys, never `T` or `D`.

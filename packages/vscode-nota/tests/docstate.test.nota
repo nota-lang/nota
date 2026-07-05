@@ -1,14 +1,14 @@
-// SYNTAX TEST "source.nota" "R20a doc-state sugar: <label>, &ref, [^mark], [^def]: (boundary-guarded)"
+// SYNTAX TEST "source.nota" "R20a doc-state sugar (JS-ident charset) + R21 [props]-colon composition"
 
-// --- label anchor <ident> (guarded on the leading whitespace) ---
-A section <sec-intro> here.
+// --- label anchor <ident> (guarded; JS-ident charset [A-Za-z_$][A-Za-z0-9_$]*) ---
+A section <sec_intro> here.
 //        ^ punctuation.definition.label.begin.nota
 //         ^^^^^^^^^ entity.name.label.nota
 //                  ^ punctuation.definition.label.end.nota
 //                   ^^^^^^^ source.nota - entity.name.label.nota
 
 // --- cross-reference &ident (ends at the first non-ident char) ---
-A ref &sec-intro tail.
+A ref &sec_intro tail.
 //    ^ punctuation.definition.reference.nota
 //     ^^^^^^^^^ variable.other.reference.nota
 //              ^^^^^^^ source.nota - variable.other.reference.nota
@@ -28,6 +28,17 @@ Vec<T> and R&D stay literal.
 //  ^ source.nota - entity.name.label.nota
 //          ^ source.nota - punctuation.definition.reference.nota
 
+// --- amended charset: `.`/`-` are NOT ident chars, so trailing punctuation stays literal ---
+A dot &sec. ends the ref.
+//    ^ punctuation.definition.reference.nota
+//     ^^^ variable.other.reference.nota
+//        ^ source.nota - variable.other.reference.nota
+
+// --- amended charset: `<sec-intro>` is literal (the `-` breaks the ident before `>`) ---
+A literal <sec-intro> is text.
+//        ^ source.nota - punctuation.definition.label.begin.nota
+//         ^^^ source.nota - entity.name.label.nota
+
 // --- line-start footnote DEFINITION [^ident]: body (colon sugar; body nests markup) ---
 [^a]: The definition body with @em{markup}.
 // <- punctuation.definition.footnote.begin.nota
@@ -35,6 +46,12 @@ Vec<T> and R&D stay literal.
 // ^^ keyword.operator.colon-sugar.nota
 //                             ^ punctuation.definition.tag.nota
 //                              ^^ entity.name.tag.html.nota
+
+// --- R21: [props] groups compose with a colon body: @head[props]: body ---
+@aside[class: "x"]: A styled colon-body aside.
+// <- punctuation.definition.tag.nota
+//^^^^ entity.name.tag.html.nota
+//                ^ keyword.operator.colon-sugar.nota
 
 // --- escapes \< \& \[ force literals (handled by #escape, which runs first) ---
 Escapes \< \& \[ stay literal.
