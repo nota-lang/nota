@@ -31,6 +31,7 @@ Authority order: `implementation.md` (build plan) → **this file** (reconciliat
 | R14 | Injectable math/code components | new (Wave 4, **pinned 2026-07-04**) — the ambient math identifier was `Math`, which the integrator's inject mechanism cannot supply without capturing the JS `Math` global (esbuild `inject` rewrites *free* references, so `% Math.floor(x)` in embedded JS would resolve to the component; a lexical `%import { Math }` override deterministically shadows the global for the whole module) | **(a) The ambient math component is `Tex`** — reader emits `h(Tex, {display?}, parts)`; `Math` is never an ambient prelude name. **(b) The ambient identifiers bind to registry slots, not concrete components** (MDX-provider analogue): the standard prelude (`@nota-lang/prelude`) exports `Tex`/`CodeInline`/`CodeBlock` as `slot(name, Default)` — a *plain* function `(props) => h(lookup(name) ?? Default, props, children)`. R10 expands the slot eagerly at decode-time; a registered plain function expands further (fully static), a registered `inlineComponent`/`blockComponent` is a boundary → SSR + island. `registerComponents({Tex: …})` (runtime; registry is a bare Map, no deps) is **global-persistent** — site policy, NOT reset per `render`. Per-document lexical override via `%import` still works (module scope shadows the ambient binding). **(c) Defaults:** `Tex` = KaTeX→MathML (`renderToString(tex, {output:"mathml", displayMode:display})` → `raw(...)`; a *vnode* armed part inside math is a fatal diagnostic — KaTeX cannot host HTML; scalar armed parts stringify-splice into the TeX source). `CodeInline`/`CodeBlock` = sync shiki core (JS regex engine, eagerly-loaded curated grammars): the parts are reassembled into ONE contiguous text (raw runs + armed elements' text-content + stringified scalars), tokenized whole, and each armed element becomes a shiki **decoration** over its range (`tagName`+`properties` from the element; nested markup inside an armed element flattens to its text; a text-less armed part → plain fallback for the span + build warning). **(d) `lstset({language, theme, …})`** (listings homage; prelude export, hence ambient): document-global, **last-write-wins** — R10 expansion happens inside `decode`, after the whole `Doc` body evaluated, so mid-document calls are NOT positional — and **reset per `render()`** (unlike registration) so multi-doc builds don't leak config. **(e)** The static path needs `RawHtml` as an opaque leaf: `struct` passes it through, `serialize` emits it verbatim. A raw leaf declares its own blockness — `raw(html, {block: true})` acts as a block *sibling* in paragraph grouping (flushes the run, never `<p>`-wrapped; shiki's `<pre>` root and display MathML use it), default inline (KaTeX inline output joins the run). |
 | R16 | `groupLists` whitespace bridging | new — `groupLists` required list sentinels to be *strictly adjacent*, so a whitespace-only text sibling between two `nota-ul-li`/`nota-ol-li` split them into two lists. The reader already absorbs textual between-item blank lines into item extents (so `- a`␤␤`- b` arrives as adjacent sentinels), but a stream assembled via control flow (E5 `@for`), templates (R10), fragments, or hand-written `h` interleaves a stray `"\n"` between sentinels that survives fragment splicing and split the list. | **A list run breaks only on non-whitespace content or a different sentinel kind.** While `groupLists` accumulates a same-kind sentinel run, a maximal group of whitespace-only text siblings that is *immediately followed by another sentinel of the same kind* is **consumed** (emitted nowhere) and the run continues; anything else ends the run and that trailing whitespace is **not** consumed (left for `groupParas`/`consumeParaBreaks`). Edge whitespace (before the first sentinel, or after a run that a non-sentinel/different-kind sentinel/EOF ends) is untouched, so the paragraph-break markers fencing a list off from prose survive. Blank lines between items therefore do **not** split the list — the runtime extends the reader's textual between-item semantics to *any* assembled stream. Consumer-side only (`packages/runtime/src/struct.ts`); no reader/oxc change. |
 | R17 | Dynamic-tag emit | notation.md's old §Dynamic tag showed a `_Tag`-bound IIFE (`(() => { const _Tag = expr; return h(_Tag, …); })()`) for any `@(expr)` head not already "JSX-valid" (a capitalized identifier or static member chain) | **No IIFE, no binding — `@(expr){…}` always lowers directly to `h(expr, { props }, [children])`.** The binding existed only to satisfy JSX's tag-position grammar (identifier/member-expression only, the constraint a real `<_Tag>` would need); R1 already pins the emit target to hyperscript `h(...)` calls — plain function calls, with no such restriction — so `expr` sits directly in argument position regardless of shape. The "already a valid tag" special-case (`is_valid_tag_expr`) is retired along with it: a capitalized identifier (`@(Box)`), a static member chain (`@(ui.Card)`), a computed member (`@(comps[k])`), and an arbitrary expression (`@(getTag())`) all emit identically. Volar mapping is simplified to match: the head expression is marked `EmbeddedJs` uniformly, not split against `ComponentIdentifier` by expression shape — `EmbeddedJs`'s capability set is a strict superset of `ComponentIdentifier`'s (full ⊇ navigation+hover), so this is capability-monotonic, not a regression. |
+| R18 | Doc-state: marks & queries | new (**pinned 2026-07-05**) — the two-pass constructs (table of contents, heading numbers/counters generally, `@ref`, footnotes, citations/bibliography) had no mechanism: a TOC/forward `@ref` needs *whole-document* knowledge before its own position serializes; execution-order counters get the order wrong once fragments are stored/reordered (the same argument that made `lstset` non-positional, R14d); and the state must live in the **runtime**, not the reader — it depends on JS execution (a footnote emitted from `@for`). | **One evaluation + tree passes (Scribble collect/resolve), NOT two evaluations.** `Doc()` already produces the *complete* vnode tree before any decoding, so forward reference is a scoping problem, not a temporal one. **(a) Two `Symbol`-branded opaque leaves** (RawHtml-style): **`mark(kind, data)`** — registers an index entry at its tree position, removed by `force`; **`query(fn)`** — `fn: (doc: DocIndex) => children`, forced against the built index (output normalized like any `h` child). Both survive `flatten`, pass through `struct` untouched, and are runtime exports the **reader never emits** (prelude/user surface). **(b) The decode pipeline** at `▸=false` becomes `serialize ∘ struct ∘ force ∘ index ∘ normalize`: `normalize` = R10 template expansion + transparent-fragment splicing hoisted to a whole-tree pre-pass (observationally safe — both are context-free; `struct`'s own interleaved expansion stays, now vacuous), so the index sees marks produced *by templates*; `index` = one DFS collecting mark leaves into `DocIndex` — `all(kind) → IndexedMark[]` (document order), `get(mark) → IndexedMark` (identity lookup — the mark object is the handle), `IndexedMark = {kind, data, seq /*per-kind, 1-based*/, pos /*global DFS order, total across kinds*/}` — descending boundary *children* (static tree) but never bodies, and walking a vnode-valued `data.content` (so marks inside footnote content index at the parent mark's `pos`); `force` = remove mark leaves and splice `normalize(fn(doc))` in place of each query leaf, recursively (query output may hold further queries — forced against the same frozen index, so it terminates). Force runs **before grouping** — load-bearing: forced output (a Toc's `nota-ul-li` sentinels) participates in list/para/section grouping like authored content, and grouping/R16 never see a doc-state leaf. `render`'s raw-tree fallback runs the same pipeline; `serialize` on a leftover leaf is a pointed error (mirror of the R10 function-tag guard). **(c) Two hard rules:** query output may **not introduce new marks** — pointed error, no fixpoint iteration (a bibliography's "References" heading is *authored* above `@Bibliography`, not generated; Typst-style iterate-to-convergence is the v2 escape hatch if ever needed); and `mark`/`query` **throw at `▸=true`** — doc-state is a static-document construct; islands own any secondary state (dynamic footnote registration is explicitly out of scope). Marks/queries in an island's static *children* are fine (in the tree, resolved before the slot serializes); in an island's *body* they are the thing rejected. R15 replay is unaffected — the client re-runs the same passes over the same deterministic tree (the existing R15c invariant); a query may *return* an island (an interactive Toc), which captures/hydrates normally. **(d) Trailer registry** (the auto-append seam): `registerTrailer(name, thunk)` — bare-Map, name-keyed (re-register replaces), **global-persistent** like `registerComponents` (R14b, site policy — NOT reset per render). `decode` appends each trailer's children after the document content (wrapping its input in a transparent fragment) *before* `index`, so trailer queries force normally. The prelude registers `"footnotes"`: render the footnote list at document end **iff** footnote marks exist and no explicit `@Footnotes` placement mark does (`@Footnotes` emits its own placement mark) — explicit placement overrides. **(e) Policy is prelude, not core** (R14 pattern): heading numbering, `@Toc`, `@label`/`@ref` (a label binds to the nearest **preceding** heading mark by `pos` — LaTeX semantics), `@footnote`/`@Footnotes`, `@cite`/`@Bibliography` (a cite's *label* may depend on the global cite set — numeric-by-alphabetical styles are index-computable), and a `counter(kind, {resetOn})` helper (hierarchical numbers from `all()`+`pos`, memoized on the index) all live in `@nota-lang/prelude` as slots/templates over `mark`/`query` only; doc config (`secset({numberDepth,…})`, `bibset({src, style})`) follows `lstset` exactly (R14d — doc-global, last-write-wins, reset via `onRenderReset`). **(f) Heading sugar re-lowers to an ambient slot** (the R13/R14 move): `# Title` → `h(Heading, {rank: 1}, ["Title"])`; the default `Heading` emits `mark("heading", …)` plus a query producing the concrete `hN` — normalize precedes grouping, so `groupSections` still sees a real `hN` (forced first). `id` = authored `id` prop ?? slugified text-content (deduped); Toc link content flattens heading children to text (the R14c flattening precedent). A raw `@h2{…}` stays a plain host tag — the principled unnumbered/un-Toc'd escape hatch (`\section*`). Amends the §3 heading rows. **(g) Staged** (R15 precedent): (1) runtime — the leaves + `DocIndex` + normalize/index/force + trailer registry (new `packages/runtime/src/doc.ts`; pipeline wired in `h.ts` `decode` + `render`'s fallback; a mark-free document decodes byte-identically); (2) prelude — the (e)/(f) constructs + config; (3) reader — heading re-lowering + golden churn. The §3 heading rows are the R18 *target*; the reader emits `h("h1", …)` until phase 3. |
 
 **Phase-A sequencing notes** (not conflicts, just ordering): (a) the reader takes body text from the
 **raw source slice** (not JS-string-decoded) → embedded spans stay byte-identical (good for §1.6 span
@@ -74,6 +75,11 @@ inlineComponent(fn, name?) / blockComponent(fn, name?)   // name = the F1 stable
 
 setAdapter(a) / withFlag(value, thunk)             // injector + ▸ save/restore
 struct, serialize, island, render                  // SSG machinery + driver (decode.md §Algorithm)
+
+mark(kind, data) / query(fn)                       // doc-state leaves (R18); fn: (doc: DocIndex) => children
+    // ▸=false → opaque leaves resolved by decode's index/force passes; ▸=true → pointed error
+    // (doc-state is static-document-only; islands own secondary state). Reader never emits these.
+registerTrailer(name, thunk)                       // doc-end auto-append seam (R18d); global-persistent
 ```
 
 `flatten(children)`: children args are flattened one level (arrays spliced in), text coerced, nullish
@@ -85,6 +91,10 @@ scalar arg) — `flatten` normalizes both to a child list. See decode.md §"Cont
 ```
 v ::= string                       // text leaf
     | { tag, props, children }      // tag: host string (decode owns) | CompFn (boundary, framework owns)
+    | RawHtml                       // opaque pre-serialized leaf (R14e); struct passes, serialize emits verbatim
+    | MarkLeaf | QueryLeaf          // doc-state leaves (R18); gone from the tree by grouping time (force
+                                    // removes marks, splices query output) — serialize on a leftover is a
+                                    // pointed error
 FRAG = the fragment tag sentinel (e.g. a unique symbol or "fragment")
 ```
 
@@ -188,8 +198,9 @@ left column is the source; its right column is the *JSX view* — translate to h
 | `@(user.posts[0])` | `user.posts[0]` |
 | `*bold*` | `h("strong", {}, ["bold"])` |
 | `_italic_` | `h("em", {}, ["italic"])` |
-| `# Title` | `h("h1", {}, ["Title"])` |
-| `### Sub *bit*` | `h("h3", {}, ["Sub ", h("strong", {}, ["bit"])])` |
+| `# Title` | `h(Heading, { rank: 1 }, ["Title"])` (R18 target — heading sugar → ambient `Heading` slot; see note below) |
+| `### Sub *bit*` | `h(Heading, { rank: 3 }, ["Sub ", h("strong", {}, ["bit"])])` |
+| `@h1{Title}` | `h("h1", {}, ["Title"])` (raw host tag: sections normally, but unnumbered/un-Toc'd — R18f) |
 | `- a` (list item line) | `h("nota-ul-li", {}, ["a"])` (runtime `struct` groups runs → `<ul><li>`) |
 | `+ a` | `h("nota-ol-li", {}, ["a"])` (→ `<ol><li>`) |
 | `@if (c) {a}` | `c ? Fragment("a") : null` |
@@ -205,8 +216,10 @@ left column is the source; its right column is the *JSX view* — translate to h
 | `$$⏎…⏎$$` (standalone fence) | `h(Tex, { display: true }, [String.raw`…`])` |
 
 Whitespace-significant text is emitted as explicit string children per notation.md §Whitespace
-(Scribble algorithm). `CodeInline`/`CodeBlock`/`Tex` are ambient prelude bindings (`Tex`, not
-`Math` — R14).
+(Scribble algorithm). `CodeInline`/`CodeBlock`/`Tex`/`Heading` are ambient prelude bindings (`Tex`,
+not `Math` — R14; `Heading` per R18f). **Staging caveat (R18g):** the `Heading` rows above are the
+R18 *target* emit — the current reader still emits `h("h1", {}, […])` for `#` sugar until the R18
+reader phase lands.
 
 **`String.raw` emit caveat (implemented reality).** The `String.raw\`…\`` form above is emitted only
 when the raw content contains no *template-syntax breaker* — a backtick or a literal `${`. Those two
@@ -389,7 +402,19 @@ contract.
 reader already ran Scribble, the runtime must not trim/merge); numbers → `String(n)` (`0`→`"0"`,
 `NaN`→`"NaN"` kept); `null`/`undefined`/`false`/**`true`** all dropped (JSX semantics; bare `true`
 dropped so `@if` guards never leak `"true"`). Built nodes always materialize `props` (`p ?? {}`),
-never null.
+never null. Opaque leaves (`RawHtml`, and R18's `MarkLeaf`/`QueryLeaf`) survive `flatten` untouched.
+
+**Doc-state passes (R18).** At `▸=false`, `decode` runs `serialize ∘ struct ∘ force ∘ index ∘
+normalize` (§0 R18): `normalize` hoists R10 expansion + transparent-fragment splicing to a
+whole-tree pre-pass; `index` collects `mark` leaves in one DFS (descending boundary *children*,
+never bodies; walking vnode-valued `data.content`); `force` removes marks and splices each `query`'s
+output (normalized, recursively forced) in place — **before grouping**, so forced output
+participates in list/para/section grouping like authored content and none of the passes in this
+section ever see a doc-state leaf (R16 bridging, `isBlock`, para runs are unaffected by
+construction). `struct`'s semantics above are **unchanged**: its interleaved expansion remains
+(vacuous after `normalize`), and it passes a stray mark/query leaf through untouched — `serialize`
+then fails pointedly on it (mirror of the R10 function-tag guard), which is what a direct
+`struct`/`serialize` caller sees if it skips the doc passes.
 
 ---
 
@@ -495,11 +520,13 @@ wasm `parseAst` — and `highlight(src)` — reader-faithful highlight spans, wa
   serves the browser playground (Part 4) and can later replace the subprocess for the language
   server.
 
-**Ambient prelude (LOCKED; amended by R14).** The emitted module references `useState` and
-`Tex`/`CodeInline`/`CodeBlock` as **free identifiers** — ambient, per §3.1 mechanism-not-policy. The
+**Ambient prelude (LOCKED; amended by R14, R18).** The emitted module references `useState` and
+`Tex`/`CodeInline`/`CodeBlock`/`Heading` as **free identifiers** — ambient, per §3.1
+mechanism-not-policy. The
 **integrator supplies them**; the CLI does so via **esbuild `inject`** of a prelude module
-(`useState` = the framework's; `Tex`/`CodeInline`/`CodeBlock` re-exported from
-`@nota-lang/prelude`, where they are registry *slots* over KaTeX/shiki defaults — R14). Users
+(`useState` = the framework's; `Tex`/`CodeInline`/`CodeBlock`/`Heading` re-exported from
+`@nota-lang/prelude`, where they are registry *slots* over KaTeX/shiki/heading-numbering
+defaults — R14, R18f). Users
 override per-document via `%import` shadowing, or site-wide at runtime via
 `registerComponents({…})` (e.g. from the `nota build --setup <module>` hook); the injected prelude
 module itself is not user-facing surface.
