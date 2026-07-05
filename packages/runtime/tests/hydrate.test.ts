@@ -4,8 +4,10 @@
  *
  * - **id parity** — the same `freshId` sequence is minted whether the document is rendered
  *   (SSG, `▸`-flag off, `capturing` off) or replayed (`capturing` on), *including* a nested island
- *   inside a parent's slot; capture records only the depth-0 boundaries, but the manifest (written
- *   in both modes) proves the ids match.
+ *   inside a parent's slot; capture records at EVERY depth (each DOM marker hydrates
+ *   independently, matching the old boot's every-manifest-id behavior).
+ * - **nested-in-slot hydration** — `@Outer{@Inner{}}` captures both ids, the guard passes against
+ *   both DOM markers, and both hydrate — outer first (ascending id order).
  * - **determinism guard** — a captured-vs-DOM id-set mismatch throws **before** any hydration.
  * - **empty slot** — a childless island hydrates with `[]`, not a `raw` slot.
  * - **teardowns + leniency** — `hydrateDocument` returns one teardown per hydrated island, and a
@@ -130,23 +132,62 @@ describe("id parity (SSG render vs. capture replay)", () => {
   // Doc: ⟨FRAG, [ A[ B["inner"] ], C["c"] ]⟩ — A wraps the nested island B.
   const Doc = (): VNode => el(FRAG, [el(A, [el(B, ["inner"])]), el(C, ["c"])]);
 
-  test("both modes mint the same ids (outer-then-inner DFS); capture records only depth-0", () => {
+  test("both modes mint the same ids (outer-then-inner DFS); capture records EVERY depth", () => {
     // SSG: every island SSRs and lands in the manifest → ids 1 (A), 2 (B, nested), 3 (C).
     const server = render(Doc);
     expect(Object.keys(server.manifest).sort()).toEqual(["1", "2", "3"]);
 
-    // Replay: SAME ids minted (manifest is written in capture mode too — id parity), but only the
-    // depth-0 boundaries A and C are *captured*; B is SSR'd into A's slot (slotDepth > 0), not
-    // captured, and so is never independently hydrated.
+    // Replay: SAME ids minted, and every boundary is captured — including B at slotDepth > 0
+    // (each DOM marker hydrates independently, as the old boot hydrated every manifest id).
     const captured = captureRender(Doc);
-    expect([...captured.keys()].sort()).toEqual(["1", "3"]);
+    expect([...captured.keys()].sort()).toEqual(["1", "2", "3"]);
     expect(Object.keys(getManifest()).sort()).toEqual(["1", "2", "3"]);
 
-    // A's captured slot carries B's SSR'd marker verbatim (byte-parity for the parent slot).
+    // A's captured slot carries B's SSR'd marker verbatim (byte-parity for the parent slot —
+    // the nested boundary still SSRs during capture; under Solid, whose client build forbids
+    // renderToString, this depth>0 SSR is a pointed error — the documented v1 caveat, R15e).
     expect(captured.get("1")?.slotHtml).toContain('data-hydration-id="2"');
     // The captured tags are the live boundaries themselves.
     expect(captured.get("1")?.tag).toBe(A);
+    expect(captured.get("2")?.tag).toBe(B);
     expect(captured.get("3")?.tag).toBe(C);
+  });
+});
+
+// =============================================================================================
+// nested-in-slot hydration — @Outer{@Inner{}} hydrates BOTH markers, outer first
+// =============================================================================================
+
+describe("nested-in-slot hydration (@Outer{@Inner{}})", () => {
+  const Outer: CompFn = inlineComponent(c => c, "Outer");
+  const Inner: CompFn = inlineComponent(c => c, "Inner");
+  const DocNested = (): VNode => el(Outer, [el(Inner, ["deep"])]);
+
+  test("capture records both ids; guard passes; both hydrate, outer first", () => {
+    // The server DOM carries BOTH markers (Inner's marker sits inside Outer's SSR'd slot), so the
+    // guard's all-markers set is {1, 2} — matching the every-depth capture exactly.
+    const { root } = fakeRoot(["1", "2"]);
+    const teardowns = hydrateDocument(DocNested, { root });
+
+    // Both markers hydrated — the old boot hydrated every manifest id (a separate root on the
+    // nested marker inside the parent's innerHTML region); capture-only-depth-0 would have left
+    // Inner inert. Order is ascending id = outer before inner (a nested island records into the
+    // Map during its parent's slot serialize, so raw insertion order would be inner-first).
+    expect(stub.hydrated).toHaveLength(2);
+    const hydratedTags = stub.hydrated.map(
+      x => ((x.el as { call: HCall }).call as HCall).tag
+    );
+    expect(hydratedTags).toEqual([Outer, Inner]);
+    const hydratedNodes = stub.hydrated.map(x =>
+      (x.node as { getAttribute(n: string): string | null }).getAttribute(
+        "data-hydration-id"
+      )
+    );
+    expect(hydratedNodes).toEqual(["1", "2"]);
+    expect(teardowns).toHaveLength(2);
+
+    // Note: no Solid variant of this test — Solid's client build forbids renderToString, so a
+    // depth>0 capture throws there by design (contract R15e, the documented v1 caveat).
   });
 });
 

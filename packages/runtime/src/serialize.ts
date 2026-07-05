@@ -71,8 +71,8 @@ let manifest: Manifest = {};
 
 /**
  * Replay-capture flag. `true` while {@link "./hydrate".captureRender} re-executes the document on
- * the client: {@link island} then **records** each depth-0 boundary (see {@link captured}) and
- * skips its SSR, rather than stringifying it. Managed only by {@link beginCapture}/{@link endCapture}
+ * the client: {@link island} then **records** every boundary (see {@link captured}) — and, at depth
+ * 0, skips its SSR rather than stringifying it. Managed only by {@link beginCapture}/{@link endCapture}
  * (save/restore, like the `▸` flag), so it is already `false` outside any capture — {@link reset}
  * deliberately does not touch it.
  */
@@ -82,9 +82,13 @@ let captured: Map<string, CapturedIsland> = new Map();
 /**
  * Depth of nested-island *slot* serialization. {@link island} increments it around the serialize of
  * a boundary's static children, so a nested island encountered inside a parent's slot sees
- * `slotDepth > 0`. Capture only records at `slotDepth === 0`: a nested-in-slot island is SSR'd into
- * its parent's slot bytes (byte-parity — the parent re-injects that slot via `raw`/innerHTML on
- * hydrate), never captured or independently hydrated.
+ * `slotDepth > 0`. Capture records at **every** depth — each `[data-hydration-id]` marker in the
+ * DOM is independently hydrated, matching the old boot's every-manifest-id behavior — the depth
+ * only decides whether the SSR is *also* performed: a nested-in-slot island still SSRs into its
+ * parent's slot bytes (byte-parity — the parent re-injects that slot via `raw`/innerHTML on any
+ * re-render), whereas a depth-0 island's SSR is skipped (its output is discarded anyway). Solid
+ * caveat (contract R15e): the client build forbids `renderToString`, so a depth>0 capture is a
+ * pointed error there — nested-in-slot islands are v1-unsupported under Solid.
  */
 let slotDepth = 0;
 
@@ -391,12 +395,14 @@ function assertJsonSerializable(
  * a host element, whose adapter `h` injects it as innerHTML (no re-escape, no re-parse).
  *
  * **Capture mode (contract R15).** While {@link "./hydrate".captureRender} replays the document on
- * the client ({@link capturing} `= true`), a *depth-0* boundary is **recorded** into
- * {@link captured} — the live `CompFn`, live props, recomputed slot — and its SSR is skipped (the
- * returned empty shell is discarded). The statement order is identical to the SSR path (`freshId`
- * *before* the slot serialize), so ids match the server by construction. A nested-in-slot boundary
- * (`slotDepth > 0`) is still SSR'd for byte-parity of its parent's slot. E4 is skipped in capture
- * (props may be non-JSON now — they cross by replay, not the manifest).
+ * the client ({@link capturing} `= true`), **every** boundary is **recorded** into {@link captured}
+ * — the live `CompFn`, live props, recomputed slot — because every marker in the DOM is
+ * independently hydrated (as the old boot hydrated every manifest id). The statement order is
+ * identical to the SSR path (`freshId` *before* the slot serialize), so ids match the server by
+ * construction. Depth decides only the SSR: a depth-0 boundary skips it (the returned empty shell
+ * is discarded), while a nested-in-slot boundary (`slotDepth > 0`) is still SSR'd for byte-parity
+ * of its parent's slot (the parent re-injects that slot via `raw`/innerHTML on any re-render). E4
+ * is skipped in capture (props may be non-JSON now — they cross by replay, not the manifest).
  */
 export function island(v: ElementVNode & { tag: CompFn }): string {
   const comp = nameOf(v.tag);
@@ -410,17 +416,25 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
 
   const id = freshId();
   // Serialize the boundary's static children to its slot, tracking nesting so a nested island knows
-  // it is inside a parent's slot (slotDepth > 0) and must SSR rather than capture.
+  // it is inside a parent's slot (slotDepth > 0) and must also SSR for the parent's slot bytes.
   slotDepth += 1;
   const slot = v.children.map(serialize).join("");
   slotDepth -= 1;
   manifest[id] = { comp, props: v.props };
 
-  if (capturing && slotDepth === 0) {
-    // Replay capture: record the live boundary, skip SSR. The empty shell is discarded by
-    // captureRender; the id already matches the server (same freshId-before-slot traversal).
+  if (capturing) {
+    // Replay capture: record the live boundary at EVERY depth (each marker hydrates independently;
+    // the id already matches the server — same freshId-before-slot traversal). Note a nested
+    // boundary records *during* its parent's slot serialize, so Map insertion order is inner-first;
+    // the driver hydrates in ascending id order (outer-first, the old boot's manifest order).
     captured.set(id, { tag: v.tag, props: v.props, slotHtml: slot });
-    return `<nota-island data-hydration-id="${id}"></nota-island>`;
+    if (slotDepth === 0) {
+      // Depth 0: skip SSR — the whole replay HTML is discarded, only the recording matters.
+      return `<nota-island data-hydration-id="${id}"></nota-island>`;
+    }
+    // Depth > 0: fall through to SSR — the parent's captured slotHtml must be byte-identical to
+    // the server's (the parent re-injects it as innerHTML on re-render). Solid's client build
+    // forbids renderToString, so this is a pointed error there (contract R15e, v1).
   }
 
   const adapter = getAdapter();

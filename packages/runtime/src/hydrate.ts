@@ -5,11 +5,12 @@
  * hold non-JSON values (functions, class instances). None of that can cross the wire as a manifest,
  * so instead of *transporting* per-island data the client **replays the document**: it re-executes
  * `render(Doc)` with {@link "./serialize".island} in *capture* mode (see
- * {@link "./serialize".beginCapture}). Each depth-0 boundary is recorded as its live `CompFn`
- * (closure intact), live props, and recomputed slot HTML; the produced HTML string is discarded.
- * Hydration ids match the server **by construction** (identical `freshId`-before-slot traversal in
- * both modes). {@link hydrateDocument} then attaches each captured island over its
- * `[data-hydration-id]` node.
+ * {@link "./serialize".beginCapture}). Every boundary — at **any** depth, including one nested
+ * inside a parent's slot — is recorded as its live `CompFn` (closure intact), live props, and
+ * recomputed slot HTML; the produced HTML string is discarded. Hydration ids match the server **by
+ * construction** (identical `freshId`-before-slot traversal in both modes). {@link hydrateDocument}
+ * then attaches each captured island over its `[data-hydration-id]` node, in ascending id order
+ * (outer before inner — the old boot's manifest order).
  *
  * This supersedes the manifest-driven `bootIslands` path: no registry, no JSON props, no
  * `innerHTML` slot-scrape.
@@ -61,10 +62,12 @@ export function captureRender(Doc: () => VNode): Map<string, CapturedIsland> {
  *    set. A mismatch means the replay diverged from the server render (non-deterministic `%` code,
  *    or a non-order-stable island sequence) — throw a pointed error **before hydrating anything**,
  *    so we never half-hydrate a document into an inconsistent state.
- * 3. For each captured island, build the framework element `adapter.h(tag, { ...props }, slot)`
- *    (`raw(slotHtml)` when the boundary had static children, else `[]`) and `adapter.hydrate` it
- *    over its marker node. Per-island `try`/`catch` (matching the old boot's leniency): one
- *    island's failure logs and is skipped, never aborting the rest.
+ * 3. For each captured island — **in ascending id order** (outer before inner: a nested island's
+ *    id is minted after its parent's, and the old boot hydrated manifest ids in that order) —
+ *    build the framework element `adapter.h(tag, { ...props }, slot)` (`raw(slotHtml)` when the
+ *    boundary had static children, else `[]`) and `adapter.hydrate` it over its marker node.
+ *    Per-island `try`/`catch` (matching the old boot's leniency): one island's failure logs and is
+ *    skipped, never aborting the rest.
  *
  * @param opts.root optional DOM subtree to hydrate within (defaults to the ambient `document`);
  *   injectable for tests and for an iframe preview.
@@ -95,7 +98,12 @@ export function hydrateDocument(
 
   const adapter = getAdapter();
   const teardowns: Array<() => void> = [];
-  for (const [id, isle] of captured) {
+  // Ascending id order = outer-before-inner (a nested island records into the Map *during* its
+  // parent's slot serialize, so raw insertion order would be inner-first — sort instead).
+  const ordered = [...captured.entries()].sort(
+    (a, b) => Number(a[0]) - Number(b[0])
+  );
+  for (const [id, isle] of ordered) {
     const node = root.querySelector(`[data-hydration-id="${id}"]`);
     if (node == null) {
       continue; // guarded above, but stay defensive against a concurrent DOM mutation
