@@ -20,6 +20,7 @@
  *      pane hydrates islands from.
  */
 
+import * as prelude from "@nota-lang/prelude";
 import {
   CodeBlock,
   CodeInline,
@@ -31,6 +32,7 @@ import {
 import adapter from "@nota-lang/react";
 import * as runtime from "@nota-lang/runtime";
 import { type RenderResult, render, setAdapter } from "@nota-lang/runtime";
+import * as react from "react";
 import { useState } from "react";
 import { RUNTIME_IMPORT } from "./compiler";
 
@@ -68,6 +70,88 @@ const AMBIENT_PRELUDE = {
   registerComponents
 } as const;
 
+/**
+ * The modules a user `%import` can resolve to in the playground (no bundler at eval time — these
+ * are the namespaces the playground itself bundles). Anything else is a pointed error: relative
+ * paths and arbitrary packages need a real build (esbuild/vite), not a `new Function` script.
+ */
+const MODULE_MAP: Record<string, Record<string, unknown>> = {
+  "@nota-lang/prelude": prelude as unknown as Record<string, unknown>,
+  "@nota-lang/runtime": runtime as unknown as Record<string, unknown>,
+  react: react as unknown as Record<string, unknown>
+};
+
+/**
+ * Strip every top-level `import` declaration from `body`, resolving each against
+ * {@link MODULE_MAP} into `scope` bindings (an import shadows an ambient name, matching real ESM,
+ * where a module-scope import wins over the injected prelude). Supports the forms the reader
+ * hoists verbatim: named imports (with `as` aliases; `type` entries skipped), `* as ns`, and
+ * side-effect-only imports (a no-op — the mapped modules are already loaded). Default and mixed
+ * clauses, unknown packages, and relative paths throw a pointed error the error pane surfaces.
+ */
+function resolveImports(body: string, scope: Map<string, unknown>): string {
+  // `^import` at a line start (the reader hoists imports to module scope); the clause may span
+  // lines, ending at the first `from "spec"` (or the bare side-effect form).
+  const importRe =
+    /^import\s+(type\s+)?([\s\S]*?)\s*from\s*["']([^"']+)["'][ \t]*;?|^import\s*["']([^"']+)["'][ \t]*;?/gm;
+  return body.replace(
+    importRe,
+    (
+      _m,
+      typeOnly: string | undefined,
+      clause = "",
+      spec?: string,
+      bareSpec?: string
+    ) => {
+      if (typeOnly) {
+        return ""; // type-only: no runtime binding
+      }
+      const specifier = bareSpec ?? spec ?? "";
+      const mod = MODULE_MAP[specifier];
+      if (!mod) {
+        throw new Error(
+          `The playground can only resolve imports of ${Object.keys(MODULE_MAP)
+            .map(s => `"${s}"`)
+            .join(", ")} — "${specifier}" is not available here. ` +
+            "(A real build resolves any module; in the playground, prelude names like lstset " +
+            "are also ambient — no import needed.)"
+        );
+      }
+      if (bareSpec !== undefined) {
+        return ""; // side-effect import of an already-loaded module: no-op
+      }
+      const ns = clause.match(/^\*\s*as\s+([A-Za-z_$][\w$]*)$/);
+      if (ns) {
+        scope.set(ns[1], mod);
+        return "";
+      }
+      const braced = clause.match(/^\{([\s\S]*)\}$/);
+      if (!braced) {
+        throw new Error(
+          `The playground supports named ({ x }), namespace (* as ns), and side-effect imports — ` +
+            `rewrite \`import ${clause} from "${specifier}"\` as a named import.`
+        );
+      }
+      for (const entry of braced[1].split(",")) {
+        const e = entry.trim();
+        if (e === "" || e.startsWith("type ")) {
+          continue;
+        }
+        const m = e.match(
+          /^([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/
+        );
+        if (!m) {
+          throw new Error(
+            `The playground could not parse the import entry "${e}".`
+          );
+        }
+        scope.set(m[2] ?? m[1], mod[m[1]]);
+      }
+      return "";
+    }
+  );
+}
+
 /** A manifest entry: the island component name + its JSON props. */
 export interface ManifestEntry {
   comp: string;
@@ -85,8 +169,10 @@ export interface SSGResult {
 /**
  * Evaluate an emitted Nota module and return its exports (`{ default: Doc, …named components }`).
  *
- * Strips the runtime import + every `export` (a `new Function` body is a script, not a module),
- * keeping the declarations, then appends a `return` of the export identifiers parsed from the source.
+ * Strips the runtime import, resolves user `%import`s against {@link MODULE_MAP} into scope
+ * bindings ({@link resolveImports}), and strips every `export` (a `new Function` body is a script,
+ * not a module), keeping the declarations — then appends a `return` of the export identifiers
+ * parsed from the source.
  */
 export function evalModule(emitted: string): Record<string, unknown> {
   let body = emitted;
@@ -97,6 +183,18 @@ export function evalModule(emitted: string): Record<string, unknown> {
     /^\s*import\s+\{[^}]*\}\s+from\s+["']@nota-lang\/runtime["'];?\s*$/m,
     ""
   );
+
+  // One merged scope: runtime surface + ambient prelude, then user imports (which shadow both,
+  // matching ESM — a module-scope import wins over the injected ambient binding). A single map
+  // also dedupes, so `%import { h }` never yields a duplicate Function parameter.
+  const scope = new Map<string, unknown>();
+  for (const n of RUNTIME_NAMES) {
+    scope.set(n, (runtime as Record<string, unknown>)[n]);
+  }
+  for (const [k, v] of Object.entries(AMBIENT_PRELUDE)) {
+    scope.set(k, v);
+  }
+  body = resolveImports(body, scope);
 
   // Parse export identifiers BEFORE stripping the keywords: `export default function Doc` and
   // `export let/const/function/class Name` (the compiler hoists+exports the island components).
@@ -124,19 +222,12 @@ export function evalModule(emitted: string): Record<string, unknown> {
     ...named
   ].join(", ");
 
-  const runtimeArgs = RUNTIME_NAMES.map(
-    n => (runtime as Record<string, unknown>)[n]
-  );
   // eslint-disable-next-line @typescript-eslint/no-implied-eval -- intentional: run the emitted module.
   const factory = new Function(
-    ...RUNTIME_NAMES,
-    ...Object.keys(AMBIENT_PRELUDE),
+    ...scope.keys(),
     `"use strict";\n${body}\n;return { ${entries} };`
   );
-  return factory(...runtimeArgs, ...Object.values(AMBIENT_PRELUDE)) as Record<
-    string,
-    unknown
-  >;
+  return factory(...scope.values()) as Record<string, unknown>;
 }
 
 /**

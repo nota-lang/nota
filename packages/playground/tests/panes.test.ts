@@ -152,6 +152,36 @@ describe("SSG-output pane", () => {
     expect(html).toContain("<math");
     expect(html).toContain('<code class="nota-code-inline">f(x)</code>');
   });
+
+  it("a user %import of the prelude resolves (no bundler in the playground)", () => {
+    // The field repro: a %%% block importing lstset used to die with "import declarations may
+    // only appear at top level of a module" (the import survived into the new Function script).
+    const doc =
+      '%%%\nimport { lstset } from "@nota-lang/prelude";\n\nlstset({ language: "rust" });\n%%%\n\n```\nfn main() {}\n```\n';
+    const { html } = runSSG(compileNota(doc));
+    expect(html).toContain('<pre class="shiki');
+  });
+
+  it("aliased and namespace import forms resolve; imports shadow the ambient binding", () => {
+    // NB the blank line before the fence: R8 continues a `%` statement across single newlines
+    // wherever JS grammar allows, and a following backtick fence would parse as a TAGGED TEMPLATE
+    // on the call's result. (True in every integrator, not just here.)
+    const aliased =
+      '%import { lstset as set } from "@nota-lang/prelude"\n% set({ language: "python" })\n\n```\ndef f(): pass\n```\n';
+    expect(runSSG(compileNota(aliased)).html).toContain('<pre class="shiki');
+    const ns =
+      '%import * as p from "@nota-lang/prelude"\n% p.lstset({ language: "python" })\n\n```\ndef f(): pass\n```\n';
+    expect(runSSG(compileNota(ns)).html).toContain('<pre class="shiki');
+  });
+
+  it("an unresolvable import is a pointed error, not a parse error", () => {
+    // The import must be *referenced*: the build path's TS-strip elides unused imports
+    // (TypeScript semantics), so an unused `{ x }` never reaches the evaluator at all.
+    const doc = '%import { x } from "./local.js"\n@p{@x}\n';
+    expect(() => runSSG(compileNota(doc))).toThrow(
+      /playground can only resolve imports of/
+    );
+  });
 });
 
 describe("pipeline: Generated-JS survives an SSG error", () => {
