@@ -42,7 +42,7 @@ const RUNTIME_IMPORT =
  *   call site. (`Tex`, not `Math` — R14: an ambient `Math` would shadow the JS global, breaking
  *   `Math.floor` in embedded code.)
  * - `lstset` / `mathset` / `registerComponents` — the prelude's config + override surface
- *   (R14b/d), ambient so `% lstset({ language: "python" })` type-checks in embedded code.
+ *   (R14b/d), ambient so `% lstset({ lang: "python" })` type-checks in embedded code.
  *
  * `declare` + ambient `const`/`function` ⇒ no runtime footprint; this is types-only.
  */
@@ -51,7 +51,7 @@ const AMBIENT_PRELUDE =
   "declare const CodeInline: (props: { [prop: string]: unknown }) => unknown;\n" +
   "declare const CodeBlock: (props: { [prop: string]: unknown }) => unknown;\n" +
   "declare const Tex: (props: { [prop: string]: unknown }) => unknown;\n" +
-  "declare function lstset(options: { language?: string; theme?: string; languages?: unknown; themes?: unknown[] }): void;\n" +
+  "declare function lstset(options: { lang?: string; theme?: string; langs?: unknown; themes?: unknown[] }): void;\n" +
   "declare function mathset(options: { macros?: Record<string, string> }): void;\n" +
   "declare function registerComponents(components: Record<string, unknown>): void;\n";
 

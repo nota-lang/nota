@@ -163,7 +163,7 @@ describe("SSG-output pane", () => {
     // The field repro: a %%% block importing lstset used to die with "import declarations may
     // only appear at top level of a module" (the import survived into the new Function script).
     const doc =
-      '%%%\nimport { lstset } from "@nota-lang/prelude";\n\nlstset({ language: "rust" });\n%%%\n\n```\nfn main() {}\n```\n';
+      '%%%\nimport { lstset } from "@nota-lang/prelude";\n\nlstset({ lang: "rust" });\n%%%\n\n```\nfn main() {}\n```\n';
     const { html } = runSSG(compileNota(doc));
     expect(html).toContain('<pre class="shiki');
   });
@@ -173,10 +173,10 @@ describe("SSG-output pane", () => {
     // wherever JS grammar allows, and a following backtick fence would parse as a TAGGED TEMPLATE
     // on the call's result. (True in every integrator, not just here.)
     const aliased =
-      '%import { lstset as set } from "@nota-lang/prelude"\n% set({ language: "python" })\n\n```\ndef f(): pass\n```\n';
+      '%import { lstset as set } from "@nota-lang/prelude"\n% set({ lang: "python" })\n\n```\ndef f(): pass\n```\n';
     expect(runSSG(compileNota(aliased)).html).toContain('<pre class="shiki');
     const ns =
-      '%import * as p from "@nota-lang/prelude"\n% p.lstset({ language: "python" })\n\n```\ndef f(): pass\n```\n';
+      '%import * as p from "@nota-lang/prelude"\n% p.lstset({ lang: "python" })\n\n```\ndef f(): pass\n```\n';
     expect(runSSG(compileNota(ns)).html).toContain('<pre class="shiki');
   });
 

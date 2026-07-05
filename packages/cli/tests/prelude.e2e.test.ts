@@ -52,7 +52,7 @@ describe("prelude defaults (R14c): KaTeX MathML + shiki, still zero-JS", () => {
     expect(out.html).toContain(
       '<div class="nota-code-block"><pre class="shiki'
     );
-    // Inline code stays a plain <code> (no global language configured).
+    // Inline code stays a plain <code> (no global lang configured).
     expect(out.html).toContain('<code class="nota-code-inline">f(x)</code>');
   });
 });
@@ -78,11 +78,11 @@ registerComponents({ Tex: "kbd" });
     expect(out.html).not.toContain("<math");
   });
 
-  test("lstset({language}) in setup is the baked baseline: a bare fence highlights", async () => {
+  test("lstset({lang}) in setup is the baked baseline: a bare fence highlights", async () => {
     const setup = setupFile(
       "lang.setup.mjs",
       `import { lstset } from "@nota-lang/prelude";
-lstset({ language: "python" });
+lstset({ lang: "python" });
 `
     );
     const out = await buildNota("```\ndef f(x): pass\n```\n", {

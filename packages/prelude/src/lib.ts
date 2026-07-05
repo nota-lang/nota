@@ -15,7 +15,7 @@
  * static under SSG; a registered `inlineComponent`/`blockComponent` becomes a hydration island —
  * both interact with SSG like any other component (R14b).
  *
- * Configure the defaults with {@link lstset} (listings-style: language/theme/grammar extensions)
+ * Configure the defaults with {@link lstset} (listings-style: lang/theme/grammar extensions)
  * and {@link mathset} (KaTeX macros) — document-global, reset per render (R14d).
  */
 

@@ -2,7 +2,7 @@
  * Prelude configuration: `lstset` / `mathset` (contract R14d).
  *
  * `lstset` (after LaTeX's listings package) sets the global code options the default
- * `CodeInline`/`CodeBlock` consult: the default `language`, the `theme`, and extension
+ * `CodeInline`/`CodeBlock` consult: the default `lang`, the `theme`, and extension
  * grammar/theme registrations. `mathset` sets the KaTeX `macros` the default `Tex` passes through.
  *
  * **Scope semantics (pinned R14d):** config is *document-global, last-write-wins* — R10 expands the
@@ -23,13 +23,13 @@ import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 /** Options for {@link lstset}. All fields merge into the current document config. */
 export interface LstsetOptions {
   /** Default highlight language for fences without a tag and for inline code. */
-  language?: string;
+  lang?: string;
   /** Shiki theme name. Must be a preloaded theme (`github-light`/`github-dark`) or one
    *  registered via {@link LstsetOptions.themes}. */
   theme?: string;
   /** Extension grammars (shiki `LanguageRegistration`s, e.g. `import hs from
-   *  "shiki/langs/haskell.mjs"` → `languages: hs`). Accumulate. */
-  languages?: LanguageRegistration[] | LanguageRegistration[][];
+   *  "shiki/langs/haskell.mjs"` → `langs: hs`). Accumulate. */
+  langs?: LanguageRegistration[] | LanguageRegistration[][];
   /** Extension themes (shiki theme registrations). Accumulate. */
   themes?: ThemeRegistrationAny[];
 }
@@ -42,7 +42,7 @@ export interface MathsetOptions {
 
 /** The resolved prelude config the default components read. */
 export interface PreludeConfig {
-  language: string | undefined;
+  lang: string | undefined;
   theme: string;
   extraLangs: LanguageRegistration[];
   extraThemes: ThemeRegistrationAny[];
@@ -50,7 +50,7 @@ export interface PreludeConfig {
 }
 
 const DEFAULTS: PreludeConfig = {
-  language: undefined,
+  lang: undefined,
   theme: "github-light",
   extraLangs: [],
   extraThemes: [],
@@ -71,16 +71,14 @@ let current: PreludeConfig = clone(baseline);
 
 /** Set global code options (listings-style). Document-global, last-write-wins; see module docs. */
 export function lstset(opts: LstsetOptions): void {
-  if (opts.language !== undefined) {
-    current.language = opts.language;
+  if (opts.lang !== undefined) {
+    current.lang = opts.lang;
   }
   if (opts.theme !== undefined) {
     current.theme = opts.theme;
   }
-  if (opts.languages !== undefined) {
-    current.extraLangs.push(
-      ...(opts.languages.flat() as LanguageRegistration[])
-    );
+  if (opts.langs !== undefined) {
+    current.extraLangs.push(...(opts.langs.flat() as LanguageRegistration[]));
   }
   if (opts.themes !== undefined) {
     current.extraThemes.push(...opts.themes);

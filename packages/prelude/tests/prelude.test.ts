@@ -130,8 +130,8 @@ describe("CodeBlock default (sync shiki)", () => {
     );
   });
 
-  test("lstset({language}) supplies the default; the fence tag wins over it", () => {
-    lstset({ language: "python" });
+  test("lstset({lang}) supplies the default; the fence tag wins over it", () => {
+    lstset({ lang: "python" });
     expect(decodeStatic(el(CodeBlock, ["def f(): pass"]))).toContain(
       '<pre class="shiki'
     );
@@ -141,19 +141,19 @@ describe("CodeBlock default (sync shiki)", () => {
   });
 
   test("lstset is reset per render (R14d)", () => {
-    lstset({ language: "python" });
+    lstset({ lang: "python" });
     reset();
     expect(decodeStatic(el(CodeBlock, ["def f(): pass"]))).toMatch(
       /^<pre class="nota-code-block">/
     );
   });
 
-  test("unknown language warns once and falls back to plain", () => {
+  test("unknown lang warns once and falls back to plain", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const out = decodeStatic(el(CodeBlock, ["x"], { lang: "no-such-lang" }));
     expect(out).toMatch(/^<pre class="nota-code-block">/);
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('no grammar loaded for language "no-such-lang"')
+      expect.stringContaining('no grammar loaded for lang "no-such-lang"')
     );
   });
 
@@ -186,21 +186,21 @@ describe("CodeBlock default (sync shiki)", () => {
 });
 
 describe("CodeInline default", () => {
-  test("plain <code> by default (no global language)", () => {
+  test("plain <code> by default (no global lang)", () => {
     expect(decodeStatic(el(CodeInline, ["f(x)"]))).toBe(
       '<code class="nota-code-inline">f(x)</code>'
     );
   });
 
-  test("lstset({language}) highlights inline code (structure: inline, no <pre>)", () => {
-    lstset({ language: "python" });
+  test("lstset({lang}) highlights inline code (structure: inline, no <pre>)", () => {
+    lstset({ lang: "python" });
     const out = decodeStatic(el(CodeInline, ["f(1)"]));
     expect(out).toMatch(/^<code class="nota-code-inline"><span/);
     expect(out).not.toContain("<pre");
   });
 
   test("armed element inside inline code decorates the range", () => {
-    lstset({ language: "python" });
+    lstset({ lang: "python" });
     const out = decodeStatic(el(CodeInline, ["f(", el("em", ["x"]), ")"]));
     expect(out).toMatch(/<em[^>]*>x<\/em>/);
   });

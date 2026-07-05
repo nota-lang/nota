@@ -18,7 +18,7 @@
  *
  * The highlighter is a **sync** core (JS regex engine; grammars/themes eagerly imported) because
  * `struct`'s R10 expansion is synchronous. Language resolution: the fence `lang` tag wins, else
- * `lstset({language})`; no language (or an unknown one, with a warning) → plain `<pre><code>`.
+ * `lstset({lang})`; no lang (or an unknown one, with a warning) → plain `<pre><code>`.
  */
 
 import {
@@ -55,7 +55,7 @@ import { config } from "./config";
 // The sync highlighter (curated grammars + lstset extensions; memoized on the registration set)
 // ---------------------------------------------------------------------------------------------
 
-/** The curated default grammar set. Extend at runtime via `lstset({ languages })`. */
+/** The curated default grammar set. Extend at runtime via `lstset({ langs })`. */
 const BASE_LANGS = [
   ...javascript,
   ...typescript,
@@ -178,12 +178,12 @@ function reconstruct(children: readonly VNode[]): Reconstruction {
 // The default components
 // ---------------------------------------------------------------------------------------------
 
-/** Resolve the effective language, warning once on an unknown one. `undefined` → plain. */
+/** Resolve the effective lang, warning once on an unknown one. `undefined` → plain. */
 function effectiveLang(explicit: string | undefined): string | undefined {
-  const lang = explicit ?? config().language;
+  const lang = explicit ?? config().lang;
   if (lang !== undefined && !hasLang(lang)) {
     warnOnce(
-      `no grammar loaded for language "${lang}" (load one via lstset({ languages: [...] }))`
+      `no grammar loaded for lang "${lang}" (load one via lstset({ langs: [...] }))`
     );
     return undefined;
   }
@@ -191,7 +191,7 @@ function effectiveLang(explicit: string | undefined): string | undefined {
 }
 
 /**
- * The default `CodeBlock`. Props: `lang` (the fence tag; wins over `lstset({language})`).
+ * The default `CodeBlock`. Props: `lang` (the fence tag; wins over `lstset({lang})`).
  * Highlighted output is shiki's `<pre class="shiki …">` HTML as a `raw` leaf inside a block
  * `<div class="nota-code-block">` (so `struct` never paragraph-wraps a `<pre>`); the fallback is a
  * plain `<pre><code>` with the span's parts rendered as ordinary markup.
@@ -215,8 +215,8 @@ export function DefaultCodeBlock(props: CompProps): unknown {
 }
 
 /**
- * The default `CodeInline`. No per-span language syntax exists, so highlighting applies only
- * under a global `lstset({language})` (the `\lstinline` analogue); otherwise a plain `<code>`.
+ * The default `CodeInline`. No per-span lang syntax exists, so highlighting applies only
+ * under a global `lstset({lang})` (the `\lstinline` analogue); otherwise a plain `<code>`.
  * Highlighted output uses shiki's `structure: "inline"` (span runs only) inside the `<code>` host.
  */
 export function DefaultCodeInline(props: CompProps): unknown {
