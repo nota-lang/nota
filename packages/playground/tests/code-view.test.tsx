@@ -76,8 +76,8 @@ describe("CodePane", () => {
 describe("SsgPane", () => {
   it("shows read-only HTML, doc.compiled.mjs, and client.entry.mjs blocks", async () => {
     const full = compileNota(GOLDEN_NOTA);
-    const { html, manifest } = runSSG(full);
-    const clientJs = generateClientEntry(manifest, {
+    const { html } = runSSG(full);
+    const clientJs = generateClientEntry({
       moduleId: "./doc.compiled.mjs"
     });
     const { getByTestId } = render(
@@ -104,11 +104,12 @@ describe("SsgPane", () => {
     const compiledText = compiledPane.querySelector(".cm-content")?.textContent;
     expect(compiledText).toContain('from "@nota-lang/runtime"');
     expect(compiledText).toContain("Colorized");
-    // The hydration entry shows the boot call (Prettier-formatted JS, highlighted); the island
-    // manifest is embedded in it.
+    // The hydration entry shows the replay wiring (Prettier-formatted JS, highlighted) — contract
+    // R15: import Doc + hydrateDocument(Doc); no manifest is embedded (debug metadata only).
     const clientText = clientPane.querySelector(".cm-content")?.textContent;
-    expect(clientText).toContain("islandRegistry(manifest, _islandModule)");
-    expect(clientText).toContain('"Colorized"');
+    expect(clientText).toContain("hydrateDocument(Doc)");
+    expect(clientText).toContain("setAdapter(adapter)");
+    expect(clientText).not.toContain("manifest");
   });
 
   it("an island-free doc shows the zero-JS note instead of a client-entry block", () => {

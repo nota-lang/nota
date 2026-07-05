@@ -1,27 +1,28 @@
 /**
- * The live **Rendered** pane: the SSG HTML booted live in a sandboxed iframe, with each island
+ * The live **Rendered** pane: the SSG HTML booted live in a sandboxed iframe, with every island
  * hydrated in place so it becomes interactive (the golden's `Colorized` click → red→green works).
  *
- * Mechanism: write the SSG HTML into the (same-origin) iframe's document, then for each manifest
- * island find its `[data-hydration-id]` node and `adapter.hydrate` the island component over it —
- * recovering the component's `@children` slot from the SSR'd root's `innerHTML` (the
- * `bootIslandsWithSlots` approach, so the client render matches the SSR and React doesn't bail).
- * The island components come from `runSSG`'s `registry` (the emitted module's named exports), so they
- * are the *same* component instances that produced the SSR HTML.
+ * Mechanism (contract R15 — replay hydration): write the SSG HTML into the (same-origin) iframe's
+ * document, then `hydrateDocument(Doc, { root: iframeDoc })` — the runtime **replays** the document
+ * (re-executes `render(Doc)` with `island()` in capture mode), recovering each island's live
+ * component, live props, and recomputed slot, and hydrates every `[data-hydration-id]` marker.
+ * `Doc` is the *same* evaluated closure that produced the SSG HTML (from `runSSG`), so the replay's
+ * ids match by construction. No registry, no manifest transport, no `innerHTML` slot-scrape — and
+ * document-local islands (closures over `@for` variables etc.) hydrate correctly.
  */
 
 import reactAdapter from "@nota-lang/react";
-import { raw, setAdapter } from "@nota-lang/runtime";
+import { hydrateDocument, setAdapter } from "@nota-lang/runtime";
 import { useEffect, useRef } from "react";
-import type { ManifestEntry } from "./ssg";
+import type { DocFn, ManifestEntry } from "./ssg";
 
 export interface RenderedPaneProps {
   /** The SSG HTML to boot. */
   html: string;
-  /** The island manifest from `render`. */
+  /** The island manifest from `render` (debug metadata; used only as the has-islands gate). */
   manifest: Record<string, ManifestEntry>;
-  /** The island components, keyed by name (from `runSSG`). */
-  registry: Record<string, unknown>;
+  /** The evaluated document component (from `runSSG`), replayed to hydrate. `null` = no SSG yet. */
+  Doc: DocFn | null;
   /** Whether this tab is currently shown (avoid work when hidden). */
   active: boolean;
 }
@@ -32,51 +33,39 @@ const FRAME_CSS =
 export function RenderedPane({
   html,
   manifest,
-  registry,
+  Doc,
   active
 }: RenderedPaneProps) {
   const ref = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (!active) return;
-    const doc = ref.current?.contentDocument;
-    if (!doc) return;
+    const frameDoc = ref.current?.contentDocument;
+    if (!frameDoc) return;
 
     // 1. Boot the SSG HTML into the sandboxed (same-origin) iframe.
-    doc.open();
-    doc.write(
+    frameDoc.open();
+    frameDoc.write(
       `<!doctype html><html><head><meta charset="utf-8"><style>${FRAME_CSS}</style></head><body>${html}</body></html>`
     );
-    doc.close();
+    frameDoc.close();
 
-    // 2. Hydrate each island in place, using the parent's React adapter on the iframe's nodes.
-    setAdapter(reactAdapter as Parameters<typeof setAdapter>[0]);
-    // Collect each island's teardown so the next run (every debounced keystroke re-runs this effect
-    // and rewrites the iframe document) unmounts the prior React roots instead of leaking them.
-    const unmounts: Array<() => void> = [];
-    for (const [id, entry] of Object.entries(manifest ?? {})) {
-      const node = doc.querySelector(`[data-hydration-id="${id}"]`);
-      const Component = registry?.[entry.comp];
-      if (!node || typeof Component !== "function") continue;
-      // Recover the component's `@children` slot from its SSR'd root so the client render matches.
-      const slot = node.firstElementChild
-        ? node.firstElementChild.innerHTML
-        : node.innerHTML;
+    // 2. Replay-hydrate every island in place (R15), using the parent's React adapter on the
+    //    iframe's nodes. hydrateDocument returns the islands' teardowns so the next run (every
+    //    debounced keystroke re-runs this effect and rewrites the iframe document) unmounts the
+    //    prior React roots instead of leaking them. Island-free docs skip the replay entirely
+    //    (nothing to hydrate — mirrors the zero-JS property).
+    let unmounts: Array<() => void> = [];
+    if (Doc && Object.keys(manifest ?? {}).length > 0) {
+      setAdapter(reactAdapter as Parameters<typeof setAdapter>[0]);
       try {
-        unmounts.push(
-          reactAdapter.hydrate(
-            reactAdapter.h(
-              Component as Parameters<typeof reactAdapter.h>[0],
-              entry.props,
-              raw(slot)
-            ),
-            node
-          )
-        );
+        unmounts = hydrateDocument(Doc, { root: frameDoc });
       } catch (err) {
-        // A runtime error in an island shouldn't break the preview — the static SSR markup still
-        // shows — but log it (with its stack) so it's visible in the JS console.
-        console.error("[nota] island hydration failed:", err);
+        // A replay failure (e.g. the determinism guard, or a runtime error re-executing the
+        // document) shouldn't break the preview — the static SSR markup still shows — but log it
+        // (with its stack) so it's visible in the JS console. Per-island failures are already
+        // caught inside hydrateDocument (lenient).
+        console.error("[nota] replay hydration failed:", err);
       }
     }
 
@@ -94,7 +83,7 @@ export function RenderedPane({
         }
       }
     };
-  }, [html, manifest, registry, active]);
+  }, [html, manifest, Doc, active]);
 
   return (
     <iframe

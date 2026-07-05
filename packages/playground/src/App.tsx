@@ -148,7 +148,7 @@ export function App() {
               <RenderedPane
                 html={result.html}
                 manifest={result.manifest}
-                registry={result.registry}
+                Doc={result.Doc}
                 active={tab === "rendered"}
               />
             )}

@@ -13,10 +13,10 @@
  */
 
 // Subpath import on purpose: the package entry (`@nota-lang/vite`) pulls the compiler shim
-// (child_process — Node-only); `registry` is the pure manifest → boot-entry-source generator.
+// (child_process — Node-only); `registry` is the pure opts → hydration-entry-source generator.
 import { generateClientEntry } from "@nota-lang/vite/registry";
 import { compileNota, compileNotaRaw, parseNotaAst } from "./compiler";
-import { type ManifestEntry, runSSG } from "./ssg";
+import { type DocFn, type ManifestEntry, runSSG } from "./ssg";
 
 /** The result of running the pipeline over the current editor value. */
 export interface PipelineResult {
@@ -31,14 +31,18 @@ export interface PipelineResult {
   full: string;
   /** The SSG HTML. */
   html: string;
-  /** The island manifest. */
+  /** The island manifest (debug metadata — contract R15; also the `hasIslands` gate). */
   manifest: Record<string, ManifestEntry>;
-  /** The island components, keyed by name (for the Rendered pane to hydrate). */
-  registry: Record<string, unknown>;
+  /**
+   * The evaluated document component (the module's default export), for the Rendered pane to
+   * replay via `hydrateDocument(Doc, { root })` — contract R15. `null` until a successful SSG run.
+   */
+  Doc: DocFn | null;
   /**
    * The generated client **hydration entry** (what a build ships as the inlined `<script>`):
-   * `generateClientEntry(manifest)`, the exact source the CLI esbuild-bundles. `""` for an
-   * island-free document — no client JS is generated at all (the zero-JS property).
+   * `generateClientEntry({ moduleId })` — the replay entry (`import Doc …; hydrateDocument(Doc)`),
+   * the exact source the CLI esbuild-bundles. `""` for an island-free document — no client JS is
+   * generated at all (the zero-JS property).
    */
   clientJs: string;
   /** A compile/render error, if the pipeline threw. */
@@ -52,7 +56,7 @@ export const EMPTY: PipelineResult = {
   full: "",
   html: "",
   manifest: {},
-  registry: {},
+  Doc: null,
   clientJs: "",
   error: null
 };
@@ -78,12 +82,13 @@ export function runPipeline(
     return { ...prev, error: errMessage(err) };
   }
   try {
-    const { html, manifest, registry } = runSSG(full);
+    const { html, manifest, Doc } = runSSG(full);
     // The hydration entry a real build would ship: generated iff there is an island to hydrate
-    // (mirrors the CLI, which emits no client bundle at all for an island-free doc).
+    // (mirrors the CLI, which emits no client bundle at all for an island-free doc). The entry is
+    // pure wiring (R15) — `import Doc …; setAdapter(adapter); hydrateDocument(Doc);`.
     const clientJs =
       Object.keys(manifest).length > 0
-        ? generateClientEntry(manifest, { moduleId: "./doc.compiled.mjs" })
+        ? generateClientEntry({ moduleId: "./doc.compiled.mjs" })
         : "";
     return {
       ast,
@@ -92,7 +97,7 @@ export function runPipeline(
       full,
       html,
       manifest,
-      registry,
+      Doc,
       clientJs,
       error: null
     };

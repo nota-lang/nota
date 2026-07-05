@@ -1,6 +1,5 @@
 /**
- * The in-browser SSG runner (emitted module → `{ html, manifest }`) and the module evaluator the
- * **Rendered** pane reuses to hydrate islands.
+ * The in-browser SSG runner (emitted module → `{ html, manifest, Doc }`).
  *
  * Runs the compiled ESM string *in the main window* (react-dom/server SSR runs fine in the browser)
  * and returns `render(Doc)`'s output, exactly as the Node integrator does — but without a bundler or
@@ -10,14 +9,16 @@
  *   2. Evaluate the emitted module. It (a) `import`s the emitted surface from `@nota-lang/runtime`,
  *      (b) references `useState` and the prelude names (`Tex`/`CodeInline`/`CodeBlock`, contract
  *      R14) as **free identifiers** the integrator supplies, and (c) `export`s
- *      `Doc` (default) + the hoisted island components. We can't run an `import`/`export`-bearing
+ *      `Doc` (default) + any exported components. We can't run an `import`/`export`-bearing
  *      ESM string in the main window without an import map, so we strip the runtime import + ALL
  *      `export`s (keeping the declarations) and append a `return { default: Doc, …components }` built
  *      from the export identifiers parsed out of the source, evaluating the remainder via
  *      `new Function` with the runtime exports + the ambient prelude injected (the same
  *      free-identifier set the CLI injects via esbuild).
- *   3. `render(Doc)` → `{ html, manifest }`; the named exports become the **registry** the Rendered
- *      pane hydrates islands from.
+ *   3. `render(Doc)` → `{ html, manifest }`; `Doc` itself is returned alongside — the Rendered pane
+ *      hands it to `hydrateDocument(Doc, { root: iframeDoc })`, which **replays** the document in
+ *      capture mode and hydrates every island live (contract R15 — no registry, no manifest
+ *      transport, closures over document state intact).
  */
 
 import * as prelude from "@nota-lang/prelude";
@@ -152,18 +153,25 @@ function resolveImports(body: string, scope: Map<string, unknown>): string {
   );
 }
 
-/** A manifest entry: the island component name + its JSON props. */
+/** A manifest entry: the island component name + its JSON props (debug metadata — R15). */
 export interface ManifestEntry {
   comp: string;
   props: Record<string, unknown>;
 }
 
-/** The SSG result: the HTML, the island manifest, and the island component registry. */
+/** The document component (`render`/`hydrateDocument`'s argument — the module's default export). */
+export type DocFn = Parameters<typeof render>[0];
+
+/** The SSG result: the HTML, the island manifest (debug metadata), and the document component. */
 export interface SSGResult {
   html: string;
   manifest: Record<string, ManifestEntry>;
-  /** The emitted module's named exports — the island components, keyed by name (for hydration). */
-  registry: Record<string, unknown>;
+  /**
+   * The evaluated module's default export. The Rendered pane replays it via
+   * `hydrateDocument(Doc, { root })` (contract R15) — the same closure that produced the SSG HTML,
+   * so the replay's ids match by construction.
+   */
+  Doc: DocFn;
 }
 
 /**
@@ -231,22 +239,17 @@ export function evalModule(emitted: string): Record<string, unknown> {
 }
 
 /**
- * Run the full SSG step: emitted module → `{ html, manifest, registry }`. The
- * `registry` (the module's named island components) is reused by the Rendered pane to hydrate.
+ * Run the full SSG step: emitted module → `{ html, manifest, Doc }`. `Doc` (the module's default
+ * export) is reused by the Rendered pane, which replays it via `hydrateDocument` (contract R15).
  */
 export function runSSG(emitted: string): SSGResult {
   ensureAdapter();
   const mod = evalModule(emitted);
-  const Doc = mod.default as Parameters<typeof render>[0];
+  const Doc = mod.default as DocFn;
   const { html, manifest } = render(Doc) as RenderResult;
-
-  const registry: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(mod)) {
-    if (k !== "default") registry[k] = v;
-  }
   return {
     html,
     manifest: manifest as Record<string, ManifestEntry>,
-    registry
+    Doc
   };
 }

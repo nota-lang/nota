@@ -1,7 +1,9 @@
 /**
- * Rendered-pane test: the **Rendered** pane boots the SSG HTML in the iframe and hydrates
- * each island so it becomes interactive — the golden's `Colorized` click flips red→green. Same
- * hydrate-then-click assertion as the CLI's acceptance test, but driving the live `RenderedPane`.
+ * Rendered-pane test: the **Rendered** pane boots the SSG HTML in the iframe and replay-hydrates
+ * every island so it becomes interactive (contract R15: `hydrateDocument(Doc, { root: iframeDoc })`
+ * re-executes the document in capture mode — no registry, no manifest transport) — the golden's
+ * `Colorized` click flips red→green. Same hydrate-then-click assertion as the CLI's acceptance
+ * test, but driving the live `RenderedPane`.
  */
 
 import { readFileSync } from "node:fs";
@@ -27,16 +29,11 @@ afterEach(cleanup);
 const tick = () => new Promise(r => setTimeout(r, 0));
 
 describe("Rendered pane", () => {
-  it("boots the SSG HTML into the iframe and hydrates islands interactively", async () => {
-    const { html, manifest, registry } = runSSG(compileNota(GOLDEN_NOTA));
+  it("boots the SSG HTML into the iframe and replay-hydrates islands interactively", async () => {
+    const { html, manifest, Doc } = runSSG(compileNota(GOLDEN_NOTA));
 
     const { container } = rtlRender(
-      <RenderedPane
-        html={html}
-        manifest={manifest}
-        registry={registry}
-        active={true}
-      />
+      <RenderedPane html={html} manifest={manifest} Doc={Doc} active={true} />
     );
     const iframe = container.querySelector("iframe") as HTMLIFrameElement;
     expect(iframe).toBeTruthy();
@@ -62,16 +59,11 @@ describe("Rendered pane", () => {
   });
 
   it("renders an island-free doc with no hydration and no error", async () => {
-    const { html, manifest, registry } = runSSG(
+    const { html, manifest, Doc } = runSSG(
       compileNota("# Hello\n\nA paragraph with @em{emphasis}.\n")
     );
     const { container } = rtlRender(
-      <RenderedPane
-        html={html}
-        manifest={manifest}
-        registry={registry}
-        active={true}
-      />
+      <RenderedPane html={html} manifest={manifest} Doc={Doc} active={true} />
     );
     await tick();
     const doc = (container.querySelector("iframe") as HTMLIFrameElement)

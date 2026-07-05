@@ -185,20 +185,18 @@ describe("SSG-output pane", () => {
 });
 
 describe("SSG-output pane: the client hydration entry", () => {
-  it("an islands doc carries the generated boot entry (what a build ships)", () => {
+  it("an islands doc carries the generated replay entry (what a build ships)", () => {
     const r = runPipeline(GOLDEN_NOTA, EMPTY);
     expect(r.error).toBeNull();
-    // The exact generateClientEntry source the CLI esbuild-bundles: a DATA-ONLY entry — namespace
-    // module import, THIS run's manifest embedded, and the runtime's slot-aware boot call (the
-    // hydration logic itself lives in @nota-lang/runtime's boot.ts).
-    expect(r.clientJs).toContain(
-      'import * as _islandModule from "./doc.compiled.mjs"'
-    );
-    expect(r.clientJs).toContain(
-      "bootIslandsWithSlots(manifest, islandRegistry(manifest, _islandModule));"
-    );
-    expect(r.clientJs).toContain(JSON.stringify(r.manifest));
-    expect(r.clientJs).not.toContain("function bootIslandsWithSlots"); // logic not stamped in
+    // The exact generateClientEntry source the CLI esbuild-bundles: a WIRING-ONLY replay entry
+    // (contract R15) — import Doc, set the adapter, hydrateDocument(Doc). No manifest literal, no
+    // registry (the replay recovers per-island data live; the logic lives in the runtime).
+    expect(r.clientJs).toContain('import Doc from "./doc.compiled.mjs"');
+    expect(r.clientJs).toContain("setAdapter(adapter);");
+    expect(r.clientJs).toContain("hydrateDocument(Doc);");
+    expect(r.clientJs).not.toContain("manifest"); // no document data stamped in
+    expect(r.clientJs).not.toContain("bootIslands");
+    expect(r.clientJs).not.toContain("islandRegistry");
   });
 
   it("an island-free doc has NO client JS (zero-JS, mirroring the CLI)", () => {
@@ -248,7 +246,7 @@ describe("pipeline: Generated-JS survives an SSG error", () => {
     // SSG failed this run, so the SSG/Rendered panes retain the last-good output.
     expect(result.html).toBe(good.html);
     expect(result.manifest).toBe(good.manifest);
-    expect(result.registry).toBe(good.registry);
+    expect(result.Doc).toBe(good.Doc);
     expect(result.error).toBeTruthy();
   });
 });

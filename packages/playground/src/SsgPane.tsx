@@ -5,9 +5,10 @@
  *   treatment: Prettier (html parser) + CM6 HTML highlighting via {@link CodePane}.
  * - **doc.compiled.mjs** — the compiled document module as a build consumes it (the emitted JS
  *   with the runtime import prepended); Prettier(babel) + JS highlighting.
- * - **client.entry.mjs** — the generated hydration entry (`generateClientEntry(manifest)`, which
- *   embeds the island manifest); an island-free doc shows the zero-JS note instead, mirroring the
- *   CLI (which emits no client bundle at all).
+ * - **client.entry.mjs** — the generated hydration entry (`generateClientEntry({ moduleId })` — the
+ *   replay entry, contract R15: it imports `Doc` and calls `hydrateDocument(Doc)`, which re-executes
+ *   the document client-side to recover each island live); an island-free doc shows the zero-JS
+ *   note instead, mirroring the CLI (which emits no client bundle at all).
  *
  * All blocks grow to their content; the surrounding tab body scrolls.
  */
