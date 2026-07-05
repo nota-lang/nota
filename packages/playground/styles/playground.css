@@ -127,6 +127,16 @@ body {
   font-style: italic;
 }
 
+/* The what-is-this caption above the hydration entry (bundler input, not a shipped file). */
+.ssg .ssg-caption {
+  margin: 0.1rem 1rem 0.15rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.ssg .ssg-caption code {
+  font-size: 0.74rem;
+}
+
 .tabs {
   display: flex;
   background: var(--panel-2);

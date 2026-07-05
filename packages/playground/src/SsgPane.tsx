@@ -44,7 +44,15 @@ export function SsgPane({ html, manifest, clientJs }: SsgPaneProps) {
           island-free document — no client JS is generated (zero-JS)
         </p>
       ) : (
-        <CodePane code={clientJs} mode="js" testid="pane-ssg-client-js" />
+        <>
+          <p className="ssg-caption" data-testid="pane-ssg-client-js-caption">
+            bundler input, not a shipped file: esbuild folds this entry, the
+            compiled document module (<code>./doc.compiled.mjs</code> — the
+            Generated JS pane), the runtime, and the adapter into the ONE{" "}
+            <code>&lt;script&gt;</code> inlined in the built HTML.
+          </p>
+          <CodePane code={clientJs} mode="js" testid="pane-ssg-client-js" />
+        </>
       )}
     </div>
   );
