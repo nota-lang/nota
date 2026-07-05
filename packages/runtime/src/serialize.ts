@@ -43,6 +43,19 @@ export interface RenderResult {
   manifest: Manifest;
 }
 
+/**
+ * A captured island boundary (contract R15 — replay hydration). Recorded by {@link island} while
+ * {@link "./hydrate".captureRender} re-executes the document on the client: the **live** `CompFn`
+ * (closure intact), the live `props` (may be non-JSON — E4 is skipped in capture), and the
+ * recomputed `slotHtml` (the boundary's static `@children`, serialized exactly as SSG did). The
+ * driver hydrates each into its `[data-hydration-id]` node.
+ */
+export interface CapturedIsland {
+  tag: CompFn;
+  props: Record<string, unknown>;
+  slotHtml: string;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Module state (the SSG driver's per-render id counter and manifest)
 // ---------------------------------------------------------------------------------------------
@@ -51,6 +64,46 @@ export interface RenderResult {
 let ids = 0;
 /** The manifest accumulated across one {@link render} pass. */
 let manifest: Manifest = {};
+
+// ---------------------------------------------------------------------------------------------
+// Capture mode (contract R15 — replay hydration)
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Replay-capture flag. `true` while {@link "./hydrate".captureRender} re-executes the document on
+ * the client: {@link island} then **records** each depth-0 boundary (see {@link captured}) and
+ * skips its SSR, rather than stringifying it. Managed only by {@link beginCapture}/{@link endCapture}
+ * (save/restore, like the `▸` flag), so it is already `false` outside any capture — {@link reset}
+ * deliberately does not touch it.
+ */
+let capturing = false;
+/** The islands recorded during a {@link "./hydrate".captureRender} pass: `id → live boundary`. */
+let captured: Map<string, CapturedIsland> = new Map();
+/**
+ * Depth of nested-island *slot* serialization. {@link island} increments it around the serialize of
+ * a boundary's static children, so a nested island encountered inside a parent's slot sees
+ * `slotDepth > 0`. Capture only records at `slotDepth === 0`: a nested-in-slot island is SSR'd into
+ * its parent's slot bytes (byte-parity — the parent re-injects that slot via `raw`/innerHTML on
+ * hydrate), never captured or independently hydrated.
+ */
+let slotDepth = 0;
+
+/** Enter capture mode: flag on, fresh recording. Paired with {@link endCapture} (try/finally). */
+export function beginCapture(): void {
+  capturing = true;
+  captured = new Map();
+  slotDepth = 0;
+}
+
+/** Leave capture mode (flag off). The recorded map is left intact for {@link getCaptured}. */
+export function endCapture(): void {
+  capturing = false;
+}
+
+/** A snapshot of the islands captured in the current/just-finished capture pass. */
+export function getCaptured(): Map<string, CapturedIsland> {
+  return new Map(captured);
+}
 
 /**
  * Hooks run by {@link reset} — the seam for per-render *document* state owned outside the runtime
@@ -65,16 +118,19 @@ export function onRenderReset(hook: () => void): () => void {
 }
 
 /**
- * Reset the per-render SSG state: id counter to `0`, a fresh empty manifest, and any
- * {@link onRenderReset} hooks (per-document config like the prelude's `lstset`).
- * Called by {@link render} before serializing a document, so ids are
- * deterministic and manifests do not bleed between renders. (The `▸` flag is *not* reset here: the
- * only writer is {@link island}'s `withFlag`, which always restores, so `▸` is already `false`
- * outside any render.) Exposed for tests that drive `serialize`/`island` directly.
+ * Reset the per-render SSG state: id counter to `0`, a fresh empty manifest, the capture recording
+ * + slot depth, and any {@link onRenderReset} hooks (per-document config like the prelude's
+ * `lstset`). Called by {@link render} before serializing a document, so ids are
+ * deterministic and manifests do not bleed between renders. (Neither the `▸` flag nor the
+ * {@link capturing} flag is reset here: both are managed by their own save/restore
+ * (`withFlag` / {@link beginCapture}·{@link endCapture}), so both are already `false` outside any
+ * render.) Exposed for tests that drive `serialize`/`island` directly.
  */
 export function reset(): void {
   ids = 0;
   manifest = {};
+  captured = new Map();
+  slotDepth = 0;
   for (const hook of resetHooks) {
     hook();
   }
@@ -333,16 +389,39 @@ function assertJsonSerializable(
  *
  * The slot is handed to the framework as `raw(slot)`: the component forwards it via `@children` onto
  * a host element, whose adapter `h` injects it as innerHTML (no re-escape, no re-parse).
+ *
+ * **Capture mode (contract R15).** While {@link "./hydrate".captureRender} replays the document on
+ * the client ({@link capturing} `= true`), a *depth-0* boundary is **recorded** into
+ * {@link captured} — the live `CompFn`, live props, recomputed slot — and its SSR is skipped (the
+ * returned empty shell is discarded). The statement order is identical to the SSR path (`freshId`
+ * *before* the slot serialize), so ids match the server by construction. A nested-in-slot boundary
+ * (`slotDepth > 0`) is still SSR'd for byte-parity of its parent's slot. E4 is skipped in capture
+ * (props may be non-JSON now — they cross by replay, not the manifest).
  */
 export function island(v: ElementVNode & { tag: CompFn }): string {
-  // Validate first — a bad prop fails fast, before minting an id or serializing children (so a
-  // throw has no side effects: no orphaned id, no partial manifest entry, no nested-island ids).
   const comp = nameOf(v.tag);
-  assertJsonSerializable(v.props, comp);
+  // E4 (retired by R15): validate JSON-serializability only on the SSG/server path. In capture mode
+  // props cross by replay, not the manifest, so functions/class instances are legal — skip the check.
+  if (!capturing) {
+    // Validate first — a bad prop fails fast, before minting an id or serializing children (so a
+    // throw has no side effects: no orphaned id, no partial manifest entry, no nested-island ids).
+    assertJsonSerializable(v.props, comp);
+  }
 
   const id = freshId();
+  // Serialize the boundary's static children to its slot, tracking nesting so a nested island knows
+  // it is inside a parent's slot (slotDepth > 0) and must SSR rather than capture.
+  slotDepth += 1;
   const slot = v.children.map(serialize).join("");
+  slotDepth -= 1;
   manifest[id] = { comp, props: v.props };
+
+  if (capturing && slotDepth === 0) {
+    // Replay capture: record the live boundary, skip SSR. The empty shell is discarded by
+    // captureRender; the id already matches the server (same freshId-before-slot traversal).
+    captured.set(id, { tag: v.tag, props: v.props, slotHtml: slot });
+    return `<nota-island data-hydration-id="${id}"></nota-island>`;
+  }
 
   const adapter = getAdapter();
   // SSR the shell with ▸=true so the component body runs against the framework.

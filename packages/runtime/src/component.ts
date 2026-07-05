@@ -98,16 +98,13 @@ export function isComp(tag: unknown): tag is CompFn {
 }
 
 /**
- * The component's manifest name (`CompFn.compName`).
- * {@link "./serialize".island} writes this into `manifest[id].comp`. If the reader omitted the
- * name (so `compName` is unset), this throws a pointed error — an island can't be hydrated by a
- * client that can't name its component, so a missing name is a build error, not a silent `""`.
+ * The component's manifest name (`CompFn.compName`), or `"anonymous"` when unset.
+ * {@link "./serialize".island} writes this into `manifest[id].comp`. Under contract R15 the manifest
+ * is debug metadata only — the client hydrates by *replaying* the document (which recovers the live
+ * `CompFn` directly), not by resolving this name — so a missing name is no longer fatal. The reader
+ * still attaches it for readable manifests; a nameless boundary (e.g. a hand-written fixture, or a
+ * component whose binding the reader could not name) falls back to `"anonymous"`.
  */
 export function nameOf(tag: CompFn): string {
-  if (tag.compName === undefined) {
-    throw new Error(
-      'island component has no name: a component used as a hydration island must be constructed with its export name, e.g. inlineComponent(fn, "Colorized"). The reader passes this automatically; a hand-written fixture must supply it.'
-    );
-  }
-  return tag.compName;
+  return tag.compName ?? "anonymous";
 }

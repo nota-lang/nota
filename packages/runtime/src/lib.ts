@@ -36,6 +36,13 @@ export {
 export { flag, withFlag } from "./flag";
 // --- the emitted-code surface ---
 export { decode, Fragment, h } from "./h";
+// --- replay hydration: the client driver + capture (contract R15) ---
+export {
+  captureRender,
+  type HydrationNode,
+  type HydrationRoot,
+  hydrateDocument
+} from "./hydrate";
 // --- the pre-rendered-HTML marker (adapters import isRaw to inject innerHTML) ---
 export { isRaw, type RawHtml, raw } from "./raw";
 // --- the component registry (ambient-prelude slots + site-wide overrides, contract R14b) ---
@@ -48,8 +55,12 @@ export {
 } from "./registry";
 // --- serialize + islands + the SSG driver ---
 export {
+  beginCapture,
   bootIslands,
+  type CapturedIsland,
+  endCapture,
   escape,
+  getCaptured,
   getManifest,
   island,
   type Manifest,

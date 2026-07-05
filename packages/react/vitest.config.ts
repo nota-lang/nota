@@ -52,7 +52,8 @@ export default defineConfig(({ mode }) => ({
           include: [
             "tests/dom.conformance.test.ts",
             "tests/integration.test.ts",
-            "tests/bootIslands.test.ts"
+            "tests/bootIslands.test.ts",
+            "tests/hydrateDocument.test.ts"
           ],
           deps: inlineDeps
         }
