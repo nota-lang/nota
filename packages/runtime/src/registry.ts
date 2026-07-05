@@ -17,8 +17,9 @@
  * {@link registerComponents} is **global-persistent** — override is site policy, so it is NOT reset
  * per `render()` (unlike the prelude's per-document `lstset` config). Register once from site entry
  * code (or a `% registerComponents({…})` statement, which runs when `Doc()` executes — before
- * `decode` expands any slot). The client boot must perform the same registrations before
- * `bootIslands` so an islanded override hydrates against the same component.
+ * `decode` expands any slot). The client entry must perform the same registrations before
+ * `hydrateDocument` (the setup import in the generated entry) so the replay expands each slot to
+ * the same islanded override the server did.
  */
 
 import type { CompFn, CompProps } from "./component";

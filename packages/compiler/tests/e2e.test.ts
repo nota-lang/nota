@@ -91,8 +91,8 @@ describe("LIVE e2e: compile(golden.nota) → render → SSG HTML", () => {
         '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'
     );
     expect(manifest).toEqual({
-      "1": { comp: "Colorized", props: {} },
-      "2": { comp: "Colorized", props: {} }
+      "1": { comp: "Colorized" },
+      "2": { comp: "Colorized" }
     });
   });
 });

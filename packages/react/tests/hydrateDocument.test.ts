@@ -10,7 +10,8 @@
  *   local* island capturing its `x`; replay recovers the per-iteration closure on the client, and
  *   the islands are independently interactive (nested F1 hoist never permitted this).
  * - **function-valued island prop** — a prop holding a live handler (closing over document state)
- *   reaches the client and fires; the old JSON manifest (E4) rejected function props outright.
+ *   crosses SSG (`render(Doc)` — E4 is retired) AND the replay, and fires on the client; the old
+ *   JSON manifest rejected function props outright.
  *
  * Emit is hand-written in the shape the reader produces today (keyed `@for`, `decode(...)` on Doc +
  * component bodies), per `tests/fixtures/golden.compiled.ts` — until the R15 reader phase.
@@ -25,10 +26,8 @@ import {
   h,
   hydrateDocument,
   inlineComponent,
-  raw,
   render,
-  setAdapter,
-  withFlag
+  setAdapter
 } from "@nota-lang/runtime";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -39,30 +38,10 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-/** Await React's async hydration/commit (a microtask + a macrotask, as the boot tests do). */
+/** Await React's async hydration/commit (a microtask + a macrotask). */
 async function flush(): Promise<void> {
   await Promise.resolve();
   await new Promise(r => setTimeout(r, 0));
-}
-
-/**
- * SSR one island's marker directly through the adapter — the exact bytes `island()` would produce —
- * *bypassing* `render(Doc)`. Needed for the function-prop case: the E4 check on the server render
- * still rejects a function prop in this phase (it is retired for the server path later), but the
- * client replay/hydrate path already accepts it, which is what R15 unblocks.
- */
-function ssrMarker(
-  tag: Parameters<typeof h>[0],
-  props: Record<string, unknown>,
-  slotHtml: string,
-  id: string
-): string {
-  const shell = withFlag(true, () =>
-    reactAdapter.renderToString(
-      reactAdapter.h(tag, { ...props }, slotHtml ? raw(slotHtml) : [])
-    )
-  );
-  return `<nota-island data-hydration-id="${id}">${shell}</nota-island>`;
 }
 
 // =============================================================================================
@@ -176,7 +155,7 @@ describe("island in @for closing over the loop variable", () => {
 // =============================================================================================
 
 describe("function-valued island prop", () => {
-  test("a live handler prop reaches the client and fires on click", async () => {
+  test("a live handler prop crosses render(Doc) AND the replay, and fires on click", async () => {
     const state = { fired: 0 };
     const Fires = inlineComponent(
       (children: CompProps["children"], props: CompProps) =>
@@ -198,13 +177,13 @@ describe("function-valued island prop", () => {
       return decode(h(Fires, { onFire }, ["fire"]));
     };
 
-    // Server marker built directly (render(DocFn) would trip E4 on the function prop this phase).
-    document.body.innerHTML = ssrMarker(
-      Fires,
-      { onFire: () => {} },
-      "fire",
-      "1"
-    );
+    // The REAL server path: render(DocFn) islands the function prop without throwing (E4 retired)
+    // and the manifest carries only the debug name — the prop never crosses as data.
+    const { html, manifest } = render(DocFn);
+    expect(manifest).toEqual({ "1": { comp: "Fires" } });
+    expect(html).toContain('data-hydration-id="1"');
+    expect(html).not.toContain("onFire"); // no handler leaks into the static HTML
+    document.body.innerHTML = html;
 
     const teardowns = hydrateDocument(DocFn);
     await flush();

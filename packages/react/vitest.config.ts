@@ -10,7 +10,7 @@ import { defineConfig } from "vite";
  *   produces HTML strings). Runs the render half of the conformance matrix.
  * - **dom** — jsdom env + `browser` conditions → both frameworks' *client* builds (`hydrate`).
  *   Runs the hydrate half of the matrix, the headline integration (React `render(Doc)`), and the
- *   `bootIslands` jsdom test.
+ *   `hydrateDocument` replay jsdom test.
  *
  * `inlineDeps` makes vitest transform the workspace `@nota-lang/*` packages (and react/solid) rather
  * than treat them as externals — so the export conditions above actually apply to them.
@@ -52,7 +52,6 @@ export default defineConfig(({ mode }) => ({
           include: [
             "tests/dom.conformance.test.ts",
             "tests/integration.test.ts",
-            "tests/bootIslands.test.ts",
             "tests/hydrateDocument.test.ts"
           ],
           deps: inlineDeps

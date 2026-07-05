@@ -2,8 +2,9 @@
  * `serialize` + `island` unit tests, driven by a **stub adapter** that
  * records its calls and returns sentinel HTML. Asserts: host/text/fragment/void HTML emission,
  * attribute serialization (style object, booleans, event-handler omission, escaping), monotonic
- * hydration ids, manifest entries, static-slot pre-rendering (the boundary's children reach the
- * adapter as already-serialized HTML), and the non-JSON-serializable-prop throw.
+ * hydration ids, `{ comp }` debug-manifest entries (R15), static-slot pre-rendering (the boundary's
+ * children reach the adapter as already-serialized HTML), and that non-JSON props are legal (E4
+ * retired — props cross by replay, not the manifest).
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -60,6 +61,28 @@ interface StubEl {
   call: HCall;
 }
 
+/**
+ * Stringify props for the stub sentinel, tolerating the non-JSON values islands may now carry
+ * (E4 retired — functions/symbols/bigints stringify, circular refs collapse) so the *fixture*
+ * never throws where the runtime doesn't.
+ */
+function safePropsJson(props: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(props, (_k, v) => {
+    const t = typeof v;
+    if (t === "bigint" || t === "symbol" || t === "function") {
+      return String(v);
+    }
+    if (t === "object" && v !== null) {
+      if (seen.has(v as object)) {
+        return "[circular]";
+      }
+      seen.add(v as object);
+    }
+    return v;
+  });
+}
+
 /** Build a stub adapter plus a log of its `h` calls (for asserting island wiring). */
 function makeStubAdapter() {
   const hCalls: HCall[] = [];
@@ -83,7 +106,7 @@ function makeStubAdapter() {
       const { call } = elem as StubEl;
       const name = (call.tag as Partial<CompFn>).compName ?? "?";
       const slot = isRaw(call.children) ? (call.children as RawHtml).html : "";
-      const propsJson = JSON.stringify(call.props);
+      const propsJson = safePropsJson(call.props);
       return `<stub comp="${name}" props='${propsJson}'>${slot}</stub>`;
     },
     hydrate(elem: unknown, container: unknown): void {
@@ -290,13 +313,21 @@ describe("island (ids / manifest / slot / wiring)", () => {
     expect(a.endsWith("</nota-island>")).toBe(true);
   });
 
-  test("records manifest { comp, props } per island", () => {
+  test("records manifest { comp } per island (debug metadata — R15; props not carried)", () => {
     island(el(Colorized, ["a"], { hue: 5 }) as ElementVNode & { tag: CompFn });
     island(el(Colorized, ["b"]) as ElementVNode & { tag: CompFn });
     expect(getManifest()).toEqual({
-      "1": { comp: "Colorized", props: { hue: 5 } },
-      "2": { comp: "Colorized", props: {} }
+      "1": { comp: "Colorized" },
+      "2": { comp: "Colorized" }
     });
+  });
+
+  test("a nameless boundary records comp 'anonymous' (nameOf fallback)", () => {
+    // A nested/document-local component gets no name-attach (until the reader's R15 phase); the
+    // manifest is debug-only, so it falls back rather than failing the build.
+    const Nameless: CompFn = inlineComponent(c => c);
+    island(el(Nameless, ["x"]) as ElementVNode & { tag: CompFn });
+    expect(getManifest()).toEqual({ "1": { comp: "anonymous" } });
   });
 
   test("static children are pre-serialized to an HTML slot handed to the adapter as raw()", () => {
@@ -342,66 +373,41 @@ describe("island (ids / manifest / slot / wiring)", () => {
 });
 
 // =============================================================================================
-// island — non-JSON-serializable prop throws
+// island — non-JSON props are legal (E4 retired by R15: props cross by replay, not the manifest)
 // =============================================================================================
 
-describe("island (JSON-serializable prop validation)", () => {
+describe("island (non-JSON props are legal — E4 retired)", () => {
   const C: CompFn = inlineComponent(c => c, "C");
 
-  test("a function prop throws a pointed error", () => {
-    expect(() =>
-      island(el(C, ["x"], { cb: () => 1 }) as ElementVNode & { tag: CompFn })
-    ).toThrow(/not JSON-serializable.*function/s);
+  test("a function-valued prop no longer throws; it reaches the adapter live", () => {
+    const cb = () => 1;
+    let out = "";
+    expect(() => {
+      out = island(el(C, ["x"], { cb }) as ElementVNode & { tag: CompFn });
+    }).not.toThrow();
+    expect(out).toMatch(/^<nota-island data-hydration-id="1">/);
+    // the manifest records only the debug name — the prop is not transported…
+    expect(getManifest()).toEqual({ "1": { comp: "C" } });
+    // …but the SSR call receives the live function (closures work server-side too).
+    const compCall = stub.hCalls.find(c => c.tag === C);
+    expect(compCall?.props).toEqual({ cb });
   });
 
-  test("a symbol prop throws", () => {
-    expect(() =>
-      island(el(C, ["x"], { s: Symbol("z") }) as ElementVNode & { tag: CompFn })
-    ).toThrow(/not JSON-serializable.*symbol/s);
-  });
-
-  test("a bigint prop throws", () => {
-    expect(() =>
-      island(el(C, ["x"], { n: 1n }) as ElementVNode & { tag: CompFn })
-    ).toThrow(/not JSON-serializable.*bigint/s);
-  });
-
-  test("a nested function (in an object/array) throws with a path", () => {
-    expect(() =>
-      island(
-        el(C, ["x"], { data: { items: [{ fn: () => 1 }] } }) as ElementVNode & {
-          tag: CompFn;
-        }
-      )
-    ).toThrow(/data\.items\[0\]\.fn/);
-  });
-
-  test("a circular prop throws", () => {
+  test("symbol / bigint / nested-function / circular props all island without throwing", () => {
     const o: Record<string, unknown> = {};
     o.self = o;
-    expect(() =>
-      island(el(C, ["x"], { o }) as ElementVNode & { tag: CompFn })
-    ).toThrow(/circular/);
-  });
-
-  test("plain JSON props (nested objects/arrays/strings/numbers/null) are accepted", () => {
-    expect(() =>
-      island(
-        el(C, ["x"], {
-          data: { a: [1, 2, "s", null], b: { c: true } }
-        }) as ElementVNode & { tag: CompFn }
-      )
-    ).not.toThrow();
-  });
-
-  test("a non-serializable prop throws BEFORE an id is committed past it", () => {
-    // first island ok → id 1; second throws → no id 2 manifest entry
-    island(el(C, ["a"]) as ElementVNode & { tag: CompFn });
-    expect(() =>
-      island(el(C, ["b"], { bad: () => 1 }) as ElementVNode & { tag: CompFn })
-    ).toThrow();
-    // manifest has only the first island; the throw happened after id mint but before commit
-    expect(Object.keys(getManifest())).toEqual(["1"]);
+    for (const props of [
+      { s: Symbol("z") },
+      { n: 1n },
+      { data: { items: [{ fn: () => 1 }] } },
+      { o }
+    ]) {
+      expect(() =>
+        island(el(C, ["x"], props) as ElementVNode & { tag: CompFn })
+      ).not.toThrow();
+    }
+    // every island minted an id and a { comp } entry — nothing was rejected.
+    expect(Object.keys(getManifest())).toEqual(["1", "2", "3", "4"]);
   });
 });
 

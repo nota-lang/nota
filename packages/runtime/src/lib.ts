@@ -7,8 +7,9 @@
  *
  * Exposes the static `▸ = false` builders (`h`/`Fragment`, the latter with an optional leading-props
  * arg), `decode`, the component constructors, the structural pass `struct`
- * (`groupLists`/`groupParas`/`groupSections`), and the SSG machinery
- * `serialize`/`island`/`render`/`bootIslands`. The `▸ = true` paths dispatch through an injected
+ * (`groupLists`/`groupParas`/`groupSections`), the SSG machinery
+ * `serialize`/`island`/`render`, and the client replay-hydration driver `hydrateDocument`
+ * (contract R15). The `▸ = true` paths dispatch through an injected
  * `@nota-lang/{react,solid}` adapter; with **no** adapter set, `getAdapter()` throws a
  * pointed "no adapter injected" error rather than a cryptic `undefined is not a function`.
  */
@@ -16,14 +17,6 @@
 export type { Adapter } from "./adapter";
 // --- adapter contract (implementations in @nota-lang/{react,solid}) ---
 export { clearAdapter, getAdapter, setAdapter } from "./adapter";
-// --- client boot: slot-aware hydration + island-component resolution (document-independent) ---
-export {
-  bootIslandsWithSlots,
-  type IslandBuilder,
-  type IslandModule,
-  islandRegistry,
-  resolveIslandComponent
-} from "./boot";
 // --- component types ---
 export type { CompBody, CompFn, CompProps } from "./component";
 export {
@@ -56,7 +49,6 @@ export {
 // --- serialize + islands + the SSG driver ---
 export {
   beginCapture,
-  bootIslands,
   type CapturedIsland,
   endCapture,
   escape,

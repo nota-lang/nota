@@ -5,8 +5,8 @@
  * We hand-write the emitted JS module (the `Colorized` example, WITH the name arg
  * `inlineComponent(fn, "Colorized")`, importing `useState` from `react`), run `render(Doc)`, and
  * assert the final SSG output: the `<ul><li>…<span … style="color: red">a</span>…</li>…</ul>` HTML
- * (modulo formatting / attr-order / our hydration-id mechanism) plus the island manifest
- * `{"1":{comp:"Colorized",props:{}},"2":{comp:"Colorized",props:{}}}`.
+ * (modulo formatting / attr-order / our hydration-id mechanism) plus the island debug manifest
+ * `{"1":{comp:"Colorized"},"2":{comp:"Colorized"}}` (R15: `{comp}` only — props are not carried).
  *
  * Runs in the `dom` vitest project (jsdom): React's `react-dom/server` `renderToString` runs there,
  * and `island` SSRs each `Colorized` shell with `▸ = true` so `useState("red")` bakes `color: red`.
@@ -56,10 +56,10 @@ describe("headline integration (final SSG output)", () => {
   test("render(Doc) → SSG HTML + manifest", () => {
     const { html, manifest } = render(Doc);
 
-    // --- manifest: two islands, both Colorized, empty props ---
+    // --- manifest: two islands, both Colorized (debug metadata — {comp} only, R15) ---
     expect(manifest).toEqual({
-      "1": { comp: "Colorized", props: {} },
-      "2": { comp: "Colorized", props: {} }
+      "1": { comp: "Colorized" },
+      "2": { comp: "Colorized" }
     });
 
     // --- structure: <ul> with two <li>, each an island wrapping a <span> with the slot text ---
@@ -153,8 +153,8 @@ describe("reader-emit golden (reader → runtime, full loop)", () => {
         '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'
     );
     expect(manifest).toEqual({
-      "1": { comp: "Colorized", props: {} },
-      "2": { comp: "Colorized", props: {} }
+      "1": { comp: "Colorized" },
+      "2": { comp: "Colorized" }
     });
   });
 });

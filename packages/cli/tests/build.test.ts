@@ -97,11 +97,11 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     out = await build("golden.nota");
   });
 
-  test("two Colorized islands in the manifest", () => {
+  test("two Colorized islands in the manifest ({comp} only — debug metadata, R15)", () => {
     expect(out.hasIslands).toBe(true);
     expect(out.manifest).toEqual({
-      "1": { comp: "Colorized", props: {} },
-      "2": { comp: "Colorized", props: {} }
+      "1": { comp: "Colorized" },
+      "2": { comp: "Colorized" }
     });
   });
 
@@ -121,7 +121,7 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     // The manifest is inlined as application/json DEBUG metadata (contract R15: hydration never
     // reads it — the client replays Doc; it remains inspectable + gates hasIslands).
     expect(out.html).toContain(
-      '<script type="application/json" id="nota-manifest">{"1":{"comp":"Colorized","props":{}},"2":{"comp":"Colorized","props":{}}}</script>'
+      '<script type="application/json" id="nota-manifest">{"1":{"comp":"Colorized"},"2":{"comp":"Colorized"}}</script>'
     );
     // The two script tags the CLI emits are exactly these two opening forms (the inlined bundle text
     // may itself contain `<script src=…>` *substrings* — react-dom/server source — so the

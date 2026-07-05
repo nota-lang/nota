@@ -153,10 +153,9 @@ function resolveImports(body: string, scope: Map<string, unknown>): string {
   );
 }
 
-/** A manifest entry: the island component name + its JSON props (debug metadata — R15). */
+/** A manifest entry: the island's debug name (`{comp}` only — R15; props are not carried). */
 export interface ManifestEntry {
   comp: string;
-  props: Record<string, unknown>;
 }
 
 /** The document component (`render`/`hydrateDocument`'s argument — the module's default export). */

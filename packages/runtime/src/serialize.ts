@@ -4,7 +4,8 @@
  * After {@link "./struct".struct}, a vnode tree contains only host nodes, fragments, text leaves,
  * and *boundary* `CompFn` nodes. {@link serialize} stringifies it to static HTML, rendering each
  * boundary as a hydration {@link island}: a fresh id, the component's shell SSR'd with `▸ = true`,
- * and a manifest entry the client later reads to hydrate.
+ * and a debug manifest entry. The client hydrates by *replaying* the document
+ * ({@link "./hydrate".hydrateDocument}, contract R15) — no per-island data crosses the wire.
  *
  * ## The hydration-id placement decision
  *
@@ -13,10 +14,10 @@
  * root unless the component *spreads* it onto a host element — a component that renders
  * `h("span", {onClick, style}, children)` does not, so the id would simply vanish. We therefore land
  * the id on a **marker wrapper element** instead: each island's SSR output is wrapped in
- * `<nota-island data-hydration-id="N">…</nota-island>`. {@link bootIslands} selects on
- * `[data-hydration-id]` and hydrates the framework element *into* that wrapper (its children are the
- * SSR'd shell — exactly what React `hydrateRoot` / Solid `hydrate` expect to attach over). This is
- * framework-agnostic, requires no cooperation from the component, and never risks an "unknown DOM
+ * `<nota-island data-hydration-id="N">…</nota-island>`. {@link "./hydrate".hydrateDocument} selects
+ * on `[data-hydration-id]` and hydrates the framework element *into* that wrapper (its children are
+ * the SSR'd shell — exactly what React `hydrateRoot` / Solid `hydrate` expect to attach over). This
+ * is framework-agnostic, requires no cooperation from the component, and never risks an "unknown DOM
  * attribute" warning from spreading the id onto a host. The integration test asserts this form.
  */
 
@@ -31,11 +32,14 @@ import { type ElementVNode, FRAG, isElement, type VNode } from "./vnode";
 // Manifest / result types
 // ---------------------------------------------------------------------------------------------
 
-/** The island manifest emitted alongside the HTML: `id → { comp, props }`. */
-export type Manifest = Record<
-  string,
-  { comp: string; props: Record<string, unknown> }
->;
+/**
+ * The island manifest emitted alongside the HTML: `id → { comp }`. **Debug metadata only**
+ * (contract R15): hydration replays the document and never reads it; it names each island for
+ * inspection (`comp` may be `"anonymous"` for a nameless boundary) and gates `hasIslands` in the
+ * integrators. Props are NOT carried — they may hold non-JSON values (functions, class instances)
+ * and cross server→client by replay, not by transport.
+ */
+export type Manifest = Record<string, { comp: string }>;
 
 /** Result of the SSG `render` driver. */
 export interface RenderResult {
@@ -46,9 +50,9 @@ export interface RenderResult {
 /**
  * A captured island boundary (contract R15 — replay hydration). Recorded by {@link island} while
  * {@link "./hydrate".captureRender} re-executes the document on the client: the **live** `CompFn`
- * (closure intact), the live `props` (may be non-JSON — E4 is skipped in capture), and the
- * recomputed `slotHtml` (the boundary's static `@children`, serialized exactly as SSG did). The
- * driver hydrates each into its `[data-hydration-id]` node.
+ * (closure intact), the live `props` (may be non-JSON — functions and class instances are legal),
+ * and the recomputed `slotHtml` (the boundary's static `@children`, serialized exactly as SSG did).
+ * The driver hydrates each into its `[data-hydration-id]` node.
  */
 export interface CapturedIsland {
   tag: CompFn;
@@ -329,64 +333,13 @@ export function serialize(v: VNode): string {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Detect a non-JSON-serializable island prop and throw a pointed error (island props cross the
- * server→client boundary as the manifest, so they must round-trip through JSON). Mirrors what
- * `JSON.stringify` *loses or rejects*: functions, symbols, `bigint`, and `undefined` *values* are
- * lossy (silently dropped/nulled by `JSON.stringify`); circular references throw. We surface all of
- * these as a build error naming the component and the offending prop path, rather than letting a
- * prop silently disappear from the client. (Plain objects/arrays/strings/finite numbers/booleans/
- * `null` are fine; `Date` etc. serialize to a string — lossy but tolerated, the standard islands
- * footgun.)
- */
-function assertJsonSerializable(
-  props: Record<string, unknown>,
-  comp: string
-): void {
-  const seen = new WeakSet<object>();
-  const check = (value: unknown, path: string): void => {
-    const t = typeof value;
-    if (
-      t === "function" ||
-      t === "symbol" ||
-      t === "bigint" ||
-      value === undefined
-    ) {
-      throw new Error(
-        `island prop ${path} of <${comp}> is not JSON-serializable (got ${t === "function" ? "a function" : t === "symbol" ? "a symbol" : t === "bigint" ? "a bigint" : "undefined"}). Island props cross to the client via the manifest and must be JSON; define handlers inside the component body instead of passing them in.`
-      );
-    }
-    if (value !== null && t === "object") {
-      const obj = value as object;
-      if (seen.has(obj)) {
-        throw new Error(
-          `island prop ${path} of <${comp}> is circular and cannot be JSON-serialized.`
-        );
-      }
-      seen.add(obj);
-      if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          check(value[i], `${path}[${i}]`);
-        }
-      } else {
-        for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-          check(v, `${path}.${k}`);
-        }
-      }
-      seen.delete(obj);
-    }
-  };
-  for (const [k, v] of Object.entries(props)) {
-    check(v, k);
-  }
-}
-
-/**
  * Render a boundary node as a hydration island:
  *
  * 1. mint a fresh `id`;
  * 2. pre-serialize the boundary's *static* `children` to an HTML slot (they were authored outside
  *    the component, so they are ordinary nota vnodes — already `struct`'d);
- * 3. record `manifest[id] = { comp: nameOf(v.tag), props: v.props }` (props validated JSON-serializable);
+ * 3. record `manifest[id] = { comp: nameOf(v.tag) }` (debug metadata — R15; props are NOT carried
+ *    and may hold non-JSON values like functions, which cross by replay);
  * 4. SSR the component shell with `▸ = true` — its `h`→`adapter.h`, its `decode`→identity, and a
  *    hook like `useState("red")` bakes its initial state into the markup (the golden's `style:red`);
  * 5. wrap that markup in `<nota-island data-hydration-id="id">…</nota-island>` (see module docs).
@@ -401,26 +354,17 @@ function assertJsonSerializable(
  * identical to the SSR path (`freshId` *before* the slot serialize), so ids match the server by
  * construction. Depth decides only the SSR: a depth-0 boundary skips it (the returned empty shell
  * is discarded), while a nested-in-slot boundary (`slotDepth > 0`) is still SSR'd for byte-parity
- * of its parent's slot (the parent re-injects that slot via `raw`/innerHTML on any re-render). E4
- * is skipped in capture (props may be non-JSON now — they cross by replay, not the manifest).
+ * of its parent's slot (the parent re-injects that slot via `raw`/innerHTML on any re-render).
  */
 export function island(v: ElementVNode & { tag: CompFn }): string {
   const comp = nameOf(v.tag);
-  // E4 (retired by R15): validate JSON-serializability only on the SSG/server path. In capture mode
-  // props cross by replay, not the manifest, so functions/class instances are legal — skip the check.
-  if (!capturing) {
-    // Validate first — a bad prop fails fast, before minting an id or serializing children (so a
-    // throw has no side effects: no orphaned id, no partial manifest entry, no nested-island ids).
-    assertJsonSerializable(v.props, comp);
-  }
-
   const id = freshId();
   // Serialize the boundary's static children to its slot, tracking nesting so a nested island knows
   // it is inside a parent's slot (slotDepth > 0) and must also SSR for the parent's slot bytes.
   slotDepth += 1;
   const slot = v.children.map(serialize).join("");
   slotDepth -= 1;
-  manifest[id] = { comp, props: v.props };
+  manifest[id] = { comp };
 
   if (capturing) {
     // Replay capture: record the live boundary at EVERY depth (each marker hydrates independently;
@@ -476,52 +420,4 @@ export function render(Doc: () => VNode): RenderResult {
   const out = Doc();
   const html = typeof out === "string" ? out : serialize(struct(out));
   return { html, manifest: { ...manifest } };
-}
-
-// ---------------------------------------------------------------------------------------------
-// bootIslands (client)
-// ---------------------------------------------------------------------------------------------
-
-/**
- * Client island boot. For each manifest entry, find the island's marker node
- * (`[data-hydration-id="id"]`) and `adapter.hydrate` the registered component — constructed with the
- * manifest props — *into* that node, attaching over the server-rendered shell already in the DOM.
- * `registry` maps a manifest `comp` name to the client component constructor (the build tooling
- * builds it; this module just fixes the boot contract).
- *
- * Missing nodes / missing registry entries are skipped (an island present in one but not the other
- * is a misconfiguration the integrator surfaces) — kept lenient so a partial registry boots what it can.
- *
- * @param root optional DOM subtree to search within (defaults to `document`); injectable for tests.
- */
-export function bootIslands(
-  manifest: Manifest,
-  registry: Record<string, (props: Record<string, unknown>) => unknown>,
-  root: { querySelector(s: string): unknown } = globalThisDocument()
-): void {
-  const adapter = getAdapter();
-  for (const [id, entry] of Object.entries(manifest)) {
-    const node = root.querySelector(`[data-hydration-id="${id}"]`);
-    if (node == null) {
-      continue; // no DOM for this island (e.g. pruned) — skip
-    }
-    const ctor = registry[entry.comp];
-    if (ctor == null) {
-      continue; // not in this build's registry — skip
-    }
-    adapter.hydrate(ctor(entry.props), node);
-  }
-}
-
-/** Resolve the ambient `document` (client), or throw a pointed error if there is none (e.g. Node). */
-function globalThisDocument(): { querySelector(s: string): unknown } {
-  const doc = (
-    globalThis as { document?: { querySelector(s: string): unknown } }
-  ).document;
-  if (doc == null) {
-    throw new Error(
-      "bootIslands: no `document` in scope. Call it in a browser/jsdom context, or pass an explicit root element."
-    );
-  }
-  return doc;
 }

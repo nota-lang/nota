@@ -123,7 +123,7 @@ describe("slot (R14b): resolution + R10 expansion", () => {
     expect(html).toBe(
       '<nota-island data-hydration-id="1"><stub comp="MyTex"><p>x^2</p></stub></nota-island>'
     );
-    expect(getManifest()["1"]).toEqual({ comp: "MyTex", props: {} });
+    expect(getManifest()["1"]).toEqual({ comp: "MyTex" });
   });
 
   test("lookup happens at expansion time, not slot creation", () => {
