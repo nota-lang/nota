@@ -31,15 +31,20 @@ export interface NotaPluginOptions {
    */
   extensions?: string[];
   /**
-   * Module the ambient prelude bindings (`Tex` / `CodeInline` / `CodeBlock`, contract R14) are
-   * imported from when the compiled module references them free. Default `"@nota-lang/prelude"`;
-   * `false` disables the injection (the integrator supplies the ambient names another way).
+   * Module the ambient prelude bindings (`Tex` / `CodeInline` / `CodeBlock`, contract R14; plus
+   * `Heading` from `#` heading sugar, contract R18f) are imported from when the compiled module
+   * references them free. Default `"@nota-lang/prelude"`; `false` disables the injection (the
+   * integrator supplies the ambient names another way).
    */
   preludeModule?: string | false;
 }
 
-/** The ambient names the reader emits for math/code spans (contract R14a; §9 ambient prelude). */
-const AMBIENT_PRELUDE_NAMES = ["Tex", "CodeInline", "CodeBlock"] as const;
+/**
+ * The ambient names the reader emits free: math/code spans (`Tex`/`CodeInline`/`CodeBlock` — contract
+ * R14a; §9 ambient prelude) plus `Heading` from `#` heading sugar (contract R18f). Each is injected
+ * iff the emit references it as an `h(<name>, …)` tag.
+ */
+const AMBIENT_PRELUDE_NAMES = ["Tex", "CodeInline", "CodeBlock", "Heading"] as const;
 
 /**
  * Prepend an import binding the ambient prelude names the compiled module references *free*.

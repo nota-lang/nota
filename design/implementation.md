@@ -129,8 +129,9 @@ fixtures directly.
 - **C — Document mode + whitespace.** file → `Doc`; Scribble whitespace → explicit `{"…"}` children;
   colon/block sugar; `%`/`%%%` statements + module hoisting + `await`→`async`.
 - **D — Control flow.** `@if` / `else` / `@for` → ternary / `.map`.
-- **E — Markup sugar.** `#` headings; `-`/`+` → `nota-ul-li`/`nota-ol-li` sentinels; `*`/`_` word-boundary
-  emphasis. Runtime `decode` does the grouping, so these stay local.
+- **E — Markup sugar.** `#` headings (re-lowered to the ambient `Heading` prelude slot — contract
+  R18f/g; a raw `@h1{…}` stays a host tag); `-`/`+` → `nota-ul-li`/`nota-ol-li` sentinels; `*`/`_`
+  word-boundary emphasis. Runtime `decode` does the grouping, so these stay local.
 - **F — Verbatim / code / math.** `|{}|`, fenced code, `$`/`$$` → `String.raw`.
 
 Phase A de-risks the fork mechanism cheaply; B–F are mostly breadth over a proven mechanism.

@@ -111,6 +111,14 @@ inlineComponent(fn) / blockComponent(fn):
   return marked
 ```
 
+> **Amended by contract R18 (doc-state).** At `▸=false`, `decode` is `serialize ∘ struct ∘ force ∘
+> index ∘ normalize`, not just `serialize ∘ struct`: `normalize` (R10 expansion + fragment splicing,
+> hoisted to a whole-tree pre-pass), then `index` (collect `mark` leaves into a `DocIndex`), then
+> `force` (resolve `query` leaves against that index) all run **before** `struct`/grouping. `#` sugar
+> re-lowers to the ambient `Heading` slot (`h(Heading, {rank})`), which emits a `mark` + a `query`
+> producing the concrete `<hN>` — forced before grouping, so `groupSections` below still sees a real
+> heading. See `contract.md` §0 R18.
+
 ### Structural pass — `struct` (vnode → vnode)
 Three sibling-grouping jobs over a child list, in this order (lists/headings must survive paragraph
 grouping; sections must see the lists/paras they own), then recurse — *stopping at boundaries*.

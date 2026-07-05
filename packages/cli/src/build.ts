@@ -75,13 +75,13 @@ const MODULE_FILE =
  * and `inject`ed into both bundles so a free `useState` in the compiled module resolves to React's.
  * Held here as a string (rather than a shipped file) so the bundled single-file CLI is self-contained
  * — it materializes the prelude on demand. The reader emits `useState` and `Tex` / `CodeInline` /
- * `CodeBlock` as **free identifiers**; the integrator supplies them, and esbuild `inject` rewrites
- * the free references to these exports. Extend with the `Tex` / `CodeInline` / `CodeBlock` slots
- * once `@nota-lang/prelude` ships (P3 of contract R14). (`Tex`, not `Math` — R14: `inject`
- * rewrites free refs, so exporting a `Math` would capture `Math.floor` in embedded JS.)
+ * `CodeBlock` / `Heading` as **free identifiers** (the last from `#` heading sugar, contract R18f);
+ * the integrator supplies them, and esbuild `inject` rewrites the free references to these exports.
+ * (`Tex`, not `Math` — R14: `inject` rewrites free refs, so exporting a `Math` would capture
+ * `Math.floor` in embedded JS.)
  */
 export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
-export { Tex, CodeInline, CodeBlock, lstset, mathset, registerComponents } from "@nota-lang/prelude";
+export { Tex, CodeInline, CodeBlock, Heading, lstset, mathset, registerComponents } from "@nota-lang/prelude";
 `;
 
 /** Options for {@link buildNota}. */

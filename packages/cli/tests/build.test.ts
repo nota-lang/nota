@@ -76,14 +76,16 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
   test("the SSG body grouped headings/paras/list (struct ran): sections, <p>, <ul>", () => {
     // decode.md grouping: headings own following content in <section>; inline runs → <p>;
     // `-` list items coalesce into one <ul>.
-    expect(out.html).toContain("<section><h1>Hello Nota</h1>");
+    // `#` sugar now re-lowers to the ambient `Heading` slot (contract R18f): the concrete <hN>
+    // carries a slugified `id` (numbering is off by default — secset numberDepth 0).
+    expect(out.html).toContain('<section><h1 id="hello-nota">Hello Nota</h1>');
     expect(out.html).toContain("<strong>static</strong>");
     expect(out.html).toContain("<em>no</em>");
     expect(out.html).toContain(
       "<ul><li>first item</li><li>second item</li><li>third item"
     );
-    // nested section for the h2.
-    expect(out.html).toContain("<h2>A second section</h2>");
+    // nested section for the h2 (also id'd by the Heading slot).
+    expect(out.html).toContain('<h2 id="a-second-section">A second section</h2>');
   });
 });
 

@@ -240,8 +240,14 @@ my_var_name      → my_var_name                  // intra-word: literal
 ```
 
 ### Headings
-A line opening with a run of 1–6 `#` followed by a space → `@h{n}{rest of line}`,
-where `n` is the run length. The body is the rest of the line and nests markup.
+A line opening with a run of 1–6 `#` followed by a space is a heading of rank `n`
+(the run length); the body is the rest of the line and nests markup. The readability
+view below is the *rendered* HTML — but the actual emit re-lowers `#` sugar to the
+ambient `Heading` prelude slot (`# Title → h(Heading, { rank: 1 }, ["Title"])`,
+[contract R18f](contract.md)), which produces the concrete `<hN>` with a slugified
+`id` and an optional leading section number (off until `secset({ numberDepth })` is
+raised). A raw `@h1{…}` stays a plain host tag — the principled unnumbered / un-Toc'd
+escape hatch (`\section*`).
 ```
 # Title          → <h1>Title</h1>
 ### Sub *bit*    → <h3>Sub <strong>bit</strong></h3>

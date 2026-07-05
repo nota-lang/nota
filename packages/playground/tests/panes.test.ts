@@ -262,7 +262,8 @@ describe("editor default snippet", () => {
     expect(() => compileNotaRaw(DEFAULT_SNIPPET)).not.toThrow();
     // Sanity: it exercises a heading, an element, a statement, and a loop.
     const code = compileNotaRaw(DEFAULT_SNIPPET);
-    expect(code).toContain('h("h1"');
+    // `#` heading sugar re-lowers to the ambient `Heading` slot (contract R18f), not a raw `h("h1")`.
+    expect(code).toContain("h(Heading, { rank: 1 }");
     expect(code).toContain('h("strong"');
   });
 });
