@@ -468,12 +468,17 @@ module itself is not user-facing surface.
 
 **Slot rehydration (amends §8 — `bootIslands` alone is insufficient for slotted islands).** An island
 whose component forwards a `@children` slot SSRs *with* that slot content; the runtime's `bootIslands`
-passes only props, so a client re-render lacks the slot → **React hydration mismatch (#418)**. The M
-helper therefore generates a **slot-aware boot** (`bootIslandsWithSlots`): per `[data-hydration-id]`
-node, recover the slot from the SSR'd component-root's `innerHTML`, wrap `raw(slot)`, and
-`adapter.hydrate(build(props, raw(slot)), node)`. **v1 heuristic** — assumes a single root forwarding
-`@children`; general slots likely need the slot carried explicitly (Astro-style). The registry entry is
-`registry[comp] = (props, slot) => adapter.h(Component, props, slot ?? [])` (builds, never invokes).
+passes only props, so a client re-render lacks the slot → **React hydration mismatch (#418)**. The
+**runtime** therefore ships a slot-aware boot (`boot.ts`, moved out of the M generator — the generated
+entry is document *data* only): `bootIslandsWithSlots(manifest, registry, root?)` — per
+`[data-hydration-id]` node, recover the slot from the SSR'd component-root's `innerHTML`, wrap
+`raw(slot)`, and `adapter.hydrate(build(props, raw(slot)), node)` — plus
+`islandRegistry(manifest, moduleNs)` deriving `registry[comp] = (props, slot) =>
+adapter.h(resolveIslandComponent(moduleNs, comp), props, slot ?? [])` (builds, never invokes;
+resolution at hydrate time: module export ?? `registeredComponent` — R14b). The M helper emits only
+the manifest literal + module/adapter/setup imports + the `setAdapter`/boot calls. **v1 heuristic** —
+assumes a single root forwarding `@children`; general slots likely need the slot carried explicitly
+(Astro-style).
 
 **Manifest delivery (F3, for the CLI):** the CLI embeds the manifest **in the boot bundle**
 (self-contained, no fetch) **and** inlines a `<script type="application/json" id="nota-manifest">`

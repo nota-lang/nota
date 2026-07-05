@@ -188,14 +188,17 @@ describe("SSG-output pane: the client hydration entry", () => {
   it("an islands doc carries the generated boot entry (what a build ships)", () => {
     const r = runPipeline(GOLDEN_NOTA, EMPTY);
     expect(r.error).toBeNull();
-    // The exact generateClientEntry source the CLI esbuild-bundles: namespace module import,
-    // registry-fallback resolution (R14b), slot-aware boot, and THIS run's manifest embedded.
+    // The exact generateClientEntry source the CLI esbuild-bundles: a DATA-ONLY entry — namespace
+    // module import, THIS run's manifest embedded, and the runtime's slot-aware boot call (the
+    // hydration logic itself lives in @nota-lang/runtime's boot.ts).
     expect(r.clientJs).toContain(
       'import * as _islandModule from "./doc.compiled.mjs"'
     );
-    expect(r.clientJs).toContain('resolveComp("Colorized")');
-    expect(r.clientJs).toContain("bootIslandsWithSlots(manifest, registry);");
+    expect(r.clientJs).toContain(
+      "bootIslandsWithSlots(manifest, islandRegistry(manifest, _islandModule));"
+    );
     expect(r.clientJs).toContain(JSON.stringify(r.manifest));
+    expect(r.clientJs).not.toContain("function bootIslandsWithSlots"); // logic not stamped in
   });
 
   it("an island-free doc has NO client JS (zero-JS, mirroring the CLI)", () => {

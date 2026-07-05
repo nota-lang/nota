@@ -1,16 +1,17 @@
 /**
- * `generateClientEntry` tests — registry generation.
+ * `generateClientEntry` tests — the data-only boot entry.
  *
- * From a `render()` manifest, assert the generated client boot-entry module:
- *   - imports the compiled module as a **namespace** and resolves each distinct island comp at
- *     hydrate time — module export ?? runtime-registered override (contract R14b; a *registered*
- *     island component is not a module export, so a named import would fail at bundle time);
- *   - **builds** the element (`adapter.h(resolveComp(name), props, …)`) and does **NOT** eagerly
- *     invoke the component (the framework must call it during render so hooks/signals run);
- *   - `setAdapter`s the adapter and calls the slot-aware boot;
- *   - imports the optional setup module for side effects before boot.
+ * All hydration *logic* (comp resolution, element builders, slot recovery, the boot loop) lives in
+ * the runtime's `boot.ts` — unit-tested there. What this generator owns, and what these tests pin,
+ * is the document **data** + wiring:
+ *   - the manifest embedded as a literal (self-contained — no fetch / DOM coupling);
+ *   - the compiled module imported as a **namespace** (a manifest comp may be a registered
+ *     override the module does not export — contract R14b — and a named import of a missing
+ *     export is a bundle-time error), only when islands exist;
+ *   - the optional setup module imported for side effects before boot;
+ *   - `setAdapter(adapter); bootIslandsWithSlots(manifest, islandRegistry(manifest, module))`.
  *
- * `generateClientEntry` is a pure `manifest → string` generator, so these are string/AST assertions —
+ * `generateClientEntry` is a pure `manifest → string` generator, so these are string assertions —
  * no bundler needed (the CLI's end-to-end tests exercise the bundled+booted form for real). We
  * additionally parse the output with the stock JS parser to prove it is a syntactically valid module.
  */
@@ -25,37 +26,36 @@ const GOLDEN_MANIFEST: Manifest = {
   "2": { comp: "Colorized", props: {} }
 };
 
-describe("generateClientEntry (registry/boot helper)", () => {
-  test("imports the compiled module as a namespace + resolves comps at hydrate time (R14b)", () => {
+describe("generateClientEntry (data-only boot entry)", () => {
+  test("imports the runtime boot surface + the compiled module as a namespace", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
-    // Namespace import — a manifest comp may be a registered override the module does not export,
-    // and a named import of a missing export is a bundle-time error.
+    expect(out).toContain(
+      'import { setAdapter, islandRegistry, bootIslandsWithSlots } from "@nota-lang/runtime";'
+    );
     expect(out).toContain(
       'import * as _islandModule from "./doc.compiled.js";'
     );
-    // Resolution: module export first, else the runtime component registry.
-    expect(out).toContain(
-      "const comp = _islandModule[name] ?? registeredComponent(name);"
-    );
-    // De-duplicated: two islands of the same comp ⇒ exactly one registry entry.
-    const entryCount = (out.match(/"Colorized": \(props, slot\)/g) ?? [])
-      .length;
-    expect(entryCount).toBe(1);
+    // No hydration logic is stamped into the entry — it lives in the runtime.
+    expect(out).not.toContain("function resolveComp");
+    expect(out).not.toContain("function bootIslandsWithSlots");
+    expect(out).not.toContain("querySelector");
   });
 
-  test("BUILDS the element (adapter.h), does NOT eagerly invoke the component", () => {
+  test("boots via the runtime: registry derived from manifest + module, adapter set first", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
-    // registry entry is an element-builder taking `(props, slot)`: `adapter.h(resolveComp(n), props, slot ?? [])`.
+    expect(out).toContain('import adapter from "@nota-lang/react";');
+    expect(out).toContain("setAdapter(adapter);");
     expect(out).toContain(
-      '"Colorized": (props, slot) => adapter.h(resolveComp("Colorized"), props, slot ?? [])'
+      "bootIslandsWithSlots(manifest, islandRegistry(manifest, _islandModule));"
     );
-    // It must NOT eagerly invoke the resolved component: `resolveComp(...)` only ever appears as
-    // adapter.h's first ARGUMENT, never called with props itself.
-    expect(out).not.toMatch(/resolveComp\("[^"]*"\)\s*\(/);
+    // setAdapter precedes the boot (islands hydrate through the chosen framework).
+    expect(out.indexOf("setAdapter(adapter)")).toBeLessThan(
+      out.indexOf("bootIslandsWithSlots(")
+    );
   });
 
   test("the setup module is imported for side effects before boot", () => {
@@ -64,32 +64,9 @@ describe("generateClientEntry (registry/boot helper)", () => {
       setupModule: "/site/setup.mjs"
     });
     expect(out).toContain('import "/site/setup.mjs";');
-    // registrations must land before the boot call reads the registry
     expect(out.indexOf('import "/site/setup.mjs";')).toBeLessThan(
-      out.indexOf("bootIslandsWithSlots(manifest, registry)")
+      out.indexOf("bootIslandsWithSlots(")
     );
-  });
-
-  test("setAdapter(adapter) then boots (slot-aware boot; bootIslands kept as reference)", () => {
-    const out = generateClientEntry(GOLDEN_MANIFEST, {
-      moduleId: "./doc.compiled.js"
-    });
-    expect(out).toContain('import adapter from "@nota-lang/react";');
-    // The runtime imports include `bootIslands` (the slot-agnostic reference), the `raw`/`getAdapter`
-    // the slot-aware boot needs, and `registeredComponent` (override resolution — R14b).
-    expect(out).toContain(
-      'import { setAdapter, getAdapter, bootIslands, raw, registeredComponent } from "@nota-lang/runtime";'
-    );
-    expect(out).toContain("setAdapter(adapter);");
-    // The generated entry runs the slot-aware boot (which specializes bootIslands to preserve slots).
-    expect(out).toContain("bootIslandsWithSlots(manifest, registry);");
-    // setAdapter precedes the boot (adapter must be set before islands hydrate through it).
-    expect(out.indexOf("setAdapter(adapter)")).toBeLessThan(
-      out.indexOf("bootIslandsWithSlots(manifest, registry)")
-    );
-    // it selects islands by the hydration-id marker and recovers the slot from the DOM.
-    expect(out).toContain('[data-hydration-id="');
-    expect(out).toContain("firstElementChild");
   });
 
   test("embeds the manifest as a literal (self-contained — no fetch / DOM coupling)", () => {
@@ -101,30 +78,11 @@ describe("generateClientEntry (registry/boot helper)", () => {
     );
   });
 
-  test("multiple distinct islands → one import + one registry entry each", () => {
-    const manifest: Manifest = {
-      "1": { comp: "Colorized", props: {} },
-      "2": { comp: "Counter", props: { start: 3 } },
-      "3": { comp: "Colorized", props: {} }
-    };
-    const out = generateClientEntry(manifest, { moduleId: "./m.js" });
-    // one namespace import; a registry entry per distinct name
-    expect(out).toContain('import * as _islandModule from "./m.js";');
-    expect(out).toContain(
-      '"Colorized": (props, slot) => adapter.h(resolveComp("Colorized"), props, slot ?? [])'
-    );
-    expect(out).toContain(
-      '"Counter": (props, slot) => adapter.h(resolveComp("Counter"), props, slot ?? [])'
-    );
-  });
-
-  test("an island-free manifest → no component imports, still boots (no-op)", () => {
+  test("an island-free manifest → no module import, an empty registry (boot no-ops)", () => {
     const out = generateClientEntry({}, { moduleId: "./m.js" });
-    // No island imports from the compiled module.
     expect(out).not.toContain('from "./m.js"');
-    // Still a valid boot call with an empty manifest + empty registry.
     expect(out).toContain("const manifest = {};");
-    expect(out).toContain("bootIslandsWithSlots(manifest, registry);");
+    expect(out).toContain("bootIslandsWithSlots(manifest, {});");
   });
 
   test("adapterModule / runtimeModule are overridable (one adapter per build)", () => {
@@ -135,7 +93,7 @@ describe("generateClientEntry (registry/boot helper)", () => {
     });
     expect(out).toContain('import adapter from "@nota-lang/solid";');
     expect(out).toContain(
-      'import { setAdapter, getAdapter, bootIslands, raw, registeredComponent } from "/abs/runtime.js";'
+      'import { setAdapter, islandRegistry, bootIslandsWithSlots } from "/abs/runtime.js";'
     );
   });
 

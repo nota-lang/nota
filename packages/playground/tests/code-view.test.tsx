@@ -105,7 +105,7 @@ describe("SsgPane", () => {
     );
     // The hydration entry shows the boot call (Prettier-formatted JS, highlighted).
     expect(clientPane.querySelector(".cm-content")?.textContent).toContain(
-      "bootIslandsWithSlots(manifest, registry)"
+      "islandRegistry(manifest, _islandModule)"
     );
   });
 

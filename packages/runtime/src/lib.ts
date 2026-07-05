@@ -16,6 +16,14 @@
 export type { Adapter } from "./adapter";
 // --- adapter contract (implementations in @nota-lang/{react,solid}) ---
 export { clearAdapter, getAdapter, setAdapter } from "./adapter";
+// --- client boot: slot-aware hydration + island-component resolution (document-independent) ---
+export {
+  bootIslandsWithSlots,
+  type IslandBuilder,
+  type IslandModule,
+  islandRegistry,
+  resolveIslandComponent
+} from "./boot";
 // --- component types ---
 export type { CompBody, CompFn, CompProps } from "./component";
 export {
