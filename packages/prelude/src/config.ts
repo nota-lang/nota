@@ -1,9 +1,11 @@
 /**
- * Prelude configuration: `lstset` / `mathset` (contract R14d).
+ * Prelude configuration: `lstset` / `mathset` (contract R14d) + `secset` / `bibset` (R18e).
  *
  * `lstset` (after LaTeX's listings package) sets the global code options the default
  * `CodeInline`/`CodeBlock` consult: the default `lang`, the `theme`, and extension
  * grammar/theme registrations. `mathset` sets the KaTeX `macros` the default `Tex` passes through.
+ * `secset` sets the doc-state heading `numberDepth` (R18f) and `bibset` the citation source/style
+ * the `@Cite`/`@Bibliography` constructs read (R18e) — **all four share the same scope machinery**.
  *
  * **Scope semantics (pinned R14d):** config is *document-global, last-write-wins* — R10 expands the
  * component slots inside `decode`, after the whole `Doc` body has evaluated, so a mid-document
@@ -40,6 +42,28 @@ export interface MathsetOptions {
   macros?: Record<string, string>;
 }
 
+/** One bibliography entry (the fields `@Bibliography` renders; all optional). */
+export interface BibEntry {
+  author?: string;
+  title?: string;
+  year?: string | number;
+  url?: string;
+}
+
+/** Options for {@link secset} (R18f heading numbering). */
+export interface SecsetOptions {
+  /** Number headings of rank ≤ this depth (0 = off, the default). Last-write-wins. */
+  numberDepth?: number;
+}
+
+/** Options for {@link bibset} (R18e citations). */
+export interface BibsetOptions {
+  /** The citation source, keyed by cite key. Merges into the current source. */
+  src?: Record<string, BibEntry>;
+  /** Label style: `"numeric"` (order of first citation; default) or `"alpha"` (sorted by author/title). */
+  style?: "numeric" | "alpha";
+}
+
 /** The resolved prelude config the default components read. */
 export interface PreludeConfig {
   lang: string | undefined;
@@ -47,6 +71,12 @@ export interface PreludeConfig {
   extraLangs: LanguageRegistration[];
   extraThemes: ThemeRegistrationAny[];
   macros: Record<string, string>;
+  /** Heading numbering depth (R18f). `0` = numbering off. */
+  numberDepth: number;
+  /** Citation source keyed by cite key (R18e). */
+  bibSrc: Record<string, BibEntry>;
+  /** Citation label style (R18e). */
+  bibStyle: "numeric" | "alpha";
 }
 
 const DEFAULTS: PreludeConfig = {
@@ -54,7 +84,10 @@ const DEFAULTS: PreludeConfig = {
   theme: "github-light",
   extraLangs: [],
   extraThemes: [],
-  macros: {}
+  macros: {},
+  numberDepth: 0,
+  bibSrc: {},
+  bibStyle: "numeric"
 };
 
 function clone(c: PreludeConfig): PreludeConfig {
@@ -62,7 +95,8 @@ function clone(c: PreludeConfig): PreludeConfig {
     ...c,
     extraLangs: [...c.extraLangs],
     extraThemes: [...c.extraThemes],
-    macros: { ...c.macros }
+    macros: { ...c.macros },
+    bibSrc: { ...c.bibSrc }
   };
 }
 
@@ -89,6 +123,23 @@ export function lstset(opts: LstsetOptions): void {
 export function mathset(opts: MathsetOptions): void {
   if (opts.macros !== undefined) {
     Object.assign(current.macros, opts.macros);
+  }
+}
+
+/** Set the heading numbering depth (R18f). Same scope semantics as {@link lstset}. */
+export function secset(opts: SecsetOptions): void {
+  if (opts.numberDepth !== undefined) {
+    current.numberDepth = opts.numberDepth;
+  }
+}
+
+/** Set the citation source/style (R18e). Same scope semantics as {@link lstset} (`src` merges). */
+export function bibset(opts: BibsetOptions): void {
+  if (opts.src !== undefined) {
+    Object.assign(current.bibSrc, opts.src);
+  }
+  if (opts.style !== undefined) {
+    current.bibStyle = opts.style;
   }
 }
 

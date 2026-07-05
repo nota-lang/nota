@@ -17,11 +17,18 @@
  *
  * Configure the defaults with {@link lstset} (listings-style: lang/theme/grammar extensions)
  * and {@link mathset} (KaTeX macros) — document-global, reset per render (R14d).
+ *
+ * The doc-state constructs (contract R18e/f — `Heading`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
+ * `Bibliography`, config `secset`/`bibset`) live in {@link "./doc"} and are re-exported here; they
+ * are the same slot-over-`mark`/`query` pattern. This module also registers the `"footnotes"`
+ * trailer (R18d) at load, so the footnote list auto-appends at document end unless an explicit
+ * `@Footnotes` placement suppresses it.
  */
 
-import { slot } from "@nota-lang/runtime";
+import { h, query, registerTrailer, slot } from "@nota-lang/runtime";
 
 import { DefaultCodeBlock, DefaultCodeInline } from "./code";
+import { FootnotesList } from "./doc";
 import { DefaultTex } from "./tex";
 
 // --- the ambient bindings (registry slots over the shipped defaults) ---
@@ -37,13 +44,51 @@ export {
 // --- the shipped defaults (exported for composition/wrapping in user overrides) ---
 export { DefaultCodeBlock, DefaultCodeInline } from "./code";
 
-// --- configuration (R14d) ---
+// --- configuration (R14d + R18e) ---
 export {
+  type BibEntry,
+  type BibsetOptions,
   bakeConfigBaseline,
+  bibset,
   type LstsetOptions,
   lstset,
   type MathsetOptions,
   mathset,
-  resetConfigForTest
+  resetConfigForTest,
+  type SecsetOptions,
+  secset
 } from "./config";
+// --- doc-state constructs (contract R18e/f): slots + shipped defaults + helpers ---
+export {
+  Bibliography,
+  Cite,
+  counters,
+  DefaultBibliography,
+  DefaultCite,
+  DefaultFootnote,
+  DefaultFootnotes,
+  DefaultFootnotesList,
+  DefaultHeading,
+  DefaultLabel,
+  DefaultRef,
+  DefaultToc,
+  Footnote,
+  Footnotes,
+  FootnotesList,
+  Heading,
+  Label,
+  Ref,
+  Toc,
+  textContent
+} from "./doc";
 export { DefaultTex } from "./tex";
+
+// --- R18d: auto-append the footnote list at document end (unless @Footnotes places it). The
+//     trailer calls the `FootnotesList` *slot*, so a site override reaches this path too. ---
+registerTrailer("footnotes", () =>
+  query(doc =>
+    doc.all("footnote").length > 0 && doc.all("footnotes-here").length === 0
+      ? h(FootnotesList, {}, [])
+      : null
+  )
+);
