@@ -129,6 +129,9 @@ struct(v):
 
 groupLists(k):     // coalesce a same-kind sentinel run → one list
   scan k; a maximal run of identical `nota-ul-li`/`nota-ol-li` → ⟨ul|ol, {}, [⟨li,{},itemᵢ.children⟩…]⟩.
+  "Maximal" bridges interior whitespace (R16): a whitespace-only text run *immediately followed by a
+  same-kind sentinel* is consumed (blank lines between items don't split the list); anything else
+  ends the run and its trailing whitespace is left in place (edge whitespace preserved for groupParas).
   Nested lists need no case: the parser nests a deeper run inside the parent item's children,
   so struct's recursion forms the inner list.
 

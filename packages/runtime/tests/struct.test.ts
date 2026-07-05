@@ -273,6 +273,41 @@ describe("groupLists", () => {
       ])
     );
   });
+
+  test("adjacent lists ignore newlines", () => {
+    const tree = frag([el("nota-ul-li", ["a"]), "\n", el("nota-ul-li", ["b"])]);
+    expect(struct(tree)).toEqual(
+      frag([el("ul", [el("li", ["a"]), el("li", ["b"])])])
+    );
+  });
+
+  // ---- whitespace bridging (contract R16) ----
+
+  test("a blank line (two '\\n') between same-kind sentinels bridges into one list", () => {
+    // `- a`␤␤`- b`: the reader absorbs the between-item blank into the item extents, so both
+    // sentinels arrive with a whitespace run between them. R16 consumes the run — one <ul>.
+    expect(
+      groupLists([el("nota-ul-li", ["a"]), "\n", "\n", el("nota-ul-li", ["b"])])
+    ).toEqual([el("ul", [el("li", ["a"]), el("li", ["b"])])]);
+  });
+
+  test("a multi-node soft-whitespace run bridges same-kind sentinels", () => {
+    expect(
+      groupLists([el("nota-ul-li", ["a"]), "\n", " ", el("nota-ul-li", ["b"])])
+    ).toEqual([el("ul", [el("li", ["a"]), el("li", ["b"])])]);
+  });
+
+  test("whitespace between DIFFERENT-kind sentinels does NOT bridge (and is not consumed)", () => {
+    expect(
+      groupLists([el("nota-ul-li", ["a"]), "\n", el("nota-ol-li", ["b"])])
+    ).toEqual([el("ul", [el("li", ["a"])]), "\n", el("ol", [el("li", ["b"])])]);
+  });
+
+  test("whitespace at run edges is preserved (only interior whitespace is consumed)", () => {
+    expect(groupLists(["x", "\n", el("nota-ul-li", ["a"]), "\n", "y"])).toEqual(
+      ["x", "\n", el("ul", [el("li", ["a"])]), "\n", "y"]
+    );
+  });
 });
 
 // =============================================================================================
@@ -503,6 +538,58 @@ describe("struct (container gate + recursion)", () => {
 
   test("strings are returned unchanged", () => {
     expect(struct("plain text")).toBe("plain text");
+  });
+
+  test("a whitespace-bridged list still forms paragraphs around it (R16 × groupParas)", () => {
+    // intro␤␤ - a ␤ - b ␤␤ outro : the blank lines fence a <p> off from the list on each side,
+    // while the single "\n" between the two items is bridged/consumed so the list stays one <ul>.
+    const tree = frag([
+      "intro",
+      "\n",
+      "\n",
+      el("nota-ul-li", ["a"]),
+      "\n",
+      el("nota-ul-li", ["b"]),
+      "\n",
+      "\n",
+      "outro"
+    ]);
+    expect(struct(tree)).toEqual(
+      frag([
+        el("p", ["intro"]),
+        el("ul", [el("li", ["a"]), el("li", ["b"])]),
+        el("p", ["outro"])
+      ])
+    );
+  });
+
+  test("the E5/@for emit shape bridges over the interleaved '\\n' into one <ul> (R16)", () => {
+    // The reader emits, for a textual `- a`, a `@for` of `-` items, then a textual `- b`:
+    //   h("nota-ul-li",{},["a"]),
+    //   xs.map((v,_i) => Fragment({key:_i}, h("nota-ul-li",{},[v]))),  // an array child
+    //   "\n",
+    //   h("nota-ul-li",{},["b"])
+    // Fragment splices the array child one level; struct dissolves the per-iteration keyed FRAGs
+    // (E5), so the sentinels become direct siblings — but a stray "\n" sits before the final one.
+    // R16 bridges it: all items coalesce into ONE <ul>.
+    const shape = Fragment(
+      h("nota-ul-li", {}, ["a"]),
+      ["x", "y"].map((v, _i) =>
+        Fragment({ key: _i }, h("nota-ul-li", {}, [v]))
+      ),
+      "\n",
+      h("nota-ul-li", {}, ["b"])
+    ) as ElementVNode;
+    expect(struct(shape)).toEqual(
+      frag([
+        el("ul", [
+          el("li", ["a"]),
+          el("li", ["x"]),
+          el("li", ["y"]),
+          el("li", ["b"])
+        ])
+      ])
+    );
   });
 });
 

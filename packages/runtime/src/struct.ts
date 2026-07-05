@@ -29,7 +29,10 @@
  * `groupLists` (which is context-free — lists can nest anywhere). Concretely, for a host node:
  *
  * - `groupLists` — **always** (sentinels may appear in any container, e.g. a nested list inside an
- *   `<li>`). Idempotent: `ul`/`ol` carry no sentinels, so a re-run is a no-op.
+ *   `<li>`). Idempotent: `ul`/`ol` carry no sentinels, so a re-run is a no-op. A run is *maximal*
+ *   over same-kind sentinels with interior whitespace-only text bridged/consumed (contract R16), so
+ *   blank lines between items — however the stream was assembled — do not split the list; edge
+ *   whitespace and whitespace fencing a list off from prose is preserved.
  * - `groupParas` — only when the tag is a **flow** container ({@link HOST_FLOW_TAGS}, plus `FRAG`).
  *   Idempotent: its product `<p>` is a block tag, so a re-run passes it through.
  * - `groupSections` — only in a flow container that is **not itself a `<section>`** (a section's
@@ -397,6 +400,25 @@ export function struct(root: VNode): VNode {
  * item's children verbatim — `struct` recurses into the produced `ul`/`ol` afterward, which
  * recurses into each `<li>`, so a deeper sentinel run nested inside an item's children forms the
  * inner list with no special case here.
+ *
+ * **Whitespace bridging (contract R16).** A run is *maximal* over the same-kind sentinels with
+ * interior whitespace-only text bridged: while accumulating a run, a maximal group of
+ * whitespace-only text siblings ({@link isWhitespaceText}) that is *immediately followed by another
+ * sentinel of the same kind* is **consumed** (skipped, emitted nowhere) and the run continues.
+ * Anything else — a non-whitespace sibling, a different-kind sentinel, or end-of-stream — ends the
+ * run, and that trailing whitespace is **not** consumed: `i` is left at the whitespace start so the
+ * outer loop re-emits it verbatim (it must still reach {@link groupParas}/{@link consumeParaBreaks}
+ * for paragraph-break handling). Whitespace *before* the first sentinel is likewise untouched. Blank
+ * lines between items therefore do **not** split the list — matching the reader, which absorbs
+ * textual between-item blank lines into item extents and edge-trims them, so `- a`␤␤`- b` already
+ * arrives as adjacent sentinels; R16 extends the same semantics to streams assembled via control
+ * flow (E5 `@for`), templates (R10), fragments, and hand-written `h`, where the whitespace survives
+ * fragment splicing and would otherwise split the run.
+ *
+ * *p-interaction invariant:* output whitespace = input whitespace minus the runs *interior* to a
+ * produced list. Only whitespace bracketed by same-kind sentinels is dropped; whitespace separating
+ * a list from non-list content is preserved, so the paragraph-break markers that {@link groupParas}
+ * relies on to fence a list off from surrounding prose still survive this pass.
  */
 export function groupLists(k: readonly VNode[]): VNode[] {
   const out: VNode[] = [];
@@ -406,15 +428,30 @@ export function groupLists(k: readonly VNode[]): VNode[] {
     if (isListSentinel(item)) {
       const sentinel: ListSentinel = item.tag;
       const items: VNode[] = [];
-      // accumulate the maximal run of the *same* sentinel
+      // accumulate the maximal run of the *same* sentinel, bridging interior whitespace (R16)
       while (i < k.length) {
         const cur = k[i];
         if (isListSentinel(cur) && cur.tag === sentinel) {
           items.push({ tag: "li", props: {}, children: cur.children });
           i++;
-        } else {
-          break;
+          continue;
         }
+        // A whitespace-only run bridges the list iff a same-kind sentinel follows it: consume it
+        // (advance `i` past it) and keep accumulating. Otherwise leave `i` at the whitespace start so
+        // the outer loop re-emits it — the whitespace still owes a visit to groupParas.
+        if (isWhitespaceText(cur)) {
+          const { next } = whitespaceRun(k, i);
+          const after = k[next];
+          if (
+            after !== undefined &&
+            isListSentinel(after) &&
+            after.tag === sentinel
+          ) {
+            i = next;
+            continue;
+          }
+        }
+        break;
       }
       out.push({ tag: LIST_SENTINEL[sentinel], props: {}, children: items });
     } else {
