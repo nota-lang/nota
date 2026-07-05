@@ -21,7 +21,12 @@ const overlay = "#7c7f93";
 const muted = "#8c8fa1";
 const red = "#d20f39";
 
-const catppuccinLatte = HighlightStyle.define([
+/**
+ * The Catppuccin-Latte {@link HighlightStyle}. Exported so the editor's embedded sub-language
+ * highlighter (embedded-langs.ts) can color its tokens through the *same* tag→color mapping via
+ * `highlightTree`, not just the output panes' `syntaxHighlighting` path.
+ */
+export const catppuccinLatte = HighlightStyle.define([
   // Keywords (JS): `import`/`export`, `let`/`const`, `return`/`for`, `typeof`, `this`, modifiers.
   {
     tag: [

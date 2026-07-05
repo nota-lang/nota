@@ -14,7 +14,9 @@ import { fileURLToPath } from "node:url";
 import { EditorView } from "@codemirror/view";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ensureCompiler } from "../src/compiler";
+import { embeddedTokens } from "../src/embedded-langs";
 import {
+  embeddedHighlightSpans,
   highlightSpans,
   type NotaSpan,
   notaHighlighting
@@ -149,6 +151,122 @@ describe("notaHighlighting CM6 bridge", () => {
       // `@em{x` (deleted `}`) does not parse — the previous spans must survive, remapped.
       view.dispatch({ changes: { from: 5, to: 6 } });
       expect(view.dom.querySelector(".cm-nota-tag-host")).not.toBeNull();
+    } finally {
+      view.destroy();
+    }
+  });
+});
+
+describe("embedded sub-language highlighting (embeddedTokens)", () => {
+  /** A token whose source slice equals `text`, or `undefined`. */
+  function tokenOf(src: string, lang: string, text: string) {
+    return embeddedTokens(src, lang).find(
+      t => src.slice(t.from, t.to) === text
+    );
+  }
+
+  it("tokenizes a code language's keywords / literals", () => {
+    const py = "def g():\n    return 1";
+    const defKw = tokenOf(py, "python", "def");
+    expect(defKw).toBeDefined();
+    expect(defKw?.classes).toBeTruthy(); // a HighlightStyle class was assigned
+    expect(tokenOf(py, "python", "return")).toBeDefined();
+    // A real Lezer parse, not a flat run: keyword and string classify distinctly.
+    const js = 'const s = "hi";';
+    expect(tokenOf(js, "js", "const")).toBeDefined();
+    expect(tokenOf(js, "js", '"hi"')).toBeDefined();
+  });
+
+  it("resolves fence-tag aliases (py, rs, js) to their language", () => {
+    expect(embeddedTokens("def x(): pass", "py").length).toBeGreaterThan(0);
+    expect(embeddedTokens("let mut x = 1;", "rs").length).toBeGreaterThan(0);
+    expect(embeddedTokens("const x = 1;", "js").length).toBeGreaterThan(0);
+  });
+
+  it("tokenizes TeX commands (the math language)", () => {
+    const tex = "\\sum_{i=0}^n x_i";
+    const cmd = embeddedTokens(tex, "tex").find(t =>
+      tex.slice(t.from, t.to).includes("sum")
+    );
+    expect(cmd).toBeDefined();
+    expect(embeddedTokens("\\alpha", "latex").length).toBeGreaterThan(0); // `latex` alias
+  });
+
+  it("returns nothing for an unknown or absent language (caller keeps flat)", () => {
+    expect(embeddedTokens("whatever it is", "brainfuck")).toEqual([]);
+    expect(embeddedTokens("whatever it is", null)).toEqual([]);
+  });
+});
+
+describe("embedded highlighting end-to-end (embeddedHighlightSpans)", () => {
+  it("associates a fenced block's language and tokenizes its interior at absolute offsets", () => {
+    const doc = "```python\ndef g(): pass\n```\n";
+    const def = embeddedHighlightSpans(doc).find(
+      s => doc.slice(s.from, s.to) === "def"
+    );
+    expect(def).toBeDefined();
+    // The offset is absolute into the source (past the fence line).
+    expect(def?.from).toBe(doc.indexOf("def"));
+  });
+
+  it("highlights math as TeX — inline and display — with no language tag", () => {
+    const inline = "before $\\alpha + \\beta$ after\n";
+    expect(
+      embeddedHighlightSpans(inline).some(s =>
+        inline.slice(s.from, s.to).includes("alpha")
+      )
+    ).toBe(true);
+    const display = "$$\n\\sum x\n$$\n";
+    expect(
+      embeddedHighlightSpans(display).some(s =>
+        display.slice(s.from, s.to).includes("sum")
+      )
+    ).toBe(true);
+  });
+
+  it("leaves inline code and untagged fences flat (no embedded tokens)", () => {
+    expect(embeddedHighlightSpans("run `f(x)` now\n")).toEqual([]);
+    expect(embeddedHighlightSpans("```\nplain text\n```\n")).toEqual([]);
+  });
+
+  it("highlights a @style{...} element body as CSS", () => {
+    const doc = "@style{ .a { color: red; } }\n";
+    const spans = embeddedHighlightSpans(doc);
+    expect(spans.some(s => doc.slice(s.from, s.to) === "color")).toBe(true);
+    expect(spans.some(s => doc.slice(s.from, s.to) === "red")).toBe(true);
+    // Only the CSS body, not the `@`/`style` head, is tokenized here.
+    expect(spans.every(s => s.from >= doc.indexOf("{"))).toBe(true);
+  });
+
+  it("only @style bodies are CSS — a @div body stays plain", () => {
+    expect(embeddedHighlightSpans("@div{ color: red }\n")).toEqual([]);
+  });
+
+  it("paints overlays and drops the flat under-layer in the editor DOM", () => {
+    const view = new EditorView({
+      doc: "```python\ndef g(): pass\n```\n",
+      extensions: [notaHighlighting()],
+      parent: document.body
+    });
+    try {
+      const spans = [...view.dom.querySelectorAll(".cm-content span[class]")];
+      // Embedded overlays carry HighlightStyle atomic classes, not `cm-nota-*`.
+      expect(spans.some(el => !el.className.includes("cm-nota-"))).toBe(true);
+      // A tokenized interior replaces (not layers under) its flat `code` paint.
+      expect(view.dom.querySelector(".cm-nota-code")).toBeNull();
+    } finally {
+      view.destroy();
+    }
+  });
+
+  it("falls back to the flat `code` paint for inline code (no fence language)", () => {
+    const view = new EditorView({
+      doc: "run `f(x)` now\n",
+      extensions: [notaHighlighting()],
+      parent: document.body
+    });
+    try {
+      expect(view.dom.querySelector(".cm-nota-code")).not.toBeNull();
     } finally {
       view.destroy();
     }
