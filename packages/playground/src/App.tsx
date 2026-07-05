@@ -140,7 +140,7 @@ export function App() {
             {tab === "ssg" && (
               <SsgPane
                 html={result.html}
-                manifest={result.manifest}
+                compiledJs={result.full}
                 clientJs={result.clientJs}
               />
             )}

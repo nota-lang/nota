@@ -3,7 +3,7 @@
  *   1. `jsLanguage`/`htmlLanguage`/`jsonLanguage` wire a Lezer parser + the shared Catppuccin
  *      highlight — a mistyped tag throws at define-time, so we assert each constructs.
  *   2. `CodePane` formats its `code` (async Prettier) into a *read-only* `CodeView`.
- *   3. `SsgPane` composes the formatted/highlighted HTML block + the highlighted JSON manifest.
+ *   3. `SsgPane` composes the build artifacts: HTML + doc.compiled.mjs + client.entry.mjs.
  * Runs headless in jsdom; CM6 still builds its content DOM, so we assert against `.cm-content`.
  */
 
@@ -74,17 +74,18 @@ describe("CodePane", () => {
 });
 
 describe("SsgPane", () => {
-  it("shows read-only HTML, JSON manifest, and JS hydration-entry blocks", async () => {
-    const { html, manifest } = runSSG(compileNota(GOLDEN_NOTA));
+  it("shows read-only HTML, doc.compiled.mjs, and client.entry.mjs blocks", async () => {
+    const full = compileNota(GOLDEN_NOTA);
+    const { html, manifest } = runSSG(full);
     const clientJs = generateClientEntry(manifest, {
       moduleId: "./doc.compiled.mjs"
     });
     const { getByTestId } = render(
-      <SsgPane html={html} manifest={manifest} clientJs={clientJs} />
+      <SsgPane html={html} compiledJs={full} clientJs={clientJs} />
     );
 
     const htmlPane = getByTestId("pane-ssg-html");
-    const manifestPane = getByTestId("pane-ssg-manifest");
+    const compiledPane = getByTestId("pane-ssg-compiled");
     const clientPane = getByTestId("pane-ssg-client-js");
 
     await waitFor(() =>
@@ -94,28 +95,34 @@ describe("SsgPane", () => {
       expect(clientPane.querySelector(".cm-editor")).toBeTruthy()
     );
     // All blocks are read-only CM6 views.
-    for (const pane of [htmlPane, manifestPane, clientPane]) {
+    for (const pane of [htmlPane, compiledPane, clientPane]) {
       expect(
         pane.querySelector(".cm-content")?.getAttribute("contenteditable")
       ).toBe("false");
     }
-    // The manifest (already pretty JSON) shows the island component name.
-    expect(manifestPane.querySelector(".cm-content")?.textContent).toContain(
-      "Colorized"
-    );
-    // The hydration entry shows the boot call (Prettier-formatted JS, highlighted).
-    expect(clientPane.querySelector(".cm-content")?.textContent).toContain(
-      "islandRegistry(manifest, _islandModule)"
-    );
+    // The document module block shows the compiled emit (runtime import + exported Doc).
+    const compiledText = compiledPane.querySelector(".cm-content")?.textContent;
+    expect(compiledText).toContain('from "@nota-lang/runtime"');
+    expect(compiledText).toContain("Colorized");
+    // The hydration entry shows the boot call (Prettier-formatted JS, highlighted); the island
+    // manifest is embedded in it.
+    const clientText = clientPane.querySelector(".cm-content")?.textContent;
+    expect(clientText).toContain("islandRegistry(manifest, _islandModule)");
+    expect(clientText).toContain('"Colorized"');
   });
 
-  it("an island-free doc shows the zero-JS note instead of a JS block", () => {
+  it("an island-free doc shows the zero-JS note instead of a client-entry block", () => {
     const { getByTestId, queryByTestId } = render(
-      <SsgPane html="<p>hi</p>" manifest={{}} clientJs="" />
+      <SsgPane
+        html="<p>hi</p>"
+        compiledJs="export default function Doc() {}"
+        clientJs=""
+      />
     );
     expect(getByTestId("pane-ssg-client-js-empty").textContent).toContain(
       "zero-JS"
     );
     expect(queryByTestId("pane-ssg-client-js")).toBeNull();
+    expect(getByTestId("pane-ssg-compiled")).toBeTruthy();
   });
 });
