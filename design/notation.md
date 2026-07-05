@@ -141,6 +141,13 @@ Blank-line-separated code belongs in `%%%`. `%` is literal elsewhere (`50%`); `\
 forces a literal at line-start. A `%` statement scopes the rest of its block, and
 never itself produces content — content comes only from markup.
 
+**Footgun (JS-greedy extent):** because the region continues wherever JS grammar
+allows, a multi-line binding followed by a `-` list line parses as a *subtraction*
+unless the statement is closed with an explicit `;` —
+`% let E = inlineComponent(() => …⏎})` + `- @E{}` reads as
+`inlineComponent(…) - h(E, {}, [])`. End the binding with `});` (or a blank line)
+before a `-`/`+` marker line.
+
 For many statements at once, a `%%%` fence — each fence on its own line — holds a raw
 JS block, with the same scoping and `@`-form rules as `%`; a `%` run shorter than the
 fence is literal inside it.

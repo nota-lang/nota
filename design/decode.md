@@ -141,6 +141,16 @@ groupSections(k):  // a heading owns following siblings until the next heading o
 ```
 
 ### Serialize + islands
+
+> **Superseded in part by contract R15 (replay hydration).** The *server* side below stands, with
+> one correction: the manifest is now **debug metadata only** — `manifest[id] = { comp }`, no
+> props. The client does NOT "read the manifest to hydrate": it **replays the document** —
+> re-executes `render(Doc)` with `island()` in a capture mode that records each live boundary
+> (component with closure intact, live props, recomputed slot; ids match the server by
+> construction), then hydrates each `[data-hydration-id]` marker (`hydrateDocument(Doc)`). This is
+> what lets an island be defined at any depth, close over document state (`@for` variables), and
+> take non-JSON props (functions). See `contract.md` §0 R15 + §8.
+
 `struct`'s output has only boundary `CompFn` nodes left. Serialization stringifies host nodes and
 renders each boundary as a hydration island:
 ```
@@ -170,7 +180,8 @@ SSG(file):
 ```
 Mapping to the arrows above: `Doc()` is the stage-4 tree (statics built, components deferred);
 `struct` then `serialize` together are the single `decode(…)` call collapsing stage 4 → stage 5.
-Everything runs at build; the client only re-runs island bodies.
+Everything runs at build; the client re-runs the *document* once (the R15 replay — HTML discarded,
+islands captured) and then only island bodies stay live.
 
 ### Component slots
 A boundary's *children* were authored outside the component, so they are static nota vnodes:

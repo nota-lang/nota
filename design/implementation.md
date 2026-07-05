@@ -250,6 +250,15 @@ function`. One adapter per process (one framework per app), so a singleton is co
 
 ## 2.4 Islands & hydration wiring
 
+> **SUPERSEDED by contract R15 (replay hydration) — implemented.** Everything below describes the
+> original manifest-driven boot; it is retained as design history. As built: the manifest is
+> **debug metadata only** (`{comp}`, no props; still gates `hasIslands`); there is **no client
+> registry** and **no JSON-props constraint** (E4 retired — function/class props are legal); the
+> client entry is `import Doc …; setAdapter(adapter); hydrateDocument(Doc);` — the runtime replays
+> the document in capture mode, recovering each island's live component (closures over document
+> state intact) + recomputed slot, and hydrates every `[data-hydration-id]` marker (determinism
+> guard: the replayed island id set must equal the DOM's). See `contract.md` §0 R15 + §8.
+
 `island(v)` (server) does three things: mint a `hydration-id`, render the component shell to HTML
 with that id, and record a manifest entry. The client boots from that manifest.
 
@@ -267,7 +276,7 @@ bootIslands(manifest, registry)                     // client: for each id, find
 - **Constraint — island props must be JSON-serializable.** They cross the server→client boundary
   via the manifest. Event handlers etc. are defined *inside* the component body (not passed in), so
   this is the standard islands constraint (cf. Astro); the runtime should *validate* and throw on a
-  non-serializable island prop with a pointed message.
+  non-serializable island prop with a pointed message. *(Retired by R15 — props cross by replay.)*
 
 ## 2.5 Decisions to confirm (proposed, not yet locked)
 
@@ -278,6 +287,8 @@ bootIslands(manifest, registry)                     // client: for each id, find
 - **E3 — the four-method `Adapter`** (§2.3) as the entire framework surface. *Recommend yes*;
   expand only if a framework needs more.
 - **E4 — island props are JSON-serializable, validated at the boundary** (§2.4). *Recommend yes.*
+  **(RETIRED by contract R15** — replay hydration crosses props by re-executing the document, so
+  non-JSON props are legal and the validation was deleted.)
 - **E5 — list keys (touches Part 1).** `@for`-generated children become a framework `.map(...)`,
   which React/Solid need *keyed* for correct client reconciliation; decode.md's trace omits them.
   Proposal: the **reader** lowers `@for (x of xs)` to `xs.map((x, i) => h(tag, { key: i, … }, …))`
@@ -345,7 +356,8 @@ meta-framework, or a user script). Concretely:
 - **`@nota-lang/vite`** — the transform plugin (the mdx-equivalent, the only actual Vite plugin):
   `.nota` → JS module + sourcemap + HMR, filtered by extension. This alone makes `.nota` importable.
 - **a programmatic SSG API** (from `@nota-lang/runtime`, Part 2): `render(Doc) → { html, manifest }`,
-  `bootIslands`, and a helper that turns an island set into a client registry/boot entry.
+  `hydrateDocument(Doc)` (the R15 replay-hydration client driver — supersedes `bootIslands`), and a
+  helper that generates the wiring-only client entry (`generateClientEntry`).
 - **adapter wiring** — `setAdapter` + the `@nota-lang/{react,solid}` adapters; a plugin option
   picks one per build.
 
@@ -366,14 +378,28 @@ the integrator sequences them:
 - **Server render** — the integrator loads a page's compiled JS (importing `@nota-lang/runtime` +
   the adapter) in a Node/SSR context, `setAdapter`s, calls `render(Doc)`, and receives
   `{ html, manifest }`.
-- **Client bundle** — from the islands in the manifest, nota's helper produces a registry + boot
-  entry; the integrator hands those to Vite to bundle. The browser runs `bootIslands`, which
-  `adapter.hydrate`s each island over its server-rendered DOM.
+- **Client bundle** — when the manifest is non-empty (`hasIslands`), nota's helper produces the
+  wiring-only replay entry (`import Doc …; setAdapter(adapter); hydrateDocument(Doc);` — R15); the
+  integrator hands it to the bundler. The browser replays the document (capture mode, HTML
+  discarded) and `adapter.hydrate`s each captured island over its server-rendered DOM.
 
-Nothing of the *document* ships to the client — only islands + their props (manifest) + the boot
-glue, matching decode.md.
+**R15 delta:** the *document module* now ships to the client whenever the page has any island (the
+replay must re-execute it); an island-free page still ships **zero JS**. Per-island props no longer
+cross as data — they are recomputed live by the replay.
 
 ## 3.3 The island registry (the crux) — and a feedback into Part 1
+
+> **SUPERSEDED by contract R15 (replay hydration) — implemented; F1 REVERSED.** The client no
+> longer resolves components by name at all: `hydrateDocument(Doc)` replays the document and
+> recovers each island's **live binding** — so the reader was changed back to scoping
+> `%let Colorized = inlineComponent(...)` *inside* `Doc` (ordinary lexical statement, no hoist, no
+> export; the binding may close over document state). `%export let C = …` is the author's opt-in to
+> module scope; the name 2nd-arg attach stays (it feeds the `{comp}` debug manifest — nested
+> bindings get no attach and show `"anonymous"`). The registry helper became a wiring-only entry
+> generator. **Authoring footgun (R8, worth docs):** a multi-line `%let C = inlineComponent(…)`
+> binding must close with an explicit `;` after the final `})` — the `%` region is JS-grammar-greedy
+> across single newlines, so a following `- @C{}` list line otherwise parses as a *subtraction*
+> (`inlineComponent(…) - h(C, {}, [])`). See `contract.md` §0 R15 + §4 F1.
 
 `bootIslands` needs `registry[name] → client component fn`. That requires each island component to
 be an **independently importable module export** in the client build. But the reader, per
@@ -394,6 +420,7 @@ manifests; the plugin emits a registry module importing each from its (now expor
 
 - **F1 — hoist+export component definitions to module scope** (§3.3). *Recommend yes*; settle before
   Part-1 Phase B/E, since it changes how the reader lowers `inlineComponent`/`blockComponent`.
+  **(REVERSED by contract R15** — bindings are document-local again; only the name-attach remains.)
 - **F2 — page discovery / routing / prerender loop: out of scope.** *Resolved* — delegated to the
   integrator (§3.1). nota exposes `render` and the island helpers; the integrator decides what a
   page is and when SSG runs.
