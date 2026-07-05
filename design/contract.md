@@ -27,6 +27,7 @@ Authority order: `implementation.md` (build plan) → **this file** (reconciliat
 | R11 | Inline span line clamp | new — inline spans scanned across newlines (emphasis to the next blank line, `` `…` ``/`$…$` to the next close anywhere), so a stray sigil swallowed following lines: ``- `foo⏎- bar`` parsed as one bullet holding a code span | **An inline span never crosses a newline** (CommonMark-style): `*…*`, `_…_`, `` `…` ``, and inline `$…$` must close on their opening line, else the opener is literal text. The clamp is strict — a skipped sub-region (raw span, `@`-form bracket group) that crosses the line end kills the span too. Block-shaped raw bodies keep their own multi-line extents: `$$…$$`, fenced ``` code, `\|{…}\|` verbatim. |
 | R12 | Colon sugar is positional | new — the glued `:` triggered an element anywhere a head could take one, so mid-prose `x @Bar: y` became an element and `*@a: bar* rest` double-collected the tail (once in the colon body, once in the emphasis) | **`@head:` sugars only positionally (R9-consistent):** the `:` is an element trigger iff **(1)** the form is a markup-body child (the top region is markup — never an embedded-JS island (`%` line, `[props]` value) nor a `|@`-armed form in a raw span (code / math / verbatim)), **and** **(2)** the `@` sits at a line start *modulo leading whitespace*, where a markup body's own start counts as a line start (braced/fragment body, document, or a bounded range such as emphasis / heading / list-item / colon body). Where either fails the head interpolates and `: …` is literal text (`x @a: y` → `"x "`, `a`, `": y"`); the classification also governs the hyphenated-head extension, so a dead colon never pulls `-foo` into the head (`t @my-foo:` → `@my` + `-foo:`). A colon body opened inside a **bounded** frame clips its own extent (and resume) at that frame's end, so `*@a: bar* rest` is `*@a{bar}*` + the sibling `" rest"`. |
 | R13 | Unified raw-span content model | new (Wave 3, **pinned 2026-07-04**) — math had direct `@name`/`@(expr)` interpolation lowered to `${…}` substitutions and a `display` bool; code and verbatim differed in shape | **All raw spans — verbatim `\|{…}\|`, inline/block code, inline/fence math — share ONE content model: raw text runs interleaved with `\|@`-armed `@`-forms.** Extents are **pure pre-scans** (`lex_code_span` / `lex_math_span` / `verbatim_boundary`); a second bounded scan (`armed_boundary`) arms each `\|@` via `parse_nota_form_in(Raw)` (its tail parks). A **bare `@` is literal** — direct `@name`/`@(expr)` interpolation is **removed**; only `\|@` re-enters Nota, spliced as a *sibling* (not a `${…}` substitution). **Dollar spans mirror backtick spans**: an opening run of N dollars closes at the next same-line run of ≥N dollars (shorter runs are content), so `$$…$$` inside a paragraph is inline **run-2** math, and **display math is the fence** (≥2 dollars, whitespace-only opener tail, standalone `$$` lines). The lone divergence is the **TeX escape** — the dollar close scan skips `\<c>` pairs, so `\$` stays content (LaTeX's own escape); backtick scans stay escape-blind. AST: `NotaCode` / `NotaMath` carry `parts: Vec<NotaVerbatimPart>` (`NotaMath.display` renamed → `block`, mirroring `NotaCode.block`); the runtime `display` prop is unchanged (the component is renamed `Math` → `Tex` by R14). There is no escape for a literal `\|@`; a `\|@`-armed form whose parse overruns the fixed extent is a fatal diagnostic (`nota_armed_form_overruns_span`). |
+| R15 | Island depth + captured scope | new (Wave 6, **pinned 2026-07-04**) — an island was a *named, top-level, exported* `inlineComponent`/`blockComponent` (F1) carrying **JSON** props (E4): a nested `%let C = inlineComponent(…)` never hoisted (so `nameOf` threw at SSG) and a body closing over document-local state (`() => x` under `@for`) had no client activation to re-enter. The target program `@for (x of xs) { %let E = inlineComponent(() => x); - @E{} }` was impossible on both counts. | **Replay hydration.** An island may be defined at **any depth** and close over **arbitrary document state**; its props may hold **non-JSON values** (functions, class instances). **(a) The client entry replays the document:** it re-executes `render(Doc)` (same `reset()`, same `struct`/`serialize` traversal) with `island()` in a *capture* mode that **records the live boundary** — the `CompFn` with its closure intact, the live props, and the recomputed slot HTML — instead of SSR-ing it; the produced HTML string is discarded. Hydration ids match the server **by construction** (identical `freshId`-before-slot traversal in both modes). `hydrateDocument(Doc, {root?})` then hydrates each captured island into its `[data-hydration-id]` node (per-island `try`/`catch` leniency; returns a teardown array). **(b) This supersedes the manifest-as-transport model (§8):** props no longer cross server→client as JSON, so **E4 is retired** (function/class props are legal) and the manifest is demoted to debug metadata (`Record<id, {comp}>` — props dropped; still populated at SSG, still gates `hasIslands`, still surfaced as the `#nota-manifest` script). The static `@children` **slot is recomputed by the replay, not scraped** from `innerHTML` (retires the §9 single-root heuristic). **(c) Determinism guard:** before hydrating anything, the captured id set must equal the document's `[data-hydration-id]` set — a mismatch is a pointed "did not replay deterministically" error (the replay is sound only if the document `%` code is isomorphic across runs and its island sequence is order-stable). **(d) F1 is revised (§4):** the reader no longer auto-hoists/exports component bindings — a `%let/%const C = inlineComponent(…)` is an ordinary lexical statement (uniform JS scoping); `%export let C = …` is the author's opt-in to module scope. The name-attach (constructor 2nd arg) stays, now applied to top-level `%let/%const` **and** `%export`-wrapped decls; the semantically-dead component-body `decode(...)` wrap is dropped. **(e) Limitations (v1):** prelude registry slots (KaTeX/shiki) re-execute client-side on an islanded document (the replay recomputes slot bytes, so the client build must mirror the server's setup-bake — `bakeConfigBaseline()` after the setup import); a nested island inside a *parent's slot* (`slotDepth > 0`) is SSR'd into that slot for byte-parity and is **not** independently hydrated (static under its parent), so Solid — whose client build forbids `renderToString` — makes nested-in-slot islands a pointed error. **The migration is staged** (per `design/implementation.md` R15 phases): the runtime ships capture + `hydrateDocument` first (old `bootIslands` path intact), integrators switch next, and the reader (F1 drop + emit hygiene) lands last — so the §2 golden below is the R15 *target* emit; the current reader still emits the pre-R15 form until that phase. |
 | R14 | Injectable math/code components | new (Wave 4, **pinned 2026-07-04**) — the ambient math identifier was `Math`, which the integrator's inject mechanism cannot supply without capturing the JS `Math` global (esbuild `inject` rewrites *free* references, so `% Math.floor(x)` in embedded JS would resolve to the component; a lexical `%import { Math }` override deterministically shadows the global for the whole module) | **(a) The ambient math component is `Tex`** — reader emits `h(Tex, {display?}, parts)`; `Math` is never an ambient prelude name. **(b) The ambient identifiers bind to registry slots, not concrete components** (MDX-provider analogue): the standard prelude (`@nota-lang/prelude`) exports `Tex`/`CodeInline`/`CodeBlock` as `slot(name, Default)` — a *plain* function `(props) => h(lookup(name) ?? Default, props, children)`. R10 expands the slot eagerly at decode-time; a registered plain function expands further (fully static), a registered `inlineComponent`/`blockComponent` is a boundary → SSR + island. `registerComponents({Tex: …})` (runtime; registry is a bare Map, no deps) is **global-persistent** — site policy, NOT reset per `render`. Per-document lexical override via `%import` still works (module scope shadows the ambient binding). **(c) Defaults:** `Tex` = KaTeX→MathML (`renderToString(tex, {output:"mathml", displayMode:display})` → `raw(...)`; a *vnode* armed part inside math is a fatal diagnostic — KaTeX cannot host HTML; scalar armed parts stringify-splice into the TeX source). `CodeInline`/`CodeBlock` = sync shiki core (JS regex engine, eagerly-loaded curated grammars): the parts are reassembled into ONE contiguous text (raw runs + armed elements' text-content + stringified scalars), tokenized whole, and each armed element becomes a shiki **decoration** over its range (`tagName`+`properties` from the element; nested markup inside an armed element flattens to its text; a text-less armed part → plain fallback for the span + build warning). **(d) `lstset({language, theme, …})`** (listings homage; prelude export, hence ambient): document-global, **last-write-wins** — R10 expansion happens inside `decode`, after the whole `Doc` body evaluated, so mid-document calls are NOT positional — and **reset per `render()`** (unlike registration) so multi-doc builds don't leak config. **(e)** The static path needs `RawHtml` as an opaque leaf: `struct` passes it through, `serialize` emits it verbatim. A raw leaf declares its own blockness — `raw(html, {block: true})` acts as a block *sibling* in paragraph grouping (flushes the run, never `<p>`-wrapped; shiki's `<pre>` root and display MathML use it), default inline (KaTeX inline output joins the run). |
 
 **Phase-A sequencing notes** (not conflicts, just ordering): (a) the reader takes body text from the
@@ -90,8 +91,12 @@ FRAG = the fragment tag sentinel (e.g. a unique symbol or "fragment")
 ## 2. THE canonical golden (end-to-end, reconciled) — the shared integration fixture
 
 This is decode.md's worked example, reconciled with R1–R5 (hyperscript, `@nota-lang/runtime`,
-`inlineComponent`, F1 hoist+export, no IIFE). **Every stream tests against this.** Shown *without*
-`@for` keys (R6 defers key mechanism); the integration test uses this keyless form until Phase D.
+`inlineComponent`, no IIFE) **and revised by R15** (component binding is document-local — no
+hoist/export; no body `decode(...)` wrap; manifest `{comp}` only). **Every stream tests against
+this.** Shown *without* `@for` keys (R6 defers key mechanism); the integration test uses this keyless
+form until Phase D. **Staging note:** the stage-3 emit below is the R15 *target*; the current reader
+still emits the pre-R15 form (hoisted+exported binding, body `decode(...)` wrap — see
+`packages/react/tests/fixtures/golden.compiled.ts`) until the R15 reader phase migrates it.
 
 **Stage 1 — `.nota` source**
 ```
@@ -109,12 +114,12 @@ This is decode.md's worked example, reconciled with R1–R5 (hyperscript, `@nota
 ```js
 import { h, decode, Fragment, inlineComponent } from "@nota-lang/runtime";
 
-export let Colorized = inlineComponent((children) => {
-  let [color, setColor] = useState("red");
-  return decode(h("span", { onClick: () => setColor("green"), style: { color } }, [children]));
-}, "Colorized");   // ← F1 name passed as 2nd arg → manifest `comp` (see §1, §4 F1)
-
 export default function Doc() {
+  let Colorized = inlineComponent((children) => {
+    let [color, setColor] = useState("red");
+    return h("span", { onClick: () => setColor("green"), style: { color } }, [children]);
+  }, "Colorized");   // ← name 2nd arg stays → manifest `comp` + hydration (see §1, §4 F1); no export
+
   return decode(Fragment(
     ["a", "b"].map((x, _i) =>
       Fragment({ key: _i }, h("nota-ul-li", {}, [
@@ -124,9 +129,13 @@ export default function Doc() {
   ));
 }
 ```
-Notes: (a) `Colorized` hoisted to module scope + `export`ed (F1/R4); (b) component body markup wrapped
-in `decode(...)`; (c) `@children` → the bound `children` param; (d) `-` list marker → `"nota-ul-li"` sentinel
-(runtime `struct` later coalesces to `<ul><li>`); (e) Doc body wrapped in `decode(...)`.
+Notes (R15): (a) `Colorized` is a **document-local** lexical binding inside `Doc` — **not** hoisted or
+`export`ed (revises R4/F1: uniform JS scoping; `%export` is the opt-in to module scope); (b) the
+component body is **not** wrapped in `decode(...)` — the wrap was dead (bodies run only at `▸ = true`
+where `decode` is the identity); (c) `@children` → the bound `children` param; (d) `-` list marker →
+`"nota-ul-li"` sentinel (runtime `struct` later coalesces to `<ul><li>`); (e) **Doc's** body keeps its
+`decode(...)` wrap — it is what self-decodes the document at `▸ = false`. The name 2nd arg is retained
+(the returned `CompFn` cannot recover its authored name; §1, §4 F1).
 
 **Stage 4 — vnode tree after `Doc()` runs (`▸=false`; `Colorized` boundary deferred, not invoked)**
 ```
@@ -145,9 +154,12 @@ each `Colorized` boundary → island, SSR'd with `▸=true` so `useState("red")`
 </ul>
 ```
 ```json
-manifest = { "1": { "comp": "Colorized", "props": {} },
-             "2": { "comp": "Colorized", "props": {} } }
+manifest = { "1": { "comp": "Colorized" },
+             "2": { "comp": "Colorized" } }
 ```
+Under R15 the manifest is **debug metadata only** — `props` are dropped (they may now be non-JSON;
+per-instance data crosses server→client by the client's *replay*, not the manifest). Still populated
+at SSG, still gates `hasIslands`, still surfaced as the `#nota-manifest` script.
 
 ---
 
@@ -240,14 +252,20 @@ non-parsing JS by design, aligning with the sync-only `▸` flag in §2.2).
   amends Part 2** (Fragment + both adapters) — coordinated in the same wave as Phase D.
   **Requires struct FRAG-transparency (§7):** the per-iteration Fragment must dissolve into the
   parent's grouping at `▸=false`, else the wrapped list items can't coalesce. Locked together with E5.
-- **F1 — hoist+export component definitions.** The reader hoists every `%let/%const Name =
-  inlineComponent(...)|blockComponent(...)` binding to **module scope** and adds `export`, under its
-  authored name (stable). The manifest's `comp` field is that name. Constraint (v1, like Astro):
-  a hoistable component body must close over module scope only (no document-local capture). Detection
-  is syntactic: a binding whose initializer is a call to `inlineComponent`/`blockComponent`. The
-  reader passes the binding name as the constructor's 2nd argument (`inlineComponent(fn, "Name")`) so
-  `island`'s manifest `comp` field resolves (runtime stores it as `marked.compName`; see §1) — the
-  returned fn cannot otherwise recover its authored name.
+- **F1 — component definitions are document-local (REVISED by R15; supersedes the earlier
+  hoist+export ruling).** A `%let/%const Name = inlineComponent(...)|blockComponent(...)` binding is an
+  **ordinary lexical statement** — it lowers *in place* (top-of-file `%` prepends into `Doc`'s body,
+  R5), with uniform JS scoping. The reader does **not** hoist it to module scope and does **not** add
+  `export`. This is what lets an island be defined at any depth and close over document-local state
+  (an `@for` loop variable, a `%const` above it): the client's *replay* re-executes the same code and
+  recovers the same closure (R15a). `%export let Name = …` is the author's explicit opt-in to module
+  scope (e.g. to reuse a component across documents). **The name-attach stays:** the reader passes the
+  binding name as the constructor's 2nd argument (`inlineComponent(fn, "Name")`) so `island`'s manifest
+  `comp` field resolves (runtime stores it as `marked.compName`; see §1) — the returned fn cannot
+  otherwise recover its authored name. Name-attach is applied to top-level `%let/%const` **and**
+  `%export`-wrapped component decls (the latter previously got no name — an R15 fix). The old v1
+  constraint ("a hoistable body must close over module scope only") is **lifted** — capturing
+  document-local state is now the point.
 - **H1 — emit Volar `CodeMappings`.** Compiler exposes per-range `(sourceOffset, generatedOffset,
   length, capabilities)` tuples in addition to the flat sourcemap. Embedded-JS ranges get full
   capabilities; component-identifier ranges get navigation/hover; generated boilerplate is unmapped.
@@ -372,6 +390,14 @@ never null.
 
 ## 8. SSG / islands — LOCKED by Part-2 Phases I–K (supersedes decode.md's SSG-driver pseudocode)
 
+> **Amended by R15 (replay hydration).** The *server* SSG semantics below (hydration-id marker,
+> decode-once driver, `raw(slot)`, the `Adapter` surface) stand unchanged. What R15 supersedes is the
+> **client transport**: the manifest no longer carries props across the wire, **E4 is retired**, and
+> the manifest-driven boot (`bootIslands` / the Part-3 handoffs at the end of this section) is replaced
+> by `hydrateDocument`, which reconstructs each island's live boundary by *replaying* the document
+> client-side (capture mode). Islands may be defined at any depth and close over document-local state.
+> The `bootIslands` path remains additively during the staged migration (implementation.md R15 phases).
+
 - **Hydration-id placement** (resolves the §2.4 flag): each island's SSR output is wrapped in a
   marker element — `<nota-island data-hydration-id="N">…shell…</nota-island>` — and `bootIslands`
   selects on `[data-hydration-id]`. **Supersedes §2 stage-5's idealized `<span hydration-id="1">`:**
@@ -396,12 +422,19 @@ never null.
   `renderToString(el)→string` (**sync**, both frameworks), `hydrate(el, container)→void`. `children`
   is typed `unknown` internally (it carries a `VNode[]` from `h`'s `▸=true` path and a single
   `RawHtml` from `island`); the emitted-code surface (§1) is unchanged.
-- **E4 validation:** `island` validates props are JSON-serializable *first* (before any side effect),
-  recursively rejecting functions/symbols/bigint/`undefined`/circular refs with an error naming the
-  component + the prop path (e.g. `data.items[0].fn`).
+- **E4 validation (RETIRED by R15).** `island` used to validate props are JSON-serializable *first*
+  (before any side effect), rejecting functions/symbols/bigint/`undefined`/circular refs. Under R15
+  props cross by *replay*, not JSON, so the check is obsolete — non-JSON props (functions, class
+  instances) are legal. During the staged migration the check is **skipped in capture mode** and
+  removed outright when the old `bootIslands` path is deleted (implementation.md R15 phase 4).
 
 ### Part-3 handoffs (the registry/boot helper consumes Part 2)
-- `render(Doc) → { html, manifest }`; `Manifest = Record<id, { comp, props }>`;
+> **Superseded by R15.** These handoffs describe the manifest-driven boot (props transported as JSON,
+> registry keyed by `comp` name, slot scraped from `innerHTML`). R15 replaces the whole client path
+> with `hydrateDocument(Doc, {root?})`: no registry, no JSON props, no slot-scrape — the client
+> replays `Doc` to recover each island's live `CompFn`, props, and recomputed slot. Retained here for
+> the additive-migration window; deleted when the old boot goes.
+- `render(Doc) → { html, manifest }`; `Manifest = Record<id, { comp, props }>` (R15: `{ comp }` only);
   `bootIslands(manifest, registry, root?)`.
 - `registry[comp]` MUST be `(props) => adapter.h(Component, props, …)` (or `createElement(Component,
   props)`) — **build the element, do NOT eagerly invoke** the component (so the framework calls it
@@ -466,7 +499,11 @@ override per-document via `%import` shadowing, or site-wide at runtime via
 `registerComponents({…})` (e.g. from the `nota build --setup <module>` hook); the injected prelude
 module itself is not user-facing surface.
 
-**Slot rehydration (amends §8 — `bootIslands` alone is insufficient for slotted islands).** An island
+**Slot rehydration (amends §8; the `innerHTML`-scrape heuristic is RETIRED by R15).** Under R15 the
+client *replays* the document, so each island's static `@children` slot is **recomputed exactly as SSG
+computed it** — there is no need to scrape it out of the SSR'd DOM, and the "single root forwarding
+`@children`" v1 heuristic (below) is gone. The pre-R15 mechanism, retained during the migration window:
+an island
 whose component forwards a `@children` slot SSRs *with* that slot content; the runtime's `bootIslands`
 passes only props, so a client re-render lacks the slot → **React hydration mismatch (#418)**. The
 **runtime** therefore ships a slot-aware boot (`boot.ts`, moved out of the M generator — the generated

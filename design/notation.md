@@ -155,7 +155,10 @@ const total = xs.reduce((a, b) => a + b, 0);
 
 At the top of a file, `%`/`%%%` prepends to the document component (`import`/`export`
 hoist to module scope); nested in an element body, it wraps the remaining siblings in
-an IIFE. `Doc` (and the nested-`%` IIFE) is emitted **synchronous** — the reader does not
+an IIFE. A component definition (`%let C = inlineComponent(…)`) is **not** special-cased: it
+prepends in place like any other statement, so it may be document-local and close over document
+state (contract R15 — replay hydration recovers its closure on the client). `%export let C = …`
+is the opt-in to module scope. `Doc` (and the nested-`%` IIFE) is emitted **synchronous** — the reader does not
 auto-`async`ify it from the presence of `await`, so top-level `await` emits JS that does not
 parse (by design, not a silent rewrite). Load data synchronously, or outside the document.
 ```
