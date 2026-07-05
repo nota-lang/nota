@@ -1,114 +1,96 @@
 /**
- * The island registry / boot-entry helper.
+ * The client hydration-entry helper (contract R15 — replay hydration).
  *
- * `bootIslands(manifest, registry)` (the runtime's hydration entry point) needs
- * `registry[name] → client component fn`. The reader makes every island-eligible component an
- * **independently importable module export** of the compiled `.nota` module, under a stable generated
- * name; the manifest's `comp` field *is* that exported name. So building the registry is mechanical:
+ * The client no longer receives per-island data: `hydrateDocument(Doc)` (runtime) **replays the
+ * document** — re-executes `render(Doc)` with `island()` in capture mode, recovering each island's
+ * live component (closure intact), live props, and recomputed slot — then hydrates each captured
+ * island over its `[data-hydration-id]` marker. So the generated entry is just wiring:
  *
- * 1. embed the manifest as a literal;
- * 2. import the compiled module as a **namespace** (a manifest comp may be a *registered override*,
- *    contract R14b, that the module does not export — a named import would fail at bundle time)
- *    plus the optional setup module for its side effects (client-side `registerComponents`); and
- * 3. `setAdapter(adapter)` + `bootIslandsWithSlots(manifest, islandRegistry(manifest, module))`.
+ * 1. import the compiled `.nota` module's default export (`Doc`);
+ * 2. import + `setAdapter` the framework adapter;
+ * 3. when a setup module is configured, import it for side effects (client-side
+ *    `registerComponents` / `lstset`) and **bake the config baseline** — the replay runs `reset()`
+ *    client-side, which restores the `lstset` baseline, so without `bakeConfigBaseline()` the
+ *    recomputed slot bytes could diverge from the server's (this mirrors the CLI's SSR entry);
+ * 4. `hydrateDocument(Doc)`.
  *
- * All hydration *logic* — comp resolution (export ?? registered override), the build-don't-invoke
- * element builders, slot recovery, the boot loop — lives in the runtime (`@nota-lang/runtime`'s
- * `boot.ts`); the generated entry is document **data** only.
+ * This supersedes the manifest-driven boot entry (embedded manifest literal + namespace import +
+ * `islandRegistry`/`bootIslandsWithSlots`): no registry, no JSON props, no `innerHTML` slot-scrape.
+ * The manifest is now debug metadata only — callers still gate on it (`hasIslands`) so island-free
+ * docs keep the zero-JS property, and the CLI still inlines it as a JSON metadata view.
  *
- * The generated string is **source for a bundler** — the CLI esbuild-bundles it (registry + boot +
- * island components + adapter + runtime) into one inlinable `<script>`; the playground feeds the same
- * shape to native-ESM + import maps. This helper itself stays bundler-agnostic: it is a pure
- * `manifest → string` code generator.
- *
- * **Why the manifest is embedded as a literal.** The entry embeds the manifest inline and calls
- * `bootIslands(<literal>, registry)`, so the bundle is self-contained — no separate fetch, no DOM
- * `<script type=application/json>` coupling (manifest *delivery* is left to the integrator; the CLI
- * additionally inlines a JSON view as metadata, but boot never depends on it).
+ * The generated string is **source for a bundler** — the CLI esbuild-bundles it (entry + compiled
+ * module + adapter + runtime) into one inlinable `<script>`; the playground feeds the same shape to
+ * native-ESM + import maps. This helper itself stays bundler-agnostic: a pure `opts → string` code
+ * generator.
  */
-
-import type { Manifest } from "@nota-lang/runtime";
 
 /** Options for {@link generateClientEntry}. */
 export interface ClientEntryOptions {
   /**
-   * The module specifier of the **compiled `.nota` module** to import island components from. This is
-   * what the manifest's exported names (`manifest.comp`) are imported from — e.g. a relative path to
-   * the emitted module on disk (`"./doc.compiled.js"`), or a virtual id the bundler resolves. Required:
-   * an island registry is meaningless without the module that exports the components.
+   * The module specifier of the **compiled `.nota` module** — its default export is `Doc`, which the
+   * entry replays and hydrates. E.g. a relative path to the emitted module on disk
+   * (`"./doc.compiled.js"`), or a virtual id the bundler resolves. Required: replay hydration is
+   * meaningless without the document to replay.
    */
   moduleId: string;
   /**
    * The framework **adapter** module specifier (default `"@nota-lang/react"`). Its *default export*
-   * is the `Adapter`; the entry `setAdapter`s it before `bootIslands` (so islands hydrate through the
-   * chosen framework). One adapter per build.
+   * is the `Adapter`; the entry `setAdapter`s it before `hydrateDocument` (so islands hydrate
+   * through the chosen framework). One adapter per build.
    */
   adapterModule?: string;
   /**
    * The `@nota-lang/runtime` specifier (default `"@nota-lang/runtime"`). Overridable for tests /
-   * non-standard layouts; `setAdapter` + `bootIslands` are imported from here.
+   * non-standard layouts; `setAdapter` + `hydrateDocument` are imported from here.
    */
   runtimeModule?: string;
   /**
-   * Optional **site setup module** specifier, imported for side effects *before* boot (contract
-   * R14b): its `registerComponents({…})` calls re-run on the client, so an island whose component
-   * was registered (not exported from the compiled module) resolves at hydrate time. Mirror of the
-   * CLI's `--setup`.
+   * Optional **site setup module** specifier, imported for side effects *before* the replay
+   * (contract R14b/d): its `registerComponents({…})` / `lstset({…})` calls re-run on the client.
+   * When set, the entry also imports `bakeConfigBaseline` from `@nota-lang/prelude` and calls it
+   * before `hydrateDocument` — the replay's `reset()` restores the baked baseline, keeping the
+   * recomputed slot bytes byte-identical to the server's (mirror of the CLI's `--setup` SSR entry).
    */
   setupModule?: string;
 }
 
 /**
- * Generate a client **boot-entry module** (as a JS source string) for a `render()` manifest.
+ * Generate the client **hydration-entry module** (as a JS source string) for a compiled `.nota`
+ * document.
  *
- * The emitted module is document data + wiring only (see the module docs): runtime imports, the
- * adapter (default export), the optional setup import, the compiled module namespace, the manifest
- * literal, and `setAdapter(adapter); bootIslandsWithSlots(manifest, islandRegistry(manifest,
- * module))`.
+ * The emitted module is wiring only (see the module docs): runtime imports, the adapter (default
+ * export), the optional setup import + config bake, the compiled module's `Doc`, and
+ * `setAdapter(adapter); hydrateDocument(Doc);`. All hydration *logic* — the capture replay, the
+ * determinism guard, the per-island hydrate loop — lives in the runtime.
  *
- * @param manifest the manifest returned by `render(Doc)` (`Record<id, { comp, props }>`)
- * @param opts     {@link ClientEntryOptions} (at least `moduleId`)
- * @returns the boot-entry module source — feed it to a bundler (esbuild for the CLI)
+ * Callers gate on the manifest themselves (`hasIslands`) — an island-free document should get **no
+ * client entry at all** (the zero-JS property), not an entry that replays for nothing.
+ *
+ * @param opts {@link ClientEntryOptions} (at least `moduleId`)
+ * @returns the hydration-entry module source — feed it to a bundler (esbuild for the CLI)
  */
-export function generateClientEntry(
-  manifest: Manifest,
-  opts: ClientEntryOptions
-): string {
+export function generateClientEntry(opts: ClientEntryOptions): string {
   const adapterModule = opts.adapterModule ?? "@nota-lang/react";
   const runtimeModule = opts.runtimeModule ?? "@nota-lang/runtime";
 
-  const hasIslands = Object.keys(manifest).length > 0;
-
-  // Import the setup module (side effects: client-side registerComponents) before boot resolves.
-  const setupImport =
+  // The setup module runs for its side effects before Doc's module code; the config it set is then
+  // baked as the client's per-render reset baseline (see ClientEntryOptions.setupModule).
+  const setupImports =
     opts.setupModule !== undefined
-      ? `import ${JSON.stringify(opts.setupModule)};\n`
+      ? `import ${JSON.stringify(opts.setupModule)};
+import { bakeConfigBaseline } from "@nota-lang/prelude";
+`
       : "";
-
-  // The compiled module is imported as a **namespace** (not named imports): a manifest comp may be
-  // a *registered override* (contract R14b) that the module does not export, and a named import of
-  // a missing export is a bundle-time error. `islandRegistry`/`bootIslandsWithSlots` (runtime)
-  // resolve each comp at hydrate time — module export first, else the component registry.
-  // Island-free → no module import, an empty registry (the boot no-ops).
-  const moduleImport = hasIslands
-    ? `import * as _islandModule from ${JSON.stringify(opts.moduleId)};\n`
-    : "";
-  const registryExpr = hasIslands
-    ? "islandRegistry(manifest, _islandModule)"
-    : "{}";
-
-  // Embed the manifest as a literal so the bundle is self-contained (no fetch / DOM coupling).
-  // Everything else — slot recovery, comp resolution, the boot loop — lives in the runtime
-  // (`boot.ts`); this entry is document DATA only.
-  const manifestLiteral = JSON.stringify(manifest);
+  const setupBake =
+    opts.setupModule !== undefined ? "bakeConfigBaseline();\n" : "";
 
   return `// Generated by @nota-lang/vite generateClientEntry. Do not edit.
-import { setAdapter, islandRegistry, bootIslandsWithSlots } from ${JSON.stringify(runtimeModule)};
+import { setAdapter, hydrateDocument } from ${JSON.stringify(runtimeModule)};
 import adapter from ${JSON.stringify(adapterModule)};
-${setupImport}${moduleImport}
-const manifest = ${manifestLiteral};
+${setupImports}import Doc from ${JSON.stringify(opts.moduleId)};
 
 setAdapter(adapter);
-bootIslandsWithSlots(manifest, ${registryExpr});
+${setupBake}hydrateDocument(Doc);
 `;
 }

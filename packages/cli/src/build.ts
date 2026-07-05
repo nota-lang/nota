@@ -10,10 +10,17 @@
  *   → @nota-lang/compiler        // → JS module string (runtime import prepended)
  *   → load in Node SSR + setAdapter
  *   → render(Doc)                 // → { html, manifest }
- *   → if islands:  esbuild the client bundle (boot entry + island components + adapter + runtime)
- *                  → inline as <script>; inline the manifest as JSON metadata
+ *   → if islands:  esbuild the client bundle (replay entry: hydrateDocument(Doc) — contract R15 —
+ *                  + the compiled module + adapter + runtime)
+ *                  → inline as <script>; inline the manifest as JSON metadata (debug view)
  *   → emit one .html               // SSG body + inline <style> + inline <script>(s)
  * ```
+ *
+ * **Client hydration is replay-driven (contract R15).** The client bundle imports `Doc` and calls
+ * `hydrateDocument(Doc)`: the runtime re-executes the document in capture mode — recovering each
+ * island's live component (closures over document state intact), live props (functions legal), and
+ * recomputed slot — and hydrates each `[data-hydration-id]` marker. No per-island data crosses the
+ * wire; the manifest is inlined only as debug metadata and gates `hasIslands`.
  *
  * ## The two snags (and how they are solved)
  *
@@ -201,20 +208,23 @@ ${setupBake}export const result = render(Doc);
 }
 
 // ---------------------------------------------------------------------------------------------
-// islands: boot entry → esbuild client bundle (single string)
+// islands: replay entry → esbuild client bundle (single string)
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Bundle the client island boot script to a single self-contained string. Uses the
- * {@link generateClientEntry} helper for the boot entry (registry + `bootIslands` + embedded
- * manifest), then esbuild-bundles it (boot + island components from the compiled module + adapter +
- * runtime + React client) for the **browser**, IIFE, minified. The prelude is `inject`ed so the
- * island bodies' free `useState` resolves on the client too.
+ * Bundle the client hydration script to a single self-contained string. Uses the
+ * {@link generateClientEntry} helper for the replay entry (`import Doc …; setAdapter(adapter);
+ * hydrateDocument(Doc);` — contract R15), then esbuild-bundles it (entry + the compiled module +
+ * adapter + runtime + React client) for the **browser**, IIFE, minified. The prelude is `inject`ed
+ * so the document's free `useState` resolves on the client too (the replay re-executes the whole
+ * document, not just island bodies). When a setup module is configured, the generated entry
+ * imports it and calls `bakeConfigBaseline()` — mirroring {@link ssrRender}'s setup-bake, so the
+ * replay's `reset()` restores the same config baseline and the recomputed slot bytes match the
+ * server's.
  */
 async function bundleClient(
   workDir: string,
   compiledPath: string,
-  manifest: Manifest,
   opts: {
     adapterModule: string;
     preludePath: string;
@@ -225,10 +235,10 @@ async function bundleClient(
 ): Promise<string> {
   // esbuild resolves filesystem paths; sibling of the entry in `workDir` → `./`-relative specifier.
   const compiledSpec = `./${relative(workDir, compiledPath)}`;
-  const entrySource = generateClientEntry(manifest, {
+  const entrySource = generateClientEntry({
     moduleId: compiledSpec,
     adapterModule: opts.adapterModule,
-    // Re-run the site setup on the client so registered island overrides resolve at hydrate time.
+    // Re-run the site setup on the client (registerComponents/lstset) + bake the config baseline.
     setupModule: opts.setupModule
   });
   const entryPath = join(workDir, "client.entry.mjs");
@@ -275,9 +285,9 @@ function baseTitle(sourcePath?: string): string {
 /**
  * Assemble the final self-contained HTML document. The island `<script>` is inlined verbatim (an
  * esbuild IIFE bundle — no external `src`); the manifest is inlined as a
- * `<script type="application/json">` **metadata** view (the boot does not depend on it; it is
- * embedded in the bundle). For an island-free doc, **no `<script>` is emitted at all** (the zero-JS
- * property).
+ * `<script type="application/json">` **debug metadata** view (contract R15: hydration never reads
+ * it — the client replays `Doc` to recover per-island data). For an island-free doc, **no
+ * `<script>` is emitted at all** (the zero-JS property).
  */
 function assembleHtml(args: {
   bodyHtml: string;
@@ -294,13 +304,13 @@ function assembleHtml(args: {
 
   const scripts: string[] = [];
   if (clientScript !== undefined) {
-    // Manifest as inspectable JSON metadata (boot reads the copy embedded in the bundle).
+    // Manifest as inspectable JSON debug metadata (hydration never reads it — R15 replay).
     scripts.push(
       `<script type="application/json" id="nota-manifest">${JSON.stringify(
         manifest
       )}</script>`
     );
-    // The island boot bundle, inlined (no external request).
+    // The replay hydration bundle, inlined (no external request).
     scripts.push(`<script type="module">${clientScript}</script>`);
   }
 
@@ -374,9 +384,10 @@ export async function buildNota(
     );
     const hasIslands = Object.keys(manifest).length > 0;
 
-    // 3. islands: bundle the client boot script (only when there is an island to hydrate).
+    // 3. islands: bundle the client replay script (only when there is an island to hydrate —
+    //    island-free docs keep the zero-JS property; the manifest is the gate).
     const clientScript = hasIslands
-      ? await bundleClient(workDir, compiledPath, manifest, bundleOpts)
+      ? await bundleClient(workDir, compiledPath, bundleOpts)
       : undefined;
 
     // 4. assemble one self-contained .html.

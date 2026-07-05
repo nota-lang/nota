@@ -6,7 +6,7 @@
  * everything else untouched. It is structurally the mdx Vite/Rollup plugin
  * (`references/mdx/packages/rollup/lib/index.js`) — one extension-filtered `transform`, no rendering.
  * The decode/SSG/islands machinery is *not* here (the plugin is mechanism, not policy); rendering is
- * the integrator's job via `@nota-lang/runtime`'s `render`/`bootIslands`.
+ * the integrator's job via `@nota-lang/runtime`'s `render`/`hydrateDocument`.
  *
  * The actual `.nota → JS` work is delegated to `@nota-lang/compiler` (`compile`), which spawns the
  * oxc reader and prepends the `@nota-lang/runtime` import. This plugin is the thin Vite adapter
@@ -16,7 +16,7 @@
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 
-// --- the island registry / boot-entry helper ---
+// --- the client hydration-entry helper (replay hydration, contract R15) ---
 export {
   type ClientEntryOptions,
   generateClientEntry

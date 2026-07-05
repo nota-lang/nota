@@ -115,10 +115,11 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     expect(body).not.toMatch(/onclick/i);
   });
 
-  test("an inlined client <script> (module) + the manifest as JSON metadata", () => {
-    // The boot bundle is inlined as a module script (content present, not an external src).
+  test("an inlined client <script> (module) + the manifest as JSON debug metadata", () => {
+    // The replay bundle is inlined as a module script (content present, not an external src).
     expect(out.html).toMatch(/<script type="module">[\s\S]+<\/script>/);
-    // The manifest is inlined as application/json metadata.
+    // The manifest is inlined as application/json DEBUG metadata (contract R15: hydration never
+    // reads it — the client replays Doc; it remains inspectable + gates hasIslands).
     expect(out.html).toContain(
       '<script type="application/json" id="nota-manifest">{"1":{"comp":"Colorized","props":{}},"2":{"comp":"Colorized","props":{}}}</script>'
     );
@@ -131,9 +132,10 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     expect(out.html).toContain('<script type="module">');
   });
 
-  test("the bundle actually inlined React + the runtime boot (createElement/hydrateRoot/bootIslands)", () => {
-    // Proof the client bundle is self-contained: it carries React's client + the boot call, not a
-    // bare import. (These appear inside the minified bundle text.)
+  test("the bundle actually inlined React + the runtime replay (createElement/hydrateRoot/hydrateDocument)", () => {
+    // Proof the client bundle is self-contained: it carries React's client + the replay-hydration
+    // call (hydrateDocument — contract R15), not a bare import. (Inside the minified bundle text;
+    // React's renderToString also ships — the replay SSRs nested-in-slot islands client-side.)
     expect(out.html).toMatch(/createElement|jsx/);
     expect(out.html).toContain("hydrateRoot");
   });
