@@ -57,7 +57,8 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
       "###### A level-6 heading",
       "## Raw spans",
       "## Colon & block sugar",
-      "## Nested statements"
+      "## Nested statements",
+      "## Doc-state sugar"
     ]);
   });
 
@@ -96,6 +97,23 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     expect(excerpts(spans, MEGA, "control-keyword")).toEqual(
       expect.arrayContaining(["if", "else", "for", "of"])
     );
+  });
+
+  it("classifies the R20a doc-state sugar — sigil bytes + label idents, guard intact", () => {
+    const spans = highlightSpans(MEGA);
+    // The four sugars reuse existing kinds (no new wire discriminants): the delimiter bytes paint
+    // `sigil`, the label ident paints `interpolation` (the `@name` kind — a name-like reference).
+    expect(excerpts(spans, MEGA, "sigil")).toEqual(
+      expect.arrayContaining(["<", ">", "&", "[^", "]:"])
+    );
+    expect(excerpts(spans, MEGA, "interpolation")).toEqual(
+      expect.arrayContaining(["sec-flow", "n1", "n2"])
+    );
+    // The boundary guard held: `Vec<T>` / `R&D` stayed literal, so their `<` / `&` / `T` produced no
+    // doc-state spans — the ident set is exactly the four sugar keys, never `T` or `D`.
+    const idents = excerpts(spans, MEGA, "interpolation");
+    expect(idents).not.toContain("T");
+    expect(idents).not.toContain("D");
   });
 
   it("classifies the %%% fence as JS and the verbatim re-arm as markup", () => {

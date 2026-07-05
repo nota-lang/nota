@@ -31,40 +31,76 @@ export interface NotaPluginOptions {
    */
   extensions?: string[];
   /**
-   * Module the ambient prelude bindings (`Tex` / `CodeInline` / `CodeBlock`, contract R14; plus
-   * `Heading` from `#` heading sugar, contract R18f) are imported from when the compiled module
-   * references them free. Default `"@nota-lang/prelude"`; `false` disables the injection (the
-   * integrator supplies the ambient names another way).
+   * Module the ambient prelude bindings are imported from when the compiled module references them
+   * free — the whole prelude surface (R20c): the component slots (`Tex`/`CodeInline`/`CodeBlock`,
+   * contract R14; `Heading` from `#` sugar, R18f; and the `Label`/`Ref`/footnote/`Cite`/… doc-state
+   * family from R20a sugar) plus the config fns `lstset`/`mathset`/`secset`/`bibset`. Default
+   * `"@nota-lang/prelude"`; `false` disables the injection (the integrator supplies the ambient names
+   * another way).
    */
   preludeModule?: string | false;
 }
 
 /**
- * The ambient names the reader emits free: math/code spans (`Tex`/`CodeInline`/`CodeBlock` — contract
- * R14a; §9 ambient prelude) plus `Heading` from `#` heading sugar (contract R18f). Each is injected
- * iff the emit references it as an `h(<name>, …)` tag.
+ * The ambient *component* names the reader emits free (R20c "the prelude should be a prelude"): the
+ * math/code spans (`Tex`/`CodeInline`/`CodeBlock` — contract R14a), `Heading` from `#` sugar (R18f),
+ * and the doc-state family `Toc`/`Label`/`Ref`/`Footnote`/`FootnoteMark`/`FootnoteText`/`Footnotes`/
+ * `FootnotesList`/`Cite`/`Bibliography` (R18e; the `<x>`/`&x`/`[^x]`/`[^x]:` sugar of R20a lowers to
+ * `h(Label|Ref|FootnoteMark|FootnoteText, …)`). Each is injected iff the emit references it as an
+ * `h(<name>, …)` tag.
  */
-const AMBIENT_PRELUDE_NAMES = ["Tex", "CodeInline", "CodeBlock", "Heading"] as const;
+const AMBIENT_PRELUDE_NAMES = [
+  "Tex",
+  "CodeInline",
+  "CodeBlock",
+  "Heading",
+  "Toc",
+  "Label",
+  "Ref",
+  "Footnote",
+  "FootnoteMark",
+  "FootnoteText",
+  "Footnotes",
+  "FootnotesList",
+  "Cite",
+  "Bibliography"
+] as const;
+
+/**
+ * The ambient *config* fns (R14d/R18e; joined by R20c): `lstset`/`mathset`/`secset`/`bibset`. Unlike
+ * the component slots these are never `h(…)` tags — they surface as bare calls in embedded JS
+ * (`% secset({ numbering: "1.1" })`), so each is injected iff the emit *calls* it (`secset(`) and
+ * does not bind it itself.
+ */
+const AMBIENT_CONFIG_NAMES = ["lstset", "mathset", "secset", "bibset"] as const;
+
+/** Textual bound check: does the reader-controlled module shape bind `name` (import/decl)? */
+function isBound(code: string, name: string): boolean {
+  return new RegExp(
+    `^import\\b[^\\n]*\\b${name}\\b[^\\n]*\\bfrom\\b|^(?:export\\s+)?(?:const|let|var|function)\\s+${name}\\b`,
+    "m"
+  ).test(code);
+}
 
 /**
  * Prepend an import binding the ambient prelude names the compiled module references *free*.
  *
- * A name is injected iff (a) it is referenced in the reader's emit shape (`h(Tex, …)` — the reader
- * only ever emits these names as `h` tags), and (b) the module does not bind it itself (a
- * `%import { Tex } from …` lexically overrides the ambient binding — R14b — and a second import
- * would be a duplicate-binding SyntaxError). The bound check is textual over the reader-controlled
- * module shape (top-level `import`/`const`/`let`/`function` lines); if the compiler ever exposes
- * its free-ambient-names metadata, swap this for it.
+ * A name is injected iff (a) it is referenced in the reader's emit shape — component slots as an
+ * `h(Tex, …)` tag, config fns as a bare `secset(` call — and (b) the module does not bind it itself
+ * (a `%import { Tex } from …` lexically overrides the ambient binding — R14b — and a second import
+ * would be a duplicate-binding SyntaxError). The check is textual over the reader-controlled module
+ * shape (top-level `import`/`const`/`let`/`function` lines); if the compiler ever exposes its
+ * free-ambient-names metadata, swap this for it.
  */
 function injectAmbientPrelude(code: string, preludeModule: string): string {
-  const needed = AMBIENT_PRELUDE_NAMES.filter(
-    name =>
-      new RegExp(`\\bh\\(${name}\\b`).test(code) &&
-      !new RegExp(
-        `^import\\b[^\\n]*\\b${name}\\b[^\\n]*\\bfrom\\b|^(?:export\\s+)?(?:const|let|var|function)\\s+${name}\\b`,
-        "m"
-      ).test(code)
-  );
+  const needed = [
+    ...AMBIENT_PRELUDE_NAMES.filter(
+      name => new RegExp(`\\bh\\(${name}\\b`).test(code) && !isBound(code, name)
+    ),
+    ...AMBIENT_CONFIG_NAMES.filter(
+      name => new RegExp(`\\b${name}\\s*\\(`).test(code) && !isBound(code, name)
+    )
+  ];
   if (needed.length === 0) {
     return code;
   }

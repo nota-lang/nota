@@ -15,6 +15,7 @@
         { "include": "#list" },
         { "include": "#control-flow" },
         { "include": "#element" },
+        { "include": "#doc-state" },
         { "include": "#interpolation" },
         { "include": "#verbatim" },
         { "include": "#code-block" },
@@ -29,9 +30,9 @@
     },
 
     "escape": {
-      "comment": "Backslash escapes for the documented set (\\@ \\{ \\} \\| \\$ \\* \\_ \\: \\[ \\] \\` and \\\\), plus \\# \\- \\+ \\% for the line-leading sugar. A backslash before any other char is literal text, so we only scope the known set.",
+      "comment": "Backslash escapes for the documented set (\\@ \\{ \\} \\| \\$ \\* \\_ \\: \\[ \\] \\` and \\\\), plus \\# \\- \\+ \\% for the line-leading sugar and \\< \\& for the R20a doc-state sugar (\\[ already covers the footnote open). A backslash before any other char is literal text, so we only scope the known set.",
       "name": "constant.character.escape.nota",
-      "match": "\\\\[@{}|$*_:\\[\\]`#\\-+%\\\\]"
+      "match": "\\\\[@{}|$*_:\\[\\]<&`#\\-+%\\\\]"
     },
 
     "fence-statement": {
@@ -178,6 +179,47 @@
             "1": { "name": "punctuation.definition.tag.nota" },
             "2": { "name": "entity.name.tag.html.nota" },
             "3": { "name": "punctuation.definition.tag.colon.nota keyword.operator.colon-sugar.nota" }
+          }
+        }
+      ]
+    },
+
+    "doc-state": {
+      "comment": "The R20a doc-state inline sugars, each a rewrite to an element form: `<ident>` -> @Label[id], `&ident` -> @Ref[id], `[^ident]` -> @FootnoteMark[label], and line-start `[^ident]: body` -> @FootnoteText[label]: body. Ident charset [A-Za-z_][A-Za-z0-9_.:-]* (Typst-like, no spaces). `<` and `&` carry a LEFT-BOUNDARY GUARD -- they fire only at start-of-body/line or after whitespace / opening punctuation ( [ { \" ' -- so Vec<T>, R&D, a<b, a&b stay literal prose; the guard is a fixed-width negative lookbehind `(?<![^\\s(\\[{\"'])` (no preceding char, i.e. line/body start, also passes). `[^` needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). Escapes \\< \\& \\[ (handled by #escape, which runs first) force literals. Ordered definition-before-mark so a line-start `[^x]:` is the multi-arg definition, not a mark plus stray colon.",
+      "patterns": [
+        {
+          "comment": "Line-start footnote DEFINITION `[^ident]: body` -> @FootnoteText[label]: body. The `]:` closes the head; the rest of the line is the colon-sugar body, left to the outer markup context (so nested @em{...}/@name in it still highlight).",
+          "match": "^(\\s*)(\\[\\^)([A-Za-z_][A-Za-z0-9_.:-]*)(\\]:)",
+          "captures": {
+            "2": { "name": "punctuation.definition.footnote.begin.nota" },
+            "3": { "name": "entity.name.footnote.nota" },
+            "4": { "name": "punctuation.definition.footnote.end.nota keyword.operator.colon-sugar.nota" }
+          }
+        },
+        {
+          "comment": "Footnote REFERENCE `[^ident]` -> @FootnoteMark[label]. No boundary guard (glues after a word like Markdown).",
+          "match": "(\\[\\^)([A-Za-z_][A-Za-z0-9_.:-]*)(\\])",
+          "captures": {
+            "1": { "name": "punctuation.definition.footnote.begin.nota" },
+            "2": { "name": "variable.other.footnote.nota" },
+            "3": { "name": "punctuation.definition.footnote.end.nota" }
+          }
+        },
+        {
+          "comment": "Label ANCHOR `<ident>` -> @Label[id]. Boundary-guarded on `<`; must close with `>` on the opening line (so Vec<T> and `< b` / `<2x>` stay literal).",
+          "match": "(?<![^\\s(\\[{\"'])(<)([A-Za-z_][A-Za-z0-9_.:-]*)(>)",
+          "captures": {
+            "1": { "name": "punctuation.definition.label.begin.nota" },
+            "2": { "name": "entity.name.label.nota" },
+            "3": { "name": "punctuation.definition.label.end.nota" }
+          }
+        },
+        {
+          "comment": "Cross-REFERENCE `&ident` -> @Ref[id]. Boundary-guarded on `&`; ends at the first non-ident char (so R&D and `a&b` stay literal).",
+          "match": "(?<![^\\s(\\[{\"'])(&)([A-Za-z_][A-Za-z0-9_.:-]*)",
+          "captures": {
+            "1": { "name": "punctuation.definition.reference.nota" },
+            "2": { "name": "variable.other.reference.nota" }
           }
         }
       ]

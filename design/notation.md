@@ -275,6 +275,27 @@ deeper opens a nested list, which attaches to the item above it.
 An explicit `N.` (e.g. `1.`) is an alternate `@ol` marker; the written numbers are
 ignored, the browser renders the sequence.
 
+### Doc-state references
+Four inline sugars for the ambient doc-state family, each a **rewrite to the element
+form** so it inherits the element machinery (line clamp R11, positional rules R12) —
+[contract R20a](contract.md) pins the exact rules. Identifiers are Typst-like:
+`[A-Za-z_][A-Za-z0-9_.:-]*`, no spaces. `<` and `&` carry a **left-boundary guard** —
+they fire only at the start of a body/line or after whitespace or opening punctuation
+(`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose; `[^…]` needs
+no guard (the digraph is unambiguous and glues after a word, Markdown-style). The whole
+family is ambient (R20c) — **no `%import` needed**.
+```
+<sec-intro>          → @Label[id: "sec-intro"]{}          // anchor; must close > on its line
+&sec-intro           → @Ref[id: "sec-intro"]{}            // cross-reference
+[^n1]                → @FootnoteMark[label: "n1"]{}        // footnote reference
+[^n1]: body          → @FootnoteText[label: "n1"]: body    // line-start definition (colon body)
+Vec<T> and R&D       → Vec<T> and R&D                      // guard: literal, no rewrite
+```
+Repeated `[^n1]` references share one number and one list entry; the list auto-appends
+at document end unless `@Footnotes` places it (R18d). The escapes `\<`, `\&`, `\[` yield
+the literal characters via the standard escape machinery (`\[` already covered verbatim).
+A multi-line footnote or one with block content uses the explicit `@FootnoteText{…}` form.
+
 ## Verbatim
 
 A backslash escapes any character

@@ -111,6 +111,7 @@ export const REQUIRED_REPO_KEYS = [
   "markup",
   "escape",
   "element",
+  "doc-state",
   "interpolation",
   "props",
   "body",
@@ -136,7 +137,11 @@ export const REQUIRED_GRAMMAR_SCOPES = [
   "markup.bold.nota",
   "markup.italic.nota",
   "markup.heading.nota",
-  "constant.character.escape.nota"
+  "constant.character.escape.nota",
+  "entity.name.label.nota",
+  "variable.other.reference.nota",
+  "variable.other.footnote.nota",
+  "entity.name.footnote.nota"
 ];
 
 /** Load-bearing scopes that must land on at least one token when {@link SAMPLE} is tokenized. */
@@ -156,6 +161,10 @@ export const EXPECTED_TOKEN_SCOPES = [
   "markup.math.inline.nota",
   "markup.math.display.nota",
   "punctuation.definition.list.begin.nota",
+  "entity.name.label.nota",
+  "variable.other.reference.nota",
+  "variable.other.footnote.nota",
+  "entity.name.footnote.nota",
   "source.ts"
 ];
 
@@ -209,6 +218,10 @@ $$
   "```typescript\nconst f = (x: number) => x + 1;\n```" +
   String.raw`
 
-An escape: \@ \{ \} \| \$ \* \_ \: \[ \] and a backslash \\.
+An escape: \@ \{ \} \| \$ \* \_ \: \[ \] \< \& and a backslash \\.
 Intra-word stays literal: my_var_name and 50% off.
+
+Doc-state sugar: a section <sec-intro>, a ref &sec-intro, a note[^a]; Vec<T> and R&D stay literal.
+
+[^a]: The footnote definition body.
 `;

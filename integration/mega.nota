@@ -97,3 +97,11 @@ def f(x):
   % const count = items.length
   @p{Then @count items, wrapped in an IIFE.}
 }
+
+## Doc-state sugar
+
+An anchor <sec-flow> and a reference &sec-flow resolve; a footnote[^n1] and a
+repeat[^n1] share a number, plus a second[^n2]. Literal Vec<T> and R&D stay text.
+
+[^n1]: The first footnote body, with @em{markup}.
+[^n2]: The second footnote body.

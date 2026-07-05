@@ -7,9 +7,10 @@
  *
  *   1. `setAdapter(reactAdapter)` once, so the runtime's `▸=true` paths dispatch through React.
  *   2. Evaluate the emitted module. It (a) `import`s the emitted surface from `@nota-lang/runtime`,
- *      (b) references `useState` and the prelude names (`Tex`/`CodeInline`/`CodeBlock`, contract
- *      R14; plus `Heading` from `#` heading sugar, contract R18f) as **free identifiers** the
- *      integrator supplies, and (c) `export`s
+ *      (b) references `useState` and the whole prelude surface (`Tex`/`CodeInline`/`CodeBlock`,
+ *      contract R14; `Heading` from `#` sugar, R18f; the `Label`/`Ref`/footnote/`Cite`/… doc-state
+ *      family + `secset`/`bibset` config, R20c) as **free identifiers** the integrator supplies, and
+ *      (c) `export`s
  *      `Doc` (default) + any exported components. We can't run an `import`/`export`-bearing
  *      ESM string in the main window without an import map, so we strip the runtime import + ALL
  *      `export`s (keeping the declarations) and append a `return { default: Doc, …components }` built
@@ -24,13 +25,25 @@
 
 import * as prelude from "@nota-lang/prelude";
 import {
+  Bibliography,
+  bibset,
+  Cite,
   CodeBlock,
   CodeInline,
+  Footnote,
+  FootnoteMark,
+  Footnotes,
+  FootnotesList,
+  FootnoteText,
   Heading,
+  Label,
   lstset,
   mathset,
+  Ref,
   registerComponents,
-  Tex
+  secset,
+  Tex,
+  Toc
 } from "@nota-lang/prelude";
 import adapter from "@nota-lang/react";
 import * as runtime from "@nota-lang/runtime";
@@ -59,9 +72,10 @@ const RUNTIME_NAMES = [
 ] as const;
 
 /**
- * The ambient prelude scope (contract R14): the free identifiers the emit references beyond the
- * runtime import — `useState` (framework hook) plus the standard prelude's slots + config surface.
- * The same set the CLI supplies via esbuild `inject`; here they are `new Function` parameters.
+ * The ambient prelude scope (contract R14, R20c): the free identifiers the emit references beyond the
+ * runtime import — `useState` (framework hook) plus the *whole* standard prelude surface (the R18e
+ * doc-state family joined the ambient set in R20c). The same set the CLI supplies via esbuild
+ * `inject`; here they are `new Function` parameters.
  */
 const AMBIENT_PRELUDE = {
   useState,
@@ -69,8 +83,20 @@ const AMBIENT_PRELUDE = {
   CodeInline,
   CodeBlock,
   Heading,
+  Toc,
+  Label,
+  Ref,
+  Footnote,
+  FootnoteMark,
+  FootnoteText,
+  Footnotes,
+  FootnotesList,
+  Cite,
+  Bibliography,
   lstset,
   mathset,
+  secset,
+  bibset,
   registerComponents
 } as const;
 

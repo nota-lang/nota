@@ -1,0 +1,43 @@
+// SYNTAX TEST "source.nota" "R20a doc-state sugar: <label>, &ref, [^mark], [^def]: (boundary-guarded)"
+
+// --- label anchor <ident> (guarded on the leading whitespace) ---
+A section <sec-intro> here.
+//        ^ punctuation.definition.label.begin.nota
+//         ^^^^^^^^^ entity.name.label.nota
+//                  ^ punctuation.definition.label.end.nota
+//                   ^^^^^^^ source.nota - entity.name.label.nota
+
+// --- cross-reference &ident (ends at the first non-ident char) ---
+A ref &sec-intro tail.
+//    ^ punctuation.definition.reference.nota
+//     ^^^^^^^^^ variable.other.reference.nota
+//              ^^^^^^^ source.nota - variable.other.reference.nota
+
+// --- footnote reference [^ident], repeated, glues after a word (no guard) ---
+A note[^a] and again[^a].
+//    ^^ punctuation.definition.footnote.begin.nota
+//      ^ variable.other.footnote.nota
+//       ^ punctuation.definition.footnote.end.nota
+//                  ^^ punctuation.definition.footnote.begin.nota
+//                    ^ variable.other.footnote.nota
+//                     ^ punctuation.definition.footnote.end.nota
+
+// --- the boundary guard: Vec<T> and R&D stay LITERAL (no doc-state scopes) ---
+Vec<T> and R&D stay literal.
+// ^ source.nota - punctuation.definition.label.begin.nota
+//  ^ source.nota - entity.name.label.nota
+//          ^ source.nota - punctuation.definition.reference.nota
+
+// --- line-start footnote DEFINITION [^ident]: body (colon sugar; body nests markup) ---
+[^a]: The definition body with @em{markup}.
+// <- punctuation.definition.footnote.begin.nota
+//^ entity.name.footnote.nota
+// ^^ keyword.operator.colon-sugar.nota
+//                             ^ punctuation.definition.tag.nota
+//                              ^^ entity.name.tag.html.nota
+
+// --- escapes \< \& \[ force literals (handled by #escape, which runs first) ---
+Escapes \< \& \[ stay literal.
+//      ^^ constant.character.escape.nota
+//         ^^ constant.character.escape.nota
+//            ^^ constant.character.escape.nota

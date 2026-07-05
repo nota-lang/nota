@@ -131,7 +131,10 @@ fixtures directly.
 - **D — Control flow.** `@if` / `else` / `@for` → ternary / `.map`.
 - **E — Markup sugar.** `#` headings (re-lowered to the ambient `Heading` prelude slot — contract
   R18f/g; a raw `@h1{…}` stays a host tag); `-`/`+` → `nota-ul-li`/`nota-ol-li` sentinels; `*`/`_`
-  word-boundary emphasis. Runtime `decode` does the grouping, so these stay local.
+  word-boundary emphasis; the R20a doc-state sugars `<x>`/`&x`/`[^x]`/`[^x]:` → `h(Label|Ref|
+  FootnoteMark|FootnoteText, …)` (boundary-guarded on `<`/`&`). Runtime `decode` does the grouping,
+  so these stay local. The whole doc-state family + `secset`/`bibset` is now **ambient** — no
+  `%import` (contract R20c).
 - **F — Verbatim / code / math.** `|{}|`, fenced code, `$`/`$$` → `String.raw`.
 
 Phase A de-risks the fork mechanism cheaply; B–F are mostly breadth over a proven mechanism.
