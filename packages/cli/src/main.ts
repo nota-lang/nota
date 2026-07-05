@@ -25,6 +25,8 @@ Usage:
 Options:
   -o, --out <file>     output path (default: input with .html extension)
   --title <title>      document <title> (default: the input basename)
+  --setup <file>       site setup module: registerComponents / lstset / mathset
+                       run before render (and on the client for islands)
   -h, --help           show this help
 `;
 
@@ -33,6 +35,7 @@ interface Args {
   input?: string;
   out?: string;
   title?: string;
+  setup?: string;
   help: boolean;
 }
 
@@ -48,6 +51,8 @@ function parseArgs(argv: string[]): Args {
       args.out = argv[++i];
     } else if (a === "--title") {
       args.title = argv[++i];
+    } else if (a === "--setup") {
+      args.setup = argv[++i];
     } else {
       rest.push(a);
     }
@@ -84,7 +89,8 @@ async function main(): Promise<void> {
 
   try {
     const { html, hasIslands, manifest } = await buildNotaFile(args.input, {
-      title: args.title
+      title: args.title,
+      setupModule: args.setup
     });
     writeFileSync(outPath, html, "utf8");
     const islandNote = hasIslands

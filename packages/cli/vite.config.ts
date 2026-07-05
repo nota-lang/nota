@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "node",
           environment: "node",
-          include: ["tests/build.test.ts"],
+          include: ["tests/build.test.ts", "tests/prelude.e2e.test.ts"],
           deps: inlineDeps,
           // The pipeline spawns the reader + runs esbuild (cold start) per build; give it room.
           testTimeout: 30000

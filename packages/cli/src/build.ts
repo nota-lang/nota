@@ -40,7 +40,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compile } from "@nota-lang/compiler";
 import type { Manifest } from "@nota-lang/runtime";
@@ -73,7 +73,9 @@ const MODULE_FILE =
  * once `@nota-lang/prelude` ships (P3 of contract R14). (`Tex`, not `Math` — R14: `inject`
  * rewrites free refs, so exporting a `Math` would capture `Math.floor` in embedded JS.)
  */
-export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";\n`;
+export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
+export { Tex, CodeInline, CodeBlock, lstset, mathset, registerComponents } from "@nota-lang/prelude";
+`;
 
 /** Options for {@link buildNota}. */
 export interface BuildOptions {
@@ -101,6 +103,13 @@ export interface BuildOptions {
    * hydration warnings). Default `false` (production: smaller, quiet). Mainly a debugging aid.
    */
   dev?: boolean;
+  /**
+   * Path to a **site setup module** (contract R14b/d — the `--setup` flag), bundled into the SSR
+   * entry (and the client entry when islands exist) and imported for side effects before render:
+   * `registerComponents({…})` overrides + `lstset`/`mathset` site config (baked as the per-render
+   * baseline). Absolute path, or relative to the caller's cwd.
+   */
+  setupModule?: string;
 }
 
 /** Result of {@link buildNota}. */
@@ -141,19 +150,31 @@ async function ssrRender(
     preludePath: string;
     nodePaths: string[];
     nodeEnv: string;
+    setupModule?: string;
   }
 ): Promise<SsrResult> {
   const entryPath = join(workDir, "ssr.entry.mjs");
   // esbuild resolves filesystem paths (not `file://` URLs); the entry and compiled module are
   // siblings in `workDir`, so a `./`-relative specifier is the most robust.
   const compiledSpec = `./${relative(workDir, compiledPath)}`;
+  // The setup module (contract R14b/d) is bundled INTO the entry — it must mutate the *bundle's*
+  // runtime/prelude instances (registry + lstset config), not the CLI process's. Its side effects
+  // run at import time; the config it set is then baked as the per-render reset baseline.
+  const setupImports =
+    opts.setupModule !== undefined
+      ? `import ${JSON.stringify(opts.setupModule)};
+import { bakeConfigBaseline } from "@nota-lang/prelude";
+`
+      : "";
+  const setupBake =
+    opts.setupModule !== undefined ? "bakeConfigBaseline();\n" : "";
   writeFileSync(
     entryPath,
-    `import Doc from ${JSON.stringify(compiledSpec)};
+    `${setupImports}import Doc from ${JSON.stringify(compiledSpec)};
 import { render, setAdapter } from "@nota-lang/runtime";
 import adapter from ${JSON.stringify(opts.adapterModule)};
 setAdapter(adapter);
-export const result = render(Doc);
+${setupBake}export const result = render(Doc);
 `
   );
 
@@ -199,13 +220,16 @@ async function bundleClient(
     preludePath: string;
     nodePaths: string[];
     nodeEnv: string;
+    setupModule?: string;
   }
 ): Promise<string> {
   // esbuild resolves filesystem paths; sibling of the entry in `workDir` → `./`-relative specifier.
   const compiledSpec = `./${relative(workDir, compiledPath)}`;
   const entrySource = generateClientEntry(manifest, {
     moduleId: compiledSpec,
-    adapterModule: opts.adapterModule
+    adapterModule: opts.adapterModule,
+    // Re-run the site setup on the client so registered island overrides resolve at hydrate time.
+    setupModule: opts.setupModule
   });
   const entryPath = join(workDir, "client.entry.mjs");
   writeFileSync(entryPath, entrySource);
@@ -330,7 +354,17 @@ export async function buildNota(
     writeFileSync(preludePath, PRELUDE_SOURCE);
 
     const nodeEnv = options.dev ? "development" : "production";
-    const bundleOpts = { adapterModule, preludePath, nodePaths, nodeEnv };
+    const setupModule =
+      options.setupModule !== undefined
+        ? resolve(options.setupModule)
+        : undefined;
+    const bundleOpts = {
+      adapterModule,
+      preludePath,
+      nodePaths,
+      nodeEnv,
+      setupModule
+    };
 
     // 2. SSR: render the document to HTML + manifest.
     const { html: bodyHtml, manifest } = await ssrRender(

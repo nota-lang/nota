@@ -8,17 +8,26 @@
  *
  *   1. `setAdapter(reactAdapter)` once, so the runtime's `▸=true` paths dispatch through React.
  *   2. Evaluate the emitted module. It (a) `import`s the emitted surface from `@nota-lang/runtime`,
- *      (b) references `useState` as a **free identifier** the integrator supplies, and (c) `export`s
+ *      (b) references `useState` and the prelude names (`Tex`/`CodeInline`/`CodeBlock`, contract
+ *      R14) as **free identifiers** the integrator supplies, and (c) `export`s
  *      `Doc` (default) + the hoisted island components. We can't run an `import`/`export`-bearing
  *      ESM string in the main window without an import map, so we strip the runtime import + ALL
  *      `export`s (keeping the declarations) and append a `return { default: Doc, …components }` built
  *      from the export identifiers parsed out of the source, evaluating the remainder via
- *      `new Function` with the runtime exports + React's `useState` injected (the same free-identifier
- *      set the CLI injects via esbuild).
+ *      `new Function` with the runtime exports + the ambient prelude injected (the same
+ *      free-identifier set the CLI injects via esbuild).
  *   3. `render(Doc)` → `{ html, manifest }`; the named exports become the **registry** the Rendered
  *      pane hydrates islands from.
  */
 
+import {
+  CodeBlock,
+  CodeInline,
+  lstset,
+  mathset,
+  registerComponents,
+  Tex
+} from "@nota-lang/prelude";
 import adapter from "@nota-lang/react";
 import * as runtime from "@nota-lang/runtime";
 import { type RenderResult, render, setAdapter } from "@nota-lang/runtime";
@@ -43,6 +52,21 @@ const RUNTIME_NAMES = [
   "inlineComponent",
   "blockComponent"
 ] as const;
+
+/**
+ * The ambient prelude scope (contract R14): the free identifiers the emit references beyond the
+ * runtime import — `useState` (framework hook) plus the standard prelude's slots + config surface.
+ * The same set the CLI supplies via esbuild `inject`; here they are `new Function` parameters.
+ */
+const AMBIENT_PRELUDE = {
+  useState,
+  Tex,
+  CodeInline,
+  CodeBlock,
+  lstset,
+  mathset,
+  registerComponents
+} as const;
 
 /** A manifest entry: the island component name + its JSON props. */
 export interface ManifestEntry {
@@ -106,10 +130,13 @@ export function evalModule(emitted: string): Record<string, unknown> {
   // eslint-disable-next-line @typescript-eslint/no-implied-eval -- intentional: run the emitted module.
   const factory = new Function(
     ...RUNTIME_NAMES,
-    "useState",
+    ...Object.keys(AMBIENT_PRELUDE),
     `"use strict";\n${body}\n;return { ${entries} };`
   );
-  return factory(...runtimeArgs, useState) as Record<string, unknown>;
+  return factory(...runtimeArgs, ...Object.values(AMBIENT_PRELUDE)) as Record<
+    string,
+    unknown
+  >;
 }
 
 /**

@@ -7,11 +7,13 @@
  * name; the manifest's `comp` field *is* that exported name. So building the registry is mechanical:
  *
  * 1. collect the distinct `comp` names from a `render()` manifest;
- * 2. emit a client boot-entry JS string that **imports each island component by its exported name**
- *    from the compiled module;
- * 3. build `registry = { [comp]: (props) => adapter.h(Component, props, []) }` — **BUILD the element,
- *    do NOT eagerly invoke** the component (the framework must call it during render, so its
- *    hooks/signals run); and
+ * 2. emit a client boot-entry JS string that imports the compiled module as a **namespace** and
+ *    resolves each island component at hydrate time — module export first, else the runtime
+ *    component registry (a *registered override*, contract R14b, populated by the optional setup
+ *    module imported for side effects);
+ * 3. build `registry = { [comp]: (props) => adapter.h(resolveComp(comp), props, []) }` — **BUILD the
+ *    element, do NOT eagerly invoke** the component (the framework must call it during render, so
+ *    its hooks/signals run); and
  * 4. `setAdapter(adapter)` + `bootIslands(manifest, registry)`.
  *
  * The generated string is **source for a bundler** — the CLI esbuild-bundles it (registry + boot +
@@ -47,17 +49,13 @@ export interface ClientEntryOptions {
    * non-standard layouts; `setAdapter` + `bootIslands` are imported from here.
    */
   runtimeModule?: string;
-}
-
-/**
- * A JS identifier safe to use as the local binding for an imported island component. Component names
- * are authored JS identifiers already, but we defensively sanitize (and prefix) so a generated local
- * can never collide with the entry's own bindings (`adapter`, `registry`, `bootIslands`, …) or be an
- * invalid identifier. `Colorized` → `_island_Colorized`.
- */
-function localName(comp: string): string {
-  const safe = comp.replace(/[^A-Za-z0-9_$]/g, "_");
-  return `_island_${safe}`;
+  /**
+   * Optional **site setup module** specifier, imported for side effects *before* boot (contract
+   * R14b): its `registerComponents({…})` calls re-run on the client, so an island whose component
+   * was registered (not exported from the compiled module) resolves at hydrate time. Mirror of the
+   * CLI's `--setup`.
+   */
+  setupModule?: string;
 }
 
 /**
@@ -66,10 +64,11 @@ function localName(comp: string): string {
  * The emitted module:
  * - imports `setAdapter` + `bootIslands` from the runtime and the `adapter` (default export) from the
  *   adapter module;
- * - imports each **distinct** island component from `moduleId` **by its exported name**
- *   (`import { Colorized as _island_Colorized } from "<moduleId>"`);
- * - builds `registry[comp] = (props) => adapter.h(Component, props, [])` — the required element-builder
- *   shape (the framework invokes the component; this generator never does);
+ * - imports the optional **setup module** for side effects (client-side `registerComponents`), then
+ *   the compiled module as a namespace, resolving each island comp at hydrate time (export ??
+ *   registered override — R14b);
+ * - builds `registry[comp] = (props) => adapter.h(resolveComp(comp), props, [])` — the required
+ *   element-builder shape (the framework invokes the component; this generator never does);
  * - embeds the manifest as a literal and calls `setAdapter(adapter); bootIslands(manifest, registry)`.
  *
  * @param manifest the manifest returned by `render(Doc)` (`Record<id, { comp, props }>`)
@@ -83,7 +82,7 @@ export function generateClientEntry(
   const adapterModule = opts.adapterModule ?? "@nota-lang/react";
   const runtimeModule = opts.runtimeModule ?? "@nota-lang/runtime";
 
-  // Distinct island component names, in first-seen order (deterministic output, one import each).
+  // Distinct island component names, in first-seen order (deterministic output).
   const names: string[] = [];
   for (const entry of Object.values(manifest)) {
     if (!names.includes(entry.comp)) {
@@ -91,33 +90,46 @@ export function generateClientEntry(
     }
   }
 
-  // `import { Colorized as _island_Colorized, … } from "<moduleId>";`
-  const componentImports =
-    names.length > 0
-      ? `import { ${names
-          .map(n => `${n} as ${localName(n)}`)
-          .join(", ")} } from ${JSON.stringify(opts.moduleId)};\n`
-      : "";
-
-  // registry: name → **element-builder** taking `(props, slot)`. BUILD the element (`adapter.h`), do
-  // NOT eagerly invoke the component — the framework calls it during hydration so hooks
-  // run. `slot` is the reconstructed static-children `raw` HTML (see the boot loop), passed as the
-  // component's children; the component forwards it via `@children` onto its host, where the adapter
-  // injects it as innerHTML — reproducing the server shell so hydration matches. `[]` when childless.
+  // The compiled module is imported as a **namespace** (not named imports): a manifest comp may be
+  // a *registered override* (contract R14b) that the module does not export, and a named import of
+  // a missing export is a bundle-time error. Resolution happens per-name at hydrate time:
+  // module export first (F1 hoisted components), else the runtime component registry (populated by
+  // the setup module's registerComponents, which ran at import time above).
   const registryEntries = names
     .map(
       n =>
-        `  ${JSON.stringify(n)}: (props, slot) => adapter.h(${localName(n)}, props, slot ?? [])`
+        `  ${JSON.stringify(n)}: (props, slot) => adapter.h(resolveComp(${JSON.stringify(n)}), props, slot ?? [])`
     )
     .join(",\n");
+
+  // Import the setup module (side effects: client-side registerComponents) before resolution runs.
+  const setupImport =
+    opts.setupModule !== undefined
+      ? `import ${JSON.stringify(opts.setupModule)};\n`
+      : "";
+
+  // Island-free → no module import, no resolver, an empty registry (the boot no-ops).
+  const resolver =
+    names.length > 0
+      ? `import * as _islandModule from ${JSON.stringify(opts.moduleId)};
+
+function resolveComp(name) {
+  const comp = _islandModule[name] ?? registeredComponent(name);
+  if (!comp) {
+    console.error('nota: no client component for island "' + name + '" (not a module export, not registered)');
+  }
+  return comp;
+}
+`
+      : "";
 
   // Embed the manifest as a literal so the bundle is self-contained (no fetch / DOM coupling).
   const manifestLiteral = JSON.stringify(manifest);
 
   return `// Generated by @nota-lang/vite generateClientEntry. Do not edit.
-import { setAdapter, getAdapter, bootIslands, raw } from ${JSON.stringify(runtimeModule)};
+import { setAdapter, getAdapter, bootIslands, raw, registeredComponent } from ${JSON.stringify(runtimeModule)};
 import adapter from ${JSON.stringify(adapterModule)};
-${componentImports}
+${setupImport}${resolver}
 const manifest = ${manifestLiteral};
 
 const registry = {

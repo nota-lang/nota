@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
+    "@nota-lang/prelude": "workspace:*",
     "@nota-lang/react": "workspace:*",
     "@nota-lang/runtime": "workspace:*",
     "@nota-lang/vite": "workspace:*",

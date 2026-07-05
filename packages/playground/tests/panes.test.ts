@@ -145,19 +145,26 @@ describe("SSG-output pane", () => {
     expect(b.html).toBe(a.html);
     expect(Object.keys(b.manifest)).toEqual(Object.keys(a.manifest));
   });
+
+  it("math + code render through the ambient prelude (R14)", () => {
+    const { html } = runSSG(compileNota("Euler: $e^x$ and `f(x)`\n"));
+    expect(html).toContain('<span class="nota-tex">');
+    expect(html).toContain("<math");
+    expect(html).toContain('<code class="nota-code-inline">f(x)</code>');
+  });
 });
 
 describe("pipeline: Generated-JS survives an SSG error", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  // `\`hello\`` (backtick-wrapped inline code) lowers to a CodeInline, which currently throws during
-  // SSG — a compile-succeeds-but-SSG-throws doc. If the premise test below ever fails, that bug was
-  // fixed; swap in another such fixture.
-  const INLINE_CODE = "`hello`";
+  // A `%` statement calling an undefined function: compiles fine, throws at `Doc()` during SSG —
+  // a compile-succeeds-but-SSG-throws doc. (The previous fixture, backtick inline code, stopped
+  // qualifying when the playground gained the ambient prelude — CodeInline now renders.)
+  const SSG_THROWS = "% boom()\nhi";
 
-  it("a CodeInline doc compiles but throws during SSG", () => {
-    expect(() => compileNotaRaw(INLINE_CODE)).not.toThrow();
-    expect(() => runSSG(compileNota(INLINE_CODE))).toThrow();
+  it("the fixture compiles but throws during SSG (premise)", () => {
+    expect(() => compileNotaRaw(SSG_THROWS)).not.toThrow();
+    expect(() => runSSG(compileNota(SSG_THROWS))).toThrow();
   });
 
   it("shows this run's emitted JS (not the prior run's) and surfaces the error", () => {
@@ -165,12 +172,12 @@ describe("pipeline: Generated-JS survives an SSG error", () => {
     // A prior good run, whose JS would wrongly persist if the SSG-error path kept `prev.code`.
     const prev = { ...EMPTY, code: "STALE", full: "STALE-FULL" };
 
-    const result = runPipeline(INLINE_CODE, prev);
+    const result = runPipeline(SSG_THROWS, prev);
 
     // The Generated-JS pane shows *this* run's compile, not the stale prior run.
-    expect(result.code).toBe(compileNotaRaw(INLINE_CODE));
+    expect(result.code).toBe(compileNotaRaw(SSG_THROWS));
     expect(result.code).not.toBe("STALE");
-    expect(result.full).toBe(compileNota(INLINE_CODE));
+    expect(result.full).toBe(compileNota(SSG_THROWS));
     // The error is surfaced to the UI and logged (with its stack) to the console.
     expect(result.error).toBeTruthy();
     expect(logged).toHaveBeenCalled();
@@ -181,7 +188,7 @@ describe("pipeline: Generated-JS survives an SSG error", () => {
     expect(good.error).toBeNull();
 
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const result = runPipeline(INLINE_CODE, good);
+    const result = runPipeline(SSG_THROWS, good);
 
     // SSG failed this run, so the SSG/Rendered panes retain the last-good output.
     expect(result.html).toBe(good.html);

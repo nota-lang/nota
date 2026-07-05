@@ -30,6 +30,40 @@ export interface NotaPluginOptions {
    * stripping any `?query` suffix Vite appends).
    */
   extensions?: string[];
+  /**
+   * Module the ambient prelude bindings (`Tex` / `CodeInline` / `CodeBlock`, contract R14) are
+   * imported from when the compiled module references them free. Default `"@nota-lang/prelude"`;
+   * `false` disables the injection (the integrator supplies the ambient names another way).
+   */
+  preludeModule?: string | false;
+}
+
+/** The ambient names the reader emits for math/code spans (contract R14a; §9 ambient prelude). */
+const AMBIENT_PRELUDE_NAMES = ["Tex", "CodeInline", "CodeBlock"] as const;
+
+/**
+ * Prepend an import binding the ambient prelude names the compiled module references *free*.
+ *
+ * A name is injected iff (a) it is referenced in the reader's emit shape (`h(Tex, …)` — the reader
+ * only ever emits these names as `h` tags), and (b) the module does not bind it itself (a
+ * `%import { Tex } from …` lexically overrides the ambient binding — R14b — and a second import
+ * would be a duplicate-binding SyntaxError). The bound check is textual over the reader-controlled
+ * module shape (top-level `import`/`const`/`let`/`function` lines); if the compiler ever exposes
+ * its free-ambient-names metadata, swap this for it.
+ */
+function injectAmbientPrelude(code: string, preludeModule: string): string {
+  const needed = AMBIENT_PRELUDE_NAMES.filter(
+    name =>
+      new RegExp(`\\bh\\(${name}\\b`).test(code) &&
+      !new RegExp(
+        `^import\\b[^\\n]*\\b${name}\\b[^\\n]*\\bfrom\\b|^(?:export\\s+)?(?:const|let|var|function)\\s+${name}\\b`,
+        "m"
+      ).test(code)
+  );
+  if (needed.length === 0) {
+    return code;
+  }
+  return `import { ${needed.join(", ")} } from ${JSON.stringify(preludeModule)};\n${code}`;
 }
 
 /**
@@ -56,6 +90,7 @@ export interface NotaPluginOptions {
  */
 export function nota(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? [".nota"];
+  const preludeModule = options.preludeModule ?? "@nota-lang/prelude";
 
   /** Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`? */
   function claims(id: string): boolean {
@@ -74,7 +109,13 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
       // Delegate to the compiler shim: spawns the oxc reader and prepends the runtime import.
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id });
-      return { code: out, map };
+      // Bind any free ambient prelude names (R14) — before the map exists, a prepended line is
+      // safe; once the compiler emits a v3 map this must shift it (or move into the compiler).
+      const withPrelude =
+        preludeModule === false
+          ? out
+          : injectAmbientPrelude(out, preludeModule);
+      return { code: withPrelude, map };
     }
   };
 }

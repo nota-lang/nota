@@ -17,6 +17,7 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
     "@lezer/highlight": "^1.2.3",
+    "@nota-lang/prelude": "workspace:*",
     "@nota-lang/react": "workspace:*",
     "@nota-lang/runtime": "workspace:*",
     "@nota-lang/vite": "workspace:*",

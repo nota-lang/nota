@@ -2,11 +2,13 @@
  * `generateClientEntry` tests — registry generation.
  *
  * From a `render()` manifest, assert the generated client boot-entry module:
- *   - imports each **distinct** island component **by its exported name** from the compiled module
- *     (validates that the manifest `comp` is an importable export, end-to-end);
- *   - **builds** the element (`adapter.h(Component, props, …)`) and does **NOT** eagerly invoke the
- *     component (the framework must call it during render so hooks/signals run);
- *   - `setAdapter`s the adapter and calls `bootIslands(manifest, registry)`.
+ *   - imports the compiled module as a **namespace** and resolves each distinct island comp at
+ *     hydrate time — module export ?? runtime-registered override (contract R14b; a *registered*
+ *     island component is not a module export, so a named import would fail at bundle time);
+ *   - **builds** the element (`adapter.h(resolveComp(name), props, …)`) and does **NOT** eagerly
+ *     invoke the component (the framework must call it during render so hooks/signals run);
+ *   - `setAdapter`s the adapter and calls the slot-aware boot;
+ *   - imports the optional setup module for side effects before boot.
  *
  * `generateClientEntry` is a pure `manifest → string` generator, so these are string/AST assertions —
  * no bundler needed (the CLI's end-to-end tests exercise the bundled+booted form for real). We
@@ -24,30 +26,48 @@ const GOLDEN_MANIFEST: Manifest = {
 };
 
 describe("generateClientEntry (registry/boot helper)", () => {
-  test("imports each DISTINCT island by its exported name from the compiled module", () => {
+  test("imports the compiled module as a namespace + resolves comps at hydrate time (R14b)", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
-    // the manifest `comp` ("Colorized") is imported by name from the compiled module id.
+    // Namespace import — a manifest comp may be a registered override the module does not export,
+    // and a named import of a missing export is a bundle-time error.
     expect(out).toContain(
-      'import { Colorized as _island_Colorized } from "./doc.compiled.js";'
+      'import * as _islandModule from "./doc.compiled.js";'
     );
-    // De-duplicated: two islands of the same comp ⇒ exactly one import of `Colorized`.
-    const importCount = (out.match(/Colorized as _island_Colorized/g) ?? [])
+    // Resolution: module export first, else the runtime component registry.
+    expect(out).toContain(
+      "const comp = _islandModule[name] ?? registeredComponent(name);"
+    );
+    // De-duplicated: two islands of the same comp ⇒ exactly one registry entry.
+    const entryCount = (out.match(/"Colorized": \(props, slot\)/g) ?? [])
       .length;
-    expect(importCount).toBe(1);
+    expect(entryCount).toBe(1);
   });
 
   test("BUILDS the element (adapter.h), does NOT eagerly invoke the component", () => {
     const out = generateClientEntry(GOLDEN_MANIFEST, {
       moduleId: "./doc.compiled.js"
     });
-    // registry entry is an element-builder taking `(props, slot)`: `adapter.h(Comp, props, slot ?? [])`.
+    // registry entry is an element-builder taking `(props, slot)`: `adapter.h(resolveComp(n), props, slot ?? [])`.
     expect(out).toContain(
-      '"Colorized": (props, slot) => adapter.h(_island_Colorized, props, slot ?? [])'
+      '"Colorized": (props, slot) => adapter.h(resolveComp("Colorized"), props, slot ?? [])'
     );
-    // It must NOT eagerly invoke the component, i.e. never `_island_Colorized(props)` directly.
-    expect(out).not.toMatch(/_island_Colorized\s*\(/);
+    // It must NOT eagerly invoke the resolved component: `resolveComp(...)` only ever appears as
+    // adapter.h's first ARGUMENT, never called with props itself.
+    expect(out).not.toMatch(/resolveComp\("[^"]*"\)\s*\(/);
+  });
+
+  test("the setup module is imported for side effects before boot", () => {
+    const out = generateClientEntry(GOLDEN_MANIFEST, {
+      moduleId: "./doc.compiled.js",
+      setupModule: "/site/setup.mjs"
+    });
+    expect(out).toContain('import "/site/setup.mjs";');
+    // registrations must land before the boot call reads the registry
+    expect(out.indexOf('import "/site/setup.mjs";')).toBeLessThan(
+      out.indexOf("bootIslandsWithSlots(manifest, registry)")
+    );
   });
 
   test("setAdapter(adapter) then boots (slot-aware boot; bootIslands kept as reference)", () => {
@@ -55,10 +75,10 @@ describe("generateClientEntry (registry/boot helper)", () => {
       moduleId: "./doc.compiled.js"
     });
     expect(out).toContain('import adapter from "@nota-lang/react";');
-    // The runtime imports include `bootIslands` (the slot-agnostic reference) + the `raw`/`getAdapter`
-    // the slot-aware boot needs (slot rehydration is the generated entry's responsibility).
+    // The runtime imports include `bootIslands` (the slot-agnostic reference), the `raw`/`getAdapter`
+    // the slot-aware boot needs, and `registeredComponent` (override resolution — R14b).
     expect(out).toContain(
-      'import { setAdapter, getAdapter, bootIslands, raw } from "@nota-lang/runtime";'
+      'import { setAdapter, getAdapter, bootIslands, raw, registeredComponent } from "@nota-lang/runtime";'
     );
     expect(out).toContain("setAdapter(adapter);");
     // The generated entry runs the slot-aware boot (which specializes bootIslands to preserve slots).
@@ -88,18 +108,13 @@ describe("generateClientEntry (registry/boot helper)", () => {
       "3": { comp: "Colorized", props: {} }
     };
     const out = generateClientEntry(manifest, { moduleId: "./m.js" });
-    // both distinct names imported, once each
-    expect(out).toContain("Colorized as _island_Colorized");
-    expect(out).toContain("Counter as _island_Counter");
-    expect(
-      (out.match(/_island_Colorized/g) ?? []).length
-    ).toBeGreaterThanOrEqual(2); // import + registry
-    // a registry entry per distinct name
+    // one namespace import; a registry entry per distinct name
+    expect(out).toContain('import * as _islandModule from "./m.js";');
     expect(out).toContain(
-      '"Colorized": (props, slot) => adapter.h(_island_Colorized, props, slot ?? [])'
+      '"Colorized": (props, slot) => adapter.h(resolveComp("Colorized"), props, slot ?? [])'
     );
     expect(out).toContain(
-      '"Counter": (props, slot) => adapter.h(_island_Counter, props, slot ?? [])'
+      '"Counter": (props, slot) => adapter.h(resolveComp("Counter"), props, slot ?? [])'
     );
   });
 
@@ -120,7 +135,7 @@ describe("generateClientEntry (registry/boot helper)", () => {
     });
     expect(out).toContain('import adapter from "@nota-lang/solid";');
     expect(out).toContain(
-      'import { setAdapter, getAdapter, bootIslands, raw } from "/abs/runtime.js";'
+      'import { setAdapter, getAdapter, bootIslands, raw, registeredComponent } from "/abs/runtime.js";'
     );
   });
 

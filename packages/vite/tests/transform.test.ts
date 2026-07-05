@@ -83,6 +83,56 @@ describe("transform: .nota id → JS + sourcemap shape", () => {
   });
 });
 
+describe("transform: ambient prelude injection (R14)", () => {
+  const asResult = (r: unknown) => r as { code: string } | null;
+
+  test("free Tex/CodeInline references get a prelude import prepended", async () => {
+    const result = asResult(
+      await runTransform(nota(), "Math $x^2$ and `f(x)`\n", "/d.nota")
+    );
+    expect(result?.code).toMatch(
+      /^import \{ Tex, CodeInline \} from "@nota-lang\/prelude";\n/
+    );
+  });
+
+  test("no math/code in the doc → no prelude import", async () => {
+    const result = asResult(
+      await runTransform(nota(), "Just @em{prose}.\n", "/d.nota")
+    );
+    expect(result?.code).not.toContain("@nota-lang/prelude");
+  });
+
+  test("a %import of the same name suppresses the injection (lexical override, R14b)", async () => {
+    const result = asResult(
+      await runTransform(
+        nota(),
+        '%import { Tex } from "./my-tex.js"\nMath $x^2$\n',
+        "/d.nota"
+      )
+    );
+    // the user's own binding wins — injecting would be a duplicate-binding SyntaxError
+    expect(result?.code).not.toContain("@nota-lang/prelude");
+    expect(result?.code).toContain('from "./my-tex.js"');
+  });
+
+  test("preludeModule: false disables injection; a custom specifier is honored", async () => {
+    const off = asResult(
+      await runTransform(nota({ preludeModule: false }), "$x$\n", "/d.nota")
+    );
+    expect(off?.code).not.toContain("@nota-lang/prelude");
+    const custom = asResult(
+      await runTransform(
+        nota({ preludeModule: "/my/prelude.ts" }),
+        "$x$\n",
+        "/d.nota"
+      )
+    );
+    expect(custom?.code).toMatch(
+      /^import \{ Tex \} from "\/my\/prelude.ts";\n/
+    );
+  });
+});
+
 describe("transform: non-.nota id → null passthrough", () => {
   test("returns null for .ts / .js / .mdx / extensionless ids", async () => {
     for (const id of [
