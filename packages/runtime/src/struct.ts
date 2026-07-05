@@ -46,6 +46,7 @@
  */
 
 import { isComp } from "./component";
+import { isMark, isQuery } from "./doc";
 import { isRaw } from "./raw";
 import {
   type ChildArg,
@@ -308,6 +309,45 @@ function flattenFragments(children: readonly VNode[]): VNode[] {
 }
 
 /**
+ * Hoist R10 template expansion + transparent-fragment splicing to a **whole-tree pre-pass**
+ * (contract R18b), reusing {@link expandTemplates}/{@link flattenFragments}. Recursively: expand a
+ * plain-function tag, splice a transparent `FRAG` sibling's children into its parent's stream
+ * (dropping the FRAG's own props, e.g. an E5 `key` — exactly as {@link decodeChildren} does), over
+ * the WHOLE tree including component-boundary children. The root node itself is kept (a root `FRAG`
+ * stays a `FRAG` node with normalized children). Opaque leaves — {@link "./raw".RawHtml} and the
+ * doc-state mark/query leaves — pass through untouched (they are not elements).
+ *
+ * This is **observationally identical** to what `struct`'s interleaved expansion path would have
+ * produced (both expansion and fragment-splicing are context-free, and grouping never introduces a
+ * template/fragment): `normalize` fully expands *before* the index sees the tree, so marks produced
+ * by templates are indexed. `struct`'s own interleaved expansion path stays in place unchanged — it
+ * simply becomes vacuous after `normalize` (direct `struct` callers still exercise it).
+ */
+export function normalize(root: VNode): VNode {
+  const v = expandTemplates(root);
+  if (typeof v === "string") {
+    return v;
+  }
+  if (isRaw(v)) {
+    return v;
+  }
+  // Doc-state leaves (and any non-element value) pass through untouched. Note: a mark's vnode-valued
+  // `data.content` is data, not tree, so it is deliberately NOT normalized here (see indexDoc).
+  if (!isElement(v)) {
+    return v;
+  }
+  // A non-vnode object (e.g. reaching the tree via `@(expr)`): leave as-is for `struct` to coerce.
+  if (!Array.isArray(v.children)) {
+    return v;
+  }
+  return {
+    tag: v.tag,
+    props: v.props,
+    children: flattenFragments(v.children).map(normalize)
+  };
+}
+
+/**
  * Run the grouping passes over a sibling stream per the gate flags, then recurse `struct` into
  * each result. Fragments are spliced transparently first (so their children join this stream's
  * grouping); `groupLists` always runs (lists nest anywhere); `paras`/`sections` run only when
@@ -347,6 +387,13 @@ export function struct(root: VNode): VNode {
   }
   // A template may *return* a RawHtml leaf (e.g. the prelude's KaTeX default) — opaque, as above.
   if (isRaw(v)) {
+    return v;
+  }
+  // A doc-state MarkLeaf/QueryLeaf leaf (contract R18) is opaque here — `struct` passes it through
+  // untouched (like `isRaw`) so it survives to `serialize`, which then fails pointedly on it. In the
+  // full decode pipeline `force` has already removed marks / spliced queries before `struct` runs,
+  // so this only fires for a direct `struct` caller that skipped the doc-state passes.
+  if (isMark(v) || isQuery(v)) {
     return v;
   }
   // A child that is not a real vnode (e.g. an object/Date reaching the tree via `@(expr)`, which is

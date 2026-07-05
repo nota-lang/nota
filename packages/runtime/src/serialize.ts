@@ -23,10 +23,25 @@
 
 import { getAdapter } from "./adapter";
 import { type CompFn, isComp, nameOf } from "./component";
+import {
+  force,
+  hasTrailers,
+  indexDoc,
+  isMark,
+  isQuery,
+  runTrailers
+} from "./doc";
 import { withFlag } from "./flag";
 import { isRaw, raw } from "./raw";
-import { struct } from "./struct";
-import { type ElementVNode, FRAG, isElement, type VNode } from "./vnode";
+import { normalize, struct } from "./struct";
+import {
+  type ChildArg,
+  type ElementVNode,
+  FRAG,
+  flatten,
+  isElement,
+  type VNode
+} from "./vnode";
 
 // ---------------------------------------------------------------------------------------------
 // Manifest / result types
@@ -299,6 +314,14 @@ export function serialize(v: VNode): string {
   if (isRaw(v)) {
     return v.html;
   }
+  // A doc-state mark/query leaf (contract R18) must have been resolved by the decode pipeline's
+  // `force` pass before reaching here. Fail pointedly (mirror of the R10 function-tag guard below)
+  // rather than silently dropping it via the defensive `!isElement` branch.
+  if (isMark(v) || isQuery(v)) {
+    throw new Error(
+      "serialize: a doc-state leaf (mark/query) reached serialize — run the decode pipeline first (decode/render resolve marks and queries via force before serializing; contract R18)"
+    );
+  }
   if (!isElement(v)) {
     // unreachable for well-formed vnodes; be defensive rather than emit `undefined`
     return "";
@@ -390,6 +413,45 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
 }
 
 // ---------------------------------------------------------------------------------------------
+// decode pipeline (contract R18b)
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * The `▸ = false` decode pipeline: `serialize ∘ struct ∘ force ∘ index ∘ normalize` (contract
+ * R18b), with the trailer auto-append seam (R18d) in front.
+ *
+ * ```
+ * decodeTree(v):
+ *   if trailers registered: v = ⟨FRAG, {}, [v, ...flatten(trailer thunks)]⟩   // R18d, before index
+ *   t  = normalize(v)          // R10 expansion + fragment splicing, whole-tree — exposes template marks
+ *   ix = indexDoc(t)           // one DFS → DocIndex (all/get)
+ *   t2 = force(t, ix)          // remove marks, splice query output (recursively) — BEFORE grouping
+ *   return serialize(struct(t2))
+ * ```
+ *
+ * Lives here (not in `doc.ts`) because it composes `struct` + `serialize`, and `doc.ts` must not
+ * import either (import-cycle hygiene, contract R18). For a tree with **no** marks/queries/trailers
+ * the output is byte-identical to `serialize(struct(v))`: no trailer wrap, `normalize` reproduces
+ * `struct`'s own expansion, the empty index makes `force` a structural identity, and `struct`'s
+ * interleaved expansion is vacuous.
+ */
+export function decodeTree(v: VNode): string {
+  // R18d: append each registered trailer's children after the document content, wrapping in a
+  // transparent fragment, BEFORE indexing — so trailer queries force against the full index.
+  const withTrailers: VNode = hasTrailers()
+    ? {
+        tag: FRAG,
+        props: {},
+        children: [v, ...flatten(runTrailers() as ChildArg[])]
+      }
+    : v;
+  const t = normalize(withTrailers);
+  const ix = indexDoc(t);
+  const t2 = force(t, ix);
+  return serialize(struct(t2));
+}
+
+// ---------------------------------------------------------------------------------------------
 // SSG driver
 // ---------------------------------------------------------------------------------------------
 
@@ -405,12 +467,13 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
  * ```
  *
  * **Decoding exactly once.** An *emitted* `Doc` already wraps its body in `decode(...)` — and at
- * `▸ = false`, `decode = serialize ∘ struct`. So a real emitted `Doc()` **already returns the decoded
- * HTML string**; applying `serialize(struct(...))` to it again would `escape` the whole document
- * (`<ul>` → `&lt;ul&gt;`) and re-run `island`. `render` therefore decodes **once**: if `Doc()` already
- * produced a string (the emitted, self-decoding `Doc`) it is the HTML as is; if `Doc()` returned a
- * raw vnode *tree* (a hand-built `Doc` that does not self-decode) we apply `serialize(struct(...))`.
- * Either way the document is decoded exactly once.
+ * `▸ = false`, `decode` runs the full R18 pipeline ({@link decodeTree}). So a real emitted `Doc()`
+ * **already returns the decoded HTML string**; applying the pipeline to it again would `escape` the
+ * whole document (`<ul>` → `&lt;ul&gt;`) and re-run `island`. `render` therefore decodes **once**: if
+ * `Doc()` already produced a string (the emitted, self-decoding `Doc`) it is the HTML as is; if
+ * `Doc()` returned a raw vnode *tree* (a hand-built `Doc` that does not self-decode) we run
+ * {@link decodeTree} (the same `normalize ∘ index ∘ force ∘ struct ∘ serialize` path, so marks,
+ * queries, and trailers resolve here too). Either way the document is decoded exactly once.
  *
  * The caller must have `setAdapter`'d a framework adapter first (islands SSR through it). The
  * returned `manifest` is a fresh snapshot, so a later `render` cannot mutate it.
@@ -418,6 +481,9 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
 export function render(Doc: () => VNode): RenderResult {
   reset();
   const out = Doc();
-  const html = typeof out === "string" ? out : serialize(struct(out));
+  // A self-decoding emitted `Doc` already returned an HTML string (its body wraps `decode(...)`); a
+  // hand-built `Doc` that returns a raw vnode tree is decoded here through the SAME pipeline as
+  // `decode` (so marks/queries/trailers resolve in the raw-tree fallback too — contract R18b).
+  const html = typeof out === "string" ? out : decodeTree(out);
   return { html, manifest: { ...manifest } };
 }

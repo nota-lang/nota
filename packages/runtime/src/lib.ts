@@ -25,6 +25,21 @@ export {
   isComp,
   nameOf
 } from "./component";
+// --- doc-state: marks & queries + trailer registry (contract R18) ---
+export {
+  clearTrailers,
+  type DocIndex,
+  force,
+  type IndexedMark,
+  indexDoc,
+  isMark,
+  isQuery,
+  type MarkLeaf,
+  mark,
+  type QueryLeaf,
+  query,
+  registerTrailer
+} from "./doc";
 // --- the `▸` mechanism ---
 export { flag, withFlag } from "./flag";
 // --- the emitted-code surface ---
@@ -70,6 +85,7 @@ export {
   groupSections,
   HOST_BLOCK_TAGS,
   HOST_FLOW_TAGS,
+  normalize,
   struct
 } from "./struct";
 // --- vnode data model ---

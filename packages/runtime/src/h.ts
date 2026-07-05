@@ -8,10 +8,10 @@
  */
 
 import { getAdapter } from "./adapter";
+import { isMark, isQuery } from "./doc";
 import { flag } from "./flag";
 import { isRaw } from "./raw";
-import { serialize } from "./serialize";
-import { struct } from "./struct";
+import { decodeTree } from "./serialize";
 import {
   type ChildArg,
   type ElementVNode,
@@ -56,12 +56,14 @@ export function h(
  * - an **array** — `Array.isArray(arg)` (an array child is the `Fragment(xs.map(...))` shape);
  * - a **string** / **number** / **boolean** / **nullish** — these are scalar children, not objects;
  * - a **`RawHtml`** marker — `isRaw(arg)` (a pre-rendered slot rides through as a child);
+ * - a doc-state **`MarkLeaf`/`QueryLeaf`** — `isMark`/`isQuery` (they are `tag`-less plain objects,
+ *   so without this they would be eaten as props; contract R18 — they ride through as children);
  * - an **`ElementVNode`** — it carries a `tag` key; a props object never does.
  *
  * The `tag`-key test is the precise discriminator: `isElement` (just `typeof === "object"`) cannot
  * tell a props object from a vnode, but **only a vnode has `tag`** (the reader's emitted props are
  * attribute objects like `{ key, href, … }`, never `{ tag }`). So a props object is exactly an
- * object that is not array / not raw / has no `tag`.
+ * object that is not array / not raw / not a doc-state leaf / has no `tag`.
  */
 function isLeadingProps(
   arg: ChildArg | Record<string, unknown> | undefined
@@ -71,6 +73,8 @@ function isLeadingProps(
     arg !== null &&
     !Array.isArray(arg) &&
     !isRaw(arg) &&
+    !isMark(arg) &&
+    !isQuery(arg) &&
     !("tag" in arg)
   );
 }
@@ -118,17 +122,19 @@ export function Fragment(
  * The decode pass.
  *
  * ```
- * ▸ = false → serialize(struct(v))     // the SSG pass: restructure, then stringify
+ * ▸ = false → decodeTree(v)            // the SSG pass: normalize → index → force → struct → serialize
  * ▸ = true  → v                        // identity inside a component body
  * ```
  *
  * Inside a component (`▸ = true`) every `h` already returned an opaque framework element, so there
- * is nothing for a restructuring pass to see and `decode` is the identity. Under the static build
- * it is `serialize ∘ struct`: restructure the tree, then stringify it to HTML.
+ * is nothing for a restructuring pass to see and `decode` is the identity. Under the static build it
+ * runs the full R18 pipeline ({@link decodeTree} = `serialize ∘ struct ∘ force ∘ index ∘
+ * normalize`): resolve doc-state marks/queries and append trailers, restructure the tree, then
+ * stringify it to HTML. For a mark-free document this is byte-identical to `serialize(struct(v))`.
  */
 export function decode(v: VNode): unknown {
   if (flag()) {
     return v;
   }
-  return serialize(struct(v));
+  return decodeTree(v);
 }

@@ -12,6 +12,7 @@
  */
 
 import type { CompFn, CompProps } from "./component";
+import { isMark, isQuery, type MarkLeaf, type QueryLeaf } from "./doc";
 import { isRaw, type RawHtml } from "./raw";
 
 /**
@@ -48,17 +49,27 @@ export interface ElementVNode {
 }
 
 /**
- * A vnode is a text leaf, an element/fragment/boundary node, or a {@link RawHtml} leaf —
- * pre-rendered HTML that the static path passes through opaquely (`struct` never descends,
- * `serialize` emits it verbatim; contract R14e). Raw leaves are how the prelude's KaTeX output
- * enters the tree without re-escaping.
+ * A vnode is a text leaf, an element/fragment/boundary node, a {@link RawHtml} leaf — pre-rendered
+ * HTML that the static path passes through opaquely (`struct` never descends, `serialize` emits it
+ * verbatim; contract R14e) — or a {@link MarkLeaf}/{@link QueryLeaf} **doc-state** leaf (contract
+ * R18): opaque to `flatten`/`struct`, resolved (marks removed, queries spliced) by `decode`'s
+ * `force` pass *before* grouping, so serialize never sees one. Raw leaves are how the prelude's
+ * KaTeX output enters the tree without re-escaping; mark/query leaves are how forward-referencing
+ * constructs (TOC, `@ref`, footnotes) index and resolve against the whole document.
  */
-export type VNode = string | ElementVNode | RawHtml;
+export type VNode = string | ElementVNode | RawHtml | MarkLeaf | QueryLeaf;
 
 /** True when `v` is a non-text vnode (has a `tag`/`props`/`children` shape). A {@link RawHtml}
- *  leaf is *not* an element — it is opaque to every structural pass. */
+ *  leaf and the doc-state {@link MarkLeaf}/{@link QueryLeaf} leaves are *not* elements — they are
+ *  opaque to every structural pass. */
 export function isElement(v: VNode): v is ElementVNode {
-  return typeof v === "object" && v !== null && !isRaw(v);
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    !isRaw(v) &&
+    !isMark(v) &&
+    !isQuery(v)
+  );
 }
 
 /** True when `v` is a fragment node. */
@@ -113,7 +124,8 @@ function flattenInto(children: readonly ChildArg[], out: VNode[]): void {
       // splice arrays in; recurse so a `.map` returning arrays flattens fully
       flattenInto(c, out);
     } else {
-      // an ElementVNode, or a RawHtml leaf (opaque; §8 "survives flatten")
+      // an ElementVNode, a RawHtml leaf, or a doc-state MarkLeaf/QueryLeaf leaf (all opaque; §8/§7
+      // "opaque leaves survive flatten" — the object fallthrough pushes any branded leaf untouched)
       out.push(c);
     }
   }
