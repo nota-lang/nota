@@ -41,10 +41,16 @@ describe("Generated-JS pane", () => {
     expect(full).toContain(compileNotaRaw(GOLDEN_NOTA));
   });
 
-  it("emits the hoisted+exported island component the registry imports by name", () => {
-    // The manifest's `comp` must be an exported binding of the emitted module.
+  it("the component binding stays document-local; replay still hydrates (R15)", () => {
+    // Contract R15: `%let Colorized = …` is an ordinary lexical statement inside Doc — NOT hoisted
+    // or exported (replay hydration recovers the live binding by re-executing Doc; no registry
+    // import by name). The binding name still rides as the constructor's 2nd arg (debug manifest).
     const code = compileNotaRaw(GOLDEN_NOTA);
-    expect(code).toMatch(/export\s+(const|let|var|function)\s+Colorized/);
+    expect(code).not.toMatch(/export\s+(const|let|var)\s+Colorized/);
+    expect(code).toMatch(/let\s+Colorized = inlineComponent\(/);
+    expect(code).toContain('"Colorized"');
+    // …and the replay path is live: the rendered-pane test (rendered.test.tsx) hydrates this exact
+    // document through hydrateDocument.
   });
 });
 

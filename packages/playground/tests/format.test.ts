@@ -44,7 +44,8 @@ describe("formatCode (babel) — Generated JS", () => {
   it("preserves every token of the emitted module", async () => {
     const pretty = await formatCode(compileNotaRaw(GOLDEN_NOTA), "babel");
     for (const token of [
-      "export let Colorized = inlineComponent(",
+      // R15: the component binding is document-local (inside Doc, no export).
+      "let Colorized = inlineComponent(",
       'useState("red")',
       // `h("span", {…}, [children])` exceeds the print width and reflows across lines, but every
       // piece survives — assert the reflow-robust fragments rather than the one-line call shape.

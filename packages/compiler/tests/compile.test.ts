@@ -38,9 +38,11 @@ describe("compile (emit surface + prepended runtime import)", () => {
     // document mode emits the default Doc.
     expect(code).toContain("export default function Doc()");
 
-    // The component binding hoists to module scope, is exported, and carries its stable name as
-    // the constructor's 2nd arg (so island()'s manifest `comp` resolves).
-    expect(code).toMatch(/export let Colorized = inlineComponent\(/);
+    // The component binding stays DOCUMENT-LOCAL (contract R15: an ordinary lexical statement
+    // inside Doc — no hoist, no export; replay hydration recovers its closure) and carries its
+    // binding name as the constructor's 2nd arg (the island's debug-manifest `comp`).
+    expect(code).toMatch(/let Colorized = inlineComponent\(/);
+    expect(code).not.toMatch(/export let Colorized/);
     expect(code).toContain('}, "Colorized");');
 
     // keyed @for — each iteration wraps in Fragment({ key: _i }, …).
@@ -59,10 +61,12 @@ describe("compile (emit surface + prepended runtime import)", () => {
 
     expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
     expect(code).toContain("export default function Doc()");
-    // The stable name passed to blockComponent (drives the manifest `comp` for the island). note.nota's
-    // body is a single expression, so the name lands right after the closing paren of the body
-    // (`…[children])), "Note");`) rather than after a `}` (cf. golden's multi-line body).
-    expect(code).toMatch(/export let Note = blockComponent\(/);
+    // The binding name passed to blockComponent (drives the debug-manifest `comp` for the island).
+    // note.nota's body is a single expression, so the name lands right after the closing paren of
+    // the body (`…[children]), "Note");`) rather than after a `}` (cf. golden's multi-line body).
+    // R15: document-local — no export.
+    expect(code).toMatch(/let Note = blockComponent\(/);
+    expect(code).not.toMatch(/export let Note/);
     expect(code).toContain(', "Note");');
     expect(code).toContain('h("aside", {}');
     expect(code).toContain('h("em", {}, ["world"])');

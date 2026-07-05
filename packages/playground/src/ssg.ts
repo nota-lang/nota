@@ -204,7 +204,8 @@ export function evalModule(emitted: string): Record<string, unknown> {
   body = resolveImports(body, scope);
 
   // Parse export identifiers BEFORE stripping the keywords: `export default function Doc` and
-  // `export let/const/function/class Name` (the compiler hoists+exports the island components).
+  // `export let/const/function/class Name` (author `%export` bindings / meta exports — R15:
+  // component bindings are document-local by default, so most modules export only Doc).
   const defMatch = body.match(
     /export\s+default\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/
   );
