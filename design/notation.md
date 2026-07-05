@@ -28,14 +28,17 @@ Lowercase tag → host element (string); Capitalized → a component identifier 
 ```
 
 ### Dynamic tag
-`@(expr){…}` uses the expression as the tag. It desugars through a fresh, component-cased binding
-scoped to just this element (so JSX treats it as a component, not a host string)
+`@(expr){…}` uses the expression as the tag: conceptually `<expr>…</expr>`. Real JSX cannot place an
+arbitrary expression in tag position (only an identifier or member expression may sit there), but
+Nota's actual target is hyperscript (R1): `h(expr, …)` is a plain function call, with no such
+grammatical restriction. The expression lowers straight through as `h`'s first argument, whatever its
+shape — no intermediate binding:
 ```
-@(getTag()){hi}        → (() => { const _Tag = getTag(); return <_Tag>hi</_Tag>; })()
-@(comps[k])[x:1]{hi}   → (() => { const _Tag = comps[k]; return <_Tag x={1}>hi</_Tag>; })()
+@(getTag()){hi}        → h(getTag(), {}, ["hi"])
+@(comps[k])[x:1]{hi}   → h(comps[k], { x: 1 }, ["hi"])
+@(Box){hi}             → h(Box, {}, ["hi"])
+@(ui.Card){hi}         → h(ui.Card, {}, ["hi"])
 ```
-A head already valid as a JSX tag — a capitalized identifier or a member expression — is emitted
-directly, without the binding: `@(Box){hi}` → `<Box>hi</Box>`, `@(ui.Card){hi}` → `<ui.Card>hi</ui.Card>`.
 
 ### Props
 `[k:v, …]` is object-literal syntax. String literal → bare attribute; any other expression
