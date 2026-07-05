@@ -33,6 +33,7 @@ import {
   isMark,
   isQuery,
   isRaw,
+  type MarkLeaf,
   mark,
   normalize,
   query,
@@ -295,30 +296,34 @@ export const Toc = slot("Toc", DefaultToc);
 // Label / Ref (R18e)
 // =============================================================================================
 
-/** The default `Label`: a position marker (`mark("label", {key})`) that renders nothing. */
+/**
+ * The default `Label`: a position marker (`mark("label", {key})`) that renders nothing. The key is
+ * the authored `id` prop (R20b — the `<sec:intro>` sugar sets it); children are ignored.
+ */
 export function DefaultLabel(props: CompProps): unknown {
-  const key = textContent(props.children).trim();
-  if (key === "") {
+  const id = typeof props.id === "string" ? props.id.trim() : "";
+  if (id === "") {
     throw new Error(
-      "@Label: empty key (the label's body is its key, e.g. @Label{sec:intro})"
+      '@Label: missing id (e.g. @Label[id: "sec:intro"]{}, or the <sec:intro> sugar)'
     );
   }
-  return mark("label", { key });
+  return mark("label", { key: id });
 }
 
 /** The ambient `Label` slot. */
 export const Label = slot("Label", DefaultLabel);
 
 /**
- * The default `Ref`: a `query` resolving `key` to the nearest **preceding** heading (LaTeX
- * semantics — by `pos`), linking to its id. Pointed errors: missing/duplicate label, or no heading
- * precedes it. Link text is the section number when the target is numbered, else its title text.
+ * The default `Ref`: a `query` resolving the `id` prop (R20b — the `&sec:intro` sugar sets it) to the
+ * nearest **preceding** heading (LaTeX semantics — by `pos`), linking to its id. Pointed errors:
+ * missing/empty `id`, missing/duplicate label, or no heading precedes it. Link text is the section
+ * number when the target is numbered, else its title text.
  */
 export function DefaultRef(props: CompProps): unknown {
-  const key = textContent(props.children).trim();
+  const key = typeof props.id === "string" ? props.id.trim() : "";
   if (key === "") {
     throw new Error(
-      "@Ref: empty key (the ref's body is its key, e.g. @Ref{sec:intro})"
+      '@Ref: missing id (e.g. @Ref[id: "sec:intro"]{}, or the &sec:intro sugar)'
     );
   }
   return query(doc => {
@@ -354,54 +359,195 @@ export function DefaultRef(props: CompProps): unknown {
 export const Ref = slot("Ref", DefaultRef);
 
 // =============================================================================================
-// Footnotes (R18d/e)
+// Footnotes (R18d/e, R20b) — labeled (Markdown) definitions/references + anonymous one-shots
 // =============================================================================================
 
 /**
- * The default `Footnote` (inline): `mark("footnote", {content})` + a `query` rendering the reference
- * marker `<sup><a>N</a></sup>`, numbered by tree order (`seq`). The content is {@link normChildren}'d
- * so a nested `@Cite` indexes at this footnote's position.
+ * The resolved footnote model for one {@link DocIndex} (R20b — Markdown labeled-footnote semantics).
+ * **One number per distinct referenced label**, assigned by the *first-appearance order of references*
+ * (kind-`"footnote"` marks in `pos` order); repeated references to a label share its number/href. An
+ * anonymous `@Footnote{…}` one-shot is a fresh synthetic label (keyed by its own entry identity), so
+ * it always takes the next number and is its own sole reference. Definitions (`"footnote-text"` marks)
+ * carry no number and their document position is irrelevant (definition-before-reference works).
+ */
+interface FootnoteModel {
+  /** The number assigned to each footnote *reference* entry (kind `"footnote"`). */
+  readonly numberOf: Map<IndexedMark, number>;
+  /** The first reference entry for each number — it alone carries the `fnref-N` id (v1 backlink). */
+  readonly firstRef: Map<number, IndexedMark>;
+  /** One list entry per number in order; `content` is the (already-normalized) rendered body. */
+  readonly entries: { num: number; content: VNode[] }[];
+}
+
+const footnoteMemo = new WeakMap<DocIndex, FootnoteModel>();
+
+/** Coerce a mark's stored `content` (array | single node | absent) to a fresh child array. */
+function contentChildren(content: unknown): VNode[] {
+  return Array.isArray(content)
+    ? [...(content as VNode[])]
+    : content != null
+      ? [content as VNode]
+      : [];
+}
+
+/**
+ * Build (and memoize per index — matching the heading id/number memo pattern) the
+ * {@link FootnoteModel}. Pointed errors (naming the label): a **duplicate** `@FootnoteText` for one
+ * label; a labeled reference with **no** `@FootnoteText`. An **unreferenced** definition is dropped
+ * silently (Markdown draft semantics — never looked up below).
+ */
+function footnoteModel(doc: DocIndex): FootnoteModel {
+  return memoize(footnoteMemo, doc, () => {
+    // Definitions: label → content (a duplicate is a pointed error).
+    const defs = new Map<string, VNode[]>();
+    for (const e of doc.all("footnote-text")) {
+      const label = e.data.label as string;
+      if (defs.has(label)) {
+        throw new Error(
+          `@FootnoteText: duplicate definition for footnote "${label}"`
+        );
+      }
+      defs.set(label, contentChildren(e.data.content));
+    }
+    // References (pos order): number by first appearance of a distinct label; anonymous one-shots
+    // are keyed by their own entry identity, so each takes a fresh number.
+    const numberOf = new Map<IndexedMark, number>();
+    const firstRef = new Map<number, IndexedMark>();
+    const numberByKey = new Map<unknown, number>();
+    let next = 1;
+    for (const e of doc.all("footnote")) {
+      const label = e.data.label;
+      const key = typeof label === "string" && label !== "" ? label : e;
+      let num = numberByKey.get(key);
+      if (num === undefined) {
+        num = next;
+        next += 1;
+        numberByKey.set(key, num);
+        firstRef.set(num, e);
+      }
+      numberOf.set(e, num);
+    }
+    // One list entry per number, in order: the definition body for a labeled reference (missing =
+    // pointed error), else the anonymous one-shot's own inline content.
+    const entries: { num: number; content: VNode[] }[] = [];
+    for (let num = 1; num < next; num += 1) {
+      const e = firstRef.get(num) as IndexedMark;
+      const label = e.data.label;
+      if (typeof label === "string" && label !== "") {
+        const def = defs.get(label);
+        if (def === undefined) {
+          throw new Error(
+            `@FootnoteMark: no @FootnoteText definition for footnote "${label}"`
+          );
+        }
+        entries.push({ num, content: def });
+      } else {
+        entries.push({ num, content: contentChildren(e.data.content) });
+      }
+    }
+    return { numberOf, firstRef, entries };
+  });
+}
+
+/**
+ * Render a footnote reference marker `<sup class="nota-fnref"><a>N</a></sup>` for reference mark `m`.
+ * The **first** reference to a number carries `id="fnref-N"` (v1 backlinks the first reference only);
+ * later references to the same label link to `#fn-N` with no id.
+ */
+function footnoteRef(doc: DocIndex, m: MarkLeaf): VNode {
+  const entry = doc.get(m);
+  const model = footnoteModel(doc);
+  const num = model.numberOf.get(entry) as number;
+  const anchorProps =
+    model.firstRef.get(num) === entry
+      ? { id: `fnref-${num}`, href: `#fn-${num}` }
+      : { href: `#fn-${num}` };
+  return h("sup", { class: "nota-fnref" }, [
+    h("a", anchorProps, [String(num)])
+  ]);
+}
+
+/**
+ * The default `Footnote` (inline, anonymous one-shot — R18e): `mark("footnote", {content})` + a query
+ * rendering the reference `<sup>`. It shares the labeled numbering (R20b) as a fresh synthetic label,
+ * so it always takes the next number. Content is {@link normChildren}'d so a nested `@Cite` indexes at
+ * this footnote's position.
  */
 export function DefaultFootnote(props: CompProps): unknown {
   const content = normChildren(props.children);
   const m = mark("footnote", { content });
-  const q = query(doc => {
-    const seq = doc.get(m).seq;
-    return h("sup", { class: "nota-fnref" }, [
-      h("a", { id: `fnref-${seq}`, href: `#fn-${seq}` }, [String(seq)])
-    ]);
-  });
-  return Fragment(m, q);
+  return Fragment(
+    m,
+    query(doc => footnoteRef(doc, m))
+  );
 }
 
 /** The ambient `Footnote` slot. */
 export const Footnote = slot("Footnote", DefaultFootnote);
 
 /**
+ * The default `FootnoteMark` (inline — R20b): a **labeled reference**, `mark("footnote", {label})` +
+ * the reference `<sup>` query. Repeated marks with the same `label` share one number and href. Pointed
+ * error if `label` is missing/empty; a label with no `@FootnoteText` errors at render (see
+ * {@link footnoteModel}).
+ */
+export function DefaultFootnoteMark(props: CompProps): unknown {
+  const label = typeof props.label === "string" ? props.label.trim() : "";
+  if (label === "") {
+    throw new Error(
+      '@FootnoteMark: missing label (e.g. @FootnoteMark[label: "n1"]{}, or the [^n1] sugar)'
+    );
+  }
+  const m = mark("footnote", { label });
+  return Fragment(
+    m,
+    query(doc => footnoteRef(doc, m))
+  );
+}
+
+/** The ambient `FootnoteMark` slot. */
+export const FootnoteMark = slot("FootnoteMark", DefaultFootnoteMark);
+
+/**
+ * The default `FootnoteText` (block — R20b): a **labeled definition**. Emits
+ * `mark("footnote-text", {label, content})` (children {@link normChildren}'d at store time, so a
+ * nested `@Cite` indexes here) and renders **nothing** in place. Pointed error if `label` is
+ * missing/empty; a **duplicate** definition for one label, or a reference to it with no definition,
+ * errors at render (see {@link footnoteModel}); an **unreferenced** definition is dropped silently.
+ */
+export function DefaultFootnoteText(props: CompProps): unknown {
+  const label = typeof props.label === "string" ? props.label.trim() : "";
+  if (label === "") {
+    throw new Error(
+      '@FootnoteText: missing label (e.g. @FootnoteText[label: "n1"]: …, or the "[^n1]: …" sugar)'
+    );
+  }
+  const content = normChildren(props.children);
+  return mark("footnote-text", { label, content });
+}
+
+/** The ambient `FootnoteText` slot. */
+export const FootnoteText = slot("FootnoteText", DefaultFootnoteText);
+
+/**
  * The default `FootnotesList` (block): a pure `query` rendering the footnote section (`<ol>` of
- * per-footnote `<li id="fn-N">…content ↩</li>`), or `null` when there are no footnotes. Split from
- * placement so it can never introduce a new mark — it only *reads* the index.
+ * per-number `<li id="fn-N">…content ↩</li>`) from the {@link footnoteModel}, or `null` when there
+ * are no referenced footnotes. Split from placement so it can never introduce a new mark — it only
+ * *reads* the index.
  */
 export function DefaultFootnotesList(_props: CompProps): unknown {
   return query(doc => {
-    const notes = doc.all("footnote");
-    if (notes.length === 0) {
+    const { entries } = footnoteModel(doc);
+    if (entries.length === 0) {
       return null;
     }
-    const items = notes.map(e => {
-      const seq = e.seq;
-      const content = e.data.content;
-      const kids: VNode[] = Array.isArray(content)
-        ? [...(content as VNode[])]
-        : content != null
-          ? [content as VNode]
-          : [];
-      return h("li", { id: `fn-${seq}` }, [
-        ...kids,
+    const items = entries.map(({ num, content }) =>
+      h("li", { id: `fn-${num}` }, [
+        ...content,
         " ",
-        h("a", { href: `#fnref-${seq}`, class: "nota-fnbacklink" }, ["↩"])
-      ]);
-    });
+        h("a", { href: `#fnref-${num}`, class: "nota-fnbacklink" }, ["↩"])
+      ])
+    );
     return h("section", { class: "nota-footnotes" }, [h("ol", {}, items)]);
   });
 }

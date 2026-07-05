@@ -34,7 +34,9 @@ import {
   Cite,
   counters,
   Footnote,
+  FootnoteMark,
   Footnotes,
+  FootnoteText,
   Heading,
   Label,
   Ref,
@@ -215,9 +217,9 @@ describe("Label / Ref", () => {
   test("forward @Ref (before the labeled section) resolves to the preceding heading", () => {
     const out = doc(
       frag([
-        el("p", ["See ", el(Ref, ["sec:intro"], {}), "."]),
+        el("p", ["See ", el(Ref, [], { id: "sec:intro" }), "."]),
         el(Heading, ["Introduction"], { rank: 1 }),
-        el(Label, ["sec:intro"], {}),
+        el(Label, [], { id: "sec:intro" }),
         el("p", ["Body text."])
       ])
     );
@@ -230,17 +232,42 @@ describe("Label / Ref", () => {
     secset({ numberDepth: 1 });
     const out = doc(
       frag([
-        el("p", ["See ", el(Ref, ["s"], {}), "."]),
+        el("p", ["See ", el(Ref, [], { id: "s" }), "."]),
         el(Heading, ["Intro"], { rank: 1 }),
-        el(Label, ["s"], {})
+        el(Label, [], { id: "s" })
       ])
     );
     expect(out).toContain('<a href="#intro">1</a>');
   });
 
+  test("@Label ignores children; the id prop is the key", () => {
+    // children present but ignored — resolution is by the `id` prop alone
+    const out = doc(
+      frag([
+        el("p", ["See ", el(Ref, [], { id: "k" }), "."]),
+        el(Heading, ["Intro"], { rank: 1 }),
+        el(Label, ["ignored body"], { id: "k" })
+      ])
+    );
+    expect(out).toContain('<a href="#intro">Intro</a>');
+  });
+
+  test("empty/missing @Label id is a pointed error", () => {
+    expect(() => doc(frag([el(Label, [], {})]))).toThrow(/@Label: missing id/);
+    expect(() => doc(frag([el(Label, [], { id: "" })]))).toThrow(
+      /@Label: missing id/
+    );
+  });
+
+  test("empty/missing @Ref id is a pointed error", () => {
+    expect(() => doc(frag([el("p", [el(Ref, [], {})])]))).toThrow(
+      /@Ref: missing id/
+    );
+  });
+
   test("missing @Label is a pointed error naming the key", () => {
     const tree = frag([
-      el("p", [el(Ref, ["nope"], {})]),
+      el("p", [el(Ref, [], { id: "nope" })]),
       el(Heading, ["X"], { rank: 1 })
     ]);
     expect(() => doc(tree)).toThrow(/no @Label found for key "nope"/);
@@ -249,9 +276,9 @@ describe("Label / Ref", () => {
   test("duplicate @Label is a pointed error naming the key", () => {
     const tree = frag([
       el(Heading, ["X"], { rank: 1 }),
-      el(Label, ["k"], {}),
-      el(Label, ["k"], {}),
-      el("p", [el(Ref, ["k"], {})])
+      el(Label, [], { id: "k" }),
+      el(Label, [], { id: "k" }),
+      el("p", [el(Ref, [], { id: "k" })])
     ]);
     expect(() => doc(tree)).toThrow(/duplicate @Label for key "k"/);
   });
@@ -313,6 +340,167 @@ describe("Footnotes", () => {
     // child is paragraph-wrapped) instead of the shipped default section
     expect(out).toContain('<div class="custom-fn"><p>FN</p></div>');
     expect(out).not.toContain("nota-footnotes");
+  });
+});
+
+// =============================================================================================
+// Labeled footnotes (R20b) — @FootnoteMark / @FootnoteText, Markdown semantics
+// =============================================================================================
+
+describe("Labeled footnotes (R20b)", () => {
+  test("repeated @FootnoteMark for one label share a number + one list entry (first ref backlinks)", () => {
+    const out = doc(
+      frag([
+        el("p", [
+          "a",
+          el(FootnoteMark, [], { label: "x" }),
+          " b",
+          el(FootnoteMark, [], { label: "x" })
+        ]),
+        el(FootnoteText, ["the note"], { label: "x" })
+      ])
+    );
+    // the FIRST reference carries fnref-1; the second links to #fn-1 with no id
+    expect(out).toContain(
+      '<p>a<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>' +
+        ' b<sup class="nota-fnref"><a href="#fn-1">1</a></sup></p>'
+    );
+    // exactly one list entry, backlinking the first reference
+    expect(out).toContain(
+      '<section class="nota-footnotes"><ol>' +
+        '<li id="fn-1">the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        "</ol></section>"
+    );
+    expect(out.match(/<li id="fn-/g)).toHaveLength(1);
+  });
+
+  test("anonymous @Footnote + labeled @FootnoteMark interleave, numbered by reference order", () => {
+    const out = doc(
+      frag([
+        el("p", [
+          el(Footnote, ["anon one"], {}), // → 1
+          el(FootnoteMark, [], { label: "x" }), // → 2 (first ref to x)
+          el(Footnote, ["anon two"], {}), // → 3
+          el(FootnoteMark, [], { label: "x" }) // → 2 (shared)
+        ]),
+        el(FootnoteText, ["labeled x"], { label: "x" })
+      ])
+    );
+    expect(out).toContain(
+      '<p><sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>' +
+        '<sup class="nota-fnref"><a id="fnref-2" href="#fn-2">2</a></sup>' +
+        '<sup class="nota-fnref"><a id="fnref-3" href="#fn-3">3</a></sup>' +
+        '<sup class="nota-fnref"><a href="#fn-2">2</a></sup></p>'
+    );
+    expect(out).toContain(
+      '<section class="nota-footnotes"><ol>' +
+        '<li id="fn-1">anon one <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-2">labeled x <a href="#fnref-2" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-3">anon two <a href="#fnref-3" class="nota-fnbacklink">↩</a></li>' +
+        "</ol></section>"
+    );
+  });
+
+  test("a @FootnoteText definition may precede its @FootnoteMark reference", () => {
+    const out = doc(
+      frag([
+        el(FootnoteText, ["defined first"], { label: "x" }),
+        el("p", ["ref", el(FootnoteMark, [], { label: "x" })])
+      ])
+    );
+    expect(out).toContain(
+      '<p>ref<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>'
+    );
+    expect(out).toContain(
+      '<li id="fn-1">defined first <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>'
+    );
+  });
+
+  test("a referenced label with no @FootnoteText is a pointed error naming the label", () => {
+    const tree = frag([
+      el("p", ["x", el(FootnoteMark, [], { label: "ghost" })])
+    ]);
+    expect(() => doc(tree)).toThrow(
+      /no @FootnoteText definition for footnote "ghost"/
+    );
+  });
+
+  test("a duplicate @FootnoteText for one label is a pointed error naming the label", () => {
+    const tree = frag([
+      el("p", ["x", el(FootnoteMark, [], { label: "d" })]),
+      el(FootnoteText, ["one"], { label: "d" }),
+      el(FootnoteText, ["two"], { label: "d" })
+    ]);
+    expect(() => doc(tree)).toThrow(/duplicate definition for footnote "d"/);
+  });
+
+  test("an unreferenced @FootnoteText is dropped silently (absent from the list)", () => {
+    const out = doc(
+      frag([
+        el("p", ["x", el(FootnoteMark, [], { label: "used" })]),
+        el(FootnoteText, ["used note"], { label: "used" }),
+        el(FootnoteText, ["orphan note"], { label: "unused" })
+      ])
+    );
+    expect(out).toContain(
+      '<section class="nota-footnotes"><ol>' +
+        '<li id="fn-1">used note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        "</ol></section>"
+    );
+    expect(out).not.toContain("orphan");
+    expect(out.match(/<li id="fn-/g)).toHaveLength(1);
+  });
+
+  test("empty/missing label is a pointed error for @FootnoteMark and @FootnoteText", () => {
+    expect(() => doc(frag([el("p", [el(FootnoteMark, [], {})])]))).toThrow(
+      /@FootnoteMark: missing label/
+    );
+    expect(() => doc(frag([el(FootnoteText, ["body"], {})]))).toThrow(
+      /@FootnoteText: missing label/
+    );
+  });
+
+  test("labeled footnotes referenced inside a .map() loop number by tree order", () => {
+    const items = ["a", "b"];
+    const tree = Fragment(
+      Fragment(
+        items.map((L, i) =>
+          Fragment({ key: i }, el("p", [L, el(FootnoteMark, [], { label: L })]))
+        )
+      ),
+      el(FootnoteText, ["note a"], { label: "a" }),
+      el(FootnoteText, ["note b"], { label: "b" })
+    );
+    const out = doc(tree);
+    expect(out).toContain(
+      '<p>a<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>' +
+        '<p>b<sup class="nota-fnref"><a id="fnref-2" href="#fn-2">2</a></sup></p>'
+    );
+    expect(out).toContain(
+      '<section class="nota-footnotes"><ol>' +
+        '<li id="fn-1">note a <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-2">note b <a href="#fnref-2" class="nota-fnbacklink">↩</a></li>' +
+        "</ol></section>"
+    );
+  });
+
+  test("explicit @Footnotes placement renders the labeled list and suppresses the trailer", () => {
+    const out = doc(
+      frag([
+        el("p", ["x", el(FootnoteMark, [], { label: "x" })]),
+        el(FootnoteText, ["the note"], { label: "x" }),
+        el(Footnotes, [], {}),
+        el("p", ["after"])
+      ])
+    );
+    expect(out).toBe(
+      '<p>x<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>' +
+        '<section class="nota-footnotes"><ol>' +
+        '<li id="fn-1">the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        "</ol></section>" +
+        "<p>after</p>"
+    );
+    expect(out.match(/nota-footnotes/g)).toHaveLength(1);
   });
 });
 
