@@ -12,6 +12,9 @@
  *   - **success**: every artifact fresh, no error.
  */
 
+// Subpath import on purpose: the package entry (`@nota-lang/vite`) pulls the compiler shim
+// (child_process — Node-only); `registry` is the pure manifest → boot-entry-source generator.
+import { generateClientEntry } from "@nota-lang/vite/registry";
 import { compileNota, compileNotaRaw, parseNotaAst } from "./compiler";
 import { type ManifestEntry, runSSG } from "./ssg";
 
@@ -32,6 +35,12 @@ export interface PipelineResult {
   manifest: Record<string, ManifestEntry>;
   /** The island components, keyed by name (for the Rendered pane to hydrate). */
   registry: Record<string, unknown>;
+  /**
+   * The generated client **hydration entry** (what a build ships as the inlined `<script>`):
+   * `generateClientEntry(manifest)`, the exact source the CLI esbuild-bundles. `""` for an
+   * island-free document — no client JS is generated at all (the zero-JS property).
+   */
+  clientJs: string;
   /** A compile/render error, if the pipeline threw. */
   error: string | null;
 }
@@ -44,6 +53,7 @@ export const EMPTY: PipelineResult = {
   html: "",
   manifest: {},
   registry: {},
+  clientJs: "",
   error: null
 };
 
@@ -69,6 +79,12 @@ export function runPipeline(
   }
   try {
     const { html, manifest, registry } = runSSG(full);
+    // The hydration entry a real build would ship: generated iff there is an island to hydrate
+    // (mirrors the CLI, which emits no client bundle at all for an island-free doc).
+    const clientJs =
+      Object.keys(manifest).length > 0
+        ? generateClientEntry(manifest, { moduleId: "./doc.compiled.mjs" })
+        : "";
     return {
       ast,
       astSource: source,
@@ -77,6 +93,7 @@ export function runPipeline(
       html,
       manifest,
       registry,
+      clientJs,
       error: null
     };
   } catch (err) {

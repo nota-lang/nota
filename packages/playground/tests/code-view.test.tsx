@@ -9,6 +9,7 @@
 
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { generateClientEntry } from "@nota-lang/vite/registry";
 import { render, waitFor } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { CodePane } from "../src/CodePane";
@@ -73,18 +74,27 @@ describe("CodePane", () => {
 });
 
 describe("SsgPane", () => {
-  it("shows a read-only HTML block and the highlighted JSON manifest", async () => {
+  it("shows read-only HTML, JSON manifest, and JS hydration-entry blocks", async () => {
     const { html, manifest } = runSSG(compileNota(GOLDEN_NOTA));
-    const { getByTestId } = render(<SsgPane html={html} manifest={manifest} />);
+    const clientJs = generateClientEntry(manifest, {
+      moduleId: "./doc.compiled.mjs"
+    });
+    const { getByTestId } = render(
+      <SsgPane html={html} manifest={manifest} clientJs={clientJs} />
+    );
 
     const htmlPane = getByTestId("pane-ssg-html");
     const manifestPane = getByTestId("pane-ssg-manifest");
+    const clientPane = getByTestId("pane-ssg-client-js");
 
     await waitFor(() =>
       expect(htmlPane.querySelector(".cm-editor")).toBeTruthy()
     );
-    // Both blocks are read-only CM6 views.
-    for (const pane of [htmlPane, manifestPane]) {
+    await waitFor(() =>
+      expect(clientPane.querySelector(".cm-editor")).toBeTruthy()
+    );
+    // All blocks are read-only CM6 views.
+    for (const pane of [htmlPane, manifestPane, clientPane]) {
       expect(
         pane.querySelector(".cm-content")?.getAttribute("contenteditable")
       ).toBe("false");
@@ -93,5 +103,19 @@ describe("SsgPane", () => {
     expect(manifestPane.querySelector(".cm-content")?.textContent).toContain(
       "Colorized"
     );
+    // The hydration entry shows the boot call (Prettier-formatted JS, highlighted).
+    expect(clientPane.querySelector(".cm-content")?.textContent).toContain(
+      "bootIslandsWithSlots(manifest, registry)"
+    );
+  });
+
+  it("an island-free doc shows the zero-JS note instead of a JS block", () => {
+    const { getByTestId, queryByTestId } = render(
+      <SsgPane html="<p>hi</p>" manifest={{}} clientJs="" />
+    );
+    expect(getByTestId("pane-ssg-client-js-empty").textContent).toContain(
+      "zero-JS"
+    );
+    expect(queryByTestId("pane-ssg-client-js")).toBeNull();
   });
 });

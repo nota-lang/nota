@@ -138,7 +138,11 @@ export function App() {
               <CodePane code={result.code} mode="js" testid="pane-js" fill />
             )}
             {tab === "ssg" && (
-              <SsgPane html={result.html} manifest={result.manifest} />
+              <SsgPane
+                html={result.html}
+                manifest={result.manifest}
+                clientJs={result.clientJs}
+              />
             )}
             {tab === "rendered" && (
               <RenderedPane

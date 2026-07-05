@@ -110,13 +110,21 @@ body {
   height: 100%;
 }
 
-/* Post-SSG: the HTML + manifest blocks stack, each framed and growing to its content. */
+/* Post-SSG: the HTML + manifest + client-JS blocks stack, each framed and growing to its content. */
 .ssg .code-pane,
 .ssg .ssg-manifest {
   margin: 0.35rem 1rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
+}
+
+/* The zero-JS note shown in place of the hydration entry for an island-free document. */
+.ssg .ssg-zero-js {
+  margin: 0.35rem 1rem 0.6rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
 }
 
 .tabs {
