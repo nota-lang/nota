@@ -287,6 +287,13 @@ def f(x):
     return `}<hl>x</hl></code>
 ```
 
+`[props]` groups compose with a verbatim body exactly as they do with a braced one (contract
+R19): they accumulate ahead of the same `|{…}|` delimiter that would otherwise sit directly against
+the head.
+```
+@CodeBlock[lang: "python"]|{f(x)}|   → <CodeBlock lang="python">{String.raw`f(x)`}</CodeBlock>
+```
+
 ## Math
 
 `$…$` is inline; **display math is the fence form** — a standalone `$$` line, TeX body lines, and a
