@@ -34,19 +34,26 @@ const RUNTIME_IMPORT =
  *   `%let Colorized = inlineComponent((children) => { let [c, setC] = useState("red"); … })`
  *   references it as a free identifier). Typed as the React-shaped hook so destructuring + the
  *   setter type-check.
- * - `CodeInline` / `CodeBlock` / `Tex` — the documented prelude *components* (`` `@x` ``
- *   → `h(CodeInline, …)`, fenced code → `h(CodeBlock, …)`, `$…$` → `h(Tex, …)`). They are the
- *   documented extension point; until a real prelude `.d.ts` ships they are ambiently `any` so the
- *   emit type-checks without asserting their shape. (`Tex`, not `Math` — contract R14: an ambient
- *   `Math` would shadow the JS global, breaking `Math.floor` in embedded code.)
+ * - `CodeInline` / `CodeBlock` / `Tex` — the prelude *component slots* (`` `@x` ``
+ *   → `h(CodeInline, …)`, fenced code → `h(CodeBlock, …)`, `$…$` → `h(Tex, …)`; contract R14).
+ *   Typed as plain function tags over **index-typed props**: the runtime's `TemplateFn` takes
+ *   `CompProps` (whose fields are `unknown` via its index signature), so a narrowed prop type
+ *   (`display?: boolean`) would fail the contravariant tag-assignability check at every `h(Tex, …)`
+ *   call site. (`Tex`, not `Math` — R14: an ambient `Math` would shadow the JS global, breaking
+ *   `Math.floor` in embedded code.)
+ * - `lstset` / `mathset` / `registerComponents` — the prelude's config + override surface
+ *   (R14b/d), ambient so `% lstset({ language: "python" })` type-checks in embedded code.
  *
- * `declare` + ambient `const` ⇒ no runtime footprint; this is types-only.
+ * `declare` + ambient `const`/`function` ⇒ no runtime footprint; this is types-only.
  */
 const AMBIENT_PRELUDE =
   "declare const useState: <T>(init: T) => [T, (v: T) => void];\n" +
-  "declare const CodeInline: any;\n" +
-  "declare const CodeBlock: any;\n" +
-  "declare const Tex: any;\n";
+  "declare const CodeInline: (props: { [prop: string]: unknown }) => unknown;\n" +
+  "declare const CodeBlock: (props: { [prop: string]: unknown }) => unknown;\n" +
+  "declare const Tex: (props: { [prop: string]: unknown }) => unknown;\n" +
+  "declare function lstset(options: { language?: string; theme?: string; languages?: unknown; themes?: unknown[] }): void;\n" +
+  "declare function mathset(options: { macros?: Record<string, string> }): void;\n" +
+  "declare function registerComponents(components: Record<string, unknown>): void;\n";
 
 /**
  * The full preamble prepended to the bare virtual `.tsx`. Whole lines only (every line ends in

@@ -20,7 +20,11 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   main repo. Architecture notes: `oxc/NOTA_READER.md` (pipeline, fork seam, invariants, testing map).
 - **`packages/*`** — the `@nota-lang/*` TypeScript packages, a **Depot** + pnpm workspace:
   - **runtime** — framework-agnostic core: `h`/`Fragment`/`raw`, `decode`, HTML `serialize`,
-    list/section coalescing (`struct.ts`), island slot recovery. The adapters build on it.
+    list/section coalescing (`struct.ts`), island slot recovery, and the component registry
+    (`slot`/`registerComponents`, contract R14b). The adapters build on it.
+  - **prelude** — the standard ambient prelude (contract R14): `Tex` (KaTeX→MathML) +
+    `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
+    `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
   - **compiler** — sync shim (`src/lib.ts`) that shells out to the Rust reader binary:
     `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `parseVirtualJson`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
