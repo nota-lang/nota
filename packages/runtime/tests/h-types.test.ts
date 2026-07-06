@@ -29,7 +29,8 @@ describe("typed h overloads — runtime behaviour is unchanged (types erased)", 
   });
 
   test("a prelude-slot-shaped function tag records the function as the boundary tag", () => {
-    const Heading: (props: { rank: number; id?: string }) => unknown = () => null;
+    const Heading: (props: { rank: number; id?: string }) => unknown = () =>
+      null;
     const v = h(Heading, { rank: 1 }, "Title");
     expect(v.tag).toBe(Heading);
     expect(v.props).toEqual({ rank: 1 });

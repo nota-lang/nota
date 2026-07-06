@@ -40,8 +40,6 @@ export {
   query,
   registerTrailer
 } from "./doc";
-// --- the `▸` mechanism ---
-export { flag, withFlag } from "./flag";
 // --- the typed emit surface: the Nota-owned per-tag HTML attribute map (contract R22) ---
 export type {
   NotaAnchorAttributes,
@@ -54,6 +52,8 @@ export type {
   NotaOlAttributes,
   NotaTableCellAttributes
 } from "./dom";
+// --- the `▸` mechanism ---
+export { flag, withFlag } from "./flag";
 // --- the emitted-code surface ---
 export { decode, Fragment, h } from "./h";
 // --- replay hydration: the client driver + capture (contract R15) ---

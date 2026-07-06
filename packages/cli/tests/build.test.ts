@@ -85,7 +85,9 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
       "<ul><li>first item</li><li>second item</li><li>third item"
     );
     // nested section for the h2 (also id'd by the Heading slot).
-    expect(out.html).toContain('<h2 id="a-second-section">A second section</h2>');
+    expect(out.html).toContain(
+      '<h2 id="a-second-section">A second section</h2>'
+    );
   });
 });
 

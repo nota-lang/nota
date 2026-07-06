@@ -122,6 +122,7 @@ export interface NotaIntrinsicElements {
  * The props type for `h(tag, props, …)` when `tag` is a **string literal** `K`: the specific
  * attributes for a known `K`, or the permissive {@link NotaGlobalAttributes} for any other string.
  */
-export type NotaHostProps<K extends string> = K extends keyof NotaIntrinsicElements
-  ? NotaIntrinsicElements[K]
-  : NotaGlobalAttributes;
+export type NotaHostProps<K extends string> =
+  K extends keyof NotaIntrinsicElements
+    ? NotaIntrinsicElements[K]
+    : NotaGlobalAttributes;

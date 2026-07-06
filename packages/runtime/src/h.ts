@@ -9,7 +9,7 @@
 
 import { getAdapter } from "./adapter";
 import { isMark, isQuery } from "./doc";
-import { type NotaHostProps } from "./dom";
+import type { NotaHostProps } from "./dom";
 import { flag } from "./flag";
 import { isRaw } from "./raw";
 import { decodeTree } from "./serialize";
