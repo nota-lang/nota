@@ -1,8 +1,8 @@
 /**
  * `@nota-lang/compiler` — `highlightSpans` (reader-driven highlight spans via the node wasm).
  *
- * This is the source of truth for the language server's reader-driven semantic tokens (contract
- * D2). It drives the **node-target** wasm reader (`oxc/napi/nota_wasm/pkg-node`), so it requires
+ * This is the source of truth for the language server's reader-driven semantic tokens. It drives
+ * the **node-target** wasm reader (`oxc/napi/nota_wasm/pkg-node`), so it requires
  * that package to be built (`wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node
  * --out-name nota_wasm`). If the node wasm is absent, the suite is skipped rather than failing the
  * whole package (mirrors `virtual.test.ts`'s binary-presence guard).
@@ -58,7 +58,7 @@ suite("highlightSpans (node wasm reader)", () => {
     expect(names).toContain("js-keyword");
   });
 
-  test("throws on a source that fails to parse (caller serves last-good — D2)", () => {
+  test("throws on a source that fails to parse (caller serves last-good)", () => {
     // A `%` block whose JS is broken makes the highlight parse fail. The plugin catches this and
     // serves its cached tokens; here we just assert the throw contract.
     expect(() => highlightSpans("% const = = =\n")).toThrow();

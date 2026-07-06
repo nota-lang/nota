@@ -1,7 +1,7 @@
 /**
- * `@nota-lang/prelude` unit tests (contract R14c/R14d), driven through the real static pipeline
- * (`serialize(struct(…))` — the ▸=false decode) so the slots, R10 expansion, RawHtml passthrough,
- * and the defaults are exercised together.
+ * `@nota-lang/prelude` unit tests (the shipped defaults + doc-global config), driven through the
+ * real static pipeline (`serialize(struct(…))` — the ▸=false decode) so the slots, static-template
+ * expansion, RawHtml passthrough, and the defaults are exercised together.
  */
 
 import {
@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 // =============================================================================================
-// Tex (R14c: KaTeX → MathML)
+// Tex (KaTeX → MathML)
 // =============================================================================================
 
 describe("Tex default (KaTeX → MathML)", () => {
@@ -83,7 +83,7 @@ describe("Tex default (KaTeX → MathML)", () => {
     expect(out).toContain("<mn>3</mn>"); // the 3 parsed as TeX, not appended as text
   });
 
-  test("a markup part inside math is a hard error (R14c)", () => {
+  test("a markup part inside math is a hard error (text flattening)", () => {
     const bad = el(Tex, ["x + ", el("em", ["y"])]);
     expect(() => decodeStatic(bad)).toThrow(/registerComponents\(\{ Tex/);
   });
@@ -105,7 +105,7 @@ describe("Tex default (KaTeX → MathML)", () => {
 });
 
 // =============================================================================================
-// CodeBlock / CodeInline (R14c: sync shiki + decorations)
+// CodeBlock / CodeInline (sync shiki + decorations)
 // =============================================================================================
 
 describe("CodeBlock default (sync shiki)", () => {
@@ -140,7 +140,7 @@ describe("CodeBlock default (sync shiki)", () => {
     expect(rs).toContain('<pre class="shiki');
   });
 
-  test("lstset is reset per render (R14d)", () => {
+  test("lstset is reset per render (doc-global config)", () => {
     lstset({ lang: "python" });
     reset();
     expect(decodeStatic(el(CodeBlock, ["def f(): pass"]))).toMatch(

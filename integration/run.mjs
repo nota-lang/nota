@@ -3,11 +3,11 @@
 //          --[Part 2: @nota-lang/runtime render + @nota-lang/react adapter]-->  HTML + island manifest
 //
 // This is the Sync-2 milestone: it proves the reader's *actual* emit runs through the runtime,
-// not just that each half matches the hand-written contract golden. Run from the repo root:
+// not just that each half matches the hand-written worked-example golden. Run from the repo root:
 //   node integration/run.mjs
 //
 // STATUS: the Part-1 compile step works standalone (cargo example) and the reader's emit is verified
-// + traced to the expected stage-5 (contract §2/§8); Part 2's render of that shape is proven by
+// + traced to the expected stage-5 output (design/decode.md §The worked example); Part 2's render of that shape is proven by
 // @nota-lang/react's tests. Executing THIS script standalone is pending Wave-3 module resolution —
 // the runtime `dist` uses bundler-style extensionless ESM imports, so run it under vite/vitest or
 // once @nota-lang/compiler brings the emit into JS-land. The expected assertions are encoded below.
@@ -32,7 +32,7 @@ const emittedCode = execFileSync(
   { cwd: oxcDir, encoding: "utf8" }
 );
 
-// The reader does not emit the runtime import (contract §1) — the shim/integrator prepends it.
+// The reader does not emit the runtime import (design/decode.md §The emit surface) — the shim/integrator prepends it.
 // (Relative path here so the standalone .mjs resolves without this dir being a workspace package.)
 const RUNTIME_IMPORT =
   'import { h, decode, Fragment, inlineComponent, blockComponent } from "../packages/runtime/dist/lib.js";\n';
@@ -49,7 +49,7 @@ console.log("=== emitted JS (Part 1) ===\n" + emittedCode.trim());
 console.log("\n=== rendered HTML (Part 2) ===\n" + html);
 console.log("\n=== island manifest ===\n" + JSON.stringify(manifest));
 
-// --- assertions: the component boundary became an island, statics serialized, F1 name in manifest ---
+// --- assertions: the component boundary became an island, statics serialized, the attached component name in the manifest ---
 const mustInclude = [
   '<nota-island data-hydration-id="1">',
   "<aside>",

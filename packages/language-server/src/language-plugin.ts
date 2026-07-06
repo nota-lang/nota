@@ -79,7 +79,7 @@ export function shiftMappings(
  *
  * The virtual path uses EOF error-recovery, so an unterminated `.nota` still yields a (best-effort)
  * virtual + mappings; the recovered syntax diagnostics come back in `errors` (byte-spanned into the
- * `.nota`) for the diagnostics service plugin (`./diagnostics.ts`) to surface (contract D5).
+ * `.nota`) for the diagnostics service plugin (`./diagnostics.ts`) to surface.
  *
  * @param source the `.nota` file contents
  * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted to index it;
@@ -114,7 +114,7 @@ export interface NotaVirtualCode extends VirtualCode {
  * error (EOF error-recovery), so a mid-edit `.nota` still produces a best-effort virtual `.tsx` +
  * mappings — TS features (hover/completion/diagnostics) keep working over the parsed prefix instead
  * of blanking out. The Nota syntax diagnostics themselves flow through a separate channel
- * (`./diagnostics.ts`, contract D5). The `try/catch` now only guards a true *binary* failure (a
+ * (`./diagnostics.ts`). The `try/catch` now only guards a true *binary* failure (a
  * missing/old `nota_compile`, an OS spawn error), for which we degrade to an empty TS module so the
  * server stays alive.
  */

@@ -41,8 +41,8 @@ describe("Generated-JS pane", () => {
     expect(full).toContain(compileNotaRaw(GOLDEN_NOTA));
   });
 
-  it("the component binding stays document-local; replay still hydrates (R15)", () => {
-    // Contract R15: `%let Colorized = …` is an ordinary lexical statement inside Doc — NOT hoisted
+  it("the component binding stays document-local; replay still hydrates", () => {
+    // Replay hydration: `%let Colorized = …` is an ordinary lexical statement inside Doc — NOT hoisted
     // or exported (replay hydration recovers the live binding by re-executing Doc; no registry
     // import by name). The binding name still rides as the constructor's 2nd arg (debug manifest).
     const code = compileNotaRaw(GOLDEN_NOTA);
@@ -152,7 +152,7 @@ describe("SSG-output pane", () => {
     expect(Object.keys(b.manifest)).toEqual(Object.keys(a.manifest));
   });
 
-  it("math + code render through the ambient prelude (R14)", () => {
+  it("math + code render through the ambient prelude", () => {
     const { html } = runSSG(compileNota("Euler: $e^x$ and `f(x)`\n"));
     expect(html).toContain('<span class="nota-tex">');
     expect(html).toContain("<math");
@@ -169,7 +169,7 @@ describe("SSG-output pane", () => {
   });
 
   it("aliased and namespace import forms resolve; imports shadow the ambient binding", () => {
-    // NB the blank line before the fence: R8 continues a `%` statement across single newlines
+    // NB the blank line before the fence: a `%` statement continues across single newlines
     // wherever JS grammar allows, and a following backtick fence would parse as a TAGGED TEMPLATE
     // on the call's result. (True in every integrator, not just here.)
     const aliased =
@@ -195,7 +195,7 @@ describe("SSG-output pane: the client hydration entry", () => {
     const r = runPipeline(GOLDEN_NOTA, EMPTY);
     expect(r.error).toBeNull();
     // The exact generateClientEntry source the CLI esbuild-bundles: a WIRING-ONLY replay entry
-    // (contract R15) — import Doc, set the adapter, hydrateDocument(Doc). No manifest literal, no
+    // — import Doc, set the adapter, hydrateDocument(Doc). No manifest literal, no
     // registry (the replay recovers per-island data live; the logic lives in the runtime).
     expect(r.clientJs).toContain('import Doc from "./doc.compiled.mjs"');
     expect(r.clientJs).toContain("setAdapter(adapter);");
@@ -262,7 +262,7 @@ describe("editor default snippet", () => {
     expect(() => compileNotaRaw(DEFAULT_SNIPPET)).not.toThrow();
     // Sanity: it exercises a heading, an element, a statement, and a loop.
     const code = compileNotaRaw(DEFAULT_SNIPPET);
-    // `#` heading sugar re-lowers to the ambient `Heading` slot (contract R18f), not a raw `h("h1")`.
+    // `#` heading sugar re-lowers to the ambient `Heading` slot, not a raw `h("h1")`.
     expect(code).toContain("h(Heading, { rank: 1 }");
     expect(code).toContain('h("strong"');
   });

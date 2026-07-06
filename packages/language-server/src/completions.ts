@@ -1,12 +1,13 @@
 /**
- * **Nota completions** (contract R22 / D2 P5).
+ * **Nota completions.**
  *
  * Two disjoint completion surfaces:
  * - **`@|` head completions** — this plugin: after a bare `@…` at a markup-head position, offer host
  *   tag names, the ambient prelude slots, and in-scope capitalized components.
- * - **`@tag[|` prop completions** — *no Nota-specific code*: EOF recovery (P1) materialises
+ * - **`@tag[|` prop completions** — *no Nota-specific code*: EOF recovery materialises
  *   `h("tag", { | })` with a completion anchor mapping the cursor into the props object, and
- *   `volar-service-typescript` proposes the prop names from the typed `h` overload (P3). This plugin
+ *   `volar-service-typescript` proposes the prop names from the typed `h` overload (the typed emit
+ *   surface, design/decode.md §The typed surface). This plugin
  *   only registers `[` as a trigger character so the client fires the request there; the items come
  *   from TS through the mapping.
  *
@@ -24,9 +25,10 @@ import { NOTA_LANGUAGE_ID } from "./language-plugin.js";
 
 /**
  * A curated set of common HTML host tags offered at `@|`. A *superset-friendly* list (unknown tags
- * are legal anyway, contract R22) that overlaps the reader-emitted `nota-*` sentinels' host targets;
- * completion is a convenience, so breadth over precision. The typed per-tag attribute map (P3) is the
- * source of truth for prop *checking*; this list is the source of truth for tag *names*.
+ * are legal anyway — the typed `h` overloads keep an arbitrary-string fallback) that overlaps the
+ * reader-emitted `nota-*` sentinels' host targets; completion is a convenience, so breadth over
+ * precision. The typed per-tag attribute map is the source of truth for prop *checking*; this list
+ * is the source of truth for tag *names*.
  */
 export const NOTA_HOST_TAGS = [
   "p",
@@ -101,8 +103,10 @@ export const NOTA_HOST_TAGS = [
 ] as const;
 
 /**
- * The ambient prelude slot / doc-state names the reader references as free identifiers (contract
- * R14/R18f/R20c) — offered as component-like completions at `@|`. Single source of truth with the
+ * The ambient prelude slot / doc-state names the reader references as free identifiers (the registry
+ * slots plus the doc-state family — heading sugar lowers to the ambient `Heading` slot; see
+ * design/decode.md §The registry & config) — offered as component-like completions at `@|`. Single
+ * source of truth with the
  * generated preamble's ambient prelude block (`preamble-gen.ts`).
  */
 export const NOTA_PRELUDE_SLOTS = [

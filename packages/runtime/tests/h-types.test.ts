@@ -1,5 +1,5 @@
 /**
- * **The typed `h` overloads** (contract R22, the typed emit surface) — runtime smoke.
+ * **The typed `h` overloads** (the typed emit surface) — runtime smoke.
  *
  * The *type-level* guarantees (a wrong prop value on a known tag errors; an unknown tag stays legal;
  * a prelude-slot's real prop type flows without the old contravariant tag-assignability failure) are

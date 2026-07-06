@@ -16,7 +16,7 @@
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 
-// --- the client hydration-entry helper (replay hydration, contract R15) ---
+// --- the client hydration-entry helper (replay hydration) ---
 export {
   type ClientEntryOptions,
   generateClientEntry
@@ -32,9 +32,10 @@ export interface NotaPluginOptions {
   extensions?: string[];
   /**
    * Module the ambient prelude bindings are imported from when the compiled module references them
-   * free — the whole prelude surface (R20c): the component slots (`Tex`/`CodeInline`/`CodeBlock`,
-   * contract R14; `Heading` from `#` sugar, R18f; and the `Label`/`Ref`/footnote/`Cite`/… doc-state
-   * family from R20a sugar) plus the config fns `lstset`/`mathset`/`secset`/`bibset`. Default
+   * free — the whole ambient prelude surface (design/decode.md §The registry & config): the
+   * component slots (`Tex`/`CodeInline`/`CodeBlock`; `Heading` from `#` sugar; and the
+   * `Label`/`Ref`/footnote/`Cite`/… family from the doc-state sugar) plus the config fns
+   * `lstset`/`mathset`/`secset`/`bibset`. Default
    * `"@nota-lang/prelude"`; `false` disables the injection (the integrator supplies the ambient names
    * another way).
    */
@@ -42,10 +43,10 @@ export interface NotaPluginOptions {
 }
 
 /**
- * The ambient *component* names the reader emits free (R20c "the prelude should be a prelude"): the
- * math/code spans (`Tex`/`CodeInline`/`CodeBlock` — contract R14a), `Heading` from `#` sugar (R18f),
- * and the doc-state family `Toc`/`Label`/`Ref`/`Footnote`/`FootnoteMark`/`FootnoteText`/`Footnotes`/
- * `FootnotesList`/`Cite`/`Bibliography` (R18e; the `<x>`/`&x`/`[^x]`/`[^x]:` sugar of R20a lowers to
+ * The ambient *component* names the reader emits free ("the prelude should be a prelude"): the
+ * math/code registry slots (`Tex`/`CodeInline`/`CodeBlock`), `Heading` from `#` sugar, and the
+ * doc-state family `Toc`/`Label`/`Ref`/`Footnote`/`FootnoteMark`/`FootnoteText`/`Footnotes`/
+ * `FootnotesList`/`Cite`/`Bibliography` (the `<x>`/`&x`/`[^x]`/`[^x]:` doc-state sugar lowers to
  * `h(Label|Ref|FootnoteMark|FootnoteText, …)`). Each is injected iff the emit references it as an
  * `h(<name>, …)` tag.
  */
@@ -67,7 +68,8 @@ const AMBIENT_PRELUDE_NAMES = [
 ] as const;
 
 /**
- * The ambient *config* fns (R14d/R18e; joined by R20c): `lstset`/`mathset`/`secset`/`bibset`. Unlike
+ * The ambient *config* fns (doc-global config, last-write-wins, reset per render — design/decode.md
+ * §The registry & config): `lstset`/`mathset`/`secset`/`bibset`. Unlike
  * the component slots these are never `h(…)` tags — they surface as bare calls in embedded JS
  * (`% secset({ numbering: "1.1" })`), so each is injected iff the emit *calls* it (`secset(`) and
  * does not bind it itself.
@@ -87,7 +89,7 @@ function isBound(code: string, name: string): boolean {
  *
  * A name is injected iff (a) it is referenced in the reader's emit shape — component slots as an
  * `h(Tex, …)` tag, config fns as a bare `secset(` call — and (b) the module does not bind it itself
- * (a `%import { Tex } from …` lexically overrides the ambient binding — R14b — and a second import
+ * (a `%import { Tex } from …` lexically overrides the ambient binding, and a second import
  * would be a duplicate-binding SyntaxError). The check is textual over the reader-controlled module
  * shape (top-level `import`/`const`/`let`/`function` lines); if the compiler ever exposes its
  * free-ambient-names metadata, swap this for it.
@@ -150,7 +152,7 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
       // Delegate to the compiler shim: spawns the oxc reader and prepends the runtime import.
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id });
-      // Bind any free ambient prelude names (R14) — before the map exists, a prepended line is
+      // Bind any free ambient prelude names — before the map exists, a prepended line is
       // safe; once the compiler emits a v3 map this must shift it (or move into the compiler).
       const withPrelude =
         preludeModule === false

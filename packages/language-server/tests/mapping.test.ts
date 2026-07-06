@@ -35,8 +35,8 @@ describe("preamble", () => {
   test("PREAMBLE is whole lines (every line ends in \\n) so the shift is a clean constant", () => {
     expect(PREAMBLE.endsWith("\n")).toBe(true);
     expect(PREAMBLE_LENGTH).toBe(PREAMBLE.length);
-    // The runtime surface the reader references as free identifiers is declared module-locally (D3:
-    // resolution-independent — no import, so h/decode/Fragment resolve with no node_modules).
+    // The runtime surface the reader references as free identifiers is declared module-locally
+    // (resolution-independent: no import, so h/decode/Fragment resolve with no node_modules).
     expect(PREAMBLE).toContain("declare function h<");
     expect(PREAMBLE).toContain("declare function decode(");
     // The ambient prelude free identifiers are declared.

@@ -151,7 +151,7 @@ export interface EmbeddedRegion {
  * open `code-delim` → `code-lang` → `code` runs → close `code-delim` (and inline code has no
  * `code-lang`), a reset-on-delim / set-on-lang / apply-on-run walk recovers each run's language —
  * inline and untagged fences resolve to `null` and are left flat by the caller. A `style-text` run
- * (a `@style{…}` element body, contract: the reader marks it) is always CSS.
+ * (a `@style{…}` element body — the reader marks it) is always CSS.
  */
 function embeddedRegionsOf(
   doc: string,

@@ -7,9 +7,10 @@
  *
  *   1. `setAdapter(reactAdapter)` once, so the runtime's `▸=true` paths dispatch through React.
  *   2. Evaluate the emitted module. It (a) `import`s the emitted surface from `@nota-lang/runtime`,
- *      (b) references `useState` and the whole prelude surface (`Tex`/`CodeInline`/`CodeBlock`,
- *      contract R14; `Heading` from `#` sugar, R18f; the `Label`/`Ref`/footnote/`Cite`/… doc-state
- *      family + `secset`/`bibset` config, R20c) as **free identifiers** the integrator supplies, and
+ *      (b) references `useState` and the whole ambient prelude surface (the `Tex`/`CodeInline`/
+ *      `CodeBlock` registry slots; `Heading` from `#` sugar; the `Label`/`Ref`/footnote/`Cite`/…
+ *      doc-state family + `secset`/`bibset` config) as **free identifiers** the integrator supplies,
+ *      and
  *      (c) `export`s
  *      `Doc` (default) + any exported components. We can't run an `import`/`export`-bearing
  *      ESM string in the main window without an import map, so we strip the runtime import + ALL
@@ -19,7 +20,7 @@
  *      free-identifier set the CLI injects via esbuild).
  *   3. `render(Doc)` → `{ html, manifest }`; `Doc` itself is returned alongside — the Rendered pane
  *      hands it to `hydrateDocument(Doc, { root: iframeDoc })`, which **replays** the document in
- *      capture mode and hydrates every island live (contract R15 — no registry, no manifest
+ *      capture mode and hydrates every island live (replay hydration — no registry, no manifest
  *      transport, closures over document state intact).
  */
 
@@ -72,9 +73,9 @@ const RUNTIME_NAMES = [
 ] as const;
 
 /**
- * The ambient prelude scope (contract R14, R20c): the free identifiers the emit references beyond the
- * runtime import — `useState` (framework hook) plus the *whole* standard prelude surface (the R18e
- * doc-state family joined the ambient set in R20c). The same set the CLI supplies via esbuild
+ * The ambient prelude scope (design/decode.md §The registry & config): the free identifiers the emit
+ * references beyond the runtime import — `useState` (framework hook) plus the *whole* standard
+ * prelude surface, doc-state family included. The same set the CLI supplies via esbuild
  * `inject`; here they are `new Function` parameters.
  */
 const AMBIENT_PRELUDE = {
@@ -182,7 +183,7 @@ function resolveImports(body: string, scope: Map<string, unknown>): string {
   );
 }
 
-/** A manifest entry: the island's debug name (`{comp}` only — R15; props are not carried). */
+/** A manifest entry: the island's debug name (`{comp}` only — props are not carried). */
 export interface ManifestEntry {
   comp: string;
 }
@@ -196,8 +197,8 @@ export interface SSGResult {
   manifest: Record<string, ManifestEntry>;
   /**
    * The evaluated module's default export. The Rendered pane replays it via
-   * `hydrateDocument(Doc, { root })` (contract R15) — the same closure that produced the SSG HTML,
-   * so the replay's ids match by construction.
+   * `hydrateDocument(Doc, { root })` (replay hydration) — the same closure that produced the SSG
+   * HTML, so the replay's ids match by construction.
    */
   Doc: DocFn;
 }
@@ -233,7 +234,7 @@ export function evalModule(emitted: string): Record<string, unknown> {
   body = resolveImports(body, scope);
 
   // Parse export identifiers BEFORE stripping the keywords: `export default function Doc` and
-  // `export let/const/function/class Name` (author `%export` bindings / meta exports — R15:
+  // `export let/const/function/class Name` (author `%export` bindings / meta exports —
   // component bindings are document-local by default, so most modules export only Doc).
   const defMatch = body.match(
     /export\s+default\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/
@@ -269,7 +270,7 @@ export function evalModule(emitted: string): Record<string, unknown> {
 
 /**
  * Run the full SSG step: emitted module → `{ html, manifest, Doc }`. `Doc` (the module's default
- * export) is reused by the Rendered pane, which replays it via `hydrateDocument` (contract R15).
+ * export) is reused by the Rendered pane, which replays it via `hydrateDocument` (replay hydration).
  */
 export function runSSG(emitted: string): SSGResult {
   ensureAdapter();

@@ -1,5 +1,6 @@
 /**
- * **Generator for the resolution-independent typing preamble** (contract R22 / D3).
+ * **Generator for the resolution-independent typing preamble** — the typed emit surface
+ * (design/decode.md §The typed surface) made to type-check with no `node_modules`.
  *
  * The virtual `.tsx` references the runtime surface (`h` / `decode` / `Fragment` /
  * `inlineComponent` / `blockComponent`) and the ambient prelude slots (`Tex` / `CodeInline` /
@@ -91,8 +92,9 @@ function runtimeAmbientBlock(): string {
 }
 
 /**
- * Ambient declarations for the free identifiers the emit references that are the prelude's slots
- * (contract R14/R18f/R20a/R20c). The reader emits these as free identifiers, so they are declared as
+ * Ambient declarations for the free identifiers the emit references that are the prelude's slots —
+ * the registry slots plus the doc-state family and its config fns (design/decode.md §The registry &
+ * config, §Doc-state). The reader emits these as free identifiers, so they are declared as
  * ambient **globals** (not module members). Each is a plain function tag with its *real* prop shape —
  * the typed `h` overloads (a function-tag overload inferring props from the tag's parameter type)
  * make these narrowed types flow at the `h(Tex, …)` / `h(Heading, …)` call sites, so the old

@@ -201,7 +201,7 @@ export interface MappingCapabilities {
 /**
  * One recovered Nota diagnostic from the reader's EOF error-recovery (`--virtual`): a `message` and
  * the byte span (`start`/`len`) into the **`.nota`** source it points at. The language server maps
- * these to LSP diagnostics (contract D5). A label-less diagnostic reports `start: 0, len: 0`.
+ * these to LSP diagnostics. A label-less diagnostic reports `start: 0, len: 0`.
  */
 export interface NotaError {
   /** The human-readable diagnostic message. */
@@ -249,7 +249,7 @@ interface VirtualJson {
  *
  * The reader uses **EOF error-recovery** on this path, so it does **not** fail (exit non-zero) on
  * unterminated markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
- * {@link VirtualCompileResult.errors} for the language server to surface as LSP diagnostics (D5).
+ * {@link VirtualCompileResult.errors} for the language server to surface as LSP diagnostics.
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
@@ -331,7 +331,8 @@ export function parseVirtualJson(
       );
     }
   }
-  // `errors` is optional for forward-compat with a pre-D5 binary (treated as "no diagnostics");
+  // `errors` is optional for forward-compat with an older binary that predates recovered-error
+  // reporting (treated as "no diagnostics");
   // a present array is validated to the `{message, start, len}` shape.
   const errors: NotaError[] = Array.isArray(parsed.errors)
     ? parsed.errors.map(e => ({
@@ -351,7 +352,7 @@ export function parseVirtualJson(
  * One reader-faithful highlight span over the **`.nota`** source: a `[start, end)` byte range and
  * its kind (a stable kebab-case name — `"tag-host"`, `"js-keyword"`, `"emphasis-strong"`, …). This
  * is the reader's `parse_nota_highlights` output the CodeMirror playground already paints; the
- * language server consumes it for reader-driven **semantic tokens** (contract D2).
+ * language server consumes it for reader-driven **semantic tokens**.
  */
 export interface HighlightSpan {
   /** `.nota` byte offset of the span's first byte. */
@@ -425,7 +426,7 @@ export function highlightKindNames(): string[] {
  * @param source the `.nota` file contents
  * @returns the highlight spans
  * @throws if the source fails to parse (the reader's `highlight` throws) — callers that want editor
- *   resilience (the semantic-tokens plugin) should catch and serve their last-good spans (D2).
+ *   resilience (the semantic-tokens plugin) should catch and serve their last-good spans.
  */
 export function highlightSpans(source: string): HighlightSpan[] {
   const reader = loadWasmReader();

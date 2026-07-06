@@ -1,10 +1,10 @@
 /**
  * The component registry: MDX-provider-style runtime override of ambient prelude components
- * (contract R14b).
+ * (design/decode.md §The registry & config).
  *
  * The emitted code references `Tex` / `CodeInline` / `CodeBlock` as free identifiers; the standard
  * prelude binds each to a {@link slot} — a *plain* function tag `(props) => h(lookup(name) ??
- * fallback, props, children)`. Because a slot is a plain function, R10 applies: `struct` expands it
+ * fallback, props, children)`. Because a slot is a plain function, static-template semantics apply: `struct` expands it
  * eagerly at decode time into an `h(resolved, …)` node, and the *resolved* tag's own nature decides
  * the semantics —
  *
@@ -64,7 +64,7 @@ export function registeredComponent(name: string): RegisteredTag | undefined {
 /**
  * Build a registry slot: the plain-function tag the prelude exports under an ambient name.
  *
- * The lookup happens at *invocation* time (R10 expansion inside `decode`, or the framework's own
+ * The lookup happens at *invocation* time (static-template expansion inside `decode`, or the framework's own
  * render under `▸ = true`), not at slot creation — so a `% registerComponents({…})` at the top of a
  * document affects that document's own math/code spans. Under `▸ = true` the slot behaves
  * identically: `h` delegates to the adapter, which invokes a resolved component natively.
@@ -75,7 +75,7 @@ export function slot(name: string, fallback: RegisteredTag): TemplateFn {
     const { children, ...rest } = props;
     // `resolved` is a dynamic `RegisteredTag` (string | CompFn | TemplateFn); narrow by `typeof` so
     // the typed `h` overloads apply (a string → the host overload, a function → the tag overload).
-    // The typed emit surface (contract R22) deliberately has no loose union overload.
+    // The typed emit surface deliberately has no loose union overload.
     return typeof resolved === "string"
       ? h(resolved, rest, children as ChildArg[])
       : h(resolved, rest, children as ChildArg[]);

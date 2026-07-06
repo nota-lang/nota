@@ -1,5 +1,5 @@
 /**
- * `@nota-lang/prelude` — the standard ambient prelude (contract R14).
+ * `@nota-lang/prelude` — the standard ambient prelude (design/decode.md §The registry & config).
  *
  * The reader emits `Tex` / `CodeInline` / `CodeBlock` as free identifiers; integrators bind them to
  * this package's exports (the CLI via esbuild `inject`, vite via its virtual prelude module). Each
@@ -13,15 +13,15 @@
  * convenience — it is ambient-adjacent surface); override per-document by `%import`ing your own
  * binding, which lexically shadows the ambient one. A registered *plain function* stays fully
  * static under SSG; a registered `inlineComponent`/`blockComponent` becomes a hydration island —
- * both interact with SSG like any other component (R14b).
+ * both interact with SSG like any other component.
  *
  * Configure the defaults with {@link lstset} (listings-style: lang/theme/grammar extensions)
- * and {@link mathset} (KaTeX macros) — document-global, reset per render (R14d).
+ * and {@link mathset} (KaTeX macros) — document-global, reset per render.
  *
- * The doc-state constructs (contract R18e/f — `Heading`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
+ * The doc-state constructs (`Heading`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
  * `Bibliography`, config `secset`/`bibset`) live in {@link "./doc"} and are re-exported here; they
  * are the same slot-over-`mark`/`query` pattern. This module also registers the `"footnotes"`
- * trailer (R18d) at load, so the footnote list auto-appends at document end unless an explicit
+ * trailer at load, so the footnote list auto-appends at document end unless an explicit
  * `@Footnotes` placement suppresses it.
  */
 
@@ -44,7 +44,7 @@ export {
 // --- the shipped defaults (exported for composition/wrapping in user overrides) ---
 export { DefaultCodeBlock, DefaultCodeInline } from "./code";
 
-// --- configuration (R14d + R18e) ---
+// --- configuration (doc-global, last-write-wins, reset per render) ---
 export {
   type BibEntry,
   type BibsetOptions,
@@ -58,7 +58,7 @@ export {
   type SecsetOptions,
   secset
 } from "./config";
-// --- doc-state constructs (contract R18e/f): slots + shipped defaults + helpers ---
+// --- doc-state constructs: slots + shipped defaults + helpers ---
 export {
   Bibliography,
   Cite,
@@ -87,7 +87,7 @@ export {
 } from "./doc";
 export { DefaultTex } from "./tex";
 
-// --- R18d: auto-append the footnote list at document end (unless @Footnotes places it). The
+// --- The footnotes trailer: auto-append the footnote list at document end (unless @Footnotes places it). The
 //     trailer calls the `FootnotesList` *slot*, so a site override reaches this path too. ---
 registerTrailer("footnotes", () =>
   query(doc =>

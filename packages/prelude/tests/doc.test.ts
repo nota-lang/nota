@@ -1,5 +1,5 @@
 /**
- * `@nota-lang/prelude` doc-state constructs (contract R18e/f), driven through the **real** decode
+ * `@nota-lang/prelude` doc-state constructs, driven through the **real** decode
  * pipeline via `decode(v)` (which at ▸=false runs `normalize → index → force → struct → serialize`,
  * plus the trailer auto-append). Unit-level assertions (`counters`, boundary-children indexing) call
  * `indexDoc`/`normalize` directly. No adapter is set — no fixture islands a component.
@@ -344,10 +344,10 @@ describe("Footnotes", () => {
 });
 
 // =============================================================================================
-// Labeled footnotes (R20b) — @FootnoteMark / @FootnoteText, Markdown semantics
+// Labeled footnotes — @FootnoteMark / @FootnoteText, Markdown semantics
 // =============================================================================================
 
-describe("Labeled footnotes (R20b)", () => {
+describe("Labeled footnotes", () => {
   test("repeated @FootnoteMark for one label share a number + one list entry (first ref backlinks)", () => {
     const out = doc(
       frag([
@@ -503,9 +503,9 @@ describe("Labeled footnotes (R20b)", () => {
     expect(out.match(/nota-footnotes/g)).toHaveLength(1);
   });
 
-  test("a multi-paragraph @FootnoteText body renders TWO <p>s in the entry (R20b flow)", () => {
+  test("a multi-paragraph @FootnoteText body renders TWO <p>s in the entry (flow content)", () => {
     // Will's repro: a `[^n1]:` definition whose body contains a blank line renders as two
-    // paragraphs. The reader emits the §7 paragraph-break marker (adjacent "\n","\n") inside the
+    // paragraphs. The reader emits the paragraph-break marker (adjacent "\n","\n") inside the
     // colon body; FootnotesList wraps the entry in a `div` flow container, so `groupParas` turns the
     // break into a real <p> split, with the backlink joining the FINAL paragraph run.
     const out = doc(
@@ -619,7 +619,7 @@ describe("Cite / Bibliography", () => {
 });
 
 // =============================================================================================
-// counters (R18e generic helper)
+// counters (the generic doc-state helper)
 // =============================================================================================
 
 describe("counters", () => {

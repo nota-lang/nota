@@ -1,5 +1,6 @@
 /**
- * Regenerate `src/preamble.generated.ts` from the built runtime `.d.ts` (contract R22 / D3).
+ * Regenerate `src/preamble.generated.ts` from the built runtime `.d.ts` — the typed emit surface
+ * baked into the resolution-independent typing preamble.
  *
  * Run after any change to the runtime's typed emit surface (`h` overloads, the DOM attribute map,
  * `inlineComponent`/`blockComponent`, …) or the ambient prelude shapes in `preamble-gen.ts`:
@@ -24,8 +25,8 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "preamble
 const preamble = buildPreamble();
 const file = `/**
  * **GENERATED — do not edit.** The resolution-independent typing preamble, baked from the runtime's
- * built \`.d.ts\` by \`scripts/gen-preamble.ts\` (contract R22 / D3). Regenerate after a runtime
- * typed-surface change; the \`preamble-sync\` test guards drift. See \`./preamble-gen.ts\`.
+ * built \`.d.ts\` by \`scripts/gen-preamble.ts\`. Regenerate after a runtime typed-surface change;
+ * the \`preamble-sync\` test guards drift. See \`./preamble-gen.ts\`.
  */
 
 /** The typing preamble prepended to every virtual \`.tsx\` (ambient runtime module + prelude globals). */

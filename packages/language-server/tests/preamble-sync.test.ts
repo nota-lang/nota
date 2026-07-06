@@ -1,5 +1,5 @@
 /**
- * **Preamble drift guard** (contract R22 / D3).
+ * **Preamble drift guard.**
  *
  * The typing preamble is *generated* from the runtime's built `.d.ts` (`scripts/gen-preamble.ts` →
  * `src/preamble.generated.ts`) and committed. This test re-runs the generator and asserts the

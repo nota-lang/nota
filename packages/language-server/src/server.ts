@@ -7,7 +7,7 @@
  * plugins that surface diagnostics / hover / completion / definition / references / rename. The same
  * wiring carries all of those features over the single virtual-code mapping.
  *
- * **Source-document routing (contract-bug fix).** Volar's `languageFeatureWorker` only offers the
+ * **Source-document routing.** Volar's `languageFeatureWorker` only offers the
  * *embedded* virtual `.tsx` to service plugins once a script has generated code — which every `.nota`
  * does. So the three Nota service plugins (which guard on `languageId === "nota"` and want the SOURCE
  * doc: reader-driven semantic tokens, `@|` completions, and markup-positioned syntax diagnostics)

@@ -1,5 +1,5 @@
 /**
- * **Nota syntax diagnostics + EOF recovery in the language server** (contract D4/D5).
+ * **Nota syntax diagnostics + EOF recovery in the language server.**
  *
  * Two guarantees, both regressions of the pre-recovery behaviour (a `.nota` typo produced ZERO
  * diagnostics and an empty virtual module):
@@ -20,7 +20,7 @@ import {
 } from "../src/diagnostics";
 import { buildVirtual } from "../src/language-plugin";
 
-describe("EOF recovery → non-empty virtual (D4)", () => {
+describe("EOF recovery → non-empty virtual", () => {
   test("`@a[` still emits the props object literal + a completion anchor mapping", () => {
     const { code, mappings } = buildVirtual("@a[");
     // The recovered virtual contains the props object literal (not the empty-module fallback).
@@ -42,7 +42,7 @@ describe("EOF recovery → non-empty virtual (D4)", () => {
   });
 });
 
-describe("notaSyntaxDiagnostics (D5)", () => {
+describe("notaSyntaxDiagnostics", () => {
   test("no diagnostics for a well-formed document", () => {
     expect(notaSyntaxDiagnostics("@p{hi}\n")).toEqual([]);
   });

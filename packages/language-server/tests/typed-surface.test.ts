@@ -1,7 +1,7 @@
 /**
- * **Typed emit surface, resolution-independent** (contract R22 / D3).
+ * **Typed emit surface, resolution-independent** (design/decode.md §The typed surface).
  *
- * The headline D3 guarantee: a `.nota` in a directory with **no** `node_modules/@nota-lang` still
+ * The headline guarantee: a `.nota` in a directory with **no** `node_modules/@nota-lang` still
  * types — the runtime surface resolves through the ambient `declare module "@nota-lang/runtime"` the
  * preamble inlines, not through disk. So this harness roots the TS language service in a scratch
  * directory that cannot resolve `@nota-lang/runtime` on disk (empty `types`, no local
@@ -121,13 +121,13 @@ describe("typed surface resolves with no node_modules (D3)", () => {
   });
 });
 
-describe("typed h overloads through the .nota → .tsx pipeline (R22)", () => {
+describe("typed h overloads through the .nota → .tsx pipeline", () => {
   test("a wrong prop value on a known host tag is a TS type error", () => {
     // `@a[href: 123]` → `h("a", { href: 123 }, …)`; `href` is typed `string` on <a>, so the call
     // fails to match the typed overload — the wrong value is rejected. (The error is reported on the
     // synthesised `h(` call, which is generated boilerplate with no `.nota` mapping, so it surfaces
     // as a "no overload matches" whose message carries the specific `string` mismatch; completion on
-    // the prop region still works — that is the primary editor affordance for props, per P5.)
+    // the prop region still works — that is the primary editor affordance for props.)
     const source = "@a[href: 123]{link}\n";
     const h = noNodeModulesHarness(source);
     const typeErr = h

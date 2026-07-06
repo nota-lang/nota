@@ -1,5 +1,5 @@
 /**
- * **Reader-driven semantic tokens** (contract D2) — the flattening + the token stream.
+ * **Reader-driven semantic tokens** — the flattening + the token stream.
  *
  * Asserts the tinymist-style slicing: overlapping paint-order spans become non-overlapping runs, the
  * innermost overlay wins the token *type*, and the four under-layer kinds (heading / emphasis /

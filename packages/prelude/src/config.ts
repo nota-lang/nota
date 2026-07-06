@@ -1,14 +1,15 @@
 /**
- * Prelude configuration: `lstset` / `mathset` (contract R14d) + `secset` / `bibset` (R18e).
+ * Prelude configuration: `lstset` / `mathset` + `secset` / `bibset` (design/decode.md §The
+ * registry & config).
  *
  * `lstset` (after LaTeX's listings package) sets the global code options the default
  * `CodeInline`/`CodeBlock` consult: the default `lang`, the `theme`, and extension
  * grammar/theme registrations. `mathset` sets the KaTeX `macros` the default `Tex` passes through.
- * `secset` sets the doc-state heading `numberDepth` (R18f) and `bibset` the citation source/style
- * the `@Cite`/`@Bibliography` constructs read (R18e) — **all four share the same scope machinery**.
+ * `secset` sets the doc-state heading `numberDepth` and `bibset` the citation source/style
+ * the `@Cite`/`@Bibliography` constructs read — **all four share the same scope machinery**.
  *
- * **Scope semantics (pinned R14d):** config is *document-global, last-write-wins* — R10 expands the
- * component slots inside `decode`, after the whole `Doc` body has evaluated, so a mid-document
+ * **Scope semantics (pinned):** config is *document-global, last-write-wins* — the component
+ * slots expand as static templates inside `decode`, after the whole `Doc` body has evaluated, so a mid-document
  * `% lstset(…)` is NOT positional (unlike `\lstset`). Config is **reset to a baseline on every
  * `render()`** (via the runtime's `onRenderReset` hook), so one document's config never leaks into
  * the next in a multi-document build.
@@ -50,13 +51,13 @@ export interface BibEntry {
   url?: string;
 }
 
-/** Options for {@link secset} (R18f heading numbering). */
+/** Options for {@link secset} (heading numbering). */
 export interface SecsetOptions {
   /** Number headings of rank ≤ this depth (0 = off, the default). Last-write-wins. */
   numberDepth?: number;
 }
 
-/** Options for {@link bibset} (R18e citations). */
+/** Options for {@link bibset} (citations). */
 export interface BibsetOptions {
   /** The citation source, keyed by cite key. Merges into the current source. */
   src?: Record<string, BibEntry>;
@@ -71,11 +72,11 @@ export interface PreludeConfig {
   extraLangs: LanguageRegistration[];
   extraThemes: ThemeRegistrationAny[];
   macros: Record<string, string>;
-  /** Heading numbering depth (R18f). `0` = numbering off. */
+  /** Heading numbering depth. `0` = numbering off. */
   numberDepth: number;
-  /** Citation source keyed by cite key (R18e). */
+  /** Citation source keyed by cite key. */
   bibSrc: Record<string, BibEntry>;
-  /** Citation label style (R18e). */
+  /** Citation label style. */
   bibStyle: "numeric" | "alpha";
 }
 
@@ -126,14 +127,14 @@ export function mathset(opts: MathsetOptions): void {
   }
 }
 
-/** Set the heading numbering depth (R18f). Same scope semantics as {@link lstset}. */
+/** Set the heading numbering depth. Same scope semantics as {@link lstset}. */
 export function secset(opts: SecsetOptions): void {
   if (opts.numberDepth !== undefined) {
     current.numberDepth = opts.numberDepth;
   }
 }
 
-/** Set the citation source/style (R18e). Same scope semantics as {@link lstset} (`src` merges). */
+/** Set the citation source/style. Same scope semantics as {@link lstset} (`src` merges). */
 export function bibset(opts: BibsetOptions): void {
   if (opts.src !== undefined) {
     Object.assign(current.bibSrc, opts.src);
@@ -162,7 +163,7 @@ export function resetConfigForTest(): void {
   current = clone(baseline);
 }
 
-// Per-render reset (R14d): render() → runtime reset() → restore the baked baseline.
+// Per-render reset: render() → runtime reset() → restore the baked baseline.
 onRenderReset(() => {
   current = clone(baseline);
 });

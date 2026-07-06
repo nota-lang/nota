@@ -2,9 +2,9 @@
  * `serialize` + `island` unit tests, driven by a **stub adapter** that
  * records its calls and returns sentinel HTML. Asserts: host/text/fragment/void HTML emission,
  * attribute serialization (style object, booleans, event-handler omission, escaping), monotonic
- * hydration ids, `{ comp }` debug-manifest entries (R15), static-slot pre-rendering (the boundary's
- * children reach the adapter as already-serialized HTML), and that non-JSON props are legal (E4
- * retired — props cross by replay, not the manifest).
+ * hydration ids, `{ comp }` debug-manifest entries (replay hydration), static-slot pre-rendering
+ * (the boundary's children reach the adapter as already-serialized HTML), and that non-JSON props
+ * are legal (props never cross as data — they cross by replay, not the manifest).
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -63,7 +63,7 @@ interface StubEl {
 
 /**
  * Stringify props for the stub sentinel, tolerating the non-JSON values islands may now carry
- * (E4 retired — functions/symbols/bigints stringify, circular refs collapse) so the *fixture*
+ * (non-JSON props are legal — functions/symbols/bigints stringify, circular refs collapse) so the *fixture*
  * never throws where the runtime doesn't.
  */
 function safePropsJson(props: unknown): string {
@@ -170,7 +170,7 @@ describe("serialize (host / text / fragment / void)", () => {
   });
 
   test("a function tag reaching serialize (an un-struct'd tree) throws pointedly", () => {
-    // struct() expands plain templates (R10); reaching serialize with one means the tree skipped
+    // struct() expands plain templates; reaching serialize with one means the tree skipped
     // struct. The old behavior stringified the function into the HTML as a tag name.
     const Foo = () => "x";
     expect(() => serialize(el(Foo))).toThrow(/function tag/);
@@ -208,7 +208,7 @@ describe("serialize (host / text / fragment / void)", () => {
     //   ["a","b"].map((x,_i) => Fragment({key:_i}, h("nota-ul-li",{},[x])))
     // struct splices each per-iteration FRAG transparently, so the `nota-ul-li` sentinels
     // become direct siblings of the flow container and groupLists coalesces them into ONE <ul>. The
-    // `key` is dropped (static HTML needs none). This is the canonical golden's list behavior.
+    // `key` is dropped (static HTML needs none). This is the worked example's list behavior.
     const items = ["a", "b"].map((x, _i) =>
       Fragment({ key: _i }, h("nota-ul-li", {}, [x]))
     );
@@ -313,7 +313,7 @@ describe("island (ids / manifest / slot / wiring)", () => {
     expect(a.endsWith("</nota-island>")).toBe(true);
   });
 
-  test("records manifest { comp } per island (debug metadata — R15; props not carried)", () => {
+  test("records manifest { comp } per island (debug metadata; props not carried)", () => {
     island(el(Colorized, ["a"], { hue: 5 }) as ElementVNode & { tag: CompFn });
     island(el(Colorized, ["b"]) as ElementVNode & { tag: CompFn });
     expect(getManifest()).toEqual({
@@ -323,7 +323,7 @@ describe("island (ids / manifest / slot / wiring)", () => {
   });
 
   test("a nameless boundary records comp 'anonymous' (nameOf fallback)", () => {
-    // A nested/document-local component gets no name-attach (until the reader's R15 phase); the
+    // A nested/document-local component gets no name-attach (the reader only names top-level bindings); the
     // manifest is debug-only, so it falls back rather than failing the build.
     const Nameless: CompFn = inlineComponent(c => c);
     island(el(Nameless, ["x"]) as ElementVNode & { tag: CompFn });
@@ -373,10 +373,10 @@ describe("island (ids / manifest / slot / wiring)", () => {
 });
 
 // =============================================================================================
-// island — non-JSON props are legal (E4 retired by R15: props cross by replay, not the manifest)
+// island — non-JSON props are legal (props cross by replay, not the manifest)
 // =============================================================================================
 
-describe("island (non-JSON props are legal — E4 retired)", () => {
+describe("island (non-JSON props are legal)", () => {
   const C: CompFn = inlineComponent(c => c, "C");
 
   test("a function-valued prop no longer throws; it reaches the adapter live", () => {

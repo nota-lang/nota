@@ -1,6 +1,6 @@
 /**
  * Rendered-pane test: the **Rendered** pane boots the SSG HTML in the iframe and replay-hydrates
- * every island so it becomes interactive (contract R15: `hydrateDocument(Doc, { root: iframeDoc })`
+ * every island so it becomes interactive (replay hydration: `hydrateDocument(Doc, { root: iframeDoc })`
  * re-executes the document in capture mode — no registry, no manifest transport) — the golden's
  * `Colorized` click flips red→green. Same hydrate-then-click assertion as the CLI's acceptance
  * test, but driving the live `RenderedPane`.

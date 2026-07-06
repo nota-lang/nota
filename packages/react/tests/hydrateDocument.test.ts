@@ -1,20 +1,22 @@
 /**
- * `hydrateDocument` end-to-end with the real `@nota-lang/react` adapter under jsdom (contract R15 —
- * replay hydration). The client re-executes `Doc` in capture mode to recover each island's live
- * boundary, then hydrates it over the server DOM. Three angles, the last two **impossible before
- * R15**:
+ * `hydrateDocument` end-to-end with the real `@nota-lang/react` adapter under jsdom (replay
+ * hydration — design/decode.md §Replay hydration). The client re-executes `Doc` in capture mode to
+ * recover each island's live boundary, then hydrates it over the server DOM. Three angles, the last
+ * two **impossible before replay hydration**:
  *
  * - **golden replay** — the canonical `Colorized` document replay-hydrates and a click flips one
  *   island's state without touching the other.
  * - **island inside `@for` closing over the loop variable** — each iteration defines a *document-
  *   local* island capturing its `x`; replay recovers the per-iteration closure on the client, and
- *   the islands are independently interactive (nested F1 hoist never permitted this).
+ *   the islands are independently interactive (hoisting nested bindings to module scope never
+ *   permitted this).
  * - **function-valued island prop** — a prop holding a live handler (closing over document state)
- *   crosses SSG (`render(Doc)` — E4 is retired) AND the replay, and fires on the client; the old
- *   JSON manifest rejected function props outright.
+ *   crosses SSG (`render(Doc)` — JSON-props validation is retired) AND the replay, and fires on the
+ *   client; the old JSON manifest rejected function props outright.
  *
  * Emit is hand-written in the shape the reader produces today (keyed `@for`, `decode(...)` on Doc +
- * component bodies), per `tests/fixtures/golden.compiled.ts` — until the R15 reader phase.
+ * component bodies), per `tests/fixtures/golden.compiled.ts` — until the reader phase that emits
+ * this shape itself.
  */
 
 import reactAdapter from "@nota-lang/react";
@@ -97,19 +99,19 @@ describe("golden document replay-hydrates", () => {
 });
 
 // =============================================================================================
-// island inside @for closing over the loop variable (impossible before R15)
+// island inside @for closing over the loop variable (impossible before replay hydration)
 // =============================================================================================
 
 describe("island in @for closing over the loop variable", () => {
   // Each iteration defines a DOCUMENT-LOCAL island (nested %let) that closes over its `x`. This is
-  // exactly the plan's headline program `@for (x of xs) { %let E = inlineComponent(() => x); - @E{} }`
-  // (with a counter added to prove independent hydration), impossible under the old F1 hoist.
+  // exactly the replay-hydration headline `@for (x of xs) { %let E = inlineComponent(() => x); - @E{} }`
+  // (with a counter added to prove independent hydration), impossible under the old module-scope hoist.
   const DocFor = () =>
     decode(
       Fragment(
         [1, 2].map((x, _i) => {
           // Each `.map` iteration constructs a distinct island component that closes over its `x`
-          // (the R15 document-local island); the hook is unconditional within that component body.
+          // (the document-local island); the hook is unconditional within that component body.
           const Example = inlineComponent(() => {
             // biome-ignore lint/correctness/useHookAtTopLevel: hook is unconditional in this island body.
             const [n, setN] = useState(0);
@@ -151,7 +153,7 @@ describe("island in @for closing over the loop variable", () => {
 });
 
 // =============================================================================================
-// function-valued island prop (impossible before R15 — E4 rejected it)
+// function-valued island prop (the retired JSON-props validation rejected it)
 // =============================================================================================
 
 describe("function-valued island prop", () => {
@@ -177,8 +179,9 @@ describe("function-valued island prop", () => {
       return decode(h(Fires, { onFire }, ["fire"]));
     };
 
-    // The REAL server path: render(DocFn) islands the function prop without throwing (E4 retired)
-    // and the manifest carries only the debug name — the prop never crosses as data.
+    // The REAL server path: render(DocFn) islands the function prop without throwing (JSON-props
+    // validation is retired) and the manifest carries only the debug name — the prop never crosses
+    // as data.
     const { html, manifest } = render(DocFn);
     expect(manifest).toEqual({ "1": { comp: "Fires" } });
     expect(html).toContain('data-hydration-id="1"');

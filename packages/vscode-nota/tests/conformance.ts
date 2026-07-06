@@ -5,7 +5,7 @@
  *   2. SMOKE — vscode-textmate + Oniguruma tokenize a representative sample without rejecting a
  *      regex (this catches `\p{L}` / backreference issues that plain JSON validation misses) and the
  *      load-bearing scopes actually land on tokens.
- *   3. D1 SUBSET-CORRECTNESS CONFORMANCE — the heart of the "never lie" contract. We run the compiled
+ *   3. SUBSET-CORRECTNESS CONFORMANCE — the heart of the "never lie" grammar. We run the compiled
  *      grammar (the SAME vscode-textmate + Oniguruma engine VSCode uses) over every shared
  *      `integration/*.nota` fixture (`mega.nota` mandatory) and, for every token the grammar claims
  *      with a Nota-specific scope, assert the claim AGREES with the reader's `highlightSpans` kind at
@@ -141,8 +141,9 @@ const FENCE_EMBED_LANGS = new Set([
  * The 0-based line indices where the grammar may LEGALLY delegate to an embedded `source.*` grammar:
  * a line-leading `%` statement (the whole rest of the line is TS), the interior of a `%%%` block, and
  * the interior of a language-tagged ```ts/js/json fence. **Every other line is markup** — a `source.*`
- * scope there is the cross-line delegation leak this test now guards against (the D1 derailment
- * class): a multi-line `%`/fence whose embedded grammar keeps a region open across a delimiter and
+ * scope there is the cross-line delegation leak this test now guards against (the derailment class
+ * the never-lie grammar exists to prevent): a multi-line `%`/fence whose embedded grammar keeps a
+ * region open across a delimiter and
  * paints the following markup as code.
  *
  * Derived by a structural line scan — the same line-local decision the grammar makes — so the
@@ -307,7 +308,7 @@ const EXPECTED_TOKEN_SCOPES = [
 ];
 
 // ===================================================================================================
-// 3. D1 subset-correctness conformance over the integration fixtures.
+// 3. Subset-correctness conformance over the integration fixtures.
 // ===================================================================================================
 
 interface Violation {
@@ -378,7 +379,7 @@ async function conformFixture(
   const legalLines = delegationLegalLines(source);
 
   for (const t of tokenizeAll(grammar, source)) {
-    // (0) DELEGATION-LEAK guard — the D1 derailment class. A `source.*` token is honest only on a
+    // (0) DELEGATION-LEAK guard — the cross-line derailment class. A `source.*` token is honest only on a
     // delegation-legal line; on a markup line it means an embedded region leaked across a delimiter.
     if (isDelegated(t.scopes) && !legalLines.has(t.line)) {
       const text = lines[t.line].slice(t.startIndex, t.endIndex);
@@ -441,7 +442,7 @@ async function conformFixture(
 }
 
 async function main(): Promise<void> {
-  console.log("# nota grammar — structure + smoke + D1 conformance\n");
+  console.log("# nota grammar — structure + smoke + subset-correctness conformance\n");
   const grammar = await loadNotaGrammar();
 
   // Smoke.
@@ -455,7 +456,7 @@ async function main(): Promise<void> {
   // `tests/fixtures/*.nota` (a committed, stable home for grammar repros — e.g. the multi-line `%let`
   // derailment — that must not depend on a developer's working `integration/golden.nota`).
   console.log(
-    `\n# D1 subset-correctness over the corpus (reader kinds: ${highlightKindNames().length})`
+    `\n# subset-correctness over the corpus (reader kinds: ${highlightKindNames().length})`
   );
   const corpus: { dir: string; file: string; label: string }[] = [
     ...readdirSync(INTEGRATION_DIR)

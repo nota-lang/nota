@@ -9,7 +9,7 @@
  *
  * Two fixtures:
  * - `golden.nota` — the canonical `Colorized` document (module-scope island).
- * - `closure.nota` — the R15 headline: a **document-local** island defined inside `@for`, closing
+ * - `closure.nota` — the replay-hydration headline: a **document-local** island defined inside `@for`, closing
  *   over the loop variable. Only replay hydration (`hydrateDocument`) can hydrate it.
  */
 

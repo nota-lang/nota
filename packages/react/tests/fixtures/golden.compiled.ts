@@ -3,8 +3,8 @@
 // emit, unmodified. The runtime import + `useState` (React, for the island body) are prepended; the
 // reader emits neither (the shim/integrator supplies them). Regenerate with:
 //   cargo run -q -p oxc --example nota_compile --features codegen -- integration/golden.nota
-// R15 shape: the component binding is document-local (inside Doc, name-attached, no export, no body
-// decode-wrap); Doc's own body keeps its decode(...) wrap.
+// Replay-hydration shape: the component binding is document-local (inside Doc, name-attached, no
+// export, no body decode-wrap); Doc's own body keeps its decode(...) wrap.
 import { decode, Fragment, h, inlineComponent } from "@nota-lang/runtime";
 import { useState } from "react";
 

@@ -10,13 +10,14 @@
  *   → @nota-lang/compiler        // → JS module string (runtime import prepended)
  *   → load in Node SSR + setAdapter
  *   → render(Doc)                 // → { html, manifest }
- *   → if islands:  esbuild the client bundle (replay entry: hydrateDocument(Doc) — contract R15 —
+ *   → if islands:  esbuild the client bundle (replay entry: hydrateDocument(Doc)
  *                  + the compiled module + adapter + runtime)
  *                  → inline as <script>; inline the manifest as JSON metadata (debug view)
  *   → emit one .html               // SSG body + inline <style> + inline <script>(s)
  * ```
  *
- * **Client hydration is replay-driven (contract R15).** The client bundle imports `Doc` and calls
+ * **Client hydration is replay-driven (design/decode.md §Replay hydration).** The client bundle
+ * imports `Doc` and calls
  * `hydrateDocument(Doc)`: the runtime re-executes the document in capture mode — recovering each
  * island's live component (closures over document state intact), live props (functions legal), and
  * recomputed slot — and hydrates each `[data-hydration-id]` marker. No per-island data crosses the
@@ -35,8 +36,9 @@
  *
  * 2. **The ambient prelude.** esbuild `inject: [<prelude>]` rewrites the compiled module's free
  *    `useState` into the prelude's `useState` export (= React's). The prelude is written to the work
- *    dir at build time so it ships with nothing; see {@link PRELUDE_SOURCE}. **Contract delta:** the
- *    integrator supplies the ambient prelude; the minimal member is `useState` (React's).
+ *    dir at build time so it ships with nothing; see {@link PRELUDE_SOURCE}. Supplying the ambient
+ *    prelude is the integrator's job (design/decode.md §SSG integration); the minimal member is
+ *    `useState` (React's).
  *
  * ## Properties preserved
  * - **Zero-JS for island-free docs.** No islands ⇒ empty manifest ⇒ **no `<script>`** and no client
@@ -75,12 +77,12 @@ const MODULE_FILE =
  * and `inject`ed into both bundles so a free `useState` in the compiled module resolves to React's.
  * Held here as a string (rather than a shipped file) so the bundled single-file CLI is self-contained
  * — it materializes the prelude on demand. The reader emits `useState` and the whole prelude
- * surface as **free identifiers** (R20c — "the prelude should be a prelude"): the slots `Tex` /
- * `CodeInline` / `CodeBlock` / `Heading` (from `#` sugar, R18f) / `Toc` / `Label` / `Ref` /
+ * surface as **free identifiers** ("the prelude should be a prelude"): the slots `Tex` /
+ * `CodeInline` / `CodeBlock` / `Heading` (from `#` sugar) / `Toc` / `Label` / `Ref` /
  * `Footnote` / `FootnoteMark` / `FootnoteText` / `Footnotes` / `FootnotesList` / `Cite` /
- * `Bibliography` (the last family from `<x>` / `&x` / `[^x]` / `[^x]:` doc-state sugar, R20a) and the
+ * `Bibliography` (the last family from `<x>` / `&x` / `[^x]` / `[^x]:` doc-state sugar) and the
  * config fns `lstset` / `mathset` / `secset` / `bibset`; the integrator supplies them, and esbuild
- * `inject` rewrites the free references to these exports. (`Tex`, not `Math` — R14: `inject` rewrites
+ * `inject` rewrites the free references to these exports. (`Tex`, not `Math` — `inject` rewrites
  * free refs, so exporting a `Math` would capture `Math.floor` in embedded JS.)
  */
 export const PRELUDE_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
@@ -114,7 +116,8 @@ export interface BuildOptions {
    */
   dev?: boolean;
   /**
-   * Path to a **site setup module** (contract R14b/d — the `--setup` flag), bundled into the SSR
+   * Path to a **site setup module** (the `--setup` flag; registry overrides + doc-global config —
+   * design/decode.md §The registry & config), bundled into the SSR
    * entry (and the client entry when islands exist) and imported for side effects before render:
    * `registerComponents({…})` overrides + `lstset`/`mathset` site config (baked as the per-render
    * baseline). Absolute path, or relative to the caller's cwd.
@@ -167,7 +170,7 @@ async function ssrRender(
   // esbuild resolves filesystem paths (not `file://` URLs); the entry and compiled module are
   // siblings in `workDir`, so a `./`-relative specifier is the most robust.
   const compiledSpec = `./${relative(workDir, compiledPath)}`;
-  // The setup module (contract R14b/d) is bundled INTO the entry — it must mutate the *bundle's*
+  // The setup module is bundled INTO the entry — it must mutate the *bundle's*
   // runtime/prelude instances (registry + lstset config), not the CLI process's. Its side effects
   // run at import time; the config it set is then baked as the per-render reset baseline.
   const setupImports =
@@ -217,7 +220,7 @@ ${setupBake}export const result = render(Doc);
 /**
  * Bundle the client hydration script to a single self-contained string. Uses the
  * {@link generateClientEntry} helper for the replay entry (`import Doc …; setAdapter(adapter);
- * hydrateDocument(Doc);` — contract R15), then esbuild-bundles it (entry + the compiled module +
+ * hydrateDocument(Doc);` — replay hydration), then esbuild-bundles it (entry + the compiled module +
  * adapter + runtime + React client) for the **browser**, IIFE, minified. The prelude is `inject`ed
  * so the document's free `useState` resolves on the client too (the replay re-executes the whole
  * document, not just island bodies). When a setup module is configured, the generated entry
@@ -288,7 +291,7 @@ function baseTitle(sourcePath?: string): string {
 /**
  * Assemble the final self-contained HTML document. The island `<script>` is inlined verbatim (an
  * esbuild IIFE bundle — no external `src`); the manifest is inlined as a
- * `<script type="application/json">` **debug metadata** view (contract R15: hydration never reads
+ * `<script type="application/json">` **debug metadata** view (hydration never reads
  * it — the client replays `Doc` to recover per-island data). For an island-free doc, **no
  * `<script>` is emitted at all** (the zero-JS property).
  */
@@ -307,7 +310,7 @@ function assembleHtml(args: {
 
   const scripts: string[] = [];
   if (clientScript !== undefined) {
-    // Manifest as inspectable JSON debug metadata (hydration never reads it — R15 replay).
+    // Manifest as inspectable JSON debug metadata (hydration never reads it — the replay does).
     scripts.push(
       `<script type="application/json" id="nota-manifest">${JSON.stringify(
         manifest

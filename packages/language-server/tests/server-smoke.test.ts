@@ -8,7 +8,7 @@
  * from a too-broad root `tsconfig`) dies fast and fails the test instead of eating the machine.
  *
  * The project is rooted in a scratch dir with a single `.nota` and no `node_modules` — the typed
- * surface resolves through the generated ambient preamble (D3), so the TS project stays tiny. The
+ * surface resolves through the generated ambient preamble, so the TS project stays tiny. The
  * deep per-feature assertions (Nota kinds, `@|` completion, syntax diagnostics) live in
  * `server-e2e.test.ts`; this file just proves the server boots, advertises the right capabilities, and
  * that its semantic tokens are reader-driven (a Nota kind lands, not only TS-mapped identifiers).
@@ -68,7 +68,7 @@ describe("language server (real boot, heap-capped)", () => {
       // The server advertises a semantic-tokens provider (the merged legend).
       const legend = init.result?.capabilities?.semanticTokensProvider?.legend;
       expect(legend?.tokenTypes).toBeTruthy();
-      // …and completion trigger characters `@` and `[` (the Nota completions plugin, P5).
+      // …and completion trigger characters `@` and `[` (the Nota completions plugin).
       const triggers: string[] =
         init.result?.capabilities?.completionProvider?.triggerCharacters ?? [];
       expect(triggers).toContain("@");

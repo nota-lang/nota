@@ -2,7 +2,8 @@
  * The live **Rendered** pane: the SSG HTML booted live in a sandboxed iframe, with every island
  * hydrated in place so it becomes interactive (the golden's `Colorized` click → red→green works).
  *
- * Mechanism (contract R15 — replay hydration): write the SSG HTML into the (same-origin) iframe's
+ * Mechanism (replay hydration — design/decode.md §Replay hydration): write the SSG HTML into the
+ * (same-origin) iframe's
  * document, then `hydrateDocument(Doc, { root: iframeDoc })` — the runtime **replays** the document
  * (re-executes `render(Doc)` with `island()` in capture mode), recovering each island's live
  * component, live props, and recomputed slot, and hydrates every `[data-hydration-id]` marker.
@@ -50,7 +51,7 @@ export function RenderedPane({
     );
     frameDoc.close();
 
-    // 2. Replay-hydrate every island in place (R15), using the parent's React adapter on the
+    // 2. Replay-hydrate every island in place, using the parent's React adapter on the
     //    iframe's nodes. hydrateDocument returns the islands' teardowns so the next run (every
     //    debounced keystroke re-runs this effect and rewrites the iframe document) unmounts the
     //    prior React roots instead of leaking them. Island-free docs skip the replay entirely

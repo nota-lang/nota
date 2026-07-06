@@ -104,8 +104,8 @@ describe("SsgPane", () => {
     const compiledText = compiledPane.querySelector(".cm-content")?.textContent;
     expect(compiledText).toContain('from "@nota-lang/runtime"');
     expect(compiledText).toContain("Colorized");
-    // The hydration entry shows the replay wiring (Prettier-formatted JS, highlighted) — contract
-    // R15: import Doc + hydrateDocument(Doc); no manifest is embedded (debug metadata only).
+    // The hydration entry shows the replay wiring (Prettier-formatted JS, highlighted):
+    // import Doc + hydrateDocument(Doc); no manifest is embedded (debug metadata only).
     const clientText = clientPane.querySelector(".cm-content")?.textContent;
     expect(clientText).toContain("hydrateDocument(Doc)");
     expect(clientText).toContain("setAdapter(adapter)");

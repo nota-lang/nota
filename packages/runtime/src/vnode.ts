@@ -16,7 +16,7 @@ import { isMark, isQuery, type MarkLeaf, type QueryLeaf } from "./doc";
 import { isRaw, type RawHtml } from "./raw";
 
 /**
- * A **plain function tag**: a static template (contract R10). `struct` expands it eagerly —
+ * A **plain function tag**: a static template. `struct` expands it eagerly —
  * invoking it with `{ children, …props }` and splicing the result into the sibling stream *before*
  * grouping, so a template's list sentinels coalesce with its siblings'. Contrast {@link CompFn}:
  * the marked constructors buy *deferral* (an island boundary, `kind`-driven paragraph grouping,
@@ -51,8 +51,8 @@ export interface ElementVNode {
 /**
  * A vnode is a text leaf, an element/fragment/boundary node, a {@link RawHtml} leaf — pre-rendered
  * HTML that the static path passes through opaquely (`struct` never descends, `serialize` emits it
- * verbatim; contract R14e) — or a {@link MarkLeaf}/{@link QueryLeaf} **doc-state** leaf (contract
- * R18): opaque to `flatten`/`struct`, resolved (marks removed, queries spliced) by `decode`'s
+ * verbatim) — or a {@link MarkLeaf}/{@link QueryLeaf} **doc-state** leaf:
+ * opaque to `flatten`/`struct`, resolved (marks removed, queries spliced) by `decode`'s
  * `force` pass *before* grouping, so serialize never sees one. Raw leaves are how the prelude's
  * KaTeX output enters the tree without re-escaping; mark/query leaves are how forward-referencing
  * constructs (TOC, `@ref`, footnotes) index and resolve against the whole document.
@@ -124,8 +124,8 @@ function flattenInto(children: readonly ChildArg[], out: VNode[]): void {
       // splice arrays in; recurse so a `.map` returning arrays flattens fully
       flattenInto(c, out);
     } else {
-      // an ElementVNode, a RawHtml leaf, or a doc-state MarkLeaf/QueryLeaf leaf (all opaque; §8/§7
-      // "opaque leaves survive flatten" — the object fallthrough pushes any branded leaf untouched)
+      // an ElementVNode, a RawHtml leaf, or a doc-state MarkLeaf/QueryLeaf leaf — all opaque.
+      // Opaque leaves survive flatten: the object fallthrough pushes any branded leaf untouched.
       out.push(c);
     }
   }

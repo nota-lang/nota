@@ -15,6 +15,6 @@ export const BUILT_HTML_PATH = join(here, ".golden.built.html");
 
 /**
  * Where the closure fixture's built single-file HTML is written (`integration/closure.nota` — the
- * R15 headline: a document-local island inside `@for` closing over the loop variable).
+ * replay-hydration headline: a document-local island inside `@for` closing over the loop variable).
  */
 export const CLOSURE_BUILT_HTML_PATH = join(here, ".closure.built.html");

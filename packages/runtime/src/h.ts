@@ -48,7 +48,7 @@ type OmitChildren<P> = {
  * Both emitted call shapes are handled by {@link flatten}: `h("nota-ul-li", {}, [child])` (one array
  * arg) and `h(C, {}, x)` (one scalar arg).
  *
- * **Typed emit surface (contract R22).** Two public overloads, tried in order:
+ * **Typed emit surface (design/decode.md §The typed surface).** Two public overloads, tried in order:
  * 1. a **function tag** (a component from `inlineComponent`/`blockComponent`, or an ambient prelude
  *    slot like `Tex`/`Heading`) — `props` is the tag's own parameter type minus `children` (the
  *    children come from the trailing args / the decoded body), so `h(Heading, { rank: 1 }, …)`
@@ -96,7 +96,7 @@ export function h(
  * - a **string** / **number** / **boolean** / **nullish** — these are scalar children, not objects;
  * - a **`RawHtml`** marker — `isRaw(arg)` (a pre-rendered slot rides through as a child);
  * - a doc-state **`MarkLeaf`/`QueryLeaf`** — `isMark`/`isQuery` (they are `tag`-less plain objects,
- *   so without this they would be eaten as props; contract R18 — they ride through as children);
+ *   so without this they would be eaten as props — they must ride through as children);
  * - an **`ElementVNode`** — it carries a `tag` key; a props object never does.
  *
  * The `tag`-key test is the precise discriminator: `isElement` (just `typeof === "object"`) cannot
@@ -167,7 +167,7 @@ export function Fragment(
  *
  * Inside a component (`▸ = true`) every `h` already returned an opaque framework element, so there
  * is nothing for a restructuring pass to see and `decode` is the identity. Under the static build it
- * runs the full R18 pipeline ({@link decodeTree} = `serialize ∘ struct ∘ force ∘ index ∘
+ * runs the full decode pipeline ({@link decodeTree} = `serialize ∘ struct ∘ force ∘ index ∘
  * normalize`): resolve doc-state marks/queries and append trailers, restructure the tree, then
  * stringify it to HTML. For a mark-free document this is byte-identical to `serialize(struct(v))`.
  */

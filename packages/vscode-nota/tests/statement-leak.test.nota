@@ -1,4 +1,4 @@
-// SYNTAX TEST "source.nota" "a multi-line % statement is single-line by construction: source.ts never leaks onto the following markup lines (D1 derailment guard)"
+// SYNTAX TEST "source.nota" "a multi-line % statement is single-line by construction: source.ts never leaks onto the following markup lines (never-lie derailment guard)"
 
 // The % line delegates its whole tail to source.ts. Its arrow body `=> {` opens TS regions that a
 // begin/end statement rule (end: $) would keep open ACROSS the newline — the leak this file guards.

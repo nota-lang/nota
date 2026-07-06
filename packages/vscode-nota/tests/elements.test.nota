@@ -10,7 +10,7 @@ A host @p{Hello @em{w} and @name here.}
 //                          ^^^^ variable.other.interpolation.nota
 
 // --- component head + NEGATIVE: the whole [props]{body} tail stays plain source.nota ---
-// (D1: never enter props -- not embedded TS, not a tag; markup-valued props cannot derail this grammar) ---
+// (never-lie: never enter props -- not embedded TS, not a tag; markup-valued props cannot derail this grammar) ---
 A block @Aside[variant: "tip", n: 1]{Body} tail.
 //      ^ punctuation.definition.tag.nota
 //       ^^^^^ support.class.component.nota

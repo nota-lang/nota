@@ -83,7 +83,7 @@ describe("transform: .nota id → JS + sourcemap shape", () => {
   });
 });
 
-describe("transform: ambient prelude injection (R14)", () => {
+describe("transform: ambient prelude injection", () => {
   const asResult = (r: unknown) => r as { code: string } | null;
 
   test("free Tex/CodeInline references get a prelude import prepended", async () => {
@@ -102,7 +102,7 @@ describe("transform: ambient prelude injection (R14)", () => {
     expect(result?.code).not.toContain("@nota-lang/prelude");
   });
 
-  test("a %import of the same name suppresses the injection (lexical override, R14b)", async () => {
+  test("a %import of the same name suppresses the injection (lexical override)", async () => {
     const result = asResult(
       await runTransform(
         nota(),

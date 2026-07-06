@@ -1,5 +1,5 @@
 /**
- * The client hydration-entry helper (contract R15 — replay hydration).
+ * The client hydration-entry helper (replay hydration — design/decode.md §Replay hydration).
  *
  * The client no longer receives per-island data: `hydrateDocument(Doc)` (runtime) **replays the
  * document** — re-executes `render(Doc)` with `island()` in capture mode, recovering each island's
@@ -46,8 +46,9 @@ export interface ClientEntryOptions {
    */
   runtimeModule?: string;
   /**
-   * Optional **site setup module** specifier, imported for side effects *before* the replay
-   * (contract R14b/d): its `registerComponents({…})` / `lstset({…})` calls re-run on the client.
+   * Optional **site setup module** specifier, imported for side effects *before* the replay (the
+   * registry/config setup-bake): its `registerComponents({…})` / `lstset({…})` calls re-run on the
+   * client.
    * When set, the entry also imports `bakeConfigBaseline` from `@nota-lang/prelude` and calls it
    * before `hydrateDocument` — the replay's `reset()` restores the baked baseline, keeping the
    * recomputed slot bytes byte-identical to the server's (mirror of the CLI's `--setup` SSR entry).

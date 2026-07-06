@@ -1,12 +1,13 @@
 /**
- * HEADLINE integration test — **the canonical golden**, the worked example run end-to-end from the
- * runtime side with the real `@nota-lang/react` adapter.
+ * HEADLINE integration test — **the canonical golden**, the worked example (design/decode.md §The
+ * worked example) run end-to-end from the runtime side with the real `@nota-lang/react` adapter.
  *
  * We hand-write the emitted JS module (the `Colorized` example, WITH the name arg
  * `inlineComponent(fn, "Colorized")`, importing `useState` from `react`), run `render(Doc)`, and
  * assert the final SSG output: the `<ul><li>…<span … style="color: red">a</span>…</li>…</ul>` HTML
  * (modulo formatting / attr-order / our hydration-id mechanism) plus the island debug manifest
- * `{"1":{comp:"Colorized"},"2":{comp:"Colorized"}}` (R15: `{comp}` only — props are not carried).
+ * `{"1":{comp:"Colorized"},"2":{comp:"Colorized"}}` (debug metadata: `{comp}` only — props are not
+ * carried).
  *
  * Runs in the `dom` vitest project (jsdom): React's `react-dom/server` `renderToString` runs there,
  * and `island` SSRs each `Colorized` shell with `▸ = true` so `useState("red")` bakes `color: red`.
@@ -56,7 +57,7 @@ describe("headline integration (final SSG output)", () => {
   test("render(Doc) → SSG HTML + manifest", () => {
     const { html, manifest } = render(Doc);
 
-    // --- manifest: two islands, both Colorized (debug metadata — {comp} only, R15) ---
+    // --- manifest: two islands, both Colorized (debug metadata — {comp} only) ---
     expect(manifest).toEqual({
       "1": { comp: "Colorized" },
       "2": { comp: "Colorized" }

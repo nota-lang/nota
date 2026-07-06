@@ -1,10 +1,10 @@
 /**
- * **Completions** (contract R22 / D2 P5).
+ * **Completions.**
  *
  * - `@|` head completions (this plugin): tags + prelude slots + in-scope components; suppressed on a
  *   `%` statement line and inside embedded JS.
- * - `@tag[|` prop completions: served by TS through the P1 recovery anchor + the P3 typed overload —
- *   asserted end-to-end via the feature harness (`h("a", { | })` → `<a>` attributes).
+ * - `@tag[|` prop completions: served by TS through the EOF-recovery anchor + the typed `h`
+ *   overload — asserted end-to-end via the feature harness (`h("a", { | })` → `<a>` attributes).
  */
 
 import { describe, expect, test } from "vitest";
@@ -124,7 +124,7 @@ describe("the completion plugin", () => {
   });
 });
 
-describe("`@tag[|` prop completions via TS (P1 anchor + P3 overload)", () => {
+describe("`@tag[|` prop completions via TS (recovery anchor + typed overload)", () => {
   test("`@a[` proposes <a> attributes (href, target, …) with no Nota-specific code", () => {
     const h = createFeatureHarness("@a[");
     const items = completionsAt(h, 3); // just after `[` — the recovery anchor

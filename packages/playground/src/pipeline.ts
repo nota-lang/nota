@@ -31,11 +31,11 @@ export interface PipelineResult {
   full: string;
   /** The SSG HTML. */
   html: string;
-  /** The island manifest (debug metadata — contract R15; also the `hasIslands` gate). */
+  /** The island manifest (debug metadata only; also the `hasIslands` gate). */
   manifest: Record<string, ManifestEntry>;
   /**
    * The evaluated document component (the module's default export), for the Rendered pane to
-   * replay via `hydrateDocument(Doc, { root })` — contract R15. `null` until a successful SSG run.
+   * replay via `hydrateDocument(Doc, { root })`. `null` until a successful SSG run.
    */
   Doc: DocFn | null;
   /**
@@ -85,7 +85,7 @@ export function runPipeline(
     const { html, manifest, Doc } = runSSG(full);
     // The hydration entry a real build would ship: generated iff there is an island to hydrate
     // (mirrors the CLI, which emits no client bundle at all for an island-free doc). The entry is
-    // pure wiring (R15) — `import Doc …; setAdapter(adapter); hydrateDocument(Doc);`.
+    // pure wiring — `import Doc …; setAdapter(adapter); hydrateDocument(Doc);`.
     const clientJs =
       Object.keys(manifest).length > 0
         ? generateClientEntry({ moduleId: "./doc.compiled.mjs" })

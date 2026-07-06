@@ -1,8 +1,8 @@
 /**
- * The default math component (contract R14c): KaTeX → MathML.
+ * The default math component (a shipped prelude default): KaTeX → MathML.
  *
  * `$…$` / `$$` fences lower to `h(Tex, {display?}, parts)`; the prelude's `Tex` slot resolves here
- * unless overridden. Parts are R13 raw runs plus armed splices; KaTeX renders a *string*, so:
+ * unless overridden. Parts are verbatim raw runs plus armed splices; KaTeX renders a *string*, so:
  *
  * - **string parts** (raw runs, and armed scalars already stringified by `flatten`) concatenate
  *   into the TeX source — `$a_|@i$` with `i = 3` renders `a_3`;

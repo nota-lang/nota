@@ -188,7 +188,7 @@ describe("parseVirtualJson (JSON shape)", () => {
   });
 });
 
-describe("parseVirtualJson (recovered errors — contract D5)", () => {
+describe("parseVirtualJson (recovered errors)", () => {
   test("parses an `errors` array of {message, start, len}", () => {
     const json = JSON.stringify({
       code: 'export default function Doc() { return decode(h("a", {}, [])); }\n',
@@ -201,7 +201,7 @@ describe("parseVirtualJson (recovered errors — contract D5)", () => {
     ]);
   });
 
-  test("defaults `errors` to [] when the field is absent (pre-D5 binary)", () => {
+  test("defaults `errors` to [] when the field is absent (binary predating recovered errors)", () => {
     const { errors } = parseVirtualJson(SAMPLE_JSON);
     expect(errors).toEqual([]);
   });
@@ -275,7 +275,7 @@ liveSuite("compileVirtual (live — binary --virtual present)", () => {
     expect(errors).toEqual([]);
   });
 
-  test("EOF recovery: `@a[` yields the props object + anchor mapping + a diagnostic (D4/D5)", () => {
+  test("EOF recovery: `@a[` yields the props object + anchor mapping + a diagnostic", () => {
     const { code, mappings, errors } = compileVirtual("@a[", {
       sourcePath: "broken.nota"
     });

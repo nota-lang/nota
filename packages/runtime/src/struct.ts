@@ -8,7 +8,7 @@
  * ```
  * struct(v):
  *   v is string         → v
- *   plain fn tag        → struct(expand(v))    // R10 static template: invoke + splice (expandTemplates)
+ *   plain fn tag        → struct(expand(v))    // static template: invoke + splice (expandTemplates)
  *   isComp(v.tag)       → ⟨v.tag, v.props, map(struct, v.children)⟩   // decode static CHILDREN,
  *                                                                      // do NOT descend into body
  *   k = groupSections(groupParas(groupLists(v.children)))
@@ -23,14 +23,14 @@
  *
  * Applying all three passes to *every* host node uniformly would over-group: it would
  * wrap `@p{Hello}`'s text in a *second* `<p>`, paragraph-wrap a list item's single inline child
- * (contradicting the canonical golden, whose `<li>` holds the `Colorized` boundary directly with
+ * (contradicting the worked example in design/decode.md, whose `<li>` holds the `Colorized` boundary directly with
  * no `<p>`), and re-section a `<section>`'s own heading on the recursive descent. So paragraph- and
  * section-grouping apply only inside **flow containers**; the rest are "tight" and receive only
  * `groupLists` (which is context-free — lists can nest anywhere). Concretely, for a host node:
  *
  * - `groupLists` — **always** (sentinels may appear in any container, e.g. a nested list inside an
  *   `<li>`). Idempotent: `ul`/`ol` carry no sentinels, so a re-run is a no-op. A run is *maximal*
- *   over same-kind sentinels with interior whitespace-only text bridged/consumed (contract R16), so
+ *   over same-kind sentinels with interior whitespace-only text bridged/consumed (whitespace bridging), so
  *   blank lines between items — however the stream was assembled — do not split the list; edge
  *   whitespace and whitespace fencing a list off from prose is preserved.
  * - `groupParas` — only when the tag is a **flow** container ({@link HOST_FLOW_TAGS}, plus `FRAG`).
@@ -71,7 +71,7 @@ import {
  *
  * Membership is by the *resolved* host tag string. `ul`/`ol`/`li`/`section`/`h1`–`h6` are here so
  * that the products of `groupLists`/`groupSections` and headings are treated as blocks by
- * `groupParas`. This set is a **cross-stream contract point**: the reader's notion of which tags
+ * `groupParas`. This set is a **cross-package contract point**: the reader's notion of which tags
  * never get wrapped in a `<p>` must match it.
  */
 export const HOST_BLOCK_TAGS: ReadonlySet<string> = new Set([
@@ -128,7 +128,7 @@ export const HOST_BLOCK_TAGS: ReadonlySet<string> = new Set([
  * only `groupLists`.
  *
  * `FRAG` (the document body / a `@{…}` fragment) is treated as a flow container too (handled
- * separately in {@link struct} since it is a symbol, not a string). This set is a **cross-stream
+ * separately in {@link struct} since it is a symbol, not a string). This set is a **cross-package
  * contract point**: it determines where bare prose becomes `<p>` and where headings form
  * `<section>`s.
  */
@@ -189,7 +189,7 @@ function headingRank(v: VNode): number | undefined {
  * paragraph run.
  */
 function isBlock(v: VNode): boolean {
-  // A RawHtml leaf declares its own blockness (contract R14e): block raw (shiki's <pre>, display
+  // A RawHtml leaf declares its own blockness: block raw (shiki's <pre>, display
   // math) flushes the paragraph run and passes through unwrapped; inline raw joins the run.
   if (isRaw(v)) {
     return v.block === true;
@@ -212,7 +212,7 @@ function isBlock(v: VNode): boolean {
  * whitespace, another newline. It splits paragraph runs and is consumed (not emitted into output).
  *
  * The reader emits each interior newline as an *individual* `"\n"` text child and does NOT
- * pre-coalesce them (contract §7), so a blank source line surfaces as **two or more adjacent
+ * pre-coalesce them (pinned in design/decode.md §struct), so a blank source line surfaces as **two or more adjacent
  * whitespace-only siblings** (e.g. `"\n", "\n"`), not a single `"\n\n"` node. {@link groupParas}
  * therefore accumulates a maximal run of whitespace-only siblings and tests the *concatenation*
  * with `PARA_BREAK`: a run containing a blank line is a break; softer whitespace (a single `"\n"`,
@@ -253,7 +253,7 @@ function whitespaceRun(
 const MAX_TEMPLATE_EXPANSION = 1024;
 
 /**
- * Expand a **plain-function tag** (a static template, contract R10): invoke it with
+ * Expand a **plain-function tag** (a static template): invoke it with
  * `{ children, …props }` and keep expanding while the result is itself template-tagged. Marked
  * components (`isComp`) are boundaries and are never expanded — the constructors buy deferral.
  * The invocation runs under `▸ = false`, so markup inside the template builds static vnodes; the
@@ -309,10 +309,10 @@ function flattenFragments(children: readonly VNode[]): VNode[] {
 }
 
 /**
- * Hoist R10 template expansion + transparent-fragment splicing to a **whole-tree pre-pass**
- * (contract R18b), reusing {@link expandTemplates}/{@link flattenFragments}. Recursively: expand a
+ * Hoist static-template expansion + transparent-fragment splicing to a **whole-tree pre-pass**
+ * of the decode pipeline, reusing {@link expandTemplates}/{@link flattenFragments}. Recursively: expand a
  * plain-function tag, splice a transparent `FRAG` sibling's children into its parent's stream
- * (dropping the FRAG's own props, e.g. an E5 `key` — exactly as {@link decodeChildren} does), over
+ * (dropping the FRAG's own props, e.g. a keyed `@for`'s `key` — exactly as {@link decodeChildren} does), over
  * the WHOLE tree including component-boundary children. The root node itself is kept (a root `FRAG`
  * stays a `FRAG` node with normalized children). Opaque leaves — {@link "./raw".RawHtml} and the
  * doc-state mark/query leaves — pass through untouched (they are not elements).
@@ -374,7 +374,7 @@ export function struct(root: VNode): VNode {
   if (typeof root === "string") {
     return root;
   }
-  // A RawHtml leaf is opaque (contract R14e): no structure to decode, passes through verbatim.
+  // A RawHtml leaf is opaque: no structure to decode, passes through verbatim.
   // As a *sibling* it is inline (isBlock → false), so inline raw output (e.g. KaTeX MathML) joins
   // the surrounding paragraph run; a block default wraps its raw in a HOST_BLOCK_TAGS host.
   if (isRaw(root)) {
@@ -389,7 +389,7 @@ export function struct(root: VNode): VNode {
   if (isRaw(v)) {
     return v;
   }
-  // A doc-state MarkLeaf/QueryLeaf leaf (contract R18) is opaque here — `struct` passes it through
+  // A doc-state MarkLeaf/QueryLeaf leaf is opaque here — `struct` passes it through
   // untouched (like `isRaw`) so it survives to `serialize`, which then fails pointedly on it. In the
   // full decode pipeline `force` has already removed marks / spliced queries before `struct` runs,
   // so this only fires for a direct `struct` caller that skipped the doc-state passes.
@@ -410,7 +410,7 @@ export function struct(root: VNode): VNode {
     // The children slot is treated like the component's own grouping context, keyed on `kind`: a
     // BLOCK component holds flow content (paras + sections + lists group, like `@Aside{…}`); an
     // INLINE component holds inline content (only `groupLists`, no paragraph-wrapping — so the
-    // canonical golden's `@Colorized{a}` keeps `"a"` bare rather than `<p>a</p>`). `groupLists`
+    // worked example's `@Colorized{a}` keeps `"a"` bare rather than `<p>a</p>`). `groupLists`
     // runs in both cases, so a `-`/`+` list authored inside any component still coalesces.
     const flow = v.tag.kind === "block";
     return {
@@ -448,7 +448,7 @@ export function struct(root: VNode): VNode {
  * recurses into each `<li>`, so a deeper sentinel run nested inside an item's children forms the
  * inner list with no special case here.
  *
- * **Whitespace bridging (contract R16).** A run is *maximal* over the same-kind sentinels with
+ * **Whitespace bridging (design/decode.md §struct).** A run is *maximal* over the same-kind sentinels with
  * interior whitespace-only text bridged: while accumulating a run, a maximal group of
  * whitespace-only text siblings ({@link isWhitespaceText}) that is *immediately followed by another
  * sentinel of the same kind* is **consumed** (skipped, emitted nowhere) and the run continues.
@@ -458,8 +458,8 @@ export function struct(root: VNode): VNode {
  * for paragraph-break handling). Whitespace *before* the first sentinel is likewise untouched. Blank
  * lines between items therefore do **not** split the list — matching the reader, which absorbs
  * textual between-item blank lines into item extents and edge-trims them, so `- a`␤␤`- b` already
- * arrives as adjacent sentinels; R16 extends the same semantics to streams assembled via control
- * flow (E5 `@for`), templates (R10), fragments, and hand-written `h`, where the whitespace survives
+ * arrives as adjacent sentinels; bridging extends the same semantics to streams assembled via control
+ * flow (a keyed `@for`), templates, fragments, and hand-written `h`, where the whitespace survives
  * fragment splicing and would otherwise split the run.
  *
  * *p-interaction invariant:* output whitespace = input whitespace minus the runs *interior* to a
@@ -475,7 +475,7 @@ export function groupLists(k: readonly VNode[]): VNode[] {
     if (isListSentinel(item)) {
       const sentinel: ListSentinel = item.tag;
       const items: VNode[] = [];
-      // accumulate the maximal run of the *same* sentinel, bridging interior whitespace (R16)
+      // accumulate the maximal run of the *same* sentinel, bridging interior whitespace
       while (i < k.length) {
         const cur = k[i];
         if (isListSentinel(cur) && cur.tag === sentinel) {

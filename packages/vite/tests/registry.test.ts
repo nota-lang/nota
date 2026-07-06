@@ -1,5 +1,6 @@
 /**
- * `generateClientEntry` tests — the wiring-only replay-hydration entry (contract R15).
+ * `generateClientEntry` tests — the wiring-only replay-hydration entry (design/decode.md §Replay
+ * hydration).
  *
  * All hydration *logic* (the capture replay, the determinism guard, the per-island hydrate loop)
  * lives in the runtime's `hydrate.ts` — unit-tested there. What this generator owns, and what these
@@ -27,7 +28,7 @@ describe("generateClientEntry (wiring-only replay entry)", () => {
     );
     expect(out).toContain('import Doc from "./doc.compiled.js";');
     // No hydration logic and no document data are stamped into the entry — the replay recovers
-    // per-island data live; the manifest/registry transport is gone (R15).
+    // per-island data live; the manifest/registry transport is gone.
     expect(out).not.toContain("manifest");
     expect(out).not.toContain("islandRegistry");
     expect(out).not.toContain("bootIslands");

@@ -1,5 +1,5 @@
 /**
- * Doc-state (contract R18) — `mark`/`query`, the `DocIndex`, and the `normalize → index → force`
+ * Doc-state — `mark`/`query`, the `DocIndex`, and the `normalize → index → force`
  * decode passes, plus the trailer registry and the guarded seams.
  *
  * Pipeline tests drive the real wired path via `decode(v)` (which at `▸ = false` runs `decodeTree`)
@@ -100,7 +100,7 @@ describe("indexDoc (tree order, seq, pos)", () => {
 
 describe("indexDoc (through the tree shapes decode normalizes)", () => {
   test("marks inside keyed @for Fragments index in order; fragments splice transparently", () => {
-    // @for (n of [a,b]) { mark + a list item } — the E5 keyed-Fragment shape.
+    // @for (n of [a,b]) { mark + a list item } — the keyed-@for Fragment shape.
     const marks: MarkLeaf[] = [];
     const tree = Fragment(
       ["a", "b"].map((n, _i) => {
@@ -116,7 +116,7 @@ describe("indexDoc (through the tree shapes decode normalizes)", () => {
     expect(html(tree)).toBe("<ul><li>a</li><li>b</li></ul>");
   });
 
-  test("marks produced by an R10 template are indexed (normalize precedes index)", () => {
+  test("marks produced by a static template are indexed (normalize precedes index)", () => {
     const Tmpl = () => frag([mark("gen"), h("span", {}, ["x"])]);
     const tree = frag([el(Tmpl)]);
     // Un-normalized, indexDoc would not see the template's mark; normalize exposes it.
@@ -138,7 +138,7 @@ describe("indexDoc (through the tree shapes decode normalizes)", () => {
     expect(ix.get(m).kind).toBe("note");
   });
 
-  test("mark()/query() inside a component body (▸ = true) throw (contract R18c)", () => {
+  test("mark()/query() inside a component body (▸ = true) throw (doc-state is static-document-only)", () => {
     expect(() => withFlag(true, () => mark("x"))).toThrow(/static-document/);
     expect(() => withFlag(true, () => query(() => []))).toThrow(
       /static-document/
@@ -151,7 +151,7 @@ describe("indexDoc (through the tree shapes decode normalizes)", () => {
 // =============================================================================================
 
 describe("force (queries, recursion, new-mark guard)", () => {
-  test("a query's nota-ul-li output coalesces with authored sentinels (force before grouping + R16)", () => {
+  test("a query's nota-ul-li output coalesces with authored sentinels (force before grouping + whitespace bridging)", () => {
     const tree = frag([
       h("nota-ul-li", {}, ["authored"]),
       query(() => [h("nota-ul-li", {}, ["from-query"])])
@@ -177,7 +177,7 @@ describe("force (queries, recursion, new-mark guard)", () => {
     expect(html(tree)).toBe("<p>body</p>"); // both occurrences of the mark drop
   });
 
-  test("a query introducing a NEW mark is a pointed error (no fixpoint — R18c)", () => {
+  test("a query introducing a NEW mark is a pointed error (no fixpoint iteration)", () => {
     const tree = frag([query(() => [mark("surprise")])]);
     expect(() => html(tree)).toThrow(/new mark/);
   });
@@ -254,10 +254,10 @@ describe("mark removal is grouping-invisible", () => {
 });
 
 // =============================================================================================
-// trailer registry (R18d)
+// trailer registry
 // =============================================================================================
 
-describe("trailer registry (R18d)", () => {
+describe("trailer registry", () => {
   test("a trailer's children append after the doc content and its queries force", () => {
     // The trailer's children include a query that reads a mark authored in the doc body — proving
     // trailers are appended BEFORE indexing. (`<p>` is block-but-not-flow, so its text is not

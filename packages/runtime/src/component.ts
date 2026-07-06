@@ -89,8 +89,8 @@ export function blockComponent(fn: CompBody, name?: string): CompFn {
 /**
  * True when `tag` is a Nota component function (a boundary). Used by `struct`/`serialize` to
  * decide whether to stop at a boundary vs. recurse into a host node. Narrowed by the `isComp`
- * mark: a *plain* function used as a tag is not a boundary but a **static template** (contract
- * R10) — `struct` expands it eagerly, splicing its output into the sibling stream. The marked
+ * mark: a *plain* function used as a tag is not a boundary but a **static template** —
+ * `struct` expands it eagerly, splicing its output into the sibling stream. The marked
  * constructors buy what only a boundary can have: deferral, `kind`-driven grouping, islands.
  */
 export function isComp(tag: unknown): tag is CompFn {
@@ -99,8 +99,8 @@ export function isComp(tag: unknown): tag is CompFn {
 
 /**
  * The component's manifest name (`CompFn.compName`), or `"anonymous"` when unset.
- * {@link "./serialize".island} writes this into `manifest[id].comp`. Under contract R15 the manifest
- * is debug metadata only — the client hydrates by *replaying* the document (which recovers the live
+ * {@link "./serialize".island} writes this into `manifest[id].comp`. Under replay hydration the
+ * manifest is debug metadata only — the client hydrates by *replaying* the document (which recovers the live
  * `CompFn` directly), not by resolving this name — so a missing name is no longer fatal. The reader
  * still attaches it for readable manifests; a nameless boundary (e.g. a hand-written fixture, or a
  * component whose binding the reader could not name) falls back to `"anonymous"`.

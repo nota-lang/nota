@@ -281,11 +281,11 @@ describe("groupLists", () => {
     );
   });
 
-  // ---- whitespace bridging (contract R16) ----
+  // ---- whitespace bridging ----
 
   test("a blank line (two '\\n') between same-kind sentinels bridges into one list", () => {
     // `- a`␤␤`- b`: the reader absorbs the between-item blank into the item extents, so both
-    // sentinels arrive with a whitespace run between them. R16 consumes the run — one <ul>.
+    // sentinels arrive with a whitespace run between them. Bridging consumes the run — one <ul>.
     expect(
       groupLists([el("nota-ul-li", ["a"]), "\n", "\n", el("nota-ul-li", ["b"])])
     ).toEqual([el("ul", [el("li", ["a"]), el("li", ["b"])])]);
@@ -329,7 +329,7 @@ describe("groupParas", () => {
     ]);
   });
 
-  // The reader emits ONE "\n" child PER interior newline (no pre-coalescing, per contract §7), so a
+  // The reader emits ONE "\n" child PER interior newline (no pre-coalescing; design/decode.md §struct), so a
   // blank source line arrives as the TWO SEPARATE siblings below — NOT a single "\n\n" node like the
   // test above. groupParas accumulates the whitespace run and tests the concatenation, so the blank
   // line still splits into two <p>. (Regression test for the reader ⨯ runtime para-break mismatch.)
@@ -460,7 +460,7 @@ describe("struct (container gate + recursion)", () => {
   });
 
   test("inline component slot is tight: a single inline child is NOT paragraph-wrapped", () => {
-    // The canonical-golden case: @Colorized{a} keeps "a" bare, not <p>a</p>.
+    // The worked-example case: @Colorized{a} keeps "a" bare, not <p>a</p>.
     expect(struct(el(InlineC, ["a"]))).toEqual(el(InlineC, ["a"]));
   });
 
@@ -540,7 +540,7 @@ describe("struct (container gate + recursion)", () => {
     expect(struct("plain text")).toBe("plain text");
   });
 
-  test("a whitespace-bridged list still forms paragraphs around it (R16 × groupParas)", () => {
+  test("a whitespace-bridged list still forms paragraphs around it (bridging × groupParas)", () => {
     // intro␤␤ - a ␤ - b ␤␤ outro : the blank lines fence a <p> off from the list on each side,
     // while the single "\n" between the two items is bridged/consumed so the list stays one <ul>.
     const tree = frag([
@@ -563,15 +563,15 @@ describe("struct (container gate + recursion)", () => {
     );
   });
 
-  test("the E5/@for emit shape bridges over the interleaved '\\n' into one <ul> (R16)", () => {
+  test("the keyed @for emit shape bridges over the interleaved '\\n' into one <ul>", () => {
     // The reader emits, for a textual `- a`, a `@for` of `-` items, then a textual `- b`:
     //   h("nota-ul-li",{},["a"]),
     //   xs.map((v,_i) => Fragment({key:_i}, h("nota-ul-li",{},[v]))),  // an array child
     //   "\n",
     //   h("nota-ul-li",{},["b"])
-    // Fragment splices the array child one level; struct dissolves the per-iteration keyed FRAGs
-    // (E5), so the sentinels become direct siblings — but a stray "\n" sits before the final one.
-    // R16 bridges it: all items coalesce into ONE <ul>.
+    // Fragment splices the array child one level; struct dissolves the per-iteration keyed FRAGs,
+    // so the sentinels become direct siblings — but a stray "\n" sits before the final one.
+    // Whitespace bridging covers it: all items coalesce into ONE <ul>.
     const shape = Fragment(
       h("nota-ul-li", {}, ["a"]),
       ["x", "y"].map((v, _i) =>
@@ -594,10 +594,10 @@ describe("struct (container gate + recursion)", () => {
 });
 
 // =============================================================================================
-// Plain-function tags — static templates (contract R10)
+// Plain-function tags — static templates
 // =============================================================================================
 
-describe("plain-function tags (static templates, R10)", () => {
+describe("plain-function tags (static templates)", () => {
   test("a template's output splices before grouping: its sentinel joins the sibling run", () => {
     // `% let Foo = () => @{- You're beautiful.}` … `- You don't know` `@Foo{}` — the template's
     // list item coalesces with the sibling item into ONE <ul>.

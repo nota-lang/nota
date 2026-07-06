@@ -1,9 +1,9 @@
 /**
- * CLI e2e for contract R14: the ambient prelude defaults (KaTeX math, shiki code) render during
- * SSG, and the `--setup` module overrides them — statically (a plain tag stays zero-JS) and as a
- * hydration island (a registered marked component SSRs + gets a client bundle whose replay entry
- * re-imports the setup module, so the client-side registration expands the slot to the same
- * boundary — R15; no registry-by-manifest-name resolution).
+ * CLI e2e for the registry slots (design/decode.md §The registry & config): the ambient prelude
+ * defaults (KaTeX math, shiki code) render during SSG, and the `--setup` module overrides them —
+ * statically (a plain tag stays zero-JS) and as a hydration island (a registered marked component
+ * SSRs + gets a client bundle whose replay entry re-imports the setup module, so the client-side
+ * registration expands the slot to the same boundary; no registry-by-manifest-name resolution).
  */
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -40,7 +40,7 @@ def f(x):
 // defaults
 // =============================================================================================
 
-describe("prelude defaults (R14c): KaTeX MathML + shiki, still zero-JS", () => {
+describe("prelude defaults: KaTeX MathML + shiki, still zero-JS", () => {
   test("math renders to MathML, the fence highlights, and no script ships", async () => {
     const out = await buildNota(MATH_CODE_DOC, { resolveFrom: pkgRoot });
     expect(out.hasIslands).toBe(false);
@@ -61,7 +61,7 @@ describe("prelude defaults (R14c): KaTeX MathML + shiki, still zero-JS", () => {
 // --setup: static override + site config
 // =============================================================================================
 
-describe("--setup (R14b/d): site-wide overrides and config", () => {
+describe("--setup: site-wide overrides and config", () => {
   test("a registered host-tag override replaces the Tex default, still static", async () => {
     const setup = setupFile(
       "kbd.setup.mjs",
@@ -97,7 +97,7 @@ lstset({ lang: "python" });
 // --setup: islanded override (requirement b, the hydrating path)
 // =============================================================================================
 
-describe("--setup: a registered marked component islands (R14b)", () => {
+describe("--setup: a registered marked component islands", () => {
   test("Tex override via inlineComponent → SSR island + replay bundle re-registers via the setup import", async () => {
     const setup = setupFile(
       "island.setup.mjs",
@@ -115,14 +115,14 @@ registerComponents({ Tex: LiveTex });
       setupModule: setup
     });
     // The slot resolved to a boundary: one island, named by the registered component
-    // (manifest is {comp}-only debug metadata — R15).
+    // (manifest is {comp}-only debug metadata).
     expect(out.hasIslands).toBe(true);
     expect(Object.values(out.manifest)).toEqual([{ comp: "LiveTex" }]);
     // SSR shell inside the island marker, inline in the paragraph.
     expect(out.html).toMatch(
       /<p>Value: <nota-island data-hydration-id="1"><span class="live-tex">x<\/span><\/nota-island><\/p>/
     );
-    // A client bundle shipped. Under replay hydration (R15) the entry imports the setup module,
+    // A client bundle shipped. Under replay hydration the entry imports the setup module,
     // whose registerComponents re-runs client-side, so the replay expands the Tex slot to the SAME
     // LiveTex boundary the server did — no registry lookup by manifest name is involved anymore.
     expect(out.html).toMatch(/<script/i);

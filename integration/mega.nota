@@ -107,7 +107,7 @@ dot. Literal Vec<T> and R&D stay text.
 
 [^n1]: The first footnote body, with @em{markup}.
 
-  A second paragraph continues the first note, so the entry decodes as flow (R20b).
+  A second paragraph continues the first note, so the entry decodes as flow.
 [^n2]: The second footnote body.
 
 ## Doc-state constructs
@@ -122,8 +122,8 @@ A table of contents lists the headings above:
 Knuth's classic @Cite{knuth84} anchors a bibliography; an anonymous @Footnote{a one-shot note}
 sits beside a labeled one[^n3] defined by the element colon form.
 
-@FootnoteText[label: "n3"]: A third footnote body, via the R21 element colon form.
+@FootnoteText[label: "n3"]: A third footnote body, via the element colon form.
 
-@aside[class: "x"]: A styled colon-body aside; props compose with the colon (R21).
+@aside[class: "x"]: A styled colon-body aside; props compose with the colon.
 
 @Bibliography{}

@@ -1,8 +1,8 @@
 /**
- * The default code components (contract R14c): sync shiki with armed-parts-as-decorations.
+ * The default code components (shipped prelude defaults): sync shiki with armed-parts-as-decorations.
  *
  * `` `…` `` lowers to `h(CodeInline, {}, parts)` and a fence to `h(CodeBlock, {lang?}, parts)`;
- * the prelude's slots resolve here unless overridden. The parts are R13 raw runs interleaved with
+ * the prelude's slots resolve here unless overridden. The parts are verbatim raw runs interleaved with
  * `|@`-armed splices. The armed-decoration model:
  *
  * 1. **Reconstruct** one contiguous source text: string parts append verbatim; an armed *element*
@@ -17,7 +17,7 @@
  * warning: highlighting a text we cannot faithfully reconstruct would lie about the code.
  *
  * The highlighter is a **sync** core (JS regex engine; grammars/themes eagerly imported) because
- * `struct`'s R10 expansion is synchronous. Language resolution: the fence `lang` tag wins, else
+ * `struct`'s template expansion is synchronous. Language resolution: the fence `lang` tag wins, else
  * `lstset({lang})`; no lang (or an unknown one, with a warning) → plain `<pre><code>`.
  */
 

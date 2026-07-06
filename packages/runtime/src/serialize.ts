@@ -5,7 +5,7 @@
  * and *boundary* `CompFn` nodes. {@link serialize} stringifies it to static HTML, rendering each
  * boundary as a hydration {@link island}: a fresh id, the component's shell SSR'd with `▸ = true`,
  * and a debug manifest entry. The client hydrates by *replaying* the document
- * ({@link "./hydrate".hydrateDocument}, contract R15) — no per-island data crosses the wire.
+ * ({@link "./hydrate".hydrateDocument}, replay hydration) — no per-island data crosses the wire.
  *
  * ## The hydration-id placement decision
  *
@@ -48,8 +48,8 @@ import {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * The island manifest emitted alongside the HTML: `id → { comp }`. **Debug metadata only**
- * (contract R15): hydration replays the document and never reads it; it names each island for
+ * The island manifest emitted alongside the HTML: `id → { comp }`. **Debug metadata only**:
+ * hydration replays the document and never reads it; it names each island for
  * inspection (`comp` may be `"anonymous"` for a nameless boundary) and gates `hasIslands` in the
  * integrators. Props are NOT carried — they may hold non-JSON values (functions, class instances)
  * and cross server→client by replay, not by transport.
@@ -63,7 +63,7 @@ export interface RenderResult {
 }
 
 /**
- * A captured island boundary (contract R15 — replay hydration). Recorded by {@link island} while
+ * A captured island boundary (replay hydration). Recorded by {@link island} while
  * {@link "./hydrate".captureRender} re-executes the document on the client: the **live** `CompFn`
  * (closure intact), the live `props` (may be non-JSON — functions and class instances are legal),
  * and the recomputed `slotHtml` (the boundary's static `@children`, serialized exactly as SSG did).
@@ -85,7 +85,7 @@ let ids = 0;
 let manifest: Manifest = {};
 
 // ---------------------------------------------------------------------------------------------
-// Capture mode (contract R15 — replay hydration)
+// Capture mode (replay hydration)
 // ---------------------------------------------------------------------------------------------
 
 /**
@@ -106,7 +106,7 @@ let captured: Map<string, CapturedIsland> = new Map();
  * only decides whether the SSR is *also* performed: a nested-in-slot island still SSRs into its
  * parent's slot bytes (byte-parity — the parent re-injects that slot via `raw`/innerHTML on any
  * re-render), whereas a depth-0 island's SSR is skipped (its output is discarded anyway). Solid
- * caveat (contract R15e): the client build forbids `renderToString`, so a depth>0 capture is a
+ * caveat (a replay-hydration v1 limit): the client build forbids `renderToString`, so a depth>0 capture is a
  * pointed error there — nested-in-slot islands are v1-unsupported under Solid.
  */
 let slotDepth = 0;
@@ -130,7 +130,7 @@ export function getCaptured(): Map<string, CapturedIsland> {
 
 /**
  * Hooks run by {@link reset} — the seam for per-render *document* state owned outside the runtime
- * (contract R14d: the prelude's `lstset` config restores its baseline here, so config set inside
+ * (doc-global config: the prelude's `lstset` restores its baseline here, so config set inside
  * one document does not leak into the next). Returns an unsubscribe. Distinct from the component
  * registry, which is global-persistent and deliberately NOT reset.
  */
@@ -310,16 +310,16 @@ export function serialize(v: VNode): string {
   if (typeof v === "string") {
     return escape(v);
   }
-  // A RawHtml leaf is already-serialized HTML (contract R14e): emit verbatim, never re-escape.
+  // A RawHtml leaf is already-serialized HTML: emit verbatim, never re-escape.
   if (isRaw(v)) {
     return v.html;
   }
-  // A doc-state mark/query leaf (contract R18) must have been resolved by the decode pipeline's
-  // `force` pass before reaching here. Fail pointedly (mirror of the R10 function-tag guard below)
+  // A doc-state mark/query leaf must have been resolved by the decode pipeline's
+  // `force` pass before reaching here. Fail pointedly (mirror of the function-tag guard below)
   // rather than silently dropping it via the defensive `!isElement` branch.
   if (isMark(v) || isQuery(v)) {
     throw new Error(
-      "serialize: a doc-state leaf (mark/query) reached serialize — run the decode pipeline first (decode/render resolve marks and queries via force before serializing; contract R18)"
+      "serialize: a doc-state leaf (mark/query) reached serialize — run the decode pipeline first (decode/render resolve marks and queries via force before serializing)"
     );
   }
   if (!isElement(v)) {
@@ -334,7 +334,7 @@ export function serialize(v: VNode): string {
     return v.children.map(serialize).join("");
   }
   if (typeof v.tag === "function") {
-    // `struct` expands plain-function templates (R10) and `isComp` handled boundaries above, so a
+    // `struct` expands plain-function templates and `isComp` handled boundaries above, so a
     // function tag here means serialize was called on an un-struct'd tree. Fail pointedly rather
     // than stringify the function into the HTML as a tag name.
     throw new Error(
@@ -361,16 +361,16 @@ export function serialize(v: VNode): string {
  * 1. mint a fresh `id`;
  * 2. pre-serialize the boundary's *static* `children` to an HTML slot (they were authored outside
  *    the component, so they are ordinary nota vnodes — already `struct`'d);
- * 3. record `manifest[id] = { comp: nameOf(v.tag) }` (debug metadata — R15; props are NOT carried
+ * 3. record `manifest[id] = { comp: nameOf(v.tag) }` (debug metadata; props are NOT carried
  *    and may hold non-JSON values like functions, which cross by replay);
  * 4. SSR the component shell with `▸ = true` — its `h`→`adapter.h`, its `decode`→identity, and a
- *    hook like `useState("red")` bakes its initial state into the markup (the golden's `style:red`);
+ *    hook like `useState("red")` bakes its initial state into the markup (the worked example's `style:red`);
  * 5. wrap that markup in `<nota-island data-hydration-id="id">…</nota-island>` (see module docs).
  *
  * The slot is handed to the framework as `raw(slot)`: the component forwards it via `@children` onto
  * a host element, whose adapter `h` injects it as innerHTML (no re-escape, no re-parse).
  *
- * **Capture mode (contract R15).** While {@link "./hydrate".captureRender} replays the document on
+ * **Capture mode (replay hydration).** While {@link "./hydrate".captureRender} replays the document on
  * the client ({@link capturing} `= true`), **every** boundary is **recorded** into {@link captured}
  * — the live `CompFn`, live props, recomputed slot — because every marker in the DOM is
  * independently hydrated (as the old boot hydrated every manifest id). The statement order is
@@ -401,7 +401,7 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
     }
     // Depth > 0: fall through to SSR — the parent's captured slotHtml must be byte-identical to
     // the server's (the parent re-injects it as innerHTML on re-render). Solid's client build
-    // forbids renderToString, so this is a pointed error there (contract R15e, v1).
+    // forbids renderToString, so this is a pointed error there (a replay-hydration v1 limit).
   }
 
   const adapter = getAdapter();
@@ -413,30 +413,30 @@ export function island(v: ElementVNode & { tag: CompFn }): string {
 }
 
 // ---------------------------------------------------------------------------------------------
-// decode pipeline (contract R18b)
+// decode pipeline
 // ---------------------------------------------------------------------------------------------
 
 /**
- * The `▸ = false` decode pipeline: `serialize ∘ struct ∘ force ∘ index ∘ normalize` (contract
- * R18b), with the trailer auto-append seam (R18d) in front.
+ * The `▸ = false` decode pipeline: `serialize ∘ struct ∘ force ∘ index ∘ normalize`
+ * (design/decode.md §The decode pipeline), with the trailer auto-append seam in front.
  *
  * ```
  * decodeTree(v):
- *   if trailers registered: v = ⟨FRAG, {}, [v, ...flatten(trailer thunks)]⟩   // R18d, before index
- *   t  = normalize(v)          // R10 expansion + fragment splicing, whole-tree — exposes template marks
+ *   if trailers registered: v = ⟨FRAG, {}, [v, ...flatten(trailer thunks)]⟩   // trailers, before index
+ *   t  = normalize(v)          // template expansion + fragment splicing, whole-tree — exposes template marks
  *   ix = indexDoc(t)           // one DFS → DocIndex (all/get)
  *   t2 = force(t, ix)          // remove marks, splice query output (recursively) — BEFORE grouping
  *   return serialize(struct(t2))
  * ```
  *
  * Lives here (not in `doc.ts`) because it composes `struct` + `serialize`, and `doc.ts` must not
- * import either (import-cycle hygiene, contract R18). For a tree with **no** marks/queries/trailers
+ * import either (import-cycle hygiene). For a tree with **no** marks/queries/trailers
  * the output is byte-identical to `serialize(struct(v))`: no trailer wrap, `normalize` reproduces
  * `struct`'s own expansion, the empty index makes `force` a structural identity, and `struct`'s
  * interleaved expansion is vacuous.
  */
 export function decodeTree(v: VNode): string {
-  // R18d: append each registered trailer's children after the document content, wrapping in a
+  // Trailers: append each registered trailer's children after the document content, wrapping in a
   // transparent fragment, BEFORE indexing — so trailer queries force against the full index.
   const withTrailers: VNode = hasTrailers()
     ? {
@@ -467,7 +467,7 @@ export function decodeTree(v: VNode): string {
  * ```
  *
  * **Decoding exactly once.** An *emitted* `Doc` already wraps its body in `decode(...)` — and at
- * `▸ = false`, `decode` runs the full R18 pipeline ({@link decodeTree}). So a real emitted `Doc()`
+ * `▸ = false`, `decode` runs the full decode pipeline ({@link decodeTree}). So a real emitted `Doc()`
  * **already returns the decoded HTML string**; applying the pipeline to it again would `escape` the
  * whole document (`<ul>` → `&lt;ul&gt;`) and re-run `island`. `render` therefore decodes **once**: if
  * `Doc()` already produced a string (the emitted, self-decoding `Doc`) it is the HTML as is; if
@@ -483,7 +483,7 @@ export function render(Doc: () => VNode): RenderResult {
   const out = Doc();
   // A self-decoding emitted `Doc` already returned an HTML string (its body wraps `decode(...)`); a
   // hand-built `Doc` that returns a raw vnode tree is decoded here through the SAME pipeline as
-  // `decode` (so marks/queries/trailers resolve in the raw-tree fallback too — contract R18b).
+  // `decode` (so marks/queries/trailers resolve in the raw-tree fallback too).
   const html = typeof out === "string" ? out : decodeTree(out);
   return { html, manifest: { ...manifest } };
 }

@@ -1,7 +1,7 @@
 /**
  * The **typing preamble** prepended to every virtual `.tsx` — a thin re-export of the *generated*
  * preamble (`./preamble.generated.ts`, baked from the runtime's built `.d.ts` by
- * `scripts/gen-preamble.ts`; see `./preamble-gen.ts` for the generator, contract R22 / D3).
+ * `scripts/gen-preamble.ts`; see `./preamble-gen.ts` for the generator).
  *
  * The reader's `compileVirtual` emits a *bare* `.tsx` — it deliberately omits the
  * `@nota-lang/runtime` import and the ambient prelude bindings the emit references as free
@@ -10,7 +10,7 @@
  * module** (`declare module "@nota-lang/runtime" { … }`, the runtime's own `.d.ts` inlined) rather
  * than importing it from `node_modules`, so a `.nota` **outside** `packages/*` — where there is no
  * `node_modules/@nota-lang/runtime` — still resolves `h`/`decode`/`blockComponent`/… to their real
- * typed signatures (the D3 fix for "`blockComponent` has no inferred type").
+ * typed signatures (the resolution-independence fix for "`blockComponent` has no inferred type").
  *
  * **The preamble-shift rule.** Prepending text to `code` pushes every generated offset forward by
  * `PREAMBLE_LENGTH` bytes. The reader's `generatedOffsets` index the *bare* `.tsx`; after the

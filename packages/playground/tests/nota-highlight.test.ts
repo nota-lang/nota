@@ -100,7 +100,7 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     );
   });
 
-  it("classifies the R20a doc-state sugar — sigil bytes + label idents, guard intact", () => {
+  it("classifies the doc-state sugar — sigil bytes + label idents, guard intact", () => {
     const spans = highlightSpans(MEGA);
     // The four sugars reuse existing kinds (no new wire discriminants): the delimiter bytes paint
     // `sigil`, the label ident paints `interpolation` (the `@name` kind — a name-like reference).

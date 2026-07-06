@@ -1,5 +1,6 @@
 /**
- * **End-to-end LSP feature tests through the real server connection** (contract-bug regression).
+ * **End-to-end LSP feature tests through the real server connection** (source-document routing
+ * regressions).
  *
  * These boot the real Nota Volar server the way `vscode-languageclient` does (`node dist/bin.js
  * --stdio`, heap-capped so a runaway project load dies fast instead of OOM'ing), do the LSP handshake

@@ -1,5 +1,5 @@
 /**
- * Doc-state: marks & queries (contract R18).
+ * Doc-state: marks & queries (design/decode.md §Doc-state: marks & queries).
  *
  * The two-pass document constructs — table of contents, heading numbers/counters, `@ref`,
  * footnotes, citations/bibliography — need *whole-document* knowledge before their own position
@@ -17,18 +17,18 @@
  * Both survive {@link "./vnode".flatten}, pass through {@link "./struct".struct} untouched, and are
  * runtime exports the **reader never emits** (prelude/user surface). At `▸ = true` (inside a
  * component body) both constructors throw — doc-state is a static-document construct; islands own
- * any secondary state (contract R18c).
+ * any secondary state.
  *
  * The decode pipeline at `▸ = false` (wired in {@link "./serialize"} + {@link "./h".decode}) is
  * `serialize ∘ struct ∘ force ∘ index ∘ normalize`:
- * - {@link "./struct".normalize} hoists R10 template expansion + transparent-fragment splicing to a
+ * - {@link "./struct".normalize} hoists static-template expansion + transparent-fragment splicing to a
  *   whole-tree pre-pass, so the index sees marks produced *by templates*;
  * - {@link indexDoc} = one DFS collecting mark leaves into a {@link DocIndex};
  * - {@link force} = remove mark leaves and splice each query's (normalized, recursively forced)
  *   output in place — **before** grouping, so forced output participates in list/para/section
  *   grouping like authored content and none of the grouping passes ever see a doc-state leaf.
  *
- * ## Import hygiene (contract R18, "guard the seams")
+ * ## Import hygiene ("guard the seams")
  * `doc.ts` may import `vnode`/`component`/`flag`/`struct`, **never** `serialize`/`h` — the decode
  * pipeline lives in `serialize.ts` (which already imports `struct`), so `doc.ts` never depends on
  * it. The `vnode ↔ doc` and `struct ↔ doc` edges are cycles, but every cross-module binding is used
@@ -79,7 +79,7 @@ export interface MarkLeaf {
  * A **query leaf**: `fn: (doc: DocIndex) => children`, forced against the built index. {@link force}
  * replaces it with `normalize(fn(doc))`, recursively forced (a query's output may itself hold
  * queries — resolved against the same *frozen* index, so it terminates). Query output may **not**
- * introduce new marks (pointed error — contract R18c; no fixpoint iteration).
+ * introduce new marks (pointed error; no fixpoint iteration — a doc-state hard rule).
  */
 export interface QueryLeaf {
   readonly [QUERY]: true;
@@ -87,13 +87,13 @@ export interface QueryLeaf {
   readonly fn: (doc: DocIndex) => unknown;
 }
 
-/** The shared `▸ = true` rejection message (contract R18c). */
+/** The shared `▸ = true` rejection message (mark/query throw inside a component body). */
 const DOC_STATE_IN_ISLAND =
   "doc-state primitives are static-document constructs; islands own their own secondary state";
 
 /**
  * Register a {@link MarkLeaf} at this tree position. `data` defaults to `{}`. Throws at `▸ = true`
- * (inside a component body): doc-state is static-document-only (contract R18c).
+ * (inside a component body): doc-state is static-document-only.
  */
 export function mark(
   kind: string,
@@ -107,7 +107,7 @@ export function mark(
 
 /**
  * Register a {@link QueryLeaf}: `fn` runs against the built {@link DocIndex} during {@link force}.
- * Throws at `▸ = true` (contract R18c — see {@link mark}).
+ * Throws at `▸ = true` (see {@link mark}).
  */
 export function query(fn: (doc: DocIndex) => unknown): QueryLeaf {
   if (flag()) {
@@ -158,7 +158,7 @@ const EMPTY_MARKS: readonly IndexedMark[] = Object.freeze([]);
  * The built document index: the whole-document knowledge a {@link query} resolves against. Built
  * once by {@link indexDoc} and frozen for the {@link force} pass.
  *
- * Surface (contract R18b): {@link all} (document order, empty for an unknown kind) and {@link get}
+ * Surface: {@link all} (document order, empty for an unknown kind) and {@link get}
  * (identity lookup — the mark leaf object is the handle). {@link has} is the membership test
  * {@link force} uses as its new-mark guard (an internal detail of the pass, harmless on the query
  * surface).
@@ -194,7 +194,7 @@ export class DocIndex {
     return entry;
   }
 
-  /** @internal — membership test; {@link force} uses it as the new-mark guard (contract R18c). */
+  /** @internal — membership test; {@link force} uses it as the new-mark guard (query output may not introduce marks). */
   has(m: MarkLeaf): boolean {
     return this.byMark.has(m);
   }
@@ -277,7 +277,7 @@ export function indexDoc(root: VNode): DocIndex {
  * child:
  * - a **mark leaf in the index** → dropped (rendered nowhere);
  * - a **mark leaf not in the index** → pointed error (membership doubles as the new-mark check,
- *   since every tree mark was indexed — contract R18c);
+ *   since every tree mark was indexed);
  * - a **query leaf** → `normalize` each of `flatten([fn(doc)])`, then recursively force it (queries
  *   may nest; the index is frozen, so it terminates), spliced into the sibling stream.
  *
@@ -318,7 +318,7 @@ function forceInto(child: VNode, doc: DocIndex, out: VNode[]): void {
   if (isMark(child)) {
     if (!doc.has(child)) {
       throw new Error(
-        `force: query output introduced a new mark (kind ${JSON.stringify(child.kind)}) — query output may not create marks (contract R18c: no fixpoint iteration; author the mark in the document tree instead)`
+        `force: query output introduced a new mark (kind ${JSON.stringify(child.kind)}) — query output may not create marks (no fixpoint iteration; author the mark in the document tree instead)`
       );
     }
     // In the index → drop the mark (it renders nowhere).
@@ -327,7 +327,7 @@ function forceInto(child: VNode, doc: DocIndex, out: VNode[]): void {
   if (isQuery(child)) {
     const produced = flatten([child.fn(doc)] as ChildArg[]);
     for (const r of produced) {
-      // Normalize each result (R10 + fragment splicing) then recursively force (nested queries).
+      // Normalize each result (template expansion + fragment splicing) then recursively force (nested queries).
       forceInto(normalize(r), doc, out);
     }
     return;
@@ -336,7 +336,7 @@ function forceInto(child: VNode, doc: DocIndex, out: VNode[]): void {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Trailer registry (R18d) — the doc-end auto-append seam
+// Trailer registry — the doc-end auto-append seam
 // ---------------------------------------------------------------------------------------------
 
 /**
@@ -348,7 +348,7 @@ function forceInto(child: VNode, doc: DocIndex, out: VNode[]): void {
  */
 const trailers = new Map<string, () => unknown>();
 
-/** Register (or replace) a named trailer thunk. Persistent across renders (contract R18d). */
+/** Register (or replace) a named trailer thunk. Persistent across renders. */
 export function registerTrailer(name: string, thunk: () => unknown): void {
   trailers.set(name, thunk);
 }

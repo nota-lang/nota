@@ -1,8 +1,9 @@
 /**
  * `@nota-lang/compiler` shim tests.
  *
- * Drives the real reader subprocess on the two shared integration fixtures and asserts the emit
- * surface the contract pins: the prepended `@nota-lang/runtime` import (the reader omits it),
+ * Drives the real reader subprocess on the two shared integration fixtures and asserts the pinned
+ * emit surface (design/notation.md §Emit reference): the prepended `@nota-lang/runtime` import (the
+ * reader omits it),
  * `export default function Doc()`, the keyed `@for` Fragment (`Fragment({ key: _i }`), the `nota-ul-li`
  * list sentinel, and the named component constructors `inlineComponent(fn, "Colorized")` /
  * `blockComponent(fn, "Note")`. A malformed `.nota` → `compile` throws with the reader's
@@ -38,8 +39,9 @@ describe("compile (emit surface + prepended runtime import)", () => {
     // document mode emits the default Doc.
     expect(code).toContain("export default function Doc()");
 
-    // The component binding stays DOCUMENT-LOCAL (contract R15: an ordinary lexical statement
-    // inside Doc — no hoist, no export; replay hydration recovers its closure) and carries its
+    // The component binding stays DOCUMENT-LOCAL (an ordinary lexical statement inside Doc — no
+    // hoist, no export; replay hydration recovers its closure, design/decode.md §Replay
+    // hydration) and carries its
     // binding name as the constructor's 2nd arg (the island's debug-manifest `comp`).
     expect(code).toMatch(/let Colorized = inlineComponent\(/);
     expect(code).not.toMatch(/export let Colorized/);
@@ -64,7 +66,7 @@ describe("compile (emit surface + prepended runtime import)", () => {
     // The binding name passed to blockComponent (drives the debug-manifest `comp` for the island).
     // note.nota's body is a single expression, so the name lands right after the closing paren of
     // the body (`…[children]), "Note");`) rather than after a `}` (cf. golden's multi-line body).
-    // R15: document-local — no export.
+    // Document-local — no export (replay hydration recovers the closure).
     expect(code).toMatch(/let Note = blockComponent\(/);
     expect(code).not.toMatch(/export let Note/);
     expect(code).toContain(', "Note");');

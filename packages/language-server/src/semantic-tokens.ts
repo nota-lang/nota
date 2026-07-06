@@ -1,5 +1,5 @@
 /**
- * **Reader-driven semantic tokens** (contract R22 / D2).
+ * **Reader-driven semantic tokens.**
  *
  * The reader's `highlight()` pass already classifies the *whole* `.nota` — markup sigils, tag names,
  * prop names, and the embedded-JS token classes — tracking the markup⇄JS mutual nesting a TextMate
@@ -17,7 +17,7 @@
  * Spans are **source-native** byte offsets — no preamble/mapping shift — so this plugin operates on
  * the `.nota` document directly (unlike `volar-service-typescript`, which maps virtual-`.tsx` tokens
  * back). The reader's classes cover embedded JS too, so this is the sole semantic-token source
- * (reader-only, contract D2 P4.3); it caches the last-good tokens per document and serves them when
+ * (reader-only); it caches the last-good tokens per document and serves them when
  * `highlight` throws mid-edit (editor parity with the playground).
  *
  * **Delegation-aware suppression.** On lines the TextMate grammar delegates to a real embedded
@@ -431,7 +431,8 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
  *
  * The service-plugin channel would remap our plugin-local type/modifier indices to the client legend
  * for us, but that channel never routes the `.nota` source doc to us (Volar offers only the virtual
- * `.tsx`, contract-bug fix), so the connection-level handler serves these tokens directly — and it
+ * `.tsx` — see the source-document routing note in `server.ts`), so the connection-level handler
+ * serves these tokens directly — and it
  * MUST index them against the legend the server actually advertised. Volar merges the TS plugin's
  * legend first (`namespace`, …, `operator`), then ours (`notaSigil`, …), so a plugin-local index
  * (into {@link NOTA_TOKEN_TYPES}/{@link NOTA_TOKEN_MODIFIERS}) is the WRONG index in the merged

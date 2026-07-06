@@ -1,5 +1,5 @@
 /**
- * Replay-hydration driver tests (contract R15): `captureRender` + `hydrateDocument`, driven by a
+ * Replay-hydration driver tests: `captureRender` + `hydrateDocument`, driven by a
  * **stub adapter** and a **fake root** (no framework, no jsdom). Asserts:
  *
  * - **id parity** — the same `freshId` sequence is minted whether the document is rendered
@@ -145,7 +145,7 @@ describe("id parity (SSG render vs. capture replay)", () => {
 
     // A's captured slot carries B's SSR'd marker verbatim (byte-parity for the parent slot —
     // the nested boundary still SSRs during capture; under Solid, whose client build forbids
-    // renderToString, this depth>0 SSR is a pointed error — the documented v1 caveat, R15e).
+    // renderToString, this depth>0 SSR is a pointed error — the documented v1 caveat).
     expect(captured.get("1")?.slotHtml).toContain('data-hydration-id="2"');
     // The captured tags are the live boundaries themselves.
     expect(captured.get("1")?.tag).toBe(A);
@@ -187,7 +187,7 @@ describe("nested-in-slot hydration (@Outer{@Inner{}})", () => {
     expect(teardowns).toHaveLength(2);
 
     // Note: no Solid variant of this test — Solid's client build forbids renderToString, so a
-    // depth>0 capture throws there by design (contract R15e, the documented v1 caveat).
+    // depth>0 capture throws there by design (the documented replay-hydration v1 caveat).
   });
 });
 

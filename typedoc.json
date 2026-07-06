@@ -10,6 +10,7 @@
     "packages/react",
     "packages/solid",
     "packages/compiler",
+    "packages/prelude",
     "packages/vite"
   ]
 }

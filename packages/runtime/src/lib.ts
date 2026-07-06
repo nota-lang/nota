@@ -8,8 +8,8 @@
  * Exposes the static `▸ = false` builders (`h`/`Fragment`, the latter with an optional leading-props
  * arg), `decode`, the component constructors, the structural pass `struct`
  * (`groupLists`/`groupParas`/`groupSections`), the SSG machinery
- * `serialize`/`island`/`render`, and the client replay-hydration driver `hydrateDocument`
- * (contract R15). The `▸ = true` paths dispatch through an injected
+ * `serialize`/`island`/`render`, and the client replay-hydration driver `hydrateDocument`.
+ * The `▸ = true` paths dispatch through an injected
  * `@nota-lang/{react,solid}` adapter; with **no** adapter set, `getAdapter()` throws a
  * pointed "no adapter injected" error rather than a cryptic `undefined is not a function`.
  */
@@ -25,7 +25,7 @@ export {
   isComp,
   nameOf
 } from "./component";
-// --- doc-state: marks & queries + trailer registry (contract R18) ---
+// --- doc-state: marks & queries + trailer registry ---
 export {
   clearTrailers,
   type DocIndex,
@@ -40,7 +40,7 @@ export {
   query,
   registerTrailer
 } from "./doc";
-// --- the typed emit surface: the Nota-owned per-tag HTML attribute map (contract R22) ---
+// --- the typed emit surface: the Nota-owned per-tag HTML attribute map ---
 export type {
   NotaAnchorAttributes,
   NotaGlobalAttributes,
@@ -56,7 +56,7 @@ export type {
 export { flag, withFlag } from "./flag";
 // --- the emitted-code surface ---
 export { decode, Fragment, h } from "./h";
-// --- replay hydration: the client driver + capture (contract R15) ---
+// --- replay hydration: the client driver + capture ---
 export {
   captureRender,
   type HydrationNode,
@@ -65,7 +65,7 @@ export {
 } from "./hydrate";
 // --- the pre-rendered-HTML marker (adapters import isRaw to inject innerHTML) ---
 export { isRaw, type RawHtml, raw } from "./raw";
-// --- the component registry (ambient-prelude slots + site-wide overrides, contract R14b) ---
+// --- the component registry (ambient-prelude slots + site-wide overrides) ---
 export {
   clearRegisteredComponents,
   type RegisteredTag,

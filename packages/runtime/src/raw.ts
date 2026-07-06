@@ -23,7 +23,7 @@ export interface RawHtml {
   /** The raw HTML string (already escaped/serialized by {@link "./serialize".serialize}). */
   readonly html: string;
   /**
-   * Block-level in the static path (contract R14e): `struct` treats a block raw like a block
+   * Block-level in the static path (a raw leaf declares its own blockness): `struct` treats a block raw like a block
    * *sibling* — it flushes the surrounding paragraph run and is never `<p>`-wrapped. Default
    * `false`: an inline raw (e.g. KaTeX MathML) joins the run. Set it for raw whose HTML is
    * block-shaped (shiki's `<pre>`, display math) so grouping never nests it in a `<p>`.

@@ -1,13 +1,13 @@
 /**
  * The **Nota-owned** per-tag HTML attribute map — the type surface `h("tag", props, …)` checks
- * `props` against (contract R22, the typed emit surface).
+ * `props` against (the typed emit surface; design/decode.md §The typed surface).
  *
  * This is deliberately *not* React's `JSX.IntrinsicElements`: the reader lowers markup to `h(...)`
  * *calls*, not JSX, and emits framework-neutral HTML attribute names (`class`, not `className`;
  * `for`, not `htmlFor`) plus reader-synthesised host tags (`nota-ul-li`). We seed a representative
  * set of common elements with their distinctive attributes and let every other tag — custom
  * elements, the `nota-*` sentinels, anything — fall through the string index signature so it stays
- * legal (contract: unknown tags never error; that is the "never lie" surface).
+ * legal (unknown tags never error — that is the "never lie" surface).
  *
  * Each element type intersects {@link NotaGlobalAttributes} (which carries a permissive
  * `[attr: string]: unknown` index) with its element-specific attributes, so:

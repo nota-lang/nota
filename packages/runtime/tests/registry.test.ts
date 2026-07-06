@@ -1,14 +1,14 @@
 /**
- * Contract R14 unit tests: the component registry (`slot` / `registerComponents`) and the
- * `RawHtml` static path.
+ * Component-registry unit tests (design/decode.md §The registry & config): `slot` /
+ * `registerComponents` and the `RawHtml` static path.
  *
- * - A slot is a *plain* function tag (R10): `struct` expands it eagerly, resolving the registry at
+ * - A slot is a *plain* function tag (a static template): `struct` expands it eagerly, resolving the registry at
  *   invocation time. A registered plain function / host string stays fully static; a registered
  *   `blockComponent`/`inlineComponent` becomes a boundary → island.
  * - Registration is **global-persistent**: NOT cleared by the per-render `reset()` (site policy,
  *   unlike `lstset`-style document config).
  * - `RawHtml` is an opaque leaf in the static path: `struct` passes it through, `serialize` emits
- *   it verbatim (R14e), and as a sibling it is inline (joins a paragraph run).
+ *   it verbatim, and as a sibling it is inline (joins a paragraph run).
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -83,7 +83,7 @@ afterEach(() => {
 // slot resolution
 // =============================================================================================
 
-describe("slot (R14b): resolution + R10 expansion", () => {
+describe("slot: resolution + static-template expansion", () => {
   test("unregistered → fallback expands statically", () => {
     expect(decodeStatic(el(Tex, ["x^2"]))).toBe(
       '<span class="tex-default">x^2</span>'
@@ -119,7 +119,7 @@ describe("slot (R14b): resolution + R10 expansion", () => {
       Tex: blockComponent(children => h("div", {}, children), "MyTex")
     });
     const html = decodeStatic(frag([el(Tex, ["x^2"])]));
-    // NB: a BLOCK component's static children slot decodes as flow (§7), so "x^2" paragraph-wraps.
+    // NB: a BLOCK component's static children slot decodes as flow (the container gate), so "x^2" paragraph-wraps.
     expect(html).toBe(
       '<nota-island data-hydration-id="1"><stub comp="MyTex"><p>x^2</p></stub></nota-island>'
     );
@@ -139,7 +139,7 @@ describe("slot (R14b): resolution + R10 expansion", () => {
 // registry lifecycle
 // =============================================================================================
 
-describe("registerComponents: global-persistent (R14b)", () => {
+describe("registerComponents: global-persistent (site policy)", () => {
   test("survives the per-render reset()", () => {
     registerComponents({ Tex: "kbd" });
     reset(); // render()'s per-render state reset — must NOT clear registrations
@@ -159,10 +159,10 @@ describe("registerComponents: global-persistent (R14b)", () => {
 });
 
 // =============================================================================================
-// RawHtml static path (R14e)
+// RawHtml static path
 // =============================================================================================
 
-describe("RawHtml in the static path (R14e)", () => {
+describe("RawHtml in the static path", () => {
   test("struct passes a raw root through untouched", () => {
     const r = raw("<math><mi>x</mi></math>");
     expect(struct(r)).toBe(r);

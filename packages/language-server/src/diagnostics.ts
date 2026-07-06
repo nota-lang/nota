@@ -1,5 +1,5 @@
 /**
- * **Nota syntax diagnostics** (contract D5).
+ * **Nota syntax diagnostics.**
  *
  * The TS language service (`volar-service-typescript`) reports *type* errors over the virtual
  * `.tsx`; it says nothing about a malformed `.nota` — an unclosed `[props]` group, `{ … }` body, or

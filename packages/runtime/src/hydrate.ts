@@ -1,5 +1,5 @@
 /**
- * Replay hydration — the client-side driver (contract R15).
+ * Replay hydration — the client-side driver (design/decode.md §Replay hydration).
  *
  * An island may be defined at any depth and close over arbitrary document state, and its props may
  * hold non-JSON values (functions, class instances). None of that can cross the wire as a manifest,
@@ -55,7 +55,7 @@ export function captureRender(Doc: () => VNode): Map<string, CapturedIsland> {
 }
 
 /**
- * Hydrate every island in a server-rendered document by replaying it (contract R15).
+ * Hydrate every island in a server-rendered document by replaying it (see module docs).
  *
  * 1. {@link captureRender} the document → the live islands (`id → { tag, props, slotHtml }`).
  * 2. **Determinism guard:** the captured id set must equal the document's `[data-hydration-id]`
