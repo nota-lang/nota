@@ -8,7 +8,7 @@
  * for that: an adapter that finds a `RawHtml` among an element's children renders it as the
  * element's innerHTML (React `dangerouslySetInnerHTML`, Solid `innerHTML`) and emits no JSX children.
  *
- * It is a *branded object* (not a bare string) so it survives {@link "./vnode".flatten} unchanged
+ * It is a *branded object* (not a bare string) so it survives {@link flatten} unchanged
  * (flatten treats it as an opaque vnode and pushes it) and is unambiguously distinguishable from an
  * ordinary text child. Both `@nota-lang/react` and `@nota-lang/solid` import {@link isRaw} to detect
  * it — keeping the marker shape owned here, in the runtime, is what lets the two adapters agree.
@@ -20,7 +20,7 @@ const RAW: unique symbol = Symbol("nota.raw");
 /** A pre-rendered HTML slot: opaque markup an adapter injects verbatim as innerHTML. */
 export interface RawHtml {
   readonly [RAW]: true;
-  /** The raw HTML string (already escaped/serialized by {@link "./serialize".serialize}). */
+  /** The raw HTML string (already escaped/serialized by {@link serialize}). */
   readonly html: string;
   /**
    * Block-level in the static path (a raw leaf declares its own blockness): `struct` treats a block raw like a block

@@ -24,11 +24,11 @@ export interface CompFn {
   (props: CompProps): unknown;
   /** Marker: this function is a Nota component boundary (not a plain function passed as a tag). */
   isComp: true;
-  /** Drives `<p>` grouping in {@link "./struct"}: `"inline"` joins a run, `"block"` flushes it. */
+  /** Drives `<p>` grouping in {@link struct}: `"inline"` joins a run, `"block"` flushes it. */
   kind: "inline" | "block";
   /**
    * The stable/export name. Set from the constructor's optional 2nd `name`
-   * argument; `nameOf(CompFn) := CompFn.compName` is what {@link "./serialize".island} writes into
+   * argument; `nameOf(CompFn) := CompFn.compName` is what {@link island} writes into
    * the manifest's `comp` field.
    *
    * **Why a passed name and not `fn.name`:** the reader hoists a `%let Name = inlineComponent(…)`
@@ -51,7 +51,7 @@ export interface CompFn {
  * ```
  *
  * Under the static build the function is *not* invoked — `h(C, …)` only records `C` as a boundary
- * tag (see {@link "./h".h}) — so `kind`/`isComp` are read structurally by `struct`, and the body
+ * tag (see {@link h}) — so `kind`/`isComp` are read structurally by `struct`, and the body
  * runs only later, inside SSR. `name` rides along as `compName` for `island`'s manifest.
  */
 function makeComponent(
@@ -99,7 +99,7 @@ export function isComp(tag: unknown): tag is CompFn {
 
 /**
  * The component's manifest name (`CompFn.compName`), or `"anonymous"` when unset.
- * {@link "./serialize".island} writes this into `manifest[id].comp`. Under replay hydration the
+ * {@link island} writes this into `manifest[id].comp`. Under replay hydration the
  * manifest is debug metadata only — the client hydrates by *replaying* the document (which recovers the live
  * `CompFn` directly), not by resolving this name — so a missing name is no longer fatal. The reader
  * still attaches it for readable manifests; a nameless boundary (e.g. a hand-written fixture, or a

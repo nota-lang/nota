@@ -248,7 +248,8 @@ const pkg = JSON.parse(
 ) as {
   contributes?: { grammars?: { unbalancedBracketScopes?: string[] }[] };
 };
-const unbalanced = pkg.contributes?.grammars?.[0]?.unbalancedBracketScopes ?? [];
+const unbalanced =
+  pkg.contributes?.grammars?.[0]?.unbalancedBracketScopes ?? [];
 for (const s of [
   "storage.type.function.arrow",
   "keyword.operator.relational",
@@ -257,7 +258,10 @@ for (const s of [
   "markup.raw.code.block.nota",
   "markup.math.nota"
 ]) {
-  check(`contribution excludes ${s} from bracket matching`, unbalanced.includes(s));
+  check(
+    `contribution excludes ${s} from bracket matching`,
+    unbalanced.includes(s)
+  );
 }
 
 // ===================================================================================================
@@ -442,7 +446,9 @@ async function conformFixture(
 }
 
 async function main(): Promise<void> {
-  console.log("# nota grammar — structure + smoke + subset-correctness conformance\n");
+  console.log(
+    "# nota grammar — structure + smoke + subset-correctness conformance\n"
+  );
   const grammar = await loadNotaGrammar();
 
   // Smoke.
@@ -466,7 +472,11 @@ async function main(): Promise<void> {
     ...readdirSync(LOCAL_FIXTURES_DIR)
       .filter(f => f.endsWith(".nota"))
       .sort()
-      .map(f => ({ dir: LOCAL_FIXTURES_DIR, file: f, label: `fixtures/${f}` }))
+      .map(f => ({
+        dir: LOCAL_FIXTURES_DIR,
+        file: f,
+        label: `fixtures/${f}`
+      }))
   ];
   check(
     "mega.nota is present in the corpus",

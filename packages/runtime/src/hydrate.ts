@@ -4,8 +4,8 @@
  * An island may be defined at any depth and close over arbitrary document state, and its props may
  * hold non-JSON values (functions, class instances). None of that can cross the wire as a manifest,
  * so instead of *transporting* per-island data the client **replays the document**: it re-executes
- * `render(Doc)` with {@link "./serialize".island} in *capture* mode (see
- * {@link "./serialize".beginCapture}). Every boundary — at **any** depth, including one nested
+ * `render(Doc)` with {@link island} in *capture* mode (see
+ * {@link beginCapture}). Every boundary — at **any** depth, including one nested
  * inside a parent's slot — is recorded as its live `CompFn` (closure intact), live props, and
  * recomputed slot HTML; the produced HTML string is discarded. Hydration ids match the server **by
  * construction** (identical `freshId`-before-slot traversal in both modes). {@link hydrateDocument}

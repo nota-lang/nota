@@ -1,6 +1,5 @@
-{
-  "root": false,
-  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+{  
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",  
   "javascript": {
     "formatter": {
       "arrowParentheses": "asNeeded",
@@ -10,11 +9,17 @@
   "formatter": {
     "indentStyle": "space"
   },
+  "files": {
+    "includes": ["**", "!**/*.{compiled,generated}.*"]
+  },
   "linter": {
+    "enabled": true,
     "rules": {
       "recommended": true,
       "correctness": {
-        "noUnusedImports": "warn"
+        "noUnusedImports": "warn",
+        "useExhaustiveDependencies": "off",
+        "useJsxKeyInIterable": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
@@ -24,6 +29,9 @@
       "complexity": {
         "noBannedTypes": "off",
         "noForEach": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off"
       }
     }
   }

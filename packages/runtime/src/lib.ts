@@ -55,7 +55,7 @@ export type {
 // --- the `▸` mechanism ---
 export { flag, withFlag } from "./flag";
 // --- the emitted-code surface ---
-export { decode, Fragment, h } from "./h";
+export { decode, Fragment, h, type OmitChildren } from "./h";
 // --- replay hydration: the client driver + capture ---
 export {
   captureRender,

@@ -86,7 +86,7 @@ describe("notaSemanticTokens (end-to-end token stream)", () => {
   });
 
   test("embedded JS in props (grammar-blind): classes DO paint — the arrow is one operator", () => {
-    const toks = tokensOf('@div[onClick: () => setN(1)]{x}\n');
+    const toks = tokensOf("@div[onClick: () => setN(1)]{x}\n");
     expect(toks).toContainEqual({ text: "=>", type: "operator", mods: [] });
     expect(toks).toContainEqual({ text: "1", type: "number", mods: [] });
   });
@@ -101,7 +101,9 @@ describe("notaSemanticTokens (end-to-end token stream)", () => {
 
   test("ts-fence interior is suppressed; unknown-lang fence keeps the flat code paint", () => {
     const ts = tokensOf("```ts\nconst a = 1;\n```\n");
-    expect(ts.some(t => t.text?.includes("const") && t.type === "notaCode")).toBe(false);
+    expect(
+      ts.some(t => t.text?.includes("const") && t.type === "notaCode")
+    ).toBe(false);
     const unknown = tokensOf("```pascal\nbegin end.\n```\n");
     expect(
       unknown.some(t => t.text?.includes("begin") && t.type === "notaCode")

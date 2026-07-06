@@ -14,14 +14,14 @@
  * - {@link query}`(fn)` — a {@link QueryLeaf}: `fn: (doc: DocIndex) => children`, forced against the
  *   built index (its output normalized like any `h` child).
  *
- * Both survive {@link "./vnode".flatten}, pass through {@link "./struct".struct} untouched, and are
+ * Both survive {@link flatten}, pass through {@link struct} untouched, and are
  * runtime exports the **reader never emits** (prelude/user surface). At `▸ = true` (inside a
  * component body) both constructors throw — doc-state is a static-document construct; islands own
  * any secondary state.
  *
- * The decode pipeline at `▸ = false` (wired in {@link "./serialize"} + {@link "./h".decode}) is
+ * The decode pipeline at `▸ = false` (wired in `./serialize` + {@link decode}) is
  * `serialize ∘ struct ∘ force ∘ index ∘ normalize`:
- * - {@link "./struct".normalize} hoists static-template expansion + transparent-fragment splicing to a
+ * - {@link normalize} hoists static-template expansion + transparent-fragment splicing to a
  *   whole-tree pre-pass, so the index sees marks produced *by templates*;
  * - {@link indexDoc} = one DFS collecting mark leaves into a {@link DocIndex};
  * - {@link force} = remove mark leaves and splice each query's (normalized, recursively forced)
@@ -206,9 +206,9 @@ export class DocIndex {
 
 /**
  * Build the {@link DocIndex} in a single DFS over `root` (which must already be
- * {@link "./struct".normalize}'d, so marks produced by templates are exposed and fragments are
+ * {@link normalize}'d, so marks produced by templates are exposed and fragments are
  * spliced). Recurses into element children **including component-boundary children** (they are
- * static tree; bodies are functions and are never invoked). Strings, {@link "./raw".RawHtml}, and
+ * static tree; bodies are functions and are never invoked). Strings, {@link RawHtml}, and
  * {@link QueryLeaf} leaves are skipped. On a {@link MarkLeaf}: record its entry, then walk a
  * vnode-valued `data.content` field so marks nested there index right under the parent mark's `pos`.
  * Props (other than `data.content`) are not descended into.
@@ -281,7 +281,7 @@ export function indexDoc(root: VNode): DocIndex {
  * - a **query leaf** → `normalize` each of `flatten([fn(doc)])`, then recursively force it (queries
  *   may nest; the index is frozen, so it terminates), spliced into the sibling stream.
  *
- * {@link "./raw".RawHtml} leaves are opaque; props are untouched; component-boundary children are
+ * {@link RawHtml} leaves are opaque; props are untouched; component-boundary children are
  * descended into (they are static tree). Runs **before** grouping, so the grouping passes never see
  * a doc-state leaf.
  */
@@ -341,7 +341,7 @@ function forceInto(child: VNode, doc: DocIndex, out: VNode[]): void {
 
 /**
  * Trailers: name-keyed thunks whose children `decode` appends after the document content (before
- * indexing, so trailer queries force normally). Like {@link "./registry".registerComponents}, this
+ * indexing, so trailer queries force normally). Like {@link registerComponents}, this
  * is **global-persistent** — site policy, deliberately NOT reset per `render()` (a re-register
  * replaces the same-named entry but keeps its registration position). The prelude registers
  * `"footnotes"` here.
@@ -355,7 +355,7 @@ export function registerTrailer(name: string, thunk: () => unknown): void {
 
 /**
  * Clear all trailers (or just the named ones). A test/dev hook mirroring
- * {@link "./registry".clearRegisteredComponents}; production registers once and never clears.
+ * {@link clearRegisteredComponents}; production registers once and never clears.
  */
 export function clearTrailers(...names: string[]): void {
   if (names.length === 0) {

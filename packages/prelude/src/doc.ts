@@ -6,7 +6,7 @@
  * trailer registry. This module is the *policy* (R18e, the R14 slots-over-primitives pattern):
  * headings + numbering + a table of contents, `@Label`/`@Ref`, footnotes, and `@Cite`/`@Bibliography`
  * — each a **registry slot** (`slot(name, Default)`) so `registerComponents` overrides it site-wide,
- * built only on `mark`/`query`. Doc config (`secset`/`bibset`) lives in {@link "./config"} and follows
+ * built only on `mark`/`query`. Doc config (`secset`/`bibset`) lives in `./config` and follows
  * `lstset` exactly (doc-global, last-write-wins, reset per render).
  *
  * ## Two structural invariants this module honors
@@ -15,7 +15,7 @@
  *   heading built eagerly next to the mark would be seen twice / grouped wrong.
  * - **Marks stored in `data.content` must be *direct*.** `indexDoc` walks a mark's vnode-valued
  *   `data.content` but does **not** template-expand it, so a `@Cite` slot *inside* a `@Footnote`
- *   would never index. We therefore {@link normChildren} (= runtime `normalize`) the stored children,
+ *   would never index. We therefore `normChildren` (= runtime `normalize`) the stored children,
  *   which expands the slot to its direct `mark`/`query` leaves before storing — so the nested cite
  *   indexes at the footnote's position and forces cleanly when the footnote list renders.
  */
@@ -470,7 +470,7 @@ function footnoteRef(doc: DocIndex, m: MarkLeaf): VNode {
 /**
  * The default `Footnote` (inline, anonymous one-shot — R18e): `mark("footnote", {content})` + a query
  * rendering the reference `<sup>`. It shares the labeled numbering (R20b) as a fresh synthetic label,
- * so it always takes the next number. Content is {@link normChildren}'d so a nested `@Cite` indexes at
+ * so it always takes the next number. Content is `normChildren`'d so a nested `@Cite` indexes at
  * this footnote's position.
  */
 export function DefaultFootnote(props: CompProps): unknown {
@@ -489,7 +489,7 @@ export const Footnote = slot("Footnote", DefaultFootnote);
  * The default `FootnoteMark` (inline — R20b): a **labeled reference**, `mark("footnote", {label})` +
  * the reference `<sup>` query. Repeated marks with the same `label` share one number and href. Pointed
  * error if `label` is missing/empty; a label with no `@FootnoteText` errors at render (see
- * {@link footnoteModel}).
+ * `footnoteModel`).
  */
 export function DefaultFootnoteMark(props: CompProps): unknown {
   const label = typeof props.label === "string" ? props.label.trim() : "";
@@ -510,10 +510,10 @@ export const FootnoteMark = slot("FootnoteMark", DefaultFootnoteMark);
 
 /**
  * The default `FootnoteText` (block — R20b): a **labeled definition**. Emits
- * `mark("footnote-text", {label, content})` (children {@link normChildren}'d at store time, so a
+ * `mark("footnote-text", {label, content})` (children `normChildren`'d at store time, so a
  * nested `@Cite` indexes here) and renders **nothing** in place. Pointed error if `label` is
  * missing/empty; a **duplicate** definition for one label, or a reference to it with no definition,
- * errors at render (see {@link footnoteModel}); an **unreferenced** definition is dropped silently.
+ * errors at render (see `footnoteModel`); an **unreferenced** definition is dropped silently.
  */
 export function DefaultFootnoteText(props: CompProps): unknown {
   const label = typeof props.label === "string" ? props.label.trim() : "";
@@ -531,7 +531,7 @@ export const FootnoteText = slot("FootnoteText", DefaultFootnoteText);
 
 /**
  * The default `FootnotesList` (block): a pure `query` rendering the footnote section (`<ol>` of
- * per-number `<li id="fn-N"><div>…content ↩</div></li>`) from the {@link footnoteModel}, or `null`
+ * per-number `<li id="fn-N"><div>…content ↩</div></li>`) from the `footnoteModel`, or `null`
  * when there are no referenced footnotes. Split from placement so it can never introduce a new mark —
  * it only *reads* the index.
  *
@@ -696,7 +696,7 @@ function bibEntryChildren(key: string): VNode[] {
 /**
  * The default `Bibliography` (block): a `query` rendering the cited entries as an `<ol>` in label
  * order (`<li id="bib-key">`). Uncited source entries are omitted; a cited key missing from the
- * source is a pointed error (via {@link citeLabels}). Renders `null` when nothing is cited.
+ * source is a pointed error (via `citeLabels`). Renders `null` when nothing is cited.
  */
 export function DefaultBibliography(_props: CompProps): unknown {
   return query(doc => {

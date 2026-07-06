@@ -19,8 +19,8 @@
  *
  * `children` is `unknown` because the adapter is fed two shapes (both are normalized inside it):
  * a `VNode[]` from `h`'s `▸ = true` path (`adapter.h(t, p, flatten(children))`), and a single
- * `RawHtml` slot from {@link "./serialize".island} (`adapter.h(comp, props, raw(slot))`) — a
- * pre-rendered-HTML marker the adapter injects as innerHTML (see {@link "./raw"}).
+ * `RawHtml` slot from {@link island} (`adapter.h(comp, props, raw(slot))`) — a
+ * pre-rendered-HTML marker the adapter injects as innerHTML (see {@link RawHtml}).
  */
 export interface Adapter {
   /** Framework hyperscript. `tag` is a host string or a component function. */

@@ -19,7 +19,7 @@
  * and {@link mathset} (KaTeX macros) — document-global, reset per render.
  *
  * The doc-state constructs (`Heading`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
- * `Bibliography`, config `secset`/`bibset`) live in {@link "./doc"} and are re-exported here; they
+ * `Bibliography`, config `secset`/`bibset`) live in `./doc` and are re-exported here; they
  * are the same slot-over-`mark`/`query` pattern. This module also registers the `"footnotes"`
  * trailer at load, so the footnote list auto-appends at document end unless an explicit
  * `@Footnotes` placement suppresses it.

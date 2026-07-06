@@ -3,7 +3,7 @@ packages:
   - 'wasm'
 
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: false
 
 # pnpm >= 10 reads overrides from here, not package.json#pnpm
 overrides:

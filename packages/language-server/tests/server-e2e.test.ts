@@ -133,7 +133,8 @@ describe("language server end-to-end (real boot, heap-capped)", () => {
     // A `%` statement with a JS arrow (grammar-delegated line — reader tokens SUPPRESSED there),
     // a heading, and a markup element whose PROPS hold a second arrow (grammar-blind — the reader
     // must paint it).
-    const text = '%let f = () => "x"\n\n# Head\n\n@div[onClick: () => "y"]{@f}\n';
+    const text =
+      '%let f = () => "x"\n\n# Head\n\n@div[onClick: () => "y"]{@f}\n';
     const uri = openDoc("sem.nota", text);
     const resp = await c.request("textDocument/semanticTokens/full", {
       textDocument: { uri }

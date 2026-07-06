@@ -29,7 +29,7 @@ import {
  * wrong `rank` on `Heading` would go unchecked); this remap preserves the named props (value-checked)
  * *and* the index signature (extras stay legal).
  */
-type OmitChildren<P> = {
+export type OmitChildren<P> = {
   [K in keyof P as K extends "children" ? never : K]: P[K];
 };
 
@@ -127,7 +127,7 @@ function isLeadingProps(
  *   ▸ = true  → Adapter.Fragment(props, flatten(children))  // React: createElement(Fragment, props, …)
  * ```
  *
- * The first argument is props iff {@link isLeadingProps} (a plain object that is not an array /
+ * The first argument is props iff `isLeadingProps` (a plain object that is not an array /
  * string / {@link RawHtml} / {@link ElementVNode}); otherwise **all** arguments — including the
  * first — are children. This decodes both the reader's keyed `@for` emit `Fragment({ key: _i },
  * …body)` *and* the bare `Fragment(["a","b"].map(...))` form (array first arg → child). At
@@ -167,7 +167,7 @@ export function Fragment(
  *
  * Inside a component (`▸ = true`) every `h` already returned an opaque framework element, so there
  * is nothing for a restructuring pass to see and `decode` is the identity. Under the static build it
- * runs the full decode pipeline ({@link decodeTree} = `serialize ∘ struct ∘ force ∘ index ∘
+ * runs the full decode pipeline (`decodeTree` = `serialize ∘ struct ∘ force ∘ index ∘
  * normalize`): resolve doc-state marks/queries and append trailers, restructure the tree, then
  * stringify it to HTML. For a mark-free document this is byte-identical to `serialize(struct(v))`.
  */

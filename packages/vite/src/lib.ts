@@ -129,7 +129,7 @@ function injectAmbientPrelude(code: string, preludeModule: string): string {
  *   raw `.nota` source — the same ordering mdx/vue/svelte use for non-JS source modules.
  *
  * @param options optional {@link NotaPluginOptions}
- * @returns a Vite {@link Plugin}
+ * @returns a Vite `Plugin`
  */
 export function nota(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? [".nota"];

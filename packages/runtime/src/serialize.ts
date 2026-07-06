@@ -1,11 +1,11 @@
 /**
  * Serialization + islands + the SSG driver.
  *
- * After {@link "./struct".struct}, a vnode tree contains only host nodes, fragments, text leaves,
+ * After {@link struct}, a vnode tree contains only host nodes, fragments, text leaves,
  * and *boundary* `CompFn` nodes. {@link serialize} stringifies it to static HTML, rendering each
  * boundary as a hydration {@link island}: a fresh id, the component's shell SSR'd with `▸ = true`,
  * and a debug manifest entry. The client hydrates by *replaying* the document
- * ({@link "./hydrate".hydrateDocument}, replay hydration) — no per-island data crosses the wire.
+ * ({@link hydrateDocument}, replay hydration) — no per-island data crosses the wire.
  *
  * ## The hydration-id placement decision
  *
@@ -14,7 +14,7 @@
  * root unless the component *spreads* it onto a host element — a component that renders
  * `h("span", {onClick, style}, children)` does not, so the id would simply vanish. We therefore land
  * the id on a **marker wrapper element** instead: each island's SSR output is wrapped in
- * `<nota-island data-hydration-id="N">…</nota-island>`. {@link "./hydrate".hydrateDocument} selects
+ * `<nota-island data-hydration-id="N">…</nota-island>`. {@link hydrateDocument} selects
  * on `[data-hydration-id]` and hydrates the framework element *into* that wrapper (its children are
  * the SSR'd shell — exactly what React `hydrateRoot` / Solid `hydrate` expect to attach over). This
  * is framework-agnostic, requires no cooperation from the component, and never risks an "unknown DOM
@@ -64,7 +64,7 @@ export interface RenderResult {
 
 /**
  * A captured island boundary (replay hydration). Recorded by {@link island} while
- * {@link "./hydrate".captureRender} re-executes the document on the client: the **live** `CompFn`
+ * {@link captureRender} re-executes the document on the client: the **live** `CompFn`
  * (closure intact), the live `props` (may be non-JSON — functions and class instances are legal),
  * and the recomputed `slotHtml` (the boundary's static `@children`, serialized exactly as SSG did).
  * The driver hydrates each into its `[data-hydration-id]` node.
@@ -89,14 +89,14 @@ let manifest: Manifest = {};
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Replay-capture flag. `true` while {@link "./hydrate".captureRender} re-executes the document on
+ * Replay-capture flag. `true` while {@link captureRender} re-executes the document on
  * the client: {@link island} then **records** every boundary (see {@link captured}) — and, at depth
  * 0, skips its SSR rather than stringifying it. Managed only by {@link beginCapture}/{@link endCapture}
  * (save/restore, like the `▸` flag), so it is already `false` outside any capture — {@link reset}
  * deliberately does not touch it.
  */
 let capturing = false;
-/** The islands recorded during a {@link "./hydrate".captureRender} pass: `id → live boundary`. */
+/** The islands recorded during a {@link captureRender} pass: `id → live boundary`. */
 let captured: Map<string, CapturedIsland> = new Map();
 /**
  * Depth of nested-island *slot* serialization. {@link island} increments it around the serialize of
@@ -145,7 +145,7 @@ export function onRenderReset(hook: () => void): () => void {
  * + slot depth, and any {@link onRenderReset} hooks (per-document config like the prelude's
  * `lstset`). Called by {@link render} before serializing a document, so ids are
  * deterministic and manifests do not bleed between renders. (Neither the `▸` flag nor the
- * {@link capturing} flag is reset here: both are managed by their own save/restore
+ * `capturing` flag is reset here: both are managed by their own save/restore
  * (`withFlag` / {@link beginCapture}·{@link endCapture}), so both are already `false` outside any
  * render.) Exposed for tests that drive `serialize`/`island` directly.
  */
@@ -370,8 +370,8 @@ export function serialize(v: VNode): string {
  * The slot is handed to the framework as `raw(slot)`: the component forwards it via `@children` onto
  * a host element, whose adapter `h` injects it as innerHTML (no re-escape, no re-parse).
  *
- * **Capture mode (replay hydration).** While {@link "./hydrate".captureRender} replays the document on
- * the client ({@link capturing} `= true`), **every** boundary is **recorded** into {@link captured}
+ * **Capture mode (replay hydration).** While {@link captureRender} replays the document on
+ * the client (`capturing` `= true`), **every** boundary is **recorded** into `captured`
  * — the live `CompFn`, live props, recomputed slot — because every marker in the DOM is
  * independently hydrated (as the old boot hydrated every manifest id). The statement order is
  * identical to the SSR path (`freshId` *before* the slot serialize), so ids match the server by
@@ -467,12 +467,12 @@ export function decodeTree(v: VNode): string {
  * ```
  *
  * **Decoding exactly once.** An *emitted* `Doc` already wraps its body in `decode(...)` — and at
- * `▸ = false`, `decode` runs the full decode pipeline ({@link decodeTree}). So a real emitted `Doc()`
+ * `▸ = false`, `decode` runs the full decode pipeline (`decodeTree`). So a real emitted `Doc()`
  * **already returns the decoded HTML string**; applying the pipeline to it again would `escape` the
  * whole document (`<ul>` → `&lt;ul&gt;`) and re-run `island`. `render` therefore decodes **once**: if
  * `Doc()` already produced a string (the emitted, self-decoding `Doc`) it is the HTML as is; if
  * `Doc()` returned a raw vnode *tree* (a hand-built `Doc` that does not self-decode) we run
- * {@link decodeTree} (the same `normalize ∘ index ∘ force ∘ struct ∘ serialize` path, so marks,
+ * `decodeTree` (the same `normalize ∘ index ∘ force ∘ struct ∘ serialize` path, so marks,
  * queries, and trailers resolve here too). Either way the document is decoded exactly once.
  *
  * The caller must have `setAdapter`'d a framework adapter first (islands SSR through it). The

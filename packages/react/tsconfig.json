@@ -9,7 +9,7 @@
   },
   "typedocOptions": {
     "entryPoints": [
-      "./src/lib.ts"
+      "./src/lib.tsx"
     ]
   }
 }

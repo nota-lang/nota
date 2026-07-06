@@ -310,11 +310,11 @@ function flattenFragments(children: readonly VNode[]): VNode[] {
 
 /**
  * Hoist static-template expansion + transparent-fragment splicing to a **whole-tree pre-pass**
- * of the decode pipeline, reusing {@link expandTemplates}/{@link flattenFragments}. Recursively: expand a
+ * of the decode pipeline, reusing `expandTemplates`/`flattenFragments`. Recursively: expand a
  * plain-function tag, splice a transparent `FRAG` sibling's children into its parent's stream
- * (dropping the FRAG's own props, e.g. a keyed `@for`'s `key` — exactly as {@link decodeChildren} does), over
+ * (dropping the FRAG's own props, e.g. a keyed `@for`'s `key` — exactly as `decodeChildren` does), over
  * the WHOLE tree including component-boundary children. The root node itself is kept (a root `FRAG`
- * stays a `FRAG` node with normalized children). Opaque leaves — {@link "./raw".RawHtml} and the
+ * stays a `FRAG` node with normalized children). Opaque leaves — {@link RawHtml} and the
  * doc-state mark/query leaves — pass through untouched (they are not elements).
  *
  * This is **observationally identical** to what `struct`'s interleaved expansion path would have
@@ -450,11 +450,11 @@ export function struct(root: VNode): VNode {
  *
  * **Whitespace bridging (design/decode.md §struct).** A run is *maximal* over the same-kind sentinels with
  * interior whitespace-only text bridged: while accumulating a run, a maximal group of
- * whitespace-only text siblings ({@link isWhitespaceText}) that is *immediately followed by another
+ * whitespace-only text siblings (`isWhitespaceText`) that is *immediately followed by another
  * sentinel of the same kind* is **consumed** (skipped, emitted nowhere) and the run continues.
  * Anything else — a non-whitespace sibling, a different-kind sentinel, or end-of-stream — ends the
  * run, and that trailing whitespace is **not** consumed: `i` is left at the whitespace start so the
- * outer loop re-emits it verbatim (it must still reach {@link groupParas}/{@link consumeParaBreaks}
+ * outer loop re-emits it verbatim (it must still reach {@link groupParas}/`consumeParaBreaks`
  * for paragraph-break handling). Whitespace *before* the first sentinel is likewise untouched. Blank
  * lines between items therefore do **not** split the list — matching the reader, which absorbs
  * textual between-item blank lines into item extents and edge-trims them, so `- a`␤␤`- b` already
@@ -518,8 +518,8 @@ export function groupLists(k: readonly VNode[]): VNode[] {
  *
  * - **Inline siblings** (text, inline host elements, inline components, fragments) accumulate into
  *   the current run.
- * - A **paragraph-break marker** ({@link isParaBreak}) flushes the current run and is consumed.
- * - A **block sibling** ({@link isBlock}) flushes the current run and passes through unwrapped.
+ * - A **paragraph-break marker** (a blank line matching `PARA_BREAK`) flushes the current run and is consumed.
+ * - A **block sibling** (`isBlock`) flushes the current run and passes through unwrapped.
  *   Block components flush; inline components join the run (land inside the `<p>`).
  *
  * A flushed run becomes a `<p>` only if it holds at least one non-whitespace child — a run of pure
