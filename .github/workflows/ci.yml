@@ -1,45 +1,206 @@
 name: CI
 
 on: [push, pull_request]
-  
+
 permissions:
   contents: read
 
-jobs:
-  ci:
-    name: CI
-    runs-on: ubuntu-latest
-    env:
-      NOTA_COMPILE_BIN: ${{ github.workspace }}/oxc/target/debug/examples/nota_compile
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Did the oxc submodule pointer move? Gates the (expensive) reader test suites.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      oxc: ${{ steps.filter.outputs.oxc }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            oxc:
+              - 'oxc'
+
+  # Build the three reader artifacts (release binary + web wasm + node wasm) once per
+  # submodule SHA. JS-only pushes hit the cache and never touch the Rust toolchain.
+  reader-artifacts:
+    name: Reader artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Cache oxc cargo build
+      - name: Resolve submodule SHA
+        id: submodule
+        run: echo "sha=$(git rev-parse HEAD:oxc)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache reader artifacts
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: reader-dist
+          key: reader-dist-v1-${{ runner.os }}-${{ steps.submodule.outputs.sha }}
+
+      - name: Cache cargo build
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: oxc
 
-      - name: Build nota_compile
-        working-directory: oxc
-        run: cargo build --example nota_compile
-
       - name: Install wasm-pack
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: taiki-e/install-action@v2
         with:
           tool: wasm-pack
 
-      - name: Build nota_wasm
+      - name: Build nota_compile (release)
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: oxc
+        run: cargo build --release -p oxc --example nota_compile --features codegen
+
+      - name: Build nota_wasm (web + node)
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: oxc
         run: |
           rustup target add wasm32-unknown-unknown
           wasm-pack build napi/nota_wasm --target web --out-dir pkg --out-name nota_wasm
+          wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm
+
+      - name: Stage artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p reader-dist
+          cp oxc/target/release/examples/nota_compile reader-dist/
+          cp -R oxc/napi/nota_wasm/pkg reader-dist/pkg
+          cp -R oxc/napi/nota_wasm/pkg-node reader-dist/pkg-node
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reader-dist
+          path: reader-dist
+          retention-days: 7
+
+  # The reader's own cargo suites — only when the submodule pointer actually changed
+  # (the fork's Nota workflow also runs these on every push to the `nota` branch).
+  rust-tests:
+    name: Reader tests
+    needs: changes
+    if: needs.changes.outputs.oxc == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: oxc
+
+      - name: Lexer + highlight units (oxc_parser)
+        working-directory: oxc
+        run: cargo test -p oxc_parser --lib nota
+
+      - name: Whitespace + mapping units (oxc_transformer)
+        working-directory: oxc
+        run: cargo test -p oxc_transformer --lib nota
+
+      - name: E2E golden emit (oxc_codegen)
+        working-directory: oxc
+        run: cargo test -p oxc_codegen --test integration nota
+
+      - name: Compile entry + virtual emit (oxc)
+        working-directory: oxc
+        run: cargo test -p oxc --features codegen nota
+
+  # Per-package depot suites, serially in dependency order (packages consume each
+  # other's built dist/, and whole-workspace `depot test` races on shared dist/).
+  # No submodule checkout: the reader artifacts stand in for the oxc tree.
+  js-tests:
+    name: JS tests
+    needs: reader-artifacts
+    runs-on: ubuntu-latest
+    env:
+      NOTA_COMPILE_BIN: ${{ github.workspace }}/oxc/target/release/examples/nota_compile
+      NOTA_WASM_NODE: ${{ github.workspace }}/oxc/napi/nota_wasm/pkg-node/nota_wasm.js
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: reader-dist
+          path: reader-dist
+
+      # Must precede install: `nota_wasm` is a file: dep on oxc/napi/nota_wasm/pkg.
+      # Artifacts drop the exec bit, hence the chmod.
+      - name: Stage reader artifacts
+        run: |
+          mkdir -p oxc/target/release/examples oxc/napi/nota_wasm
+          cp reader-dist/nota_compile oxc/target/release/examples/
+          chmod +x oxc/target/release/examples/nota_compile
+          cp -R reader-dist/pkg oxc/napi/nota_wasm/pkg
+          cp -R reader-dist/pkg-node oxc/napi/nota_wasm/pkg-node
 
       - name: Install depot
         uses: cognitive-engineering-lab/depot/actions/install@main
 
-      - name: Run tests
-        run: depot test
+      - name: Build + test packages (dependency order)
+        run: |
+          set -euo pipefail
+          for pkg in runtime prelude compiler react solid vite cli codemirror language-server playground; do
+            echo "::group::$pkg"
+            (cd "packages/$pkg" && depot --no-fullscreen build && depot --no-fullscreen test)
+            echo "::endgroup::"
+          done
+
+  # vscode-nota has no depot/vitest: TextMate caret fixtures + the subset-correctness
+  # conformance test (compiled grammar vs the reader's highlightSpans via node wasm).
+  vscode-tests:
+    name: VS Code grammar tests
+    needs: reader-artifacts
+    runs-on: ubuntu-latest
+    env:
+      NOTA_WASM_NODE: ${{ github.workspace }}/oxc/napi/nota_wasm/pkg-node/nota_wasm.js
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: reader-dist
+          path: reader-dist
+
+      - name: Stage reader artifacts
+        run: |
+          mkdir -p oxc/napi/nota_wasm
+          cp -R reader-dist/pkg oxc/napi/nota_wasm/pkg
+          cp -R reader-dist/pkg-node oxc/napi/nota_wasm/pkg-node
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Install depot
+        uses: cognitive-engineering-lab/depot/actions/install@main
+
+      # The conformance test imports @nota-lang/compiler's built dist.
+      - name: Build compiler (and deps)
+        run: |
+          set -euo pipefail
+          for pkg in runtime compiler; do
+            (cd "packages/$pkg" && depot --no-fullscreen build)
+          done
+
+      - name: Grammar + conformance tests
+        working-directory: packages/vscode-nota
+        run: pnpm run test:all

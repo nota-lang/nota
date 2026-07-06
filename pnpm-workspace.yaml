@@ -1,6 +1,5 @@
 packages:
   - 'packages/*'
-  - 'wasm'
 
 allowBuilds:
   esbuild: false
