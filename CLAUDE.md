@@ -71,8 +71,15 @@ A reader change is invisible to JS until you rebuild the artifact that consumes 
 - **Native binary** (compiler/vite/cli/language-server):
   `cd oxc && cargo build --release -p oxc --example nota_compile --features codegen`
   → `oxc/target/release/examples/nota_compile`. Stale/missing → `nota: failed to compile … [exit unknown]`.
-- **wasm** (playground): `cd oxc && wasm-pack build napi/nota_wasm --target web --out-dir pkg --out-name nota_wasm`.
+- **wasm — web** (playground): `cd oxc && wasm-pack build napi/nota_wasm --target web --out-dir pkg --out-name nota_wasm`.
   Missing `pkg/` → pnpm-install ENOENT (it's a `file:` dep).
+- **wasm — node** (language-server semantic tokens, `@nota-lang/compiler`'s `highlightSpans`):
+  `cd oxc && wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm`
+  → `oxc/napi/nota_wasm/pkg-node/nota_wasm.js` (CommonJS, sync init). The compiler shim `require`s it
+  package-relative (override with `NOTA_WASM_NODE`); missing → `highlightSpans` throws / the
+  `highlight.test.ts` suite self-skips. Rebuild BOTH wasm targets after a reader change — the web
+  `pkg/` and the node `pkg-node/` are independent artifacts. Both are gitignored (wasm-pack writes a
+  `.gitignore: *` in each out-dir).
 - JS packages consume each other's **built `dist/`, not `src/`** — after editing pkg A,
   `cd packages/A && depot build` before pkg B / a cross-package test sees the change.
 

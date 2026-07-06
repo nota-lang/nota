@@ -19,6 +19,7 @@ import {
 } from "@volar/language-server/node.js";
 import ts from "typescript";
 import { create as createTypeScriptServices } from "volar-service-typescript";
+import { notaDiagnosticsServicePlugin } from "./diagnostics.js";
 import { notaLanguagePlugin } from "./language-plugin.js";
 
 /**
@@ -40,7 +41,9 @@ export function startServer(connection: Connection = createConnection()): void {
       createTypeScriptProject(ts, undefined, () => ({
         languagePlugins: [notaLanguagePlugin]
       })),
-      createTypeScriptServices(ts)
+      // `volar-service-typescript` surfaces *type* diagnostics/hover/completion over the virtual
+      // `.tsx`; the Nota diagnostics plugin surfaces the `.nota`'s own *syntax* diagnostics (D5).
+      [...createTypeScriptServices(ts), notaDiagnosticsServicePlugin]
     )
   );
 

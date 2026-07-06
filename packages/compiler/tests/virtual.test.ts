@@ -188,6 +188,35 @@ describe("parseVirtualJson (JSON shape)", () => {
   });
 });
 
+describe("parseVirtualJson (recovered errors — contract D5)", () => {
+  test("parses an `errors` array of {message, start, len}", () => {
+    const json = JSON.stringify({
+      code: 'export default function Doc() { return decode(h("a", {}, [])); }\n',
+      mappings: [],
+      errors: [{ message: "Expected `]` but found `EOF`", start: 3, len: 0 }]
+    });
+    const { errors } = parseVirtualJson(json);
+    expect(errors).toEqual([
+      { message: "Expected `]` but found `EOF`", start: 3, len: 0 }
+    ]);
+  });
+
+  test("defaults `errors` to [] when the field is absent (pre-D5 binary)", () => {
+    const { errors } = parseVirtualJson(SAMPLE_JSON);
+    expect(errors).toEqual([]);
+  });
+
+  test("coerces error fields defensively (numeric start/len, string message)", () => {
+    const json = JSON.stringify({
+      code: "",
+      mappings: [],
+      errors: [{ message: "x", start: 2, len: 4 }]
+    });
+    const { errors } = parseVirtualJson(json);
+    expect(errors[0]).toEqual({ message: "x", start: 2, len: 4 });
+  });
+});
+
 // ===================================================================================================
 // Live path — only if the binary already implements `--virtual`. Otherwise the whole describe is
 // skipped, and the parse tests above are the guarantee until the reader catches up.
@@ -239,5 +268,31 @@ liveSuite("compileVirtual (live — binary --virtual present)", () => {
     const flatSrcOffsets = mappings.flatMap(m => m.sourceOffsets);
     expect(flatSrcOffsets).toContain(src.indexOf("count"));
     expect(flatSrcOffsets).toContain(src.indexOf("user"));
+  });
+
+  test("a well-formed file recovers with no errors", () => {
+    const { errors } = compileVirtual("@p{hi}\n", { sourcePath: "ok.nota" });
+    expect(errors).toEqual([]);
+  });
+
+  test("EOF recovery: `@a[` yields the props object + anchor mapping + a diagnostic (D4/D5)", () => {
+    const { code, mappings, errors } = compileVirtual("@a[", {
+      sourcePath: "broken.nota"
+    });
+
+    // The virtual still contains the props object literal (recovered `h("a", {}, …)`).
+    expect(code).toContain('h("a", {');
+
+    // A syntax diagnostic is reported (not swallowed), spanning into the `.nota`.
+    expect(errors.length).toBe(1);
+    expect(errors[0].message).toMatch(/]/);
+    expect(errors[0].start).toBe(3); // just after `[`
+
+    // The prop-completion anchor: a zero-width mapping at source offset 3 with `completion`.
+    const anchor = mappings.find(
+      m => m.sourceOffsets[0] === 3 && m.lengths[0] === 0
+    );
+    expect(anchor, JSON.stringify(mappings)).toBeDefined();
+    expect(anchor?.data.completion).toBe(true);
   });
 });

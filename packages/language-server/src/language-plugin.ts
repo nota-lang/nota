@@ -11,7 +11,8 @@
 
 import {
   compileVirtual,
-  type CodeMapping as ReaderCodeMapping
+  type CodeMapping as ReaderCodeMapping,
+  type NotaError
 } from "@nota-lang/compiler";
 import type {
   LanguagePlugin,
@@ -76,17 +77,24 @@ export function shiftMappings(
  * `LanguagePlugin` so it is unit-testable without any Volar/TS plumbing (the mapping-fidelity
  * test calls this directly).
  *
+ * The virtual path uses EOF error-recovery, so an unterminated `.nota` still yields a (best-effort)
+ * virtual + mappings; the recovered syntax diagnostics come back in `errors` (byte-spanned into the
+ * `.nota`) for the diagnostics service plugin (`./diagnostics.ts`) to surface (contract D5).
+ *
  * @param source the `.nota` file contents
- * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted to index it.
+ * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted to index it;
+ *   `{ errors }` = recovered Nota diagnostics (empty for a well-formed file).
  */
 export function buildVirtual(source: string): {
   code: string;
   mappings: VolarCodeMapping[];
+  errors: NotaError[];
 } {
-  const { code: bare, mappings } = compileVirtual(source);
+  const { code: bare, mappings, errors } = compileVirtual(source);
   return {
     code: PREAMBLE + bare,
-    mappings: shiftMappings(mappings, PREAMBLE_LENGTH)
+    mappings: shiftMappings(mappings, PREAMBLE_LENGTH),
+    errors
   };
 }
 
@@ -102,10 +110,13 @@ export interface NotaVirtualCode extends VirtualCode {
 }
 
 /**
- * Create the {@link NotaVirtualCode} for a snapshot. On a reader error (a Nota *syntax* diagnostic —
- * `compileVirtual` throws) we fall back to an **empty** virtual module with no mappings, so the
- * server stays alive and simply reports no TS diagnostics until the source parses. (Nota syntax
- * diagnostics themselves are a separate, future channel — this code handles only TS/semantic info.)
+ * Create the {@link NotaVirtualCode} for a snapshot. The reader now **recovers** from a Nota syntax
+ * error (EOF error-recovery), so a mid-edit `.nota` still produces a best-effort virtual `.tsx` +
+ * mappings — TS features (hover/completion/diagnostics) keep working over the parsed prefix instead
+ * of blanking out. The Nota syntax diagnostics themselves flow through a separate channel
+ * (`./diagnostics.ts`, contract D5). The `try/catch` now only guards a true *binary* failure (a
+ * missing/old `nota_compile`, an OS spawn error), for which we degrade to an empty TS module so the
+ * server stays alive.
  */
 function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
   const source = snapshot.getText(0, snapshot.getLength());
@@ -114,7 +125,8 @@ function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
   try {
     ({ code, mappings } = buildVirtual(source));
   } catch {
-    // Reader rejected the source (Nota syntax error). Degrade gracefully: an empty TS module.
+    // The reader binary itself failed to run (not a syntax error — recovery handles those).
+    // Degrade gracefully: an empty TS module so the server stays alive.
     code = PREAMBLE;
     mappings = [];
   }

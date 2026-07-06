@@ -21,6 +21,7 @@
 
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -198,21 +199,42 @@ export interface MappingCapabilities {
 }
 
 /**
+ * One recovered Nota diagnostic from the reader's EOF error-recovery (`--virtual`): a `message` and
+ * the byte span (`start`/`len`) into the **`.nota`** source it points at. The language server maps
+ * these to LSP diagnostics (contract D5). A label-less diagnostic reports `start: 0, len: 0`.
+ */
+export interface NotaError {
+  /** The human-readable diagnostic message. */
+  message: string;
+  /** Byte offset into the `.nota` source where the diagnostic begins. */
+  start: number;
+  /** Length in bytes of the diagnostic's span (`0` for a point diagnostic, e.g. at EOF). */
+  len: number;
+}
+
+/**
  * The result of {@link compileVirtual}: the **bare** virtual `.tsx` (TS types preserved; runtime
- * import + ambient prelude *not* prepended — the language-server adds those) and its
- * {@link CodeMapping}s.
+ * import + ambient prelude *not* prepended — the language-server adds those), its
+ * {@link CodeMapping}s, and any recovered {@link NotaError}s (empty for a well-formed file).
+ *
+ * The virtual path uses EOF error-recovery, so `compileVirtual` **does not throw** on unterminated
+ * markup: it returns a best-effort `code` + `mappings` and reports the syntax/lowering problems in
+ * `errors` for the language server to surface as diagnostics.
  */
 export interface VirtualCompileResult {
   /** The emitted virtual `.tsx` module (type-preserving, no runtime/ambient preamble). */
   code: string;
   /** The {@link CodeMapping}s mapping `.tsx` offsets back to `.nota` offsets. */
   mappings: CodeMapping[];
+  /** Recovered Nota parse/lowering diagnostics (byte-spanned into the `.nota`); empty if clean. */
+  errors: NotaError[];
 }
 
 /** The exact `--virtual` stdout JSON shape `compileVirtual` parses. */
 interface VirtualJson {
   code: string;
   mappings: CodeMapping[];
+  errors?: NotaError[];
 }
 
 /**
@@ -225,11 +247,15 @@ interface VirtualJson {
  * (so `h`/`decode`/`useState`/… type-check) and shifts the mappings by its length; doing it here
  * would double-shift.
  *
+ * The reader uses **EOF error-recovery** on this path, so it does **not** fail (exit non-zero) on
+ * unterminated markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
+ * {@link VirtualCompileResult.errors} for the language server to surface as LSP diagnostics (D5).
+ *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
- * @returns the {@link VirtualCompileResult} (`{ code, mappings }`)
- * @throws if the reader reports a diagnostic (non-zero exit) — the error carries stderr — or if the
- *   binary lacks `--virtual` (older builds; the error surfaces the binary's usage message).
+ * @returns the {@link VirtualCompileResult} (`{ code, mappings, errors }`)
+ * @throws only if the binary itself fails to run (missing/old build lacking `--virtual`, an OS
+ *   spawn error) — the error carries stderr. A *recoverable* Nota syntax error does not throw.
  */
 export function compileVirtual(
   source: string,
@@ -305,7 +331,116 @@ export function parseVirtualJson(
       );
     }
   }
-  return { code: parsed.code, mappings: parsed.mappings };
+  // `errors` is optional for forward-compat with a pre-D5 binary (treated as "no diagnostics");
+  // a present array is validated to the `{message, start, len}` shape.
+  const errors: NotaError[] = Array.isArray(parsed.errors)
+    ? parsed.errors.map(e => ({
+        message: String(e.message),
+        start: Number(e.start) || 0,
+        len: Number(e.len) || 0
+      }))
+    : [];
+  return { code: parsed.code, mappings: parsed.mappings, errors };
+}
+
+// ===================================================================================================
+// Reader-driven syntax highlight spans (via the node-target wasm reader).
+// ===================================================================================================
+
+/**
+ * One reader-faithful highlight span over the **`.nota`** source: a `[start, end)` byte range and
+ * its kind (a stable kebab-case name — `"tag-host"`, `"js-keyword"`, `"emphasis-strong"`, …). This
+ * is the reader's `parse_nota_highlights` output the CodeMirror playground already paints; the
+ * language server consumes it for reader-driven **semantic tokens** (contract D2).
+ */
+export interface HighlightSpan {
+  /** `.nota` byte offset of the span's first byte. */
+  start: number;
+  /** `.nota` byte offset one past the span's last byte. */
+  end: number;
+  /** The stable kebab-case highlight-kind name (index into {@link highlightKindNames}). */
+  kind: string;
+}
+
+/** The minimal shape of the node-target wasm reader this shim calls for highlighting. */
+interface WasmReader {
+  highlight(source: string): Uint32Array;
+  highlightKindNames(): string[];
+}
+
+let wasmReader: WasmReader | null = null;
+let cachedKindNames: string[] | null = null;
+
+/**
+ * Lazily load the **node-target** wasm reader (`oxc/napi/nota_wasm/pkg-node`, built with
+ * `wasm-pack build --target nodejs`). In-process and sub-ms — no subprocess — so it is suitable for
+ * per-keystroke semantic tokens (unlike the {@link compile} binary path). Resolved relative to this
+ * package (like {@link resolveBinary}); overridable with `NOTA_WASM_NODE` for CI / alternate builds.
+ *
+ * @throws if the node wasm package is missing — rebuild with
+ *   `wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm`.
+ */
+function loadWasmReader(): WasmReader {
+  if (wasmReader) {
+    return wasmReader;
+  }
+  const fromEnv = process.env.NOTA_WASM_NODE;
+  const here = dirname(fileURLToPath(import.meta.url));
+  const wasmPath =
+    fromEnv && fromEnv.length > 0
+      ? fromEnv
+      : join(
+          here,
+          "..",
+          "..",
+          "..",
+          "oxc",
+          "napi",
+          "nota_wasm",
+          "pkg-node",
+          "nota_wasm.js"
+        );
+  const require = createRequire(import.meta.url);
+  wasmReader = require(wasmPath) as WasmReader;
+  return wasmReader;
+}
+
+/**
+ * The stable kebab-case highlight-kind names, in discriminant order (index a {@link HighlightSpan}'s
+ * `kind` triple value into this). Cached after the first call.
+ */
+export function highlightKindNames(): string[] {
+  if (!cachedKindNames) {
+    cachedKindNames = loadWasmReader().highlightKindNames();
+  }
+  return cachedKindNames;
+}
+
+/**
+ * Reader-faithful syntax highlight spans for a whole `.nota` source, decoded from the wasm reader's
+ * flat `[start, end, kind]` `Uint32Array` triples into named {@link HighlightSpan}s. Spans are
+ * source-native (no preamble shift) and already sorted start-ascending / end-descending (outer
+ * spans before the spans they contain — paint in list order).
+ *
+ * @param source the `.nota` file contents
+ * @returns the highlight spans
+ * @throws if the source fails to parse (the reader's `highlight` throws) — callers that want editor
+ *   resilience (the semantic-tokens plugin) should catch and serve their last-good spans (D2).
+ */
+export function highlightSpans(source: string): HighlightSpan[] {
+  const reader = loadWasmReader();
+  const names = highlightKindNames();
+  const flat = reader.highlight(source);
+  const spans: HighlightSpan[] = [];
+  for (let i = 0; i + 2 < flat.length; i += 3) {
+    const kindIndex = flat[i + 2];
+    spans.push({
+      start: flat[i],
+      end: flat[i + 1],
+      kind: names[kindIndex] ?? String(kindIndex)
+    });
+  }
+  return spans;
 }
 
 /** Turn a Vite module id / path into a safe `.nota` basename (no separators, no query/hash). */
