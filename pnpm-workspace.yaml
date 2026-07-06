@@ -1,8 +1,12 @@
 packages:
   - 'packages/*'
 
+# Blocked lifecycle scripts: esbuild works from its platform optionalDeps without the postinstall;
+# vsce-sign/keytar only matter for Marketplace publish/signing, which we don't do (vsix-on-release).
 allowBuilds:
+  '@vscode/vsce-sign': false
   esbuild: false
+  keytar: false
 
 # pnpm >= 10 reads overrides from here, not package.json#pnpm
 overrides:

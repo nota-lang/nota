@@ -61,44 +61,138 @@
       }
     ],
     "semanticTokenTypes": [
-      { "id": "notaSigil", "description": "A Nota markup sigil (`@`, `%`, `*`, `` ` ``, `$`, `|`)" },
-      { "id": "notaTag", "description": "A Nota host-element tag name" },
-      { "id": "notaHeadingMarker", "description": "A Nota heading marker (`#`)" },
-      { "id": "notaHeading", "description": "Nota heading text" },
-      { "id": "notaListMarker", "description": "A Nota list marker (`-`)" },
-      { "id": "notaEmphasis", "description": "Nota emphasised text (`*`/`_`)" },
-      { "id": "notaMathDelim", "description": "A Nota math delimiter (`$`)" },
-      { "id": "notaMath", "description": "Nota math content" },
-      { "id": "notaCodeDelim", "description": "A Nota code delimiter (`` ` ``)" },
-      { "id": "notaCodeLang", "description": "A Nota code-fence language tag" },
-      { "id": "notaCode", "description": "Nota code content" },
-      { "id": "notaVerbatim", "description": "Nota verbatim content" },
-      { "id": "notaEscape", "description": "A Nota escape (`\\x`)" },
-      { "id": "notaStyle", "description": "Nota style text" }
+      {
+        "id": "notaSigil",
+        "description": "A Nota markup sigil (`@`, `%`, `*`, `` ` ``, `$`, `|`)"
+      },
+      {
+        "id": "notaTag",
+        "description": "A Nota host-element tag name"
+      },
+      {
+        "id": "notaHeadingMarker",
+        "description": "A Nota heading marker (`#`)"
+      },
+      {
+        "id": "notaHeading",
+        "description": "Nota heading text"
+      },
+      {
+        "id": "notaListMarker",
+        "description": "A Nota list marker (`-`)"
+      },
+      {
+        "id": "notaEmphasis",
+        "description": "Nota emphasised text (`*`/`_`)"
+      },
+      {
+        "id": "notaMathDelim",
+        "description": "A Nota math delimiter (`$`)"
+      },
+      {
+        "id": "notaMath",
+        "description": "Nota math content"
+      },
+      {
+        "id": "notaCodeDelim",
+        "description": "A Nota code delimiter (`` ` ``)"
+      },
+      {
+        "id": "notaCodeLang",
+        "description": "A Nota code-fence language tag"
+      },
+      {
+        "id": "notaCode",
+        "description": "Nota code content"
+      },
+      {
+        "id": "notaVerbatim",
+        "description": "Nota verbatim content"
+      },
+      {
+        "id": "notaEscape",
+        "description": "A Nota escape (`\\x`)"
+      },
+      {
+        "id": "notaStyle",
+        "description": "Nota style text"
+      }
     ],
     "semanticTokenModifiers": [
-      { "id": "notaHeading", "description": "Inside a heading" },
-      { "id": "notaStrong", "description": "Inside strong emphasis" },
-      { "id": "notaEmphasis", "description": "Inside emphasis" },
-      { "id": "notaMath", "description": "Inside math" }
+      {
+        "id": "notaHeading",
+        "description": "Inside a heading"
+      },
+      {
+        "id": "notaStrong",
+        "description": "Inside strong emphasis"
+      },
+      {
+        "id": "notaEmphasis",
+        "description": "Inside emphasis"
+      },
+      {
+        "id": "notaMath",
+        "description": "Inside math"
+      }
     ],
     "semanticTokenScopes": [
       {
         "scopes": {
-          "notaSigil": ["punctuation.definition.tag.nota", "keyword.operator"],
-          "notaTag": ["entity.name.tag"],
-          "notaHeadingMarker": ["punctuation.definition.heading", "markup.heading"],
-          "notaHeading": ["markup.heading", "entity.name.section"],
-          "notaListMarker": ["punctuation.definition.list.begin", "markup.list"],
-          "notaEmphasis": ["markup.italic", "markup.bold"],
-          "notaMathDelim": ["punctuation.definition.string", "string"],
-          "notaMath": ["markup.inline.raw", "string"],
-          "notaCodeDelim": ["punctuation.definition.raw", "string"],
-          "notaCodeLang": ["entity.name.tag", "support.type"],
-          "notaCode": ["markup.inline.raw", "string"],
-          "notaVerbatim": ["markup.inline.raw", "string"],
-          "notaEscape": ["constant.character.escape"],
-          "notaStyle": ["source.css", "string"]
+          "notaSigil": [
+            "punctuation.definition.tag.nota",
+            "keyword.operator"
+          ],
+          "notaTag": [
+            "entity.name.tag"
+          ],
+          "notaHeadingMarker": [
+            "punctuation.definition.heading",
+            "markup.heading"
+          ],
+          "notaHeading": [
+            "markup.heading",
+            "entity.name.section"
+          ],
+          "notaListMarker": [
+            "punctuation.definition.list.begin",
+            "markup.list"
+          ],
+          "notaEmphasis": [
+            "markup.italic",
+            "markup.bold"
+          ],
+          "notaMathDelim": [
+            "punctuation.definition.string",
+            "string"
+          ],
+          "notaMath": [
+            "markup.inline.raw",
+            "string"
+          ],
+          "notaCodeDelim": [
+            "punctuation.definition.raw",
+            "string"
+          ],
+          "notaCodeLang": [
+            "entity.name.tag",
+            "support.type"
+          ],
+          "notaCode": [
+            "markup.inline.raw",
+            "string"
+          ],
+          "notaVerbatim": [
+            "markup.inline.raw",
+            "string"
+          ],
+          "notaEscape": [
+            "constant.character.escape"
+          ],
+          "notaStyle": [
+            "source.css",
+            "string"
+          ]
         }
       }
     ],
@@ -127,6 +221,8 @@
     "typescript": "^6.0.3",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2",
-    "vscode-tmgrammar-test": "^0.1.3"
+    "vscode-tmgrammar-test": "^0.1.3",
+    "esbuild": "^0.28.1",
+    "@vscode/vsce": "^3.6.2"
   }
 }

@@ -67,6 +67,13 @@ jobs:
           V: ${{ steps.version.outputs.version }}
         run: node scripts/pack-release.mjs --version "$V" --refs url --out dist-release
 
+      # Bundles extension + language server + wasm reader, and runs an LSP initialize handshake
+      # against the bundled server before packaging.
+      - name: Build vsix
+        env:
+          V: ${{ steps.version.outputs.version }}
+        run: node packages/vscode-nota/scripts/package-vsix.mjs --version "$V" --out dist-release
+
       # PR body is user-controlled text — through env into --notes-file, never interpolated.
       - name: Create the release (tags the merge commit)
         env:
@@ -79,7 +86,7 @@ jobs:
             --target "${{ github.event.pull_request.merge_commit_sha }}" \
             --title "v$V" \
             --notes-file "$RUNNER_TEMP/notes.md" \
-            dist-release/*.tgz
+            dist-release/*.tgz dist-release/*.vsix
 
       - name: Post-publish smoke test (install from the real URL)
         env:

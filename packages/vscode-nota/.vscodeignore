@@ -7,3 +7,5 @@ tsconfig.json
 **/*.ts
 **/*.map
 !dist/**/*.js
+scripts/**
+biome.json

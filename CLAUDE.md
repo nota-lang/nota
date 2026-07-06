@@ -109,6 +109,19 @@ wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace 
 - **macOS zsh:** `noclobber` (`>` fails on existing files — use `>|`); backticks in `git commit -m` run
   command substitution (use `-F`); Bash cwd resets each call (use absolute paths).
 
+## Releasing
+Distribution is **GitHub Release tarballs, zero npm** (while experimenting). The ritual: file a PR
+titled `vX.Y.Z` labeled **`release`** → `release-dry-run.yml` runs the whole pipeline unpublished
+(pack with file refs + a clean-room `npm install` + `nota build` smoke test; url-ref tarballs as a
+PR artifact) → merging triggers `release.yml`, which packs with url refs and
+`gh release create vX.Y.Z --target <merge-sha>` (CI creates the tag; assets: nine tarballs +
+unversioned cli/vite aliases for `releases/latest/download/` + the vsix). Version is stamped at
+pack time from the PR title — no bump commits. Key scripts: `scripts/pack-release.mjs` (rewrites
+`workspace:*`/`file:` deps to release URLs before `pnpm pack`; vendors + removes
+`packages/compiler/wasm/`), `scripts/smoke-install.sh`,
+`packages/vscode-nota/scripts/package-vsix.mjs` (esbuild-bundles client+server+wasm, LSP-handshakes
+the bundle, `vsce package --no-dependencies`).
+
 ## Build method
 Packages are built in dependency order (reader → runtime/adapters → vite → cli/playground → IDE);
 every feature ships with tests, green before the next lands.

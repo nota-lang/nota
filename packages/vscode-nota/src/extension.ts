@@ -12,6 +12,7 @@
  * declares which documents (`language: "nota"`) it owns.
  */
 
+import { existsSync } from "node:fs";
 import type * as vscode from "vscode";
 import {
   LanguageClient,
@@ -23,11 +24,25 @@ import {
 /** The running client, kept so {@link deactivate} can stop the server. */
 let client: LanguageClient | undefined;
 
-export function activate(_context: vscode.ExtensionContext): void {
-  // Resolve the server's executable entry (`@nota-lang/language-server`'s `nota-language-server`
-  // bin = `dist/bin.js`). `require.resolve` honors the package's `exports` (`"./*" → "./dist/*.js"`),
-  // so this yields the absolute path to the built `bin.js` wherever the dependency is installed.
-  const serverModule = require.resolve("@nota-lang/language-server/bin");
+export function activate(context: vscode.ExtensionContext): void {
+  // Resolve the server's executable entry. A *packaged* extension (the vsix) carries the
+  // esbuild-bundled server at `dist/server.js` plus the node-wasm reader at `wasm/`
+  // (see `scripts/package-vsix.mjs`); a dev run from the workspace (F5) has neither and falls
+  // back to the workspace dependency — `require.resolve` honors the package's `exports`
+  // (`"./*" → "./dist/*.js"`), yielding the absolute path to the built `bin.js`.
+  const bundledServer = context.asAbsolutePath("dist/server.js");
+  const serverModule = existsSync(bundledServer)
+    ? bundledServer
+    : require.resolve("@nota-lang/language-server/bin");
+
+  // Point the compiler shim at the vsix's vendored wasm reader explicitly (the packaged layout
+  // has no repo/node_modules to resolve against, and an env var beats patching import.meta.url
+  // into a CJS bundle). Dev runs have no `wasm/` and keep the shim's own resolution (repo
+  // pkg-node).
+  const bundledWasm = context.asAbsolutePath("wasm/nota_wasm.js");
+  const serverEnv = existsSync(bundledWasm)
+    ? { ...process.env, NOTA_WASM_NODE: bundledWasm }
+    : undefined;
 
   // Run the server as a Node module over **stdio** (it calls `createConnection()`, which the
   // `--stdio` transport flag selects). `vscode-languageclient` forks `serverModule` with the
@@ -35,12 +50,14 @@ export function activate(_context: vscode.ExtensionContext): void {
   const serverOptions: ServerOptions = {
     run: {
       module: serverModule,
-      transport: TransportKind.stdio
+      transport: TransportKind.stdio,
+      options: { env: serverEnv }
     },
     debug: {
       module: serverModule,
       transport: TransportKind.stdio,
       options: {
+        env: serverEnv,
         // Let a debugger attach to the forked server on a fixed port in debug sessions.
         execArgv: ["--nolazy", "--inspect=6009"]
       }
