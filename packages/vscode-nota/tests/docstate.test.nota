@@ -1,6 +1,6 @@
-// SYNTAX TEST "source.nota" "R20a doc-state sugar (JS-ident charset) + R21 [props]-colon composition"
+// SYNTAX TEST "source.nota" "R20 doc-state sugar (Typst-minus-period charset) + R21 [props]-colon composition"
 
-// --- label anchor <ident> (guarded; JS-ident charset [A-Za-z_$][A-Za-z0-9_$]*) ---
+// --- label anchor <ident> (guarded; charset start [A-Za-z0-9_], continue [A-Za-z0-9_:-]) ---
 A section <sec_intro> here.
 //        ^ punctuation.definition.label.begin.nota
 //         ^^^^^^^^^ entity.name.label.nota
@@ -13,6 +13,14 @@ A ref &sec_intro tail.
 //     ^^^^^^^^^ variable.other.reference.nota
 //              ^^^^^^^ source.nota - variable.other.reference.nota
 
+// --- kebab labels now FIRE (the `-` is a continue char): <sec-intro> / &sec-intro ---
+A kebab <sec-intro> anchor and &sec-intro ref.
+//      ^ punctuation.definition.label.begin.nota
+//       ^^^^^^^^^ entity.name.label.nota
+//                ^ punctuation.definition.label.end.nota
+//                             ^ punctuation.definition.reference.nota
+//                              ^^^^^^^^^ variable.other.reference.nota
+
 // --- footnote reference [^ident], repeated, glues after a word (no guard) ---
 A note[^a] and again[^a].
 //    ^^ punctuation.definition.footnote.begin.nota
@@ -22,22 +30,28 @@ A note[^a] and again[^a].
 //                    ^ variable.other.footnote.nota
 //                     ^ punctuation.definition.footnote.end.nota
 
+// --- digit-start footnote [^1] now FIRES (Markdown-style; digits may start a label) ---
+A digit note[^1] here.
+//          ^^ punctuation.definition.footnote.begin.nota
+//            ^ variable.other.footnote.nota
+//             ^ punctuation.definition.footnote.end.nota
+
 // --- the boundary guard: Vec<T> and R&D stay LITERAL (no doc-state scopes) ---
 Vec<T> and R&D stay literal.
 // ^ source.nota - punctuation.definition.label.begin.nota
 //  ^ source.nota - entity.name.label.nota
 //          ^ source.nota - punctuation.definition.reference.nota
 
-// --- amended charset: `.`/`-` are NOT ident chars, so trailing punctuation stays literal ---
+// --- start restriction: arrow-like `<->` stays LITERAL (`-` is not a valid start char) ---
+An arrow <-> stays text.
+//       ^ source.nota - punctuation.definition.label.begin.nota
+//        ^ source.nota - entity.name.label.nota
+
+// --- charset: period is NOT an ident char, so `&sec.` reads the ident as `sec` (`.` stays literal) ---
 A dot &sec. ends the ref.
 //    ^ punctuation.definition.reference.nota
 //     ^^^ variable.other.reference.nota
 //        ^ source.nota - variable.other.reference.nota
-
-// --- amended charset: `<sec-intro>` is literal (the `-` breaks the ident before `>`) ---
-A literal <sec-intro> is text.
-//        ^ source.nota - punctuation.definition.label.begin.nota
-//         ^^^ source.nota - entity.name.label.nota
 
 // --- line-start footnote DEFINITION [^ident]: body (colon sugar; body nests markup) ---
 [^a]: The definition body with @em{markup}.

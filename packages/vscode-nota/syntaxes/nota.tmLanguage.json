@@ -186,11 +186,11 @@
     },
 
     "doc-state": {
-      "comment": "The R20a doc-state inline sugars, each a rewrite to an element form: `<ident>` -> @Label[id], `&ident` -> @Ref[id], `[^ident]` -> @FootnoteMark[label], and line-start `[^ident]: body` -> @FootnoteText[label]: body. Ident charset (R20a amended 2026-07-05): a JS IdentifierName -- the reader uses oxc's own is_identifier_start/part predicates (`$` and Unicode ID chars legal; `.`/`:`/`-` are NOT ident chars, so `&sec.` never glues the trailing punctuation and `<sec-intro>` is literal). TextMate cannot run the full Unicode ID predicate, so we APPROXIMATE it with the ASCII JS-ident class `[A-Za-z_$][A-Za-z0-9_$]*` (non-ASCII identifiers fall back to plain-text scoping here; the reader highlight pass classifies them faithfully). `<` and `&` carry a LEFT-BOUNDARY GUARD -- they fire only at start-of-body/line or after whitespace / opening punctuation ( [ { \" ' -- so Vec<T>, R&D, a<b, a&b stay literal prose; the guard is a fixed-width negative lookbehind `(?<![^\\s(\\[{\"'])` (no preceding char, i.e. line/body start, also passes). `[^` needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). Escapes \\< \\& \\[ (handled by #escape, which runs first) force literals. Ordered definition-before-mark so a line-start `[^x]:` is the multi-arg definition, not a mark plus stray colon.",
+      "comment": "The R20 doc-state inline sugars, each a rewrite to an element form: `<ident>` -> @Label[id], `&ident` -> @Ref[id], `[^ident]` -> @FootnoteMark[label], and line-start `[^ident]: body` -> @FootnoteText[label]: body. Ident charset (R20 re-amended 2026-07-05 -- Typst minus period; supersedes the brief JS-IdentifierName amendment): start `[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only. Digits may start a label (`[^1]`, Markdown-style; `<1>` also fires); kebab labels work (`<sec-intro>`, `&sec-intro`); the colon is a continue char (`<sec:i>`); period is NOT in the set, so `&sec.` reads the ident as `sec` and leaves the `.` literal. `<` and `&` carry a LEFT-BOUNDARY GUARD -- they fire only at start-of-body/line or after whitespace / opening punctuation ( [ { \" ' -- so Vec<T>, R&D, a<b, a&b stay literal prose; the guard is a fixed-width negative lookbehind `(?<![^\\s(\\[{\"'])` (no preceding char, i.e. line/body start, also passes). The start restriction keeps arrow-like prose literal (`<->`, `<-x>` -- `-` is not a valid start char). `[^` needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). Escapes \\< \\& \\[ (handled by #escape, which runs first) force literals. Ordered definition-before-mark so a line-start `[^x]:` is the multi-arg definition, not a mark plus stray colon.",
       "patterns": [
         {
           "comment": "Line-start footnote DEFINITION `[^ident]: body` -> @FootnoteText[label]: body. The `]:` closes the head; the rest of the line is the colon-sugar body, left to the outer markup context (so nested @em{...}/@name in it still highlight).",
-          "match": "^(\\s*)(\\[\\^)([A-Za-z_$][A-Za-z0-9_$]*)(\\]:)",
+          "match": "^(\\s*)(\\[\\^)([A-Za-z0-9_][A-Za-z0-9_:-]*)(\\]:)",
           "captures": {
             "2": { "name": "punctuation.definition.footnote.begin.nota" },
             "3": { "name": "entity.name.footnote.nota" },
@@ -198,8 +198,8 @@
           }
         },
         {
-          "comment": "Footnote REFERENCE `[^ident]` -> @FootnoteMark[label]. No boundary guard (glues after a word like Markdown).",
-          "match": "(\\[\\^)([A-Za-z_$][A-Za-z0-9_$]*)(\\])",
+          "comment": "Footnote REFERENCE `[^ident]` -> @FootnoteMark[label]. No boundary guard (glues after a word like Markdown; digit-start `[^1]` fires, Markdown-style).",
+          "match": "(\\[\\^)([A-Za-z0-9_][A-Za-z0-9_:-]*)(\\])",
           "captures": {
             "1": { "name": "punctuation.definition.footnote.begin.nota" },
             "2": { "name": "variable.other.footnote.nota" },
@@ -207,8 +207,8 @@
           }
         },
         {
-          "comment": "Label ANCHOR `<ident>` -> @Label[id]. Boundary-guarded on `<`; must close with `>` on the opening line (so Vec<T>, `<sec-intro>` (the `-` breaks the ident before `>`), `< b` and `<2x>` stay literal).",
-          "match": "(?<![^\\s(\\[{\"'])(<)([A-Za-z_$][A-Za-z0-9_$]*)(>)",
+          "comment": "Label ANCHOR `<ident>` -> @Label[id]. Boundary-guarded on `<`; must close with `>` on the opening line. Kebab `<sec-intro>` and colon `<sec:i>` fire (the `-`/`:` are continue chars); the start restriction keeps arrow-like prose literal (`<->`, `<-x>`, `< b` — `-`/space is not a valid start char). Vec<T> stays literal via the left-boundary guard.",
+          "match": "(?<![^\\s(\\[{\"'])(<)([A-Za-z0-9_][A-Za-z0-9_:-]*)(>)",
           "captures": {
             "1": { "name": "punctuation.definition.label.begin.nota" },
             "2": { "name": "entity.name.label.nota" },
@@ -216,8 +216,8 @@
           }
         },
         {
-          "comment": "Cross-REFERENCE `&ident` -> @Ref[id]. Boundary-guarded on `&`; ends at the first non-ident char (so R&D and `a&b` stay literal, and `&sec.` reads the ident as `sec` with the `.` left literal -- R20a amended charset).",
-          "match": "(?<![^\\s(\\[{\"'])(&)([A-Za-z_$][A-Za-z0-9_$]*)",
+          "comment": "Cross-REFERENCE `&ident` -> @Ref[id]. Boundary-guarded on `&`; ends at the first non-ident char (so R&D and `a&b` stay literal). Kebab `&sec-intro` fires (the `-` is a continue char); `&sec.` reads the ident as `sec` with the `.` left literal (period is NOT in the charset -- Typst minus period).",
+          "match": "(?<![^\\s(\\[{\"'])(&)([A-Za-z0-9_][A-Za-z0-9_:-]*)",
           "captures": {
             "1": { "name": "punctuation.definition.reference.nota" },
             "2": { "name": "variable.other.reference.nota" }

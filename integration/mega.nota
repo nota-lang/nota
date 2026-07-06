@@ -100,11 +100,14 @@ def f(x):
 
 ## Doc-state sugar
 
-An anchor <sec_flow> and a reference &sec_flow resolve; a footnote[^n1] and a
-repeat[^n1] share a number, plus a second[^n2]. Trailing punctuation stays literal:
-&sec_flow. keeps the dot. Literal Vec<T> and R&D stay text.
+An anchor <sec_flow> and a reference &sec_flow resolve; a kebab anchor <sec-kebab>
+and its reference &sec-kebab resolve too. A footnote[^n1] and a repeat[^n1] share a
+number, plus a second[^n2]. Trailing punctuation stays literal: &sec_flow. keeps the
+dot. Literal Vec<T> and R&D stay text.
 
 [^n1]: The first footnote body, with @em{markup}.
+
+  A second paragraph continues the first note, so the entry decodes as flow (R20b).
 [^n2]: The second footnote body.
 
 ## Doc-state constructs
@@ -112,7 +115,9 @@ repeat[^n1] share a number, plus a second[^n2]. Trailing punctuation stays liter
 % secset({ numberDepth: 2 })
 % bibset({ src: { knuth84: { author: "Knuth", title: "The TeXbook", year: 1984 } } })
 
-A table of contents, @Toc{}, lists the headings above.
+A table of contents lists the headings above:
+
+@Toc{}
 
 Knuth's classic @Cite{knuth84} anchors a bibliography; an anonymous @Footnote{a one-shot note}
 sits beside a labeled one[^n3] defined by the element colon form.

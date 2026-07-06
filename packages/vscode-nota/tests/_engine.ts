@@ -221,7 +221,7 @@ $$
 An escape: \@ \{ \} \| \$ \* \_ \: \[ \] \< \& and a backslash \\.
 Intra-word stays literal: my_var_name and 50% off.
 
-Doc-state sugar: a section <sec_intro>, a ref &sec_intro, a note[^a]; Vec<T> and R&D stay literal.
+Doc-state sugar: a section <sec_intro>, a kebab <sec-intro>, a ref &sec-intro, a note[^a] and[^1]; Vec<T> and R&D stay literal.
 
 [^a]: The footnote definition body.
 `;

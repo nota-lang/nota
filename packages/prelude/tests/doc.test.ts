@@ -301,9 +301,9 @@ describe("Footnotes", () => {
         '<p>B<sup class="nota-fnref"><a id="fnref-2" href="#fn-2">2</a></sup></p>' +
         '<p>C<sup class="nota-fnref"><a id="fnref-3" href="#fn-3">3</a></sup></p>' +
         '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">note A <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
-        '<li id="fn-2">note B <a href="#fnref-2" class="nota-fnbacklink">↩</a></li>' +
-        '<li id="fn-3">note C <a href="#fnref-3" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>note A <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
+        '<li id="fn-2"><div class="nota-fn-content"><p>note B <a href="#fnref-2" class="nota-fnbacklink">↩</a></p></div></li>' +
+        '<li id="fn-3"><div class="nota-fn-content"><p>note C <a href="#fnref-3" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>"
     );
   });
@@ -319,7 +319,7 @@ describe("Footnotes", () => {
     expect(out).toBe(
       '<p>x<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>' +
         '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">n <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>n <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>" +
         "<p>after</p>"
     );
@@ -368,7 +368,7 @@ describe("Labeled footnotes (R20b)", () => {
     // exactly one list entry, backlinking the first reference
     expect(out).toContain(
       '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>"
     );
     expect(out.match(/<li id="fn-/g)).toHaveLength(1);
@@ -394,9 +394,9 @@ describe("Labeled footnotes (R20b)", () => {
     );
     expect(out).toContain(
       '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">anon one <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
-        '<li id="fn-2">labeled x <a href="#fnref-2" class="nota-fnbacklink">↩</a></li>' +
-        '<li id="fn-3">anon two <a href="#fnref-3" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>anon one <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
+        '<li id="fn-2"><div class="nota-fn-content"><p>labeled x <a href="#fnref-2" class="nota-fnbacklink">↩</a></p></div></li>' +
+        '<li id="fn-3"><div class="nota-fn-content"><p>anon two <a href="#fnref-3" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>"
     );
   });
@@ -412,7 +412,7 @@ describe("Labeled footnotes (R20b)", () => {
       '<p>ref<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>'
     );
     expect(out).toContain(
-      '<li id="fn-1">defined first <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>'
+      '<li id="fn-1"><div class="nota-fn-content"><p>defined first <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>'
     );
   });
 
@@ -444,7 +444,7 @@ describe("Labeled footnotes (R20b)", () => {
     );
     expect(out).toContain(
       '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">used note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>used note <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>"
     );
     expect(out).not.toContain("orphan");
@@ -478,8 +478,8 @@ describe("Labeled footnotes (R20b)", () => {
     );
     expect(out).toContain(
       '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">note a <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
-        '<li id="fn-2">note b <a href="#fnref-2" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>note a <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
+        '<li id="fn-2"><div class="nota-fn-content"><p>note b <a href="#fnref-2" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>"
     );
   });
@@ -496,11 +496,39 @@ describe("Labeled footnotes (R20b)", () => {
     expect(out).toBe(
       '<p>x<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup></p>' +
         '<section class="nota-footnotes"><ol>' +
-        '<li id="fn-1">the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></li>' +
+        '<li id="fn-1"><div class="nota-fn-content"><p>the note <a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>' +
         "</ol></section>" +
         "<p>after</p>"
     );
     expect(out.match(/nota-footnotes/g)).toHaveLength(1);
+  });
+
+  test("a multi-paragraph @FootnoteText body renders TWO <p>s in the entry (R20b flow)", () => {
+    // Will's repro: a `[^n1]:` definition whose body contains a blank line renders as two
+    // paragraphs. The reader emits the §7 paragraph-break marker (adjacent "\n","\n") inside the
+    // colon body; FootnotesList wraps the entry in a `div` flow container, so `groupParas` turns the
+    // break into a real <p> split, with the backlink joining the FINAL paragraph run.
+    const out = doc(
+      frag([
+        el("p", ["Body", el(FootnoteMark, [], { label: "n1" })]),
+        el(
+          FootnoteText,
+          ["The first paragraph.", "\n", "\n", "And a second paragraph?"],
+          { label: "n1" }
+        )
+      ])
+    );
+    expect(out).toContain(
+      '<li id="fn-1"><div class="nota-fn-content">' +
+        "<p>The first paragraph.</p>" +
+        "<p>And a second paragraph? " +
+        '<a href="#fnref-1" class="nota-fnbacklink">↩</a></p>' +
+        "</div></li>"
+    );
+    // exactly two paragraphs in the entry
+    expect(
+      out.match(/<li id="fn-1">.*?<\/li>/)?.[0].match(/<p>/g)
+    ).toHaveLength(2);
   });
 });
 
@@ -582,8 +610,8 @@ describe("Cite / Bibliography", () => {
     );
     // the cite label renders inside the footnote list item…
     expect(out).toContain(
-      '<li id="fn-1">see <a href="#bib-k" class="nota-cite">[1]</a> ' +
-        '<a href="#fnref-1" class="nota-fnbacklink">↩</a></li>'
+      '<li id="fn-1"><div class="nota-fn-content"><p>see <a href="#bib-k" class="nota-cite">[1]</a> ' +
+        '<a href="#fnref-1" class="nota-fnbacklink">↩</a></p></div></li>'
     );
     // …and the cited entry appears in the bibliography
     expect(out).toContain('<li id="bib-k">K. T. 2020.</li>');

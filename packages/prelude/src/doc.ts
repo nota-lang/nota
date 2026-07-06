@@ -531,9 +531,17 @@ export const FootnoteText = slot("FootnoteText", DefaultFootnoteText);
 
 /**
  * The default `FootnotesList` (block): a pure `query` rendering the footnote section (`<ol>` of
- * per-number `<li id="fn-N">…content ↩</li>`) from the {@link footnoteModel}, or `null` when there
- * are no referenced footnotes. Split from placement so it can never introduce a new mark — it only
- * *reads* the index.
+ * per-number `<li id="fn-N"><div>…content ↩</div></li>`) from the {@link footnoteModel}, or `null`
+ * when there are no referenced footnotes. Split from placement so it can never introduce a new mark —
+ * it only *reads* the index.
+ *
+ * **Entry content decodes as flow (R20b).** An `<li>` is contractually *tight* (§7 — it receives only
+ * `groupLists`, and `consumeParaBreaks` swallows the §7 paragraph-break marker), so a multi-paragraph
+ * footnote body spliced straight into the `<li>` would collapse to one run. We wrap each entry's
+ * content in a `div` (a HOST_FLOW_TAG → `groupParas` runs), so a blank line inside a `[^x]:` body is a
+ * real paragraph break: `<li><div><p>…</p><p>… ↩</p></div></li>`. The backlink is appended **inside**
+ * the div (after the content + a space) so it joins the final paragraph run; a single-paragraph
+ * footnote becomes `<li><div><p>body ↩</p></div></li>`.
  */
 export function DefaultFootnotesList(_props: CompProps): unknown {
   return query(doc => {
@@ -543,9 +551,11 @@ export function DefaultFootnotesList(_props: CompProps): unknown {
     }
     const items = entries.map(({ num, content }) =>
       h("li", { id: `fn-${num}` }, [
-        ...content,
-        " ",
-        h("a", { href: `#fnref-${num}`, class: "nota-fnbacklink" }, ["↩"])
+        h("div", { class: "nota-fn-content" }, [
+          ...content,
+          " ",
+          h("a", { href: `#fnref-${num}`, class: "nota-fnbacklink" }, ["↩"])
+        ])
       ])
     );
     return h("section", { class: "nota-footnotes" }, [h("ol", {}, items)]);

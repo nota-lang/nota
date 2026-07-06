@@ -282,22 +282,25 @@ ignored, the browser renders the sequence.
 ### Doc-state references
 Four inline sugars for the ambient doc-state family, each a **rewrite to the element
 form** so it inherits the element machinery (line clamp R11, positional rules R12) —
-[contract R20a](contract.md) (amended charset) pins the exact rules. Identifiers are a
-JS **IdentifierName** (the reader's own `is_identifier_start`/`is_identifier_part`; `$`
-and Unicode ID chars legal, but `.`/`:`/`-` are **not** ident chars — so `&sec.` reads
-the id as `sec` and leaves the `.` literal, and `<sec-intro>` is literal text). `<` and
-`&` carry a **left-boundary guard** — they fire only at the start of a body/line or after
-whitespace or opening punctuation (`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b`
-stay literal prose; `[^…]` needs no guard (the digraph is unambiguous and glues after a
-word, Markdown-style). The element forms themselves are charset-free (`@Label[id: "…"]`
-accepts any string); only the *sugar* is IdentifierName-restricted. The whole family is
-ambient (R20c) — **no `%import` needed**.
+[contract R20](contract.md) (re-amended charset) pins the exact rules. The label charset
+is **Typst minus period** — start `[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only.
+Digits may start a label (`[^1]`, Markdown-style); kebab labels work (`<sec-intro>`,
+`&sec-intro`); the colon is a continue char (`<sec:intro>`); the period is **not** in the
+set, so `&sec.` reads the id as `sec` and leaves the `.` literal. `<` and `&` carry a
+**left-boundary guard** — they fire only at the start of a body/line or after whitespace or
+opening punctuation (`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal
+prose, and the start restriction keeps arrow-like prose literal (`<->`, `<-x>`); `[^…]`
+needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). The
+element forms themselves are charset-free (`@Label[id: "…"]` accepts any string, including
+`.`/Unicode); only the *sugar* is charset-restricted. The whole family is ambient (R20c) —
+**no `%import` needed**.
 ```
 <sec_intro>          → @Label[id: "sec_intro"]{}          // anchor; must close > on its line
-&sec_intro           → @Ref[id: "sec_intro"]{}            // cross-reference
-[^n1]                → @FootnoteMark[label: "n1"]{}        // footnote reference
+<sec-intro>          → @Label[id: "sec-intro"]{}          // kebab label (the - is a continue char)
+&sec-intro           → @Ref[id: "sec-intro"]{}            // kebab cross-reference
+[^1]                 → @FootnoteMark[label: "1"]{}         // footnote reference (digit-start ok)
 [^n1]: body          → @FootnoteText[label: "n1"]: body    // line-start definition (colon body)
-&sec.  Vec<T>  R&D   → Ref("sec") + "."  ; Vec<T> ; R&D   // amended charset / guard: literal tails
+&sec.  Vec<T>  <->   → Ref("sec") + "."  ; Vec<T> ; <->   // period / guard / start: literal tails
 ```
 Repeated `[^n1]` references share one number and one list entry; the list auto-appends
 at document end unless `@Footnotes` places it (R18d). The escapes `\<`, `\&`, `\[` yield

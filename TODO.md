@@ -50,14 +50,15 @@ Both were in the line-start-sugar / statement-extent machinery (the bug-2/3 clus
 The two sharp edges the `<x>` / `&x` / `[^x]` / `[^x]:` sugars ([contract R20a](design/contract.md))
 once carried are both now dissolved:
 
-- **(a) Trailing punctuation glue — resolved by the R20a charset amendment (2026-07-05).** The ident
-  charset is now a JS **IdentifierName** (oxc's own `is_identifier_start`/`is_identifier_part`; `$` and
-  Unicode ID chars legal, but `.`/`:`/`-` are **not** ident chars). So `&sec.` at a sentence end reads
-  the id as `sec` and leaves the `.` literal — the trailing-glue wart is structurally gone, not merely
-  trimmed. (`<x>` closes on `>` and `[^x]` closes on `]`, so both were always unaffected; the glue only
-  ever bit the delimiter-less `&x`.) A former mid-ident case like `sec-intro` is now two tokens
-  (`Ref("sec")` + literal `-intro`), and `<sec-intro>` is literal text (the `-` breaks the ident before
-  `>`) — use `sec_intro` for a JS-ident label.
+- **(a) Trailing punctuation glue — resolved by the R20 charset ruling (Typst minus period, re-amended
+  2026-07-05; supersedes the brief JS-IdentifierName amendment).** The label charset is start
+  `[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only. The **period exclusion** is what resolves the
+  glue: `&sec.` at a sentence end reads the id as `sec` and leaves the `.` literal — structurally gone,
+  not merely trimmed. (`<x>` closes on `>` and `[^x]` closes on `]`, so both were always unaffected; the
+  glue only ever bit the delimiter-less `&x`.) Kebab is **restored** (the `-` is a continue char):
+  `<sec-intro>`, `&sec-intro`, and colon `<sec:intro>` all fire, and digits may start a label (`[^1]`,
+  `<1>`); only the start restriction keeps arrow-like prose literal (`<->`, `<-x>`). `$`/Unicode are not
+  label chars — the element forms (`@Label[id: "…"]`) stay charset-free for those.
 - **(b) The explicit element colon form — resolved by contract R21 (2026-07-05).**
   `@FootnoteText[label: "x"]: body` now composes (`@head[props]*: body`, the same R12 gate as bare
   `@head:`), so the element form joins the `[^x]: body` sugar as a colon-body definition surface (both

@@ -107,11 +107,13 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     expect(excerpts(spans, MEGA, "sigil")).toEqual(
       expect.arrayContaining(["<", ">", "&", "[^", "]:"])
     );
+    // `sec-kebab` pins the restored kebab charset (Typst-minus-period): the `-` is a label
+    // continue char, so `<sec-kebab>` / `&sec-kebab` classify as one ident, not `sec` + `-kebab`.
     expect(excerpts(spans, MEGA, "interpolation")).toEqual(
-      expect.arrayContaining(["sec_flow", "n1", "n2", "n3"])
+      expect.arrayContaining(["sec_flow", "sec-kebab", "n1", "n2", "n3"])
     );
     // The boundary guard held: `Vec<T>` / `R&D` stayed literal, so their `<` / `&` / `T` produced no
-    // doc-state spans — the ident set is exactly the four sugar keys, never `T` or `D`.
+    // doc-state spans — the ident set never includes `T` or `D`.
     const idents = excerpts(spans, MEGA, "interpolation");
     expect(idents).not.toContain("T");
     expect(idents).not.toContain("D");
