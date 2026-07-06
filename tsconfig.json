@@ -6,5 +6,15 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  // No `include` ⇒ TS defaults to every .ts/.js under the repo root. Without these excludes the
+  // Volar language server's TS project inhales oxc/tasks/coverage (~109k conformance fixtures,
+  // 3.7 GB) and references/ (external repo checkouts) and OOMs at V8's 4 GB heap cap on launch.
+  "exclude": [
+    "oxc",
+    "references",
+    "**/node_modules",
+    "**/dist",
+    "**/target"
+  ]
 }
