@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
+    "@nota-lang/prelude": "workspace:*",
     "@nota-lang/runtime": "workspace:*"
   },
   "peerDependencies": {

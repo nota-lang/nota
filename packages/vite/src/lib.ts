@@ -13,6 +13,7 @@
  * around it.
  */
 
+import { createRequire } from "node:module";
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 
@@ -127,11 +128,26 @@ function injectAmbientPrelude(
 }
 
 /**
+ * The modules the plugin's own emit imports — the prepended `@nota-lang/runtime` line and the
+ * default {@link injectAmbientPrelude} module. {@link nota}'s `resolveId` falls back to *this
+ * package's* copies for exactly these, so a project that installed only `@nota-lang/vite` still
+ * resolves them (under pnpm's strict layout a transitive dep is not importable from user code).
+ */
+const EMIT_IMPORT_FALLBACKS = ["@nota-lang/runtime", "@nota-lang/prelude"];
+
+/**
  * The nota Vite plugin: makes `.nota` files importable.
  *
  * `transform(code, id)` — for an `id` ending in a claimed extension (default `.nota`), compile the
  * source to a JS module via `@nota-lang/compiler` and return `{ code, map }`; for any other id,
  * return `null` (passthrough — Vite tries the next plugin).
+ *
+ * `resolveId(source)` — a **fallback-only** resolution for the imports the plugin itself prepends
+ * ({@link EMIT_IMPORT_FALLBACKS}): normal resolution runs first (`this.resolve` with `skipSelf`),
+ * and only when the user's project cannot resolve the name do we answer with this package's own
+ * copy. Fallback-only matters: the runtime carries module-level state (the active adapter, the
+ * registry, the `raw` brand), so when the project *does* have `@nota-lang/runtime`, that copy must
+ * win — two runtime instances would split that state.
  *
  * - **Extension filter.** Like mdx, we strip Vite's `?query`/`#hash` suffix before matching, so
  *   `foo.nota?import` and `foo.nota?t=123` (HMR cache-bust) still match.
@@ -162,6 +178,23 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
   return {
     name: "@nota-lang/vite",
     enforce: "pre",
+    async resolveId(source: string, importer: string | undefined) {
+      if (!EMIT_IMPORT_FALLBACKS.includes(source)) {
+        return null;
+      }
+      // Prefer the project's own copy (see the plugin doc — runtime state identity).
+      const normal = await this.resolve(source, importer, { skipSelf: true });
+      if (normal) {
+        return normal;
+      }
+      // Fall back to the copy this package depends on. `require.resolve` walks from *this* file,
+      // so it finds the plugin's node_modules regardless of the user project's layout.
+      try {
+        return createRequire(import.meta.url).resolve(source);
+      } catch {
+        return null; // let Vite report the unresolved import against the real importer
+      }
+    },
     transform(code: string, id: string) {
       if (!claims(id)) {
         // Not ours — passthrough so the next plugin (or Vite core) handles it.

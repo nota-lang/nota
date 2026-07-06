@@ -322,6 +322,9 @@ importers:
       '@nota-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@nota-lang/prelude':
+        specifier: workspace:*
+        version: link:../prelude
       '@nota-lang/runtime':
         specifier: workspace:*
         version: link:../runtime
