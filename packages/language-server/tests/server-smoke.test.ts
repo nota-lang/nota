@@ -109,6 +109,11 @@ describe("language server (real boot, heap-capped)", () => {
         });
         // The server advertises a semantic-tokens provider (the Nota plugin's legend).
         expect(init.result?.capabilities?.semanticTokensProvider).toBeTruthy();
+        // …and completion trigger characters `@` and `[` (the Nota completions plugin, P5).
+        const triggers: string[] =
+          init.result?.capabilities?.completionProvider?.triggerCharacters ?? [];
+        expect(triggers).toContain("@");
+        expect(triggers).toContain("[");
 
         c.notify("initialized", {});
         c.notify("textDocument/didOpen", {

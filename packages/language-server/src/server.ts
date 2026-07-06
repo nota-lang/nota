@@ -19,6 +19,7 @@ import {
 } from "@volar/language-server/node.js";
 import ts from "typescript";
 import { create as createTypeScriptServices } from "volar-service-typescript";
+import { notaCompletionsPlugin } from "./completions.js";
 import { notaDiagnosticsServicePlugin } from "./diagnostics.js";
 import { notaLanguagePlugin } from "./language-plugin.js";
 import { notaSemanticTokensPlugin } from "./semantic-tokens.js";
@@ -43,12 +44,14 @@ export function startServer(connection: Connection = createConnection()): void {
         languagePlugins: [notaLanguagePlugin]
       })),
       // `volar-service-typescript` surfaces *type* diagnostics/hover/completion over the virtual
-      // `.tsx`; the Nota diagnostics plugin surfaces the `.nota`'s own *syntax* diagnostics (D5),
-      // and the Nota semantic-tokens plugin paints the reader-driven highlight spans (D2).
+      // `.tsx` (incl. `@tag[|` prop completions through the recovery anchor mapping); the Nota
+      // plugins add the `.nota`'s own *syntax* diagnostics (D5), reader-driven semantic tokens (D2),
+      // and `@|` markup-head completions (P5).
       [
         ...createTypeScriptServices(ts),
         notaDiagnosticsServicePlugin,
-        notaSemanticTokensPlugin
+        notaSemanticTokensPlugin,
+        notaCompletionsPlugin
       ]
     )
   );
