@@ -167,9 +167,9 @@ export function flattenSpans(
     return [];
   }
   // All distinct boundary offsets, ascending.
-  const bounds = [
-    ...new Set(spans.flatMap(s => [s.start, s.end]))
-  ].sort((a, b) => a - b);
+  const bounds = [...new Set(spans.flatMap(s => [s.start, s.end]))].sort(
+    (a, b) => a - b
+  );
 
   const runs: TokenRun[] = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
@@ -203,7 +203,10 @@ export function flattenSpans(
         continue;
       }
       // Innermost wins: later start, or same start + earlier end.
-      if (s.start > overlayStart || (s.start === overlayStart && s.end < overlayEnd)) {
+      if (
+        s.start > overlayStart ||
+        (s.start === overlayStart && s.end < overlayEnd)
+      ) {
         overlay = t;
         overlayStart = s.start;
         overlayEnd = s.end;
@@ -311,6 +314,58 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
     }
   }
   return tokens;
+}
+
+/**
+ * Delta-encode plugin-local {@link SemanticToken}s into the LSP `SemanticTokens` wire shape
+ * (`{ data }`, groups of 5) **remapped to a merged legend**.
+ *
+ * The service-plugin channel would remap our plugin-local type/modifier indices to the client legend
+ * for us, but that channel never routes the `.nota` source doc to us (Volar offers only the virtual
+ * `.tsx`, contract-bug fix), so the connection-level handler serves these tokens directly — and it
+ * MUST index them against the legend the server actually advertised. Volar merges the TS plugin's
+ * legend first (`namespace`, …, `operator`), then ours (`notaSigil`, …), so a plugin-local index
+ * (into {@link NOTA_TOKEN_TYPES}/{@link NOTA_TOKEN_MODIFIERS}) is the WRONG index in the merged
+ * legend. We translate by NAME: local index → type/modifier name → its position in `legend`.
+ *
+ * Tokens whose type name is absent from `legend` are dropped (defensive; the merge always includes
+ * ours). Modifier bits whose name is absent are dropped. Output is sorted + delta-encoded exactly as
+ * Volar's `SemanticTokensBuilder` would.
+ */
+export function encodeSemanticTokens(
+  tokens: readonly SemanticToken[],
+  legend: SemanticTokensLegend
+): { data: number[] } {
+  const typeMap = NOTA_TOKEN_TYPES.map(name => legend.tokenTypes.indexOf(name));
+  const modMap = NOTA_TOKEN_MODIFIERS.map(name =>
+    legend.tokenModifiers.indexOf(name)
+  );
+  const remapped: SemanticToken[] = [];
+  for (const [line, char, length, type, mods] of tokens) {
+    const mergedType = typeMap[type] ?? -1;
+    if (mergedType < 0) {
+      continue; // type name not in the merged legend — nothing safe to paint
+    }
+    let mergedMods = 0;
+    for (let i = 0; i < NOTA_TOKEN_MODIFIERS.length; i++) {
+      if (mods & (1 << i) && modMap[i] >= 0) {
+        mergedMods |= 1 << modMap[i];
+      }
+    }
+    remapped.push([line, char, length, mergedType, mergedMods]);
+  }
+  remapped.sort((a, b) => (a[0] - b[0] === 0 ? a[1] - b[1] : a[0] - b[0]));
+  const data: number[] = [];
+  let prevLine = 0;
+  let prevChar = 0;
+  for (const [line, char, length, type, mods] of remapped) {
+    const deltaLine = line - prevLine;
+    const deltaChar = deltaLine === 0 ? char - prevChar : char;
+    data.push(deltaLine, deltaChar, length, type, mods);
+    prevLine = line;
+    prevChar = char;
+  }
+  return { data };
 }
 
 /**
