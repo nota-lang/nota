@@ -5,7 +5,7 @@
 
 import { javascript } from "@codemirror/lang-javascript";
 import type { Extension } from "@codemirror/state";
-import { catppuccinHighlight } from "./highlight-style";
+import { catppuccinHighlight } from "@nota-lang/codemirror";
 
 /** The JS language + Catppuccin highlight, as one CM6 extension for the read-only `CodeView`. */
 export function jsLanguage(): Extension {

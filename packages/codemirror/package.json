@@ -1,0 +1,38 @@
+{
+  "name": "@nota-lang/codemirror",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@codemirror/lang-html": "^6.4.9",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/language": "^6.10.3",
+    "@codemirror/legacy-modes": "^6.5.3",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.34.1",
+    "@lezer/highlight": "^1.2.3",
+    "nota_wasm": "file:../../oxc/napi/nota_wasm/pkg"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "jsdom": "^29.1.1"
+  }
+}

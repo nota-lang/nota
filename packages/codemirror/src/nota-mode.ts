@@ -1,8 +1,11 @@
 /**
- * CM6 highlighting for the Nota editor (left pane) — **reader-driven**: the wasm reader's
+ * CM6 highlighting for Nota — **reader-driven**: the wasm reader's
  * `highlight(source)` entry (an AST walk + embedded-JS re-lex inside the reader, `oxc_parser`)
  * returns classified `[start, end, kind]` span triples, and a small `ViewPlugin` paints each as a
  * `Decoration.mark` with a `cm-nota-<kind>` class themed on the Catppuccin-Latte palette below.
+ *
+ * The consumer owns loading: initialize `nota_wasm` (`init(url)` in a bundler app, `init(bytes)`
+ * elsewhere — e.g. the playground's `ensureCompiler`) before installing {@link notaHighlighting}.
  *
  * This replaced the TextMate-grammar-through-Shiki bridge: the grammar is regex-only and cannot
  * track Nota's context-sensitivity or markup⇄JS mutual nesting, so a markup-valued prop
@@ -38,8 +41,8 @@ import { highlight, highlightKindNames } from "nota_wasm";
 import { embeddedTokens } from "./embedded-langs";
 import { catppuccinHighlight } from "./highlight-style";
 
-// Catppuccin Latte (light) — the same palette as highlight-style.ts (output panes) and the `--*`
-// vars in playground.css, so the editor sits cohesively on the light theme.
+// Catppuccin Latte (light) — the same palette as highlight-style.ts, so a Nota editor sits
+// cohesively beside consumers' other CM panes on a light theme.
 const teal = "#179299";
 const blue = "#1e66f5";
 const yellow = "#df8e1d";
@@ -114,8 +117,8 @@ function decorationsForKinds(): Decoration[] {
 }
 
 /**
- * One classified span, for tests and the dump-tokens debug CLI. `kind` is the reader's stable
- * kebab-case name. Requires the wasm compiler to be initialized (compiler.ts `ensureCompiler`).
+ * One classified span, for tests and debug tooling (the playground's dump-tokens CLI). `kind` is the
+ * reader's stable kebab-case name. Requires `nota_wasm` to be initialized.
  */
 export interface NotaSpan {
   from: number;
@@ -310,8 +313,8 @@ function computeDecorations(doc: string): DecorationSet | null {
 
 /**
  * The CM6 extension: a ViewPlugin that re-highlights on every document change (the wasm parse is
- * sub-millisecond at document scale), plus the kind theme. Assumes the wasm compiler is loaded —
- * use {@link createNotaHighlight} to get the loading tied in.
+ * sub-millisecond at document scale), plus the kind theme. Assumes `nota_wasm` is initialized —
+ * the consumer awaits its `init` before installing the extension.
  */
 export function notaHighlighting(): Extension {
   const plugin = ViewPlugin.fromClass(
@@ -334,13 +337,4 @@ export function notaHighlighting(): Extension {
   // sub-language overlay classes (from `embeddedTokens` via `highlightTree`) resolve to colors. It
   // registers a tree highlighter too, but the editor has no CM `Language`, so nothing auto-paints.
   return [plugin, notaTheme, catppuccinHighlight];
-}
-
-/** Convenience: load the wasm compiler (idempotent), then the highlighting extension. The
- *  compiler module is imported lazily so this file stays importable outside Vite (the dump-tokens
- *  CLI under tsx — compiler.ts's `?url` wasm import only resolves through Vite). */
-export async function createNotaHighlight(): Promise<Extension> {
-  const { ensureCompiler } = await import("./compiler");
-  await ensureCompiler();
-  return notaHighlighting();
 }

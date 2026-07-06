@@ -39,8 +39,12 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     subset-correctness conformance test (`tests/conformance.ts` → `pnpm run test:conformance`) that
     runs the compiled grammar over `integration/*.nota` and asserts every Nota-scoped token agrees
     with the reader's `highlightSpans` kind (needs the node wasm `pkg-node` + `@nota-lang/compiler`).
-  - **playground** — browser editor (CM6; the editor paints reader-driven highlight spans from the
-    wasm `highlight()` entry — see `oxc/NOTA_READER.md` §Highlighting); consumes the **wasm** reader,
+  - **codemirror** — CM6 language support for Nota (no CM grammar exists — reader-driven:
+    `notaHighlighting()` paints the wasm `highlight()` spans as decorations, embedded code/math/`@style`
+    interiors sub-tokenize via CM's own parsers, one shared Catppuccin `HighlightStyle`; see
+    `oxc/NOTA_READER.md` §Highlighting). Wasm **init is consumer-side** (`init(url|bytes)` before
+    installing). Consumed by the playground; later the website.
+  - **playground** — browser editor (CM6 via `@nota-lang/codemirror`); consumes the **wasm** reader,
     not the binary.
 - `references/` — external reference repos (mdx, typst, scribble, pollen, oxc); gitignored.
 
@@ -49,8 +53,8 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
 ### Depot / JS tests
 - **Per-package only:** `cd packages/<pkg> && depot test` (= type-check + biome lint + vitest). Do NOT
   run bare `depot test` from the repo root — a biome 2.x root-config conflict fails whole-workspace
-  runs. Add `--no-fullscreen` for pipeable output; run packages **serially** (they race on shared
-  `dist/`).
+  runs. `--no-fullscreen` (pipeable output) is a **global** flag: `depot --no-fullscreen test`, not
+  `depot test --no-fullscreen`. Run packages **serially** (they race on shared `dist/`).
 - Fix biome issues with `node_modules/.bin/biome check --write src tests`. One pre-existing biome
   failure (`react/tests/fixtures/golden.compiled.ts`) is **not yours** — don't chase it.
 - True exit codes: **redirect, don't pipe** — `cmd >/tmp/o 2>&1; echo $?`. `| tail`/`| grep` reports

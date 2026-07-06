@@ -1,9 +1,10 @@
 /**
- * The shared CM6 highlight for every output pane (Generated JS, SSG-output HTML + manifest). Lezer's
- * `tags` are language-agnostic — `@lezer/javascript`, `@lezer/html`, and `@lezer/json` all assign the
- * same standard set — so one {@link HighlightStyle} colors all three. We map those tags onto the
- * Catppuccin-Latte palette (the light variant matching the `--*` vars in `playground.css` and the
- * editor's kind theme in nota-mode.ts), so the panes' tokens sit cohesively on the light theme.
+ * The shared CM6 highlight, usable for any plain-language pane (the playground's Generated-JS /
+ * SSG-HTML views) as well as Nota's embedded interiors. Lezer's `tags` are language-agnostic —
+ * `@lezer/javascript`, `@lezer/html`, and `@lezer/json` all assign the same standard set — so one
+ * {@link HighlightStyle} colors them all. We map those tags onto the Catppuccin-Latte palette (the
+ * light variant matching the editor's kind theme in nota-mode.ts), so tokens sit cohesively on a
+ * light theme.
  */
 
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";

@@ -1,8 +1,8 @@
 /**
  * Debug CLI for the Nota editor highlighter. Runs a document through the *exact* stack the editor
- * uses — the wasm reader's `highlight` entry (src/nota-mode.ts `highlightSpans`) plus the embedded
- * sub-language overlay on code/math interiors (`embeddedRegions` + CodeMirror parsers) — then shows
- * the result two ways:
+ * uses — the wasm reader's `highlight` entry (`@nota-lang/codemirror`'s `highlightSpans`) plus the
+ * embedded sub-language overlay on code/math interiors (`embeddedRegions` + CodeMirror parsers) —
+ * then shows the result two ways:
  *
  *   1. an ANSI true-color render of the source (same kind→color table the CM6 theme uses), so the
  *      highlighting is visible in a terminal;
@@ -20,11 +20,14 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { classHighlighter, highlightTree } from "@lezer/highlight";
+import {
+  embeddedRegions,
+  highlightSpans,
+  languageFor
+} from "@nota-lang/codemirror";
 import init from "nota_wasm";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
-import { languageFor } from "../src/embedded-langs";
 import { GOLDEN_NOTA } from "../src/golden";
-import { embeddedRegions, highlightSpans } from "../src/nota-mode";
 
 /** Kind → terminal style, mirroring nota-mode's Catppuccin-Latte CM6 theme. */
 const KIND_COLORS: Record<

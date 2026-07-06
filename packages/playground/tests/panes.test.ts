@@ -7,6 +7,7 @@
 
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { highlightSpans } from "@nota-lang/codemirror";
 import { compile as wasmCompile } from "nota_wasm";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
@@ -254,6 +255,17 @@ describe("pipeline: Generated-JS survives an SSG error", () => {
     expect(result.manifest).toBe(good.manifest);
     expect(result.Doc).toBe(good.Doc);
     expect(result.error).toBeTruthy();
+  });
+});
+
+describe("@nota-lang/codemirror shares the app's wasm instance", () => {
+  it("highlightSpans works after the app-side ensureCompiler init (single nota_wasm)", () => {
+    // The package imports `highlight` from its own `nota_wasm` file: dep; the app initialized wasm
+    // via compiler.ts. Both `file:` specifiers must dedupe to ONE module instance — if they ever
+    // split, this throws "wasm not initialized" (fix: resolve.dedupe nota_wasm).
+    const spans = highlightSpans("# H\n");
+    expect(spans.length).toBeGreaterThan(0);
+    expect(spans.some(s => s.kind === "heading")).toBe(true);
   });
 });
 

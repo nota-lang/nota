@@ -5,7 +5,7 @@
 
 import { json } from "@codemirror/lang-json";
 import type { Extension } from "@codemirror/state";
-import { catppuccinHighlight } from "./highlight-style";
+import { catppuccinHighlight } from "@nota-lang/codemirror";
 
 /** The JSON language + Catppuccin highlight, as one CM6 extension for the read-only `CodeView`. */
 export function jsonLanguage(): Extension {

@@ -11,13 +11,13 @@
  */
 
 import type { Extension } from "@codemirror/state";
+import { notaHighlighting } from "@nota-lang/codemirror";
 import { useEffect, useState } from "react";
 import { AstPane } from "./AstPane";
 import { CodePane } from "./CodePane";
 import { ensureCompiler } from "./compiler";
 import { DEFAULT_SNIPPET } from "./default-snippet";
 import { Editor } from "./Editor";
-import { createNotaHighlight } from "./nota-mode";
 import { EMPTY, type PipelineResult, runPipeline } from "./pipeline";
 import { RenderedPane } from "./RenderedPane";
 import { SsgPane } from "./SsgPane";
@@ -34,12 +34,13 @@ export function App() {
 
   // The Nota highlighting extension waits on the wasm compiler (the reader highlights the doc);
   // until it resolves the editor shows plain text. Highlighting is best-effort — a load failure
-  // is ignored (the compile pipeline surfaces the real error).
+  // is ignored (the compile pipeline surfaces the real error). `ensureCompiler` is memoized, so
+  // this shares the load below.
   const [language, setLanguage] = useState<Extension>([]);
   useEffect(() => {
     let live = true;
-    createNotaHighlight().then(
-      ext => live && setLanguage(ext),
+    ensureCompiler().then(
+      () => live && setLanguage(notaHighlighting()),
       () => {}
     );
     return () => {

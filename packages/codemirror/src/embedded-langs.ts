@@ -4,8 +4,8 @@
  * with the fence's language (math → always TeX) using CodeMirror's own Lezer/stream parsers, coloring
  * the tokens through the shared Catppuccin-Latte `HighlightStyle` (highlight-style.ts).
  *
- * The reader owns Nota; CM owns the embedded foreign languages — the same split the read-only output
- * panes already use (js-mode.ts / html-mode.ts / json-mode.ts). The supported set mirrors the
+ * The reader owns Nota; CM owns the embedded foreign languages — the same split consumers' plain
+ * CM panes use (e.g. the playground's read-only output panes). The supported set mirrors the
  * prelude's shiki languages (packages/prelude/src/code.ts) so the editor highlights exactly what the
  * document can render, plus (La)TeX for math. An unknown language returns no tokens, and the caller
  * keeps the reader's flat under-layer.
