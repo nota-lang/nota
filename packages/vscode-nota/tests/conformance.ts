@@ -234,6 +234,31 @@ for (const s of Object.keys(SCOPE_KINDS)) {
   check(`grammar assigns ${s}`, grammarText.includes(s));
 }
 
+// The grammar CONTRIBUTION must exclude TS operator/arrow scopes from bracket matching.
+// VS Code's bracket-pair colorizer runs on top of tokens, invisible to the token inspector: without
+// these exclusions the `>` of an embedded-TS `=>` is treated as an unmatched angle bracket and
+// painted with the unexpected-bracket color (the "= is blue, > is red" bug). Real .ts files are
+// immune because the builtin typescript-basics extension declares exactly these scopes as
+// `unbalancedBracketScopes` — an embedded context inherits nothing from it, so the HOST grammar
+// contribution (ours) must re-declare them. Raw/math/escape content is excluded for the same
+// reason (a stray bracket in a code span must not pair with prose brackets).
+const pkg = JSON.parse(
+  readFileSync(join(PKG_ROOT, "package.json"), "utf8")
+) as {
+  contributes?: { grammars?: { unbalancedBracketScopes?: string[] }[] };
+};
+const unbalanced = pkg.contributes?.grammars?.[0]?.unbalancedBracketScopes ?? [];
+for (const s of [
+  "storage.type.function.arrow",
+  "keyword.operator.relational",
+  "keyword.operator.bitwise.shift",
+  "markup.inline.raw.code.nota",
+  "markup.raw.code.block.nota",
+  "markup.math.nota"
+]) {
+  check(`contribution excludes ${s} from bracket matching`, unbalanced.includes(s));
+}
+
 // ===================================================================================================
 // 2. Smoke: real-engine tokenization of a representative sample.
 // ===================================================================================================
