@@ -7,12 +7,12 @@ Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowe
 ## Read first
 **Most tasks do NOT need a full read of `design/*.md`** — the facts below + the package map are what
 sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics work:
-- **`design/contract.md`** — the authoritative, reconciled cross-stream spec. It pins the emit surface,
-  the runtime semantics, and all locked cross-cutting decisions, and supersedes the design docs where
-  they conflict.
-- `design/notation.md` (surface syntax → emit), `design/decode.md` (runtime decode/SSG model),
-  `design/implementation.md` (the phased build plan). Authority: implementation.md → contract.md →
-  notation/decode.
+- **`design/notation.md`** — surface syntax → emit, including the authoritative hyperscript emit
+  table (§Emit reference; the JSX forms in the doc are a declared readability view).
+- **`design/decode.md`** — runtime semantics: the emit surface, the decode pipeline
+  (normalize → doc-state → struct → serialize), islands + replay hydration, the registry/config,
+  and SSG integration.
+Reader architecture lives with the code: `oxc/NOTA_READER.md`.
 
 ## Repo layout
 - **`oxc/`** — a fork of oxc (branch `nota`) hosting the Nota *reader*, wired in as a **git submodule**
@@ -21,8 +21,8 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
 - **`packages/*`** — the `@nota-lang/*` TypeScript packages, a **Depot** + pnpm workspace:
   - **runtime** — framework-agnostic core: `h`/`Fragment`/`raw`, `decode`, HTML `serialize`,
     list/section coalescing (`struct.ts`), island slot recovery, and the component registry
-    (`slot`/`registerComponents`, contract R14b). The adapters build on it.
-  - **prelude** — the standard ambient prelude (contract R14): `Tex` (KaTeX→MathML) +
+    (`slot`/`registerComponents` — decode.md §The registry). The adapters build on it.
+  - **prelude** — the standard ambient prelude: `Tex` (KaTeX→MathML) +
     `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
     `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
   - **compiler** — sync shim (`src/lib.ts`) that shells out to the Rust reader binary:
@@ -33,10 +33,10 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   - **cli** — `nota build`: compile → SSR → SSG HTML + island manifest + client bundle (`build.ts`).
   - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`.
   - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`, a conservative
-    "never lie" grammar per contract D1: single-line `match` rules + line-anchored fences only, the
+    **"never lie" grammar**: single-line `match` rules + line-anchored fences only, the
     honest first paint before the LSP semantic tokens arrive). **No depot/vitest**; tests run via
     `pnpm run test:all` = `vscode-tmgrammar-test` caret fixtures (`tests/*.test.nota`) **plus** a node
-    D1 subset-correctness conformance test (`tests/conformance.ts` → `pnpm run test:conformance`) that
+    subset-correctness conformance test (`tests/conformance.ts` → `pnpm run test:conformance`) that
     runs the compiled grammar over `integration/*.nota` and asserts every Nota-scoped token agrees
     with the reader's `highlightSpans` kind (needs the node wasm `pkg-node` + `@nota-lang/compiler`).
   - **playground** — browser editor (CM6; the editor paints reader-driven highlight spans from the
@@ -65,7 +65,8 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   emit + validity), `cargo test -p oxc_transformer --lib nota` (Scribble whitespace + mapping
   units), and `cargo test -p oxc_parser --lib nota` (lexer scan units: boundaries, line
   classifiers, string-aware skips; highlight-span units). **`cargo test -p oxc` runs ZERO tests**
-  (`[lib] test=false`); the compile-entry + H1/H2 tests need `cargo test -p oxc --features codegen nota`.
+  (`[lib] test=false`); the compile-entry + CodeMapping/virtual-emit tests need
+  `cargo test -p oxc --features codegen nota`.
 - `just ast` (regenerate `#[ast]` code) **always exits 101 here** — it panics at the end on a missing
   `oxfmt` (JS formatter), but the Rust regen is complete and correct. Verify with `cargo build -p
   oxc_ast`, not the exit code. (Adding an AST variant: see memory `nota-oxc-add-expression-variant.md`.)
@@ -92,12 +93,13 @@ A reader change is invisible to JS until you rebuild the artifact that consumes 
   there before re-fuzzing/repro'ing. Feature mega-test: `integration/mega.nota`.
 - **decode model:** `h`/`Fragment`/`decode` branch on a runtime flag (`▸` = inside a `component`?).
   SSG builds a vnode tree (marked components deferred, not invoked; a *plain* function tag is a
-  static template `struct` expands eagerly — R10); `decode` = `serialize(struct(v))`, coalescing
-  `nota-ul-li`/`nota-ol-li` → lists, grouping paras/sections, stopping at component boundaries.
-  Only reactive islands hydrate client-side.
+  **static template** `struct` expands eagerly); `decode` runs the pipeline ending in
+  `serialize(struct(…))`, coalescing `nota-ul-li`/`nota-ol-li` → lists, grouping paras/sections,
+  stopping at component boundaries. Only reactive islands hydrate client-side (by **replay
+  hydration** — the client re-executes the document; see decode.md).
 - **macOS zsh:** `noclobber` (`>` fails on existing files — use `>|`); backticks in `git commit -m` run
   command substitution (use `-F`); Bash cwd resets each call (use absolute paths).
 
-## Build status & method
-The build is orchestrated wave-by-wave per `design/implementation.md` (Parts 1–5: reader, runtime,
-vite plugin, cli/playground, IDE). Each feature ships with tests, green before the next phase.
+## Build method
+Packages are built in dependency order (reader → runtime/adapters → vite → cli/playground → IDE);
+every feature ships with tests, green before the next lands.

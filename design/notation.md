@@ -1,12 +1,19 @@
 # Nota Design
 
-Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers
-to JSX for any JSX framework (React, Solid).
+Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers to
+**hyperscript** — `h`/`Fragment`/`decode` calls from `@nota-lang/runtime`, NOT JSX text — for any
+JSX framework (React, Solid). The runtime semantics (`decode`, SSG, islands) are specified in
+[decode.md](./decode.md); this file specifies the surface syntax and what it lowers to.
 
 ## Notation
 
-- `src → output` — Nota source to emitted JSX. The `export default function Doc(){…}`
-  wrapper and compiler-injected imports are elided except where shown.
+- `src → output` — Nota source to emitted JS. Most examples show the output as a **JSX
+  readability view** (`<p>Hello</p>`); the actual emit is the 1:1 hyperscript form
+  (`h("p", {}, ["Hello"])`) — see §Emit reference for the authoritative translation. Where the
+  emitted *shape* is itself the point (dynamic tags, keys, raw spans), examples show hyperscript
+  directly.
+- The `export default function Doc(){…}` wrapper, its `decode(...)` body wrap, and
+  compiler-injected imports are elided except where shown.
 - `·` = significant space, `⏎` = significant newline; shown only where whitespace is the point.
 - `⟦ … ⟧` = the reader's child-item sequence, shown where it clarifies.
 
@@ -28,11 +35,11 @@ Lowercase tag → host element (string); Capitalized → a component identifier 
 ```
 
 ### Dynamic tag
-`@(expr){…}` uses the expression as the tag: conceptually `<expr>…</expr>`. Real JSX cannot place an
-arbitrary expression in tag position (only an identifier or member expression may sit there), but
-Nota's actual target is hyperscript (R1): `h(expr, …)` is a plain function call, with no such
-grammatical restriction. The expression lowers straight through as `h`'s first argument, whatever its
-shape — no intermediate binding:
+`@(expr){…}` uses the expression as the tag: conceptually `<expr>…</expr>`. Real JSX cannot place
+an arbitrary expression in tag position (only an identifier or member expression may sit there),
+but Nota's target is hyperscript: `h(expr, …)` is a plain function call, with no such grammatical
+restriction. The expression lowers straight through as `h`'s first argument, whatever its shape —
+no intermediate binding, and no special case for "already valid tag" shapes:
 ```
 @(getTag()){hi}        → h(getTag(), {}, ["hi"])
 @(comps[k])[x:1]{hi}   → h(comps[k], { x: 1 }, ["hi"])
@@ -54,7 +61,9 @@ shape — no intermediate binding:
 ### Interpolation
 `@name` (a bare identifier only) → `{name}`; `@(expr)` → `{expr}` for any expression.
 In embedded code — prop values, `@(expr)` -- an `@`-form is itself an
-expression (so markup nests in code as readily as code nests in markup).
+expression (so markup nests in code as readily as code nests in markup). Inside a `.nota` file,
+`@` is unconditionally Nota markup — JS/TS decorators are unavailable (v1); this is sound because
+decorators only appear in class/statement position, never in a Nota expression context.
 ```
 @name              → {name}
 @(user.posts[0])   → {user.posts[0]}
@@ -63,17 +72,18 @@ expression (so markup nests in code as readily as code nests in markup).
 
 ### A file is a component
 A `.nota` file compiles to a module whose default export is the document component; the body
-becomes its returned fragment.
+becomes its returned fragment, wrapped in `decode(...)` — the wrap is what self-decodes the
+document at SSG time (decode.md §The decode pipeline).
 ```
 greeting.nota:
 @h1{Hello}
 @p{Welcome to @em{Nota}.}
 →
 export default function Doc() {
-  return <>
+  return decode(<>
     <h1>Hello</h1>
     <p>Welcome to <em>Nota</em>.</p>
-  </>;
+  </>);
 }
 ```
 
@@ -81,21 +91,30 @@ export default function Doc() {
 
 `@head:` is sugar for a `{…}` body; `head` is a name, `@Cap`, or `@(expr)`. The body is the rest
 of the line plus any following lines indented past the `@head:` line (common indent stripped) —
-inline content and an indented continuation combine. The glued `:` is an element trigger like
-`{`/`[`, but **positionally** (contract R9): it fires only when the form is a markup-body child
-**and** its `@` sits at a *line start* — modulo leading whitespace, and a markup body's own start
-(braced/fragment body, document, or a bounded range) counts as a line start. So at a line start
-`@foo:` is an element; **mid-line `@foo:` is just `@foo` interpolated followed by a literal `:`** —
-`x @foo: y` is the text `x `, the value `foo`, then the literal `: y`. The `@foo\:` escape (a
-literal colon glued to an interpolated head) therefore only matters at a line start; mid-line the
-colon is already literal. A `[props]` group (or a run of them) on the head **composes** with the
-colon body exactly as it does with a braced or verbatim body (contract R21): `@aside[class: "x"]: body`
-opens the same colon body a bare `@aside: body` would — the identical R12 positional gate, with the
-props threaded through — emitting `h("aside", { class: "x" }, ["body"])`. In an embedded-JS host
-(`%` line, `[props]` value) or a `|@`-armed form inside any raw span (code / math / verbatim) the `:`
-never triggers. Leading `|` lines of the body supply the `[…]` props (multiple accumulate,
-`[…]`-syntax). A colon body nested in a bounded range (emphasis / heading / list item / another
-colon body) ends at that range's own end: `*@a: bar* rest` → `*@a{bar}*` then the sibling ` rest`.
+inline content and an indented continuation combine.
+
+**The positional trigger.** The glued `:` is an element trigger like `{`/`[`, but only
+*positionally*: it fires iff **(1)** the form is a markup-body child (the top region is markup —
+never an embedded-JS island (`%` line, `[props]` value) nor a `|@`-armed form inside a raw span
+(code / math / verbatim)), **and** **(2)** its `@` sits at a *line start* — modulo leading
+whitespace, where a markup body's own start (braced/fragment body, document, or a bounded range
+such as emphasis / heading / list item / another colon body) counts as a line start. So at a line
+start `@foo:` is an element; **mid-line `@foo:` is just `@foo` interpolated followed by a literal
+`:`** — `x @foo: y` is the text `x `, the value `foo`, then the literal `: y`. The `@foo\:` escape
+(a literal colon glued to an interpolated head) therefore only matters at a line start; mid-line
+the colon is already literal. The classification also governs the hyphenated-head extension, so a
+dead colon never pulls `-foo` into the head (`t @my-foo:` → `@my` + `-foo:`).
+
+A `[props]` group (or a run of them) on the head **composes** with the colon body exactly as it
+does with a braced or verbatim body: `@aside[class: "x"]: body` opens the same colon body a bare
+`@aside: body` would — the identical positional gate, judged at the `@`, with the props threaded
+through — emitting `h("aside", { class: "x" }, ["body"])`. Where the gate fails, the whole form is
+dead exactly as for bare heads: the head + props interpolate and `: …` stays literal text.
+
+Leading `|` lines of the body supply the `[…]` props (multiple accumulate, `[…]`-syntax). A colon
+body nested in a bounded range (emphasis / heading / list item / another colon body) ends at that
+range's own end — and clips its resume there — so `*@a: bar* rest` → `*@a{bar}*` then the sibling
+` rest`.
 
 The examples below are all at line starts (so the `:` fires):
 ```
@@ -171,7 +190,7 @@ At the top of a file, `%`/`%%%` prepends to the document component (`import`/`ex
 hoist to module scope); nested in an element body, it wraps the remaining siblings in
 an IIFE. A component definition (`%let C = inlineComponent(…)`) is **not** special-cased: it
 prepends in place like any other statement, so it may be document-local and close over document
-state (contract R15 — replay hydration recovers its closure on the client). `%export let C = …`
+state — replay hydration (decode.md) recovers its closure on the client. `%export let C = …`
 is the opt-in to module scope. `Doc` (and the nested-`%` IIFE) is emitted **synchronous** — the reader does not
 auto-`async`ify it from the presence of `await`, so top-level `await` emits JS that does not
 parse (by design, not a silent rewrite). Load data synchronously, or outside the document.
@@ -211,9 +230,12 @@ only `else`/`else if` are sigil-less.
 
 ### Loops
 `@for (bind of iter) {body}` maps `body` over `iter`; `bind` is any binding pattern
-(index via `.entries()`).
+(index via `.entries()`). The reader adds its own fresh map-index param `_i` as a `key` on each
+iteration's wrapping `Fragment` — React/Solid need list children keyed for client
+reconciliation; at SSG the fragment is transparent and the key is dropped (decode.md
+§Fragment transparency). `@if` stays keyless (single branch, nothing to reconcile).
 ```
-@for (x of y) {@li{@x}}               → {y.map((x) => <Fragment><li>{x}</li></Fragment>)}
+@for (x of y) {@li{@x}}     → {y.map((x, _i) => <Fragment key={_i}><li>{x}</li></Fragment>)}
 ```
 
 All three are expressions, so they nest in markup and embedded code alike, and
@@ -226,16 +248,21 @@ Lightweight prose markers, after Typst (except headings, which use `#`). Each
 desugars to an ordinary element, so all the rules above (nesting, whitespace,
 escaping) carry over; the escaped form (`\* \_ \# \- \+`) is the literal character.
 Line-start markers (`#`/`-`/`+`/`N.`/`%`) fire at a line start — and the **start of a
-markup body counts as one** (Typst's content-block rule, contract R9): `@{- item}`
-opens a list item, clipped at the body's own `}`. Literal braces in prose do not
-open a body, so `a {- b} c` stays text.
+markup body counts as one** (Typst's content-block rule): a braced body, colon body, or
+bounded sub-range opening directly with a marker opens the construct, with its first-line
+extent clipped at the body's own closer (`@{- item}` opens a list item, clipped at the
+body's own `}`). Literal braces in prose do not open a body, so `a {- b} c` stays text.
 
 ### Emphasis
 `*…*` → `@strong{…}`, `_…_` → `@em{…}`; bodies nest markup like any element.
 Following Typst, a marker opens only at a left word boundary and closes only at a
-right one, so intra-word `*`/`_` are literal without escaping. A span is clamped to
-its line (CommonMark-style, contract R11): with no same-line close the marker is
-literal — `*foo⏎bar*` keeps both stars as text.
+right one, so intra-word `*`/`_` are literal without escaping.
+
+**The line clamp.** An inline span never crosses a newline (CommonMark-style): `*…*`, `_…_`,
+`` `…` ``, and inline `$…$` must close on their opening line, else the opener is literal text —
+`*foo⏎bar*` keeps both stars as text. The clamp is strict: a skipped sub-region (raw span,
+`@`-form bracket group) that crosses the line end kills the span too. Block-shaped raw bodies
+keep their own multi-line extents: `$$…$$` fences, fenced ``` code, `|{…}|` verbatim.
 ```
 *bold*           → <strong>bold</strong>
 _italic_         → <em>italic</em>
@@ -246,9 +273,9 @@ my_var_name      → my_var_name                  // intra-word: literal
 ### Headings
 A line opening with a run of 1–6 `#` followed by a space is a heading of rank `n`
 (the run length); the body is the rest of the line and nests markup. The readability
-view below is the *rendered* HTML — but the actual emit re-lowers `#` sugar to the
-ambient `Heading` prelude slot (`# Title → h(Heading, { rank: 1 }, ["Title"])`,
-[contract R18f](contract.md)), which produces the concrete `<hN>` with a slugified
+view below is the *rendered* HTML — the actual emit re-lowers `#` sugar to the
+ambient `Heading` prelude slot (`# Title → h(Heading, { rank: 1 }, ["Title"])`; see
+decode.md §Doc-state), which produces the concrete `<hN>` with a slugified
 `id` and an optional leading section number (off until `secset({ numberDepth })` is
 raised). A raw `@h1{…}` stays a plain host tag — the principled unnumbered / un-Toc'd
 escape hatch (`\section*`).
@@ -281,19 +308,22 @@ ignored, the browser renders the sequence.
 
 ### Doc-state references
 Four inline sugars for the ambient doc-state family, each a **rewrite to the element
-form** so it inherits the element machinery (line clamp R11, positional rules R12) —
-[contract R20](contract.md) (re-amended charset) pins the exact rules. The label charset
-is **Typst minus period** — start `[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only.
-Digits may start a label (`[^1]`, Markdown-style); kebab labels work (`<sec-intro>`,
-`&sec-intro`); the colon is a continue char (`<sec:intro>`); the period is **not** in the
-set, so `&sec.` reads the id as `sec` and leaves the `.` literal. `<` and `&` carry a
-**left-boundary guard** — they fire only at the start of a body/line or after whitespace or
-opening punctuation (`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal
-prose, and the start restriction keeps arrow-like prose literal (`<->`, `<-x>`); `[^…]`
-needs no guard (the digraph is unambiguous and glues after a word, Markdown-style). The
-element forms themselves are charset-free (`@Label[id: "…"]` accepts any string, including
-`.`/Unicode); only the *sugar* is charset-restricted. The whole family is ambient (R20c) —
-**no `%import` needed**.
+form** — so it inherits the element machinery (line clamp, positional rules, bounded-frame
+clipping) instead of new extent rules. The label charset is **Typst minus period** — start
+`[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only. Digits may start a label (`[^1]`,
+Markdown-style); kebab labels work (`<sec-intro>`, `&sec-intro`); the colon is a continue char
+(`<sec:intro>`); the period is **not** in the set, so `&sec.` reads the id as `sec` and leaves
+the `.` literal, and `$`/Unicode are not label chars. `<` and `&` carry a **left-boundary
+guard** — they fire only at the start of a body/line or after whitespace or opening punctuation
+(`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose, and the start
+restriction keeps arrow-like prose literal (`<->`, `<-x>`); `[^…]` needs no guard (the digraph is
+unambiguous and glues after a word, Markdown-style). `<ident>` must close with `>` on its opening
+line (the line clamp); `&ident` ends at the first non-ident char; a non-matching open (`< b`,
+`<.x>`, `&,`) is literal text. The element forms themselves are charset-free
+(`@Label[id: "…"]` accepts any string, including `.`/Unicode); only the *sugar* is
+charset-restricted. Sugars fire only in markup-text position (never inside raw spans / embedded
+JS — the positional trigger's condition 1). The whole family is ambient — **no `%import`
+needed** (decode.md §The ambient prelude).
 ```
 <sec_intro>          → @Label[id: "sec_intro"]{}          // anchor; must close > on its line
 <sec-intro>          → @Label[id: "sec-intro"]{}          // kebab label (the - is a continue char)
@@ -303,9 +333,10 @@ element forms themselves are charset-free (`@Label[id: "…"]` accepts any strin
 &sec.  Vec<T>  <->   → Ref("sec") + "."  ; Vec<T> ; <->   // period / guard / start: literal tails
 ```
 Repeated `[^n1]` references share one number and one list entry; the list auto-appends
-at document end unless `@Footnotes` places it (R18d). The escapes `\<`, `\&`, `\[` yield
-the literal characters via the standard escape machinery (`\[` already covered verbatim).
-A multi-line footnote or one with block content uses the explicit `@FootnoteText{…}` form.
+at document end unless `@Footnotes` places it (decode.md §Doc-state). The escapes `\<`, `\&`,
+`\[` yield the literal characters via the standard escape machinery (`\[` already covered
+verbatim). A multi-line footnote or one with block content uses the explicit
+`@FootnoteText{…}` form.
 
 ## Verbatim
 
@@ -313,8 +344,14 @@ A backslash escapes any character
 (`` \@ \{ \} \| \$ \* \_ \: \[ \] \` ``) and itself, and is literal elsewhere.
 A `|{ … }|` body is raw: sigils off, braces literal, ends at `}|`; the armed escape `|@` re-enters
 Nota to produce element children. Raw text is emitted as a `String.raw` template so `\` and `{}`
-survive. **Code and math spans share this same `|@`-armed content model** (contract R13) — the only
-difference is the close (a scanned delimiter vs. `}|`), and there is no escape for a literal `|@`.
+survive.
+
+**The unified raw-span model.** All raw spans — verbatim `|{…}|`, inline/block code, inline/fence
+math — share ONE content model: raw text runs interleaved with `|@`-armed `@`-forms. A bare `@`
+is **literal** — there is no direct interpolation; only `|@` re-enters Nota, spliced as a
+*sibling* (not a `${…}` substitution). The only per-span difference is the close delimiter (a
+scanned run vs. `}|`). There is no escape for a literal `|@`; a `|@`-armed form whose parse
+overruns the span's fixed extent is a fatal diagnostic.
 ```
 @code|{@foo{x}}|     → <code>{String.raw`@foo{x}`}</code>   // @ and { } are literal
 @code|{
@@ -325,9 +362,10 @@ def f(x):
     return `}<hl>x</hl></code>
 ```
 
-`[props]` groups compose with a verbatim body exactly as they do with a braced one (contract
-R19): they accumulate ahead of the same `|{…}|` delimiter that would otherwise sit directly against
-the head.
+`[props]` groups compose with a verbatim body exactly as they do with a braced one: they
+accumulate ahead of the same `|{…}|` delimiter that would otherwise sit directly against the
+head. (A `|` after `]` **not** immediately followed by `{` is still not a trigger — self-closing /
+literal text.)
 ```
 @CodeBlock[lang: "python"]|{f(x)}|   → <CodeBlock lang="python">{String.raw`f(x)`}</CodeBlock>
 ```
@@ -337,17 +375,16 @@ the head.
 `$…$` is inline; **display math is the fence form** — a standalone `$$` line, TeX body lines, and a
 closing `$$` line (a run of ≥2 dollars whose opener-line tail is whitespace-only). Both lower to an
 ambient `<Tex>` (`display` set for the fence), resolved from the prelude — the default renders
-KaTeX→MathML, and the binding is a registry slot users can override (contract R14). The name is
-`Tex`, not `Math`: an ambient `Math` would capture the JS global in embedded code.
-Content is raw LaTeX (`String.raw`) under the **unified raw-span model** ([contract R13](contract.md)):
-raw runs interleaved with `|@`-armed `@`-forms. A bare `@` is **literal** — there is no direct
-interpolation; only `|@` re-enters Nota, spliced as a *sibling* (not a `${…}` substitution).
+KaTeX→MathML, and the binding is a registry slot users can override (decode.md §The registry).
+The name is `Tex`, not `Math`: an ambient `Math` would capture the JS global in embedded code
+(`% Math.floor(x)` must keep meaning the global). Content is raw LaTeX (`String.raw`) under the
+unified raw-span model: raw runs interleaved with `|@`-armed `@`-forms; a bare `@` is literal.
 
 Dollar spans mirror backtick spans: an opening run of N dollars closes at the next same-line run of
 ≥N dollars (shorter runs are content). So `$$…$$` **inside a paragraph** (a nonempty opener tail) is
 inline math with run-2 delimiters, **not** display. The one divergence from backticks is the TeX
 escape: the dollar close scan skips `\<c>` pairs, so `\$` stays content and the backslash is kept
-(LaTeX's own escape). Inline `$` is clamped to its line (contract R11) — no same-line close → the
+(LaTeX's own escape). Inline `$` is clamped to its line (the line clamp) — no same-line close → the
 `$` run is literal.
 ```
 $a_|@i$              → <Tex>{String.raw`a_`}{i}</Tex>
@@ -360,9 +397,9 @@ $$⏎\sum_|@n x⏎$$     → <Tex display>{String.raw`\sum_`}{n}{String.raw` x`}
 
 `` `…` `` is inline code; ```` ```lang⏎…⏎``` ```` is fenced (threshold 3, optional language tag on
 the opening line). Both are raw (`String.raw`), lowering to ambient `<CodeInline>` / `<CodeBlock>`,
-and share the same **unified raw-span model** as math and verbatim: raw runs interleaved with
+under the same unified raw-span model as math and verbatim: raw runs interleaved with
 `|@`-armed `@`-forms (a bare `@` is literal). Backtick runs shorter than the closing fence are
-literal; inline code is clamped to its line (contract R11) — the close run must sit on the opening
+literal; inline code is clamped to its line (the line clamp) — the close run must sit on the opening
 line, else the run is literal, so ``- `foo⏎- bar` `` is two bullets, not one bullet holding a code
 span.
 ````
@@ -378,8 +415,82 @@ Follows Scribble's reader. Per body line, leading/trailing spaces are dropped, e
 the body is only newlines); interior newlines become individual `"\n"`; common indentation is
 stripped, indentation beyond the leftmost line is kept. Codegen emits whitespace-significant
 text as explicit `{"…"}` children.
+
+Interior newlines are **never coalesced** — one `"\n"` child per newline — so a blank source line
+surfaces as ≥2 adjacent `"\n"` children, which is exactly the runtime's paragraph-break marker
+(decode.md §struct). This is a hard producer/consumer contract, not a stylistic choice.
 ```
 @foo{·bar·}                  → ⟦ "·bar·" ⟧
 @foo{⏎··bar⏎}                → ⟦ "bar" ⟧
 @foo{⏎··begin⏎····x⏎··end}   → ⟦ "begin", "⏎", "··x", "⏎", "end" ⟧
 ```
+
+## Emit reference (hyperscript)
+
+The authoritative `src → emit` translation — what the reader's golden fixtures assert
+(expression mode: the `Doc` wrapper and imports elided). The JSX views above are the readability
+form of exactly these calls.
+
+| Nota source | Emitted (hyperscript) |
+|---|---|
+| `@p{Hello}` | `h("p", {}, ["Hello"])` |
+| `@p{Hello @em{world}}` | `h("p", {}, ["Hello ", h("em", {}, ["world"])])` |
+| `@{one @b{two}}` | `Fragment("one ", h("b", {}, ["two"]))` |
+| `@em{hi}` | `h("em", {}, ["hi"])` (host: string tag) |
+| `@Aside{hi}` | `h(Aside, {}, ["hi"])` (component: identifier; `@Unknown{}` → scope error) |
+| `@(getTag()){hi}` | `h(getTag(), {}, ["hi"])` (any expression shape, no binding) |
+| `@(ui.Card){hi}` | `h(ui.Card, {}, ["hi"])` (static or computed member — same emit either way) |
+| `@a[href:"/x"]{go}` | `h("a", { href: "/x" }, ["go"])` |
+| `@a[href:url]{go}` | `h("a", { href: url }, ["go"])` |
+| `@input[disabled, ...rest]{}` | `h("input", { disabled, ...rest }, [])` (empty body → no children) |
+| `@fig[cap:@em{hi}]{x}` | `h("fig", { cap: h("em", {}, ["hi"]) }, ["x"])` (markup-valued prop) |
+| `@name` | `name` (bare-identifier interpolation) |
+| `@(user.posts[0])` | `user.posts[0]` |
+| `*bold*` | `h("strong", {}, ["bold"])` |
+| `_italic_` | `h("em", {}, ["italic"])` |
+| `# Title` | `h(Heading, { rank: 1 }, ["Title"])` (heading sugar → the ambient `Heading` slot) |
+| `### Sub *bit*` | `h(Heading, { rank: 3 }, ["Sub ", h("strong", {}, ["bit"])])` |
+| `@h1{Title}` | `h("h1", {}, ["Title"])` (raw host tag: unnumbered/un-Toc'd) |
+| `- a` (list item line) | `h("nota-ul-li", {}, ["a"])` (runtime `struct` groups runs → `<ul><li>`) |
+| `+ a` | `h("nota-ol-li", {}, ["a"])` (→ `<ol><li>`) |
+| `@if (c) {a}` | `c ? Fragment("a") : null` |
+| `@if (c) {a} else {b}` | `c ? Fragment("a") : Fragment("b")` |
+| `@if (c) {a} else if (d) {b}` | `c ? Fragment("a") : d ? Fragment("b") : null` |
+| `@for (x of y) {@li{@x}}` | `y.map((x, _i) => Fragment({ key: _i }, h("li", {}, [x])))` |
+| `<sec-intro>` | `h(Label, { id: "sec-intro" }, [])` (boundary-guarded — `Vec<T>`, `<->` stay text) |
+| `&sec-intro` | `h(Ref, { id: "sec-intro" }, [])` (boundary-guarded — `R&D` stays text) |
+| `[^1]` | `h(FootnoteMark, { label: "1" }, [])` (digit-start labels are legal) |
+| `[^note1]: See *also*…` | `h(FootnoteText, { label: "note1" }, ["See ", h("strong", {}, ["also"]), "…"])` (line-start only; colon-body extent) |
+| `@aside[class: "x"]: body` | `h("aside", { class: "x" }, ["body"])` (props compose with a colon body) |
+| `@code\|{@foo{x}}\|` | `h("code", {}, [String.raw`@foo{x}`])` |
+| `` `@x` `` | `h(CodeInline, {}, [String.raw`@x`])` |
+| ` ```python⏎f(x)⏎``` ` | `h(CodeBlock, { lang: "python" }, [String.raw`f(x)`])` |
+| `$a_@i$` | `h(Tex, {}, [String.raw`a_@i`])` (bare `@` is literal; only `\|@` arms) |
+| `$a_\|@i$` | `h(Tex, {}, [String.raw`a_`, i])` (armed interpolation, a sibling part) |
+| `$$x^2$$` (in prose) | `h(Tex, {}, [String.raw`x^2`])` (run-2 **inline**, not display) |
+| `$$⏎…⏎$$` (standalone fence) | `h(Tex, { display: true }, [String.raw`…`])` |
+
+Whitespace-significant text is emitted as explicit string children per §Whitespace.
+`CodeInline`/`CodeBlock`/`Tex`/`Heading` (and the whole doc-state family) are ambient prelude
+bindings, supplied by the integrator (decode.md §The ambient prelude).
+
+**Children are always an array literal** — a single child becomes `[child]` (`@p{@x}` →
+`h("p", {}, [x])`; component body `@span{@children}` → `h("span", {}, [children])`). The
+runtime's `flatten` normalizes bare-vs-array, but always-array is the reader's canonical emit.
+The reader does **not** emit the `@nota-lang/runtime` import (the compiler shim/integrator
+prepends it).
+
+**`String.raw` emit caveat.** The `String.raw\`…\`` form is emitted only when the raw content
+contains no *template-syntax breaker* — a backtick or a literal `${`. Those two cannot round-trip
+through `String.raw` (a backtick closes the template; `${` opens a substitution; `String.raw`
+does not process a `\` escape, so any escaping `\` would leak into the runtime string), so for
+content containing either, the reader falls back to a **cooked string literal** whose codegen
+escaping reproduces the raw text exactly. Both forms yield the identical runtime string.
+
+**Document mode** additionally emits: `export default function Doc()`, hoisted `import`/`export`
+(other top-of-file `%` statements prepend into `Doc`'s body — component bindings included, which
+stay document-local; `%export` is the opt-in to module scope), the name-attach 2nd argument on
+top-level and `%export`-wrapped `inlineComponent`/`blockComponent` bindings, and the `decode(...)`
+wrap on Doc's returned fragment. `Doc` (and the nested-`%` IIFE) is synchronous — the reader does
+NOT auto-`async`ify it from `await`; top-level `await` emits non-parsing JS by design (see
+§Statements).

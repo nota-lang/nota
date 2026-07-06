@@ -20,8 +20,8 @@ start now consume a *run* of line-start constructs (each resumes at a line start
 next), and `list_marker_at` reports indentation *depth* rather than a byte offset so a dedented
 sibling is no longer kept inside an inner list. Bug 5 is fixed by bounding the JS parse of a `%`
 statement to the next line-leading `%` (a statement delimiter the lexer would otherwise read as
-modulo) — the bound scan is now `statement_bound`, which per contract R8 also stops at a blank
-line (bug 6).
+modulo) — the bound scan is now `statement_bound`, which per the `%` statement-region rules
+(notation.md §Statements) also stops at a blank line (bug 6).
 
 ## Remaining known gaps
 
@@ -30,11 +30,12 @@ The still-open reader gaps are tracked as `#[ignore]`d specs in the `fuzz_findin
 calls** — support-vs-diagnose decisions, not clear correctness bugs: `@else` (sigil), `await` inside a
 `@for` body, `@for(const x of …)`, a `%%` run, and `@br{children}` (void element).
 
-The `@p[:]` gap (an element with a `[props]` group *and* a colon body) is **resolved by contract R21**:
-`@head[props]*: body` now composes — the identical R12 gate as bare `@head:`, props threaded through.
-This also unblocks the **explicit** doc-state definition form `@FootnoteText[label: "x"]: body`
-(contract R20a/b), so a footnote definition now has *both* colon-body surfaces (the `[^x]: body` sugar
-and the element form) alongside the braced `@FootnoteText[label: "x"]{…}` form (R19).
+The `@p[:]` gap (an element with a `[props]` group *and* a colon body) is **resolved**:
+`@head[props]*: body` now composes — the identical positional gate as bare `@head:`, props threaded
+through (notation.md §Colon & block sugar). This also unblocks the **explicit** doc-state definition
+form `@FootnoteText[label: "x"]: body`, so a footnote definition now has *both* colon-body surfaces
+(the `[^x]: body` sugar and the element form) alongside the braced `@FootnoteText[label: "x"]{…}`
+form (props compose with a verbatim body the same way — notation.md §Verbatim).
 
 ## Reader bugs 6–7 (found 2026-07-02 while building the highlight pass — both fixed)
 
@@ -42,16 +43,16 @@ Both were in the line-start-sugar / statement-extent machinery (the bug-2/3 clus
 
 | # | Bug | Status |
 |---|-----|--------|
-| 6 | A blank line did **not** terminate a single-`%` statement's JS parse (`% const x = 1⏎⏎# Head` hard-errored; `⏎⏎- item` **silently** emitted `const x = 1 - item;`), and same-line content after the first statement (`% a(); b();`, trailing text) was silently dropped. | **fixed** — contract R8: a `%` line opens a JS statement region (rest of line = JS statements, JS's own `;`/ASI, single-newline continuation per JS grammar) ending at end-of-line / a **blank line** (ASI as at EOF; straddling one is a diagnostic with a pointed note) / the next `%` line. Regressions: `percent_statement_region_rules` (e2e), `statement_bound` scan units, highlight-span case. |
+| 6 | A blank line did **not** terminate a single-`%` statement's JS parse (`% const x = 1⏎⏎# Head` hard-errored; `⏎⏎- item` **silently** emitted `const x = 1 - item;`), and same-line content after the first statement (`% a(); b();`, trailing text) was silently dropped. | **fixed** — per the `%` statement-region rules (notation.md §Statements): a `%` line opens a JS statement region (rest of line = JS statements, JS's own `;`/ASI, single-newline continuation per JS grammar) ending at end-of-line / a **blank line** (ASI as at EOF; straddling one is a diagnostic with a pointed note) / the next `%` line. Regressions: `percent_statement_region_rules` (e2e), `statement_bound` scan units, highlight-span case. |
 | 7 | Line-start sugar (heading/list/`%`) right after a **colon-sugar** element was literal text: the colon body's extent consumes through its final `\n` (+ trailing blank lines), so the parse resumed *at* a line start — a position `collect_markup`'s `\n`-arm hook never sees (`@section:⏎  body⏎[⏎]# H` → `"# H"` as prose; mega's `## Nested statements`). | **fixed** — the `Kind::At` arm now runs `consume_line_start_constructs` when a form resumes at a line start; regression `line_start_sugar_after_a_colon_block` (e2e) + highlight-span + playground mega tests |
 
-## R20a doc-state sugar warts (2026-07-05 — RESOLVED)
+## Doc-state sugar warts (2026-07-05 — RESOLVED)
 
-The two sharp edges the `<x>` / `&x` / `[^x]` / `[^x]:` sugars ([contract R20a](design/contract.md))
+The two sharp edges the `<x>` / `&x` / `[^x]` / `[^x]:` sugars (notation.md §Doc-state references)
 once carried are both now dissolved:
 
-- **(a) Trailing punctuation glue — resolved by the R20 charset ruling (Typst minus period, re-amended
-  2026-07-05; supersedes the brief JS-IdentifierName amendment).** The label charset is start
+- **(a) Trailing punctuation glue — resolved by the label-charset ruling (Typst minus period,
+  re-amended 2026-07-05; supersedes the brief JS-IdentifierName amendment).** The label charset is start
   `[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only. The **period exclusion** is what resolves the
   glue: `&sec.` at a sentence end reads the id as `sec` and leaves the `.` literal — structurally gone,
   not merely trimmed. (`<x>` closes on `>` and `[^x]` closes on `]`, so both were always unaffected; the
@@ -59,12 +60,12 @@ once carried are both now dissolved:
   `<sec-intro>`, `&sec-intro`, and colon `<sec:intro>` all fire, and digits may start a label (`[^1]`,
   `<1>`); only the start restriction keeps arrow-like prose literal (`<->`, `<-x>`). `$`/Unicode are not
   label chars — the element forms (`@Label[id: "…"]`) stay charset-free for those.
-- **(b) The explicit element colon form — resolved by contract R21 (2026-07-05).**
-  `@FootnoteText[label: "x"]: body` now composes (`@head[props]*: body`, the same R12 gate as bare
-  `@head:`), so the element form joins the `[^x]: body` sugar as a colon-body definition surface (both
-  alongside the braced `@FootnoteText[label: "x"]{…}` form).
+- **(b) The explicit element colon form — resolved 2026-07-05.**
+  `@FootnoteText[label: "x"]: body` now composes (`@head[props]*: body`, the same positional gate as
+  bare `@head:`), so the element form joins the `[^x]: body` sugar as a colon-body definition surface
+  (both alongside the braced `@FootnoteText[label: "x"]{…}` form).
 
-## Reader bug 8 (found 2026-07-05 integrating R20a/R21 — fixed)
+## Reader bug 8 (found 2026-07-05 integrating the doc-state sugars — fixed)
 
 | # | Bug | Status |
 |---|-----|--------|
