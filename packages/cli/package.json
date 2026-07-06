@@ -2,9 +2,10 @@
   "name": "@nota-lang/cli",
   "version": "0.1.0",
   "bin": {
-    "nota": "dist/cli.cjs"
+    "nota": "bin/nota.cjs"
   },
   "files": [
+    "bin",
     "dist"
   ],
   "type": "module",

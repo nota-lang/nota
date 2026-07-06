@@ -30,6 +30,7 @@ jobs:
 
   # Build the three reader artifacts (release binary + web wasm + node wasm) once per
   # submodule SHA. JS-only pushes hit the cache and never touch the Rust toolchain.
+  # (The steps live in the composite action, shared with the release workflows.)
   reader-artifacts:
     name: Reader artifacts
     runs-on: ubuntu-latest
@@ -38,50 +39,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Resolve submodule SHA
-        id: submodule
-        run: echo "sha=$(git rev-parse HEAD:oxc)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache reader artifacts
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: reader-dist
-          key: reader-dist-v1-${{ runner.os }}-${{ steps.submodule.outputs.sha }}
-
-      - name: Cache cargo build
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: oxc
-
-      - name: Install wasm-pack
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
-      - name: Build nota_compile (release)
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: oxc
-        run: cargo build --release -p oxc --example nota_compile --features codegen
-
-      # The script patches the generated package.jsons to @nota-lang/wasm{,-node} — the names the
-      # workspace file: deps expect — so raw wasm-pack here would break pnpm install downstream.
-      - name: Build nota_wasm (web + node)
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: oxc
-        run: |
-          rustup target add wasm32-unknown-unknown
-          node ../scripts/build-wasm.mjs
-
-      - name: Stage artifacts
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p reader-dist
-          cp oxc/target/release/examples/nota_compile reader-dist/
-          cp -R oxc/napi/nota_wasm/pkg reader-dist/pkg
-          cp -R oxc/napi/nota_wasm/pkg-node reader-dist/pkg-node
+      - uses: ./.github/actions/reader-artifacts
 
       - uses: actions/upload-artifact@v4
         with:
