@@ -1,0 +1,8 @@
+%import figUrl from "./sample.svg?url"
+%import "./asset.css"
+
+# Asset test
+
+An image resolved through the bundler:
+
+@img[src: figUrl, alt: "figure"]{}

@@ -30,7 +30,9 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
   - **vite** — `.nota` transform plugin + island registry (`registry.ts:generateClientEntry`).
-  - **cli** — `nota build`: compile → SSR → SSG HTML + island manifest + client bundle (`build.ts`).
+  - **cli** — `nota build doc.nota → doc/` (`index.html` + `assets/`): two programmatic **vite**
+    builds under a default config — SSR render, then a client island build — so doc-relative
+    imports/`?url`/CSS work; zero-JS for island-free docs (`build.ts`).
   - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`.
   - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`, a conservative
     **"never lie" grammar**: single-line `match` rules + line-anchored fences only, the

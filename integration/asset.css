@@ -1,0 +1,4 @@
+/* The asset-pipeline fixture's marker rule (the CLI test greps for the rgb triple). */
+h1 {
+  color: rgb(1, 2, 3);
+}

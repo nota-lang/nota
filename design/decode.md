@@ -498,9 +498,11 @@ whole, and each armed element becomes a shiki **decoration** over its range (`ta
 text-less armed part → plain fallback for the span + build warning).
 
 **The ambient prelude.** The emitted module references `useState` and the prelude surface as
-**free identifiers** — the integrator supplies them (the CLI via esbuild `inject`; the vite
-plugin, language server, and playground each maintain the same ambient-name set). The ambient set
-is the whole prelude surface: the slots `Tex CodeInline CodeBlock Heading Toc Label Ref Footnote
+**free identifiers** — the integrator supplies them (the vite plugin injects an import of the
+referenced names from its `preludeModule`; the CLI points that at a virtual module re-exporting
+React's hooks + the prelude, adding the hook names via the plugin's `extraAmbientNames` option;
+the language server and playground each maintain the same ambient-name set). The ambient set is
+the whole prelude surface: the slots `Tex CodeInline CodeBlock Heading Toc Label Ref Footnote
 FootnoteMark FootnoteText Footnotes FootnotesList Cite Bibliography` and the config fns `lstset
 mathset secset bibset`. The reader does **not** emit the `@nota-lang/runtime` import either — the
 compiler shim/integrator prepends it.
@@ -523,9 +525,10 @@ wiring-only replay entry for the client. Solid's SSR↔hydrate is cross-process 
 emits HTML + `_$HY` resume data; the client resumes it), so Solid SSG needs **separate Vite builds
 with the right export conditions** (`solid-js/web` → `server.js` vs `web.js`).
 
-The first two integrators are `@nota-lang/cli` (`nota build doc.nota → doc.html`: one
-self-contained file, everything inlined; zero-JS for island-free docs; the manifest is embedded in
-the boot bundle and also inlined as a `#nota-manifest` JSON script the boot does not depend on)
-and `@nota-lang/playground` (fully client-side: wasm compiler + runtime in-browser; panes =
-emitted JS / post-SSG HTML+manifest / hydrated result in a sandboxed iframe via blob-URL ESM +
-import maps).
+The first two integrators are `@nota-lang/cli` (`nota build doc.nota → doc/`: a **document
+directory** — `index.html` + `assets/` — built with two Vite builds under a default config, an
+SSR render then a client island build, so doc-relative imports, `?url` assets, and CSS imports
+work as in any Vite app; zero-JS for island-free docs; the manifest is inlined as a
+`#nota-manifest` JSON script the boot does not depend on) and `@nota-lang/playground` (fully
+client-side: wasm compiler + runtime in-browser; panes = emitted JS / post-SSG HTML+manifest /
+hydrated result in a sandboxed iframe via blob-URL ESM + import maps).

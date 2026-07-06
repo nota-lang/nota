@@ -40,6 +40,14 @@ export interface NotaPluginOptions {
    * another way).
    */
   preludeModule?: string | false;
+  /**
+   * Extra ambient names injected beyond the built-in prelude surface — names the reader emits as
+   * free *calls* (`name(…)`, the config-fn shape) that the integrator's {@link preludeModule}
+   * supplies. The CLI passes the React hooks (`useState`, …) + `registerComponents` here, pointing
+   * `preludeModule` at a module that re-exports them; every listed name must be an export of that
+   * module. Ignored when `preludeModule` is `false`. Default `[]` (behavior unchanged).
+   */
+  extraAmbientNames?: string[];
 }
 
 /**
@@ -88,20 +96,29 @@ function isBound(code: string, name: string): boolean {
  * Prepend an import binding the ambient prelude names the compiled module references *free*.
  *
  * A name is injected iff (a) it is referenced in the reader's emit shape — component slots as an
- * `h(Tex, …)` tag, config fns as a bare `secset(` call — and (b) the module does not bind it itself
- * (a `%import { Tex } from …` lexically overrides the ambient binding, and a second import
- * would be a duplicate-binding SyntaxError). The check is textual over the reader-controlled module
- * shape (top-level `import`/`const`/`let`/`function` lines); if the compiler ever exposes its
- * free-ambient-names metadata, swap this for it.
+ * `h(Tex, …)` tag, config fns and the integrator's `extraNames` as a bare `secset(` call — and (b)
+ * the module does not bind it itself (a `%import { Tex } from …` lexically overrides the ambient
+ * binding, and a second import would be a duplicate-binding SyntaxError). The check is textual over
+ * the reader-controlled module shape (top-level `import`/`const`/`let`/`function` lines); if the
+ * compiler ever exposes its free-ambient-names metadata, swap this for it.
  */
-function injectAmbientPrelude(code: string, preludeModule: string): string {
+function injectAmbientPrelude(
+  code: string,
+  preludeModule: string,
+  extraNames: readonly string[] = []
+): string {
   const needed = [
-    ...AMBIENT_PRELUDE_NAMES.filter(
-      name => new RegExp(`\\bh\\(${name}\\b`).test(code) && !isBound(code, name)
-    ),
-    ...AMBIENT_CONFIG_NAMES.filter(
-      name => new RegExp(`\\b${name}\\s*\\(`).test(code) && !isBound(code, name)
-    )
+    // Set-dedupe: an extra name colliding with a built-in must not import twice (SyntaxError).
+    ...new Set([
+      ...AMBIENT_PRELUDE_NAMES.filter(
+        name =>
+          new RegExp(`\\bh\\(${name}\\b`).test(code) && !isBound(code, name)
+      ),
+      ...[...AMBIENT_CONFIG_NAMES, ...extraNames].filter(
+        name =>
+          new RegExp(`\\b${name}\\s*\\(`).test(code) && !isBound(code, name)
+      )
+    ])
   ];
   if (needed.length === 0) {
     return code;
@@ -134,6 +151,7 @@ function injectAmbientPrelude(code: string, preludeModule: string): string {
 export function nota(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? [".nota"];
   const preludeModule = options.preludeModule ?? "@nota-lang/prelude";
+  const extraAmbientNames = options.extraAmbientNames ?? [];
 
   /** Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`? */
   function claims(id: string): boolean {
@@ -157,7 +175,7 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
       const withPrelude =
         preludeModule === false
           ? out
-          : injectAmbientPrelude(out, preludeModule);
+          : injectAmbientPrelude(out, preludeModule, extraAmbientNames);
       return { code: withPrelude, map };
     }
   };

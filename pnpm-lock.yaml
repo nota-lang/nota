@@ -47,15 +47,15 @@ importers:
       '@nota-lang/vite':
         specifier: workspace:*
         version: link:../vite
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       react:
         specifier: ^19.2.7
         version: 19.2.7
       react-dom:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
     devDependencies:
       '@types/node':
         specifier: ^25.9.2
@@ -75,9 +75,6 @@ importers:
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
-      vite:
-        specifier: ^8.0.16
-        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
 
   packages/codemirror:
     dependencies:

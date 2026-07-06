@@ -1,8 +1,8 @@
 /**
- * The path to the hydration e2e's built single-file HTML, in a standalone module that imports
- * **nothing heavy** — crucially NOT `../src/build` (which imports `esbuild`, whose module init throws
- * under jsdom). Both the Node globalSetup (which writes the file) and the jsdom test (which reads it)
- * import this constant without dragging esbuild into the jsdom realm.
+ * The paths to the hydration e2e's built **document directories**, in a standalone module that
+ * imports **nothing heavy** — crucially NOT `../src/build` — so the jsdom test can import the
+ * constants without dragging the build pipeline (and vite) into the jsdom realm. The Node
+ * globalSetup (which writes the directories) and the jsdom test (which reads them) share these.
  */
 
 import { dirname, join } from "node:path";
@@ -10,11 +10,21 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-/** Where the golden's built single-file HTML is written for the jsdom e2e to read. */
-export const BUILT_HTML_PATH = join(here, ".golden.built.html");
+/** The golden's built document directory (`index.html` + `assets/`), written by the globalSetup. */
+export const BUILT_DIR = join(here, ".golden.built");
 
 /**
- * Where the closure fixture's built single-file HTML is written (`integration/closure.nota` — the
+ * The closure fixture's built document directory (`integration/closure.nota` — the
  * replay-hydration headline: a document-local island inside `@for` closing over the loop variable).
  */
-export const CLOSURE_BUILT_HTML_PATH = join(here, ".closure.built.html");
+export const CLOSURE_BUILT_DIR = join(here, ".closure.built");
+
+/** A built directory's `index.html`. */
+export function indexHtmlOf(dir: string): string {
+  return join(dir, "index.html");
+}
+
+/** A built directory's client island bundle (the IIFE the page's `<script src>` loads). */
+export function clientJsOf(dir: string): string {
+  return join(dir, "assets", "index.js");
+}

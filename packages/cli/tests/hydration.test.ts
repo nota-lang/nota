@@ -1,42 +1,47 @@
 /**
  * **CLI hydration e2e: the acceptance test** (the same hydration arc the dev server proves, but now
- * against a *file* rather than a dev server).
+ * against the emitted *files* rather than a dev server).
  *
- * Headless-load the emitted single-file HTML into jsdom, execute its inlined client bundle, and
- * assert the islands are **server-present AND interactive after hydration**. Two fixtures:
+ * Headless-load the emitted document directory into jsdom, execute its client bundle, and assert
+ * the islands are **server-present AND interactive after hydration**. Two fixtures:
  *
  * - **golden.nota** — the canonical `Colorized` click → color-change (red → green), exactly the
- *   decode.md arc end to end, driven through the CLI's single-file output.
- * - **closure.nota** — the replay-hydration headline: a **document-local** island defined inside `@for`, closing
- *   over the loop variable, with per-island `useState` counters. Impossible under the old
- *   manifest/registry boot (the nested binding is not module-scoped and its closure cannot cross as
- *   JSON); replay hydration re-executes the document client-side and recovers each closure live.
+ *   decode.md arc end to end, driven through the CLI's directory output.
+ * - **closure.nota** — the replay-hydration headline: a **document-local** island defined inside
+ *   `@for`, closing over the loop variable, with per-island `useState` counters. Impossible under
+ *   the old manifest/registry boot (the nested binding is not module-scoped and its closure cannot
+ *   cross as JSON); replay hydration re-executes the document client-side and recovers each closure
+ *   live.
  *
- * **Where the files come from.** esbuild cannot run under jsdom (its `TextEncoder` invariant), so the
- * builds happen in a Node **globalSetup** (`buildGolden.globalSetup.ts`) that writes the single-file
- * HTML to `tests/.golden.built.html` / `tests/.closure.built.html`; these tests *load those files* —
- * the literal "load the emitted file" the spec asks for.
+ * **Where the files come from.** A Node **globalSetup** (`buildGolden.globalSetup.ts`) builds each
+ * fixture once into `tests/.golden.built/` / `tests/.closure.built/` (`index.html` + `assets/`);
+ * these tests *load those files* — the literal "load the emitted page" the spec asks for.
  *
- * **How a file is "loaded".** jsdom does not execute scripts (and never `type="module"`), so we
- * reproduce a browser load: install the `<body>` markup into the document (the server-rendered
- * `<nota-island>` shells), then `eval` the inlined client bundle (an esbuild **IIFE** carrying its own
- * React client + the runtime) in the jsdom realm — running `hydrateDocument(Doc)`, which replays the
- * document in capture mode and hydrates each island over its server DOM (design/decode.md §Replay
- * hydration). Faithful to a
- * real browser: the bundle uses its bundled React + jsdom's `document`, nothing from the test's own
- * module graph.
+ * **How a page is "loaded".** jsdom does not execute scripts, so we reproduce a browser load:
+ * install the `<body>` markup into the document (the server-rendered `<nota-island>` shells), then
+ * `eval` the client bundle the page's `<script src>` names (a vite-built **IIFE** carrying its own
+ * React client + the runtime) in the jsdom realm — running `hydrateDocument(Doc)`, which replays
+ * the document in capture mode and hydrates each island over its server DOM (design/decode.md
+ * §Replay hydration). Faithful to a real browser: the bundle uses its bundled React + jsdom's
+ * `document`, nothing from the test's own module graph.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
-import { BUILT_HTML_PATH, CLOSURE_BUILT_HTML_PATH } from "./builtHtmlPath";
+import {
+  BUILT_DIR,
+  CLOSURE_BUILT_DIR,
+  clientJsOf,
+  indexHtmlOf
+} from "./builtHtmlPath";
 
-/** The single-file HTML fixtures, produced by the Node globalSetup, loaded here. */
+/** The built pages (produced by the Node globalSetup), loaded here. */
 let HTML = "";
 let CLOSURE_HTML = "";
 beforeAll(() => {
-  HTML = readFileSync(BUILT_HTML_PATH, "utf8");
-  CLOSURE_HTML = readFileSync(CLOSURE_BUILT_HTML_PATH, "utf8");
+  HTML = readFileSync(indexHtmlOf(BUILT_DIR), "utf8");
+  CLOSURE_HTML = readFileSync(indexHtmlOf(CLOSURE_BUILT_DIR), "utf8");
 });
 
 afterEach(() => {
@@ -52,28 +57,20 @@ function bodyOf(html: string): string {
   return m[1];
 }
 
-/** Extract the inlined client bundle (the `<script type="module">…</script>` content). */
-function clientBundleOf(html: string): string {
-  const m = html.match(/<script type="module">([\s\S]*?)<\/script>/i);
-  if (!m) {
-    throw new Error("no inlined client <script> in emitted HTML");
-  }
-  return m[1];
-}
-
 /**
- * Simulate a browser loading the file: install the body markup (sans the `<script>` tags, which we
- * run by hand), then eval the client bundle in the jsdom realm so `hydrateDocument(Doc)` runs (the
- * replay: capture-render the document, then hydrate each `[data-hydration-id]` marker).
+ * Simulate a browser loading the page: install the body markup (sans the `<script>` tags, which we
+ * run by hand), then eval the client bundle — the file the page's `<script src>` references — in
+ * the jsdom realm so `hydrateDocument(Doc)` runs (the replay: capture-render the document, then
+ * hydrate each `[data-hydration-id]` marker).
  */
-function loadAndBoot(html: string): void {
+function loadAndBoot(dir: string, html: string): void {
   const body = bodyOf(html).replace(/<script[\s\S]*?<\/script>/gi, "");
   document.body.innerHTML = body;
-  // The esbuild IIFE references the ambient `document`/`window` (jsdom) + its own bundled React.
+  // The vite IIFE references the ambient `document`/`window` (jsdom) + its own bundled React.
   // `globalThis.eval` is *indirect* eval — it runs in the global scope, exactly like the browser
-  // executing the inline module script.
-  // biome-ignore lint/security/noGlobalEval: faithfully simulates the browser running the inline bundle.
-  globalThis.eval(clientBundleOf(html));
+  // executing the classic script.
+  // biome-ignore lint/security/noGlobalEval: faithfully simulates the browser running the bundle.
+  globalThis.eval(readFileSync(clientJsOf(dir), "utf8"));
 }
 
 async function flush(): Promise<void> {
@@ -81,19 +78,18 @@ async function flush(): Promise<void> {
   await new Promise(r => setTimeout(r, 0));
 }
 
-describe("CLI hydration e2e (the acceptance test — against the FILE)", () => {
-  test("self-contained: the emitted DOM has no external src/href attributes", () => {
+describe("CLI hydration e2e (the acceptance test — against the FILES)", () => {
+  test("relocatable: every src/href is ./assets/-relative and exists in the out dir", () => {
     document.body.innerHTML = bodyOf(HTML);
-    const external = Array.from(
-      document.querySelectorAll("[src], [href]")
-    ).filter(el => {
-      const v = el.getAttribute("src") ?? el.getAttribute("href") ?? "";
-      return v.length > 0;
-    });
-    expect(external).toEqual([]);
-    // and the script tags themselves carry no src (inline only).
-    for (const s of Array.from(document.querySelectorAll("script"))) {
-      expect(s.getAttribute("src")).toBeNull();
+    // The document dir must be self-sufficient: no absolute or off-site URL, every reference a
+    // page-relative ./assets/… file that was actually emitted.
+    const refs = Array.from(document.querySelectorAll("[src], [href]")).map(
+      el => el.getAttribute("src") ?? el.getAttribute("href") ?? ""
+    );
+    expect(refs.length).toBeGreaterThan(0); // at least the island <script src>
+    for (const ref of refs) {
+      expect(ref).toMatch(/^\.\/assets\//);
+      expect(existsSync(join(BUILT_DIR, ref))).toBe(true);
     }
   });
 
@@ -110,7 +106,7 @@ describe("CLI hydration e2e (the acceptance test — against the FILE)", () => {
   });
 
   test("interactive after boot: Colorized click flips color red → green", async () => {
-    loadAndBoot(HTML);
+    loadAndBoot(BUILT_DIR, HTML);
     await flush();
 
     const span = document.querySelector(
@@ -153,7 +149,7 @@ describe("CLI closure e2e (island in @for closing over the loop var — the repl
   });
 
   test("interactive after hydration: each island keeps its own closure + state", async () => {
-    loadAndBoot(CLOSURE_HTML);
+    loadAndBoot(CLOSURE_BUILT_DIR, CLOSURE_HTML);
     await flush();
 
     let buttons = Array.from(document.querySelectorAll("button"));

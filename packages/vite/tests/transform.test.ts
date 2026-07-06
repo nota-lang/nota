@@ -133,6 +133,47 @@ describe("transform: ambient prelude injection", () => {
   });
 });
 
+describe("transform: extraAmbientNames (integrator-supplied ambient calls)", () => {
+  const asResult = (r: unknown) => r as { code: string } | null;
+
+  test("a free useState( call binds to the preludeModule, alongside the built-ins", async () => {
+    const result = asResult(
+      await runTransform(
+        nota({
+          preludeModule: "virtual:nota-ambient",
+          extraAmbientNames: ["useState", "registerComponents"]
+        }),
+        "%let s = useState(0)\nMath $x^2$\n",
+        "/d.nota"
+      )
+    );
+    // One import line: the built-in slot (Tex) and the extra (useState) from the same module;
+    // registerComponents is never called in this doc, so it is not injected.
+    expect(result?.code).toMatch(
+      /^import \{ Tex, useState \} from "virtual:nota-ambient";\n/
+    );
+  });
+
+  test("a doc-bound useState suppresses the injection (lexical override)", async () => {
+    const result = asResult(
+      await runTransform(
+        nota({ extraAmbientNames: ["useState"] }),
+        '%import { useState } from "./my-hooks.js"\n%let s = useState(0)\nhi\n',
+        "/d.nota"
+      )
+    );
+    expect(result?.code).not.toContain("@nota-lang/prelude");
+    expect(result?.code).toContain('from "./my-hooks.js"');
+  });
+
+  test("default (no option): a free useState stays free — the integrator owns hooks", async () => {
+    const result = asResult(
+      await runTransform(nota(), "%let s = useState(0)\nhi\n", "/d.nota")
+    );
+    expect(result?.code).not.toMatch(/import \{[^}]*useState/);
+  });
+});
+
 describe("transform: non-.nota id → null passthrough", () => {
   test("returns null for .ts / .js / .mdx / extensionless ids", async () => {
     for (const id of [

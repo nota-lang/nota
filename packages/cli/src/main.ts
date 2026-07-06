@@ -1,29 +1,30 @@
 /**
- * **`@nota-lang/cli` entrypoint** — `nota build doc.nota → doc.html`.
+ * **`@nota-lang/cli` entrypoint** — `nota build doc.nota → doc/` (a document directory).
  *
- * The simplest Nota integrator: one `.nota` file → one **self-contained** HTML file, every asset
- * inlined. Its page policy is trivial — the input file is the page. All the work is in
- * {@link "./build".buildNotaFile}; this is the thin argv/IO shell.
+ * The simplest Nota integrator: one `.nota` file → one **document directory** (`index.html` +
+ * `assets/`), built with Vite under a default config — so doc-relative imports, `?url` assets, and
+ * CSS imports work as in any Vite app. Its page policy is trivial — the input file is the page.
+ * All the work is in {@link "./build".buildNotaFile}; this is the thin argv/IO shell.
  *
  * Usage:
  * ```
- * nota build <doc.nota> [-o <out.html>] [--title <t>]
+ * nota build <doc.nota> [-o <outdir>] [--title <t>] [--setup <file>]
  * ```
- * With no `-o`, the output path is the input with its extension swapped to `.html`
- * (`doc.nota → doc.html`).
+ * With no `-o`, the output directory is the input with its extension stripped
+ * (`doc.nota → doc/`).
  */
 
-import { writeFileSync } from "node:fs";
-import { basename } from "node:path";
+import { relative } from "node:path";
 import { buildNotaFile } from "./build";
 
-const USAGE = `nota — build a .nota document into one self-contained .html file
+const USAGE = `nota — build a .nota document into a web page directory (index.html + assets/)
 
 Usage:
   nota build <doc.nota> [options]
 
 Options:
-  -o, --out <file>     output path (default: input with .html extension)
+  -o, --out <dir>      output directory (default: input with its extension
+                       stripped — doc.nota → doc/)
   --title <title>      document <title> (default: the input basename)
   --setup <file>       site setup module: registerComponents / lstset / mathset
                        run before render (and on the client for islands)
@@ -39,7 +40,7 @@ interface Args {
   help: boolean;
 }
 
-/** Minimal argv parser (no dependency): `nota build in.nota -o out.html --title T`. */
+/** Minimal argv parser (no dependency): `nota build in.nota -o out/ --title T`. */
 function parseArgs(argv: string[]): Args {
   const args: Args = { help: false };
   const rest: string[] = [];
@@ -62,11 +63,6 @@ function parseArgs(argv: string[]): Args {
   return args;
 }
 
-/** Swap a path's extension to `.html` (`a/b/doc.nota` → `a/b/doc.html`). */
-function toHtmlPath(input: string): string {
-  return `${input.replace(/\.[^./\\]+$/, "")}.html`;
-}
-
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
@@ -85,18 +81,21 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const outPath = args.out ?? toHtmlPath(args.input);
-
   try {
-    const { html, hasIslands, manifest } = await buildNotaFile(args.input, {
+    const out = await buildNotaFile(args.input, {
       title: args.title,
-      setupModule: args.setup
+      setupModule: args.setup,
+      outDir: args.out
     });
-    writeFileSync(outPath, html, "utf8");
-    const islandNote = hasIslands
-      ? `${Object.keys(manifest).length} island(s), client bundle inlined`
-      : "zero-JS (island-free)";
-    process.stdout.write(`nota: wrote ${basename(outPath)} — ${islandNote}\n`);
+    // Prefer a readable relative path; fall back to absolute when the out dir isn't below cwd.
+    const rel = relative(process.cwd(), out.outDir) || ".";
+    const where = rel.startsWith("..") ? out.outDir : rel;
+    const cssNote =
+      out.cssFiles.length > 0 ? `, ${out.cssFiles.length} css file(s)` : "";
+    const islandNote = out.hasIslands
+      ? `${Object.keys(out.manifest).length} island(s), client bundle${cssNote}`
+      : `zero-JS (island-free)${cssNote}`;
+    process.stdout.write(`nota: wrote ${where}/index.html — ${islandNote}\n`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     process.stderr.write(`nota: build failed\n${message}\n`);

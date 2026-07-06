@@ -1,49 +1,52 @@
 /**
  * **CLI golden / build tests.**
  *
- * Drive {@link buildNota} on the two shared fixtures and assert the CLI's pinned properties:
+ * Drive {@link buildNotaFile} on the shared fixtures (their REAL paths — doc-relative imports are
+ * part of the contract now) and assert the CLI's pinned properties:
  *
- *   - **self-containment** — the emitted HTML references **no external** resource (`src=`/`href=` as a
- *     real HTML attribute, ignoring substrings inside the inlined `<script>`/`<style>` text);
  *   - **zero-`<script>` for an island-free doc** (`static.nota`: headings/paragraphs/list) — no
- *     manifest ⇒ no client bundle ⇒ a pure static page;
- *   - the **islands path** (`golden.nota`) — the exact SSG body HTML, the inlined manifest, and an
- *     inlined client `<script>` (no `src`);
- *   - structural snapshots of the inlined output.
+ *     manifest ⇒ no client build ⇒ a pure static page, and a pure-markup doc emits **only**
+ *     `index.html` (no assets/ at all);
+ *   - the **islands path** (`golden.nota`) — the exact SSG body HTML, the manifest debug JSON, a
+ *     `<script src="./assets/index.js">` reference, and a self-contained IIFE bundle on disk;
+ *   - the **asset pipeline** (`asset.nota`) — a `?url` svg import and a CSS import flow through
+ *     vite: emitted under `assets/`, referenced page-relative from the HTML (the point of the
+ *     vite-based pipeline);
+ *   - structural snapshots of the emitted document.
  *
  * Node env: the pipeline spawns the reader (needs the pre-built `oxc/target/release/examples/
- * nota_compile`), runs esbuild, and `require`s the SSR bundle. `resolveFrom` is the package root so
- * esbuild resolves `react` / `@nota-lang/*` from this package's `node_modules`.
+ * nota_compile`) and runs two programmatic vite builds; `resolveFrom` is the package root so the
+ * pinned resolver finds `react` / `@nota-lang/*` in this package's `node_modules`.
  */
 
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { beforeAll, describe, expect, test } from "vitest";
-import { type BuildOutput, buildNota } from "../src/build";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { type BuildOutput, buildNota, buildNotaFile } from "../src/build";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, ".."); // packages/cli — its node_modules has the deps linked
 const integrationDir = join(here, "..", "..", "..", "integration");
-const read = (name: string) => readFileSync(join(integrationDir, name), "utf8");
 
-/** Strip the text content of `<script>`/`<style>` so attribute scans don't trip on bundled JS. */
-function stripInlineCode(html: string): string {
-  return html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "<script></script>")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "<style></style>");
-}
+/** All fixture builds land under one temp base, cleaned after the suite. */
+const outBase = mkdtempSync(join(tmpdir(), "nota-out-"));
+afterAll(() => rmSync(outBase, { recursive: true, force: true }));
 
-/** Build a fixture once, with the package root as the esbuild resolution base. */
-async function build(name: string): Promise<BuildOutput> {
-  return buildNota(read(name), { sourcePath: name, resolveFrom: pkgRoot });
+/** Build a fixture by its real path, into its own out dir under the temp base. */
+async function build(name: string, sub = ""): Promise<BuildOutput> {
+  return buildNotaFile(join(integrationDir, name), {
+    resolveFrom: pkgRoot,
+    outDir: join(outBase, `${basename(name, ".nota")}${sub}`)
+  });
 }
 
 // =============================================================================================
 // island-free doc — the zero-JS property
 // =============================================================================================
 
-describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained", () => {
+describe("CLI golden — island-free doc (static.nota): zero-JS, index.html only", () => {
   let out: BuildOutput;
   beforeAll(async () => {
     out = await build("static.nota");
@@ -56,12 +59,13 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
 
   test("ZERO <script>: a pure static page (the zero-JS property)", () => {
     expect(out.html).not.toMatch(/<script/i);
+    expect(out.clientJsPath).toBeUndefined();
   });
 
-  test("self-contained: no external src/href anywhere", () => {
-    const stripped = stripInlineCode(out.html);
-    expect(stripped).not.toMatch(/\bsrc=/i);
-    expect(stripped).not.toMatch(/\bhref=/i);
+  test("a pure-markup doc emits exactly one file: index.html (no assets/, no <link>)", () => {
+    expect(readdirSync(out.outDir)).toEqual(["index.html"]);
+    expect(out.cssFiles).toEqual([]);
+    expect(out.html).not.toMatch(/<link/i);
   });
 
   test("a complete HTML document (doctype, head, body)", () => {
@@ -71,6 +75,8 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
     expect(out.html).toContain("</html>");
     // title defaults to the input basename.
     expect(out.html).toContain("<title>static</title>");
+    // the written index.html is the returned html.
+    expect(readFileSync(join(out.outDir, "index.html"), "utf8")).toBe(out.html);
   });
 
   test("the SSG body grouped headings/paras/list (struct ran): sections, <p>, <ul>", () => {
@@ -95,7 +101,7 @@ describe("CLI golden — island-free doc (static.nota): zero-JS, self-contained"
 // islands doc — the golden (Colorized)
 // =============================================================================================
 
-describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + manifest", () => {
+describe("CLI golden — islands doc (golden.nota): SSG body + client bundle + manifest", () => {
   let out: BuildOutput;
   beforeAll(async () => {
     out = await build("golden.nota");
@@ -119,38 +125,72 @@ describe("CLI golden — islands doc (golden.nota): SSG body + inlined bundle + 
     expect(body).not.toMatch(/onclick/i);
   });
 
-  test("an inlined client <script> (module) + the manifest as JSON debug metadata", () => {
-    // The replay bundle is inlined as a module script (content present, not an external src).
-    expect(out.html).toMatch(/<script type="module">[\s\S]+<\/script>/);
+  test("a client <script src> + the manifest as JSON debug metadata", () => {
+    // The replay bundle is a page-relative classic script (an IIFE — not a module, so it also
+    // works over file://).
+    expect(out.html).toContain('<script src="./assets/index.js"></script>');
     // The manifest is inlined as application/json DEBUG metadata (hydration never
     // reads it — the client replays Doc; it remains inspectable + gates hasIslands).
     expect(out.html).toContain(
       '<script type="application/json" id="nota-manifest">{"1":{"comp":"Colorized"},"2":{"comp":"Colorized"}}</script>'
     );
-    // The two script tags the CLI emits are exactly these two opening forms (the inlined bundle text
-    // may itself contain `<script src=…>` *substrings* — react-dom/server source — so the
-    // authoritative "no external resource" check is the DOM-based one in the hydration e2e).
-    expect(out.html).toContain(
-      '<script type="application/json" id="nota-manifest">'
-    );
-    expect(out.html).toContain('<script type="module">');
+    // ...and the bundle it references was written where the return value says.
+    expect(out.clientJsPath).toBe(join(out.outDir, "assets", "index.js"));
+    expect(out.clientJsPath && existsSync(out.clientJsPath)).toBe(true);
   });
 
-  test("the bundle actually inlined React + the runtime replay (createElement/hydrateRoot/hydrateDocument)", () => {
-    // Proof the client bundle is self-contained: it carries React's client + the replay-hydration
-    // call (hydrateDocument), not a bare import. (Inside the minified bundle text;
-    // React's renderToString also ships — the replay SSRs nested-in-slot islands client-side.)
-    expect(out.html).toMatch(/createElement|jsx/);
-    expect(out.html).toContain("hydrateRoot");
+  test("the bundle is self-contained: React + the runtime replay, no import/export statements", () => {
+    const bundle = readFileSync(out.clientJsPath ?? "", "utf8");
+    // Proof the client bundle carries React's client + the replay-hydration call
+    // (hydrateDocument), not a bare import. (React's renderToString also ships — the replay SSRs
+    // nested-in-slot islands client-side.)
+    expect(bundle).toMatch(/createElement|jsx/);
+    expect(bundle).toContain("hydrateRoot");
+    // An IIFE has no module syntax — what makes the jsdom e2e's realm-eval faithful.
+    expect(bundle).not.toMatch(/^\s*import\s/m);
+    expect(bundle).not.toMatch(/^\s*export\s/m);
   });
 
   test("a custom --title is honored", async () => {
-    const titled = await buildNota(read("golden.nota"), {
-      sourcePath: "golden.nota",
+    const titled = await buildNotaFile(join(integrationDir, "golden.nota"), {
+      resolveFrom: pkgRoot,
       title: "My Doc",
-      resolveFrom: pkgRoot
+      outDir: join(outBase, "golden-titled")
     });
     expect(titled.html).toContain("<title>My Doc</title>");
+  });
+});
+
+// =============================================================================================
+// the asset pipeline — ?url + CSS imports (the point of the vite-based build)
+// =============================================================================================
+
+describe("CLI assets — asset.nota: ?url svg + CSS import flow through vite", () => {
+  let out: BuildOutput;
+  beforeAll(async () => {
+    out = await build("asset.nota");
+  });
+
+  test("still static: assets don't make a doc an island", () => {
+    expect(out.hasIslands).toBe(false);
+    expect(out.html).not.toMatch(/<script/i);
+  });
+
+  test("the ?url svg is emitted under assets/ and referenced page-relative from the HTML", () => {
+    const m = out.html.match(/<img src="(\.\/assets\/sample-[\w-]+\.svg)"/);
+    expect(m).not.toBeNull();
+    // the URL the SSR baked into the HTML names a file that exists in the out dir.
+    expect(existsSync(join(out.outDir, m?.[1] ?? ""))).toBe(true);
+  });
+
+  test("the CSS import is emitted and <link>ed in <head>", () => {
+    expect(out.cssFiles.length).toBe(1);
+    const href = `./${out.cssFiles[0]}`;
+    expect(out.html).toContain(`<link rel="stylesheet" href="${href}" />`);
+    const css = readFileSync(join(out.outDir, out.cssFiles[0]), "utf8");
+    // the fixture's marker rule survived the pipeline (the production minifier normalizes
+    // rgb(1, 2, 3) → #010203; dev builds keep the rgb form).
+    expect(css).toMatch(/#010203|rgb\(1,\s*2,\s*3\)/);
   });
 });
 
@@ -166,5 +206,13 @@ describe("CLI build — reader diagnostics surface", () => {
         resolveFrom: pkgRoot
       })
     ).rejects.toThrow(/failed to compile/i);
+  });
+
+  test("a missing input file is a pointed error", async () => {
+    await expect(
+      buildNotaFile(join(integrationDir, "no-such.nota"), {
+        resolveFrom: pkgRoot
+      })
+    ).rejects.toThrow(/not found/);
   });
 });
