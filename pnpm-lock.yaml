@@ -105,7 +105,7 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.3
         version: 1.2.3
-      nota_wasm:
+      '@nota-lang/wasm':
         specifier: file:../../oxc/napi/nota_wasm/pkg
         version: file:oxc/napi/nota_wasm/pkg
     devDependencies:
@@ -213,7 +213,7 @@ importers:
       '@nota-lang/vite':
         specifier: workspace:*
         version: link:../vite
-      nota_wasm:
+      '@nota-lang/wasm':
         specifier: file:../../oxc/napi/nota_wasm/pkg
         version: file:oxc/napi/nota_wasm/pkg
       prettier:
@@ -750,6 +750,9 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
+
+  '@nota-lang/wasm@file:oxc/napi/nota_wasm/pkg':
+    resolution: {directory: oxc/napi/nota_wasm/pkg, type: directory}
 
   '@oxc-project/types@0.133.0':
     resolution: {integrity: sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA==}
@@ -1344,9 +1347,6 @@ packages:
 
   normalize.css@8.0.1:
     resolution: {integrity: sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==}
-
-  nota_wasm@file:oxc/napi/nota_wasm/pkg:
-    resolution: {directory: oxc/napi/nota_wasm/pkg, type: directory}
 
   obug@2.1.2:
     resolution: {integrity: sha512-AWGB9WFcRXOQs48Z/udjI5ZcZMHXwX8XPByNpOydgcGsDLIzjGizhoMWJyKAWze7AVW/2W1i+/gPX4YtKe5cyg==}
@@ -2110,6 +2110,8 @@ snapshots:
       '@tybys/wasm-util': 0.10.2
     optional: true
 
+  '@nota-lang/wasm@file:oxc/napi/nota_wasm/pkg': {}
+
   '@oxc-project/types@0.133.0': {}
 
   '@rolldown/binding-android-arm64@1.0.3':
@@ -2689,8 +2691,6 @@ snapshots:
   nanoid@3.3.12: {}
 
   normalize.css@8.0.1: {}
-
-  nota_wasm@file:oxc/napi/nota_wasm/pkg: {}
 
   obug@2.1.2: {}
 

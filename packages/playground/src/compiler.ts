@@ -17,9 +17,9 @@ import init, {
   type InitInput,
   type NotaParseAstResult,
   parseAst
-} from "nota_wasm";
+} from "@nota-lang/wasm";
 // Vite resolves this to a served URL for the `.wasm` asset (hashed in build output).
-import wasmUrl from "nota_wasm/nota_wasm_bg.wasm?url";
+import wasmUrl from "@nota-lang/wasm/nota_wasm_bg.wasm?url";
 
 /** The runtime import the reader omits — prepended onto every emit. */
 export const RUNTIME_IMPORT =

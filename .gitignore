@@ -7,3 +7,5 @@ references/
 
 # Integration harness scratch
 integration/.note.emitted.mjs
+# Vendored at pack time by scripts/pack-release.ts (the node wasm reader)
+packages/compiler/wasm/

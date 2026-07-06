@@ -2,7 +2,8 @@
   "name": "@nota-lang/compiler",
   "version": "0.1.0",
   "files": [
-    "dist"
+    "dist",
+    "wasm"
   ],
   "main": "dist/lib.js",
   "exports": {
@@ -31,5 +32,11 @@
     "jsdom": "^29.1.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/compiler"
   }
 }

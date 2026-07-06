@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EditorView } from "@codemirror/view";
-import init from "nota_wasm";
+import init from "@nota-lang/wasm";
 import { beforeAll, describe, expect, it } from "vitest";
 import { embeddedTokens } from "../src/embedded-langs";
 import {
@@ -29,7 +29,7 @@ const MEGA = readFileSync(MEGA_PATH, "utf8");
 beforeAll(async () => {
   // jsdom has no file:// fetch; hand the wasm bytes straight to init (consumer-side loading —
   // exactly what an app does outside a bundler).
-  const wasmPath = fileURLToPath(import.meta.resolve("nota_wasm")).replace(
+  const wasmPath = fileURLToPath(import.meta.resolve("@nota-lang/wasm")).replace(
     /nota_wasm\.js$/,
     "nota_wasm_bg.wasm"
   );

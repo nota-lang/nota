@@ -28,5 +28,11 @@
   },
   "peerDependencies": {
     "solid-js": "^1.9.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/solid"
   }
 }

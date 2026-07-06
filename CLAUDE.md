@@ -25,8 +25,9 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   - **prelude** — the standard ambient prelude: `Tex` (KaTeX→MathML) +
     `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
     `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
-  - **compiler** — sync shim (`src/lib.ts`) that shells out to the Rust reader binary:
-    `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `parseVirtualJson`.
+  - **compiler** — sync shim (`src/lib.ts`) over the **node-wasm reader** (in-process; the
+    `NOTA_COMPILE_BIN` env forces the legacy `nota_compile` subprocess instead):
+    `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `parseVirtualJson` / `highlightSpans`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
   - **vite** — `.nota` transform plugin + island registry (`registry.ts:generateClientEntry`).
@@ -78,19 +79,21 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   oxc_ast`, not the exit code. (Adding an AST variant: see memory `nota-oxc-add-expression-variant.md`.)
 
 ### Build artifacts — the stale-output trap (this repeatedly cost hours)
-A reader change is invisible to JS until you rebuild the artifact that consumes it:
-- **Native binary** (compiler/vite/cli/language-server):
-  `cd oxc && cargo build --release -p oxc --example nota_compile --features codegen`
-  → `oxc/target/release/examples/nota_compile`. Stale/missing → `nota: failed to compile … [exit unknown]`.
-- **wasm — web** (playground): `cd oxc && wasm-pack build napi/nota_wasm --target web --out-dir pkg --out-name nota_wasm`.
+A reader change is invisible to JS until you rebuild the artifact that consumes it. Canonical wasm
+build: **`node scripts/build-wasm.mjs [web|node]`** (both targets by default) — it runs wasm-pack
+AND patches the generated package.json names to `@nota-lang/wasm` / `@nota-lang/wasm-node`; raw
+wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace `file:` deps.
+- **wasm — node** (the compiler shim's DEFAULT backend: `compile`/`compileVirtual`/`highlightSpans`
+  → vite/cli/language-server): `oxc/napi/nota_wasm/pkg-node/nota_wasm.js` (CommonJS, sync init).
+  Resolution: `NOTA_WASM_NODE` env → vendored `<pkg>/wasm/` (packed tarballs) → repo `pkg-node`.
+  Missing → the loader throws its rebuild instructions / `highlight.test.ts` self-skips.
+- **wasm — web** (codemirror + playground, dep key `@nota-lang/wasm`): `oxc/napi/nota_wasm/pkg/`.
   Missing `pkg/` → pnpm-install ENOENT (it's a `file:` dep).
-- **wasm — node** (language-server semantic tokens, `@nota-lang/compiler`'s `highlightSpans`):
-  `cd oxc && wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm`
-  → `oxc/napi/nota_wasm/pkg-node/nota_wasm.js` (CommonJS, sync init). The compiler shim `require`s it
-  package-relative (override with `NOTA_WASM_NODE`); missing → `highlightSpans` throws / the
-  `highlight.test.ts` suite self-skips. Rebuild BOTH wasm targets after a reader change — the web
-  `pkg/` and the node `pkg-node/` are independent artifacts. Both are gitignored (wasm-pack writes a
-  `.gitignore: *` in each out-dir).
+  Rebuild BOTH wasm targets after a reader change — `pkg/` and `pkg-node/` are independent
+  artifacts. Both are gitignored (wasm-pack writes a `.gitignore: *` in each out-dir).
+- **Native binary** (subprocess escape hatch — forced by `NOTA_COMPILE_BIN`; exercised by the
+  parity suites in `compiler/tests`): `cd oxc && cargo build --release -p oxc --example
+  nota_compile --features codegen` → `oxc/target/release/examples/nota_compile`.
 - JS packages consume each other's **built `dist/`, not `src/`** — after editing pkg A,
   `cd packages/A && depot build` before pkg B / a cross-package test sees the change.
 

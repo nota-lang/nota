@@ -26,5 +26,11 @@
   },
   "devDependencies": {
     "@types/katex": "^0.16.7"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/prelude"
   }
 }

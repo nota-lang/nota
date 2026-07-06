@@ -29,10 +29,16 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
     "@lezer/highlight": "^1.2.3",
-    "nota_wasm": "file:../../oxc/napi/nota_wasm/pkg"
+    "@nota-lang/wasm": "file:../../oxc/napi/nota_wasm/pkg"
   },
   "devDependencies": {
     "@types/node": "^25.9.2",
     "jsdom": "^29.1.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/codemirror"
   }
 }

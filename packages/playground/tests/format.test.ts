@@ -17,7 +17,7 @@ import { runSSG } from "../src/ssg";
 beforeAll(async () => {
   const require = createRequire(import.meta.url);
   const wasmPath = require
-    .resolve("nota_wasm")
+    .resolve("@nota-lang/wasm")
     .replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
   await ensureCompiler(readFileSync(wasmPath));
 });

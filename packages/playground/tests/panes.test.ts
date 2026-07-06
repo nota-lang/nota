@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { highlightSpans } from "@nota-lang/codemirror";
-import { compile as wasmCompile } from "nota_wasm";
+import { compile as wasmCompile } from "@nota-lang/wasm";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   compileNota,
@@ -24,7 +24,7 @@ import { runSSG } from "../src/ssg";
 beforeAll(async () => {
   // Resolve the `.wasm` next to the pkg's JS and feed the bytes to the wasm init (Node path).
   const require = createRequire(import.meta.url);
-  const wasmJs = require.resolve("nota_wasm");
+  const wasmJs = require.resolve("@nota-lang/wasm");
   const wasmPath = wasmJs.replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
   const bytes = readFileSync(wasmPath);
   await ensureCompiler(bytes);
