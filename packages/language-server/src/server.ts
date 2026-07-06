@@ -21,6 +21,7 @@ import ts from "typescript";
 import { create as createTypeScriptServices } from "volar-service-typescript";
 import { notaDiagnosticsServicePlugin } from "./diagnostics.js";
 import { notaLanguagePlugin } from "./language-plugin.js";
+import { notaSemanticTokensPlugin } from "./semantic-tokens.js";
 
 /**
  * Boot the language server on a Volar `Connection`. Registers the connection lifecycle handlers and
@@ -42,8 +43,13 @@ export function startServer(connection: Connection = createConnection()): void {
         languagePlugins: [notaLanguagePlugin]
       })),
       // `volar-service-typescript` surfaces *type* diagnostics/hover/completion over the virtual
-      // `.tsx`; the Nota diagnostics plugin surfaces the `.nota`'s own *syntax* diagnostics (D5).
-      [...createTypeScriptServices(ts), notaDiagnosticsServicePlugin]
+      // `.tsx`; the Nota diagnostics plugin surfaces the `.nota`'s own *syntax* diagnostics (D5),
+      // and the Nota semantic-tokens plugin paints the reader-driven highlight spans (D2).
+      [
+        ...createTypeScriptServices(ts),
+        notaDiagnosticsServicePlugin,
+        notaSemanticTokensPlugin
+      ]
     )
   );
 
