@@ -7,20 +7,22 @@
  * deliberately omits **prepended**. The reader does not emit the `@nota-lang/runtime` import — the
  * compiler shim (or integrator) prepends it.
  *
- * **Current mechanism — Node subprocess.** We spawn the pre-built release CLI
- * (`oxc/target/release/examples/nota_compile <file.nota>`), which prints the emitted module to
- * stdout (diagnostics → stderr, exit 1 on error). The source is written to a temp file the shim
- * owns, the binary runs over it, and stdout is captured.
+ * **Default mechanism — in-process wasm.** The node-target wasm reader
+ * (`wasm-pack build --target nodejs`, vendored into this package's `wasm/` when packed; the repo's
+ * `oxc/napi/nota_wasm/pkg-node` in development) exposes the same `oxc::nota` entries
+ * (`compile` / `compileVirtual` / `highlight`) with no subprocess and no temp files, so installs
+ * need no Rust toolchain and no platform-specific binary.
  *
- * **Later upgrade — wasm/napi backend.** A browser playground (and a faster Node path) wants the
- * reader compiled to wasm (`oxc::nota::compile` behind `wasm-bindgen`) so there is no subprocess and
- * it runs in the browser. That is a drop-in replacement for {@link compile}'s body — the API (string
- * in → `{ code, map }` out, runtime import prepended) is backend-agnostic and stays fixed. The
- * subprocess is the current path; the wasm backend is a later, non-breaking swap.
+ * **Escape hatch — Node subprocess.** Setting `NOTA_COMPILE_BIN` to a `nota_compile` binary forces
+ * the original subprocess path for {@link compile} / {@link compileVirtual}: the source is written
+ * to a temp file the shim owns, the binary runs over it (`--virtual` for the virtual emit), stdout
+ * is captured (diagnostics → stderr, exit 1 on error). The two backends emit identical output; the
+ * binary path exists for benchmarking a native reader build and for pinning CI against a specific
+ * artifact.
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -65,7 +67,7 @@ export interface CompileResult {
 }
 
 /**
- * Resolve the `nota_compile` binary.
+ * Resolve the `nota_compile` binary for the subprocess escape hatch.
  *
  * Order: the `NOTA_COMPILE_BIN` env var (an explicit path — lets the CLI / CI point at any build),
  * else the oxc release path resolved **relative to this package** so it works regardless of the
@@ -91,22 +93,56 @@ function resolveBinary(): string {
   );
 }
 
+/** Is the subprocess escape hatch engaged? (`NOTA_COMPILE_BIN` set to a non-empty path.) */
+function binaryForced(): boolean {
+  const bin = process.env.NOTA_COMPILE_BIN;
+  return typeof bin === "string" && bin.length > 0;
+}
+
 /**
  * Compile a `.nota` source string to an emitted JS module.
  *
- * Writes `source` to a temp file, spawns the `nota_compile` binary over it, and captures stdout as
- * the emitted module. The {@link RUNTIME_IMPORT} is prepended to the result. On a non-zero exit the
- * binary's stderr diagnostics are surfaced as the thrown `Error`'s message.
+ * Runs the in-process wasm reader (or, with `NOTA_COMPILE_BIN` set, the `nota_compile` binary over
+ * a temp file). The {@link RUNTIME_IMPORT} is prepended to the result. A reader diagnostic is
+ * surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
  * @returns the {@link CompileResult} (`{ code, map? }`)
- * @throws if the reader reports a diagnostic (non-zero exit) — the error message carries stderr.
+ * @throws if the reader reports a diagnostic — the error message carries the diagnostic text.
  */
 export function compile(
   source: string,
   opts: CompileOptions = {}
 ): CompileResult {
+  const emitted = binaryForced()
+    ? compileWithBinary(source, opts)
+    : compileWithWasm(source, opts);
+
+  // Prepend the runtime import the reader omits.
+  const code = RUNTIME_IMPORT + emitted;
+
+  // Neither backend surfaces a sourcemap yet; structured CodeMappings + a flat v3 map are a
+  // forthcoming reader upgrade. Once present, parse + return them here. The prepended import
+  // shifts generated offsets by one leading line, which a real map must account for (trivial to
+  // offset). Kept undefined until the backend emits it.
+  return { code, map: undefined };
+}
+
+/** The wasm build path: in-process `nota_wasm.compile`, no temp files. */
+function compileWithWasm(source: string, opts: CompileOptions): string {
+  // Load outside the try: a missing wasm build must surface as the loader's descriptive error,
+  // not be dressed up as a compile diagnostic.
+  const reader = loadWasmReader();
+  try {
+    return reader.compile(source).code;
+  } catch (err) {
+    throw toWasmCompileError(err, opts.sourcePath);
+  }
+}
+
+/** The subprocess escape hatch: write a temp file, spawn `nota_compile`, capture stdout. */
+function compileWithBinary(source: string, opts: CompileOptions): string {
   const bin = resolveBinary();
 
   // Derive a stable, filesystem-safe basename from sourcePath (purely cosmetic — feeds the binary's
@@ -117,10 +153,8 @@ export function compile(
   const file = join(dir, `${base}.nota`);
   try {
     writeFileSync(file, source, "utf8");
-
-    let stdout: string;
     try {
-      stdout = execFileSync(bin, [file], {
+      return execFileSync(bin, [file], {
         encoding: "utf8",
         // Generous cap; the reader is fast. Avoids a hung subprocess wedging a build.
         maxBuffer: 64 * 1024 * 1024
@@ -128,15 +162,6 @@ export function compile(
     } catch (err) {
       throw toCompileError(err, opts.sourcePath);
     }
-
-    // Prepend the runtime import the reader omits.
-    const code = RUNTIME_IMPORT + stdout;
-
-    // The CLI does not yet surface a sourcemap on stdout; structured CodeMappings + a flat v3 map are
-    // a forthcoming reader upgrade. Once present, parse + return them here. The prepended import
-    // shifts generated offsets by one leading line, which a real map must account for (trivial to
-    // offset). Kept undefined until the backend emits it.
-    return { code, map: undefined };
   } finally {
     // Best-effort cleanup of the temp dir; never mask a compile error with a cleanup failure.
     try {
@@ -230,7 +255,11 @@ export interface VirtualCompileResult {
   errors: NotaError[];
 }
 
-/** The exact `--virtual` stdout JSON shape `compileVirtual` parses. */
+/**
+ * The raw virtual-emit shape both backends produce: the binary's `--virtual` stdout JSON and the
+ * wasm entry's return object (where a Rust `None` for `generatedLengths` arrives as `undefined` —
+ * {@link validateVirtual} normalizes it to `null`).
+ */
 interface VirtualJson {
   code: string;
   mappings: CodeMapping[];
@@ -241,26 +270,34 @@ interface VirtualJson {
  * Compile a `.nota` source to the **type-preserving virtual `.tsx`** emit + Volar CodeMappings.
  * The language server (`@nota-lang/language-server`) consumes this.
  *
- * Spawns the reader binary with `--virtual <file>` (same path resolution as {@link compile}) and
- * parses the JSON from stdout. Unlike {@link compile}, the runtime import is **not**
- * prepended here — the language-server `LanguagePlugin` prepends a runtime+ambient typing preamble
- * (so `h`/`decode`/`useState`/… type-check) and shifts the mappings by its length; doing it here
- * would double-shift.
+ * Runs the in-process wasm reader's `compileVirtual` (or, with `NOTA_COMPILE_BIN` set, the binary
+ * with `--virtual <file>`, parsing the JSON from stdout). Unlike {@link compile}, the runtime
+ * import is **not** prepended here — the language-server `LanguagePlugin` prepends a
+ * runtime+ambient typing preamble (so `h`/`decode`/`useState`/… type-check) and shifts the
+ * mappings by its length; doing it here would double-shift.
  *
- * The reader uses **EOF error-recovery** on this path, so it does **not** fail (exit non-zero) on
- * unterminated markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
+ * The reader uses **EOF error-recovery** on this path, so it does **not** fail on unterminated
+ * markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
  * {@link VirtualCompileResult.errors} for the language server to surface as LSP diagnostics.
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
  * @returns the {@link VirtualCompileResult} (`{ code, mappings, errors }`)
- * @throws only if the binary itself fails to run (missing/old build lacking `--virtual`, an OS
- *   spawn error) — the error carries stderr. A *recoverable* Nota syntax error does not throw.
+ * @throws only if the backend itself fails to run (a missing wasm build / a missing or old binary
+ *   lacking `--virtual`). A *recoverable* Nota syntax error does not throw.
  */
 export function compileVirtual(
   source: string,
   opts: CompileOptions = {}
 ): VirtualCompileResult {
+  if (!binaryForced()) {
+    // The wasm entry returns the already-structured object (camelCase, `errors` always present).
+    // Run it through the same shape validation as the JSON path — a desynced wasm build should
+    // surface a clear error here, not an `undefined` downstream.
+    const raw = loadWasmReader().compileVirtual(source) as VirtualJson;
+    return validateVirtual(raw, opts.sourcePath);
+  }
+
   const bin = resolveBinary();
   const base = opts.sourcePath ? sanitizeBase(opts.sourcePath) : "input";
 
@@ -310,6 +347,18 @@ export function parseVirtualJson(
       `nota: --virtual produced invalid JSON${where}: ${(e as Error).message}\n${stdout.slice(0, 200)}`
     );
   }
+  return validateVirtual(parsed, sourcePath);
+}
+
+/**
+ * Validate + normalize a raw virtual-emit object (parsed `--virtual` JSON or the wasm entry's
+ * return value) into a {@link VirtualCompileResult}. Shared by both backends so a desynced build
+ * of either surfaces a clear error rather than a downstream `undefined`.
+ */
+function validateVirtual(
+  parsed: VirtualJson,
+  sourcePath?: string
+): VirtualCompileResult {
   if (typeof parsed.code !== "string" || !Array.isArray(parsed.mappings)) {
     const where = sourcePath ? ` (${sourcePath})` : "";
     throw new Error(
@@ -317,7 +366,7 @@ export function parseVirtualJson(
     );
   }
   // Light per-mapping validation: the parallel arrays must be present and equal-length. Cheap, and
-  // it catches a desynced binary before the offset-shift math runs in the language server.
+  // it catches a desynced backend before the offset-shift math runs in the language server.
   for (const m of parsed.mappings) {
     if (
       !Array.isArray(m.sourceOffsets) ||
@@ -331,6 +380,12 @@ export function parseVirtualJson(
       );
     }
   }
+  // Normalize `generatedLengths` to `null` (serde-wasm-bindgen serializes a Rust `None` as
+  // `undefined`; the declared type is `number[] | null`).
+  const mappings = parsed.mappings.map(m => ({
+    ...m,
+    generatedLengths: m.generatedLengths ?? null
+  }));
   // `errors` is optional for forward-compat with an older binary that predates recovered-error
   // reporting (treated as "no diagnostics");
   // a present array is validated to the `{message, start, len}` shape.
@@ -341,11 +396,11 @@ export function parseVirtualJson(
         len: Number(e.len) || 0
       }))
     : [];
-  return { code: parsed.code, mappings: parsed.mappings, errors };
+  return { code: parsed.code, mappings, errors };
 }
 
 // ===================================================================================================
-// Reader-driven syntax highlight spans (via the node-target wasm reader).
+// The node-target wasm reader (the default backend) + reader-driven syntax highlight spans.
 // ===================================================================================================
 
 /**
@@ -363,8 +418,10 @@ export interface HighlightSpan {
   kind: string;
 }
 
-/** The minimal shape of the node-target wasm reader this shim calls for highlighting. */
+/** The shape of the node-target wasm reader's entries this shim calls. */
 interface WasmReader {
+  compile(source: string): { code: string };
+  compileVirtual(source: string): VirtualJson;
   highlight(source: string): Uint32Array;
   highlightKindNames(): string[];
 }
@@ -373,36 +430,52 @@ let wasmReader: WasmReader | null = null;
 let cachedKindNames: string[] | null = null;
 
 /**
- * Lazily load the **node-target** wasm reader (`oxc/napi/nota_wasm/pkg-node`, built with
- * `wasm-pack build --target nodejs`). In-process and sub-ms — no subprocess — so it is suitable for
- * per-keystroke semantic tokens (unlike the {@link compile} binary path). Resolved relative to this
- * package (like {@link resolveBinary}); overridable with `NOTA_WASM_NODE` for CI / alternate builds.
+ * Lazily load the **node-target** wasm reader (built with
+ * `wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm`).
+ * In-process and sub-ms — no subprocess — so it serves both the build path and per-keystroke
+ * semantic tokens.
  *
- * @throws if the node wasm package is missing — rebuild with
- *   `wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm`.
+ * Resolution order: the `NOTA_WASM_NODE` env var (CI / alternate builds), else the copy vendored
+ * into this package under `wasm/` (how the packed tarball ships), else the repo's
+ * `oxc/napi/nota_wasm/pkg-node` resolved relative to this package (development; cf.
+ * {@link resolveBinary} for the `../../../` logic).
+ *
+ * @throws if no node wasm build is found at any of those locations.
  */
 function loadWasmReader(): WasmReader {
   if (wasmReader) {
     return wasmReader;
   }
-  const fromEnv = process.env.NOTA_WASM_NODE;
   const here = dirname(fileURLToPath(import.meta.url));
+  const fromEnv = process.env.NOTA_WASM_NODE;
+  const vendored = join(here, "..", "wasm", "nota_wasm.js");
+  const inRepo = join(
+    here,
+    "..",
+    "..",
+    "..",
+    "oxc",
+    "napi",
+    "nota_wasm",
+    "pkg-node",
+    "nota_wasm.js"
+  );
   const wasmPath =
     fromEnv && fromEnv.length > 0
       ? fromEnv
-      : join(
-          here,
-          "..",
-          "..",
-          "..",
-          "oxc",
-          "napi",
-          "nota_wasm",
-          "pkg-node",
-          "nota_wasm.js"
-        );
+      : existsSync(vendored)
+        ? vendored
+        : inRepo;
   const require = createRequire(import.meta.url);
-  wasmReader = require(wasmPath) as WasmReader;
+  try {
+    wasmReader = require(wasmPath) as WasmReader;
+  } catch (e) {
+    throw new Error(
+      `nota: failed to load the node wasm reader at ${wasmPath} — build it with ` +
+        "`wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node --out-name nota_wasm` " +
+        `(or point NOTA_WASM_NODE at a build): ${(e as Error).message}`
+    );
+  }
   return wasmReader;
 }
 
@@ -451,6 +524,21 @@ function sanitizeBase(sourcePath: string): string {
   const stripped = leaf.replace(/\.nota$/, "");
   const safe = stripped.replace(/[^A-Za-z0-9._-]/g, "_");
   return safe.length > 0 ? safe : "input";
+}
+
+/**
+ * Normalize a thrown wasm-reader error (a `JsError` whose message is the newline-joined
+ * diagnostics) into the same `Error` shape as {@link toCompileError}: a `nota: failed to compile`
+ * message naming the source, with the raw diagnostic text on `.diagnostics` for programmatic
+ * consumers (e.g. a Vite error overlay).
+ */
+function toWasmCompileError(err: unknown, sourcePath?: string): Error {
+  const diagnostics =
+    err instanceof Error ? err.message : String(err ?? "nota: compile failed");
+  const where = sourcePath ? ` (${sourcePath})` : "";
+  const error = new Error(`nota: failed to compile${where}\n${diagnostics}`);
+  (error as Error & { diagnostics?: string }).diagnostics = diagnostics;
+  return error;
 }
 
 /**

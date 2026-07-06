@@ -123,13 +123,13 @@ jobs:
   # Per-package depot suites, serially in dependency order (packages consume each
   # other's built dist/, and whole-workspace `depot test` races on shared dist/).
   # No submodule checkout: the reader artifacts stand in for the oxc tree.
+  # No NOTA_COMPILE_BIN / NOTA_WASM_NODE here: the packages' default resolution finds the staged
+  # artifacts at their repo-relative paths, and the compiler tests cover exactly that logic (the
+  # wasm default backend + the env-forced subprocess parity suite).
   js-tests:
     name: JS tests
     needs: reader-artifacts
     runs-on: ubuntu-latest
-    env:
-      NOTA_COMPILE_BIN: ${{ github.workspace }}/oxc/target/release/examples/nota_compile
-      NOTA_WASM_NODE: ${{ github.workspace }}/oxc/napi/nota_wasm/pkg-node/nota_wasm.js
     steps:
       - uses: actions/checkout@v4
 
@@ -166,8 +166,6 @@ jobs:
     name: VS Code grammar tests
     needs: reader-artifacts
     runs-on: ubuntu-latest
-    env:
-      NOTA_WASM_NODE: ${{ github.workspace }}/oxc/napi/nota_wasm/pkg-node/nota_wasm.js
     steps:
       - uses: actions/checkout@v4
 

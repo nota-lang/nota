@@ -2,15 +2,26 @@
  * `@nota-lang/compiler` — `compileVirtual` / `parseVirtualJson` tests.
  *
  * The virtual (`.tsx`) emit is what `@nota-lang/language-server` consumes: the type-preserving
- * codegen plus the Volar `CodeMapping`s. This file pins the **JSON-shape parsing** the
- * shim does over the binary's `--virtual` stdout — tested against a *hand-written* sample, since the
- * binary's `--virtual` mode is still being added to the reader and may not exist yet. If the binary
- * already speaks `--virtual`, the live path is exercised too.
+ * codegen plus the Volar `CodeMapping`s. This file pins the **shape validation** shared by both
+ * backends against hand-written samples, drives the live default backend (the in-process wasm
+ * reader), and — when the pre-built binary speaks `--virtual` — pins subprocess/wasm parity.
  */
 
 import { execFileSync } from "node:child_process";
-import { describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { type CodeMapping, compileVirtual, parseVirtualJson } from "../src/lib";
+
+// Pin the default (wasm) backend for this file regardless of the developer's shell; the parity
+// suite below forces the subprocess explicitly.
+const ambientBin = process.env.NOTA_COMPILE_BIN;
+beforeAll(() => {
+  delete process.env.NOTA_COMPILE_BIN;
+});
+afterAll(() => {
+  if (ambientBin !== undefined) {
+    process.env.NOTA_COMPILE_BIN = ambientBin;
+  }
+});
 
 /** The `--virtual` JSON, hand-built so the parse is tested independent of the binary. */
 const SAMPLE_JSON = JSON.stringify({
@@ -218,35 +229,10 @@ describe("parseVirtualJson (recovered errors)", () => {
 });
 
 // ===================================================================================================
-// Live path — only if the binary already implements `--virtual`. Otherwise the whole describe is
-// skipped, and the parse tests above are the guarantee until the reader catches up.
+// Live path — the default backend (in-process wasm reader).
 // ===================================================================================================
 
-/** Resolve the binary the same way the shim does, to probe for `--virtual` support. */
-function binarySupportsVirtual(): boolean {
-  const bin =
-    process.env.NOTA_COMPILE_BIN && process.env.NOTA_COMPILE_BIN.length > 0
-      ? process.env.NOTA_COMPILE_BIN
-      : new URL(
-          "../../../oxc/target/release/examples/nota_compile",
-          import.meta.url
-        ).pathname;
-  try {
-    // `--virtual` with no file → the binary should fail *about a missing file*, not about an
-    // unknown flag / "usage". We treat any run that doesn't mention "usage" as flag-aware. A binary
-    // that panics on `expect("usage: …")` (the pre-`--virtual` example) prints "usage".
-    execFileSync(bin, ["--virtual"], { encoding: "utf8", stdio: "pipe" });
-    return true;
-  } catch (e) {
-    const err = e as { stderr?: Buffer | string; stdout?: Buffer | string };
-    const text = `${String(err.stderr ?? "")}${String(err.stdout ?? "")}`;
-    return !/usage:/i.test(text);
-  }
-}
-
-const liveSuite = binarySupportsVirtual() ? describe : describe.skip;
-
-liveSuite("compileVirtual (live — binary --virtual present)", () => {
+describe("compileVirtual (live — wasm backend)", () => {
   test("emits a type-preserving virtual .tsx and byte-exact mappings", () => {
     const src = "% const n: number = count();\n@p{@(user)}\n";
     const { code, mappings } = compileVirtual(src, { sourcePath: "live.nota" });
@@ -294,5 +280,64 @@ liveSuite("compileVirtual (live — binary --virtual present)", () => {
     );
     expect(anchor, JSON.stringify(mappings)).toBeDefined();
     expect(anchor?.data.completion).toBe(true);
+  });
+});
+
+// ===================================================================================================
+// Subprocess escape hatch — parity with the wasm backend. Skipped unless the pre-built binary
+// exists and speaks `--virtual`.
+// ===================================================================================================
+
+/** Resolve the binary the same way the shim does, to probe for `--virtual` support. */
+function binarySupportsVirtual(): string | null {
+  const bin =
+    ambientBin && ambientBin.length > 0
+      ? ambientBin
+      : new URL(
+          "../../../oxc/target/release/examples/nota_compile",
+          import.meta.url
+        ).pathname;
+  try {
+    // `--virtual` with no file → a flag-aware binary fails *about the missing file* (its usage
+    // line names `--virtual`); a pre-`--virtual` binary's usage does not mention the flag.
+    execFileSync(bin, ["--virtual"], { encoding: "utf8", stdio: "pipe" });
+    return bin;
+  } catch (e) {
+    const err = e as {
+      stderr?: Buffer | string;
+      stdout?: Buffer | string;
+      code?: string;
+    };
+    if (err.code === "ENOENT") {
+      return null; // binary not built
+    }
+    const text = `${String(err.stderr ?? "")}${String(err.stdout ?? "")}`;
+    return /usage:/i.test(text) && !text.includes("--virtual") ? null : bin;
+  }
+}
+
+const virtualBinary = binarySupportsVirtual();
+const paritySuite = virtualBinary ? describe : describe.skip;
+
+paritySuite("compileVirtual (subprocess escape hatch — parity)", () => {
+  test("binary --virtual and the wasm backend agree on code + mappings + errors", () => {
+    const sources = [
+      "% const n: number = count();\n@p{@(user)}\n",
+      "@p{hi}\n",
+      "@a[" // EOF recovery
+    ];
+    for (const src of sources) {
+      const viaWasm = compileVirtual(src, { sourcePath: "parity.nota" });
+      process.env.NOTA_COMPILE_BIN = virtualBinary as string;
+      let viaBinary: ReturnType<typeof compileVirtual>;
+      try {
+        viaBinary = compileVirtual(src, { sourcePath: "parity.nota" });
+      } finally {
+        delete process.env.NOTA_COMPILE_BIN;
+      }
+      expect(viaBinary.code).toBe(viaWasm.code);
+      expect(viaBinary.mappings).toEqual(viaWasm.mappings);
+      expect(viaBinary.errors).toEqual(viaWasm.errors);
+    }
   });
 });
