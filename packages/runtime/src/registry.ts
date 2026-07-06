@@ -73,7 +73,12 @@ export function slot(name: string, fallback: RegisteredTag): TemplateFn {
   const slotFn: TemplateFn = (props: CompProps) => {
     const resolved = registry.get(name) ?? fallback;
     const { children, ...rest } = props;
-    return h(resolved, rest, children as ChildArg[]);
+    // `resolved` is a dynamic `RegisteredTag` (string | CompFn | TemplateFn); narrow by `typeof` so
+    // the typed `h` overloads apply (a string → the host overload, a function → the tag overload).
+    // The typed emit surface (contract R22) deliberately has no loose union overload.
+    return typeof resolved === "string"
+      ? h(resolved, rest, children as ChildArg[])
+      : h(resolved, rest, children as ChildArg[]);
   };
   // Name the function for diagnostics (e.g. struct's template-expansion cycle error names the tag).
   Object.defineProperty(slotFn, "name", { value: `slot(${name})` });

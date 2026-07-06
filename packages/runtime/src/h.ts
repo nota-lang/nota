@@ -9,6 +9,7 @@
 
 import { getAdapter } from "./adapter";
 import { isMark, isQuery } from "./doc";
+import { type NotaHostProps } from "./dom";
 import { flag } from "./flag";
 import { isRaw } from "./raw";
 import { decodeTree } from "./serialize";
@@ -21,7 +22,20 @@ import {
 } from "./vnode";
 
 /**
- * Hyperscript. `t` is a host string or a component function; `p` is a props object or `null`.
+ * Remove `children` from a component/slot's prop type for the `h(tag, props, …)` call site — the
+ * children come from the trailing `h` args (the decoded body), not the props object. A *key-remapped*
+ * mapped type (not the built-in `Omit`): over a prop type with a permissive `[prop: string]: unknown`
+ * index signature, `Omit` collapses to a bare index signature and drops the named prop types (so a
+ * wrong `rank` on `Heading` would go unchecked); this remap preserves the named props (value-checked)
+ * *and* the index signature (extras stay legal).
+ */
+type OmitChildren<P> = {
+  [K in keyof P as K extends "children" ? never : K]: P[K];
+};
+
+/**
+ * Hyperscript. `t` is a host string or a component/template function; `p` is a props object or
+ * `null`.
  *
  * ```
  * ▸ = false → ⟨t, p ?? {}, flatten(children)⟩          // inert nota vnode; component NOT invoked
@@ -33,7 +47,32 @@ import {
  *
  * Both emitted call shapes are handled by {@link flatten}: `h("nota-ul-li", {}, [child])` (one array
  * arg) and `h(C, {}, x)` (one scalar arg).
+ *
+ * **Typed emit surface (contract R22).** Two public overloads, tried in order:
+ * 1. a **function tag** (a component from `inlineComponent`/`blockComponent`, or an ambient prelude
+ *    slot like `Tex`/`Heading`) — `props` is the tag's own parameter type minus `children` (the
+ *    children come from the trailing args / the decoded body), so `h(Heading, { rank: 1 }, …)`
+ *    checks `rank`, and a prelude slot's real prop type flows without the old contravariant
+ *    tag-assignability failure;
+ * 2. a **string tag** — `props` is the Nota-owned {@link NotaHostProps} for that tag (`h("a", {
+ *    href })` completes/checks `href`; an unknown tag falls through to the permissive global
+ *    attributes, so `nota-*` sentinels and custom elements stay legal).
+ *
+ * There is deliberately **no** loose `Record<string, unknown>` overload: it would swallow every
+ * wrong-prop-value on a known tag (they would silently match `Record<string, unknown>` instead of
+ * erroring). The loose signature below the overloads is the *implementation* only — not callable —
+ * so a mistyped prop on a known tag is a real error.
  */
+export function h<P extends object>(
+  t: (props: P) => unknown,
+  p: OmitChildren<P> | null,
+  ...children: ChildArg[]
+): ElementVNode;
+export function h<K extends string>(
+  t: K,
+  p: NotaHostProps<K> | null,
+  ...children: ChildArg[]
+): ElementVNode;
 export function h(
   t: ElementVNode["tag"],
   p: Record<string, unknown> | null,
