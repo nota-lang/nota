@@ -317,6 +317,9 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
     devDependencies:
+      '@nota-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
       '@types/node':
         specifier: ^25.9.2
         version: 25.9.2

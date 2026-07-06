@@ -1,6 +1,6 @@
 % const total = items.length
 %%%
-const n = await load();
+const n = items.length;
 %%%
 @if (count > 0) {a} else if (x < 1) {b} else {c}
 @for (item of items) {@li{@item}}

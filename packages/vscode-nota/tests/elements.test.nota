@@ -1,58 +1,48 @@
-// SYNTAX TEST "source.nota" "@-forms: elements, interpolation, props, dynamic & component tags"
+// SYNTAX TEST "source.nota" "at-forms: sigil + name only; props/body left UNPAINTED; colon-sugar; interpolation"
 
-// --- host element + nested element + bare interpolation ---
-@p{Hello @em{world} and @name here.}
-// <- punctuation.definition.tag.nota
-// <~- entity.name.tag.html.nota
-//^ punctuation.definition.body.begin.nota meta.brace.curly.nota
-//       ^ punctuation.definition.tag.nota
-//        ^^ entity.name.tag.html.nota
-//                      ^ punctuation.definition.interpolation.nota
-//                       ^^^^ variable.other.interpolation.nota
-//                                 ^ punctuation.definition.body.end.nota
+// --- host element head: sigil + host tag name; a nested element + interpolation; the body braces are NOT claimed ---
+A host @p{Hello @em{w} and @name here.}
+//     ^ punctuation.definition.tag.nota
+//      ^ entity.name.tag.html.nota
+//              ^ punctuation.definition.tag.nota
+//               ^^ entity.name.tag.html.nota
+//                         ^ punctuation.definition.interpolation.nota
+//                          ^^^^ variable.other.interpolation.nota
 
-// --- Capitalized component + [props] embedding source.ts ---
-@Aside[variant: "tip", count: n + 1]{Body}
-// <- punctuation.definition.tag.nota
-// <~- support.class.component.nota
-//    ^ punctuation.definition.props.begin.nota meta.brace.square.nota
-//     ^^^^^^^ source.ts entity.name.label.ts
-//            ^ source.ts punctuation.separator.label.ts
-//              ^ source.ts string.quoted.double.ts punctuation.definition.string.begin.ts
-//               ^^^ source.ts string.quoted.double.ts
-//                            ^ source.ts variable.other.readwrite.ts
-//                              ^ source.ts keyword.operator.arithmetic.ts
-//                                ^ source.ts constant.numeric.decimal.ts
-//                                 ^ punctuation.definition.props.end.nota meta.brace.square.nota
-//                                  ^ punctuation.definition.body.begin.nota
+// --- component head + NEGATIVE: the whole [props]{body} tail stays plain source.nota ---
+// (D1: never enter props -- not embedded TS, not a tag; markup-valued props cannot derail this grammar) ---
+A block @Aside[variant: "tip", n: 1]{Body} tail.
+//      ^ punctuation.definition.tag.nota
+//       ^^^^^ support.class.component.nota
+//            ^ source.nota - source.ts
+//             ^^^^^^^^^^^^^^^^^^^^^^^ source.nota - entity.name.tag.html.nota
 
-// --- dynamic tag @(expr) with a call, expr embeds source.ts ---
-@(getTag()){dyn}
-// <- punctuation.definition.tag.nota entity.name.tag.dynamic.nota
-// <~- punctuation.definition.expression.begin.nota meta.brace.round.nota
-//^^^^^^ source.ts entity.name.function.ts
-//        ^ punctuation.definition.expression.end.nota meta.brace.round.nota
-//         ^ punctuation.definition.body.begin.nota
+// --- another host + props: interior is unpainted (not embedded TS, not interpolation) ---
+A link @a[href: "/x"]{link} text.
+//     ^ punctuation.definition.tag.nota
+//      ^ entity.name.tag.html.nota
+//       ^^^^^^^^^^^^^^^^^^ source.nota - source.ts
 
-// --- dynamic tag with a member expression ---
-@(ui.Card){x}
-//^^ source.ts variable.other.object.ts
-//  ^ source.ts punctuation.accessor.ts
-//   ^^^^ source.ts variable.other.property.ts
+// --- colon-sugar at line start (indented here so the name is column-assertable): tag + colon sigil ---
+  @summary: colon body here
+//^ punctuation.definition.tag.nota
+// ^^^^^^^ entity.name.tag.html.nota
+//        ^ keyword.operator.colon-sugar.nota
+  @Cap: component colon body
+//^ punctuation.definition.tag.nota
+// ^^^ support.class.component.nota
+//    ^ keyword.operator.colon-sugar.nota
 
-// --- shorthand + spread props ---
-@input[disabled, ...rest]{}
-// <~- entity.name.tag.html.nota
-//     ^^^^^^^^ source.ts variable.other.readwrite.ts
-//               ^^^ source.ts keyword.operator.spread.ts
-//                  ^^^^ source.ts variable.other.readwrite.ts
+// --- NEGATIVE: a mid-line name-colon is a bare interpolation, NOT colon-sugar (the colon stays literal) ---
+text @user: not sugar here
+//   ^ punctuation.definition.interpolation.nota
+//    ^^^^ variable.other.interpolation.nota
+//        ^ source.nota - keyword.operator.colon-sugar.nota
 
-// --- colon sugar: @head: -> body is the rest of the line ---
-@foo: colon sugar body
-// <- punctuation.definition.tag.nota
-// <~- entity.name.tag.html.nota
-//  ^ keyword.operator.colon-sugar.nota
-
-@Cap: component colon sugar
-// <~- support.class.component.nota
-//  ^ keyword.operator.colon-sugar.nota
+// --- bare capitalised / lowercase names (no trigger) are interpolation, NOT tags ---
+A bare @Name and @name interpolate.
+//     ^ punctuation.definition.interpolation.nota
+//      ^^^^ variable.other.interpolation.nota
+//      ^^^^ source.nota - support.class.component.nota
+//               ^ punctuation.definition.interpolation.nota
+//                ^^^^ variable.other.interpolation.nota

@@ -1,12 +1,11 @@
 /**
- * Shared TextMate engine + fixtures for the Nota grammar tests.
+ * Shared TextMate engine + paths for the Nota grammar tests.
  *
  * Loads the Nota grammar with the REAL vscode-textmate + vscode-oniguruma engine (the same engine
- * VSCode runs), registering `source.ts` from tm-grammars so embedded regions resolve. Both the
- * vitest runner (`grammar.test.ts`) and the headless fallback script (`tokenize.smoke.ts`) consume
- * this module, so the sample document and the load-bearing scope expectations live in exactly one
- * place. The `_` prefix keeps this file out of vitest's `*.test.ts` glob — it is a helper, not a
- * suite.
+ * VSCode runs), registering `source.ts` from tm-grammars so embedded regions resolve. The node-run
+ * conformance suite (`conformance.ts`) consumes this module; the precise column-aligned assertions
+ * live in the `*.test.nota` fixtures (run by the `vscode-tmgrammar-test` CLI). The `_` prefix keeps
+ * this file out of any `*.test.*` glob — it is a helper, not a suite.
  */
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -34,6 +33,8 @@ export const TS_GRAMMAR_PATH = join(
   "grammars",
   "typescript.json"
 );
+/** The repo's shared `integration/*.nota` fixtures (the conformance corpus). */
+export const INTEGRATION_DIR = join(PKG_ROOT, "..", "..", "integration");
 
 /**
  * Build the registry and load `source.nota` with the real Oniguruma engine. Throws if the grammar
@@ -69,31 +70,45 @@ export async function loadNotaGrammar(): Promise<vsctm.IGrammar> {
   return grammar;
 }
 
-/** The result of {@link collectScopes}: total tokens emitted and the set of every scope seen. */
-export interface TokenizeResult {
-  totalTokens: number;
-  seenScopes: Set<string>;
+/** One tokenized span: its line-local UTF-16 range and the full scope stack (outer -> inner). */
+export interface Token {
+  line: number;
+  startIndex: number;
+  endIndex: number;
+  scopes: string[];
 }
 
-/**
- * Tokenize `source` line-by-line, threading the rule stack. Any Oniguruma regex rejection throws
- * here (which is the point — plain JSON validation misses `\p{L}` / backreference issues).
- */
+/** Tokenize a whole `source`, threading the rule stack; returns a flat token list. */
+export function tokenizeAll(grammar: vsctm.IGrammar, source: string): Token[] {
+  const out: Token[] = [];
+  let ruleStack = vsctm.INITIAL;
+  const lines = source.split("\n");
+  for (let line = 0; line < lines.length; line++) {
+    const r = grammar.tokenizeLine(lines[line], ruleStack);
+    ruleStack = r.ruleStack;
+    for (const t of r.tokens) {
+      out.push({
+        line,
+        startIndex: t.startIndex,
+        endIndex: t.endIndex,
+        scopes: t.scopes
+      });
+    }
+  }
+  return out;
+}
+
+/** The full set of scopes seen when tokenizing `source` (for smoke assertions). */
 export function collectScopes(
   grammar: vsctm.IGrammar,
   source: string
-): TokenizeResult {
+): { totalTokens: number; seenScopes: Set<string> } {
   const seenScopes = new Set<string>();
-  let ruleStack = vsctm.INITIAL;
   let totalTokens = 0;
-  for (const line of source.split("\n")) {
-    const r = grammar.tokenizeLine(line, ruleStack);
-    ruleStack = r.ruleStack;
-    totalTokens += r.tokens.length;
-    for (const t of r.tokens) {
-      for (const s of t.scopes) {
-        seenScopes.add(s);
-      }
+  for (const t of tokenizeAll(grammar, source)) {
+    totalTokens++;
+    for (const s of t.scopes) {
+      seenScopes.add(s);
     }
   }
   return { totalTokens, seenScopes };
@@ -105,123 +120,3 @@ export function hasScope(seen: Set<string>, scope: string): boolean {
     x => x === scope || x.startsWith(`${scope} `) || x.includes(scope)
   );
 }
-
-/** Repository keys the grammar must define (one per load-bearing construct). */
-export const REQUIRED_REPO_KEYS = [
-  "markup",
-  "escape",
-  "element",
-  "doc-state",
-  "interpolation",
-  "props",
-  "body",
-  "bold",
-  "italic",
-  "heading",
-  "list",
-  "control-flow",
-  "line-statement",
-  "fence-statement",
-  "verbatim",
-  "code-block",
-  "code-inline",
-  "math-display",
-  "math-inline"
-];
-
-/** Scope strings that must appear *somewhere* in the grammar JSON (the embedded-TS + markup contract). */
-export const REQUIRED_GRAMMAR_SCOPES = [
-  "source.ts",
-  "entity.name.tag.html.nota",
-  "support.class.component.nota",
-  "markup.bold.nota",
-  "markup.italic.nota",
-  "markup.heading.nota",
-  "constant.character.escape.nota",
-  "entity.name.label.nota",
-  "variable.other.reference.nota",
-  "variable.other.footnote.nota",
-  "entity.name.footnote.nota"
-];
-
-/** Load-bearing scopes that must land on at least one token when {@link SAMPLE} is tokenized. */
-export const EXPECTED_TOKEN_SCOPES = [
-  "entity.name.tag.html.nota",
-  "support.class.component.nota",
-  "entity.name.tag.dynamic.nota",
-  "variable.other.interpolation.nota",
-  "markup.bold.nota",
-  "markup.italic.nota",
-  "markup.heading.nota",
-  "keyword.control.nota",
-  "keyword.control.conditional.nota",
-  "constant.character.escape.nota",
-  "markup.raw.verbatim.nota",
-  "markup.raw.code.inline.nota",
-  "markup.math.inline.nota",
-  "markup.math.display.nota",
-  "punctuation.definition.list.begin.nota",
-  "entity.name.label.nota",
-  "variable.other.reference.nota",
-  "variable.other.footnote.nota",
-  "entity.name.footnote.nota",
-  "source.ts"
-];
-
-/**
- * A representative `.nota` document exercising every load-bearing construct: headings, emphasis,
- * host/component/dynamic elements, props, interpolation, control flow, line + fence statements,
- * verbatim, inline/display math, a fenced code block, and escapes. Assembled by concatenation so the
- * backtick- and `$`-bearing fragments survive as literals.
- */
-export const SAMPLE =
-  `# Heading with *bold* and _em_
-
-@p{Hello @em{world} and @name here.}
-
-@Aside[variant: "tip", count: n + 1]{
-  Body with @(user.posts[0]) interpolation.
-}
-
-@(getTag()){dynamic}
-
-@if (count > 0) {
-  @p{Positive}
-} else if (count < 0) {
-  @p{Negative}
-} else {
-  @p{Zero}
-}
-
-@for (x of items) {
-  - @li{@x}
-}
-
-% const total = items.length
-
-%%%
-const xs = await load();
-const n = xs.reduce((a, b) => a + b, 0);
-%%%
-
-@code|{ @foo{x} is literal here }|
-
-Inline ` +
-  "`@x`" +
-  String.raw` code, then math $a_@i$ and display:
-
-$$
-\sum_@n x
-$$
-
-` +
-  "```typescript\nconst f = (x: number) => x + 1;\n```" +
-  String.raw`
-
-An escape: \@ \{ \} \| \$ \* \_ \: \[ \] \< \& and a backslash \\.
-Intra-word stays literal: my_var_name and 50% off.
-
-Doc-state sugar: a section <sec_intro>, a kebab <sec-intro>, a ref &sec-intro, a note[^a] and[^1]; Vec<T> and R&D stay literal.
-
-[^a]: The footnote definition body.
-`;

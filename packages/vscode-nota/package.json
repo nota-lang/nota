@@ -43,8 +43,6 @@
         "embeddedLanguages": {
           "meta.embedded.block.ts": "typescript",
           "meta.embedded.line.ts": "typescript",
-          "meta.embedded.ts": "typescript",
-          "meta.embedded.props.ts": "typescript",
           "meta.embedded.block.js": "javascript",
           "meta.embedded.block.json": "json"
         }
@@ -100,15 +98,16 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "test": "vscode-tmgrammar-test -g ./node_modules/tm-grammars/grammars/typescript.json -g ./syntaxes/nota.tmLanguage.json 'tests/**/*.test.nota'",
-    "test:tokenize": "node --import tsx tests/tokenize.smoke.ts",
-    "test:all": "pnpm run test && pnpm run test:tokenize"
+    "test": "vscode-tmgrammar-test -g ./node_modules/tm-grammars/grammars/typescript.json -g ./node_modules/tm-grammars/grammars/javascript.json -g ./node_modules/tm-grammars/grammars/json.json -g ./syntaxes/nota.tmLanguage.json 'tests/**/*.test.nota'",
+    "test:conformance": "node --import tsx tests/conformance.ts",
+    "test:all": "pnpm run test && pnpm run test:conformance"
   },
   "dependencies": {
     "@nota-lang/language-server": "workspace:*",
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
+    "@nota-lang/compiler": "workspace:*",
     "@types/node": "^25.9.2",
     "@types/vscode": "^1.125.0",
     "tm-grammars": "^1.31.15",

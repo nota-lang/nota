@@ -32,8 +32,13 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   - **vite** — `.nota` transform plugin + island registry (`registry.ts:generateClientEntry`).
   - **cli** — `nota build`: compile → SSR → SSG HTML + island manifest + client bundle (`build.ts`).
   - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`.
-  - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`). **No depot/
-    vitest**; grammar tests run via `vscode-tmgrammar-test` (`pnpm run test:all`).
+  - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`, a conservative
+    "never lie" grammar per contract D1: single-line `match` rules + line-anchored fences only, the
+    honest first paint before the LSP semantic tokens arrive). **No depot/vitest**; tests run via
+    `pnpm run test:all` = `vscode-tmgrammar-test` caret fixtures (`tests/*.test.nota`) **plus** a node
+    D1 subset-correctness conformance test (`tests/conformance.ts` → `pnpm run test:conformance`) that
+    runs the compiled grammar over `integration/*.nota` and asserts every Nota-scoped token agrees
+    with the reader's `highlightSpans` kind (needs the node wasm `pkg-node` + `@nota-lang/compiler`).
   - **playground** — browser editor (CM6; the editor paints reader-driven highlight spans from the
     wasm `highlight()` entry — see `oxc/NOTA_READER.md` §Highlighting); consumes the **wasm** reader,
     not the binary.
@@ -46,9 +51,8 @@ sessions kept re-deriving. Read the specs for emit-surface / runtime-semantics w
   run bare `depot test` from the repo root — a biome 2.x root-config conflict fails whole-workspace
   runs. Add `--no-fullscreen` for pipeable output; run packages **serially** (they race on shared
   `dist/`).
-- Fix biome issues with `node_modules/.bin/biome check --write src tests`. Two pre-existing biome
-  failures (`react/tests/fixtures/golden.compiled.ts`, `vscode-nota/tests/tokenize.smoke.ts`) are
-  **not yours** — don't chase them.
+- Fix biome issues with `node_modules/.bin/biome check --write src tests`. One pre-existing biome
+  failure (`react/tests/fixtures/golden.compiled.ts`) is **not yours** — don't chase it.
 - True exit codes: **redirect, don't pipe** — `cmd >/tmp/o 2>&1; echo $?`. `| tail`/`| grep` reports
   the *filter's* exit, masking the real one.
 
