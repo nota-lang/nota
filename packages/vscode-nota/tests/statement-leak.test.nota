@@ -1,0 +1,23 @@
+// SYNTAX TEST "source.nota" "a multi-line % statement is single-line by construction: source.ts never leaks onto the following markup lines (D1 derailment guard)"
+
+// The % line delegates its whole tail to source.ts. Its arrow body `=> {` opens TS regions that a
+// begin/end statement rule (end: $) would keep open ACROSS the newline — the leak this file guards.
+%let f = (x) => {
+// <- punctuation.definition.statement.nota
+//    ^^^ source.ts
+//              ^^ source.ts
+
+// The CONTINUATION line is NOT delegated: `return` is plain markup text (NOT source.ts), and `@span`
+// is a real Nota host tag — never repainted as a TS array/expression (the derailment).
+  return @span{x}
+//^^^^^^ source.nota - source.ts
+//       ^ punctuation.definition.tag.nota
+//        ^^^^ entity.name.tag.html.nota - source.ts
+
+// The brace line and a following element are markup too, never source.ts.
+}
+// <- source.nota - source.ts
+
+@div{after}
+// <- punctuation.definition.tag.nota
+//^^ entity.name.tag.html.nota - source.ts

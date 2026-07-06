@@ -46,7 +46,7 @@
     },
 
     "statement-fence": {
-      "comment": "%%% ... %%% -- a raw JS block delegated to source.ts. Line-anchored fence: the opening and closing %%% must each be alone on their line (the reader scopes the %%% delimiter runs as sigils; the interior is embedded TS).",
+      "comment": "%%% ... %%% -- a raw JS block delegated to source.ts. Line-anchored fence in markdown's begin/WHILE form so it cannot leak: the inner `while` re-checks at the START of every interior line and force-pops any source.ts child region (an unbalanced `{`/`(`/arrow body) before deciding whether to stay in the block. A plain begin/end fence would NOT close here -- TextMate only checks the INNERMOST rule's end, so an embedded region left open by source.ts keeps `end` from firing at the closing %%% and the delegation swallows the following markup. The outer rule owns the two %%% delimiter lines (sigils); the inner while-region owns the embedded TS interior.",
       "begin": "^\\s*(%%%)\\s*$",
       "end": "^\\s*(%%%)\\s*$",
       "beginCaptures": {
@@ -56,20 +56,26 @@
         "1": { "name": "punctuation.definition.statement.end.nota" }
       },
       "name": "meta.embedded.block.statement.nota",
-      "contentName": "meta.embedded.block.ts source.ts",
-      "patterns": [{ "include": "source.ts" }]
+      "patterns": [
+        {
+          "begin": "(^|\\G)(\\s*)",
+          "while": "(^|\\G)(?!\\s*(%%%)\\s*$)",
+          "contentName": "meta.embedded.block.ts source.ts",
+          "patterns": [{ "include": "source.ts" }]
+        }
+      ]
     },
 
     "statement-line": {
-      "comment": "A line-leading % (not %%) begins a JS statement: the sigil, then the rest of the line delegated to source.ts. `end: $` keeps it strictly line-local. 50% mid-line is unaffected; \\% forces a literal.",
-      "begin": "^\\s*(%)(?!%)",
-      "end": "$",
-      "beginCaptures": {
-        "1": { "name": "punctuation.definition.statement.nota" }
-      },
-      "name": "meta.embedded.line.statement.nota",
-      "contentName": "meta.embedded.line.ts source.ts",
-      "patterns": [{ "include": "source.ts" }]
+      "comment": "A line-leading % (not %%) begins a JS statement: the % sigil, then the REST OF THE LINE delegated to source.ts. This is a single-line `match` (NOT a begin/end whose end is `$`): a `$`-ended region leaks, because TextMate checks only the innermost rule's end pattern, so a multi-line JS construct opened by source.ts (an arrow body `=> {`, an object/array literal, ...) keeps its region open across the newline and the `%`-line delegation swallows the following MARKUP lines. A `match` cannot span a line, so each `%` line restarts source.ts fresh and the continuation lines of a multi-line `%` statement fall through to the markup rules -- left unpainted here (semantic tokens own them), never mis-claimed as TS. Mid-line % is unaffected; \\% forces a literal.",
+      "match": "^\\s*(%)(?!%)(.*)$",
+      "captures": {
+        "1": { "name": "punctuation.definition.statement.nota" },
+        "2": {
+          "name": "meta.embedded.line.statement.nota meta.embedded.line.ts source.ts",
+          "patterns": [{ "include": "source.ts" }]
+        }
+      }
     },
 
     "heading": {
@@ -110,7 +116,7 @@
     },
 
     "code-fence": {
-      "comment": "```lang ... ``` fenced code. Line-anchored: the opening run is line-leading and the closing run of the SAME length is alone on its line (\\1 backref, anchored ^..$), so it cannot close mid-content or swallow the rest of the document. Language-tagged fences we ship a grammar for embed that source.{lang}; any other tag (or none) stays raw (reader: `code`). The reader scopes the whole opening line as code-delim with the language overlaid as code-lang, and the closing run as code-delim.",
+      "comment": "```lang ... ``` fenced code. Line-anchored: the opening run is line-leading and the closing run of the SAME length is alone on its line (\\1 backref, anchored ^..$), so it cannot close mid-content or swallow the rest of the document. Language-tagged fences we ship a grammar for EMBED that source.{lang} via markdown's begin/WHILE form -- the inner `while` re-checks each interior line and force-pops any child region the embedded grammar left open (an unbalanced `{`), so the block always closes at the delimiter instead of the embed leaking past it (the same leak the plain begin/end form has: TextMate checks only the innermost rule's end). Any other tag (or none) stays raw (reader: `code`) and keeps the simple begin/end -- with no embedded grammar there is no child region to leak. The reader scopes the whole opening line as code-delim with the language overlaid as code-lang, and the closing run as code-delim.",
       "patterns": [
         {
           "begin": "^\\s*(`{3,})[ \\t]*(?i:(typescript|ts|tsx))[ \\t]*$",
@@ -123,8 +129,14 @@
             "1": { "name": "punctuation.definition.raw.code.end.nota" }
           },
           "name": "markup.raw.code.block.nota",
-          "contentName": "meta.embedded.block.ts source.ts",
-          "patterns": [{ "include": "source.ts" }]
+          "patterns": [
+            {
+              "begin": "(^|\\G)(\\s*)",
+              "while": "(^|\\G)(?![ \\t]*(`{3,})[ \\t]*$)",
+              "contentName": "meta.embedded.block.ts source.ts",
+              "patterns": [{ "include": "source.ts" }]
+            }
+          ]
         },
         {
           "begin": "^\\s*(`{3,})[ \\t]*(?i:(javascript|js|jsx))[ \\t]*$",
@@ -137,8 +149,14 @@
             "1": { "name": "punctuation.definition.raw.code.end.nota" }
           },
           "name": "markup.raw.code.block.nota",
-          "contentName": "meta.embedded.block.js source.js",
-          "patterns": [{ "include": "source.js" }]
+          "patterns": [
+            {
+              "begin": "(^|\\G)(\\s*)",
+              "while": "(^|\\G)(?![ \\t]*(`{3,})[ \\t]*$)",
+              "contentName": "meta.embedded.block.js source.js",
+              "patterns": [{ "include": "source.js" }]
+            }
+          ]
         },
         {
           "begin": "^\\s*(`{3,})[ \\t]*(?i:(json|jsonc))[ \\t]*$",
@@ -151,8 +169,14 @@
             "1": { "name": "punctuation.definition.raw.code.end.nota" }
           },
           "name": "markup.raw.code.block.nota",
-          "contentName": "meta.embedded.block.json source.json",
-          "patterns": [{ "include": "source.json" }]
+          "patterns": [
+            {
+              "begin": "(^|\\G)(\\s*)",
+              "while": "(^|\\G)(?![ \\t]*(`{3,})[ \\t]*$)",
+              "contentName": "meta.embedded.block.json source.json",
+              "patterns": [{ "include": "source.json" }]
+            }
+          ]
         },
         {
           "begin": "^\\s*(`{3,})[ \\t]*([A-Za-z0-9_+#.-]+)?[ \\t]*$",

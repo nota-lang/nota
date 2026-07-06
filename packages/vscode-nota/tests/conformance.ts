@@ -26,8 +26,12 @@ import {
   INTEGRATION_DIR,
   loadNotaGrammar,
   NOTA_GRAMMAR_PATH,
+  PKG_ROOT,
   tokenizeAll
 } from "./_engine";
+
+/** Package-local conformance fixtures (committed grammar repros; see the corpus assembly in main). */
+const LOCAL_FIXTURES_DIR = join(PKG_ROOT, "tests", "fixtures");
 
 let failures = 0;
 function check(label: string, cond: boolean, detail = ""): void {
@@ -98,9 +102,14 @@ const DELEGATED_ROOTS = new Set([
   "source.css"
 ]);
 
+/** True if a token is delegated to an embedded grammar (carries an embedded `source.*` root). */
+function isDelegated(scopes: string[]): boolean {
+  return scopes.some(s => DELEGATED_ROOTS.has(s));
+}
+
 /** The deepest Nota claim-scope on a token, or null if the token makes no glyph-level Nota claim. */
 function claimScope(scopes: string[]): string | null {
-  if (scopes.some(s => DELEGATED_ROOTS.has(s))) {
+  if (isDelegated(scopes)) {
     return null;
   }
   let claim: string | null = null;
@@ -114,6 +123,72 @@ function claimScope(scopes: string[]): string | null {
     }
   }
   return claim;
+}
+
+/** Fence languages the grammar delegates to an embedded `source.*` grammar (others stay raw). */
+const FENCE_EMBED_LANGS = new Set([
+  "ts",
+  "tsx",
+  "typescript",
+  "js",
+  "jsx",
+  "javascript",
+  "json",
+  "jsonc"
+]);
+
+/**
+ * The 0-based line indices where the grammar may LEGALLY delegate to an embedded `source.*` grammar:
+ * a line-leading `%` statement (the whole rest of the line is TS), the interior of a `%%%` block, and
+ * the interior of a language-tagged ```ts/js/json fence. **Every other line is markup** — a `source.*`
+ * scope there is the cross-line delegation leak this test now guards against (the D1 derailment
+ * class): a multi-line `%`/fence whose embedded grammar keeps a region open across a delimiter and
+ * paints the following markup as code.
+ *
+ * Derived by a structural line scan — the same line-local decision the grammar makes — so the
+ * conformance run no longer blindly trusts every `source.*` token (the gap that let the leak ship).
+ */
+function delegationLegalLines(source: string): Set<number> {
+  const lines = source.split("\n");
+  const legal = new Set<number>();
+  let inStatementFence = false; // between `%%%` … `%%%`
+  let fenceDelim: string | null = null; // the ``` run that opened a code fence, or null
+  let fenceEmbeds = false; // …and whether that fence delegates to a source.* grammar
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (inStatementFence) {
+      if (/^\s*%%%\s*$/.test(line)) {
+        inStatementFence = false; // closing delimiter — a sigil line, not interior
+      } else {
+        legal.add(i);
+      }
+      continue;
+    }
+    if (fenceDelim !== null) {
+      const close = /^[ \t]*(`{3,})[ \t]*$/.exec(line);
+      if (close && close[1].length >= fenceDelim.length) {
+        fenceDelim = null;
+        fenceEmbeds = false;
+      } else if (fenceEmbeds) {
+        legal.add(i);
+      }
+      continue;
+    }
+    if (/^\s*%%%\s*$/.test(line)) {
+      inStatementFence = true;
+      continue;
+    }
+    const open = /^\s*(`{3,})[ \t]*([A-Za-z0-9_+#.-]*)[ \t]*$/.exec(line);
+    if (open) {
+      fenceDelim = open[1];
+      fenceEmbeds = FENCE_EMBED_LANGS.has((open[2] ?? "").toLowerCase());
+      continue;
+    }
+    if (/^\s*%(?!%)/.test(line)) {
+      legal.add(i); // a line-leading single `%` statement — the rest of the line is TS
+    }
+  }
+  return legal;
 }
 
 // ===================================================================================================
@@ -220,12 +295,22 @@ interface Violation {
   readerKinds: string[];
 }
 
+/** A cross-line delegation leak: a `source.*` token on a line the grammar must NOT delegate. */
+interface Leak {
+  fixture: string;
+  line: number;
+  col: number;
+  text: string;
+  roots: string[];
+}
+
 interface FixtureResult {
   fixture: string;
   claims: number;
   checkedBytes: number;
   unmapped: Set<string>;
   violations: Violation[];
+  leaks: Leak[];
 }
 
 async function conformFixture(
@@ -259,10 +344,30 @@ async function conformFixture(
     claims: 0,
     checkedBytes: 0,
     unmapped: new Set(),
-    violations: []
+    violations: [],
+    leaks: []
   };
 
+  // The lines where delegation to an embedded `source.*` grammar is legal (`%` statements, `%%%` and
+  // ts/js/json fence interiors); a delegated token anywhere else is a cross-line leak.
+  const legalLines = delegationLegalLines(source);
+
   for (const t of tokenizeAll(grammar, source)) {
+    // (0) DELEGATION-LEAK guard — the D1 derailment class. A `source.*` token is honest only on a
+    // delegation-legal line; on a markup line it means an embedded region leaked across a delimiter.
+    if (isDelegated(t.scopes) && !legalLines.has(t.line)) {
+      const text = lines[t.line].slice(t.startIndex, t.endIndex);
+      if (text.trim() !== "") {
+        result.leaks.push({
+          fixture,
+          line: t.line + 1,
+          col: t.startIndex,
+          text,
+          roots: t.scopes.filter(s => DELEGATED_ROOTS.has(s))
+        });
+      }
+    }
+
     const claim = claimScope(t.scopes);
     if (claim === null) {
       continue;
@@ -321,41 +426,63 @@ async function main(): Promise<void> {
     check(`smoke sample emits ${s}`, hasScope(seenScopes, s));
   }
 
-  // Conformance.
+  // Conformance. The corpus is the shared `integration/*.nota` PLUS the package-local
+  // `tests/fixtures/*.nota` (a committed, stable home for grammar repros — e.g. the multi-line `%let`
+  // derailment — that must not depend on a developer's working `integration/golden.nota`).
   console.log(
-    `\n# D1 subset-correctness over integration/*.nota (reader kinds: ${highlightKindNames().length})`
+    `\n# D1 subset-correctness over the corpus (reader kinds: ${highlightKindNames().length})`
   );
-  const fixtures = readdirSync(INTEGRATION_DIR)
-    .filter(f => f.endsWith(".nota"))
-    .sort();
-  check("mega.nota is present in the corpus", fixtures.includes("mega.nota"));
+  const corpus: { dir: string; file: string; label: string }[] = [
+    ...readdirSync(INTEGRATION_DIR)
+      .filter(f => f.endsWith(".nota"))
+      .sort()
+      .map(f => ({ dir: INTEGRATION_DIR, file: f, label: f })),
+    ...readdirSync(LOCAL_FIXTURES_DIR)
+      .filter(f => f.endsWith(".nota"))
+      .sort()
+      .map(f => ({ dir: LOCAL_FIXTURES_DIR, file: f, label: `fixtures/${f}` }))
+  ];
+  check(
+    "mega.nota is present in the corpus",
+    corpus.some(c => c.file === "mega.nota")
+  );
 
   let totalClaims = 0;
-  for (const f of fixtures) {
-    const source = readFileSync(join(INTEGRATION_DIR, f), "utf8");
+  let totalLeaks = 0;
+  for (const { dir, file, label } of corpus) {
+    const source = readFileSync(join(dir, file), "utf8");
     let res: FixtureResult;
     try {
-      res = await conformFixture(grammar, f, source);
+      res = await conformFixture(grammar, label, source);
     } catch (err) {
       check(
-        `${f} — reader parsed for conformance`,
+        `${label} — reader parsed for conformance`,
         false,
         `    ${(err as Error).message}`
       );
       continue;
     }
     totalClaims += res.claims;
+    totalLeaks += res.leaks.length;
     const unmapped = [...res.unmapped];
     check(
-      `${f} — all ${res.claims} Nota claims agree with the reader ` +
-        `(${res.checkedBytes} bytes checked)`,
-      res.violations.length === 0 && unmapped.length === 0,
+      `${label} — ${res.claims} Nota claims + no delegation leaks agree with ` +
+        `the reader (${res.checkedBytes} bytes checked)`,
+      res.violations.length === 0 &&
+        unmapped.length === 0 &&
+        res.leaks.length === 0,
       [
         ...res.violations.map(
           v =>
             `    line ${v.line} col ${v.col} ${JSON.stringify(v.text)} ` +
             `claims <${v.scope}> (allows ${v.allowed.join("|")}) but reader has ` +
             `[${v.readerKinds.join(",") || "<nothing>"}]`
+        ),
+        ...res.leaks.map(
+          l =>
+            `    line ${l.line} col ${l.col} ${JSON.stringify(l.text)} ` +
+            `delegates to <${l.roots.join("|")}> on a MARKUP line — cross-line ` +
+            `delegation leak (a multi-line %/fence swallowed markup)`
         ),
         ...unmapped.map(
           u => `    unmapped claim-scope <${u}> — add it to SCOPE_KINDS`
@@ -366,7 +493,7 @@ async function main(): Promise<void> {
   check("grammar makes at least one claim across the corpus", totalClaims > 0);
 
   console.log(
-    `\n# ${fixtures.length} fixtures, ${totalClaims} Nota claims checked, ${totalTokens} smoke tokens`
+    `\n# ${corpus.length} fixtures, ${totalClaims} Nota claims + ${totalLeaks} delegation leaks checked, ${totalTokens} smoke tokens`
   );
   if (failures > 0) {
     console.error(`\nNOT OK — ${failures} check(s) failed`);
