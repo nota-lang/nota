@@ -61,19 +61,21 @@ function runtimeDistDir(): string {
  * cross-reference resolvable.
  */
 function stripToLocalAmbient(dts: string): string {
-  return dts
-    .split("\n")
-    .filter(line => {
-      const t = line.trim();
-      // Drop imports (all — the closure is self-contained) and any `export { … }` / re-export lines.
-      if (/^import\b/.test(t)) return false;
-      if (/^export\s*\{/.test(t)) return false;
-      return true;
-    })
-    // Strip the leading `export ` keyword (`export declare function h` → `declare function h`,
-    // `export interface X` → `interface X`), keeping `declare` for ambient const/function.
-    .map(line => line.replace(/^(\s*)export\s+/, "$1"))
-    .join("\n");
+  return (
+    dts
+      .split("\n")
+      .filter(line => {
+        const t = line.trim();
+        // Drop imports (all — the closure is self-contained) and any `export { … }` / re-export lines.
+        if (/^import\b/.test(t)) return false;
+        if (/^export\s*\{/.test(t)) return false;
+        return true;
+      })
+      // Strip the leading `export ` keyword (`export declare function h` → `declare function h`,
+      // `export interface X` → `interface X`), keeping `declare` for ambient const/function.
+      .map(line => line.replace(/^(\s*)export\s+/, "$1"))
+      .join("\n")
+  );
 }
 
 /**

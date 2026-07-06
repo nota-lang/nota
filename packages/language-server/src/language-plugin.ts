@@ -11,8 +11,8 @@
 
 import {
   compileVirtual,
-  type CodeMapping as ReaderCodeMapping,
-  type NotaError
+  type NotaError,
+  type CodeMapping as ReaderCodeMapping
 } from "@nota-lang/compiler";
 import type {
   LanguagePlugin,

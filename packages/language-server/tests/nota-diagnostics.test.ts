@@ -29,7 +29,10 @@ describe("EOF recovery → non-empty virtual (D4)", () => {
     const anchor = mappings.find(
       m => m.sourceOffsets[0] === 3 && m.lengths[0] === 0
     );
-    expect(anchor, JSON.stringify(mappings.map(m => m.sourceOffsets))).toBeDefined();
+    expect(
+      anchor,
+      JSON.stringify(mappings.map(m => m.sourceOffsets))
+    ).toBeDefined();
     expect(anchor?.data.completion).toBeTruthy();
   });
 

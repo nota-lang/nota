@@ -19,6 +19,17 @@
  * back). The reader's classes cover embedded JS too, so this is the sole semantic-token source
  * (reader-only, contract D2 P4.3); it caches the last-good tokens per document and serves them when
  * `highlight` throws mid-edit (editor parity with the playground).
+ *
+ * **Delegation-aware suppression.** On lines the TextMate grammar delegates to a real embedded
+ * grammar — `%` statement lines, `%%%` fence interiors, and ts/js/json code-fence interiors — the
+ * grammar's `source.ts`/`source.json` paint is *richer* than the reader's coarse token classes
+ * (`storage.type.function.arrow.ts` vs a generic `operator`; `entity.name.function` vs nothing for a
+ * plain identifier). Emitting our coarse tokens there makes every keystroke flicker grammar-color →
+ * semantic-color and permanently downgrades the palette (the user-visible "`=>` is blue and red"
+ * bug). So on delegation-legal lines ({@link delegatedLines} — the same classifier as the
+ * vscode-nota conformance test) the embedded-JS and raw-code kinds are **suppressed** and TextMate
+ * owns those bytes; the markup kinds (sigils, tags, prop names, interpolations — exactly what the
+ * embedded grammar gets wrong on markup re-entry like `@div[…]` inside JS) still overlay everywhere.
  */
 
 import { highlightSpans } from "@nota-lang/compiler";
@@ -152,6 +163,8 @@ export interface TokenRun {
   end: number;
   tokenType: number;
   modifiers: number;
+  /** The reader kind that won this run (overlay kind, or under-layer base) — drives suppression. */
+  kind: string;
 }
 
 /**
@@ -180,10 +193,12 @@ export function flattenSpans(
     }
     // Innermost overlay (largest start, then smallest end) and the union of under-layer modifiers.
     let overlay = -1;
+    let overlayKind = "";
     let overlayStart = -1;
     let overlayEnd = Number.MAX_SAFE_INTEGER;
     let modifiers = 0;
     let modBase = -1;
+    let modBaseKind = "";
     let modBaseStart = -1;
     for (const s of spans) {
       if (s.start > lo || s.end < hi) {
@@ -195,6 +210,7 @@ export function flattenSpans(
         if (s.start > modBaseStart) {
           modBaseStart = s.start;
           modBase = under.base;
+          modBaseKind = s.kind;
         }
         continue;
       }
@@ -208,11 +224,13 @@ export function flattenSpans(
         (s.start === overlayStart && s.end < overlayEnd)
       ) {
         overlay = t;
+        overlayKind = s.kind;
         overlayStart = s.start;
         overlayEnd = s.end;
       }
     }
     const tokenType = overlay >= 0 ? overlay : modBase;
+    const kind = overlay >= 0 ? overlayKind : modBaseKind;
     if (tokenType < 0) {
       continue; // covered only by things with no type (nothing to paint)
     }
@@ -221,14 +239,100 @@ export function flattenSpans(
       prev &&
       prev.end === lo &&
       prev.tokenType === tokenType &&
-      prev.modifiers === modifiers
+      prev.modifiers === modifiers &&
+      prev.kind === kind
     ) {
       prev.end = hi; // coalesce
     } else {
-      runs.push({ start: lo, end: hi, tokenType, modifiers });
+      runs.push({ start: lo, end: hi, tokenType, modifiers, kind });
     }
   }
   return runs;
+}
+
+/**
+ * The reader kinds suppressed on {@link delegatedLines}: the embedded-JS token classes and the flat
+ * raw-code interior. On those lines the TextMate grammar's real `source.ts`/`source.json` embedding
+ * already paints richer, TS-convention colors (arrows as `storage.type.function.arrow`, call names
+ * as `entity.name.function`) — our coarser classes would fight it (keystroke flicker + palette
+ * downgrade). Markup kinds are never suppressed: they cover exactly the markup re-entry the embedded
+ * grammar mis-reads (`@div[…]` inside JS looks like a decorator/array to TS).
+ */
+const SUPPRESSED_ON_DELEGATED = new Set([
+  "js-keyword",
+  "js-string",
+  "js-number",
+  "js-comment",
+  "js-operator",
+  "code"
+]);
+
+/** The fence language tags the grammar delegates to a real embedded grammar (mirrors the grammar). */
+const DELEGATED_FENCE_LANGS = new Set([
+  "ts",
+  "tsx",
+  "typescript",
+  "js",
+  "jsx",
+  "javascript",
+  "json"
+]);
+
+/**
+ * The 0-based lines on which the TextMate grammar delegates content to an embedded grammar — the
+ * same three categories as the vscode-nota conformance test's delegation-legality check:
+ * `%` statement lines, `%%%` statement-fence interiors, and the interiors of code fences whose
+ * language tag we ship an embedded grammar for ({@link DELEGATED_FENCE_LANGS}). Fence *delimiter*
+ * lines are not delegated (the grammar scopes them itself, and the reader's `code-delim`/`code-lang`
+ * kinds are not suppressed anyway). A small line-classifier state machine, kept deliberately in sync
+ * with the grammar's `statement-line` / `statement-fence` / `code-fence` rules.
+ */
+export function delegatedLines(source: string): Set<number> {
+  const delegated = new Set<number>();
+  const lines = source.split("\n");
+  type Mode =
+    | { at: "markup" }
+    | { at: "statement-fence" }
+    | { at: "code-fence"; ticks: number; isDelegated: boolean };
+  let mode: Mode = { at: "markup" };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (mode.at === "statement-fence") {
+      if (/^\s*%%%\s*$/.test(line)) {
+        mode = { at: "markup" }; // closing delimiter line — not delegated
+      } else {
+        delegated.add(i);
+      }
+      continue;
+    }
+    if (mode.at === "code-fence") {
+      const close = /^\s*(`{3,})[ \t]*$/.exec(line);
+      if (close && close[1].length === mode.ticks) {
+        mode = { at: "markup" }; // closing delimiter line — not delegated
+      } else if (mode.isDelegated) {
+        delegated.add(i);
+      }
+      continue;
+    }
+    // markup context
+    if (/^\s*%%%\s*$/.test(line)) {
+      mode = { at: "statement-fence" };
+      continue;
+    }
+    const open = /^\s*(`{3,})[ \t]*([A-Za-z0-9_+-]*)[ \t]*$/.exec(line);
+    if (open) {
+      mode = {
+        at: "code-fence",
+        ticks: open[1].length,
+        isDelegated: DELEGATED_FENCE_LANGS.has(open[2].toLowerCase())
+      };
+      continue;
+    }
+    if (/^\s*%(?!%)/.test(line)) {
+      delegated.add(i); // `%` statement line: rest-of-line is source.ts in the grammar
+    }
+  }
+  return delegated;
 }
 
 /**
@@ -287,11 +391,13 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
   const spans = highlightSpans(source);
   const runs = flattenSpans(spans);
   const posAt = makeByteToPosition(source);
+  const delegated = delegatedLines(source);
   // Newline byte offsets, so a run that straddles lines (a block code/math fence) can be split into
   // one token per line — a single LSP semantic token cannot span a newline.
   const bytes = Buffer.from(source, "utf8");
   const tokens: SemanticToken[] = [];
   for (const run of runs) {
+    const suppressible = SUPPRESSED_ON_DELEGATED.has(run.kind);
     let segStart = run.start;
     while (segStart < run.end) {
       // The end of this line-segment: the next `\n` within the run, or the run's end.
@@ -301,7 +407,10 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
       }
       const start = posAt(segStart);
       const length = posAt(nl).character - start.character;
-      if (length > 0) {
+      // Per-line suppression: TextMate's embedded grammar owns this segment (module doc). Checked
+      // per line-segment (not per run) so a run straddling a delegated and a non-delegated line —
+      // a template literal continuing past a `%` line — keeps its non-delegated part painted.
+      if (length > 0 && !(suppressible && delegated.has(start.line))) {
         tokens.push([
           start.line,
           start.character,

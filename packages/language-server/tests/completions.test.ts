@@ -81,9 +81,12 @@ describe("the completion plugin", () => {
         end: { line: number; character: number };
       }) =>
         range
-          ? source
+          ? (source
               .split("\n")
-              [range.start.line]?.slice(range.start.character, range.end.character) ?? ""
+              [range.start.line]?.slice(
+                range.start.character,
+                range.end.character
+              ) ?? "")
           : source
     };
     return instance.provideCompletionItems?.(

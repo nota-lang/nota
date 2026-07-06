@@ -74,10 +74,38 @@ describe("makeByteToPosition (UTF-8 byte → UTF-16 position)", () => {
 });
 
 describe("notaSemanticTokens (end-to-end token stream)", () => {
-  test("embedded-JS `%` statement: `const` is a keyword, the number a number", () => {
-    const toks = tokensOf("% const n = 1\n");
-    expect(toks).toContainEqual({ text: "const", type: "keyword", mods: [] });
+  test("`%` statement line: JS classes are SUPPRESSED (TextMate's source.ts owns them)", () => {
+    // Delegation-aware suppression (module doc): the grammar delegates the `%` line to source.ts,
+    // whose paint is richer than our coarse classes — emitting ours caused the flicker/mixed-color
+    // arrow bug. The `%` sigil itself (a markup kind) still paints.
+    const toks = tokensOf("% const n = () => 1\n");
+    expect(toks).toContainEqual({ text: "%", type: "notaSigil", mods: [] });
+    expect(toks.some(t => t.type === "keyword")).toBe(false);
+    expect(toks.some(t => t.type === "number")).toBe(false);
+    expect(toks.some(t => t.text === "=>")).toBe(false);
+  });
+
+  test("embedded JS in props (grammar-blind): classes DO paint — the arrow is one operator", () => {
+    const toks = tokensOf('@div[onClick: () => setN(1)]{x}\n');
+    expect(toks).toContainEqual({ text: "=>", type: "operator", mods: [] });
     expect(toks).toContainEqual({ text: "1", type: "number", mods: [] });
+  });
+
+  test("markup re-entry on a delegated line keeps its markup kinds", () => {
+    // `@div` inside the `%` statement is exactly what source.ts mis-reads (decorator/array); the
+    // reader's sigil/tag kinds must still overlay there even though the JS classes are suppressed.
+    const toks = tokensOf('%let a = @div[class: "x"]{y}\n');
+    expect(toks.some(t => t.text === "div" && t.type === "notaTag")).toBe(true);
+    expect(toks.some(t => t.text === '"x"')).toBe(false); // js-string suppressed
+  });
+
+  test("ts-fence interior is suppressed; unknown-lang fence keeps the flat code paint", () => {
+    const ts = tokensOf("```ts\nconst a = 1;\n```\n");
+    expect(ts.some(t => t.text?.includes("const") && t.type === "notaCode")).toBe(false);
+    const unknown = tokensOf("```pascal\nbegin end.\n```\n");
+    expect(
+      unknown.some(t => t.text?.includes("begin") && t.type === "notaCode")
+    ).toBe(true);
   });
 
   test("heading: `#` marker + the text carries the heading modifier", () => {

@@ -128,9 +128,11 @@ describe("language server end-to-end (real boot, heap-capped)", () => {
 
   afterAll(() => child?.kill("SIGKILL"));
 
-  test("semanticTokens/full carries reader Nota kinds and `=>` as one operator token", async () => {
-    // A `%` statement with a JS arrow, a heading, and a markup element + interpolation.
-    const text = '%let f = () => "x"\n\n# Head\n\n@div{@f}\n';
+  test("semanticTokens/full carries reader Nota kinds; arrows split by delegation", async () => {
+    // A `%` statement with a JS arrow (grammar-delegated line — reader tokens SUPPRESSED there),
+    // a heading, and a markup element whose PROPS hold a second arrow (grammar-blind — the reader
+    // must paint it).
+    const text = '%let f = () => "x"\n\n# Head\n\n@div[onClick: () => "y"]{@f}\n';
     const uri = openDoc("sem.nota", text);
     const resp = await c.request("textDocument/semanticTokens/full", {
       textDocument: { uri }
@@ -147,10 +149,14 @@ describe("language server end-to-end (real boot, heap-capped)", () => {
     expect(toks.some(t => t.type === "notaTag" && t.text === "div")).toBe(true);
     expect(toks.some(t => t.type === "notaHeadingMarker")).toBe(true);
 
-    // The JS arrow is exactly ONE token, typed `operator`, over the whole `=>` (the user-visible
-    // "mixed/wrong arrow colours" symptom was this token being TS-mapped or split).
+    // Delegation-aware suppression (the "blue and red arrow" fix): the `%`-line arrow gets NO
+    // reader token — TextMate's source.ts already paints it as one storage.type.function.arrow
+    // token, and a competing semantic `operator` flickers over it on every refresh. The PROPS
+    // arrow — where the grammar is deliberately blind — is exactly ONE reader token, typed
+    // `operator`, covering the whole `=>`.
     const arrows = toks.filter(t => t.text === "=>");
     expect(arrows.length, JSON.stringify(toks)).toBe(1);
+    expect(arrows[0].line).toBe(4);
     expect(arrows[0].type).toBe("operator");
     expect(arrows[0].length).toBe(2);
 
