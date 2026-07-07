@@ -8,11 +8,12 @@
  *  - `dist/extension.js` — the client, esbuild-bundled (external: vscode).
  *  - `dist/server.js`    — the whole language server, esbuild-bundled from
  *    `@nota-lang/language-server`'s built `dist/bin.js` (Volar + vscode-languageserver +
- *    typescript + the compiler shim, one file). `import.meta.url` is rebuilt from `__filename`
- *    via banner+define so the shim's `createRequire`/path logic works inside the CJS bundle.
- *  - `wasm/`             — the node-wasm reader (the shim's default backend). The extension sets
- *    `NOTA_WASM_NODE` to it when spawning the server; the shim's vendored-`wasm/` probe finds it
- *    too (dist/../wasm), so either path works.
+ *    typescript + the compiler shim + the `@nota-lang/wasm-node` reader JS, one file).
+ *    `import.meta.url` is rebuilt from `__filename` via banner+define so the language server's
+ *    `createRequire` logic works inside the CJS bundle.
+ *  - `dist/nota_wasm_bg.wasm` — the wasm bytes. The bundled wasm-pack shim loads them with
+ *    `readFileSync(join(__dirname, "nota_wasm_bg.wasm"))`; in the CJS bundle `__dirname` is
+ *    `dist/`, so the copy next to `server.js` is found with no env vars or path probing.
  *
  * After bundling, a real LSP `initialize` handshake runs against `dist/server.js` — a broken
  * bundle fails here, in CI, not in a user's editor. The manifest is version-stamped
@@ -22,7 +23,6 @@
 import { execFileSync, spawn } from "node:child_process";
 import {
   copyFileSync,
-  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -86,28 +86,25 @@ await build({
   ...common,
   entryPoints: [join(repoRoot, "packages", "language-server", "dist", "bin.js")],
   outfile: join(pkgDir, "dist", "server.js"),
-  // The compiler shim (ESM dist) uses import.meta.url for createRequire + its wasm/binary path
-  // probes; a CJS bundle would otherwise turn it into undefined. Rebuild it from __filename.
+  // The language server (ESM dist) uses import.meta.url for createRequire; a CJS bundle would
+  // otherwise turn it into undefined. Rebuild it from __filename.
   banner: {
     js: "const __nota_import_meta_url = require('node:url').pathToFileURL(__filename).href;"
   },
   define: { "import.meta.url": "__nota_import_meta_url" }
 });
 
-// --- 3. vendor the wasm reader + LICENSE next to the bundles ---
-const wasmDir = join(pkgDir, "wasm");
-rmSync(wasmDir, { recursive: true, force: true });
-cpSync(wasmNodeDir, wasmDir, {
-  recursive: true,
-  filter: src => !src.endsWith(".gitignore")
-});
+// --- 3. the wasm bytes next to the server bundle (see the layout note above) + LICENSE ---
+copyFileSync(
+  join(wasmNodeDir, "nota_wasm_bg.wasm"),
+  join(pkgDir, "dist", "nota_wasm_bg.wasm")
+);
 copyFileSync(join(repoRoot, "LICENSE"), join(pkgDir, "LICENSE"));
 
 // --- 4. LSP initialize handshake against the bundle (with the vsix's wasm layout) ---
 console.log("[vsix] smoke: LSP initialize against dist/server.js");
 await new Promise((resolvePromise, reject) => {
   const server = spawn(process.execPath, [join(pkgDir, "dist", "server.js"), "--stdio"], {
-    env: { ...process.env, NOTA_WASM_NODE: join(wasmDir, "nota_wasm.js") },
     stdio: ["pipe", "pipe", "pipe"]
   });
   const timer = setTimeout(() => {
@@ -170,9 +167,8 @@ try {
   );
 } finally {
   writeFileSync(manifestPath, original);
-  // Leave dist/ bundles (gitignored, useful) but remove the vendored wasm + LICENSE copies so the
+  // Leave dist/ (gitignored, useful — bundles + wasm bytes) but remove the LICENSE copy so the
   // package dir stays clean for dev.
-  rmSync(wasmDir, { recursive: true, force: true });
   rmSync(join(pkgDir, "LICENSE"), { force: true });
 }
 

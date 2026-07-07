@@ -8,7 +8,7 @@
  *   node scripts/pack-release.mjs --version 0.2.0 --refs file --out dist-release [--skip-build]
  *
  * For each package: stamp `--version` (lockstep, from the release PR title), rewrite every
- * internal dep (`workspace:*` and the `@nota-lang/wasm` `file:` dep) to either
+ * internal dep (`workspace:*` and the `link:` wasm deps) to either
  *   url:  https://github.com/nota-lang/nota/releases/download/v<V>/<tarball>   (publishable)
  *   file: file:<out>/<tarball>                                                 (dry-run smoke tests)
  * then `pnpm pack`. Manifests are snapshotted and restored afterwards — the rewrite must never
@@ -16,9 +16,8 @@
  * remaining `workspace:*` to a bare semver, which would point consumers at a registry we don't
  * publish to.)
  *
- * The compiler package gets the node wasm reader vendored into `wasm/` for the pack (its shipped
- * default backend), and the vendored dir is DELETED afterwards: the shim prefers `wasm/` over the
- * repo's `pkg-node`, so a stale dev copy would shadow fresh reader rebuilds.
+ * Both wasm builds pack as their own tarballs: `@nota-lang/wasm` (web — codemirror/playground) and
+ * `@nota-lang/wasm-node` (node — the compiler shim's backend, an ordinary dependency).
  *
  * `@nota-lang/cli` and `@nota-lang/vite` also get unversioned alias copies (`nota-lang-cli.tgz`)
  * so `releases/latest/download/…` is a stable install URL.
@@ -27,11 +26,9 @@
 import { execFileSync } from "node:child_process";
 import {
   copyFileSync,
-  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
-  rmSync,
   writeFileSync
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
@@ -111,7 +108,10 @@ function rewriteManifest(manifest) {
     const deps = manifest[field];
     if (!deps) continue;
     for (const [name, spec] of Object.entries(deps)) {
-      if (name.startsWith("@nota-lang/") && (spec.startsWith("workspace:") || spec.startsWith("file:"))) {
+      if (
+        name.startsWith("@nota-lang/") &&
+        (spec.startsWith("workspace:") || spec.startsWith("file:") || spec.startsWith("link:"))
+      ) {
         deps[name] = refFor(name);
       }
     }
@@ -152,30 +152,18 @@ if (!skipBuild) {
   }
 }
 
-// --- pack the wasm web package first (nothing depends on its tarball at pack time) ---
+// --- pack the wasm packages first (nothing depends on their tarballs at pack time) ---
 console.log("[pack-release] pack @nota-lang/wasm");
 packDir(wasmPkgDir, "@nota-lang/wasm");
+console.log("[pack-release] pack @nota-lang/wasm-node");
+packDir(wasmNodeDir, "@nota-lang/wasm-node");
 
-// --- pack the workspace packages, vendoring the node wasm into the compiler ---
-const vendorDir = join(repoRoot, "packages", "compiler", "wasm");
-try {
-  console.log("[pack-release] vendor pkg-node → packages/compiler/wasm/");
-  rmSync(vendorDir, { recursive: true, force: true });
-  cpSync(wasmNodeDir, vendorDir, {
-    recursive: true,
-    filter: src => !src.endsWith(".gitignore")
-  });
-
-  for (const pkg of WORKSPACE_PACKAGES) {
-    const dir = join(repoRoot, "packages", pkg);
-    const name = JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).name;
-    console.log(`[pack-release] pack ${name}`);
-    packDir(dir, name);
-  }
-} finally {
-  // Never leave the vendored copy behind: the shim prefers it over the repo pkg-node, so a stale
-  // dev copy would shadow fresh reader rebuilds (the classic stale-output trap).
-  rmSync(vendorDir, { recursive: true, force: true });
+// --- pack the workspace packages ---
+for (const pkg of WORKSPACE_PACKAGES) {
+  const dir = join(repoRoot, "packages", pkg);
+  const name = JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).name;
+  console.log(`[pack-release] pack ${name}`);
+  packDir(dir, name);
 }
 
 // --- unversioned aliases for releases/latest/download/ ---

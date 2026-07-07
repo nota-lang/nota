@@ -41,9 +41,10 @@ export default defineConfig(({ mode }) => ({
       // Node's native ESM resolver can't load if left external. Keep external:
       //   - `vite` — ESM-only with native rolldown bindings; `build.ts` dynamic-imports it at build
       //     time (never at CLI startup), and it must not be inlined into the CJS bundle;
-      //   - `@nota-lang/compiler` — a single file (no extensionless imports, so Node ESM loads it) that
-      //     resolves the `nota_compile` binary via its **own** `import.meta.url`; bundling would rebase
-      //     that to `cli.cjs`'s dir and break the binary path.
+      //   - `@nota-lang/compiler` — a single file (no extensionless imports, so Node ESM loads it)
+      //     whose `@nota-lang/wasm-node` import must resolve from the compiler's own node_modules;
+      //     bundling would inline the wasm shim and rebase its `__dirname`-relative `.wasm` load
+      //     onto `cli.cjs`'s dir, where the bytes don't live.
       // (The inner vite builds still resolve `react`/`@nota-lang/*` from this package's `node_modules`
       // via the pinned resolver at runtime, independent of what `cli.cjs` bundles.)
       external: [

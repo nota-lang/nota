@@ -9,8 +9,8 @@
  *   - extension filtering, including Vite's `?query` suffix (`foo.nota?import`, HMR `?t=…`);
  *   - a configurable extension list.
  *
- * These drive the real reader subprocess (via the compiler shim), so they require the pre-built
- * `oxc/target/release/examples/nota_compile`.
+ * These drive the real in-process wasm reader (via the compiler shim), so they require the
+ * node-target wasm build (`oxc/napi/nota_wasm/pkg-node` — `node scripts/build-wasm.mjs node`).
  */
 
 import type { Plugin } from "vite";

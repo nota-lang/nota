@@ -2,35 +2,14 @@
  * `@nota-lang/compiler` — `highlightSpans` (reader-driven highlight spans via the node wasm).
  *
  * This is the source of truth for the language server's reader-driven semantic tokens. It drives
- * the **node-target** wasm reader (`oxc/napi/nota_wasm/pkg-node`), so it requires
- * that package to be built (`wasm-pack build napi/nota_wasm --target nodejs --out-dir pkg-node
- * --out-name nota_wasm`). If the node wasm is absent, the suite is skipped rather than failing the
- * whole package (mirrors `virtual.test.ts`'s binary-presence guard).
+ * the node-target wasm reader (`@nota-lang/wasm-node` — in development the `link:` dep on
+ * `oxc/napi/nota_wasm/pkg-node`, built by `node scripts/build-wasm.mjs node`).
  */
 
-import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { highlightKindNames, highlightSpans } from "../src/lib";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const nodeWasm =
-  process.env.NOTA_WASM_NODE ??
-  join(
-    here,
-    "..",
-    "..",
-    "..",
-    "oxc",
-    "napi",
-    "nota_wasm",
-    "pkg-node",
-    "nota_wasm.js"
-  );
-const suite = existsSync(nodeWasm) ? describe : describe.skip;
-
-suite("highlightSpans (node wasm reader)", () => {
+describe("highlightSpans (node wasm reader)", () => {
   test("classifies element head, prop, and interpolation spans", () => {
     const src = "@em{hi} @Aside[k: 1]{y} @name";
     const spans = highlightSpans(src);

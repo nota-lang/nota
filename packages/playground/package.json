@@ -20,7 +20,7 @@
     "@nota-lang/react": "workspace:*",
     "@nota-lang/runtime": "workspace:*",
     "@nota-lang/vite": "workspace:*",
-    "@nota-lang/wasm": "file:../../oxc/napi/nota_wasm/pkg",
+    "@nota-lang/wasm": "link:../../oxc/napi/nota_wasm/pkg",
     "prettier": "^3.8.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"

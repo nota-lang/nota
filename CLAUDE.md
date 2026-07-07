@@ -25,9 +25,10 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   - **prelude** — the standard ambient prelude: `Tex` (KaTeX→MathML) +
     `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
     `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
-  - **compiler** — sync shim (`src/lib.ts`) over the **node-wasm reader** (in-process; the
-    `NOTA_COMPILE_BIN` env forces the legacy `nota_compile` subprocess instead):
-    `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `parseVirtualJson` / `highlightSpans`.
+  - **compiler** — sync shim (`src/lib.ts`) over the in-process **node-wasm reader**,
+    `@nota-lang/wasm-node` — an ordinary static `import` (a `link:` dep on the repo's `pkg-node`;
+    a release tarball outside the workspace). No subprocess backend, no env-var overrides.
+    Entries: `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `highlightSpans`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
   - **vite** — `.nota` transform plugin + island registry (`registry.ts:generateClientEntry`).
@@ -82,18 +83,14 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
 A reader change is invisible to JS until you rebuild the artifact that consumes it. Canonical wasm
 build: **`node scripts/build-wasm.mjs [web|node]`** (both targets by default) — it runs wasm-pack
 AND patches the generated package.json names to `@nota-lang/wasm` / `@nota-lang/wasm-node`; raw
-wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace `file:` deps.
-- **wasm — node** (the compiler shim's DEFAULT backend: `compile`/`compileVirtual`/`highlightSpans`
-  → vite/cli/language-server): `oxc/napi/nota_wasm/pkg-node/nota_wasm.js` (CommonJS, sync init).
-  Resolution: `NOTA_WASM_NODE` env → vendored `<pkg>/wasm/` (packed tarballs) → repo `pkg-node`.
-  Missing → the loader throws its rebuild instructions / `highlight.test.ts` self-skips.
-- **wasm — web** (codemirror + playground, dep key `@nota-lang/wasm`): `oxc/napi/nota_wasm/pkg/`.
-  Missing `pkg/` → pnpm-install ENOENT (it's a `file:` dep).
+wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace deps.
+- Both wasm packages are **`link:` deps** (symlinks — a rebuild propagates with NO reinstall;
+  `file:` would copy at install time and go stale). Missing out-dir → pnpm-install ENOENT.
+  **wasm — node** (`@nota-lang/wasm-node`, the compiler shim's backend →
+  vite/cli/language-server): `oxc/napi/nota_wasm/pkg-node/` (CommonJS, sync init).
+  **wasm — web** (`@nota-lang/wasm`, codemirror + playground): `oxc/napi/nota_wasm/pkg/`.
   Rebuild BOTH wasm targets after a reader change — `pkg/` and `pkg-node/` are independent
   artifacts. Both are gitignored (wasm-pack writes a `.gitignore: *` in each out-dir).
-- **Native binary** (subprocess escape hatch — forced by `NOTA_COMPILE_BIN`; exercised by the
-  parity suites in `compiler/tests`): `cd oxc && cargo build --release -p oxc --example
-  nota_compile --features codegen` → `oxc/target/release/examples/nota_compile`.
 - JS packages consume each other's **built `dist/`, not `src/`** — after editing pkg A,
   `cd packages/A && depot build` before pkg B / a cross-package test sees the change.
 
@@ -111,16 +108,17 @@ wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace 
 
 ## Releasing
 Distribution is **GitHub Release tarballs, zero npm** (while experimenting). The ritual: file a PR
-titled `vX.Y.Z` labeled **`release`** → `release-dry-run.yml` runs the whole pipeline unpublished
+titled `vX.Y.Z` labeled **`release`** → `pre-release.yml` runs the whole pipeline unpublished
 (pack with file refs + a clean-room `npm install` + `nota build` smoke test; url-ref tarballs as a
 PR artifact) → merging triggers `release.yml`, which packs with url refs and
-`gh release create vX.Y.Z --target <merge-sha>` (CI creates the tag; assets: nine tarballs +
-unversioned cli/vite aliases for `releases/latest/download/` + the vsix). Version is stamped at
-pack time from the PR title — no bump commits. Key scripts: `scripts/pack-release.mjs` (rewrites
-`workspace:*`/`file:` deps to release URLs before `pnpm pack`; vendors + removes
-`packages/compiler/wasm/`), `scripts/smoke-install.sh`,
-`packages/vscode-nota/scripts/package-vsix.mjs` (esbuild-bundles client+server+wasm, LSP-handshakes
-the bundle, `vsce package --no-dependencies`).
+`gh release create vX.Y.Z --target <merge-sha>` (CI creates the tag; assets: ten tarballs
+(8 workspace packages + both wasm targets) + unversioned cli/vite aliases for
+`releases/latest/download/` + the vsix). Version is stamped at pack time from the PR title — no
+bump commits. Key scripts: `scripts/pack-release.mjs` (rewrites `workspace:*`/`link:` deps to
+release URLs before `pnpm pack`), `scripts/smoke-install.sh`,
+`packages/vscode-nota/scripts/package-vsix.mjs` (esbuild-bundles client + server — the wasm reader
+JS is bundled in, its `.wasm` bytes copied next to the bundle — LSP-handshakes the bundle,
+`vsce package --no-dependencies`).
 
 ## Build method
 Packages are built in dependency order (reader → runtime/adapters → vite → cli/playground → IDE);

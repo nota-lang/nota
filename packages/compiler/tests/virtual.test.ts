@@ -1,30 +1,16 @@
 /**
- * `@nota-lang/compiler` — `compileVirtual` / `parseVirtualJson` tests.
+ * `@nota-lang/compiler` — `compileVirtual` / `validateVirtual` tests.
  *
  * The virtual (`.tsx`) emit is what `@nota-lang/language-server` consumes: the type-preserving
- * codegen plus the Volar `CodeMapping`s. This file pins the **shape validation** shared by both
- * backends against hand-written samples, drives the live default backend (the in-process wasm
- * reader), and — when the pre-built binary speaks `--virtual` — pins subprocess/wasm parity.
+ * codegen plus the Volar `CodeMapping`s. This file pins the **shape validation** guarding the wasm
+ * entry's return value against hand-written samples, and drives the live wasm reader.
  */
 
-import { execFileSync } from "node:child_process";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { type CodeMapping, compileVirtual, parseVirtualJson } from "../src/lib";
+import { describe, expect, test } from "vitest";
+import { type CodeMapping, compileVirtual, validateVirtual } from "../src/lib";
 
-// Pin the default (wasm) backend for this file regardless of the developer's shell; the parity
-// suite below forces the subprocess explicitly.
-const ambientBin = process.env.NOTA_COMPILE_BIN;
-beforeAll(() => {
-  delete process.env.NOTA_COMPILE_BIN;
-});
-afterAll(() => {
-  if (ambientBin !== undefined) {
-    process.env.NOTA_COMPILE_BIN = ambientBin;
-  }
-});
-
-/** The `--virtual` JSON, hand-built so the parse is tested independent of the binary. */
-const SAMPLE_JSON = JSON.stringify({
+/** A hand-built virtual-emit object, so the validation is tested independent of the reader. */
+const SAMPLE = {
   code: 'export default function Doc() {\n  return decode(h("p", {}, [count]));\n}\n',
   mappings: [
     {
@@ -59,11 +45,15 @@ const SAMPLE_JSON = JSON.stringify({
       }
     }
   ]
-});
+};
 
-describe("parseVirtualJson (JSON shape)", () => {
-  test("parses code + mappings; preserves parallel arrays and capability flags", () => {
-    const { code, mappings } = parseVirtualJson(SAMPLE_JSON);
+// The validator mutates nothing, but hand each call a fresh deep copy anyway (JSON round-trip)
+// so one test's input can't leak shape changes into another's.
+const sample = () => JSON.parse(JSON.stringify(SAMPLE));
+
+describe("validateVirtual (shape)", () => {
+  test("passes code + mappings through; preserves parallel arrays and capability flags", () => {
+    const { code, mappings } = validateVirtual(sample());
 
     expect(code).toContain("export default function Doc()");
     expect(mappings).toHaveLength(2);
@@ -71,7 +61,7 @@ describe("parseVirtualJson (JSON shape)", () => {
     const [embedded, component] = mappings as [CodeMapping, CodeMapping];
 
     // Embedded JS → full caps; arrays line up. (`count` sits at generated offset 60 in the sample
-    // `code` above; `parseVirtualJson` passes offsets through unchanged.)
+    // `code` above; `validateVirtual` passes offsets through unchanged.)
     expect(embedded.sourceOffsets).toEqual([5]);
     expect(embedded.generatedOffsets).toEqual([60]);
     expect(embedded.lengths).toEqual([5]);
@@ -94,10 +84,17 @@ describe("parseVirtualJson (JSON shape)", () => {
     expect(component.data.structure).toBe(false);
   });
 
-  test("the parsed mapping round-trips a source offset to its generated slice", () => {
-    // The core mapping invariant at the parse layer: the mapping's generated offset, taken against
-    // the parsed `code`, yields the same text as the source token it claims to map.
-    const { code, mappings } = parseVirtualJson(SAMPLE_JSON);
+  test("normalizes an `undefined` generatedLengths to null (serde-wasm-bindgen None)", () => {
+    const raw = sample();
+    delete raw.mappings[0].generatedLengths; // arrives as `undefined` from the wasm boundary
+    const { mappings } = validateVirtual(raw);
+    expect(mappings[0].generatedLengths).toBeNull();
+  });
+
+  test("the validated mapping round-trips a source offset to its generated slice", () => {
+    // The core mapping invariant at the shim boundary: the mapping's generated offset, taken
+    // against the returned `code`, yields the same text as the source token it claims to map.
+    const { code, mappings } = validateVirtual(sample());
     const m = mappings[0];
     const gen = code.slice(
       m.generatedOffsets[0],
@@ -118,7 +115,7 @@ describe("parseVirtualJson (JSON shape)", () => {
     expect(byteOffset).toBe(9);
     expect(utf16Index).toBe(8);
 
-    const json = JSON.stringify({
+    const raw = {
       code,
       mappings: [
         {
@@ -136,12 +133,12 @@ describe("parseVirtualJson (JSON shape)", () => {
           }
         }
       ]
-    });
+    };
 
-    const { code: out, mappings } = parseVirtualJson(json);
+    const { code: out, mappings } = validateVirtual(raw);
     const m = mappings[0];
 
-    // `parseVirtualJson` passes offsets through verbatim — they remain byte offsets.
+    // `validateVirtual` passes offsets through verbatim — they remain byte offsets.
     expect(m.generatedOffsets[0]).toBe(byteOffset);
 
     // Slicing as UTF-8 bytes recovers the mapped token...
@@ -160,23 +157,19 @@ describe("parseVirtualJson (JSON shape)", () => {
     ).not.toBe("count");
   });
 
-  test("throws a clear error on invalid JSON", () => {
-    expect(() => parseVirtualJson("not json", "foo.nota")).toThrow(
-      /invalid JSON.*foo\.nota/s
-    );
-  });
-
-  test("throws when `code` / `mappings` are absent (desynced binary)", () => {
-    expect(() => parseVirtualJson(JSON.stringify({ code: "x" }))).toThrow(
-      /missing `code`\/`mappings`/
-    );
-    expect(() => parseVirtualJson(JSON.stringify({ mappings: [] }))).toThrow(
-      /missing `code`\/`mappings`/
-    );
+  test("throws when `code` / `mappings` are absent (desynced wasm build)", () => {
+    expect(() =>
+      validateVirtual({ code: "x" } as Parameters<typeof validateVirtual>[0])
+    ).toThrow(/missing `code`\/`mappings`/);
+    expect(() =>
+      validateVirtual({
+        mappings: []
+      } as unknown as Parameters<typeof validateVirtual>[0])
+    ).toThrow(/missing `code`\/`mappings`/);
   });
 
   test("throws when a mapping's parallel arrays are mismatched in length", () => {
-    const bad = JSON.stringify({
+    const bad = {
       code: "x",
       mappings: [
         {
@@ -194,45 +187,45 @@ describe("parseVirtualJson (JSON shape)", () => {
           }
         }
       ]
-    });
-    expect(() => parseVirtualJson(bad)).toThrow(/mismatched-length/);
+    };
+    expect(() => validateVirtual(bad)).toThrow(/mismatched-length/);
   });
 });
 
-describe("parseVirtualJson (recovered errors)", () => {
-  test("parses an `errors` array of {message, start, len}", () => {
-    const json = JSON.stringify({
+describe("validateVirtual (recovered errors)", () => {
+  test("passes an `errors` array of {message, start, len} through", () => {
+    const raw = {
       code: 'export default function Doc() { return decode(h("a", {}, [])); }\n',
       mappings: [],
       errors: [{ message: "Expected `]` but found `EOF`", start: 3, len: 0 }]
-    });
-    const { errors } = parseVirtualJson(json);
+    };
+    const { errors } = validateVirtual(raw);
     expect(errors).toEqual([
       { message: "Expected `]` but found `EOF`", start: 3, len: 0 }
     ]);
   });
 
-  test("defaults `errors` to [] when the field is absent (binary predating recovered errors)", () => {
-    const { errors } = parseVirtualJson(SAMPLE_JSON);
+  test("defaults `errors` to [] when the field is absent (build predating recovered errors)", () => {
+    const { errors } = validateVirtual(sample());
     expect(errors).toEqual([]);
   });
 
   test("coerces error fields defensively (numeric start/len, string message)", () => {
-    const json = JSON.stringify({
+    const raw = {
       code: "",
       mappings: [],
       errors: [{ message: "x", start: 2, len: 4 }]
-    });
-    const { errors } = parseVirtualJson(json);
+    };
+    const { errors } = validateVirtual(raw);
     expect(errors[0]).toEqual({ message: "x", start: 2, len: 4 });
   });
 });
 
 // ===================================================================================================
-// Live path — the default backend (in-process wasm reader).
+// Live path — the in-process wasm reader.
 // ===================================================================================================
 
-describe("compileVirtual (live — wasm backend)", () => {
+describe("compileVirtual (live — wasm reader)", () => {
   test("emits a type-preserving virtual .tsx and byte-exact mappings", () => {
     const src = "% const n: number = count();\n@p{@(user)}\n";
     const { code, mappings } = compileVirtual(src, { sourcePath: "live.nota" });
@@ -280,64 +273,5 @@ describe("compileVirtual (live — wasm backend)", () => {
     );
     expect(anchor, JSON.stringify(mappings)).toBeDefined();
     expect(anchor?.data.completion).toBe(true);
-  });
-});
-
-// ===================================================================================================
-// Subprocess escape hatch — parity with the wasm backend. Skipped unless the pre-built binary
-// exists and speaks `--virtual`.
-// ===================================================================================================
-
-/** Resolve the binary the same way the shim does, to probe for `--virtual` support. */
-function binarySupportsVirtual(): string | null {
-  const bin =
-    ambientBin && ambientBin.length > 0
-      ? ambientBin
-      : new URL(
-          "../../../oxc/target/release/examples/nota_compile",
-          import.meta.url
-        ).pathname;
-  try {
-    // `--virtual` with no file → a flag-aware binary fails *about the missing file* (its usage
-    // line names `--virtual`); a pre-`--virtual` binary's usage does not mention the flag.
-    execFileSync(bin, ["--virtual"], { encoding: "utf8", stdio: "pipe" });
-    return bin;
-  } catch (e) {
-    const err = e as {
-      stderr?: Buffer | string;
-      stdout?: Buffer | string;
-      code?: string;
-    };
-    if (err.code === "ENOENT") {
-      return null; // binary not built
-    }
-    const text = `${String(err.stderr ?? "")}${String(err.stdout ?? "")}`;
-    return /usage:/i.test(text) && !text.includes("--virtual") ? null : bin;
-  }
-}
-
-const virtualBinary = binarySupportsVirtual();
-const paritySuite = virtualBinary ? describe : describe.skip;
-
-paritySuite("compileVirtual (subprocess escape hatch — parity)", () => {
-  test("binary --virtual and the wasm backend agree on code + mappings + errors", () => {
-    const sources = [
-      "% const n: number = count();\n@p{@(user)}\n",
-      "@p{hi}\n",
-      "@a[" // EOF recovery
-    ];
-    for (const src of sources) {
-      const viaWasm = compileVirtual(src, { sourcePath: "parity.nota" });
-      process.env.NOTA_COMPILE_BIN = virtualBinary as string;
-      let viaBinary: ReturnType<typeof compileVirtual>;
-      try {
-        viaBinary = compileVirtual(src, { sourcePath: "parity.nota" });
-      } finally {
-        delete process.env.NOTA_COMPILE_BIN;
-      }
-      expect(viaBinary.code).toBe(viaWasm.code);
-      expect(viaBinary.mappings).toEqual(viaWasm.mappings);
-      expect(viaBinary.errors).toEqual(viaWasm.errors);
-    }
   });
 });

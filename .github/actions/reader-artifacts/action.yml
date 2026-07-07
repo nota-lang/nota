@@ -1,9 +1,8 @@
 name: Reader artifacts
 description: >-
-  Build (or restore from cache, keyed on the oxc submodule SHA) the release nota_compile binary
-  and both wasm targets. Leaves them at their in-tree paths (oxc/target/…, oxc/napi/nota_wasm/…)
-  AND staged under reader-dist/ for artifact upload. Requires the repo checked out with the oxc
-  submodule.
+  Build (or restore from cache, keyed on the oxc submodule SHA) both wasm targets of the reader.
+  Leaves them at their in-tree paths (oxc/napi/nota_wasm/{pkg,pkg-node}) AND staged under
+  reader-dist/ for artifact upload. Requires the repo checked out with the oxc submodule.
 
 runs:
   using: composite
@@ -18,7 +17,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: reader-dist
-        key: reader-dist-v1-${{ runner.os }}-${{ steps.submodule.outputs.sha }}
+        key: reader-dist-v2-${{ runner.os }}-${{ steps.submodule.outputs.sha }}
 
     - name: Cache cargo build
       if: steps.cache.outputs.cache-hit != 'true'
@@ -32,14 +31,8 @@ runs:
       with:
         tool: wasm-pack
 
-    - name: Build nota_compile (release)
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: bash
-      working-directory: oxc
-      run: cargo build --release -p oxc --example nota_compile --features codegen
-
     # build-wasm.mjs patches the generated package.jsons to @nota-lang/wasm{,-node} — the names
-    # the workspace file: deps expect; raw wasm-pack would break pnpm install downstream.
+    # the workspace link: deps expect; raw wasm-pack would break pnpm install downstream.
     - name: Build nota_wasm (web + node)
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
@@ -53,7 +46,6 @@ runs:
       shell: bash
       run: |
         mkdir -p reader-dist
-        cp oxc/target/release/examples/nota_compile reader-dist/
         cp -R oxc/napi/nota_wasm/pkg reader-dist/pkg
         cp -R oxc/napi/nota_wasm/pkg-node reader-dist/pkg-node
 
@@ -61,9 +53,7 @@ runs:
       if: steps.cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        mkdir -p oxc/target/release/examples oxc/napi/nota_wasm
-        cp reader-dist/nota_compile oxc/target/release/examples/
-        chmod +x oxc/target/release/examples/nota_compile
+        mkdir -p oxc/napi/nota_wasm
         rm -rf oxc/napi/nota_wasm/pkg oxc/napi/nota_wasm/pkg-node
         cp -R reader-dist/pkg oxc/napi/nota_wasm/pkg
         cp -R reader-dist/pkg-node oxc/napi/nota_wasm/pkg-node

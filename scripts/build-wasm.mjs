@@ -13,12 +13,12 @@
  *
  * Outputs (both gitignored by wasm-pack's own `.gitignore: *`):
  *   oxc/napi/nota_wasm/pkg       — `@nota-lang/wasm` (web target): codemirror + playground +
- *                                  the website consume it (`file:` dep in the workspace, a release
+ *                                  the website consume it (`link:` dep in the workspace, a release
  *                                  tarball outside it).
- *   oxc/napi/nota_wasm/pkg-node  — `@nota-lang/wasm-node` (nodejs target): never published on its
- *                                  own; vendored into `@nota-lang/compiler`'s `wasm/` at pack time
- *                                  (the shim `require`s the file directly, so the inner
- *                                  package.json is inert — patched anyway for tidiness).
+ *   oxc/napi/nota_wasm/pkg-node  — `@nota-lang/wasm-node` (nodejs target): the compiler shim's
+ *                                  backend, an ordinary dependency (`link:` dep in the workspace, a
+ *                                  release tarball outside it) — the patched name is what the
+ *                                  shim's `import` resolves.
  */
 
 import { execFileSync } from "node:child_process";
@@ -43,7 +43,7 @@ const TARGETS = {
     wasmPackTarget: "nodejs",
     name: "@nota-lang/wasm-node",
     description:
-      "The Nota reader compiled to wasm (node target) — vendored into @nota-lang/compiler."
+      "The Nota reader compiled to wasm (node target) — @nota-lang/compiler's backend."
   }
 };
 

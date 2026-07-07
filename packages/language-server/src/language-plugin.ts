@@ -114,9 +114,9 @@ export interface NotaVirtualCode extends VirtualCode {
  * error (EOF error-recovery), so a mid-edit `.nota` still produces a best-effort virtual `.tsx` +
  * mappings — TS features (hover/completion/diagnostics) keep working over the parsed prefix instead
  * of blanking out. The Nota syntax diagnostics themselves flow through a separate channel
- * (`./diagnostics.ts`). The `try/catch` now only guards a true *binary* failure (a
- * missing/old `nota_compile`, an OS spawn error), for which we degrade to an empty TS module so the
- * server stays alive.
+ * (`./diagnostics.ts`). The `try/catch` now only guards a true *backend* failure (a desynced
+ * `@nota-lang/wasm-node` build), for which we degrade to an empty TS module so the server stays
+ * alive.
  */
 function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
   const source = snapshot.getText(0, snapshot.getLength());

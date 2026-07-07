@@ -2,8 +2,7 @@
   "name": "@nota-lang/compiler",
   "version": "0.1.0",
   "files": [
-    "dist",
-    "wasm"
+    "dist"
   ],
   "main": "dist/lib.js",
   "exports": {
@@ -21,7 +20,8 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
-    "@nota-lang/runtime": "workspace:*"
+    "@nota-lang/runtime": "workspace:*",
+    "@nota-lang/wasm-node": "link:../../oxc/napi/nota_wasm/pkg-node"
   },
   "devDependencies": {
     "@nota-lang/react": "workspace:*",

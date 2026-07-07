@@ -14,9 +14,9 @@
  *     vite-based pipeline);
  *   - structural snapshots of the emitted document.
  *
- * Node env: the pipeline spawns the reader (needs the pre-built `oxc/target/release/examples/
- * nota_compile`) and runs two programmatic vite builds; `resolveFrom` is the package root so the
- * pinned resolver finds `react` / `@nota-lang/*` in this package's `node_modules`.
+ * Node env: the pipeline runs the in-process wasm reader (needs the node-target wasm build,
+ * `oxc/napi/nota_wasm/pkg-node`) and two programmatic vite builds; `resolveFrom` is the package
+ * root so the pinned resolver finds `react` / `@nota-lang/*` in this package's `node_modules`.
  */
 
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
