@@ -92,6 +92,46 @@ describe("compile (emit surface + prepended runtime import)", () => {
   });
 });
 
+describe("compile (non-ASCII input — no wasm heap corruption)", () => {
+  // Regression: a `.nota` containing a multibyte UTF-8 char (em-dash, U+2014) followed by enough
+  // trailing content used to crash the wasm reader with a dlmalloc assertion
+  // (`psize <= size + max_overhead`) surfacing as `unreachable`. Root cause: wasm-bindgen's
+  // `passStringToWasm0` over-allocates the input buffer (realloc to a worst-case UTF-8 size) and the
+  // reader frees it as a `Box<str>` at content length, a `dealloc` size mismatch that corrupts the
+  // wasm heap. Fixed by nota_wasm's size-tracking `#[global_allocator]`. The crash was heap-layout
+  // sensitive, so we compile repeatedly.
+  const multibyte = [
+    ["em-dash (3-byte)", "—"],
+    ["e-acute (2-byte)", "é"],
+    ["g-clef (4-byte)", "\u{1d11e}"]
+  ] as const;
+
+  for (const [name, ch] of multibyte) {
+    test(`repeatedly compiles a doc with a ${name} + trailing content`, () => {
+      const src = `# Heading\n\nA paragraph with a ${ch} char, followed by plenty of trailing text so the\nbuffer is over-allocated, then a second sentence to be safe.\n`;
+      let out = "";
+      // Heap corruption is layout-dependent — one call may pass, so hammer it.
+      expect(() => {
+        for (let i = 0; i < 50; i++) out = compile(src, { sourcePath: "u.nota" }).code;
+      }).not.toThrow();
+      // The multibyte char must survive verbatim in the emit.
+      expect(out).toContain(ch);
+      expect(out).toContain("export default function Doc()");
+    });
+  }
+
+  test("the exact example doc (heading + emphasis + em-dash + list) compiles cleanly", () => {
+    const src =
+      "# Hello Nota\n\nThis is a *static* document with _no_ islands, served from a real package install — not a\nworkspace symlink.\n\n## A second section\n\nIt has headings and paragraphs, and a list:\n\n- first item\n- second item\n- third item\n";
+    expect(() => {
+      for (let i = 0; i < 50; i++) compile(src, { sourcePath: "hello.nota" });
+    }).not.toThrow();
+    const { code } = compile(src, { sourcePath: "hello.nota" });
+    expect(code).toContain("install — not a");
+    expect(code).toContain('h("nota-ul-li", {}');
+  });
+});
+
 describe("compile (diagnostics — a reader error throws)", () => {
   test("a malformed .nota throws an Error carrying the reader's diagnostics", () => {
     let thrown: unknown;
