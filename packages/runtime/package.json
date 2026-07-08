@@ -19,9 +19,6 @@
     "target": "lib",
     "depot-version": "0.3.4"
   },
-  "devDependencies": {
-    "jsdom": "^29.1.1"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",

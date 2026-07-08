@@ -1,15 +1,8 @@
 name: Release
 
-# Merging a PR titled `vX.Y.Z` and labeled `release` publishes every non-private workspace package
-# to npm at that version. Same pipeline as pre-release.yml minus --dry-run; needs the NPM_TOKEN
-# secret (an automation token for the @nota-lang scope).
-
 on:
   pull_request:
     types: [closed]
-
-permissions:
-  contents: read
 
 jobs:
   release:
@@ -33,15 +26,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
           submodules: recursive
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup
         uses: ./.github/actions/setup

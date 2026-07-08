@@ -27,14 +27,6 @@
     "react-dom": "^19.2.7",
     "vite": "^8.0.16"
   },
-  "devDependencies": {
-    "@types/node": "^25.9.2",
-    "tsx": "^4.22.4",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.2",
-    "jsdom": "^29.1.1"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",

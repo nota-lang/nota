@@ -22,10 +22,6 @@
   "dependencies": {
     "@nota-lang/runtime": "workspace:*"
   },
-  "devDependencies": {
-    "jsdom": "^29.1.1",
-    "solid-js": "^1.9.3"
-  },
   "peerDependencies": {
     "solid-js": "^1.9.0"
   },

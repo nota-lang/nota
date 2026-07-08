@@ -24,14 +24,7 @@
     "@nota-lang/wasm-node": "workspace:*"
   },
   "devDependencies": {
-    "@nota-lang/react": "workspace:*",
-    "@types/node": "^25.9.2",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.2",
-    "jsdom": "^29.1.1",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "@nota-lang/react": "workspace:*"
   },
   "license": "MIT",
   "repository": {

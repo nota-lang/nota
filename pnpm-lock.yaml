@@ -14,9 +14,36 @@ importers:
       '@biomejs/biome':
         specifier: ^2.4.16
         version: 2.4.16
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@types/node':
         specifier: ^25.9.2
         version: 25.9.2
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.2
+        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+      solid-js:
+        specifier: ^1.9.3
+        version: 1.9.13
+      tsx:
+        specifier: ^4.22.4
+        version: 4.22.4
       typedoc:
         specifier: ^0.28.19
         version: 0.28.19(typescript@6.0.3)
@@ -60,25 +87,6 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
-    devDependencies:
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.2
-        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
-      tsx:
-        specifier: ^4.22.4
-        version: 4.22.4
 
   packages/codemirror:
     dependencies:
@@ -112,13 +120,6 @@ importers:
       '@nota-lang/wasm':
         specifier: workspace:*
         version: link:../../oxc/napi/nota_wasm/pkg
-    devDependencies:
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
 
   packages/compiler:
     dependencies:
@@ -132,27 +133,6 @@ importers:
       '@nota-lang/react':
         specifier: workspace:*
         version: link:../react
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.2
-        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
-      react:
-        specifier: ^19.2.7
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
 
   packages/language-server:
     dependencies:
@@ -180,10 +160,6 @@ importers:
       vscode-uri:
         specifier: ^3.1.0
         version: 3.1.0
-    devDependencies:
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
 
   packages/playground:
     dependencies:
@@ -236,21 +212,6 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.3
         version: 1.2.3
-      '@testing-library/react':
-        specifier: ^16.3.2
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.2
-        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -276,52 +237,26 @@ importers:
       '@nota-lang/runtime':
         specifier: workspace:*
         version: link:../runtime
-    devDependencies:
-      '@nota-lang/solid':
-        specifier: workspace:*
-        version: link:../solid
-      '@testing-library/react':
-        specifier: ^16.3.2
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.2
-        version: 6.0.2(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
       react:
         specifier: ^19.2.7
         version: 19.2.7
       react-dom:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
-      solid-js:
-        specifier: ^1.9.3
-        version: 1.9.13
-
-  packages/runtime:
     devDependencies:
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
+      '@nota-lang/solid':
+        specifier: workspace:*
+        version: link:../solid
+
+  packages/runtime: {}
 
   packages/solid:
     dependencies:
       '@nota-lang/runtime':
         specifier: workspace:*
         version: link:../runtime
-    devDependencies:
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
       solid-js:
-        specifier: ^1.9.3
+        specifier: ^1.9.0
         version: 1.9.13
 
   packages/vite:
@@ -339,9 +274,6 @@ importers:
       '@nota-lang/react':
         specifier: workspace:*
         version: link:../react
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
@@ -358,9 +290,6 @@ importers:
       '@nota-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
-      '@types/node':
-        specifier: ^25.9.2
-        version: 25.9.2
       '@types/vscode':
         specifier: ^1.125.0
         version: 1.125.0
@@ -373,9 +302,6 @@ importers:
       tm-grammars:
         specifier: ^1.31.15
         version: 1.31.15
-      tsx:
-        specifier: ^4.22.4
-        version: 4.22.4
       typescript:
         specifier: ^6.0.3
         version: 6.0.3

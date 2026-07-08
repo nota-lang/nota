@@ -32,9 +32,6 @@
     "volar-service-typescript": "~0.0.62",
     "vscode-uri": "^3.1.0"
   },
-  "devDependencies": {
-    "@types/node": "^25.9.2"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",

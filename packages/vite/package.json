@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@nota-lang/react": "workspace:*",
-    "@types/node": "^25.9.2",
     "vite": "^8.0.16"
   },
   "license": "MIT",
