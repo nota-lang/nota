@@ -14,7 +14,8 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/setup
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Run tests
         run: depot test
