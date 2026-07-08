@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@nota-lang/runtime": "workspace:*",
-    "@nota-lang/wasm-node": "link:../../oxc/napi/nota_wasm/pkg-node"
+    "@nota-lang/wasm-node": "workspace:*"
   },
   "devDependencies": {
     "@nota-lang/react": "workspace:*",

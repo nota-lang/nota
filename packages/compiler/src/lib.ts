@@ -8,8 +8,8 @@
  * compiler shim (or integrator) prepends it.
  *
  * The backend is the node-target wasm reader, `@nota-lang/wasm-node` (`wasm-pack build --target
- * nodejs`; `link:`-dep on the repo's `oxc/napi/nota_wasm/pkg-node` in development, a release
- * tarball outside it), imported like any other dependency. It exposes the same `oxc::nota` entries
+ * nodejs`; the workspace dep on the repo's `oxc/napi/nota_wasm/pkg-node` in development, an npm
+ * package outside it), imported like any other dependency. It exposes the same `oxc::nota` entries
  * (`compile` / `compileVirtual` / `highlight`) in-process — no subprocess, no temp files — so
  * installs need no Rust toolchain and no platform-specific binary.
  */

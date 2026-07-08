@@ -30,6 +30,10 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
+  oxc/napi/nota_wasm/pkg: {}
+
+  oxc/napi/nota_wasm/pkg-node: {}
+
   packages/cli:
     dependencies:
       '@nota-lang/compiler':
@@ -106,7 +110,7 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@nota-lang/wasm':
-        specifier: link:../../oxc/napi/nota_wasm/pkg
+        specifier: workspace:*
         version: link:../../oxc/napi/nota_wasm/pkg
     devDependencies:
       '@types/node':
@@ -122,7 +126,7 @@ importers:
         specifier: workspace:*
         version: link:../runtime
       '@nota-lang/wasm-node':
-        specifier: link:../../oxc/napi/nota_wasm/pkg-node
+        specifier: workspace:*
         version: link:../../oxc/napi/nota_wasm/pkg-node
     devDependencies:
       '@nota-lang/react':
@@ -217,7 +221,7 @@ importers:
         specifier: workspace:*
         version: link:../vite
       '@nota-lang/wasm':
-        specifier: link:../../oxc/napi/nota_wasm/pkg
+        specifier: workspace:*
         version: link:../../oxc/napi/nota_wasm/pkg
       prettier:
         specifier: ^3.8.4

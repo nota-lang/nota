@@ -51,7 +51,7 @@ if (!version || !/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(version)) {
   process.exit(1);
 }
 if (!existsSync(join(wasmNodeDir, "nota_wasm.js"))) {
-  console.error(`missing node wasm at ${wasmNodeDir} — run \`node scripts/build-wasm.mjs node\` first`);
+  console.error(`missing node wasm at ${wasmNodeDir} — run \`just nota-build\` in oxc/ first`);
   process.exit(1);
 }
 

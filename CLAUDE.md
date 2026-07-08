@@ -26,8 +26,8 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
     `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
   - **compiler** — sync shim (`src/lib.ts`) over the in-process **node-wasm reader**,
-    `@nota-lang/wasm-node` — an ordinary static `import` (a `link:` dep on the repo's `pkg-node`;
-    a release tarball outside the workspace). No subprocess backend, no env-var overrides.
+    `@nota-lang/wasm-node` — an ordinary static `import` of a `workspace:*` dep. No subprocess
+    backend, no env-var overrides.
     Entries: `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `highlightSpans`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
@@ -81,11 +81,12 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
 
 ### Build artifacts — the stale-output trap (this repeatedly cost hours)
 A reader change is invisible to JS until you rebuild the artifact that consumes it. Canonical wasm
-build: **`node scripts/build-wasm.mjs [web|node]`** (both targets by default) — it runs wasm-pack
-AND patches the generated package.json names to `@nota-lang/wasm` / `@nota-lang/wasm-node`; raw
-wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace deps.
-- Both wasm packages are **`link:` deps** (symlinks — a rebuild propagates with NO reinstall;
-  `file:` would copy at install time and go stale). Missing out-dir → pnpm-install ENOENT.
+build: **`cd oxc && just nota-build`** (both targets) — it runs wasm-pack AND patches the generated
+package.json names to `@nota-lang/wasm` / `@nota-lang/wasm-node`; raw wasm-pack leaves the
+crate-derived name `nota_wasm`, which breaks the workspace deps.
+- The generated out-dirs are **pnpm workspace members** (listed in `pnpm-workspace.yaml`), consumed
+  as `workspace:*` deps — symlinks, so a rebuild propagates with NO reinstall. Missing out-dir →
+  "not found in workspace" at install.
   **wasm — node** (`@nota-lang/wasm-node`, the compiler shim's backend →
   vite/cli/language-server): `oxc/napi/nota_wasm/pkg-node/` (CommonJS, sync init).
   **wasm — web** (`@nota-lang/wasm`, codemirror + playground): `oxc/napi/nota_wasm/pkg/`.
@@ -95,7 +96,7 @@ wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace 
   `cd packages/A && depot build` before pkg B / a cross-package test sees the change.
 
 ## Gotchas & domain facts
-- **Known reader bugs** live in **`TODO.md`** + `#[ignore]`'d tests in `integration/nota.rs` — check
+- **Known reader bugs** live in the `#[ignore]`'d tests in `integration/nota.rs` — check
   there before re-fuzzing/repro'ing. Feature mega-test: `integration/mega.nota`.
 - **decode model:** `h`/`Fragment`/`decode` branch on a runtime flag (`▸` = inside a `component`?).
   SSG builds a vnode tree (marked components deferred, not invoked; a *plain* function tag is a
@@ -107,18 +108,17 @@ wasm-pack leaves the crate-derived name `nota_wasm`, which breaks the workspace 
   command substitution (use `-F`); Bash cwd resets each call (use absolute paths).
 
 ## Releasing
-Distribution is **GitHub Release tarballs, zero npm** (while experimenting). The ritual: file a PR
-titled `vX.Y.Z` labeled **`release`** → `pre-release.yml` runs the whole pipeline unpublished
-(pack with file refs + a clean-room `npm install` + `nota build` smoke test; url-ref tarballs as a
-PR artifact) → merging triggers `release.yml`, which packs with url refs and
-`gh release create vX.Y.Z --target <merge-sha>` (CI creates the tag; assets: ten tarballs
-(8 workspace packages + both wasm targets) + unversioned cli/vite aliases for
-`releases/latest/download/` + the vsix). Version is stamped at pack time from the PR title — no
-bump commits. Key scripts: `scripts/pack-release.mjs` (rewrites `workspace:*`/`link:` deps to
-release URLs before `pnpm pack`), `scripts/smoke-install.sh`,
-`packages/vscode-nota/scripts/package-vsix.mjs` (esbuild-bundles client + server — the wasm reader
-JS is bundled in, its `.wasm` bytes copied next to the bundle — LSP-handshakes the bundle,
-`vsce package --no-dependencies`).
+Distribution is **npm** (`@nota-lang/*`). The ritual: file a PR titled `vX.Y.Z` labeled
+**`release`** → `pre-release.yml` dry-runs the publish (build + stamp + `pnpm -r publish
+--dry-run`) → merging triggers `release.yml`, which publishes for real (`pnpm -r publish --access
+public`, `NPM_TOKEN` secret). Version is stamped in CI from the PR title (`pnpm -r exec npm pkg
+set version=…`) — no bump commits; the in-repo versions are placeholders. `pnpm publish` rewrites
+`workspace:*` deps to the stamped version at pack time, so there are no pack/rewrite scripts.
+Publishes every non-private workspace package: the 8 `packages/*` libs + both wasm packages
+(10 total; language-server/playground/vscode-nota are private). The vsix is **not** part of the
+release pipeline for now — `packages/vscode-nota/scripts/package-vsix.mjs` still builds one
+locally (esbuild-bundles client + server with the wasm reader JS inlined and its `.wasm` bytes
+next to the bundle, LSP-handshakes it, `vsce package --no-dependencies`).
 
 ## Build method
 Packages are built in dependency order (reader → runtime/adapters → vite → cli/playground → IDE);

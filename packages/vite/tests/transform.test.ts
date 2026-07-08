@@ -10,7 +10,7 @@
  *   - a configurable extension list.
  *
  * These drive the real in-process wasm reader (via the compiler shim), so they require the
- * node-target wasm build (`oxc/napi/nota_wasm/pkg-node` — `node scripts/build-wasm.mjs node`).
+ * node-target wasm build (`oxc/napi/nota_wasm/pkg-node` — `just nota-build` in oxc/).
  */
 
 import type { Plugin } from "vite";

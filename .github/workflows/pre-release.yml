@@ -1,0 +1,61 @@
+name: Pre-release
+
+# The pre-publish gate: a PR titled `vX.Y.Z` and labeled `release` runs the release pipeline as a
+# dry run — build everything, stamp the version from the PR title, `pnpm -r publish --dry-run`.
+# Merging the PR triggers release.yml, which publishes for real.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-release:
+    name: Publish dry run
+    if: contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Version from PR title
+        id: version
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ "$TITLE" =~ ^v([0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::release PRs must be titled vX.Y.Z (got: $TITLE)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build
+        run: depot build
+
+      # Lockstep version for every workspace package (incl. the generated wasm manifests) from the
+      # PR title — no bump commits; `pnpm publish` rewrites `workspace:*` deps to this version.
+      - name: Stamp version
+        run: pnpm -r exec npm pkg set version=${{ steps.version.outputs.version }}
+
+      - name: Publish (dry run)
+        run: pnpm -r publish --dry-run --access public --no-git-checks

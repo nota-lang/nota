@@ -1,0 +1,58 @@
+name: Release
+
+# Merging a PR titled `vX.Y.Z` and labeled `release` publishes every non-private workspace package
+# to npm at that version. Same pipeline as pre-release.yml minus --dry-run; needs the NPM_TOKEN
+# secret (an automation token for the @nota-lang scope).
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Publish to npm
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Version from PR title
+        id: version
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ "$TITLE" =~ ^v([0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::release PRs must be titled vX.Y.Z (got: $TITLE)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build
+        run: depot build
+
+      - name: Stamp version
+        run: pnpm -r exec npm pkg set version=${{ steps.version.outputs.version }}
+
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -r publish --access public --no-git-checks

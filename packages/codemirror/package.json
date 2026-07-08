@@ -29,7 +29,7 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
     "@lezer/highlight": "^1.2.3",
-    "@nota-lang/wasm": "link:../../oxc/napi/nota_wasm/pkg"
+    "@nota-lang/wasm": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.9.2",

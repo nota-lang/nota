@@ -40,5 +40,6 @@
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/language-server"
-  }
+  },
+  "private": true
 }
