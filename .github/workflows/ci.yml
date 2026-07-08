@@ -14,35 +14,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install depot
-        uses: cognitive-engineering-lab/depot/actions/install@main
+      - uses: ./.github/actions/setup
 
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
-      - name: Install Just
-        uses: extractions/setup-just@v3
-
-      - name: Cache cargo build
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: oxc
-
-      - name: Build nota_wasm (web + node)
-        working-directory: oxc
-        run: |
-          rustup target add wasm32-unknown-unknown
-          node ../scripts/build-wasm.mjs
-
-      # Per-package serial runs: a whole-workspace `depot test` trips a biome 2.x root-config
-      # conflict, and parallel runs race on shared dist/. Order = dependency order — build first
-      # so downstream packages see this package's dist/, then test.
-      - name: JS tests
-        run: |
-          for pkg in runtime prelude compiler react solid vite cli codemirror language-server; do
-            echo "::group::depot build+test $pkg"
-            (cd "packages/$pkg" && depot --no-fullscreen build && depot --no-fullscreen test)
-            echo "::endgroup::"
-          done
+      - name: Run tests
+        run: depot test

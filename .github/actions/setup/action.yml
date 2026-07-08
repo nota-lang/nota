@@ -1,0 +1,28 @@
+name: Setup
+
+runs:
+  using: composite
+  steps:
+      - name: Install depot
+        uses: cognitive-engineering-lab/depot/actions/install@main
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Install Just
+        uses: extractions/setup-just@v3
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: oxc
+
+      - name: Build Nota wasm
+        working-directory: oxc
+        shell: bash
+        run: |
+          rustup target add wasm32-unknown-unknown
+          just nota-build
+
