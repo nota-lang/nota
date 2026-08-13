@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@nota-lang/runtime": "workspace:*",
-    "@nota-lang/wasm-node": "workspace:*"
+    "@nota-lang/wasm": "workspace:*"
   },
   "devDependencies": {
     "@nota-lang/react": "workspace:*"

@@ -6,22 +6,12 @@
  * test, but driving the live `RenderedPane`.
  */
 
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { cleanup, render as rtlRender } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { compileNota, ensureCompiler } from "../src/compiler";
+import { afterEach, describe, expect, it } from "vitest";
 import { GOLDEN_NOTA } from "../src/golden";
 import { RenderedPane } from "../src/RenderedPane";
 import { runSSG } from "../src/ssg";
-
-beforeAll(async () => {
-  const require = createRequire(import.meta.url);
-  const wasmPath = require
-    .resolve("@nota-lang/wasm")
-    .replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
-  await ensureCompiler(readFileSync(wasmPath));
-});
+import { compileNota } from "./util";
 
 afterEach(cleanup);
 

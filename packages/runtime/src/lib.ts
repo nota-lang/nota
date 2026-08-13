@@ -14,17 +14,17 @@
  * pointed "no adapter injected" error rather than a cryptic `undefined is not a function`.
  */
 
-export type { Adapter } from "./adapter";
+export type { Adapter } from "./adapter.js";
 // --- adapter contract (implementations in @nota-lang/{react,solid}) ---
-export { clearAdapter, getAdapter, setAdapter } from "./adapter";
+export { clearAdapter, getAdapter, setAdapter } from "./adapter.js";
 // --- component types ---
-export type { CompBody, CompFn, CompProps } from "./component";
+export type { CompBody, CompFn, CompProps } from "./component.js";
 export {
   blockComponent,
   inlineComponent,
   isComp,
   nameOf
-} from "./component";
+} from "./component.js";
 // --- doc-state: marks & queries + trailer registry ---
 export {
   clearTrailers,
@@ -39,7 +39,7 @@ export {
   type QueryLeaf,
   query,
   registerTrailer
-} from "./doc";
+} from "./doc.js";
 // --- the typed emit surface: the Nota-owned per-tag HTML attribute map ---
 export type {
   NotaAnchorAttributes,
@@ -51,20 +51,20 @@ export type {
   NotaLabelAttributes,
   NotaOlAttributes,
   NotaTableCellAttributes
-} from "./dom";
+} from "./dom.js";
 // --- the `▸` mechanism ---
-export { flag, withFlag } from "./flag";
+export { flag, withFlag } from "./flag.js";
 // --- the emitted-code surface ---
-export { decode, Fragment, h, type OmitChildren } from "./h";
+export { decode, Fragment, h, type OmitChildren } from "./h.js";
 // --- replay hydration: the client driver + capture ---
 export {
   captureRender,
   type HydrationNode,
   type HydrationRoot,
   hydrateDocument
-} from "./hydrate";
+} from "./hydrate.js";
 // --- the pre-rendered-HTML marker (adapters import isRaw to inject innerHTML) ---
-export { isRaw, type RawHtml, raw } from "./raw";
+export { isRaw, type RawHtml, raw } from "./raw.js";
 // --- the component registry (ambient-prelude slots + site-wide overrides) ---
 export {
   clearRegisteredComponents,
@@ -72,7 +72,7 @@ export {
   registerComponents,
   registeredComponent,
   slot
-} from "./registry";
+} from "./registry.js";
 // --- serialize + islands + the SSG driver ---
 export {
   beginCapture,
@@ -88,7 +88,7 @@ export {
   render,
   reset,
   serialize
-} from "./serialize";
+} from "./serialize.js";
 
 // --- the SSG machinery (struct + serialize/island/render, all implemented) ---
 export {
@@ -99,7 +99,7 @@ export {
   HOST_FLOW_TAGS,
   normalize,
   struct
-} from "./struct";
+} from "./struct.js";
 // --- vnode data model ---
 export {
   type ChildArg,
@@ -111,4 +111,4 @@ export {
   isFragment,
   type TemplateFn,
   type VNode
-} from "./vnode";
+} from "./vnode.js";

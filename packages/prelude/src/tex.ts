@@ -20,7 +20,7 @@
 import { type CompProps, h, raw } from "@nota-lang/runtime";
 import katex from "katex";
 
-import { config } from "./config";
+import { config } from "./config.js";
 
 /** Concatenate the TeX source from the span's parts; throw pointedly on a markup part. */
 function texSource(children: CompProps["children"]): string {

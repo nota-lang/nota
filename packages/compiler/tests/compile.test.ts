@@ -112,7 +112,8 @@ describe("compile (non-ASCII input — no wasm heap corruption)", () => {
       let out = "";
       // Heap corruption is layout-dependent — one call may pass, so hammer it.
       expect(() => {
-        for (let i = 0; i < 50; i++) out = compile(src, { sourcePath: "u.nota" }).code;
+        for (let i = 0; i < 50; i++)
+          out = compile(src, { sourcePath: "u.nota" }).code;
       }).not.toThrow();
       // The multibyte char must survive verbatim in the emit.
       expect(out).toContain(ch);

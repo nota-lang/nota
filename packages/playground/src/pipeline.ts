@@ -14,8 +14,9 @@
 
 // Subpath import on purpose: the package entry (`@nota-lang/vite`) pulls the compiler shim
 // (child_process — Node-only); `registry` is the pure opts → hydration-entry-source generator.
+import { RUNTIME_IMPORT } from "@nota-lang/compiler";
 import { generateClientEntry } from "@nota-lang/vite/registry";
-import { compileNota, compileNotaRaw, parseNotaAst } from "./compiler";
+import { compile, parseAst } from "@nota-lang/wasm";
 import { type DocFn, type ManifestEntry, runSSG } from "./ssg";
 
 /** The result of running the pipeline over the current editor value. */
@@ -73,10 +74,10 @@ export function runPipeline(
   let code: string;
   let full: string;
   try {
-    // `parseAst` shares the reader's parse with `compile*`, so a parse error fails all three here.
-    ast = parseNotaAst(source);
-    code = compileNotaRaw(source);
-    full = compileNota(source);
+    // `parseAst` shares the reader's parse with `compile`, so a parse error fails both here.
+    ast = parseAst(source).ast;
+    code = compile(source).code;
+    full = RUNTIME_IMPORT + code;
   } catch (err) {
     // Parse/emit error — expected while typing, so surface it in the UI but keep the console quiet.
     return { ...prev, error: errMessage(err) };

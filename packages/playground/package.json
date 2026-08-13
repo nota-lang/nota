@@ -20,6 +20,7 @@
     "@nota-lang/react": "workspace:*",
     "@nota-lang/runtime": "workspace:*",
     "@nota-lang/vite": "workspace:*",
+    "@nota-lang/compiler": "workspace:*",
     "@nota-lang/wasm": "workspace:*",
     "prettier": "^3.8.4",
     "react": "^19.2.7",

@@ -22,9 +22,9 @@
  * the same islanded override the server did.
  */
 
-import type { CompFn, CompProps } from "./component";
-import { h } from "./h";
-import type { ChildArg, TemplateFn } from "./vnode";
+import type { CompFn, CompProps } from "./component.js";
+import { h } from "./h.js";
+import type { ChildArg, TemplateFn } from "./vnode.js";
 
 /** A tag a slot can resolve to: host string, static template, or marked component. */
 export type RegisteredTag = string | CompFn | TemplateFn;

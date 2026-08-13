@@ -25,7 +25,6 @@ import {
   highlightSpans,
   languageFor
 } from "@nota-lang/codemirror";
-import init from "@nota-lang/wasm";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
 
@@ -125,14 +124,6 @@ if (args.includes("--golden")) {
   source = DEFAULT_SNIPPET;
   label = "DEFAULT_SNIPPET";
 }
-
-// Plain Node (no Vite): hand the wasm bytes straight to init — compiler.ts's `?url` route only
-// resolves through Vite, so the CLI initializes the wasm module itself.
-const wasmPath = fileURLToPath(import.meta.resolve("@nota-lang/wasm")).replace(
-  /nota_wasm\.js$/,
-  "nota_wasm_bg.wasm"
-);
-await init(readFileSync(wasmPath));
 
 const spans = highlightSpans(source); // throws with the reader's diagnostics on a parse error
 

@@ -41,7 +41,7 @@ import {
   type VNode
 } from "@nota-lang/runtime";
 
-import { config } from "./config";
+import { config } from "./config.js";
 
 // =============================================================================================
 // Shared helpers

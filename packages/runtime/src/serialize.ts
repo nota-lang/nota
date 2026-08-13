@@ -21,8 +21,8 @@
  * attribute" warning from spreading the id onto a host. The integration test asserts this form.
  */
 
-import { getAdapter } from "./adapter";
-import { type CompFn, isComp, nameOf } from "./component";
+import { getAdapter } from "./adapter.js";
+import { type CompFn, isComp, nameOf } from "./component.js";
 import {
   force,
   hasTrailers,
@@ -30,10 +30,10 @@ import {
   isMark,
   isQuery,
   runTrailers
-} from "./doc";
-import { withFlag } from "./flag";
-import { isRaw, raw } from "./raw";
-import { normalize, struct } from "./struct";
+} from "./doc.js";
+import { withFlag } from "./flag.js";
+import { isRaw, raw } from "./raw.js";
+import { normalize, struct } from "./struct.js";
 import {
   type ChildArg,
   type ElementVNode,
@@ -41,7 +41,7 @@ import {
   flatten,
   isElement,
   type VNode
-} from "./vnode";
+} from "./vnode.js";
 
 // ---------------------------------------------------------------------------------------------
 // Manifest / result types

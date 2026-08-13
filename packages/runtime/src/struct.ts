@@ -45,9 +45,9 @@
  * @see groupLists, groupParas, groupSections
  */
 
-import { isComp } from "./component";
-import { isMark, isQuery } from "./doc";
-import { isRaw } from "./raw";
+import { isComp } from "./component.js";
+import { isMark, isQuery } from "./doc.js";
+import { isRaw } from "./raw.js";
 import {
   type ChildArg,
   type ElementVNode,
@@ -57,7 +57,7 @@ import {
   isFragment,
   type TemplateFn,
   type VNode
-} from "./vnode";
+} from "./vnode.js";
 
 // ---------------------------------------------------------------------------------------------
 // Contract constants (the reader must honor these)

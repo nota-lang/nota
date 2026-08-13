@@ -14,22 +14,7 @@
  * installs need no Rust toolchain and no platform-specific binary.
  */
 
-import * as wasm from "@nota-lang/wasm-node";
-
-/**
- * The shape of the node-target wasm reader's entries this shim calls (`@nota-lang/wasm-node`'s
- * generated `.d.ts` types the payloads as `any`; this is the precise view).
- */
-interface WasmReader {
-  compile(source: string): { code: string };
-  compileVirtual(source: string): VirtualJson;
-  highlight(source: string): Uint32Array;
-  highlightKindNames(): string[];
-}
-
-/** The typed view over the wasm module (in-process and sub-ms — it serves both the build path and
- * per-keystroke semantic tokens). */
-const reader = wasm as unknown as WasmReader;
+import * as reader from "@nota-lang/wasm";
 
 /** The runtime import the reader omits — prepended onto every emit. */
 export const RUNTIME_IMPORT =

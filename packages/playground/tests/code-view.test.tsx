@@ -7,28 +7,18 @@
  * Runs headless in jsdom; CM6 still builds its content DOM, so we assert against `.cm-content`.
  */
 
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { generateClientEntry } from "@nota-lang/vite/registry";
 import { render, waitFor } from "@testing-library/react";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { CodePane } from "../src/CodePane";
 import { CodeView } from "../src/CodeView";
-import { compileNota, ensureCompiler } from "../src/compiler";
 import { GOLDEN_NOTA } from "../src/golden";
 import { htmlLanguage } from "../src/html-mode";
 import { jsLanguage } from "../src/js-mode";
 import { jsonLanguage } from "../src/json-mode";
 import { SsgPane } from "../src/SsgPane";
 import { runSSG } from "../src/ssg";
-
-beforeAll(async () => {
-  const require = createRequire(import.meta.url);
-  const wasmPath = require
-    .resolve("@nota-lang/wasm")
-    .replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
-  await ensureCompiler(readFileSync(wasmPath));
-});
+import { compileNota } from "./util";
 
 describe("language extensions build without throwing", () => {
   // The real failure mode is a mistyped `@lezer/highlight` tag — it throws when the style is defined.

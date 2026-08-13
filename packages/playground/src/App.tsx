@@ -10,12 +10,10 @@
  *   | Rendered      | the hydrated result          | the HTML booted live in an iframe      |
  */
 
-import type { Extension } from "@codemirror/state";
 import { notaHighlighting } from "@nota-lang/codemirror";
 import { useEffect, useState } from "react";
 import { AstPane } from "./AstPane";
 import { CodePane } from "./CodePane";
-import { ensureCompiler } from "./compiler";
 import { DEFAULT_SNIPPET } from "./default-snippet";
 import { Editor } from "./Editor";
 import { EMPTY, type PipelineResult, runPipeline } from "./pipeline";
@@ -25,40 +23,15 @@ import { loadSource, saveSource } from "./storage";
 
 type Tab = "ast" | "js" | "ssg" | "rendered";
 
+// The wasm reader instantiates when the module graph loads, so the reader-driven highlighting is
+// available synchronously.
+const language = notaHighlighting();
+
 export function App() {
   // Seed from the last-saved source (persisted in localStorage), falling back to the seed document.
   const [source, setSource] = useState(() => loadSource() ?? DEFAULT_SNIPPET);
   const [tab, setTab] = useState<Tab>("js");
-  const [ready, setReady] = useState(false);
   const [result, setResult] = useState<PipelineResult>(EMPTY);
-
-  // The Nota highlighting extension waits on the wasm compiler (the reader highlights the doc);
-  // until it resolves the editor shows plain text. Highlighting is best-effort — a load failure
-  // is ignored (the compile pipeline surfaces the real error). `ensureCompiler` is memoized, so
-  // this shares the load below.
-  const [language, setLanguage] = useState<Extension>([]);
-  useEffect(() => {
-    let live = true;
-    ensureCompiler().then(
-      () => live && setLanguage(notaHighlighting()),
-      () => {}
-    );
-    return () => {
-      live = false;
-    };
-  }, []);
-
-  // Load the wasm compiler once.
-  useEffect(() => {
-    let live = true;
-    ensureCompiler().then(
-      () => live && setReady(true),
-      err => live && setResult({ ...EMPTY, error: String(err?.message ?? err) })
-    );
-    return () => {
-      live = false;
-    };
-  }, []);
 
   // Persist the source to localStorage (debounced) so edits survive a refresh.
   useEffect(() => {
@@ -68,19 +41,17 @@ export function App() {
 
   // Re-run the pipeline (compile → SSG) whenever the source changes, debounced.
   useEffect(() => {
-    if (!ready) return;
     const handle = setTimeout(() => {
       setResult(prev => runPipeline(source, prev));
     }, 150);
     return () => clearTimeout(handle);
-  }, [source, ready]);
+  }, [source]);
 
   return (
     <div className="playground">
       <header className="toolbar">
         <span className="title">Nota playground</span>
         <span className="subtitle">a live pipeline visualizer</span>
-        {!ready && <span className="status">loading compiler…</span>}
       </header>
 
       <div className="columns">

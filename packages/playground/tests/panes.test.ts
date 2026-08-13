@@ -1,45 +1,33 @@
 /**
  * Output-pane parity tests: the **Generated-JS** pane equals the compiler output, and
  * the **SSG-output** pane equals `render`'s output — over the project golden (`integration/golden.nota`,
- * the Colorized island). Runs headless in jsdom: the wasm compiler is instantiated from the `.wasm`
- * **bytes** (jsdom has no `file://` `fetch`), and `render` runs in jsdom (react-dom/server is sync).
+ * the Colorized island). Runs headless in jsdom; the wasm reader instantiates at module import and
+ * `render` runs in jsdom (react-dom/server is sync).
  */
 
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { highlightSpans } from "@nota-lang/codemirror";
+import { RUNTIME_IMPORT } from "@nota-lang/compiler";
 import { compile as wasmCompile } from "@nota-lang/wasm";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import {
-  compileNota,
-  compileNotaRaw,
-  ensureCompiler,
-  parseNotaAst
-} from "../src/compiler";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
 import { EMPTY, runPipeline } from "../src/pipeline";
 import { runSSG } from "../src/ssg";
-
-beforeAll(async () => {
-  // Resolve the `.wasm` next to the pkg's JS and feed the bytes to the wasm init (Node path).
-  const require = createRequire(import.meta.url);
-  const wasmJs = require.resolve("@nota-lang/wasm");
-  const wasmPath = wasmJs.replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
-  const bytes = readFileSync(wasmPath);
-  await ensureCompiler(bytes);
-});
+import { compileNota, compileNotaRaw, parseNotaAst } from "./util";
 
 describe("Generated-JS pane", () => {
   it("equals the raw wasm compiler output", () => {
-    // The pane shows `compileNotaRaw` (no runtime import); it must be byte-identical to the backend.
-    expect(compileNotaRaw(GOLDEN_NOTA)).toBe(wasmCompile(GOLDEN_NOTA).code);
+    // The pane shows the pipeline's `code` (no runtime import); it must be byte-identical to the
+    // backend emit.
+    const result = runPipeline(GOLDEN_NOTA, EMPTY);
+    expect(result.error).toBeNull();
+    expect(result.code).toBe(wasmCompile(GOLDEN_NOTA).code);
   });
 
   it("prepends the runtime import for the SSG/iframe-fed `full` form", () => {
-    const full = compileNota(GOLDEN_NOTA);
+    const { code, full } = runPipeline(GOLDEN_NOTA, EMPTY);
     expect(full.startsWith("import { h, decode, Fragment")).toBe(true);
-    expect(full).toContain(compileNotaRaw(GOLDEN_NOTA));
+    expect(full).toBe(RUNTIME_IMPORT + code);
   });
 
   it("the component binding stays document-local; replay still hydrates", () => {
@@ -259,10 +247,7 @@ describe("pipeline: Generated-JS survives an SSG error", () => {
 });
 
 describe("@nota-lang/codemirror shares the app's wasm instance", () => {
-  it("highlightSpans works after the app-side ensureCompiler init (single nota_wasm)", () => {
-    // The package imports `highlight` from its own `nota_wasm` file: dep; the app initialized wasm
-    // via compiler.ts. Both `file:` specifiers must dedupe to ONE module instance — if they ever
-    // split, this throws "wasm not initialized" (fix: resolve.dedupe nota_wasm).
+  it("highlightSpans works alongside the app's compile path", () => {
     const spans = highlightSpans("# H\n");
     expect(spans.length).toBeGreaterThan(0);
     expect(spans.some(s => s.kind === "heading")).toBe(true);

@@ -11,6 +11,10 @@
     "packages/solid",
     "packages/compiler",
     "packages/prelude",
-    "packages/vite"
+    "packages/vite",
+    "packages/wasm",
+    "packages/wasm",
+    "packages/wasm",
+    "packages/wasm"
   ]
 }

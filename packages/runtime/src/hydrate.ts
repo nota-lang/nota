@@ -16,16 +16,16 @@
  * `innerHTML` slot-scrape.
  */
 
-import { getAdapter } from "./adapter";
-import { raw } from "./raw";
+import { getAdapter } from "./adapter.js";
+import { raw } from "./raw.js";
 import {
   beginCapture,
   type CapturedIsland,
   endCapture,
   getCaptured,
   render
-} from "./serialize";
-import type { VNode } from "./vnode";
+} from "./serialize.js";
+import type { VNode } from "./vnode.js";
 
 /** A DOM node the driver reads a hydration id from / hydrates over (real `Element` satisfies it). */
 export interface HydrationNode {

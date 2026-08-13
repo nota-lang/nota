@@ -6,21 +6,11 @@
  * a no-op on empty or un-parseable input (it falls back to the raw text rather than blanking a pane).
  */
 
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { beforeAll, describe, expect, it } from "vitest";
-import { compileNota, compileNotaRaw, ensureCompiler } from "../src/compiler";
+import { describe, expect, it } from "vitest";
 import { formatCode } from "../src/format";
 import { GOLDEN_NOTA } from "../src/golden";
 import { runSSG } from "../src/ssg";
-
-beforeAll(async () => {
-  const require = createRequire(import.meta.url);
-  const wasmPath = require
-    .resolve("@nota-lang/wasm")
-    .replace(/nota_wasm\.js$/, "nota_wasm_bg.wasm");
-  await ensureCompiler(readFileSync(wasmPath));
-});
+import { compileNota, compileNotaRaw } from "./util";
 
 describe("formatCode (babel) — Generated JS", () => {
   it("reflows the raw emit: no tabs, no pathological long lines", async () => {

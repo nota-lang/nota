@@ -24,6 +24,7 @@
  *      transport, closures over document state intact).
  */
 
+import { RUNTIME_IMPORT } from "@nota-lang/compiler";
 import * as prelude from "@nota-lang/prelude";
 import {
   Bibliography,
@@ -51,7 +52,6 @@ import * as runtime from "@nota-lang/runtime";
 import { type RenderResult, render, setAdapter } from "@nota-lang/runtime";
 import * as react from "react";
 import { useState } from "react";
-import { RUNTIME_IMPORT } from "./compiler";
 
 let adapterSet = false;
 

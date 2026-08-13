@@ -7,19 +7,19 @@
  * "no adapter injected" error via `getAdapter()`.
  */
 
-import { getAdapter } from "./adapter";
-import { isMark, isQuery } from "./doc";
-import type { NotaHostProps } from "./dom";
-import { flag } from "./flag";
-import { isRaw } from "./raw";
-import { decodeTree } from "./serialize";
+import { getAdapter } from "./adapter.js";
+import { isMark, isQuery } from "./doc.js";
+import type { NotaHostProps } from "./dom.js";
+import { flag } from "./flag.js";
+import { isRaw } from "./raw.js";
+import { decodeTree } from "./serialize.js";
 import {
   type ChildArg,
   type ElementVNode,
   FRAG,
   flatten,
   type VNode
-} from "./vnode";
+} from "./vnode.js";
 
 /**
  * Remove `children` from a component/slot's prop type for the `h(tag, props, …)` call site — the

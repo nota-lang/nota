@@ -27,9 +27,9 @@
 
 import { h, query, registerTrailer, slot } from "@nota-lang/runtime";
 
-import { DefaultCodeBlock, DefaultCodeInline } from "./code";
-import { FootnotesList } from "./doc";
-import { DefaultTex } from "./tex";
+import { DefaultCodeBlock, DefaultCodeInline } from "./code.js";
+import { FootnotesList } from "./doc.js";
+import { DefaultTex } from "./tex.js";
 
 // --- the ambient bindings (registry slots over the shipped defaults) ---
 export const Tex = slot("Tex", DefaultTex);
@@ -42,7 +42,7 @@ export {
   registerComponents
 } from "@nota-lang/runtime";
 // --- the shipped defaults (exported for composition/wrapping in user overrides) ---
-export { DefaultCodeBlock, DefaultCodeInline } from "./code";
+export { DefaultCodeBlock, DefaultCodeInline } from "./code.js";
 
 // --- configuration (doc-global, last-write-wins, reset per render) ---
 export {
@@ -57,7 +57,7 @@ export {
   resetConfigForTest,
   type SecsetOptions,
   secset
-} from "./config";
+} from "./config.js";
 // --- doc-state constructs: slots + shipped defaults + helpers ---
 export {
   Bibliography,
@@ -84,8 +84,8 @@ export {
   Ref,
   Toc,
   textContent
-} from "./doc";
-export { DefaultTex } from "./tex";
+} from "./doc.js";
+export { DefaultTex } from "./tex.js";
 
 // --- The footnotes trailer: auto-append the footnote list at document end (unless @Footnotes places it). The
 //     trailer calls the `FootnotesList` *slot*, so a site override reaches this path too. ---

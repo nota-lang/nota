@@ -5,9 +5,8 @@
  * (embedded-langs.ts), and both layers color through one Catppuccin-Latte `HighlightStyle`
  * (highlight-style.ts).
  *
- * The package assumes `nota_wasm` is **initialized by the consumer** (`init(url)` under a bundler,
- * `init(bytes)` elsewhere) before {@link notaHighlighting} is installed — wasm loading is app
- * policy (URL resolution, bundler wiring), not language support.
+ * The wasm reader (`@nota-lang/wasm`) instantiates when the module graph loads — no init step;
+ * {@link notaHighlighting} is usable as soon as the import resolves.
  */
 
 export {

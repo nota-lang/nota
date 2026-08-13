@@ -35,9 +35,9 @@
  * only inside a function body (never at module-init), so ESM live bindings resolve them safely.
  */
 
-import { flag } from "./flag";
-import { isRaw } from "./raw";
-import { normalize } from "./struct";
+import { flag } from "./flag.js";
+import { isRaw } from "./raw.js";
+import { normalize } from "./struct.js";
 import {
   type ChildArg,
   type ElementVNode,
@@ -45,7 +45,7 @@ import {
   flatten,
   isElement,
   type VNode
-} from "./vnode";
+} from "./vnode.js";
 
 // ---------------------------------------------------------------------------------------------
 // The two opaque leaves (RawHtml-style: private symbol brand + guard)

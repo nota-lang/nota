@@ -4,9 +4,6 @@
  * returns classified `[start, end, kind]` span triples, and a small `ViewPlugin` paints each as a
  * `Decoration.mark` with a `cm-nota-<kind>` class themed on the Catppuccin-Latte palette below.
  *
- * The consumer owns loading: initialize `nota_wasm` (`init(url)` in a bundler app, `init(bytes)`
- * elsewhere — e.g. the playground's `ensureCompiler`) before installing {@link notaHighlighting}.
- *
  * This replaced the TextMate-grammar-through-Shiki bridge: the grammar is regex-only and cannot
  * track Nota's context-sensitivity or markup⇄JS mutual nesting, so a markup-valued prop
  * (`@figure[cap: @em{…}]`) or a stray `[` in prose derailed highlighting for the rest of the

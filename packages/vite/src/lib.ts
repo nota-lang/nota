@@ -21,7 +21,7 @@ import type { Plugin } from "vite";
 export {
   type ClientEntryOptions,
   generateClientEntry
-} from "./registry";
+} from "./registry.js";
 
 /** Options for the {@link nota} plugin. */
 export interface NotaPluginOptions {

@@ -7,8 +7,8 @@
  * a paragraph run; a block component flushes it).
  */
 
-import { withFlag } from "./flag";
-import type { VNode } from "./vnode";
+import { withFlag } from "./flag.js";
+import type { VNode } from "./vnode.js";
 
 /** Props handed to a component: its decoded static `children` plus authored props. */
 export interface CompProps {

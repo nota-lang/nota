@@ -11,9 +11,9 @@
  * rather than invoking `Colorized`. The `struct`/`serialize` passes consume this model.
  */
 
-import type { CompFn, CompProps } from "./component";
-import { isMark, isQuery, type MarkLeaf, type QueryLeaf } from "./doc";
-import { isRaw, type RawHtml } from "./raw";
+import type { CompFn, CompProps } from "./component.js";
+import { isMark, isQuery, type MarkLeaf, type QueryLeaf } from "./doc.js";
+import { isRaw, type RawHtml } from "./raw.js";
 
 /**
  * A **plain function tag**: a static template. `struct` expands it eagerly —

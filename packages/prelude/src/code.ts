@@ -49,7 +49,7 @@ import typescript from "shiki/langs/typescript.mjs";
 import githubDark from "shiki/themes/github-dark.mjs";
 import githubLight from "shiki/themes/github-light.mjs";
 
-import { config } from "./config";
+import { config } from "./config.js";
 
 // ---------------------------------------------------------------------------------------------
 // The sync highlighter (curated grammars + lstset extensions; memoized on the registration set)

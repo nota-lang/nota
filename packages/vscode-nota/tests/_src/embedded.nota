@@ -1,9 +1,0 @@
-% const total = items.length
-%%%
-const n = items.length;
-%%%
-@if (count > 0) {a} else if (x < 1) {b} else {c}
-@for (item of items) {@li{@item}}
-@code|{ raw @foo{x} }|
-Inline `code @x here` done.
-Math $a_@i$ and $$\sum_@n$$ end.

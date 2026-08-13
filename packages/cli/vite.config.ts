@@ -3,6 +3,7 @@ import { builtinModules } from "node:module";
 import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import wasm from "vite-plugin-wasm";
 
 /**
  * `@nota-lang/cli` config — the depot `script` bundle (`src/main.ts` → `dist/cli.cjs`) plus two
@@ -42,7 +43,7 @@ export default defineConfig(({ mode }) => ({
       //   - `vite` — ESM-only with native rolldown bindings; `build.ts` dynamic-imports it at build
       //     time (never at CLI startup), and it must not be inlined into the CJS bundle;
       //   - `@nota-lang/compiler` — a single file (no extensionless imports, so Node ESM loads it)
-      //     whose `@nota-lang/wasm-node` import must resolve from the compiler's own node_modules;
+      //     whose `@nota-lang/wasm` import must resolve from the compiler's own node_modules;
       //     bundling would inline the wasm shim and rebase its `__dirname`-relative `.wasm` load
       //     onto `cli.cjs`'s dir, where the bytes don't live.
       // (The inner vite builds still resolve `react`/`@nota-lang/*` from this package's `node_modules`
@@ -61,6 +62,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     projects: [
       {
+        plugins: [wasm()],
         resolve: { conditions: ["node"] },
         ssr: { resolve: { conditions: ["node"] } },
         test: {
@@ -73,7 +75,7 @@ export default defineConfig(({ mode }) => ({
         }
       },
       {
-        plugins: [react()],
+        plugins: [react(), wasm()],
         resolve: { conditions: ["browser", "development"] },
         ssr: { resolve: { conditions: ["browser", "development"] } },
         test: {
