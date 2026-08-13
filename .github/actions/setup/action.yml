@@ -9,7 +9,7 @@ runs:
       - name: Install wasm-pack
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-pack
+          tool: wasm-bindgen@0.2.126
 
       - name: Install Just
         uses: extractions/setup-just@v3
@@ -25,4 +25,3 @@ runs:
         run: |
           rustup target add wasm32-unknown-unknown
           just nota-build
-
