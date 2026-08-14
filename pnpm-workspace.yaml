@@ -1,10 +1,7 @@
 packages:
   - 'packages/*'
-  - 'oxc/napi/nota_wasm/pkg'
-  - 'oxc/napi/nota_wasm/pkg-node'
 
 allowBuilds:
-  '@vscode/vsce-sign': true
   esbuild: true
   keytar: true
 
