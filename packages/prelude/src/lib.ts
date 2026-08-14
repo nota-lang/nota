@@ -86,6 +86,7 @@ export {
   DefaultHeading,
   DefaultLabel,
   DefaultRef,
+  DefaultTitle,
   DefaultToc,
   Footnote,
   FootnoteMark,
@@ -95,6 +96,7 @@ export {
   Heading,
   Label,
   Ref,
+  Title,
   Toc,
   textContent
 } from "./doc.js";

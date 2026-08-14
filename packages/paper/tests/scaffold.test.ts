@@ -47,7 +47,7 @@ afterEach(() => {
 describe("front matter", () => {
   test("Title is a raw, classed h1 (unnumbered, un-TOC'd)", () => {
     const out = doc(frag([el(Title, ["My Paper"], {})]));
-    expect(out).toContain('<h1 class="nota-doc-title">My Paper</h1>');
+    expect(out).toContain('<h1 class="nota-title">My Paper</h1>');
     expect(out).not.toContain("nota-secnum");
   });
 

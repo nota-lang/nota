@@ -87,7 +87,7 @@ const MODULE_DIR =
  * `Math.floor` in embedded JS.)
  */
 export const AMBIENT_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
-export { Tex, CodeInline, CodeBlock, Heading, Toc, Label, Ref, Definition, Footnote, FootnoteMark, FootnoteText, Footnotes, FootnotesList, Cite, Bibliography, lstset, mathset, secset, bibset, texRef, registerComponents } from "@nota-lang/prelude";
+export { Tex, CodeInline, CodeBlock, Heading, Title, Toc, Label, Ref, Definition, Footnote, FootnoteMark, FootnoteText, Footnotes, FootnotesList, Cite, Bibliography, lstset, mathset, secset, bibset, texRef, registerComponents } from "@nota-lang/prelude";
 `;
 
 /**

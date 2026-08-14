@@ -47,6 +47,7 @@ import {
   secset,
   Tex,
   texRef,
+  Title,
   Toc
 } from "@nota-lang/prelude";
 import adapter from "@nota-lang/react";
@@ -86,6 +87,7 @@ const AMBIENT_PRELUDE = {
   CodeInline,
   CodeBlock,
   Heading,
+  Title,
   Toc,
   Label,
   Ref,
@@ -126,17 +128,19 @@ const MODULE_MAP: Record<string, Record<string, unknown>> = {
  */
 function resolveImports(body: string, scope: Map<string, unknown>): string {
   // `^import` at a line start (the reader hoists imports to module scope); the clause may span
-  // lines, ending at the first `from "spec"` (or the bare side-effect form).
+  // lines, ending at the first `from "spec"`. The bare (side-effect) form is tried FIRST: the
+  // from-clause alternative's lazy `[\s\S]*?` would otherwise scan across statement boundaries
+  // and swallow a following import's clause (`import "./x.css";⏎import { y } from "z"`).
   const importRe =
-    /^import\s+(type\s+)?([\s\S]*?)\s*from\s*["']([^"']+)["'][ \t]*;?|^import\s*["']([^"']+)["'][ \t]*;?/gm;
+    /^import\s*["']([^"']+)["'][ \t]*;?|^import\s+(type\s+)?([\s\S]*?)\s*from\s*["']([^"']+)["'][ \t]*;?/gm;
   return body.replace(
     importRe,
     (
       _m,
+      bareSpec: string | undefined,
       typeOnly: string | undefined,
       clause = "",
-      spec?: string,
-      bareSpec?: string
+      spec?: string
     ) => {
       if (typeOnly) {
         return ""; // type-only: no runtime binding

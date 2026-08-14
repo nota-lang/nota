@@ -231,6 +231,19 @@ export function DefaultHeading(props: CompProps): unknown {
 /** The ambient `Heading` slot (R18f). */
 export const Heading = slot("Heading", DefaultHeading);
 
+/**
+ * The default `Title`: the document title — an `<h1 class="nota-title">`, deliberately **not** a
+ * heading mark (no number, no TOC entry, no section nesting; the packaged form of the raw-`@h1`
+ * escape hatch). Section headings start at `#` (rank 1) below it, mirroring `\title` +
+ * `\section`.
+ */
+export function DefaultTitle(props: CompProps): unknown {
+  return h("h1", { class: "nota-title" }, normChildren(props.children));
+}
+
+/** The ambient `Title` slot. */
+export const Title = slot("Title", DefaultTitle);
+
 // =============================================================================================
 // Toc (R18e)
 // =============================================================================================

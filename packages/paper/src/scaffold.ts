@@ -9,8 +9,8 @@
  * tooltip showing the figure itself. `Caption` finds its nearest *preceding* figure mark by `pos`
  * and prefixes "Figure N: "; a caption with no preceding figure renders unlabeled.
  *
- * `Title` is a **raw** `h1` (not the `Heading` slot): unnumbered and absent from the TOC — the
- * paper-title analogue of `\section*`.
+ * `Title` is the prelude's ambient slot (a raw `h1.nota-title`, not the `Heading` slot):
+ * unnumbered and absent from the TOC — the paper-title analogue of `\section*`.
  */
 
 import { counters, type DefinitionData } from "@nota-lang/prelude";
@@ -25,9 +25,7 @@ import {
 } from "@nota-lang/runtime";
 
 /** The paper title: a raw, unnumbered, un-TOC'd `h1`. */
-export function Title(props: CompProps): unknown {
-  return h("h1", { class: "nota-doc-title" }, props.children);
-}
+export { Title } from "@nota-lang/prelude";
 
 /** The author block container (a flex row of `Author`s). */
 export function Authors(props: CompProps): unknown {

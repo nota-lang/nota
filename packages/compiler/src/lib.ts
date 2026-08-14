@@ -47,6 +47,7 @@ export const AMBIENT_PRELUDE_NAMES = [
   "CodeInline",
   "CodeBlock",
   "Heading",
+  "Title",
   "Toc",
   "Label",
   "Ref",

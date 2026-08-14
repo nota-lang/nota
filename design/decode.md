@@ -502,9 +502,9 @@ text-less armed part → plain fallback for the span + build warning).
 referenced names from its `preludeModule`; the CLI points that at a virtual module re-exporting
 React's hooks + the prelude, adding the hook names via the plugin's `extraAmbientNames` option;
 the language server and playground each maintain the same ambient-name set). The ambient set is
-the whole prelude surface: the slots `Tex CodeInline CodeBlock Heading Toc Label Ref Definition
-Footnote FootnoteMark FootnoteText Footnotes FootnotesList Cite Bibliography` and the config fns
-`lstset mathset secset bibset texRef`. The reader does **not** emit the `@nota-lang/runtime` import either — the
+the whole prelude surface: the slots `Tex CodeInline CodeBlock Heading Title Toc Label Ref
+Definition Footnote FootnoteMark FootnoteText Footnotes FootnotesList Cite Bibliography` and the
+config fns `lstset mathset secset bibset texRef`. The reader does **not** emit the `@nota-lang/runtime` import either — the
 compiler shim/integrator prepends it.
 
 ## SSG integration — mechanism, not policy
