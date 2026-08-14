@@ -1,0 +1,42 @@
+{
+  "name": "@nota-lang/react-router",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/react": "workspace:*",
+    "@nota-lang/runtime": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.7",
+    "react-router": ">=7"
+  },
+  "devDependencies": {
+    "@nota-lang/prelude": "workspace:*",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router": "^8.3.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/react-router"
+  }
+}
