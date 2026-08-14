@@ -3,9 +3,18 @@
  *
  * The reader lives in the Rust fork (`oxc::nota::compile`); this package is the JS-side glue that
  * makes its output usable from Node. {@link compile} takes a `.nota` source string and returns the
- * emitted JS module (plus, eventually, a sourcemap), with the `@nota-lang/runtime` import the reader
- * deliberately omits **prepended**. The reader does not emit the `@nota-lang/runtime` import — the
- * compiler shim (or integrator) prepends it.
+ * emitted JS module (plus, eventually, a sourcemap), with the imports the reader deliberately
+ * omits **prepended**:
+ *
+ * 1. the `@nota-lang/runtime` import ({@link RUNTIME_IMPORT}), always; and
+ * 2. an **ambient prelude** import binding the prelude names the module references *free* —
+ *    the reader reports the emit's free names ({@link CompileResult.freeNames}, from real scope
+ *    analysis), and the shim binds the intersection with {@link AMBIENT_PRELUDE_NAMES} (plus any
+ *    integrator {@link PreludeOptions.extraNames}) to {@link PreludeOptions.module}. A name the
+ *    document binds itself (`%import { Tex } from …`) is not free, so the user's binding wins.
+ *
+ * The reader stays mechanism (which names are free); which module supplies them is policy and
+ * lives here, under the integrator's control (`prelude: false` disables the injection).
  *
  * The backend is the node-target wasm reader, `@nota-lang/wasm-node` (`wasm-pack build --target
  * nodejs`; the workspace dep on the repo's `oxc/napi/nota_wasm/pkg-node` in development, an npm
@@ -20,6 +29,55 @@ import * as reader from "@nota-lang/wasm";
 export const RUNTIME_IMPORT =
   'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";\n';
 
+/**
+ * The ambient prelude surface (design/decode.md §The registry & config) — the names the reader's
+ * emit may reference free without the document binding them:
+ *
+ * - the **component slots**: `Tex`/`CodeInline`/`CodeBlock` (math/code), `Heading` (`#` sugar), and
+ *   the doc-state family (`<x>`/`&x`/`[^x]`/`[^x]:` sugar lowers to `h(Label|Ref|…)`);
+ * - the **config fns** (doc-global, last-write-wins, reset per render): `lstset`/`mathset`/
+ *   `secset`/`bibset`, surfacing as bare calls in embedded JS (`% secset({ … })`).
+ *
+ * {@link compile} binds whichever of these the emit references free (per the reader's scope
+ * analysis) to the configured prelude module. One flat list: with real free-name metadata the old
+ * tag-vs-call textual distinction is moot.
+ */
+export const AMBIENT_PRELUDE_NAMES = [
+  "Tex",
+  "CodeInline",
+  "CodeBlock",
+  "Heading",
+  "Toc",
+  "Label",
+  "Ref",
+  "Footnote",
+  "FootnoteMark",
+  "FootnoteText",
+  "Footnotes",
+  "FootnotesList",
+  "Cite",
+  "Bibliography",
+  "lstset",
+  "mathset",
+  "secset",
+  "bibset"
+] as const;
+
+/** The ambient-prelude injection policy ({@link CompileOptions.prelude}). */
+export interface PreludeOptions {
+  /**
+   * Module the ambient prelude bindings are imported from. Default `"@nota-lang/prelude"`.
+   */
+  module?: string;
+  /**
+   * Extra ambient names beyond {@link AMBIENT_PRELUDE_NAMES} that {@link PreludeOptions.module}
+   * supplies — e.g. the CLI passes the React hooks (`useState`, …) + `registerComponents`, pointing
+   * `module` at a re-exporting shim. Every listed name must be an export of that module. Default
+   * `[]`.
+   */
+  extraNames?: string[];
+}
+
 /** Options for {@link compile}. */
 export interface CompileOptions {
   /**
@@ -27,6 +85,12 @@ export interface CompileOptions {
    * any future sourcemap. Does **not** need to exist on disk.
    */
   sourcePath?: string;
+  /**
+   * Ambient-prelude injection policy: `false` disables the injection entirely (the integrator
+   * supplies the ambient names another way — e.g. the playground evaluates the emit inside a scope
+   * object). Default: inject from `"@nota-lang/prelude"`.
+   */
+  prelude?: PreludeOptions | false;
 }
 
 /**
@@ -47,21 +111,55 @@ export interface SourceMapV3 {
 
 /** The result of {@link compile}: the emitted JS module and (when available) its sourcemap. */
 export interface CompileResult {
-  /** The emitted JS module, with the {@link RUNTIME_IMPORT} prepended. */
+  /**
+   * The emitted JS module, with the {@link RUNTIME_IMPORT} (and, unless disabled, the ambient
+   * prelude import) prepended.
+   */
   code: string;
+  /**
+   * The emit's **free names** (root-unresolved, value-position identifiers of the bare module,
+   * sorted), straight from the reader's scope analysis. Always includes the runtime surface
+   * (`h`/`decode`/…, bound by the prepended import); the rest is the ambient-prelude surface plus
+   * any genuinely unbound user references — useful for diagnostics ("unbound name …").
+   */
+  freeNames: string[];
   /** A {@link SourceMapV3}, when the backend produces one (the reader does not yet — see notes). */
   map?: SourceMapV3;
 }
 
 /**
+ * The ambient prelude import for `freeNames` under `prelude`, or `""` when nothing needs binding.
+ * A name is bound iff the emit references it free **and** it belongs to the ambient surface
+ * (built-ins + `extraNames`); dedup/shadowing is the reader's scope analysis, not textual guesses.
+ */
+function preludeImport(
+  freeNames: string[],
+  prelude: PreludeOptions | false | undefined
+): string {
+  if (prelude === false) {
+    return "";
+  }
+  const module = prelude?.module ?? "@nota-lang/prelude";
+  const ambient = new Set<string>([
+    ...AMBIENT_PRELUDE_NAMES,
+    ...(prelude?.extraNames ?? [])
+  ]);
+  const needed = freeNames.filter(name => ambient.has(name));
+  return needed.length > 0
+    ? `import { ${needed.join(", ")} } from ${JSON.stringify(module)};\n`
+    : "";
+}
+
+/**
  * Compile a `.nota` source string to an emitted JS module.
  *
- * Runs the in-process wasm reader. The {@link RUNTIME_IMPORT} is prepended to the result. A reader
- * diagnostic is surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
+ * Runs the in-process wasm reader. The {@link RUNTIME_IMPORT} is prepended to the result, followed
+ * by the ambient prelude import for the free names the emit references (see {@link CompileOptions.prelude}).
+ * A reader diagnostic is surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
- * @returns the {@link CompileResult} (`{ code, map? }`)
+ * @returns the {@link CompileResult} (`{ code, freeNames, map? }`)
  * @throws if the reader reports a diagnostic — the error message carries the diagnostic text.
  */
 export function compile(
@@ -69,20 +167,31 @@ export function compile(
   opts: CompileOptions = {}
 ): CompileResult {
   let emitted: string;
+  let freeNames: string[];
   try {
-    emitted = reader.compile(source).code;
+    ({ code: emitted, freeNames } = reader.compile(source));
   } catch (err) {
     throw toCompileError(err, opts.sourcePath);
   }
+  if (!Array.isArray(freeNames)) {
+    // A wasm build predating free-name metadata would silently skip the prelude injection — the
+    // classic stale-artifact trap. Fail loudly instead (cf. validateVirtual).
+    const where = opts.sourcePath ? ` (${opts.sourcePath})` : "";
+    throw new Error(
+      `nota: reader emit missing \`freeNames\` — stale @nota-lang/wasm build?${where}`
+    );
+  }
 
-  // Prepend the runtime import the reader omits.
-  const code = RUNTIME_IMPORT + emitted;
+  // Prepend the imports the reader omits: the runtime surface, then the ambient prelude bindings.
+  const code =
+    RUNTIME_IMPORT + preludeImport(freeNames, opts.prelude) + emitted;
 
   // The reader does not surface a sourcemap yet; structured CodeMappings + a flat v3 map are a
-  // forthcoming reader upgrade. Once present, parse + return them here. The prepended import
-  // shifts generated offsets by one leading line, which a real map must account for (trivial to
-  // offset). Kept undefined until the backend emits it.
-  return { code, map: undefined };
+  // forthcoming reader upgrade. Once present, parse + return them here. The prepended preamble
+  // shifts generated offsets by its line count, which a real map must account for (trivial to
+  // offset, and localized here — the one place that prepends). Kept undefined until the backend
+  // emits it.
+  return { code, freeNames, map: undefined };
 }
 
 // ===================================================================================================

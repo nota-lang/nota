@@ -86,12 +86,13 @@ describe("transform: .nota id → JS + sourcemap shape", () => {
 describe("transform: ambient prelude injection", () => {
   const asResult = (r: unknown) => r as { code: string } | null;
 
-  test("free Tex/CodeInline references get a prelude import prepended", async () => {
+  test("free Tex/CodeInline references get a prelude import (after the runtime import)", async () => {
     const result = asResult(
       await runTransform(nota(), "Math $x^2$ and `f(x)`\n", "/d.nota")
     );
+    // Sorted free-name order, on the line after the runtime import.
     expect(result?.code).toMatch(
-      /^import \{ Tex, CodeInline \} from "@nota-lang\/prelude";\n/
+      /runtime";\nimport \{ CodeInline, Tex \} from "@nota-lang\/prelude";\n/
     );
   });
 
@@ -127,9 +128,7 @@ describe("transform: ambient prelude injection", () => {
         "/d.nota"
       )
     );
-    expect(custom?.code).toMatch(
-      /^import \{ Tex \} from "\/my\/prelude.ts";\n/
-    );
+    expect(custom?.code).toMatch(/import \{ Tex \} from "\/my\/prelude.ts";\n/);
   });
 });
 
@@ -148,9 +147,9 @@ describe("transform: extraAmbientNames (integrator-supplied ambient calls)", () 
       )
     );
     // One import line: the built-in slot (Tex) and the extra (useState) from the same module;
-    // registerComponents is never called in this doc, so it is not injected.
+    // registerComponents is never referenced in this doc, so it is not injected.
     expect(result?.code).toMatch(
-      /^import \{ Tex, useState \} from "virtual:nota-ambient";\n/
+      /import \{ Tex, useState \} from "virtual:nota-ambient";\n/
     );
   });
 

@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Build
-        run: depot build
+        run: depot build --release
 
       # Lockstep version for every workspace package (incl. the generated wasm manifests) from the
       # PR title — no bump commits; `pnpm publish` rewrites `workspace:*` deps to this version.
@@ -38,4 +38,4 @@ jobs:
         run: pnpm -r exec npm pkg set version=${{ steps.version.outputs.version }}
 
       - name: Publish (dry run)
-        run: pnpm -r publish --dry-run --access public --no-git-checks
+        run: pnpm publish --recursive --dry-run --access public --no-git-checks

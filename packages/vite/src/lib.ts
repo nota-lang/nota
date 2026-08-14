@@ -8,9 +8,11 @@
  * The decode/SSG/islands machinery is *not* here (the plugin is mechanism, not policy); rendering is
  * the integrator's job via `@nota-lang/runtime`'s `render`/`hydrateDocument`.
  *
- * The actual `.nota → JS` work is delegated to `@nota-lang/compiler` (`compile`), which spawns the
- * oxc reader and prepends the `@nota-lang/runtime` import. This plugin is the thin Vite adapter
- * around it.
+ * The actual `.nota → JS` work is delegated to `@nota-lang/compiler` (`compile`), which runs the
+ * oxc reader and prepends the `@nota-lang/runtime` import plus the ambient-prelude import for the
+ * emit's free names. This plugin is the thin Vite adapter around it: extension filtering, option
+ * forwarding (`preludeModule`/`extraAmbientNames` → the compiler's `prelude`), and the
+ * fallback-only `resolveId`.
  */
 
 import { createRequire } from "node:module";
@@ -33,103 +35,25 @@ export interface NotaPluginOptions {
   extensions?: string[];
   /**
    * Module the ambient prelude bindings are imported from when the compiled module references them
-   * free — the whole ambient prelude surface (design/decode.md §The registry & config): the
-   * component slots (`Tex`/`CodeInline`/`CodeBlock`; `Heading` from `#` sugar; and the
-   * `Label`/`Ref`/footnote/`Cite`/… family from the doc-state sugar) plus the config fns
-   * `lstset`/`mathset`/`secset`/`bibset`. Default
-   * `"@nota-lang/prelude"`; `false` disables the injection (the integrator supplies the ambient names
-   * another way).
+   * free — the whole ambient prelude surface (`AMBIENT_PRELUDE_NAMES` in `@nota-lang/compiler`,
+   * which owns the injection; the plugin only forwards this as the compiler's `prelude.module`).
+   * Default `"@nota-lang/prelude"`; `false` disables the injection (the integrator supplies the
+   * ambient names another way).
    */
   preludeModule?: string | false;
   /**
-   * Extra ambient names injected beyond the built-in prelude surface — names the reader emits as
-   * free *calls* (`name(…)`, the config-fn shape) that the integrator's {@link preludeModule}
-   * supplies. The CLI passes the React hooks (`useState`, …) + `registerComponents` here, pointing
-   * `preludeModule` at a module that re-exports them; every listed name must be an export of that
-   * module. Ignored when `preludeModule` is `false`. Default `[]` (behavior unchanged).
+   * Extra ambient names injected beyond the built-in prelude surface — free names the integrator's
+   * {@link preludeModule} supplies. The CLI passes the React hooks (`useState`, …) +
+   * `registerComponents` here, pointing `preludeModule` at a module that re-exports them; every
+   * listed name must be an export of that module. Forwarded as the compiler's `prelude.extraNames`.
+   * Ignored when `preludeModule` is `false`. Default `[]`.
    */
   extraAmbientNames?: string[];
 }
 
 /**
- * The ambient *component* names the reader emits free ("the prelude should be a prelude"): the
- * math/code registry slots (`Tex`/`CodeInline`/`CodeBlock`), `Heading` from `#` sugar, and the
- * doc-state family `Toc`/`Label`/`Ref`/`Footnote`/`FootnoteMark`/`FootnoteText`/`Footnotes`/
- * `FootnotesList`/`Cite`/`Bibliography` (the `<x>`/`&x`/`[^x]`/`[^x]:` doc-state sugar lowers to
- * `h(Label|Ref|FootnoteMark|FootnoteText, …)`). Each is injected iff the emit references it as an
- * `h(<name>, …)` tag.
- */
-const AMBIENT_PRELUDE_NAMES = [
-  "Tex",
-  "CodeInline",
-  "CodeBlock",
-  "Heading",
-  "Toc",
-  "Label",
-  "Ref",
-  "Footnote",
-  "FootnoteMark",
-  "FootnoteText",
-  "Footnotes",
-  "FootnotesList",
-  "Cite",
-  "Bibliography"
-] as const;
-
-/**
- * The ambient *config* fns (doc-global config, last-write-wins, reset per render — design/decode.md
- * §The registry & config): `lstset`/`mathset`/`secset`/`bibset`. Unlike
- * the component slots these are never `h(…)` tags — they surface as bare calls in embedded JS
- * (`% secset({ numbering: "1.1" })`), so each is injected iff the emit *calls* it (`secset(`) and
- * does not bind it itself.
- */
-const AMBIENT_CONFIG_NAMES = ["lstset", "mathset", "secset", "bibset"] as const;
-
-/** Textual bound check: does the reader-controlled module shape bind `name` (import/decl)? */
-function isBound(code: string, name: string): boolean {
-  return new RegExp(
-    `^import\\b[^\\n]*\\b${name}\\b[^\\n]*\\bfrom\\b|^(?:export\\s+)?(?:const|let|var|function)\\s+${name}\\b`,
-    "m"
-  ).test(code);
-}
-
-/**
- * Prepend an import binding the ambient prelude names the compiled module references *free*.
- *
- * A name is injected iff (a) it is referenced in the reader's emit shape — component slots as an
- * `h(Tex, …)` tag, config fns and the integrator's `extraNames` as a bare `secset(` call — and (b)
- * the module does not bind it itself (a `%import { Tex } from …` lexically overrides the ambient
- * binding, and a second import would be a duplicate-binding SyntaxError). The check is textual over
- * the reader-controlled module shape (top-level `import`/`const`/`let`/`function` lines); if the
- * compiler ever exposes its free-ambient-names metadata, swap this for it.
- */
-function injectAmbientPrelude(
-  code: string,
-  preludeModule: string,
-  extraNames: readonly string[] = []
-): string {
-  const needed = [
-    // Set-dedupe: an extra name colliding with a built-in must not import twice (SyntaxError).
-    ...new Set([
-      ...AMBIENT_PRELUDE_NAMES.filter(
-        name =>
-          new RegExp(`\\bh\\(${name}\\b`).test(code) && !isBound(code, name)
-      ),
-      ...[...AMBIENT_CONFIG_NAMES, ...extraNames].filter(
-        name =>
-          new RegExp(`\\b${name}\\s*\\(`).test(code) && !isBound(code, name)
-      )
-    ])
-  ];
-  if (needed.length === 0) {
-    return code;
-  }
-  return `import { ${needed.join(", ")} } from ${JSON.stringify(preludeModule)};\n${code}`;
-}
-
-/**
- * The modules the plugin's own emit imports — the prepended `@nota-lang/runtime` line and the
- * default {@link injectAmbientPrelude} module. {@link nota}'s `resolveId` falls back to *this
+ * The modules the plugin's own emit imports — the compiler-prepended `@nota-lang/runtime` line and
+ * the default ambient-prelude module. {@link nota}'s `resolveId` falls back to *this
  * package's* copies for exactly these, so a project that installed only `@nota-lang/vite` still
  * resolves them (under pnpm's strict layout a transitive dep is not importable from user code).
  */
@@ -166,8 +90,14 @@ const EMIT_IMPORT_FALLBACKS = ["@nota-lang/runtime", "@nota-lang/prelude"];
  */
 export function nota(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? [".nota"];
-  const preludeModule = options.preludeModule ?? "@nota-lang/prelude";
-  const extraAmbientNames = options.extraAmbientNames ?? [];
+  // The compiler owns the injection; the plugin just translates its options to the shim's shape.
+  const prelude =
+    options.preludeModule === false
+      ? (false as const)
+      : {
+          module: options.preludeModule ?? "@nota-lang/prelude",
+          extraNames: options.extraAmbientNames ?? []
+        };
 
   /** Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`? */
   function claims(id: string): boolean {
@@ -200,16 +130,11 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
         // Not ours — passthrough so the next plugin (or Vite core) handles it.
         return null;
       }
-      // Delegate to the compiler shim: spawns the oxc reader and prepends the runtime import.
+      // Delegate to the compiler shim: runs the wasm reader and prepends the runtime import plus
+      // the ambient prelude import for the emit's free names (real scope analysis, not regexes).
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
-      const { code: out, map } = compile(code, { sourcePath: id });
-      // Bind any free ambient prelude names — before the map exists, a prepended line is
-      // safe; once the compiler emits a v3 map this must shift it (or move into the compiler).
-      const withPrelude =
-        preludeModule === false
-          ? out
-          : injectAmbientPrelude(out, preludeModule, extraAmbientNames);
-      return { code: withPrelude, map };
+      const { code: out, map } = compile(code, { sourcePath: id, prelude });
+      return { code: out, map };
     }
   };
 }

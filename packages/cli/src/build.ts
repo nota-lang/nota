@@ -33,8 +33,9 @@
  * ## The ambient prelude
  *
  * The reader emits `useState` and the whole prelude surface as **free identifiers** ("the prelude
- * should be a prelude"). The transform plugin binds the free names by prepending one import from
- * its `preludeModule`; the CLI points that at {@link AMBIENT_ID}, a virtual module re-exporting
+ * should be a prelude") and reports them as free-name metadata; the compiler shim binds them by
+ * prepending one import from the plugin's `preludeModule`. The CLI points that at
+ * {@link AMBIENT_ID}, a virtual module re-exporting
  * React's hooks + the `@nota-lang/prelude` surface ({@link AMBIENT_SOURCE}), and passes the hook
  * names via the plugin's `extraAmbientNames` (they are not part of the built-in prelude lists —
  * which framework supplies hooks is integrator policy).
@@ -89,10 +90,10 @@ export { Tex, CodeInline, CodeBlock, Heading, Toc, Label, Ref, Footnote, Footnot
 `;
 
 /**
- * The names beyond the plugin's built-in prelude lists that {@link AMBIENT_ID} also supplies —
- * React's hooks + `registerComponents` — passed as the plugin's `extraAmbientNames` (injected iff
- * the emit *calls* them free). Which framework supplies hooks is integrator policy, so the plugin
- * doesn't hardcode these.
+ * The names beyond the compiler's built-in `AMBIENT_PRELUDE_NAMES` that {@link AMBIENT_ID} also
+ * supplies — React's hooks + `registerComponents` — passed as the plugin's `extraAmbientNames`
+ * (injected iff the emit references them free). Which framework supplies hooks is integrator
+ * policy, so neither the plugin nor the compiler hardcodes these.
  */
 const AMBIENT_CALL_NAMES = [
   "useState",

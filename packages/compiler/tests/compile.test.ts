@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
-import { compile, RUNTIME_IMPORT } from "../src/lib";
+import { AMBIENT_PRELUDE_NAMES, compile, RUNTIME_IMPORT } from "../src/lib";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // tests/ → packages/compiler → packages → repo root → integration/
@@ -130,6 +130,87 @@ describe("compile (non-ASCII input — no wasm heap corruption)", () => {
     const { code } = compile(src, { sourcePath: "hello.nota" });
     expect(code).toContain("install — not a");
     expect(code).toContain('h("nota-ul-li", {}');
+  });
+});
+
+describe("compile (ambient prelude injection + freeNames)", () => {
+  test("free Tex/CodeInline references get a prelude import, after the runtime import", () => {
+    const { code } = compile("Math $x^2$ and `f(x)`\n");
+    expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
+    // Sorted (the reader reports free names sorted; the filter preserves order).
+    expect(code.slice(RUNTIME_IMPORT.length)).toMatch(
+      /^import \{ CodeInline, Tex \} from "@nota-lang\/prelude";\n/
+    );
+  });
+
+  test("no ambient refs → no prelude import", () => {
+    const { code } = compile("Just @em{prose}.\n");
+    expect(code).not.toContain("@nota-lang/prelude");
+  });
+
+  test("a config-fn call (secset) injects; a prose mention of its text does not", () => {
+    const injected = compile("% secset({ n: 1 })\n# Title\n");
+    expect(injected.code).toMatch(
+      /import \{ Heading, secset \} from "@nota-lang\/prelude";\n/
+    );
+    const prose = compile("@p{secset( is not a call}\n");
+    expect(prose.code).not.toContain("@nota-lang/prelude");
+  });
+
+  test("a %import of the same name suppresses the injection (lexical override)", () => {
+    const { code, freeNames } = compile(
+      '%import { Tex } from "./my-tex.js"\nMath $x^2$\n'
+    );
+    expect(code).not.toContain("@nota-lang/prelude");
+    expect(code).toContain('from "./my-tex.js"');
+    expect(freeNames).not.toContain("Tex");
+  });
+
+  test("prelude: false disables injection; a custom module is honored", () => {
+    const off = compile("$x$\n", { prelude: false });
+    expect(off.code).not.toContain("@nota-lang/prelude");
+    const custom = compile("$x$\n", { prelude: { module: "/my/prelude.ts" } });
+    expect(custom.code).toContain('import { Tex } from "/my/prelude.ts";\n');
+  });
+
+  test("extraNames: a free useState binds alongside the built-ins; unused extras don't", () => {
+    const { code } = compile("%let s = useState(0)\nMath $x^2$\n", {
+      prelude: {
+        module: "virtual:nota-ambient",
+        extraNames: ["useState", "registerComponents"]
+      }
+    });
+    expect(code).toMatch(
+      /import \{ Tex, useState \} from "virtual:nota-ambient";\n/
+    );
+    expect(code).not.toContain("registerComponents");
+  });
+
+  test("default: a free useState stays free (the integrator owns hooks) but is reported", () => {
+    const { code, freeNames } = compile("%let s = useState(0)\nhi\n");
+    expect(code).not.toMatch(/import \{[^}]*useState/);
+    expect(freeNames).toContain("useState");
+  });
+
+  test("freeNames: sorted, includes the runtime surface + ambient refs, excludes bound names", () => {
+    const { freeNames } = compile(read("golden.nota"));
+    for (const name of [
+      "h",
+      "decode",
+      "Fragment",
+      "inlineComponent",
+      "useState"
+    ]) {
+      expect(freeNames).toContain(name);
+    }
+    expect(freeNames).not.toContain("Colorized");
+    expect(freeNames).toEqual([...freeNames].sort());
+  });
+
+  test("AMBIENT_PRELUDE_NAMES covers the component slots and the config fns", () => {
+    for (const name of ["Tex", "Heading", "Label", "secset", "bibset"]) {
+      expect(AMBIENT_PRELUDE_NAMES).toContain(name);
+    }
   });
 });
 
