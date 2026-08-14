@@ -133,6 +133,22 @@ importers:
         specifier: workspace:*
         version: link:../react
 
+  packages/paper:
+    dependencies:
+      '@nota-lang/prelude':
+        specifier: workspace:*
+        version: link:../prelude
+      '@nota-lang/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      katex:
+        specifier: ^0.16.22
+        version: 0.16.47
+    devDependencies:
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.8
+
   packages/playground:
     dependencies:
       '@codemirror/commands':

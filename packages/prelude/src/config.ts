@@ -41,6 +41,13 @@ export interface LstsetOptions {
 export interface MathsetOptions {
   /** KaTeX macros (`{ "\\R": "\\mathbb{R}" }`). Merge into the current macro table. */
   macros?: Record<string, string>;
+  /**
+   * KaTeX output mode (last-write-wins). The default `"mathml"` needs no stylesheet or fonts;
+   * `"html"` (or the belt-and-suspenders `"htmlAndMathml"`) requires the KaTeX CSS + fonts on the
+   * page, and is what makes `texRef` definition references clickable — KaTeX only emits
+   * `\htmlData` attributes in HTML output.
+   */
+  output?: "mathml" | "html" | "htmlAndMathml";
 }
 
 /** One bibliography entry (the fields `@Bibliography` renders; all optional). */
@@ -72,6 +79,8 @@ export interface PreludeConfig {
   extraLangs: LanguageRegistration[];
   extraThemes: ThemeRegistrationAny[];
   macros: Record<string, string>;
+  /** KaTeX output mode (see {@link MathsetOptions.output}). */
+  mathOutput: "mathml" | "html" | "htmlAndMathml";
   /** Heading numbering depth. `0` = numbering off. */
   numberDepth: number;
   /** Citation source keyed by cite key. */
@@ -86,6 +95,7 @@ const DEFAULTS: PreludeConfig = {
   extraLangs: [],
   extraThemes: [],
   macros: {},
+  mathOutput: "mathml",
   numberDepth: 0,
   bibSrc: {},
   bibStyle: "numeric"
@@ -120,10 +130,13 @@ export function lstset(opts: LstsetOptions): void {
   }
 }
 
-/** Set global math options (KaTeX macros). Same scope semantics as {@link lstset}. */
+/** Set global math options (KaTeX macros + output mode). Same scope semantics as {@link lstset}. */
 export function mathset(opts: MathsetOptions): void {
   if (opts.macros !== undefined) {
     Object.assign(current.macros, opts.macros);
+  }
+  if (opts.output !== undefined) {
+    current.mathOutput = opts.output;
   }
 }
 

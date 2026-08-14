@@ -52,6 +52,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync
 } from "node:fs";
@@ -86,7 +87,7 @@ const MODULE_DIR =
  * `Math.floor` in embedded JS.)
  */
 export const AMBIENT_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
-export { Tex, CodeInline, CodeBlock, Heading, Toc, Label, Ref, Footnote, FootnoteMark, FootnoteText, Footnotes, FootnotesList, Cite, Bibliography, lstset, mathset, secset, bibset, registerComponents } from "@nota-lang/prelude";
+export { Tex, CodeInline, CodeBlock, Heading, Toc, Label, Ref, Definition, Footnote, FootnoteMark, FootnoteText, Footnotes, FootnotesList, Cite, Bibliography, lstset, mathset, secset, bibset, texRef, registerComponents } from "@nota-lang/prelude";
 `;
 
 /**
@@ -271,7 +272,9 @@ function sharedConfig(ctx: PipelineContext): InlineConfig {
       // builds: (a) the SSR bundle must not embed `import.meta.url`-relative (file:///tmp/…) URLs
       // into the rendered HTML, and (b) the client replay must recompute byte-identical URLs for
       // hydration. `index.html` sits at the out-dir root, so page-relative is correct; CSS-hosted
-      // URLs keep Vite's default css-relative handling.
+      // URLs keep Vite's handling — but see `copySsrAssets`, which repairs the SSR build's
+      // root-absolute css URLs at copy time (rolldown-vite emits `/assets/…` there regardless of
+      // the relative base, and ignores a `{ relative: true }` answer from this hook).
       renderBuiltUrl: (filename, { hostType }) =>
         hostType === "js" ? `./${filename}` : undefined
     },
@@ -445,6 +448,12 @@ async function buildClient(
  * `./assets/…` URL baked into the SSR HTML exists on disk. Asset names are content-hashed with the
  * same pattern in both builds, so an islands doc's client build writing the same assets is a
  * harmless overwrite.
+ *
+ * Copied **stylesheets are repaired to css-relative URLs**: the SSR build resolves css-hosted
+ * asset references (a stylesheet's fonts — the KaTeX shape) to root-absolute `/assets/…`
+ * regardless of the relative base, which breaks any non-root deploy. Every emitted asset lives
+ * under the same `assets/` dir as the stylesheet itself, so `/assets/x` → `x` (css-relative
+ * sibling) is exact under this pipeline's own naming scheme.
  */
 function copySsrAssets(
   ssrOutDir: string,
@@ -454,7 +463,16 @@ function copySsrAssets(
   for (const rel of files) {
     const dest = join(outDir, rel);
     mkdirSync(dirname(dest), { recursive: true });
-    copyFileSync(join(ssrOutDir, rel), dest);
+    if (rel.endsWith(".css")) {
+      const css = readFileSync(join(ssrOutDir, rel), "utf8");
+      writeFileSync(
+        dest,
+        css.replace(/url\((['"]?)\/assets\//g, "url($1"),
+        "utf8"
+      );
+    } else {
+      copyFileSync(join(ssrOutDir, rel), dest);
+    }
   }
 }
 

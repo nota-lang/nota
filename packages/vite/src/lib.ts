@@ -99,10 +99,18 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
           extraNames: options.extraAmbientNames ?? []
         };
 
-  /** Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`? */
+  /**
+   * Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`?
+   * A `?raw`/`?url`/`?inline` query is Vite's asset pipeline asking for the file *as data* —
+   * `import src from "./doc.nota?raw"` must yield the source string, not the compiled module —
+   * so those ids are never claimed (the same carve-out mdx/vue plugins make).
+   */
   function claims(id: string): boolean {
-    const path = id.split("?")[0].split("#")[0];
-    return extensions.some(ext => path.endsWith(ext));
+    const [path, query = ""] = id.split("?");
+    if (/(?:^|&)(raw|url|inline)(?:&|=|$)/.test(query.split("#")[0])) {
+      return false;
+    }
+    return extensions.some(ext => path.split("#")[0].endsWith(ext));
   }
 
   return {

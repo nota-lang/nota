@@ -1,0 +1,90 @@
+/* @nota-lang/paper — minimal academic-paper styling. */
+
+.nota-doc-title {
+  font-size: 1.9em;
+  text-align: center;
+  margin: 1.2em 0 0.6em;
+}
+
+.nota-authors {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.5em;
+  margin: 0.5em 0 1.5em;
+}
+
+.nota-author {
+  text-align: center;
+}
+
+.nota-author-name {
+  font-weight: bold;
+}
+
+.nota-author-affiliation,
+.nota-institution {
+  font-size: 95%;
+}
+
+.nota-abstract {
+  margin: 1.5em auto 2em;
+  max-width: 85%;
+}
+
+.nota-abstract-title {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+
+.nota-figure {
+  margin: 1.5em auto;
+  text-align: center;
+}
+
+.nota-figure img {
+  max-width: 100%;
+}
+
+.nota-subfigure {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.nota-caption {
+  font-size: 90%;
+  text-align: center;
+  margin-top: 0.5em;
+}
+
+.nota-caption-label {
+  font-weight: bold;
+}
+
+.nota-wrap-left {
+  float: left;
+  max-width: 50%;
+  margin: 0.5em 1.5em 0.5em 0;
+}
+
+.nota-wrap-right {
+  float: right;
+  max-width: 50%;
+  margin: 0.5em 0 0.5em 1.5em;
+}
+
+.nota-row {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.nota-center {
+  text-align: center;
+}
+
+.nota-bnf {
+  margin: 1.5em 0;
+}

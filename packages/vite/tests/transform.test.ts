@@ -81,6 +81,18 @@ describe("transform: .nota id → JS + sourcemap shape", () => {
       expect(result?.code).toContain("export default function Doc()");
     }
   });
+
+  test("asset-pipeline queries (?raw/?url/?inline) are never claimed", async () => {
+    for (const id of [
+      "/x/note.nota?raw",
+      "/x/note.nota?url",
+      "/x/note.nota?inline",
+      "/x/note.nota?import&raw"
+    ]) {
+      const result = await runTransform(nota(), NOTA_SOURCE, id);
+      expect(result, `expected ${id} to pass through`).toBeNull();
+    }
+  });
 });
 
 describe("transform: ambient prelude injection", () => {

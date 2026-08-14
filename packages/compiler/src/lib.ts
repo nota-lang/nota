@@ -50,6 +50,7 @@ export const AMBIENT_PRELUDE_NAMES = [
   "Toc",
   "Label",
   "Ref",
+  "Definition",
   "Footnote",
   "FootnoteMark",
   "FootnoteText",
@@ -60,7 +61,8 @@ export const AMBIENT_PRELUDE_NAMES = [
   "lstset",
   "mathset",
   "secset",
-  "bibset"
+  "bibset",
+  "texRef"
 ] as const;
 
 /** The ambient-prelude injection policy ({@link CompileOptions.prelude}). */

@@ -28,6 +28,7 @@
 import { h, query, registerTrailer, slot } from "@nota-lang/runtime";
 
 import { DefaultCodeBlock, DefaultCodeInline } from "./code.js";
+import { definitionsTrailer } from "./def.js";
 import { FootnotesList } from "./doc.js";
 import { DefaultTex } from "./tex.js";
 
@@ -58,6 +59,18 @@ export {
   type SecsetOptions,
   secset
 } from "./config.js";
+// --- definitions & tooltip references (see ./def.ts) ---
+export {
+  DEF_TOOLTIP_SCRIPT,
+  DEF_TOOLTIP_STYLE,
+  DefaultDefinition,
+  Definition,
+  type DefinitionData,
+  definitionFor,
+  definitionRefLabel,
+  definitionsTrailer,
+  texRef
+} from "./def.js";
 // --- doc-state constructs: slots + shipped defaults + helpers ---
 export {
   Bibliography,
@@ -96,3 +109,7 @@ registerTrailer("footnotes", () =>
       : null
   )
 );
+
+// --- The definitions trailer: the hidden tooltip bank + delegated click handler, appended iff the
+//     document defines anything (see ./def.ts — progressive enhancement, no framework JS). ---
+registerTrailer("definitions", definitionsTrailer);

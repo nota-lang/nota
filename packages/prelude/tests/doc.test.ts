@@ -270,7 +270,9 @@ describe("Label / Ref", () => {
       el("p", [el(Ref, [], { id: "nope" })]),
       el(Heading, ["X"], { rank: 1 })
     ]);
-    expect(() => doc(tree)).toThrow(/no @Label found for key "nope"/);
+    expect(() => doc(tree)).toThrow(
+      /no @Definition or @Label found for key "nope"/
+    );
   });
 
   test("duplicate @Label is a pointed error naming the key", () => {

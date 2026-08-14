@@ -38,12 +38,30 @@ function texSource(children: CompProps["children"]): string {
   return out;
 }
 
+/**
+ * The trust policy for the HTML-extension commands `texRef` rides on (`\htmlData` et al.). Fixed:
+ * a Nota document is its author's own program — the reference wiring is not untrusted input.
+ */
+const TRUSTED_COMMANDS = new Set([
+  "\\htmlData",
+  "\\htmlClass",
+  "\\htmlId",
+  "\\htmlStyle",
+  "\\href",
+  "\\url"
+]);
+
 /** The default `Tex` (see module docs). Props: `display` (the `$$` fence sets it). */
 export function DefaultTex(props: CompProps): unknown {
   const display = props.display === true;
   const html = katex.renderToString(texSource(props.children), {
-    output: "mathml",
+    // `mathset({ output: "html" })` opts into HTML output (KaTeX CSS required; enables texRef
+    // definition references — MathML output drops \htmlData attributes).
+    output: config().mathOutput,
     displayMode: display,
+    trust: ctx => TRUSTED_COMMANDS.has(ctx.command),
+    strict: (errorCode: string) =>
+      errorCode === "htmlExtension" ? "ignore" : "warn",
     // copy: KaTeX mutates the macros table on \gdef; the doc-global table must stay config-owned
     macros: { ...config().macros }
   });

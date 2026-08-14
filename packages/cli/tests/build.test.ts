@@ -24,7 +24,8 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync
+  rmSync,
+  writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
@@ -197,6 +198,42 @@ describe("CLI assets — asset.nota: ?url svg + CSS import flow through vite", (
     // the fixture's marker rule survived the pipeline (the production minifier normalizes
     // rgb(1, 2, 3) → #010203; dev builds keep the rgb form).
     expect(css).toMatch(/#010203|rgb\(1,\s*2,\s*3\)/);
+  });
+
+  test("css-hosted asset URLs are css-relative, never root-absolute (relocatable output)", async () => {
+    // A stylesheet referencing a neighboring asset (the KaTeX-fonts shape): the emitted css must
+    // address it relative to itself — an island-free doc ships the SSR build's css, whose default
+    // URL resolution is root-absolute `/assets/…` and breaks any non-root deploy.
+    const dir = mkdtempSync(join(tmpdir(), "nota-cssrel-"));
+    try {
+      writeFileSync(
+        join(dir, "pic.svg"),
+        `<svg xmlns="http://www.w3.org/2000/svg"/>`
+      );
+      writeFileSync(
+        join(dir, "f.css"),
+        "body { background-image: url(./pic.svg); }"
+      );
+      writeFileSync(join(dir, "doc.nota"), '% import "./f.css"\n\nHello\n');
+      const rel = await buildNotaFile(join(dir, "doc.nota"), {
+        resolveFrom: pkgRoot,
+        outDir: join(dir, "out")
+      });
+      const css = readFileSync(join(rel.outDir, rel.cssFiles[0]), "utf8");
+      const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m =>
+        m[1].replace(/["']/g, "")
+      );
+      expect(urls.length).toBeGreaterThan(0);
+      for (const u of urls) {
+        expect(u.startsWith("/"), `absolute url ${u}`).toBe(false);
+        expect(
+          existsSync(join(rel.outDir, dirname(rel.cssFiles[0]), u)),
+          `missing ${u}`
+        ).toBe(true);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

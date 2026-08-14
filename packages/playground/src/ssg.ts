@@ -32,6 +32,7 @@ import {
   Cite,
   CodeBlock,
   CodeInline,
+  Definition,
   Footnote,
   FootnoteMark,
   Footnotes,
@@ -45,6 +46,7 @@ import {
   registerComponents,
   secset,
   Tex,
+  texRef,
   Toc
 } from "@nota-lang/prelude";
 import adapter from "@nota-lang/react";
@@ -87,6 +89,7 @@ const AMBIENT_PRELUDE = {
   Toc,
   Label,
   Ref,
+  Definition,
   Footnote,
   FootnoteMark,
   FootnoteText,
@@ -98,6 +101,7 @@ const AMBIENT_PRELUDE = {
   mathset,
   secset,
   bibset,
+  texRef,
   registerComponents
 } as const;
 

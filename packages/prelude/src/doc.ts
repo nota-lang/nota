@@ -42,6 +42,7 @@ import {
 } from "@nota-lang/runtime";
 
 import { config } from "./config.js";
+import { definitionFor, definitionRefLabel } from "./def.js";
 
 // =============================================================================================
 // Shared helpers
@@ -83,7 +84,7 @@ export function textContent(node: unknown): string {
  * module docs): wrap in a `FRAG`, run the runtime `normalize` (R10 expansion + fragment splicing),
  * and return the resulting flat children. `indexDoc` then walks these direct marks in `data.content`.
  */
-function normChildren(children: unknown): VNode[] {
+export function normChildren(children: unknown): VNode[] {
   const arr = flatten([children as VNode]);
   const norm = normalize({
     tag: FRAG,
@@ -314,10 +315,13 @@ export function DefaultLabel(props: CompProps): unknown {
 export const Label = slot("Label", DefaultLabel);
 
 /**
- * The default `Ref`: a `query` resolving the `id` prop (R20b — the `&sec:intro` sugar sets it) to the
- * nearest **preceding** heading (LaTeX semantics — by `pos`), linking to its id. Pointed errors:
- * missing/empty `id`, missing/duplicate label, or no heading precedes it. Link text is the section
- * number when the target is numbered, else its title text.
+ * The default `Ref`: a `query` resolving the `id` prop (R20b — the `&sec:intro` sugar sets it),
+ * first against **definitions** (`@Definition[id: …]` — rendering a tooltip-wired
+ * `<a data-nota-def>` carrying the definition's label; see ./def.ts), then against `@Label`s,
+ * binding to the nearest **preceding** heading (LaTeX semantics — by `pos`) and linking to its id.
+ * Authored children override the link content on every path. Pointed errors: missing/empty `id`,
+ * no definition or label for the key, duplicates, or no heading precedes the label. Heading link
+ * text is the section number when the target is numbered, else its title text.
  */
 export function DefaultRef(props: CompProps): unknown {
   const key = typeof props.id === "string" ? props.id.trim() : "";
@@ -326,10 +330,23 @@ export function DefaultRef(props: CompProps): unknown {
       '@Ref: missing id (e.g. @Ref[id: "sec:intro"]{}, or the &sec:intro sugar)'
     );
   }
+  const children = normChildren(props.children);
   return query(doc => {
+    const def = definitionFor(doc, key);
+    if (def !== undefined) {
+      return h(
+        "a",
+        {
+          href: `#def-${key}`,
+          class: "nota-ref nota-def-ref",
+          "data-nota-def": key
+        },
+        definitionRefLabel(def, children)
+      );
+    }
     const labels = doc.all("label").filter(e => e.data.key === key);
     if (labels.length === 0) {
-      throw new Error(`@Ref: no @Label found for key "${key}"`);
+      throw new Error(`@Ref: no @Definition or @Label found for key "${key}"`);
     }
     if (labels.length > 1) {
       throw new Error(`@Ref: duplicate @Label for key "${key}"`);
@@ -348,9 +365,11 @@ export function DefaultRef(props: CompProps): unknown {
     const id = ids.get(target) as string;
     const num = nums.get(target);
     const content: VNode[] =
-      num !== undefined
-        ? [num]
-        : [textContent((target.data as HeadingData).title)];
+      children.length > 0
+        ? children
+        : num !== undefined
+          ? [num]
+          : [textContent((target.data as HeadingData).title)];
     return h("a", { href: `#${id}` }, content);
   });
 }

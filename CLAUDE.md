@@ -22,9 +22,12 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   - **runtime** — framework-agnostic core: `h`/`Fragment`/`raw`, `decode`, HTML `serialize`,
     list/section coalescing (`struct.ts`), island slot recovery, and the component registry
     (`slot`/`registerComponents` — decode.md §The registry). The adapters build on it.
-  - **prelude** — the standard ambient prelude: `Tex` (KaTeX→MathML) +
-    `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as registry slots, plus
-    `lstset`/`mathset` config (doc-global, reset per render, bakeable baseline).
+  - **prelude** — the standard ambient prelude: `Tex` (KaTeX→MathML; `mathset({output:"html"})`
+    opts into HTML output) + `CodeInline`/`CodeBlock` (sync shiki, armed parts→decorations) as
+    registry slots, the doc-state family (`Heading`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
+    `Bibliography`), the **definition-tooltip system** (`Definition`/def-aware `Ref`/`texRef` +
+    a vanilla-JS tooltip trailer — zero framework JS; `src/def.ts`), plus
+    `lstset`/`mathset`/`secset`/`bibset` config (doc-global, reset per render, bakeable baseline).
   - **compiler** — sync shim (`src/lib.ts`) over the in-process **node-wasm reader**,
     `@nota-lang/wasm-node` — an ordinary static `import` of a `workspace:*` dep. No subprocess
     backend, no env-var overrides.
@@ -43,6 +46,10 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     subset-correctness conformance test (`tests/conformance.ts` → `pnpm run test:conformance`) that
     runs the compiled grammar over `integration/*.nota` and asserts every Nota-scoped token agrees
     with the reader's `highlightSpans` kind (needs the node wasm `pkg-node` + `@nota-lang/compiler`).
+  - **paper** — components for academic writing: the `language()`/`Bnf` grammar DSL (per-kind
+    `Definition` anchors, `texRef`-wired handles), `inferRule`/`IR` inference rules, and paper
+    scaffolding (`Title`/`Authors`/`Abstract`/`Figure`+auto-numbered `Caption`/`Smallcaps`/`Wrap`)
+    + `paper.css`. Consumed by nota-lang.org's example documents.
   - **codemirror** — CM6 language support for Nota (no CM grammar exists — reader-driven:
     `notaHighlighting()` paints the wasm `highlight()` spans as decorations, embedded code/math/`@style`
     interiors sub-tokenize via CM's own parsers, one shared Catppuccin `HighlightStyle`; see
