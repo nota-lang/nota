@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+import { join } from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -15,7 +16,9 @@ export default defineConfig(({ mode }) => ({
     conditions: ["browser", "development"],
     // One React per test run: the workspace root and this package can hold different patch
     // versions, and the server renderer throws on a mixed pair.
-    dedupe: ["react", "react-dom"]
+    dedupe: ["react", "react-dom"],
+    // The route-module glue imports this package by name; resolve it to the source under test.
+    alias: { "@nota-lang/react-router": join(import.meta.dirname, "src/lib.tsx") }
   },
   ssr: {
     resolve: {
@@ -25,7 +28,7 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     environment: "jsdom",
-    include: ["tests/*.test.tsx"],
+    include: ["tests/*.test.ts", "tests/*.test.tsx"],
     deps: inlineDeps
   }
 }));

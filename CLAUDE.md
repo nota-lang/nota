@@ -36,7 +36,10 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
   - **react-router** — the React Router integrator: `NotaDoc` (route component bridging
     `render(Doc)` + scoped replay hydration; hook order is load-bearing — the doc render nests a
-    `renderToString` that clears the hook dispatcher) + `docMeta`. Consumed by nota-lang.org.
+    `renderToString` that clears the hook dispatcher), `docMeta`, and the
+    `@nota-lang/react-router/vite` `notaRouteModules` transform (a `.nota` under `/pages/`
+    becomes a route module — rewrites the emit's `export default function Doc(` and appends the
+    NotaDoc default + derived `meta`). Consumed by nota-lang.org.
   - **vite** — `.nota` transform plugin + island registry (`registry.ts:generateClientEntry`).
   - **cli** — `nota build doc.nota → doc/` (`index.html` + `assets/`): two programmatic **vite**
     builds under a default config — SSR render, then a client island build — so doc-relative
