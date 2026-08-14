@@ -131,6 +131,48 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
   });
 });
 
+describe("offset units — reader bytes → CodeMirror UTF-16", () => {
+  it("spans stay aligned after a multi-byte character (the em-dash drift)", () => {
+    // "—" is 3 UTF-8 bytes / 1 UTF-16 unit: without conversion the `&` sigil span lands on "o"
+    // and the ref name reads "ta r" (the exact bug: `&nota` painting as `&no` + `ta…`).
+    const src = "— &nota rules *bold*";
+    const spans = highlightSpans(src);
+    expect(excerpts(spans, src, "sigil")).toContain("&");
+    const interp = excerpts(spans, src, "interpolation");
+    expect(interp).toContain("nota");
+    expect(excerpts(spans, src, "emphasis-strong")).toContain("*bold*");
+  });
+
+  it("astral-plane characters (2 UTF-16 units) keep later spans aligned", () => {
+    const src = "🦀🦀 @em{crab}";
+    const spans = highlightSpans(src);
+    expect(excerpts(spans, src, "sigil")).toContain("@");
+    expect(excerpts(spans, src, "tag-host")).toContain("em");
+  });
+
+  it("embedded regions resolve the right language text after multi-byte prose", () => {
+    const src = "préambule — voilà\n\n```rust\nfn main() {}\n```\n";
+    const spans = highlightSpans(src);
+    expect(excerpts(spans, src, "code-lang")).toContain("rust");
+    const code = excerpts(spans, src, "code");
+    expect(code.some(c => c.includes("fn main"))).toBe(true);
+    // The sub-tokenizer sees correctly sliced Rust, so a keyword token lands exactly on `fn`.
+    const embedded = embeddedHighlightSpans(src);
+    expect(
+      embedded.some(
+        s => src.slice(s.from, s.to) === "fn" && s.classes.length > 0
+      )
+    ).toBe(true);
+  });
+
+  it("ascii-only sources take the identity fast path (offsets unchanged)", () => {
+    const src = "# Title\n\nplain *bold* text\n";
+    const spans = highlightSpans(src);
+    expect(excerpts(spans, src, "heading")).toContain("# Title");
+    expect(excerpts(spans, src, "emphasis-strong")).toContain("*bold*");
+  });
+});
+
 describe("notaHighlighting CM6 bridge", () => {
   it("paints kind-classed spans into the editor DOM", () => {
     const view = new EditorView({

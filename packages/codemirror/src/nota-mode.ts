@@ -38,6 +38,60 @@ import { highlight, highlightKindNames } from "@nota-lang/wasm";
 import { embeddedTokens } from "./embedded-langs";
 import { catppuccinHighlight } from "./highlight-style";
 
+// ---------------------------------------------------------------------------------------------
+// Offset units: the reader speaks UTF-8 bytes; CodeMirror (and JS strings) speak UTF-16
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Byte-offset → UTF-16-offset lookup for `doc`, or `null` when the two coincide (ASCII-only —
+ * the common case, kept allocation-free). Index `map[byte]` = the UTF-16 offset of the character
+ * containing that byte; `map[byteLength]` = `doc.length`. The reader never emits a span boundary
+ * mid-character, so the mid-byte entries are never read — they're filled anyway (floor semantics)
+ * so a bug upstream degrades to off-by-a-character rather than garbage.
+ */
+function byteToUtf16(doc: string): Uint32Array | null {
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: the ASCII fast-path test.
+  if (!/[^\x00-\x7f]/.test(doc)) return null;
+  let byteLength = 0;
+  for (const ch of doc) {
+    const cp = ch.codePointAt(0) as number;
+    byteLength += cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+  }
+  const map = new Uint32Array(byteLength + 1);
+  let b = 0;
+  let u = 0;
+  for (const ch of doc) {
+    const cp = ch.codePointAt(0) as number;
+    const bytes = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    for (let k = 0; k < bytes; k++) {
+      map[b + k] = u;
+    }
+    b += bytes;
+    u += ch.length;
+  }
+  map[b] = u;
+  return map;
+}
+
+/**
+ * The reader's `highlight(doc)` triples with offsets **converted to UTF-16** — every consumer in
+ * this module indexes JS strings and CM positions, so the conversion happens once, here, at the
+ * wasm boundary. (Skipping it made every span after the first non-ASCII character drift right —
+ * an `&ref` after an em-dash highlighted as `&no` + `ta…`.)
+ */
+function highlightUtf16(doc: string): Uint32Array {
+  const triples = highlight(doc);
+  const map = byteToUtf16(doc);
+  if (!map) return triples;
+  const out = new Uint32Array(triples.length);
+  for (let i = 0; i + 2 < triples.length; i += 3) {
+    out[i] = map[Math.min(triples[i], map.length - 1)];
+    out[i + 1] = map[Math.min(triples[i + 1], map.length - 1)];
+    out[i + 2] = triples[i + 2];
+  }
+  return out;
+}
+
 // Catppuccin Latte (light) — the same palette as highlight-style.ts, so a Nota editor sits
 // cohesively beside consumers' other CM panes on a light theme.
 const teal = "#179299";
@@ -126,7 +180,7 @@ export interface NotaSpan {
 /** Highlight `source` → named spans (throws the reader's diagnostics on a parse error). */
 export function highlightSpans(source: string): NotaSpan[] {
   const names = highlightKindNames();
-  const triples = highlight(source);
+  const triples = highlightUtf16(source);
   const spans: NotaSpan[] = [];
   for (let i = 0; i + 2 < triples.length; i += 3) {
     spans.push({
@@ -208,7 +262,7 @@ function embeddedRegionsOf(
  */
 export function embeddedRegions(doc: string): EmbeddedRegion[] {
   try {
-    return embeddedRegionsOf(doc, highlight(doc), highlightKindNames());
+    return embeddedRegionsOf(doc, highlightUtf16(doc), highlightKindNames());
   } catch {
     return [];
   }
@@ -230,7 +284,7 @@ export interface EmbeddedSpan {
 export function embeddedHighlightSpans(doc: string): EmbeddedSpan[] {
   let triples: Uint32Array;
   try {
-    triples = highlight(doc);
+    triples = highlightUtf16(doc);
   } catch {
     return [];
   }
@@ -255,7 +309,7 @@ export function embeddedHighlightSpans(doc: string): EmbeddedSpan[] {
 function computeDecorations(doc: string): DecorationSet | null {
   let triples: Uint32Array;
   try {
-    triples = highlight(doc);
+    triples = highlightUtf16(doc);
   } catch {
     return null;
   }
