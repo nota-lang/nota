@@ -28,6 +28,7 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
+import { AMBIENT_PRELUDE_NAMES } from "@nota-lang/compiler";
 
 /**
  * The runtime `.d.ts` files whose declarations the emit surface's type closure needs, in dependency
@@ -121,6 +122,9 @@ const AMBIENT_PRELUDE = [
   "declare const FootnotesList: (props: { [prop: string]: unknown }) => unknown;",
   "declare const Cite: (props: { [prop: string]: unknown }) => unknown;",
   "declare const Bibliography: (props: { [prop: string]: unknown }) => unknown;",
+  "declare const Title: (props: { [prop: string]: unknown }) => unknown;",
+  "declare const Definition: (props: { id: string; label?: unknown; tooltip?: unknown; block?: boolean; [prop: string]: unknown }) => unknown;",
+  "declare function texRef(id: string, tex: string): string;",
   "declare function lstset(options: { lang?: string; theme?: string; langs?: unknown; themes?: unknown[] }): void;",
   "declare function mathset(options: { macros?: Record<string, string> }): void;",
   "declare function secset(options: { [k: string]: unknown }): void;",
@@ -139,5 +143,20 @@ const AMBIENT_PRELUDE = [
  * the `preamble-sync` drift test.
  */
 export function buildPreamble(): string {
+  // Coverage guard: every compiler-declared ambient name must have a typing here, so the
+  // compiler's AMBIENT_PRELUDE_NAMES growing without a preamble update fails generation (and the
+  // preamble-sync test in CI) instead of silently surfacing "Cannot find name" diagnostics.
+  const missing = AMBIENT_PRELUDE_NAMES.filter(
+    name =>
+      !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(
+        AMBIENT_PRELUDE
+      )
+  );
+  if (missing.length > 0) {
+    throw new Error(
+      `preamble-gen: ambient prelude names missing a typing: ${missing.join(", ")} — ` +
+        "add declarations to AMBIENT_PRELUDE in preamble-gen.ts"
+    );
+  }
   return runtimeAmbientBlock() + AMBIENT_PRELUDE;
 }

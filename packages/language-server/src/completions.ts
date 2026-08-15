@@ -16,6 +16,7 @@
  * statement lines (embedded JS), where `@` is not a markup head.
  */
 
+import { AMBIENT_PRELUDE_NAMES } from "@nota-lang/compiler";
 import {
   type CompletionItem,
   CompletionItemKind,
@@ -105,26 +106,13 @@ export const NOTA_HOST_TAGS = [
 /**
  * The ambient prelude slot / doc-state names the reader references as free identifiers (the registry
  * slots plus the doc-state family — heading sugar lowers to the ambient `Heading` slot; see
- * design/decode.md §The registry & config) — offered as component-like completions at `@|`. Single
- * source of truth with the
- * generated preamble's ambient prelude block (`preamble-gen.ts`).
+ * design/decode.md §The registry & config) — offered as component-like completions at `@|`.
+ * Derived from the compiler's {@link AMBIENT_PRELUDE_NAMES} (the single source of truth for the
+ * ambient surface), keeping the capitalized component slots (the config fns — `lstset`/`texRef`/… —
+ * are embedded-JS calls, not `@`-heads).
  */
-export const NOTA_PRELUDE_SLOTS = [
-  "Tex",
-  "CodeInline",
-  "CodeBlock",
-  "Heading",
-  "Toc",
-  "Label",
-  "Ref",
-  "Footnote",
-  "FootnoteMark",
-  "FootnoteText",
-  "Footnotes",
-  "FootnotesList",
-  "Cite",
-  "Bibliography"
-] as const;
+export const NOTA_PRELUDE_SLOTS: readonly string[] =
+  AMBIENT_PRELUDE_NAMES.filter(name => /^[A-Z]/.test(name));
 
 /**
  * The in-scope **capitalized** component bindings in `source` — a document scan for
