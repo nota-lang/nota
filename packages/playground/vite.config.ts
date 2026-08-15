@@ -8,6 +8,12 @@ export default defineConfig(({ mode }) => ({
     "process.env.NODE_ENV": JSON.stringify(mode)
   },
   plugins: [react(), wasm()],
+  worker: {
+    // The LSP worker (src/lsp/worker.ts) imports the bundler-target wasm reader; workers get a
+    // separate plugin pipeline, so the wasm plugin must be repeated here.
+    format: "es",
+    plugins: () => [wasm()]
+  },
   test: {
     environment: "jsdom",
     setupFiles: "tests/setup.ts",

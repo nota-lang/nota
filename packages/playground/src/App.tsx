@@ -16,6 +16,7 @@ import { AstPane } from "./AstPane";
 import { CodePane } from "./CodePane";
 import { DEFAULT_SNIPPET } from "./default-snippet";
 import { Editor } from "./Editor";
+import { notaLsp } from "./lsp/client";
 import { EMPTY, type PipelineResult, runPipeline } from "./pipeline";
 import { RenderedPane } from "./RenderedPane";
 import { SsgPane } from "./SsgPane";
@@ -26,6 +27,11 @@ type Tab = "ast" | "js" | "ssg" | "rendered";
 // The wasm reader instantiates when the module graph loads, so the reader-driven highlighting is
 // available synchronously.
 const language = notaHighlighting();
+
+// The language server: a Web Worker running the browser flavor of @nota-lang/language-server,
+// connected over postMessage. TS diagnostics/hover/completion arrive through this; highlighting
+// stays reader-driven (above). `[]` in worker-less environments (jsdom tests).
+const lsp = notaLsp();
 
 export function App() {
   // Seed from the last-saved source (persisted in localStorage), falling back to the seed document.
@@ -57,7 +63,12 @@ export function App() {
       <div className="columns">
         <section className="pane editor-pane">
           <div className="pane-head">source</div>
-          <Editor value={source} onChange={setSource} language={language} />
+          <Editor
+            value={source}
+            onChange={setSource}
+            language={language}
+            extensions={lsp}
+          />
         </section>
 
         <section className="pane output-pane">

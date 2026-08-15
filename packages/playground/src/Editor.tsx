@@ -24,9 +24,11 @@ export interface EditorProps {
   onChange: (value: string) => void;
   /** Language/highlighting extension; hot-swappable. */
   language?: Extension;
+  /** Static extensions included at mount (e.g. the LSP plugin); not hot-swappable. */
+  extensions?: Extension;
 }
 
-export function Editor({ value, onChange, language }: EditorProps) {
+export function Editor({ value, onChange, language, extensions }: EditorProps) {
   const host = useRef<HTMLDivElement | null>(null);
   const view = useRef<EditorView | null>(null);
   const langCompartment = useRef(new Compartment());
@@ -48,6 +50,7 @@ export function Editor({ value, onChange, language }: EditorProps) {
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
         langCompartment.current.of(language ?? []),
+        extensions ?? [],
         EditorView.updateListener.of(update => {
           if (update.docChanged) {
             onChangeRef.current(update.state.doc.toString());

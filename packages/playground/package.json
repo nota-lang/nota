@@ -13,18 +13,21 @@
     "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lsp-client": "^6.2.5",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
     "@nota-lang/codemirror": "workspace:*",
+    "@nota-lang/compiler": "workspace:*",
+    "@nota-lang/language-server": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
     "@nota-lang/react": "workspace:*",
     "@nota-lang/runtime": "workspace:*",
     "@nota-lang/vite": "workspace:*",
-    "@nota-lang/compiler": "workspace:*",
     "@nota-lang/wasm": "workspace:*",
     "prettier": "^3.8.4",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@lezer/highlight": "^1.2.3",

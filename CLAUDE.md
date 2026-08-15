@@ -44,7 +44,12 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   - **cli** — `nota build doc.nota → doc/` (`index.html` + `assets/`): two programmatic **vite**
     builds under a default config — SSR render, then a client island build — so doc-relative
     imports/`?url`/CSS work; zero-JS for island-free docs (`build.ts`).
-  - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`.
+  - **language-server** — Volar server: virtual `.tsx` + `CodeMapping`s back to `.nota`. Two
+    flavors over one transport-agnostic core (`server-core.ts`): **node/stdio** (`server.ts` →
+    `bin.ts`; eglot/vscode launch this) and **browser worker** (`browser.ts`: postMessage
+    connection, in-memory fs serving `/tsconfig.json` + TS default libs *by basename* — the typing
+    preamble already made resolution disk-free). The browser flavor is e2e-tested from node over
+    `globalThis.MessageChannel` (`tests/browser-server.test.ts`) and consumed by the playground.
   - **vscode-nota** — LSP client + TextMate grammar (`syntaxes/nota.tmLanguage.json`, a conservative
     **"never lie" grammar**: single-line `match` rules + line-anchored fences only, the
     honest first paint before the LSP semantic tokens arrive). **No depot/vitest**; tests run via
@@ -62,7 +67,22 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     `oxc/NOTA_READER.md` §Highlighting). Wasm **init is consumer-side** (`init(url|bytes)` before
     installing). Consumed by the playground; later the website.
   - **playground** — browser editor (CM6 via `@nota-lang/codemirror`); consumes the **wasm** reader,
-    not the binary.
+    not the binary. Runs the **language server in a Web Worker** (`src/lsp/worker.ts` boots
+    `@nota-lang/language-server/browser`; `src/lsp/client.ts` bridges it to `@codemirror/lsp-client`
+    over a string⇄structured-clone postMessage transport) — TS diagnostics/hover/completion in the
+    editor; highlighting stays reader-driven. Two worker gotchas, both load-bearing: the worker
+    bundle needs `vite-plugin-wasm` repeated under `worker.plugins` (workers get a separate plugin
+    pipeline), and the worker entry MUST be the tiny bootstrap-queue in `src/lsp/worker.ts` — the
+    wasm ESM import makes the module graph top-level-await, the browser enables message delivery at
+    the first suspension, and a client's early `initialize` is silently dropped before Volar's
+    `listen()` attaches `onmessage` (symptom: every LSP request times out).
+- **`editors/emacs/`** — `nota-mode.el`: conservative "never lie" font-lock tier (transliteration of
+  the old tmLanguage; fences suppressed via `syntax-propertize` string-quotes), native embedded
+  JS/TS fontification for `%`-lines and `%%%`/```ts fences (org-src-style hidden-buffer face copy —
+  the Emacs analogue of the tmLanguage's source.ts delegation), + eglot wiring for the
+  language server. Not an npm package. Tests: `emacs -Q --batch -L editors/emacs -l
+  editors/emacs/tests/nota-mode-test.el -f ert-run-tests-batch-and-exit` (ERT) and
+  `... -l editors/emacs/tests/eglot-smoke.el` (e2e against the built server).
 - `references/` — external reference repos (mdx, typst, scribble, pollen, oxc); gitignored.
 
 ## Tooling

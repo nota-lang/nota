@@ -46,9 +46,9 @@ import {
   registerComponents,
   secset,
   Tex,
-  texRef,
   Title,
-  Toc
+  Toc,
+  texRef
 } from "@nota-lang/prelude";
 import adapter from "@nota-lang/react";
 import * as runtime from "@nota-lang/runtime";
