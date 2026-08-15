@@ -17,6 +17,29 @@ import {
 } from "../src/completions";
 import { completionsAt, createFeatureHarness } from "./feature-harness";
 
+describe("member completion after a trailing dot (segment extension)", () => {
+  // The reader's segments are byte-exact leaf tokens; `extendMappings` widens them across
+  // member-access bytes so the `x.|` position translates into the virtual `.tsx`.
+  test("`%let y = x.|` offers number members", () => {
+    const src = "%let x = 1\n%let y = x.\n";
+    const h = createFeatureHarness(src);
+    const names = completionsAt(h, src.indexOf("x.\n") + 2);
+    expect(names.has("toFixed")).toBe(true);
+    expect(names.has("toString")).toBe(true);
+  });
+  test("`@(x.|)` interpolation offers number members", () => {
+    const src = "%let x = 1\nvalue: @(x.)\n";
+    const h = createFeatureHarness(src);
+    const names = completionsAt(h, src.indexOf("x.)") + 2);
+    expect(names.has("toFixed")).toBe(true);
+  });
+  // NOTE: an incomplete optional chain (`s?.|`) does NOT complete today — the reader's error
+  // recovery collapses the initializer to `null` (`let t = null;`), so the virtual has no `s?.`
+  // to map into. That is a reader-recovery limitation (plain `x.` recovers structurally as
+  // `x.;`); the `?.` byte-extension in `extendMappings` is covered by its unit tests and will
+  // light up when recovery preserves the chain.
+});
+
 describe("headContext (the `@|` line-prefix classifier)", () => {
   test("matches a bare `@` and a partial head at end of prefix", () => {
     expect(headContext("hello @")).toBe("");
