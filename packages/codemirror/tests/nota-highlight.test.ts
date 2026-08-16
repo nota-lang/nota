@@ -4,7 +4,9 @@
  * repo's feature mega-test: it broke the old TextMate-grammar highlighter catastrophically (a
  * markup-valued prop switched the rest of the file into a runaway TS scope), so the assertions
  * here pin exactly the constructs that used to derail — everything *after* the poison line still
- * classifies as markup. Plus a CM6 smoke that the bridge paints classed spans into the editor DOM
+ * classifies as markup. `integration/prose-sugars.nota` covers what mega predates: the 2026-08
+ * sugars (strike, thematic break, markup comments, trailing attrs groups) and their escape rows.
+ * Plus a CM6 smoke that the bridge paints classed spans into the editor DOM
  * (jsdom) and keeps last-good decorations while the doc is mid-edit.
  */
 
@@ -14,15 +16,23 @@ import { EditorView } from "@codemirror/view";
 import { describe, expect, it } from "vitest";
 import { embeddedTokens } from "../src/embedded-langs";
 import {
+  catppuccinHighlight,
+  catppuccinLatte,
   embeddedHighlightSpans,
+  embeddedRegions,
   highlightSpans,
   type NotaSpan,
   notaHighlighting
-} from "../src/nota-mode";
+} from "../src/lib";
 
 // Vitest runs with cwd = packages/codemirror (import.meta.url is not a file: URL here).
 const MEGA_PATH = resolve(process.cwd(), "../../integration/mega.nota");
 const MEGA = readFileSync(MEGA_PATH, "utf8");
+const SUGARS_PATH = resolve(
+  process.cwd(),
+  "../../integration/prose-sugars.nota"
+);
+const SUGARS = readFileSync(SUGARS_PATH, "utf8");
 
 /** The spans of `kind` rendered as source excerpts. */
 function excerpts(spans: NotaSpan[], source: string, kind: string): string[] {
@@ -133,6 +143,129 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     expect(
       spans.some(s => s.kind.startsWith("js-") || s.kind === "prop-name")
     ).toBe(false);
+  });
+});
+
+describe("reader-driven highlighting of integration/prose-sugars.nota (2026-08 sugars)", () => {
+  // mega.nota predates the 2026-08 sugars, so this fixture carries their span coverage. Its
+  // smart-punct line holds two em-dashes (3 UTF-8 bytes / 1 UTF-16 unit each) *before* the
+  // thematic break and the last attrs groups, so every exact excerpt below that line also pins
+  // the byte→UTF-16 conversion — without it those spans would drift right and slice garbage.
+
+  it("the fixture is multibyte before the sugar rows (guards the UTF-16 coverage)", () => {
+    const dash = SUGARS.indexOf("—");
+    expect(dash).toBeGreaterThan(-1);
+    expect(dash).toBeLessThan(SUGARS.indexOf("---"));
+    expect(new TextEncoder().encode(SUGARS).length).toBeGreaterThan(
+      SUGARS.length
+    );
+  });
+
+  it("classifies ~~strike~~ — whole-run under-layer + tilde markers as sigils", () => {
+    const spans = highlightSpans(SUGARS);
+    // Exact: only the two real strikes — the `\~~ stays tildes` escape row contributes none.
+    // `~~two~~` sits after the em-dashes (exact slice ⇒ offsets converted).
+    expect(excerpts(spans, SUGARS, "emphasis-strike")).toEqual([
+      "~~struck~~",
+      "~~two~~"
+    ]);
+    // The `~~` delimiters paint as sigils (the emphasis-marker kind): two per strike.
+    expect(
+      excerpts(spans, SUGARS, "sigil").filter(s => s === "~~")
+    ).toHaveLength(4);
+  });
+
+  it("classifies the --- thematic break as line punctuation (list-marker kind)", () => {
+    const spans = highlightSpans(SUGARS);
+    // Exact: the break + the two `-` item markers, in document order. The prose `6 --- dots`
+    // run (smart-punct material mid-paragraph) contributes none, and the break's exact slice
+    // sits after the em-dashes (offset conversion again).
+    expect(excerpts(spans, SUGARS, "list-marker")).toEqual(["---", "-", "-"]);
+  });
+
+  it("classifies // and nested /* */ markup comments (Comment kind, delimiters included)", () => {
+    const spans = highlightSpans(SUGARS);
+    // Exact: the comment-only line (span stops before its newline), the nested block form, and
+    // the trailing comment inside a list item — and nothing from the `\// stays literal
+    // slashes` escape row.
+    expect(excerpts(spans, SUGARS, "comment")).toEqual([
+      "// A comment-only line: consumed with its newline (no phantom paragraph break).",
+      "/* a nested /* block */ comment */",
+      "// a trailing comment inside the item"
+    ]);
+  });
+
+  it("classifies trailing attrs groups — bare [ ] sigils, prop names, JS-string values", () => {
+    const spans = highlightSpans(SUGARS);
+    // One group each on the heading, a list item, and the closing paragraph. The markdown-link
+    // shape `[these](here.html)` and the escaped `\[not: attrs]` contribute no brackets.
+    const sigils = excerpts(spans, SUGARS, "sigil");
+    expect(sigils.filter(s => s === "[")).toHaveLength(3);
+    expect(sigils.filter(s => s === "]")).toHaveLength(3);
+    // Exact prop-name sequence: heading attrs, then the @a/@img element props, then the
+    // item/paragraph attrs (both after the em-dashes).
+    expect(excerpts(spans, SUGARS, "prop-name")).toEqual([
+      "id",
+      "class",
+      "href",
+      "src",
+      "alt",
+      "class",
+      "class"
+    ]);
+    expect(excerpts(spans, SUGARS, "prop-name")).not.toContain("not");
+    expect(excerpts(spans, SUGARS, "js-string")).toEqual(
+      expect.arrayContaining(['"sugars"', '"demo"', '"hot"', '"note"'])
+    );
+  });
+
+  it("escape rows paint escape spans, not sugar spans", () => {
+    const spans = highlightSpans(SUGARS);
+    // `\//`, `\~~`, `\[` — each escape span is backslash + the first sugar byte; the rest of
+    // the would-be delimiter stays plain text (asserted sugar-absent above).
+    expect(excerpts(spans, SUGARS, "escape")).toEqual(
+      expect.arrayContaining(["\\/", "\\~", "\\["])
+    );
+  });
+
+  it("smart-punct material inside code/math stays raw (exact post-multibyte slices)", () => {
+    const spans = highlightSpans(SUGARS);
+    // Both interiors sit right after the first em-dash — exact slices double as the
+    // byte→UTF-16 proof for the code/math kinds.
+    expect(excerpts(spans, SUGARS, "code")).toEqual(['"code" -- ...']);
+    expect(excerpts(spans, SUGARS, "math")).toEqual(["a -- b"]);
+  });
+});
+
+describe("embeddedRegions (direct)", () => {
+  it("lists each code/math interior with its resolved language tag", () => {
+    const doc = "a $x+y$ b\n\n```py\nf(1)\n```\n";
+    expect(embeddedRegions(doc)).toEqual([
+      { from: 3, to: 6, lang: "tex" }, // math is always TeX
+      { from: 17, to: 21, lang: "py" } // the raw fence tag; alias resolution is embeddedTokens'
+    ]);
+    expect(doc.slice(3, 6)).toBe("x+y");
+    expect(doc.slice(17, 21)).toBe("f(1)");
+  });
+
+  it("inline code (no fence language) resolves to lang: null", () => {
+    expect(embeddedRegions("run `f(x)` now\n")).toEqual([
+      { from: 5, to: 9, lang: null }
+    ]);
+  });
+
+  it("returns [] when the document doesn't parse", () => {
+    expect(embeddedRegions("@em{unterminated")).toEqual([]);
+  });
+});
+
+describe("theme exports", () => {
+  it("catppuccinLatte / catppuccinHighlight are defined and non-empty", () => {
+    // catppuccinLatte is a CM HighlightStyle: a non-empty rule list and a style() lookup.
+    expect(catppuccinLatte.specs.length).toBeGreaterThan(0);
+    expect(typeof catppuccinLatte.style).toBe("function");
+    // catppuccinHighlight is the same style as a ready-to-compose extension.
+    expect(catppuccinHighlight).toBeTruthy();
   });
 });
 

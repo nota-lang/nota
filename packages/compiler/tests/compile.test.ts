@@ -9,7 +9,8 @@
  * diagnostics.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
@@ -17,12 +18,15 @@ import { describe, expect, test } from "vitest";
 import {
   AMBIENT_PRELUDE_NAMES,
   compile,
-  SOLID_AMBIENT_NAMES
+  SOLID_AMBIENT_NAMES,
+  SOLID_RUNTIME_NAMES,
+  SOLID_WEB_NAMES
 } from "../src/lib";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // tests/ → packages/compiler → packages → repo root → integration/
-const integrationDir = join(here, "..", "..", "..", "integration");
+const repoRoot = join(here, "..", "..", "..");
+const integrationDir = join(repoRoot, "integration");
 
 const read = (name: string) => readFileSync(join(integrationDir, name), "utf8");
 
@@ -71,17 +75,45 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     expect(code).toContain('<em>{"world"}</em>');
   });
 
-  test("the emit re-parses as a valid JSX module (validity invariant)", () => {
-    const { code } = compile(read("note.nota"), { sourcePath: "note.nota" });
-    expect(() =>
-      parse(code, { sourceType: "module", plugins: ["jsx"] })
-    ).not.toThrow();
-  });
-
   test("map is currently undefined (the reader emits no sourcemap yet)", () => {
     const { map } = compile(read("note.nota"));
     expect(map).toBeUndefined();
   });
+});
+
+describe("the emit re-parses as a valid JSX module (validity invariant, every fixture)", () => {
+  // Every shared integration fixture must compile without diagnostics AND yield a
+  // Babel-parseable JSX module — discovered by readdir so a new fixture is covered
+  // automatically. None needs external context at compile time: `compile` is a pure text
+  // transform, so asset.nota's `./asset.css` / `?url` imports are the *bundler's* business and
+  // appear verbatim in the emit.
+  const fixtures = readdirSync(integrationDir)
+    .filter(f => f.endsWith(".nota"))
+    .sort();
+
+  test("the discovered fixture set includes the known files", () => {
+    expect(fixtures).toEqual(
+      expect.arrayContaining([
+        "asset.nota",
+        "closure.nota",
+        "conditional.nota",
+        "golden.nota",
+        "mega.nota",
+        "note.nota",
+        "prose-sugars.nota",
+        "static.nota"
+      ])
+    );
+  });
+
+  for (const name of fixtures) {
+    test(`${name}: compiles clean and re-parses as valid JSX`, () => {
+      const { code } = compile(read(name), { sourcePath: name });
+      expect(() =>
+        parse(code, { sourceType: "module", plugins: ["jsx"] })
+      ).not.toThrow();
+    });
+  }
 });
 
 describe("compile (non-ASCII input — no wasm heap corruption)", () => {
@@ -188,14 +220,105 @@ describe("compile (ambient prelude injection + freeNames)", () => {
     expect(freeNames).not.toContain("Colorized");
     expect(freeNames).toEqual([...freeNames].sort());
   });
+});
 
-  test("the ambient name lists cover their surfaces", () => {
-    for (const name of ["Tex", "Heading", "Label", "secset", "bibset"]) {
-      expect(AMBIENT_PRELUDE_NAMES).toContain(name);
+describe("the ambient name lists cover their surfaces (full list↔surface loops)", () => {
+  // Each exported list claims a module supplies its names: the shim prepends
+  // `import { <names ∩ freeNames> } from "<module>"`, so a listed name missing from the module
+  // would crash every document that references it. Enumerate each module's REAL export surface
+  // and assert every listed name exists — the whole list, not spot checks.
+
+  /**
+   * The **value** export names of a TS(X) module, statically enumerated (`@babel/parser` +
+   * a walk of the top-level export statements; `export *` is followed into its source). The
+   * workspace siblings are not dependencies of this package — nothing here executes them — so
+   * the surface is read from their `src/`, which also can't go stale the way a dist can.
+   */
+  function exportedValueNames(
+    entryPath: string,
+    seen = new Set<string>()
+  ): Set<string> {
+    const names = new Set<string>();
+    if (seen.has(entryPath)) return names;
+    seen.add(entryPath);
+    const ast = parse(readFileSync(entryPath, "utf8"), {
+      sourceType: "module",
+      plugins: ["typescript", "jsx"]
+    });
+    const resolveRelative = (source: string): string => {
+      for (const ext of [".ts", ".tsx"]) {
+        const candidate = join(dirname(entryPath), source + ext);
+        if (existsSync(candidate)) return candidate;
+      }
+      throw new Error(`cannot resolve ${source} from ${entryPath}`);
+    };
+    for (const node of ast.program.body) {
+      if (node.type === "ExportAllDeclaration") {
+        for (const n of exportedValueNames(
+          resolveRelative(node.source.value),
+          seen
+        )) {
+          names.add(n);
+        }
+      } else if (node.type === "ExportNamedDeclaration") {
+        if (node.exportKind === "type") continue;
+        for (const spec of node.specifiers) {
+          if (spec.type === "ExportSpecifier" && spec.exportKind !== "type") {
+            const exported = spec.exported;
+            names.add(
+              exported.type === "Identifier" ? exported.name : exported.value
+            );
+          }
+        }
+        const decl = node.declaration;
+        if (decl) {
+          if (
+            (decl.type === "FunctionDeclaration" ||
+              decl.type === "ClassDeclaration") &&
+            decl.id
+          ) {
+            names.add(decl.id.name);
+          } else if (decl.type === "VariableDeclaration") {
+            for (const d of decl.declarations) {
+              if (d.id.type === "Identifier") names.add(d.id.name);
+            }
+          }
+          // TS type-alias/interface declarations are type-only — not value exports.
+        }
+      }
     }
-    for (const name of ["createSignal", "Show", "For", "onMount"]) {
-      expect(SOLID_AMBIENT_NAMES).toContain(name);
-    }
+    return names;
+  }
+
+  test("SOLID_RUNTIME_NAMES ⊆ @nota-lang/solid's exports", () => {
+    const surface = exportedValueNames(
+      join(repoRoot, "packages", "solid", "src", "lib.tsx")
+    );
+    expect(SOLID_RUNTIME_NAMES.filter(n => !surface.has(n))).toEqual([]);
+  });
+
+  test("AMBIENT_PRELUDE_NAMES ⊆ @nota-lang/prelude's exports", () => {
+    const surface = exportedValueNames(
+      join(repoRoot, "packages", "prelude", "src", "lib.ts")
+    );
+    expect(AMBIENT_PRELUDE_NAMES.filter(n => !surface.has(n))).toEqual([]);
+  });
+
+  // solid-js is not a dependency of this package either; resolve it the way a built document
+  // would — through @nota-lang/solid's own dependency graph. `createRequire` from that package
+  // loads the CJS server build; the export *surface* is identical across solid's builds.
+  const solidRequire = createRequire(
+    join(repoRoot, "packages", "solid", "package.json")
+  );
+
+  test("SOLID_AMBIENT_NAMES ⊆ solid-js's exports", () => {
+    const solid = solidRequire("solid-js") as Record<string, unknown>;
+    expect(SOLID_AMBIENT_NAMES.filter(n => !(n in solid))).toEqual([]);
+  });
+
+  test("SOLID_WEB_NAMES ⊆ solid-js/web's exports", () => {
+    const web = solidRequire("solid-js/web") as Record<string, unknown>;
+    expect(SOLID_WEB_NAMES.filter(n => !(n in web))).toEqual([]);
   });
 });
 

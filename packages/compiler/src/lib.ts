@@ -83,8 +83,9 @@ export const SOLID_WEB_NAMES = ["Dynamic"] as const;
  * emit may reference free without the document binding them:
  *
  * - the **component slots**: `Tex`/`CodeInline`/`CodeBlock` (math/code), `Heading` (`#` sugar), and
- *   the doc-state family (`<x>`/`&x`/`[^x]`/`[^x]:` sugar lowers to `h(Label|Ref|…)`);
- * - the **config fns** (doc-global, last-write-wins, reset per render): `lstset`/`mathset`/
+ *   the doc-state family (`<x>`/`&x`/`[^x]`/`[^x]:` sugar lowers to `<Label>`/`<Ref>`/… JSX);
+ * - the **config fns** (**positional** — design/solid.md: statements run in document order, so a
+ *   mid-document call affects subsequent blocks only; reset per render): `lstset`/`mathset`/
  *   `secset`/`bibset`, surfacing as bare calls in embedded JS (`% secset({ … })`).
  *
  * {@link compile} binds whichever of these the emit references free (per the reader's scope
@@ -363,8 +364,8 @@ interface VirtualJson {
  *
  * Runs the in-process wasm reader's `compileVirtual`. Unlike {@link compile}, the runtime import is
  * **not** prepended here — the language-server `LanguagePlugin` prepends a runtime+ambient typing
- * preamble (so `h`/`decode`/`useState`/… type-check) and shifts the mappings by its length; doing
- * it here would double-shift.
+ * preamble (so `NotaDoc`/`createSignal`/`Tex`/… type-check) and shifts the mappings by its length;
+ * doing it here would double-shift.
  *
  * The reader uses **EOF error-recovery** on this path, so it does **not** fail on unterminated
  * markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
