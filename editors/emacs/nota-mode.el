@@ -83,6 +83,21 @@
   "Face for _italic_ emphasis content."
   :group 'nota)
 
+(defface nota-strike
+  '((t :strike-through t))
+  "Face for ~~strikethrough~~ emphasis content."
+  :group 'nota)
+
+(defface nota-comment
+  '((t :inherit font-lock-comment-face))
+  "Face for markup comments (// line, /* block */)."
+  :group 'nota)
+
+(defface nota-link-url
+  '((t :inherit font-lock-string-face :underline t))
+  "Face for link/image targets: the url inside [text](url) / ![alt](src)."
+  :group 'nota)
+
 ;;;; Syntax table
 
 (defvar nota-mode-syntax-table
@@ -287,6 +302,73 @@ fences opening before LIMIT; other fences keep their raw paint."
   "Font-lock matcher for _italic_ emphasis before LIMIT."
   (nota--match-emphasis nota--em-re limit))
 
+;;;; Comment / strike / link matchers
+
+;; Each of these fires only on UNCLAIMED text (no face yet): the rules above
+;; them in `nota-font-lock-keywords' -- embedded code, raw spans -- have
+;; already claimed their bytes, so a `//' inside a code span or a `~~' inside
+;; embedded JS can never match.  This is the matcher-level analogue of the
+;; nil-OVERRIDE ordering the rest of the tier relies on.
+
+(defun nota--claimed-p (pos)
+  "Non-nil when POS already carries a face or sits inside a fence string.
+`syntax-ppss' may move point (it parses forward to POS), which would send
+the calling matcher loop backwards — hence the `save-excursion'."
+  (or (get-text-property pos 'face)
+      (save-excursion (nth 3 (syntax-ppss pos)))))
+
+(defun nota--match-unclaimed (regexp limit &optional guard)
+  "Match REGEXP before LIMIT on unclaimed, unescaped text.
+GUARD, when given, is called with no arguments after a candidate match
+\(point at match end) and may reject it by returning nil."
+  (let (found)
+    (while (and (not found) (re-search-forward regexp limit t))
+      (let ((beg (match-beginning 0)))
+        (unless (or (nota--claimed-p beg)
+                    (eq (char-before beg) ?\\)
+                    (and guard (not (save-match-data (funcall guard)))))
+          (setq found t))))
+    found))
+
+(defun nota--comment-opener-before-p (pos)
+  "Non-nil when an unclaimed comment opener (// or /*) precedes POS on its line."
+  (save-excursion
+    (goto-char pos)
+    (let ((bol (line-beginning-position))
+          (found nil))
+      (goto-char bol)
+      (while (and (not found) (re-search-forward "//\\|/\\*" pos t))
+        (let ((beg (match-beginning 0)))
+          (unless (or (nota--claimed-p beg) (eq (char-before beg) ?\\))
+            (setq found t))))
+      found)))
+
+(defun nota--match-line-comment (limit)
+  "Font-lock matcher for a // line comment before LIMIT."
+  (nota--match-unclaimed "//.*$" limit))
+
+(defun nota--match-block-comment (limit)
+  "Font-lock matcher for a same-line /* ... */ block comment before LIMIT.
+A block comment spanning lines is not line-locally decidable and stays
+unpainted (the LSP semantic tokens own it)."
+  (nota--match-unclaimed "/\\*.*?\\*/" limit))
+
+(defun nota--match-link (limit)
+  "Font-lock matcher for [text](url) / ![alt](src) before LIMIT.
+Groups: 1 = the opening (`[' or `!['), 2 = text, 3 = `](', 4 = url,
+5 = `)'.  A `[^' footnote opener is excluded by the text regexp.  This
+rule runs BEFORE the comment rules (a url's `//' is link content, not a
+comment opener), so the reader's positional precedence is restored by
+rejecting a link that sits after a real comment opener on its line."
+  (nota--match-unclaimed
+   "\\(!?\\[\\)\\([^]^[\n][^][\n]*?\\)\\(\\](\\)\\([^()\n]*\\)\\()\\)"
+   limit
+   (lambda () (not (nota--comment-opener-before-p (match-beginning 0))))))
+
+(defun nota--match-strike (limit)
+  "Font-lock matcher for ~~strikethrough~~ before LIMIT."
+  (nota--match-emphasis "\\(~~\\)\\([^ \t\n~][^~\n]*?\\)\\(~~\\)" limit))
+
 (defun nota--match-heading-body (limit)
   "Font-lock matcher for heading lines before LIMIT, skipping raw fences."
   (let (found)
@@ -308,12 +390,15 @@ fences opening before LIMIT; other fences keep their raw paint."
     (nota--match-embedded-fences (0 nil nil t))
     (nota--match-embedded-statements (0 nil nil t))
     ;; Backslash escapes of the documented sigil set.
-    ("\\\\[]@{}|$*_:<&`#+%\\\\[-]" 0 'nota-escape)
+    ("\\\\[]@{}|$*_:<&`#+%~/!()\\\\[-]" 0 'nota-escape)
     ;; Line-leading % statement sigil (the JS rest is owned by the embedded
     ;; fontification above, mirroring the TextMate source.ts delegation).
     ("^[ \t]*\\(%\\)\\(?:[^%\n].*\\)?$" 1 'nota-sigil)
     ;; Heading marker (1-6 #s then whitespace).
     ("^[ \t]*\\(#\\{1,6\\}\\)[ \t]" 1 'nota-delimiter)
+    ;; Thematic break: a run of 3+ dashes alone on its line (a `- ` list
+    ;; marker needs its space, so the two rules cannot collide).
+    ("^[ \t]*\\(-\\{3,\\}\\)[ \t]*$" 1 'nota-delimiter)
     ;; List markers: - / + bullets and N. ordered.
     ("^[ \t]*\\([-+]\\)[ \t]" 1 'nota-delimiter)
     ("^[ \t]*\\([0-9]+\\.\\)[ \t]" 1 'nota-delimiter)
@@ -341,6 +426,17 @@ fences opening before LIMIT; other fences keep their raw paint."
     ;; Inline math.
     ("\\(\\$\\)\\([^$\n]+\\)\\(\\$\\)"
      (1 'nota-delimiter) (2 'nota-math) (3 'nota-delimiter))
+    ;; Links [text](url) and images ![alt](src): delimiters + url; the text
+    ;; group stays unclaimed so the inline rules below still paint it. Before
+    ;; the comment rules — a url's `//` is link content (the matcher rejects a
+    ;; link sitting after a real comment opener on its line).
+    (nota--match-link
+     (1 'nota-delimiter) (3 'nota-delimiter) (4 'nota-link-url)
+     (5 'nota-delimiter))
+    ;; Comments (after the raw spans, whose interiors keep `//` literal; the
+    ;; matchers fire on unclaimed text only). Multi-line /* */ stays unpainted.
+    (nota--match-line-comment 0 'nota-comment)
+    (nota--match-block-comment 0 'nota-comment)
     ;; Element heads glued to a trigger ([, {, or |{): unambiguous tags.
     ("\\(@\\)\\([A-Z][A-Za-z0-9_-]*\\)\\(?:\\[\\|{\\||{\\)"
      (1 'nota-sigil) (2 'nota-component))
@@ -357,6 +453,8 @@ fences opening before LIMIT; other fences keep their raw paint."
      (1 'nota-delimiter) (2 'nota-strong) (3 'nota-delimiter))
     (nota--match-em
      (1 'nota-delimiter) (2 'nota-emphasis) (3 'nota-delimiter))
+    (nota--match-strike
+     (1 'nota-delimiter) (2 'nota-strike) (3 'nota-delimiter))
     ;; Heading overlay, merged over the inline faces painted above.
     (nota--match-heading-body (1 'nota-heading append)))
   "Font-lock keywords for `nota-mode'.")

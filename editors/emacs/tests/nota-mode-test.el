@@ -209,6 +209,62 @@ Searches forward from point for NEEDLE."
     (should-not (nota-test--face-of "x }" 'nota-interpolation))
     (should (nota-test--face-of "y\n" 'nota-interpolation))))
 
+;;;; Comments, thematic breaks, strike, links (2026-08 sugars)
+
+(ert-deftest nota-line-comment ()
+  (nota-test--with-buffer "prose // a note\nmore\n"
+    (should (nota-test--face-of "// a note" 'nota-comment))
+    (should (nota-test--unfontified "prose"))
+    (should (nota-test--unfontified "more"))))
+
+(ert-deftest nota-line-comment-stays-literal-in-raw-spans ()
+  (nota-test--with-buffer "use `a // b` here\n%let u = \"https://x\";\n"
+    ;; Inside a claimed code span the slashes are raw content, not a comment.
+    (should (nota-test--face-of "a //" 'nota-raw))
+    (should-not (nota-test--face-of "// b" 'nota-comment))
+    ;; Inside embedded JS the string is a string.
+    (should-not (nota-test--face-of "//x" 'nota-comment))))
+
+(ert-deftest nota-block-comment-single-line ()
+  (nota-test--with-buffer "a /* gone */ b\n"
+    (should (nota-test--face-of "/* gone */" 'nota-comment))
+    (should (nota-test--unfontified "b\n"))))
+
+(ert-deftest nota-escaped-slashes-are-not-comments ()
+  (nota-test--with-buffer "path \\// stays\n"
+    (should (nota-test--face-of "\\/" 'nota-escape))
+    (should-not (nota-test--face-of "// stays" 'nota-comment))))
+
+(ert-deftest nota-thematic-break ()
+  (nota-test--with-buffer "a\n\n---\n\nb --- c\n"
+    (should (nota-test--face-of "---\n" 'nota-delimiter))
+    ;; Inline dashes are prose.
+    (should (nota-test--unfontified "--- c"))))
+
+(ert-deftest nota-strike ()
+  (nota-test--with-buffer "a ~~gone~~ b and a~~b~~c\n"
+    (should (nota-test--face-of "gone" 'nota-strike))
+    ;; Intra-word pairs stay literal (the word-boundary guard).
+    (should (nota-test--unfontified "b~~c" 2))))
+
+(ert-deftest nota-comment-vs-link-positional-precedence ()
+  ;; The reader is positional: a link's url may hold `//`, but a link after a
+  ;; comment opener is comment content.
+  (nota-test--with-buffer "// see [x](u)\nand [y](https://z) fine\n"
+    (should (nota-test--face-of "// see" 'nota-comment))
+    (should-not (nota-test--face-of "](u)" 'nota-delimiter))
+    (should (nota-test--face-of "https://z" 'nota-link-url))
+    (should-not (nota-test--face-of "//z" 'nota-comment))))
+
+(ert-deftest nota-links-and-images ()
+  (nota-test--with-buffer "see [the docs](https://x.com) and ![owl](o.png)\nplain [1] here\n"
+    (should (nota-test--face-of "https://x.com" 'nota-link-url))
+    (should (nota-test--face-of "o.png" 'nota-link-url))
+    (should (nota-test--face-of "](" 'nota-delimiter))
+    ;; The link text stays open for inline painting; stray brackets stay prose.
+    (should (nota-test--unfontified "the docs"))
+    (should (nota-test--unfontified "[1]"))))
+
 ;;;; Integration corpus smoke: fontification must not error.
 
 (ert-deftest nota-fontify-integration-corpus ()
