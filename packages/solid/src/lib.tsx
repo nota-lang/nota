@@ -624,6 +624,16 @@ export function NotaDoc(props: ParentProps): JSX.Element {
 /** A document component (the `.nota` emit's default export). */
 export type DocComponent = () => JSX.Element;
 
+/** Options for {@link renderDocument}. */
+export interface RenderDocumentOptions {
+  /**
+   * Hydration-key prefix, forwarded to both passes' `renderToString`. A host page holding
+   * several hydrating documents (e.g. Astro islands) allocates one per document so each claims
+   * its own key space; the client must pass the same id to {@link hydrateDocument}.
+   */
+  renderId?: string;
+}
+
 /** The result of {@link renderDocument}. */
 export interface RenderedDocument {
   /** The document HTML (pass 2 — forward references resolved). */
@@ -639,21 +649,31 @@ export interface RenderedDocument {
  * throws "did not converge" (a fact that depends on reading another fact cannot stabilize; the
  * old "query output may not introduce new marks" rule, now emergent).
  */
-export function renderDocument(Doc: DocComponent): RenderedDocument {
+export function renderDocument(
+  Doc: DocComponent,
+  options: RenderDocumentOptions = {}
+): RenderedDocument {
+  const renderOptions = { renderId: options.renderId };
   const pass1 = createDocState();
-  renderToString(() => (
-    <DocStateContext.Provider value={pass1}>
-      <Doc />
-    </DocStateContext.Provider>
-  ));
+  renderToString(
+    () => (
+      <DocStateContext.Provider value={pass1}>
+        <Doc />
+      </DocStateContext.Provider>
+    ),
+    renderOptions
+  );
   const seed = pass1.snapshot();
 
   const pass2 = createDocState(seed);
-  const html = renderToString(() => (
-    <DocStateContext.Provider value={pass2}>
-      <Doc />
-    </DocStateContext.Provider>
-  ));
+  const html = renderToString(
+    () => (
+      <DocStateContext.Provider value={pass2}>
+        <Doc />
+      </DocStateContext.Provider>
+    ),
+    renderOptions
+  );
   const post = pass2.snapshot();
   if (JSON.stringify(post) !== JSON.stringify(seed)) {
     throw new Error(
@@ -677,10 +697,29 @@ export function docStateScript(state: Snapshot): string {
   return `<script type="application/json" id="${DOC_STATE_ID}">${json}</script>`;
 }
 
+/** The default seed transport: the page's embedded `#nota-doc-state` snapshot script. */
+function readPageSeed(): Snapshot | undefined {
+  const seedEl = document.getElementById(DOC_STATE_ID);
+  return seedEl?.textContent != null && seedEl.textContent !== ""
+    ? (JSON.parse(seedEl.textContent) as Snapshot)
+    : undefined;
+}
+
 /** Options for {@link hydrateDocument}. */
 export interface HydrateOptions {
   /** The container holding the server-rendered document. Default: `#nota-root`, else `<body>`. */
   root?: Element;
+  /**
+   * Hydration-key prefix — must equal the {@link RenderDocumentOptions.renderId} the server
+   * render used, or claiming finds no keys and rebuilds the DOM.
+   */
+  renderId?: string;
+  /**
+   * The doc-state seed. Default: parse the page's embedded `#nota-doc-state` script
+   * ({@link docStateScript}). A host that transports the snapshot another way (e.g. an island
+   * attribute) passes it directly.
+   */
+  seed?: Snapshot;
 }
 
 /**
@@ -695,11 +734,7 @@ export function hydrateDocument(
 ): () => void {
   const root =
     opts.root ?? document.getElementById("nota-root") ?? document.body;
-  const seedEl = document.getElementById(DOC_STATE_ID);
-  const seed =
-    seedEl?.textContent != null && seedEl.textContent !== ""
-      ? (JSON.parse(seedEl.textContent) as Snapshot)
-      : undefined;
+  const seed = opts.seed ?? readPageSeed();
   const state = createDocState(seed);
   const dispose = solidHydrate(
     () => (
@@ -707,7 +742,8 @@ export function hydrateDocument(
         <Doc />
       </DocStateContext.Provider>
     ),
-    root
+    root,
+    { renderId: opts.renderId }
   );
   state.release();
   return dispose;

@@ -8,6 +8,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { sharedConfig } from "solid-js";
 import { beforeAll, describe, expect, test } from "vitest";
 import { DOC_STATE_ID, hydrateDocument } from "../src/lib";
 import { Doc } from "./fixtures/doc";
@@ -21,7 +22,13 @@ beforeAll(() => {
   execSync("node tests/ssg.mjs", { cwd: pkgRoot, stdio: "pipe" });
   ssrBody = readFileSync(join(pkgRoot, "tests/.built/body.html"), "utf8");
   ssrState = readFileSync(join(pkgRoot, "tests/.built/state.json"), "utf8");
+  ssrScopedBody = readFileSync(
+    join(pkgRoot, "tests/.built/body-scoped.html"),
+    "utf8"
+  );
 }, 60_000);
+
+let ssrScopedBody: string;
 
 const click = (el: Element) =>
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -115,5 +122,52 @@ describe("ssg + hydration", () => {
     dispose();
     root.remove();
     stateEl.remove();
+  });
+
+  test("host-embedded shape: explicit root + seed + matching renderId claims without mutation", () => {
+    // The Astro-island transport: no page-global state script, no #nota-root — the host hands
+    // the driver everything (renderDocument was called with renderId "s0" server-side).
+    Object.assign(globalThis, {
+      _$HY: { events: [], completed: new WeakSet(), r: {} }
+    });
+    // Simulate a fresh page: the previous test's click() ran Solid's delegated-event handler,
+    // which flips module-level sharedConfig.done ("hydration era over" — later hydrates rebuild
+    // instead of claim). A real page load starts with it unset, like _$HY above.
+    sharedConfig.done = false;
+    const island = document.createElement("div");
+    document.body.appendChild(island);
+    island.innerHTML = ssrScopedBody;
+    const article = island.querySelector("article.nota-doc");
+    if (!article) throw new Error("no article");
+    expect(ssrScopedBody).toContain('data-hk="s0'); // precondition: scoped keys
+
+    const observer = new MutationObserver(() => {});
+    observer.observe(article, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+    const dispose = hydrateDocument(Doc, {
+      root: island,
+      renderId: "s0",
+      seed: JSON.parse(ssrState)
+    });
+    const visible = observer
+      .takeRecords()
+      .filter(r =>
+        [...r.addedNodes, ...r.removedNodes].some(n => n.nodeType !== 8)
+      );
+    observer.disconnect();
+    expect(visible).toEqual([]); // claimed, not rebuilt
+    expect(island.querySelector("article.nota-doc")).toBe(article);
+
+    // Interactivity attached to the claimed nodes.
+    const counter = article.querySelector("button.counter");
+    if (!counter) throw new Error("no counter");
+    click(counter);
+    expect(counter.textContent).toBe("clicks: 1");
+
+    dispose();
+    island.remove();
   });
 });

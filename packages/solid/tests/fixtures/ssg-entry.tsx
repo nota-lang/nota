@@ -6,7 +6,13 @@
 import { renderDocument } from "../../src/lib";
 import { Doc } from "./doc";
 
-export function run(): { body: string; state: string } {
+export function run(): { body: string; state: string; scopedBody: string } {
   const { html, state } = renderDocument(Doc);
-  return { body: html, state: JSON.stringify(state) };
+  // The host-embedding shape (Astro island): hydration keys prefixed by a per-document id.
+  const scoped = renderDocument(Doc, { renderId: "s0" });
+  return {
+    body: html,
+    state: JSON.stringify(state),
+    scopedBody: scoped.html
+  };
 }
