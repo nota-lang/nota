@@ -29,7 +29,7 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
     "@lezer/highlight": "^1.2.3",
-    "@nota-lang/wasm": "workspace:*"
+    "@nota-lang/compiler": "workspace:*"
   },
   "license": "MIT",
   "repository": {

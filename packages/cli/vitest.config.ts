@@ -8,7 +8,7 @@ import wasm from "vite-plugin-wasm";
  * "browser loads the emitted page" acceptance test.
  *
  * Both carry `vite-plugin-wasm`: vitest inlines the linked workspace packages, so the reader
- * chain (`@nota-lang/vite` → compiler → `@nota-lang/wasm`) reaches its `.wasm` ESM import
+ * chain (`@nota-lang/vite` → compiler → its vendored `src/generated`) reaches its `.wasm` ESM import
  * through the transform pipeline (the compiler package's vitest config does the same).
  */
 const inlineDeps = { inline: [/^(?!.*vitest).*$/] };

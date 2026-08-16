@@ -114,9 +114,9 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.3
         version: 1.2.3
-      '@nota-lang/wasm':
+      '@nota-lang/compiler':
         specifier: workspace:*
-        version: link:../wasm
+        version: link:../compiler
 
   packages/compiler:
     dependencies:
@@ -132,9 +132,6 @@ importers:
       '@babel/types':
         specifier: ^7.28.0
         version: 7.29.8
-      '@nota-lang/wasm':
-        specifier: workspace:*
-        version: link:../wasm
     devDependencies:
       '@types/babel__generator':
         specifier: ^7.27.0
@@ -233,9 +230,6 @@ importers:
       '@nota-lang/solid':
         specifier: workspace:*
         version: link:../solid
-      '@nota-lang/wasm':
-        specifier: workspace:*
-        version: link:../wasm
       babel-preset-solid:
         specifier: ^1.9.3
         version: 1.9.12(@babel/core@7.29.7)(solid-js@1.9.13)
@@ -338,12 +332,6 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
-
-  packages/wasm:
-    devDependencies:
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
 
 packages:
 

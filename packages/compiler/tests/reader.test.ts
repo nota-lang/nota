@@ -1,3 +1,11 @@
+/**
+ * The raw wasm reader surface (`@nota-lang/compiler/reader`) — asserted unwrapped, before the
+ * shim in `src/lib.ts` prepends imports or decodes highlight triples. These pin the wasm-bindgen
+ * boundary itself (thrown diagnostics, serde shapes, typed arrays); the shim's own behavior is
+ * covered by compile/virtual/highlight.test.ts.
+ */
+
+import { expect, test } from "vitest";
 import {
   compile,
   compileVirtual,
@@ -5,8 +13,7 @@ import {
   highlight,
   highlightKindNames,
   parseAst
-} from "@nota-lang/wasm";
-import { expect, test } from "vitest";
+} from "../src/reader";
 
 test("compile emits the document module (no runtime import — the integrator prepends it)", () => {
   const { code } = compile("# Hello World");

@@ -23,8 +23,7 @@
     "@babel/generator": "^7.28.0",
     "@babel/parser": "^7.28.0",
     "@babel/traverse": "^7.28.0",
-    "@babel/types": "^7.28.0",
-    "@nota-lang/wasm": "workspace:*"
+    "@babel/types": "^7.28.0"
   },
   "license": "MIT",
   "repository": {

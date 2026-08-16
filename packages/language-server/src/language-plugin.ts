@@ -169,8 +169,8 @@ export interface NotaVirtualCode extends VirtualCode {
  * mappings — TS features (hover/completion/diagnostics) keep working over the parsed prefix instead
  * of blanking out. The Nota syntax diagnostics themselves flow through a separate channel
  * (`./diagnostics.ts`). The `try/catch` now only guards a true *backend* failure (a desynced
- * `@nota-lang/wasm-node` build), for which we degrade to an empty TS module so the server stays
- * alive.
+ * `@nota-lang/compiler` wasm build), for which we degrade to an empty TS module so the server
+ * stays alive.
  */
 function createNotaVirtualCode(snapshot: ts.IScriptSnapshot): NotaVirtualCode {
   const source = snapshot.getText(0, snapshot.getLength());

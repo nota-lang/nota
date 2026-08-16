@@ -12,7 +12,7 @@
  */
 
 import { compile } from "@nota-lang/compiler";
-import { parseAst } from "@nota-lang/wasm";
+import { parseAst } from "@nota-lang/compiler/reader";
 import { compileAndEval, type DocFn } from "./solid-eval";
 
 /** The result of running the pipeline over the current editor value. */

@@ -4,8 +4,8 @@ import wasm from "vite-plugin-wasm";
 
 /**
  * One node project: the shim unit tests drive the real reader and assert the emit surface as
- * text — no framework, no DOM. `vite-plugin-wasm` + `deps.inline` because vitest transforms the
- * linked `@nota-lang/wasm` package, whose `.wasm` ESM import needs the plugin.
+ * text — no framework, no DOM. `vite-plugin-wasm` + `deps.inline` because the vendored reader in
+ * `src/generated` imports its `.wasm` as an ESM module, which needs the plugin.
  */
 const inlineDeps = { inline: [/^(?!.*vitest).*$/] };
 

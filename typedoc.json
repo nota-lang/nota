@@ -6,15 +6,12 @@
   },
   "entryPointStrategy": "packages",
   "entryPoints": [
-    "packages/runtime",
-    "packages/react",
     "packages/solid",
     "packages/compiler",
     "packages/prelude",
+    "packages/paper",
     "packages/vite",
-    "packages/wasm",
-    "packages/wasm",
-    "packages/wasm",
-    "packages/wasm"
+    "packages/astro",
+    "packages/codemirror"
   ]
 }

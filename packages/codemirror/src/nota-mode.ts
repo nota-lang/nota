@@ -34,7 +34,7 @@ import {
   ViewPlugin,
   type ViewUpdate
 } from "@codemirror/view";
-import { highlight, highlightKindNames } from "@nota-lang/wasm";
+import { highlight, highlightKindNames } from "@nota-lang/compiler/reader";
 import { embeddedTokens } from "./embedded-langs";
 import { catppuccinHighlight } from "./highlight-style";
 

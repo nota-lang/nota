@@ -2,8 +2,7 @@
  * `@nota-lang/compiler` — `highlightSpans` (reader-driven highlight spans via the node wasm).
  *
  * This is the source of truth for the language server's reader-driven semantic tokens. It drives
- * the node-target wasm reader (`@nota-lang/wasm-node` — the workspace dep on
- * `oxc/napi/nota_wasm/pkg-node`, built by `just nota-build` in oxc/).
+ * the wasm reader vendored in this package (`src/generated`, built by `just nota-build` in oxc/).
  */
 
 import { describe, expect, test } from "vitest";

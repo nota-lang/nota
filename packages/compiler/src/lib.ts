@@ -20,14 +20,15 @@
  * The reader stays mechanism (which names are free); which module supplies them is policy and
  * lives here, under the integrator's control (`prelude: false` disables the injection).
  *
- * The backend is the node-target wasm reader, `@nota-lang/wasm-node` (`wasm-pack build --target
- * nodejs`; the workspace dep on the repo's `oxc/napi/nota_wasm/pkg-node` in development, an npm
- * package outside it), imported like any other dependency. It exposes the same `oxc::nota` entries
- * (`compile` / `compileVirtual` / `highlight`) in-process — no subprocess, no temp files — so
- * installs need no Rust toolchain and no platform-specific binary.
+ * The backend is the wasm reader itself, shipped **inside this package**: `src/generated/` is the
+ * wasm-bindgen bundler-target build of `oxc/target/js`, copied in by `build.mjs` (gitignored;
+ * rebuilt by `just nota-build` in `oxc/`) and re-exported raw as {@link ./reader.ts} —
+ * `@nota-lang/compiler/reader` — for consumers that want the unwrapped entries. It exposes the
+ * `oxc::nota` entries (`compile` / `compileVirtual` / `highlight` / `parseAst`) in-process — no
+ * subprocess, no temp files — so installs need no Rust toolchain and no platform-specific binary.
  */
 
-import * as reader from "@nota-lang/wasm";
+import * as reader from "./reader.js";
 
 /** The Solid-runtime module the emit's structural names are bound to. */
 export const SOLID_RUNTIME_MODULE = "@nota-lang/solid";
@@ -228,7 +229,7 @@ export function compile(
     // classic stale-artifact trap. Fail loudly instead (cf. validateVirtual).
     const where = opts.sourcePath ? ` (${opts.sourcePath})` : "";
     throw new Error(
-      `nota: reader emit missing \`freeNames\` — stale @nota-lang/wasm build?${where}`
+      `nota: reader emit missing \`freeNames\` — stale src/generated wasm build?${where}`
     );
   }
 

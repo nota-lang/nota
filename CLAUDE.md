@@ -34,9 +34,11 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
     `Bibliography`), the **definition-tooltip system** (`Definition`/def-aware `Ref`/`texRef` +
     a vanilla-JS tooltip trailer — zero framework JS; `src/def.ts`), plus
     `lstset`/`mathset`/`secset`/`bibset` config (doc-global, reset per render, bakeable baseline).
-  - **compiler** — sync shim (`src/lib.ts`) over the in-process **node-wasm reader**,
-    `@nota-lang/wasm-node` — an ordinary static `import` of a `workspace:*` dep. No subprocess
-    backend, no env-var overrides.
+  - **compiler** — sync shim (`src/lib.ts`) over the in-process wasm reader, which **lives in this
+    package**: `build.mjs` copies the wasm-bindgen build (`oxc/target/js`) into `src/generated/`
+    (gitignored) and `src/reader.ts` re-exports it raw as `@nota-lang/compiler/reader`. No subprocess
+    backend, no env-var overrides, and **no separate wasm package** — every other package that wants
+    the reader (codemirror's `highlight`, the playground's `parseAst`) imports that subpath.
     Entries: `compile` (emit) / `compileVirtual` (Volar `.tsx`) / `highlightSpans`.
   - **react** / **solid** — adapter bindings (`h`/Fragment/decode/hydrate/SSR). **solid has no own
     tests**; both adapters are driven by the conformance matrix in `packages/react/tests/`.
@@ -120,17 +122,13 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
 
 ### Build artifacts — the stale-output trap (this repeatedly cost hours)
 A reader change is invisible to JS until you rebuild the artifact that consumes it. Canonical wasm
-build: **`cd oxc && just nota-build`** (both targets) — it runs wasm-pack AND patches the generated
-package.json names to `@nota-lang/wasm` / `@nota-lang/wasm-node`; raw wasm-pack leaves the
-crate-derived name `nota_wasm`, which breaks the workspace deps.
-- The generated out-dirs are **pnpm workspace members** (listed in `pnpm-workspace.yaml`), consumed
-  as `workspace:*` deps — symlinks, so a rebuild propagates with NO reinstall. Missing out-dir →
-  "not found in workspace" at install.
-  **wasm — node** (`@nota-lang/wasm-node`, the compiler shim's backend →
-  vite/cli/language-server): `oxc/napi/nota_wasm/pkg-node/` (CommonJS, sync init).
-  **wasm — web** (`@nota-lang/wasm`, codemirror + playground): `oxc/napi/nota_wasm/pkg/`.
-  Rebuild BOTH wasm targets after a reader change — `pkg/` and `pkg-node/` are independent
-  artifacts. Both are gitignored (wasm-pack writes a `.gitignore: *` in each out-dir).
+build: **`cd oxc && just nota-build`** → `oxc/target/js` (one **bundler-target** wasm-bindgen build,
+isomorphic; consumers need `vite-plugin-wasm` for its `.wasm` ESM import).
+- That out-dir is **vendored into `@nota-lang/compiler`**, not a workspace member: `depot build` in
+  packages/compiler runs `build.mjs`, which `cpSync`s `oxc/target/js` → `packages/compiler/src/generated/`
+  (gitignored via the package's own `.gitignore`; excluded from biome; copied to `dist/generated/`
+  because depot ships `.wasm` as an asset). So after a reader change: `just nota-build`, **then**
+  `cd packages/compiler && depot build` — the copy only happens at compiler build time.
 - JS packages consume each other's **built `dist/`, not `src/`** — after editing pkg A,
   `cd packages/A && depot build` before pkg B / a cross-package test sees the change.
 
@@ -153,8 +151,9 @@ Distribution is **npm** (`@nota-lang/*`). The ritual: file a PR titled `vX.Y.Z` 
 public`, `NPM_TOKEN` secret). Version is stamped in CI from the PR title (`pnpm -r exec npm pkg
 set version=…`) — no bump commits; the in-repo versions are placeholders. `pnpm publish` rewrites
 `workspace:*` deps to the stamped version at pack time, so there are no pack/rewrite scripts.
-Publishes every non-private workspace package: the 8 `packages/*` libs + both wasm packages
-(10 total; language-server/playground/vscode-nota are private). The vsix is **not** part of the
+Publishes every non-private workspace package: the 8 `packages/*` libs (the wasm reader ships
+*inside* `@nota-lang/compiler`'s `dist/generated/`; language-server/playground/vscode-nota are
+private). The vsix is **not** part of the
 release pipeline for now — `packages/vscode-nota/scripts/package-vsix.mjs` still builds one
 locally (esbuild-bundles client + server with the wasm reader JS inlined and its `.wasm` bytes
 next to the bundle, LSP-handshakes it, `vsce package --no-dependencies`).

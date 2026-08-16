@@ -1,1 +1,2 @@
+# The wasm-bindgen reader build, copied in from oxc/target/js by build.mjs.
 src/generated

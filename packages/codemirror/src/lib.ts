@@ -5,8 +5,8 @@
  * (embedded-langs.ts), and both layers color through one Catppuccin-Latte `HighlightStyle`
  * (highlight-style.ts).
  *
- * The wasm reader (`@nota-lang/wasm`) instantiates when the module graph loads — no init step;
- * {@link notaHighlighting} is usable as soon as the import resolves.
+ * The wasm reader (`@nota-lang/compiler/reader`) instantiates when the module graph loads — no init
+ * step; {@link notaHighlighting} is usable as soon as the import resolves.
  */
 
 export {

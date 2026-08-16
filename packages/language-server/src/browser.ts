@@ -22,8 +22,9 @@
  * baked into the virtual `.tsx` (see `preamble-gen.ts`), and the `.nota` documents themselves are
  * open documents synced over the connection (open docs shadow the fs in Volar).
  *
- * The wasm reader is the bundler-target `@nota-lang/wasm` (ESM `.wasm` import, instantiated when
- * the worker's module graph loads) — the same artifact the playground's main thread already uses.
+ * The wasm reader is the bundler-target build vendored in `@nota-lang/compiler` (ESM `.wasm`
+ * import, instantiated when the worker's module graph loads) — the same artifact the playground's
+ * main thread already uses.
  */
 
 import {
