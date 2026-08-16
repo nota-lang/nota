@@ -1,0 +1,44 @@
+{
+  "name": "@nota-lang/astro",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "default": "./dist/lib.js"
+    },
+    "./server": {
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "default": "./dist/client.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "node",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/vite": "workspace:*",
+    "solid-js": "^1.9.3"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0"
+  },
+  "devDependencies": {
+    "@nota-lang/prelude": "workspace:*",
+    "astro": "^7.2.2",
+    "vite": "^8.0.16"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/astro"
+  }
+}
