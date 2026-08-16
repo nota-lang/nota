@@ -243,7 +243,11 @@ unreferenced-definition drop, duplicate errors); only the mechanism changes:
   mid-document `%lstset(…)` affects subsequent code blocks only (statements execute in document
   order during the single component-body run), not "last write wins globally". This matches
   LaTeX's actual `\lstset` and is the more defensible semantics; flagged as an intentional
-  change.
+  change. Because config is module-global and the driver renders twice, the reset-to-baked-
+  baseline runs at the start of **every** pass (and before hydration claims), via
+  `@nota-lang/solid`'s `onRenderReset` seam — the prelude registers `resetConfig` at module
+  load; without the per-pass reset, pass 1's end-state seeds pass 2 and positionality is
+  destroyed in the converged HTML.
 
 ## SSG & the trades we're making
 

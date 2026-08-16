@@ -11,6 +11,7 @@
 import type { JSX } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
+import { runRenderResets } from "./render-reset";
 import type { SmartOptions } from "./smart";
 
 /** A document component (the `.nota` emit's default export). */
@@ -46,6 +47,11 @@ export interface RenderedDocument {
  * are correct in the static HTML. Pass 2's registrations must reproduce the seed — a mismatch
  * throws "did not converge" (a fact that depends on reading another fact cannot stabilize; the
  * old "query output may not introduce new marks" rule, now emergent).
+ *
+ * Each pass starts by running the registered render resets ({@link onRenderReset}) — positional
+ * module-global config (the prelude's `mathset`/`lstset`/…) must start every pass from its baked
+ * baseline, or pass 1's end-state leaks into pass 2 and a mid-document config call governs the
+ * whole converged HTML.
  */
 export function renderDocument(
   Doc: DocComponent,
@@ -54,6 +60,7 @@ export function renderDocument(
   const renderOptions = { renderId: options.renderId };
   const stateOptions = { smart: options.smart };
   const pass1 = createDocState(undefined, stateOptions);
+  runRenderResets();
   renderToString(
     () => (
       <DocStateContext.Provider value={pass1}>
@@ -65,6 +72,7 @@ export function renderDocument(
   const seed = pass1.snapshot();
 
   const pass2 = createDocState(seed, stateOptions);
+  runRenderResets();
   const html = renderToString(
     () => (
       <DocStateContext.Provider value={pass2}>
@@ -131,6 +139,11 @@ export interface HydrateOptions {
  * and `hydrate` — every doc-state read during claiming matches the server bytes. Once hydration
  * returns the seed is released: resolved reads switch to the (identical, converged) live facts
  * and reactivity owns the numbers from then on. Returns Solid's dispose function.
+ *
+ * Runs the registered render resets ({@link onRenderReset}) before claiming: replay re-executes
+ * the document's config calls, and it must start from the same baked baseline the server passes
+ * did — on a multi-document page (Astro islands) each hydration would otherwise inherit the
+ * previous document's config end-state and mis-claim.
  */
 export function hydrateDocument(
   Doc: DocComponent,
@@ -139,6 +152,7 @@ export function hydrateDocument(
   const root =
     opts.root ?? document.getElementById("nota-root") ?? document.body;
   const seed = opts.seed ?? readPageSeed();
+  runRenderResets();
   const state = createDocState(seed, { smart: opts.smart });
   const dispose = solidHydrate(
     () => (

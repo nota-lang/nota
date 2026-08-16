@@ -14,6 +14,7 @@ import {
   docStateScript,
   NotaDoc,
   OlLi,
+  onRenderReset,
   Reforest,
   renderDocument,
   textOf,
@@ -189,6 +190,54 @@ describe("renderDocument (two-pass SSG)", () => {
   });
 });
 
+describe("render-scoped resets (onRenderReset)", () => {
+  test("callbacks run at the start of each pass, in registration order", () => {
+    const log: string[] = [];
+    const offA = onRenderReset(() => log.push("a"));
+    const offB = onRenderReset(() => log.push("b"));
+    const Tiny = () => <NotaDoc>{"x"}</NotaDoc>;
+    renderDocument(Tiny);
+    expect(log).toEqual(["a", "b", "a", "b"]); // two passes, registration order each time
+
+    // Unregister removes exactly the returned callback.
+    offA();
+    log.length = 0;
+    renderDocument(Tiny);
+    expect(log).toEqual(["b", "b"]);
+    offB();
+    log.length = 0;
+    renderDocument(Tiny);
+    expect(log).toEqual([]);
+  });
+
+  test("positional module-global state is pass-consistent under the reset", () => {
+    // A stand-in for a config module: a global mutated mid-document, reset to its baseline.
+    let mode = "default";
+    const off = onRenderReset(() => {
+      mode = "default";
+    });
+    const seen: string[] = [];
+    const Probe = () => {
+      seen.push(mode);
+      return null;
+    };
+    const Doc2 = () => (
+      <NotaDoc>
+        <Probe />
+        {(() => {
+          mode = "changed";
+          return null;
+        })()}
+        <Probe />
+      </NotaDoc>
+    );
+    renderDocument(Doc2);
+    // Both passes observe default-then-changed — pass 2 did NOT start from pass 1's end-state.
+    expect(seen).toEqual(["default", "changed", "default", "changed"]);
+    off();
+  });
+});
+
 describe("docStateScript", () => {
   test("embeds JSON with < escaped", () => {
     const tag = docStateScript({ heading: [{ text: "</script>alert(1)" }] });
@@ -295,7 +344,9 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
     expect(off).toContain('"x" -- y...');
 
     const viaStore = renderToString(() => (
-      <DocStateContext.Provider value={createDocState(undefined, { smart: false })}>
+      <DocStateContext.Provider
+        value={createDocState(undefined, { smart: false })}
+      >
         <Reforest>{'"x" -- y...'}</Reforest>
       </DocStateContext.Provider>
     ));

@@ -612,6 +612,35 @@ describe("mathset", () => {
     const html = clean(renderDocument(Doc).html);
     expect(html).toContain("katex-html");
   });
+
+  test("positionality survives the two-pass driver: a Tex before a mid-doc mathset stays MathML", () => {
+    // The regression this pins: pass 1 ends in html mode, and without a per-pass config reset
+    // pass 2 STARTS there — both formulas converge as KaTeX-HTML. Each pass must restart from
+    // the baked baseline (the drivers run the prelude's registered resetConfig).
+    const Doc = () => (
+      <NotaDoc>
+        <Tex>{"a"}</Tex>
+        {(() => {
+          mathset({ output: "html" });
+          return null;
+        })()}
+        <Tex>{"b"}</Tex>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const first = html.indexOf('class="nota-tex"');
+    const second = html.indexOf('class="nota-tex"', first + 1);
+    expect(first).toBeGreaterThanOrEqual(0);
+    expect(second).toBeGreaterThan(first);
+    const before = html.slice(first, second);
+    const after = html.slice(second);
+    // Before the call: MathML, no KaTeX-HTML spans.
+    expect(before).toContain("<math");
+    expect(before).not.toContain("katex-html");
+    // After the call: KaTeX-HTML spans, no MathML.
+    expect(after).toContain("katex-html");
+    expect(after).not.toContain("<math");
+  });
 });
 
 describe("texRef", () => {
@@ -739,6 +768,29 @@ describe("tex + code", () => {
     );
     const html = clean(renderDocument(Doc).html);
     expect(html).toMatch(/<pre class="shiki/);
+  });
+
+  test("lstset positionality survives the two-pass driver: an earlier inline stays plain", () => {
+    // Same shape as the mathset two-pass regression: without the per-pass reset, pass 1's
+    // lang leaks into pass 2's start-state and the first inline highlights too.
+    const Doc = () => (
+      <NotaDoc>
+        <CodeInline>{"f(x)"}</CodeInline>
+        {(() => {
+          lstset({ lang: "js" });
+          return null;
+        })()}
+        <CodeInline>{"f(x)"}</CodeInline>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const first = html.indexOf("nota-code-inline");
+    const second = html.indexOf("nota-code-inline", first + 1);
+    expect(first).toBeGreaterThanOrEqual(0);
+    expect(second).toBeGreaterThan(first);
+    // Before the call: a plain <code>, no shiki token runs. After: highlighted runs.
+    expect(html.slice(first, second)).not.toContain("<span style=");
+    expect(html.slice(second)).toContain('<span style="color:');
   });
 
   test("a text-less armed part contributes nothing and warns once (across both passes)", () => {

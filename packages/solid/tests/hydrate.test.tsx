@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { sharedConfig } from "solid-js";
 import { beforeAll, describe, expect, test } from "vitest";
-import { DOC_STATE_ID, hydrateDocument } from "../src/lib";
+import { DOC_STATE_ID, hydrateDocument, onRenderReset } from "../src/lib";
 import { Doc } from "./fixtures/doc";
 
 // vitest runs with cwd at the package root.
@@ -169,5 +169,28 @@ describe("ssg + hydration", () => {
 
     dispose();
     island.remove();
+  });
+
+  test("hydrateDocument runs the render resets once, before claiming", () => {
+    Object.assign(globalThis, {
+      _$HY: { events: [], completed: new WeakSet(), r: {} }
+    });
+    sharedConfig.done = false;
+    let runs = 0;
+    const off = onRenderReset(() => {
+      runs += 1;
+    });
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    root.innerHTML = ssrBody;
+    const dispose = hydrateDocument(Doc, {
+      root,
+      seed: JSON.parse(ssrState)
+    });
+    // One render on the client = one reset (replay starts from the baseline, like each SSG pass).
+    expect(runs).toBe(1);
+    dispose();
+    off();
+    root.remove();
   });
 });

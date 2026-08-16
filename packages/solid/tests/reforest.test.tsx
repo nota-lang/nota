@@ -243,14 +243,17 @@ describe("smart punctuation (the string rules + the DOM walk)", () => {
     expect(smartDashesString("I had --- maybe 13 -- 20 --- hob-nobs.")).toBe(
       "I had—maybe 13–20—hob-nobs."
     );
-    const tricky = "\"Why,\" she could've asked, \"are we in O‘ahu watching 'Mame'?\"";
+    const tricky =
+      '"Why," she could\'ve asked, "are we in O‘ahu watching \'Mame\'?"';
     expect(smartQuotesString(tricky)).toBe(
       "“Why,” she could’ve asked, “are we in O‘ahu watching ‘Mame’?”"
     );
     expect(smartQuotesString('"what\'s in it for me?",')).toBe(
       "“what’s in it for me?”,"
     );
-    expect(smartQuotesString("\"'Impossible.' Yes.\"")).toBe("“‘Impossible.’ Yes.”");
+    expect(smartQuotesString("\"'Impossible.' Yes.\"")).toBe(
+      "“‘Impossible.’ Yes.”"
+    );
     expect(smartQuotesString('("No.")')).toBe("(“No.”)");
     expect(smartEllipsesString("so...")).toBe("so…");
     // The Nota divergence: dashes never eat a newline (the paragraph-break contract).
@@ -260,11 +263,12 @@ describe("smart punctuation (the string rules + the DOM walk)", () => {
   test("the DOM walk transforms text nodes, skips exclusions, and is idempotent", async () => {
     const { smarten } = await import("../src/smart");
     const el = document.createElement("div");
-    el.innerHTML = 'say "hi" and <code>"raw"</code> and <span data-nota-nosmart="">"keep"</span>';
+    el.innerHTML =
+      'say "hi" and <code>"raw"</code> and <span data-nota-nosmart="">"keep"</span>';
     smarten([el]);
     const once = el.innerHTML;
     expect(once).toContain("say “hi”");
-    expect(once).toContain("<code>\"raw\"</code>");
+    expect(once).toContain('<code>"raw"</code>');
     expect(once).toContain('"keep"');
     smarten([el]);
     expect(el.innerHTML).toBe(once); // idempotent

@@ -11,9 +11,14 @@
  * `% lstset(…)` affects subsequent code blocks only (matching LaTeX's actual `\lstset`), not
  * "last write wins globally". Config is module-global with a bakeable baseline: a site setup
  * module calls `lstset`/… then {@link bakeConfigBaseline}; {@link resetConfig} restores the
- * baseline (the CLI calls it before each document build).
+ * baseline. The reset is registered with `@nota-lang/solid`'s render-reset seam
+ * ({@link onRenderReset}) at module load, so every document render — **each SSG pass** of
+ * `renderDocument`, and `hydrateDocument` before claiming — starts from the baseline. Without
+ * the per-pass reset, pass 1's end-state would seed pass 2 and positionality would be destroyed
+ * in the converged HTML.
  */
 
+import { onRenderReset } from "@nota-lang/solid";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 
 /** Options for {@link lstset}. All fields merge into the current document config. */
@@ -153,10 +158,17 @@ export function bakeConfigBaseline(): void {
   baseline = clone(current);
 }
 
-/** Restore the baked baseline (the CLI calls this before each document build). */
+/**
+ * Restore the baked baseline. Registered as a render reset below, so the drivers run it at the
+ * start of every document render (each SSG pass; hydration before claiming) — callable directly
+ * by hosts with their own render loop.
+ */
 export function resetConfig(): void {
   current = clone(baseline);
 }
+
+// Module-scope registration: config is render-scoped state, reset per pass (module docs above).
+onRenderReset(resetConfig);
 
 /** The live config (read by the default components at render time). */
 export function config(): Readonly<PreludeConfig> {
