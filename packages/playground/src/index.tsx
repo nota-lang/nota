@@ -1,5 +1,5 @@
-import ReactDOM from "react-dom/client";
+import { render } from "solid-js/web";
 import { App } from "./App";
 import "../styles/playground.css";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
+render(() => <App />, document.getElementById("root")!);

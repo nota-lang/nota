@@ -1,7 +1,7 @@
 /**
- * The CM6 editor (left pane). A thin React wrapper that owns the `EditorView` lifecycle and pushes
- * doc changes up through `onChange`. The `language` extension (Nota highlighting) is held in a
- * Compartment so it can be swapped without rebuilding the editor.
+ * The CM6 editor (left pane). A thin Solid wrapper that owns the `EditorView` lifecycle and
+ * pushes doc changes up through `onChange`. The `language` extension (Nota highlighting) is held
+ * in a Compartment so it can be swapped without rebuilding the editor.
  */
 
 import {
@@ -17,7 +17,7 @@ import {
   keymap,
   lineNumbers
 } from "@codemirror/view";
-import { useEffect, useRef } from "react";
+import { createEffect, onCleanup, onMount } from "solid-js";
 
 export interface EditorProps {
   value: string;
@@ -28,19 +28,14 @@ export interface EditorProps {
   extensions?: Extension;
 }
 
-export function Editor({ value, onChange, language, extensions }: EditorProps) {
-  const host = useRef<HTMLDivElement | null>(null);
-  const view = useRef<EditorView | null>(null);
-  const langCompartment = useRef(new Compartment());
-  // Keep the latest onChange without recreating the editor.
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+export function Editor(props: EditorProps) {
+  let host!: HTMLDivElement;
+  let view: EditorView | null = null;
+  const langCompartment = new Compartment();
 
-  // Mount once. `language` enters through the compartment and is reconfigured by the effect below.
-  useEffect(() => {
-    if (!host.current) return;
-    const v = new EditorView({
-      doc: value,
+  onMount(() => {
+    view = new EditorView({
+      doc: props.value,
       extensions: [
         lineNumbers(),
         history(),
@@ -49,42 +44,42 @@ export function Editor({ value, onChange, language, extensions }: EditorProps) {
         // focus traversal); this editor is the primary focus target, so we opt into tab-to-indent.
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
-        langCompartment.current.of(language ?? []),
-        extensions ?? [],
+        langCompartment.of(props.language ?? []),
+        props.extensions ?? [],
         EditorView.updateListener.of(update => {
           if (update.docChanged) {
-            onChangeRef.current(update.state.doc.toString());
+            props.onChange(update.state.doc.toString());
           }
         })
       ],
-      parent: host.current
+      parent: host
     });
-    view.current = v;
-    return () => {
-      v.destroy();
-      view.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once; value/language handled below.
-  }, []);
+  });
 
-  // Swap the language extension in/out when it changes (e.g. the async highlighter resolving).
-  useEffect(() => {
-    view.current?.dispatch({
-      effects: langCompartment.current.reconfigure(language ?? [])
+  onCleanup(() => {
+    view?.destroy();
+    view = null;
+  });
+
+  // Swap the language extension in/out when it changes (e.g. an async highlighter resolving).
+  createEffect(() => {
+    const language = props.language;
+    view?.dispatch({
+      effects: langCompartment.reconfigure(language ?? [])
     });
-  }, [language]);
+  });
 
   // Reflect external `value` changes (e.g. "load example") back into the editor.
-  useEffect(() => {
-    const v = view.current;
-    if (!v) return;
-    const current = v.state.doc.toString();
+  createEffect(() => {
+    const value = props.value;
+    if (!view) return;
+    const current = view.state.doc.toString();
     if (current !== value) {
-      v.dispatch({
+      view.dispatch({
         changes: { from: 0, to: current.length, insert: value }
       });
     }
-  }, [value]);
+  });
 
-  return <div className="editor" ref={host} />;
+  return <div class="editor" ref={host} />;
 }

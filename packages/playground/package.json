@@ -9,6 +9,7 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
+    "@babel/standalone": "^7.28.0",
     "@codemirror/commands": "^6.6.2",
     "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -20,17 +21,18 @@
     "@nota-lang/compiler": "workspace:*",
     "@nota-lang/language-server": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/react": "workspace:*",
-    "@nota-lang/runtime": "workspace:*",
-    "@nota-lang/vite": "workspace:*",
+    "@nota-lang/solid": "workspace:*",
     "@nota-lang/wasm": "workspace:*",
+    "babel-preset-solid": "^1.9.3",
     "prettier": "^3.8.4",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "solid-js": "^1.9.3",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@lezer/highlight": "^1.2.3",
-    "normalize.css": "^8.0.1"
+    "@types/babel__standalone": "^7.1.9",
+    "jsdom": "^29.1.1",
+    "normalize.css": "^8.0.1",
+    "vite-plugin-solid": "^2.11.10"
   }
 }

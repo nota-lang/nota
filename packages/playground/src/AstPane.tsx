@@ -1,20 +1,20 @@
 /**
- * The AST output pane: an **interactive tree** over the post-parse Nota AST. The reader hands back
- * ESTree JSON (`parseNotaAst` → a string we `JSON.parse`); this renders it as a collapsible tree
- * where each row shows only the node's `type` and a one-line source preview, and a click on the
- * disclosure arrow drills into its children.
+ * The AST output pane: an **interactive tree** over the post-parse Nota AST. The reader hands
+ * back ESTree JSON (`parseAst` → a string we `JSON.parse`); this renders it as a collapsible
+ * tree where each row shows only the node's `type` and a one-line source preview, and a click on
+ * the disclosure arrow drills into its children.
  *
  * The walk is generic — it assumes nothing about specific Nota node shapes:
  *   - a **node** is any object with a string `type` field;
- *   - a node's **children** are its node-valued fields, descending into arrays (label = field path);
- *   - the **preview** is the first line of the source the node spans (`source.slice(start, end)`),
- *     so it works for every node kind without per-type code.
+ *   - a node's **children** are its node-valued fields, descending into arrays (label = path);
+ *   - the **preview** is the first line of the source the node spans, so it works for every node
+ *     kind without per-type code.
  *
- * `source` is the text that produced this AST (the pipeline keeps them paired as `ast`/`astSource`),
- * so node offsets index the right characters even when the editor has raced ahead after a parse error.
+ * `source` is the text that produced this AST (the pipeline keeps them paired), so node offsets
+ * index the right characters even when the editor has raced ahead after a parse error.
  */
 
-import { useMemo, useState } from "react";
+import { createMemo, createSignal, For, Show } from "solid-js";
 
 /** An AST node: a JSON object with a string `type`. Other fields are children or scalar props. */
 interface AstNodeValue {
@@ -28,8 +28,8 @@ interface AstNodeValue {
 const META_KEYS = new Set(["type", "start", "end", "range"]);
 
 /** How deep the tree auto-expands. The Nota document sits under a fixed wrapper chain
- * (`Program → ExpressionStatement → NotaMarkup → NotaDocument`), so opening the first four levels
- * reveals the document's top-level items collapsed, ready to drill into. */
+ * (`Program → ExpressionStatement → NotaMarkup → NotaDocument`), so opening the first four
+ * levels reveals the document's top-level items collapsed, ready to drill into. */
 const DEFAULT_OPEN_DEPTH = 4;
 
 const isNode = (value: unknown): value is AstNodeValue =>
@@ -91,94 +91,103 @@ interface AstNodeProps {
   depth: number;
 }
 
-function AstNode({ node, label, source, depth }: AstNodeProps) {
-  const children = useMemo(() => childEntries(node), [node]);
-  const props = useMemo(() => scalarProps(node), [node]);
-  const hasBody = children.length > 0 || props.length > 0;
-  const [open, setOpen] = useState(depth < DEFAULT_OPEN_DEPTH);
+function AstNode(props: AstNodeProps) {
+  const children = createMemo(() => childEntries(props.node));
+  const scalars = createMemo(() => scalarProps(props.node));
+  const hasBody = () => children().length > 0 || scalars().length > 0;
+  const [open, setOpen] = createSignal(props.depth < DEFAULT_OPEN_DEPTH);
 
-  const indent = { paddingLeft: `${depth * 0.85 + 0.4}rem` };
-  const head = (
+  const indent = { "padding-left": `${props.depth * 0.85 + 0.4}rem` };
+  const Head = () => (
     <>
-      <span className="ast-toggle">{hasBody ? (open ? "▾" : "▸") : "·"}</span>
-      {label !== null && <span className="ast-field">{label}</span>}
-      <span className="ast-type">{node.type}</span>
-      <span className="ast-preview">{preview(node, source)}</span>
+      <span class="ast-toggle">{hasBody() ? (open() ? "▾" : "▸") : "·"}</span>
+      <Show when={props.label !== null}>
+        <span class="ast-field">{props.label}</span>
+      </Show>
+      <span class="ast-type">{props.node.type}</span>
+      <span class="ast-preview">{preview(props.node, props.source)}</span>
     </>
   );
 
   return (
-    <div className="ast-node">
-      {hasBody ? (
+    <div class="ast-node">
+      <Show
+        when={hasBody()}
+        fallback={
+          <div class="ast-row ast-leaf" style={indent}>
+            <Head />
+          </div>
+        }
+      >
         <button
           type="button"
-          className="ast-row"
+          class="ast-row"
           style={indent}
-          aria-expanded={open}
+          aria-expanded={open()}
           onClick={() => setOpen(o => !o)}
         >
-          {head}
+          <Head />
         </button>
-      ) : (
-        <div className="ast-row ast-leaf" style={indent}>
-          {head}
-        </div>
-      )}
+      </Show>
 
-      {open && hasBody && (
-        <div className="ast-children">
-          {props.map(p => (
-            <div
-              key={p.key}
-              className="ast-row ast-prop"
-              style={{ paddingLeft: `${(depth + 1) * 0.85 + 0.4}rem` }}
-            >
-              <span className="ast-toggle">·</span>
-              <span className="ast-field">{p.key}</span>
-              <span className="ast-scalar">{p.value}</span>
-            </div>
-          ))}
-          {children.map((c, i) => (
-            <AstNode
-              key={`${c.label}-${i}`}
-              node={c.node}
-              label={c.label}
-              source={source}
-              depth={depth + 1}
-            />
-          ))}
+      <Show when={open() && hasBody()}>
+        <div class="ast-children">
+          <For each={scalars()}>
+            {p => (
+              <div
+                class="ast-row ast-prop"
+                style={{
+                  "padding-left": `${(props.depth + 1) * 0.85 + 0.4}rem`
+                }}
+              >
+                <span class="ast-toggle">·</span>
+                <span class="ast-field">{p.key}</span>
+                <span class="ast-scalar">{p.value}</span>
+              </div>
+            )}
+          </For>
+          <For each={children()}>
+            {c => (
+              <AstNode
+                node={c.node}
+                label={c.label}
+                source={props.source}
+                depth={props.depth + 1}
+              />
+            )}
+          </For>
         </div>
-      )}
+      </Show>
     </div>
   );
 }
 
 export interface AstPaneProps {
-  /** The ESTree JSON string from `parseNotaAst` (empty before the first successful parse). */
+  /** The ESTree JSON string from `parseAst` (empty before the first successful parse). */
   ast: string;
   /** The source text that produced `ast`, for slicing per-node previews. */
   source: string;
 }
 
-export function AstPane({ ast, source }: AstPaneProps) {
-  // Parse once per AST string; a malformed/empty string yields no tree (shown as a placeholder).
-  const root = useMemo<AstNodeValue | null>(() => {
-    if (!ast) return null;
+export function AstPane(props: AstPaneProps) {
+  // Parse once per AST string; a malformed/empty string yields no tree (a placeholder shows).
+  const root = createMemo<AstNodeValue | null>(() => {
+    if (!props.ast) return null;
     try {
-      const value = JSON.parse(ast);
+      const value = JSON.parse(props.ast);
       return isNode(value) ? value : null;
     } catch {
       return null;
     }
-  }, [ast]);
+  });
 
   return (
-    <div className="ast-tree" data-testid="pane-ast">
-      {root ? (
-        <AstNode node={root} label={null} source={source} depth={0} />
-      ) : (
-        <div className="ast-empty">No AST yet.</div>
-      )}
+    <div class="ast-tree" data-testid="pane-ast">
+      <Show when={root()} fallback={<div class="ast-empty">No AST yet.</div>}>
+        {r => (
+          <AstNode node={r()} label={null} source={props.source} depth={0} />
+        )}
+      </Show>
     </div>
   );
 }

@@ -5,11 +5,12 @@
   ],
   "compilerOptions": {
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "resolveJsonModule": true,
     "types": [
       "vite/client",
       "node"
-    ]
+    ],
+    "jsxImportSource": "solid-js"
   }
 }

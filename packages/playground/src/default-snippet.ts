@@ -10,7 +10,7 @@
  */
 export const DEFAULT_SNIPPET = `# Hello, Nota
 
-Nota is markup that lowers to hyperscript. Write @em{prose}, nest
+Nota is markup that compiles to a Solid component. Write @em{prose}, nest
 @strong{elements}, and link to @a[href: "https://nota-lang.org"]{the site}.
 
 %let langs = ["Rust", "TypeScript", "Nota"]
