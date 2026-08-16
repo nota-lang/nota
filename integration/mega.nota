@@ -4,8 +4,8 @@ export const meta = { title: "Nota Mega-Test" };
 const Box = blockComponent((children) => @div[class: "box"]{@children});
 const Aside = blockComponent((children) => @aside{@children});
 const Colorized = inlineComponent((children) => {
-  let [color, setColor] = useState("red");
-  return @span[onClick: () => setColor("green")][style: {color}]{@children};
+  let [color, setColor] = createSignal("red");
+  return @span[onClick: () => setColor("green")][style: {color: color()}]{@children};
 });
 
 const name = "Will";
@@ -66,9 +66,12 @@ Emphasis nests: *bold with _italic_ within*; intra-word stays literal in my_var_
 
 ## Raw spans
 
-Inline `f(x)` code, math $x^2$ with interpolation $a_@i$ and $b_@(i + 1)$, and display math:
+Inline `f(x)` code, math $x^2$ with a literal $a_@i$ and armed interpolation $b_|@i$ and
+$c_|@(i + 1)$, and fence-form display math:
 
-$$\sum_@(items.length) x_i$$
+$$
+\sum_|@(items.length) x_i
+$$
 
 Escapes render literally: \* \_ \# \$ \@ \{ \} and a backslash \\.
 

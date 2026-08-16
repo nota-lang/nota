@@ -62,7 +62,12 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
       "*bold with _italic_ within*"
     );
     expect(excerpts(spans, MEGA, "code-lang")).toContain("python");
-    expect(excerpts(spans, MEGA, "math-delim")).toContain("$$");
+    // Inline math paints per-`$` delimiters; the display fence's delimiters carry their line
+    // break (`$$\n` opener / `\n$$` closer — the reader's pinned fence-delim shape).
+    const mathDelims = excerpts(spans, MEGA, "math-delim");
+    expect(mathDelims).toContain("$");
+    expect(mathDelims).toContain("$$\n");
+    expect(mathDelims).toContain("\n$$");
     expect(excerpts(spans, MEGA, "escape")).toEqual(
       expect.arrayContaining([
         "\\*",
