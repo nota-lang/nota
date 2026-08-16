@@ -26,8 +26,10 @@ Options:
   -o, --out <dir>      output directory (default: input with its extension
                        stripped — doc.nota → doc/)
   --title <title>      document <title> (default: the input basename)
-  --setup <file>       site setup module: registerComponents / lstset / mathset
-                       run before render (and on the client for islands)
+  --setup <file>       site setup module: lstset / mathset / secset / bibset
+                       run before render (server and client)
+  --static             zero-JS page: skip the client build + all scripts
+                       (definition refs degrade to anchor jumps; widgets inert)
   -h, --help           show this help
 `;
 
@@ -37,12 +39,13 @@ interface Args {
   out?: string;
   title?: string;
   setup?: string;
+  static: boolean;
   help: boolean;
 }
 
 /** Minimal argv parser (no dependency): `nota build in.nota -o out/ --title T`. */
 function parseArgs(argv: string[]): Args {
-  const args: Args = { help: false };
+  const args: Args = { help: false, static: false };
   const rest: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -54,6 +57,8 @@ function parseArgs(argv: string[]): Args {
       args.title = argv[++i];
     } else if (a === "--setup") {
       args.setup = argv[++i];
+    } else if (a === "--static") {
+      args.static = true;
     } else {
       rest.push(a);
     }
@@ -85,6 +90,7 @@ async function main(): Promise<void> {
     const out = await buildNotaFile(args.input, {
       title: args.title,
       setupModule: args.setup,
+      static: args.static,
       outDir: args.out
     });
     // Prefer a readable relative path; fall back to absolute when the out dir isn't below cwd.
@@ -92,10 +98,10 @@ async function main(): Promise<void> {
     const where = rel.startsWith("..") ? out.outDir : rel;
     const cssNote =
       out.cssFiles.length > 0 ? `, ${out.cssFiles.length} css file(s)` : "";
-    const islandNote = out.hasIslands
-      ? `${Object.keys(out.manifest).length} island(s), client bundle${cssNote}`
-      : `zero-JS (island-free)${cssNote}`;
-    process.stdout.write(`nota: wrote ${where}/index.html — ${islandNote}\n`);
+    const modeNote = out.hydrated
+      ? `hydrating Solid app${cssNote}`
+      : `zero-JS (static)${cssNote}`;
+    process.stdout.write(`nota: wrote ${where}/index.html — ${modeNote}\n`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     process.stderr.write(`nota: build failed\n${message}\n`);

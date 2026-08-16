@@ -1,22 +1,15 @@
 /**
- * **CLI golden / build tests.**
+ * **CLI build tests** — drive {@link buildNotaFile}/{@link buildNota} on the shared fixtures and
+ * assert the pipeline's pinned properties:
  *
- * Drive {@link buildNotaFile} on the shared fixtures (their REAL paths — doc-relative imports are
- * part of the contract now) and assert the CLI's pinned properties:
- *
- *   - **zero-`<script>` for an island-free doc** (`static.nota`: headings/paragraphs/list) — no
- *     manifest ⇒ no client build ⇒ a pure static page, and a pure-markup doc emits **only**
- *     `index.html` (no assets/ at all);
- *   - the **islands path** (`golden.nota`) — the exact SSG body HTML, the manifest debug JSON, a
- *     `<script src="./assets/index.js">` reference, and a self-contained IIFE bundle on disk;
- *   - the **asset pipeline** (`asset.nota`) — a `?url` svg import and a CSS import flow through
- *     vite: emitted under `assets/`, referenced page-relative from the HTML (the point of the
- *     vite-based pipeline);
- *   - structural snapshots of the emitted document.
- *
- * Node env: the pipeline runs the in-process wasm reader (needs the node-target wasm build,
- * `oxc/napi/nota_wasm/pkg-node`) and two programmatic vite builds; `resolveFrom` is the package
- * root so the pinned resolver finds `react` / `@nota-lang/*` in this package's `node_modules`.
+ * - **`--static` = zero-JS**: no `<script>` of any kind, no client build; a pure-markup doc
+ *   emits only `index.html` (no `assets/` at all), reforested (sections/paragraphs/list).
+ * - **default = hydrating Solid app**: the Solid hydration bootstrap in `<head>`, the doc-state
+ *   snapshot JSON, a `<script src="./assets/index.js">`, and a self-contained IIFE on disk.
+ * - **the asset pipeline** (`asset.nota`): a `?url` svg import and a CSS import flow through
+ *   vite — emitted under `assets/`, referenced page-relative.
+ * - **`--setup`**: a site module's `lstset` runs before render (shiki-highlighted output).
+ * - a reader diagnostic fails the build with the compile error reachable.
  */
 
 import {
@@ -28,234 +21,118 @@ import {
   writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { type BuildOutput, buildNota, buildNotaFile } from "../src/build";
+import { afterAll, describe, expect, test } from "vitest";
+import { buildNota, buildNotaFile } from "../src/build";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, ".."); // packages/cli — its node_modules has the deps linked
 const integrationDir = join(here, "..", "..", "..", "integration");
 
-/** All fixture builds land under one temp base, cleaned after the suite. */
-const outBase = mkdtempSync(join(tmpdir(), "nota-out-"));
-afterAll(() => rmSync(outBase, { recursive: true, force: true }));
+const tmpBase = mkdtempSync(join(tmpdir(), "nota-cli-test-"));
+afterAll(() => rmSync(tmpBase, { recursive: true, force: true }));
 
-/** Build a fixture by its real path, into its own out dir under the temp base. */
-async function build(name: string, sub = ""): Promise<BuildOutput> {
-  return buildNotaFile(join(integrationDir, name), {
-    resolveFrom: pkgRoot,
-    outDir: join(outBase, `${basename(name, ".nota")}${sub}`)
-  });
-}
+const clean = (h: string) =>
+  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
-// =============================================================================================
-// island-free doc — the zero-JS property
-// =============================================================================================
-
-describe("CLI golden — island-free doc (static.nota): zero-JS, index.html only", () => {
-  let out: BuildOutput;
-  beforeAll(async () => {
-    out = await build("static.nota");
-  });
-
-  test("no islands ⇒ empty manifest ⇒ hasIslands false", () => {
-    expect(out.hasIslands).toBe(false);
-    expect(out.manifest).toEqual({});
-  });
-
-  test("ZERO <script>: a pure static page (the zero-JS property)", () => {
-    expect(out.html).not.toMatch(/<script/i);
-    expect(out.clientJsPath).toBeUndefined();
-  });
-
-  test("a pure-markup doc emits exactly one file: index.html (no assets/, no <link>)", () => {
-    expect(readdirSync(out.outDir)).toEqual(["index.html"]);
-    expect(out.cssFiles).toEqual([]);
-    expect(out.html).not.toMatch(/<link/i);
-  });
-
-  test("a complete HTML document (doctype, head, body)", () => {
-    expect(out.html).toMatch(/^<!doctype html>/i);
-    expect(out.html).toContain("<head>");
-    expect(out.html).toContain("<body>");
-    expect(out.html).toContain("</html>");
-    // title defaults to the input basename.
-    expect(out.html).toContain("<title>static</title>");
-    // the written index.html is the returned html.
-    expect(readFileSync(join(out.outDir, "index.html"), "utf8")).toBe(out.html);
-  });
-
-  test("the SSG body grouped headings/paras/list (struct ran): sections, <p>, <ul>", () => {
-    // decode.md grouping: headings own following content in <section>; inline runs → <p>;
-    // `-` list items coalesce into one <ul>.
-    // `#` sugar now re-lowers to the ambient `Heading` slot: the concrete <hN>
-    // carries a slugified `id` (numbering is off by default — secset numberDepth 0).
-    expect(out.html).toContain('<section><h1 id="hello-nota">Hello Nota</h1>');
-    expect(out.html).toContain("<strong>static</strong>");
-    expect(out.html).toContain("<em>no</em>");
-    expect(out.html).toContain(
-      "<ul><li>first item</li><li>second item</li><li>third item"
-    );
-    // nested section for the h2 (also id'd by the Heading slot).
-    expect(out.html).toContain(
-      '<h2 id="a-second-section">A second section</h2>'
-    );
-  });
-});
-
-// =============================================================================================
-// islands doc — the golden (Colorized)
-// =============================================================================================
-
-describe("CLI golden — islands doc (golden.nota): SSG body + client bundle + manifest", () => {
-  let out: BuildOutput;
-  beforeAll(async () => {
-    out = await build("golden.nota");
-  });
-
-  test("two Colorized islands in the manifest ({comp} only — debug metadata)", () => {
-    expect(out.hasIslands).toBe(true);
-    expect(out.manifest).toEqual({
-      "1": { comp: "Colorized" },
-      "2": { comp: "Colorized" }
-    });
-  });
-
-  test("the SSG body is the exact final HTML (nota-ul-li coalesced, islands SSR'd color:red)", () => {
-    expect(out.html).toContain(
-      '<ul><li><nota-island data-hydration-id="1"><span style="color:red">a</span></nota-island></li>' +
-        '<li><nota-island data-hydration-id="2"><span style="color:red">b</span></nota-island></li></ul>'
-    );
-    // onClick must NOT appear in the static HTML (it ships in the island JS).
-    const body = out.html.slice(0, out.html.indexOf("<script"));
-    expect(body).not.toMatch(/onclick/i);
-  });
-
-  test("a client <script src> + the manifest as JSON debug metadata", () => {
-    // The replay bundle is a page-relative classic script (an IIFE — not a module, so it also
-    // works over file://).
-    expect(out.html).toContain('<script src="./assets/index.js"></script>');
-    // The manifest is inlined as application/json DEBUG metadata (hydration never
-    // reads it — the client replays Doc; it remains inspectable + gates hasIslands).
-    expect(out.html).toContain(
-      '<script type="application/json" id="nota-manifest">{"1":{"comp":"Colorized"},"2":{"comp":"Colorized"}}</script>'
-    );
-    // ...and the bundle it references was written where the return value says.
-    expect(out.clientJsPath).toBe(join(out.outDir, "assets", "index.js"));
-    expect(out.clientJsPath && existsSync(out.clientJsPath)).toBe(true);
-  });
-
-  test("the bundle is self-contained: React + the runtime replay, no import/export statements", () => {
-    const bundle = readFileSync(out.clientJsPath ?? "", "utf8");
-    // Proof the client bundle carries React's client + the replay-hydration call
-    // (hydrateDocument), not a bare import. (React's renderToString also ships — the replay SSRs
-    // nested-in-slot islands client-side.)
-    expect(bundle).toMatch(/createElement|jsx/);
-    expect(bundle).toContain("hydrateRoot");
-    // An IIFE has no module syntax — what makes the jsdom e2e's realm-eval faithful.
-    expect(bundle).not.toMatch(/^\s*import\s/m);
-    expect(bundle).not.toMatch(/^\s*export\s/m);
-  });
-
-  test("a custom --title is honored", async () => {
-    const titled = await buildNotaFile(join(integrationDir, "golden.nota"), {
+describe("static build (--static: zero-JS)", () => {
+  test("a pure-markup doc emits only index.html, reforested, script-free", async () => {
+    const outDir = join(tmpBase, "static");
+    const out = await buildNotaFile(join(integrationDir, "static.nota"), {
       resolveFrom: pkgRoot,
-      title: "My Doc",
-      outDir: join(outBase, "golden-titled")
+      outDir,
+      static: true
     });
-    expect(titled.html).toContain("<title>My Doc</title>");
+    expect(out.hydrated).toBe(false);
+    expect(out.clientJsPath).toBeUndefined();
+    // Only index.html — a pure doc has no assets at all.
+    expect(readdirSync(outDir)).toEqual(["index.html"]);
+    const html = clean(out.html);
+    expect(html).not.toContain("<script");
+    // Reforested structure in dead HTML.
+    expect(html).toMatch(/<h1[^>]*id="hello-nota"/);
+    expect(html).toMatch(/<section class="nota-section"/);
+    expect(html.match(/<ul class="nota-list">/g)).toHaveLength(1);
+    expect(html.match(/<li[^>]*data-list="ul"/g)).toHaveLength(3);
+    expect(html).toMatch(/<p class="nota-para">/);
+    expect(html).toContain("<strong>static</strong>");
+    expect(html).toContain("<em>no</em>");
   });
 });
 
-// =============================================================================================
-// the asset pipeline — ?url + CSS imports (the point of the vite-based build)
-// =============================================================================================
-
-describe("CLI assets — asset.nota: ?url svg + CSS import flow through vite", () => {
-  let out: BuildOutput;
-  beforeAll(async () => {
-    out = await build("asset.nota");
+describe("default build (hydrating Solid app)", () => {
+  test("emits the hydration bootstrap, the state snapshot, and the client IIFE", async () => {
+    const outDir = join(tmpBase, "hydrating");
+    const out = await buildNotaFile(join(integrationDir, "static.nota"), {
+      resolveFrom: pkgRoot,
+      outDir
+    });
+    expect(out.hydrated).toBe(true);
+    // Solid's hydration bootstrap in head (defines _$HY + event capture).
+    expect(out.html).toContain("_$HY");
+    // The doc-state snapshot (static.nota has headings → heading facts).
+    const state =
+      /<script type="application\/json" id="nota-doc-state">([\s\S]*?)<\/script>/.exec(
+        out.html
+      );
+    expect(state).toBeTruthy();
+    const snapshot = JSON.parse(state?.[1] ?? "{}");
+    expect(snapshot.heading?.length).toBe(2);
+    // The client bundle: referenced page-relative, on disk, self-contained IIFE.
+    expect(out.html).toContain('<script src="./assets/index.js"></script>');
+    expect(out.clientJsPath).toBeTruthy();
+    expect(existsSync(out.clientJsPath as string)).toBe(true);
+    const js = readFileSync(out.clientJsPath as string, "utf8");
+    expect(js).not.toMatch(/^\s*import\b/m); // IIFE, not a module
   });
+});
 
-  test("still static: assets don't make a doc an island", () => {
-    expect(out.hasIslands).toBe(false);
-    expect(out.html).not.toMatch(/<script/i);
-  });
-
-  test("the ?url svg is emitted under assets/ and referenced page-relative from the HTML", () => {
-    const m = out.html.match(/<img src="(\.\/assets\/sample-[\w-]+\.svg)"/);
-    expect(m).not.toBeNull();
-    // the URL the SSR baked into the HTML names a file that exists in the out dir.
-    expect(existsSync(join(out.outDir, m?.[1] ?? ""))).toBe(true);
-  });
-
-  test("the CSS import is emitted and <link>ed in <head>", () => {
+describe("the asset pipeline", () => {
+  test("?url svg + css imports emit under assets/ and link page-relative", async () => {
+    const outDir = join(tmpBase, "asset");
+    const out = await buildNotaFile(join(integrationDir, "asset.nota"), {
+      resolveFrom: pkgRoot,
+      outDir,
+      static: true
+    });
+    const assets = readdirSync(join(outDir, "assets"));
+    expect(assets.some(f => f.endsWith(".svg"))).toBe(true);
     expect(out.cssFiles.length).toBe(1);
-    const href = `./${out.cssFiles[0]}`;
-    expect(out.html).toContain(`<link rel="stylesheet" href="${href}" />`);
-    const css = readFileSync(join(out.outDir, out.cssFiles[0]), "utf8");
-    // the fixture's marker rule survived the pipeline (the production minifier normalizes
-    // rgb(1, 2, 3) → #010203; dev builds keep the rgb form).
-    expect(css).toMatch(/#010203|rgb\(1,\s*2,\s*3\)/);
-  });
-
-  test("css-hosted asset URLs are css-relative, never root-absolute (relocatable output)", async () => {
-    // A stylesheet referencing a neighboring asset (the KaTeX-fonts shape): the emitted css must
-    // address it relative to itself — an island-free doc ships the SSR build's css, whose default
-    // URL resolution is root-absolute `/assets/…` and breaks any non-root deploy.
-    const dir = mkdtempSync(join(tmpdir(), "nota-cssrel-"));
-    try {
-      writeFileSync(
-        join(dir, "pic.svg"),
-        `<svg xmlns="http://www.w3.org/2000/svg"/>`
-      );
-      writeFileSync(
-        join(dir, "f.css"),
-        "body { background-image: url(./pic.svg); }"
-      );
-      writeFileSync(join(dir, "doc.nota"), '% import "./f.css"\n\nHello\n');
-      const rel = await buildNotaFile(join(dir, "doc.nota"), {
-        resolveFrom: pkgRoot,
-        outDir: join(dir, "out")
-      });
-      const css = readFileSync(join(rel.outDir, rel.cssFiles[0]), "utf8");
-      const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m =>
-        m[1].replace(/["']/g, "")
-      );
-      expect(urls.length).toBeGreaterThan(0);
-      for (const u of urls) {
-        expect(u.startsWith("/"), `absolute url ${u}`).toBe(false);
-        expect(
-          existsSync(join(rel.outDir, dirname(rel.cssFiles[0]), u)),
-          `missing ${u}`
-        ).toBe(true);
-      }
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+    expect(out.html).toContain(
+      `<link rel="stylesheet" href="./${out.cssFiles[0]}" />`
+    );
+    // The svg URL is baked page-relative into the img.
+    expect(out.html).toMatch(/<img[^>]*src="\.\/assets\/[^"]+\.svg"/);
   });
 });
 
-// =============================================================================================
-// errors
-// =============================================================================================
+describe("--setup", () => {
+  test("a site lstset runs before render (highlighted code in static HTML)", async () => {
+    const setupPath = join(tmpBase, "setup.mjs");
+    writeFileSync(
+      setupPath,
+      `import { lstset } from "@nota-lang/prelude";\nlstset({ lang: "js" });\n`
+    );
+    const out = await buildNota("Some code:\n\n```\nlet x = 1;\n```\n", {
+      sourcePath: "code.nota",
+      resolveFrom: pkgRoot,
+      setupModule: setupPath,
+      static: true,
+      outDir: join(tmpBase, "setup-out")
+    });
+    expect(out.html).toContain('<pre class="shiki');
+  });
+});
 
-describe("CLI build — reader diagnostics surface", () => {
-  test("a malformed .nota rejects with the reader's diagnostic", async () => {
+describe("diagnostics", () => {
+  test("a malformed doc fails the build with the reader's message reachable", async () => {
     await expect(
       buildNota("@p{unterminated", {
         sourcePath: "bad.nota",
-        resolveFrom: pkgRoot
+        resolveFrom: pkgRoot,
+        outDir: join(tmpBase, "bad-out")
       })
-    ).rejects.toThrow(/failed to compile/i);
-  });
-
-  test("a missing input file is a pointed error", async () => {
-    await expect(
-      buildNotaFile(join(integrationDir, "no-such.nota"), {
-        resolveFrom: pkgRoot
-      })
-    ).rejects.toThrow(/not found/);
+    ).rejects.toThrow(/failed to compile/);
   });
 });

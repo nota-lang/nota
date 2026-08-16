@@ -1,14 +1,15 @@
 /**
  * Vitest **globalSetup** for the hydration e2e (runs in full Node — NOT jsdom).
  *
- * The builds are the slow part (cold reader + two vite builds each), and they belong in Node, not
- * in the jsdom workers — so we build the fixtures' document directories here, once, and the jsdom
- * tests then *load the emitted files* — exactly what the e2e wants.
+ * The builds are the slow part (cold reader + two vite builds each), so we build the fixtures'
+ * document directories here, once; the jsdom tests then *load the emitted files*.
  *
  * Two fixtures:
- * - `golden.nota` — the canonical `Colorized` document (module-scope island).
- * - `closure.nota` — the replay-hydration headline: a **document-local** island defined inside
- *   `@for`, closing over the loop variable. Only replay hydration (`hydrateDocument`) can hydrate it.
+ * - `golden.nota` — the canonical `Colorized` document (signal-driven style, click → color).
+ * - `closure.nota` — a **document-local** component defined inside `@for`, closing over the
+ *   loop variable, with per-instance signal state. Under the Solid architecture this needs no
+ *   replay machinery: the whole document hydrates as one app and the closures are just... the
+ *   program's closures.
  */
 
 import { dirname, join } from "node:path";

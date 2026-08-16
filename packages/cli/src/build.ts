@@ -1,50 +1,32 @@
 /**
- * **The CLI build pipeline.**
+ * **The CLI build pipeline** (design/solid.md §SSG).
  *
  * `buildNotaFile(doc.nota) → BuildOutput`: one `.nota` file → a **document directory**
- * (`index.html` + `assets/`), produced by **two programmatic Vite builds** over one default config:
+ * (`index.html` + `assets/`), produced by **two programmatic Vite builds** over one default
+ * config (the `@nota-lang/vite` preset — `.nota → Solid JSX → per-target solid compile`):
  *
  * ```
  * doc.nota
- *   → vite build #1 (SSR):    a virtual wiring entry — import Doc from <doc.nota>;
- *                             setAdapter(adapter); export const result = render(Doc)
- *                             — bundled for Node (ssr.noExternal), assets emitted
- *                             (ssrEmitAssets); the bundle is import()ed → { html, manifest }
- *   → if islands:  vite build #2 (client): the replay entry (hydrateDocument(Doc),
- *                             generateClientEntry) → one IIFE chunk at assets/index.js
- *                             + the doc's CSS/assets, written into the out dir
- *   → merge the SSR build's emitted assets; assemble + write index.html
- *     (css <link>s; <script src> + manifest debug JSON only when islands)
+ *   → vite build #1 (SSR):    a virtual wiring entry — import Doc; renderDocument(Doc)
+ *                             (two passes, forward references converged) — bundled for Node,
+ *                             assets emitted; the bundle is import()ed → html + state + the
+ *                             Solid hydration script
+ *   → unless --static: vite build #2 (client): a 3-line hydrateDocument entry → one IIFE
+ *                             chunk at assets/index.js + the doc's CSS/assets
+ *   → merge assets; assemble + write index.html
+ *     (css <link>s; when hydrating: the Solid hydration script in <head>, the doc-state
+ *     snapshot <script type="application/json">, and the client <script src>)
  * ```
  *
  * The **real `.nota` path is the module-graph entry** (Vite `root` = the doc's directory), so
- * doc-relative imports, `?url` asset imports, and CSS imports resolve exactly as in any Vite app —
- * that is the point of this pipeline. The `@nota-lang/vite` transform plugin compiles `.nota`
- * inside the graph; both builds share the same plugins/config so the SSR-rendered HTML and the
- * client replay agree byte-for-byte (asset URLs included — see `renderBuiltUrl` below).
+ * doc-relative imports, `?url` asset imports, and CSS imports resolve exactly as in any Vite
+ * app. Both builds share the same plugins/config, so the SSR HTML and the client hydration
+ * agree byte-for-byte (asset URLs included — see `renderBuiltUrl`).
  *
- * **Client hydration is replay-driven (design/decode.md §Replay hydration).** The client bundle
- * imports `Doc` and calls `hydrateDocument(Doc)`: the runtime re-executes the document in capture
- * mode — recovering each island's live component (closures over document state intact), live props
- * (functions legal), and recomputed slot — and hydrates each `[data-hydration-id]` marker. No
- * per-island data crosses the wire; the manifest is inlined only as debug metadata and gates
- * `hasIslands`.
- *
- * ## The ambient prelude
- *
- * The reader emits `useState` and the whole prelude surface as **free identifiers** ("the prelude
- * should be a prelude") and reports them as free-name metadata; the compiler shim binds them by
- * prepending one import from the plugin's `preludeModule`. The CLI points that at
- * {@link AMBIENT_ID}, a virtual module re-exporting
- * React's hooks + the `@nota-lang/prelude` surface ({@link AMBIENT_SOURCE}), and passes the hook
- * names via the plugin's `extraAmbientNames` (they are not part of the built-in prelude lists —
- * which framework supplies hooks is integrator policy).
- *
- * ## Properties preserved
- * - **Zero-JS for island-free docs.** No islands ⇒ empty manifest ⇒ **no `<script>`** and no client
- *   build: a pure static page ({@link BuildOutput.hasIslands} is `false`).
- * - **Relocatable output.** `base: "./"` + page-relative asset URLs: the out dir can be served from
- *   any path (and mostly works over `file://` — the island script is a classic IIFE, not a module).
+ * **Hydration is standard Solid** — the whole document hydrates as one app, claiming the
+ * build-time-reforested DOM (no islands, no manifest, no replay). `--static` skips the client
+ * build entirely: a zero-JS page, fully readable, definition references degrading to anchor
+ * jumps, widgets/tooltips inert.
  */
 
 import {
@@ -59,55 +41,21 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { Manifest } from "@nota-lang/runtime";
-import { generateClientEntry, nota } from "@nota-lang/vite";
+import { nota } from "@nota-lang/vite";
 import type { InlineConfig, Plugin as VitePlugin } from "vite";
 
 /**
  * This module's directory, resolved in a way that works **both** when shipped as the rollup
- * CJS bundle (`dist/cli.cjs`) and when loaded as ESM under vitest (`src/build.ts`). Vite's lib-CJS
- * build rewrites `import.meta.url` to `undefined`, so a bare `fileURLToPath(import.meta.url)` throws
- * there; under CJS the `__dirname` global is correct instead. The `typeof` guard makes
- * `__dirname` safe to test in ESM (where it is not defined).
+ * CJS bundle (`dist/cli.cjs`) and when loaded as ESM under vitest (`src/build.ts`). Vite's
+ * lib-CJS build rewrites `import.meta.url` to `undefined`, so a bare
+ * `fileURLToPath(import.meta.url)` throws there; under CJS the `__dirname` global is correct.
  */
 const MODULE_DIR =
   typeof __dirname !== "undefined"
     ? __dirname
     : dirname(fileURLToPath(import.meta.url));
 
-/**
- * The ambient prelude source — the single source of truth for it, served as the virtual module
- * {@link AMBIENT_ID} in both builds. The reader emits `useState` and the whole prelude surface as
- * **free identifiers**: the slots `Tex` / `CodeInline` / `CodeBlock` / `Heading` (from `#` sugar) /
- * `Toc` / `Label` / `Ref` / `Footnote` / `FootnoteMark` / `FootnoteText` / `Footnotes` /
- * `FootnotesList` / `Cite` / `Bibliography` (the last family from `<x>` / `&x` / `[^x]` / `[^x]:`
- * doc-state sugar) and the config fns `lstset` / `mathset` / `secset` / `bibset`; the integrator
- * supplies them, and the transform plugin prepends an import of the referenced ones from here.
- * (`Tex`, not `Math` — the injection binds free refs, so exporting a `Math` would capture
- * `Math.floor` in embedded JS.)
- */
-export const AMBIENT_SOURCE = `export { useState, useEffect, useRef, useReducer, useMemo, useCallback } from "react";
-export { Tex, CodeInline, CodeBlock, Heading, Title, Toc, Label, Ref, Definition, Footnote, FootnoteMark, FootnoteText, Footnotes, FootnotesList, Cite, Bibliography, lstset, mathset, secset, bibset, texRef, registerComponents } from "@nota-lang/prelude";
-`;
-
-/**
- * The names beyond the compiler's built-in `AMBIENT_PRELUDE_NAMES` that {@link AMBIENT_ID} also
- * supplies — React's hooks + `registerComponents` — passed as the plugin's `extraAmbientNames`
- * (injected iff the emit references them free). Which framework supplies hooks is integrator
- * policy, so neither the plugin nor the compiler hardcodes these.
- */
-const AMBIENT_CALL_NAMES = [
-  "useState",
-  "useEffect",
-  "useRef",
-  "useReducer",
-  "useMemo",
-  "useCallback",
-  "registerComponents"
-];
-
 /** Virtual module ids (resolved/loaded by {@link virtualsPlugin}). */
-const AMBIENT_ID = "virtual:nota-ambient-prelude";
 const SSR_ENTRY_ID = "virtual:nota-ssr-entry";
 const CLIENT_ENTRY_ID = "virtual:nota-client-entry";
 
@@ -121,35 +69,33 @@ export interface BuildOptions {
   /** Document `<title>` (default: the input basename, else `"Nota Document"`). */
   title?: string;
   /**
-   * Adapter package specifier for both builds (default `"@nota-lang/react"`). One per build.
-   */
-  adapterModule?: string;
-  /**
-   * Package root whose `node_modules` pins the **framework-owned** bare specifiers (`react`,
-   * `react-dom`, `@nota-lang/{runtime,react,prelude}`) — see {@link cliResolverPlugin}. Defaults to
-   * this package's root — the parent of the `src/` (tests) or `dist/` (shipped) directory holding
-   * this module. Everything else (the doc's own imports) resolves from the doc's directory, as in
-   * any Vite app.
+   * Package root whose `node_modules` pins the **framework-owned** bare specifiers (`solid-js`,
+   * `@nota-lang/{solid,prelude}`) — see {@link cliResolverPlugin}. Defaults to this package's
+   * root. Everything else (the doc's own imports) resolves from the doc's directory, as in any
+   * Vite app.
    */
   resolveFrom?: string;
   /**
-   * Build with `NODE_ENV=development` (React's non-minified build → readable hydration warnings;
-   * client bundle unminified). Default `false` (production: smaller, quiet). Mainly a debugging aid.
+   * Build with `NODE_ENV=development` (unminified client bundle, Solid dev warnings). Default
+   * `false`. Mainly a debugging aid.
    */
   dev?: boolean;
   /**
-   * Path to a **site setup module** (the `--setup` flag; registry overrides + doc-global config —
-   * design/decode.md §The registry & config), imported for side effects before render in the SSR
-   * entry (and in the client entry when islands exist): `registerComponents({…})` overrides +
-   * `lstset`/`mathset` site config (baked as the per-render baseline). Absolute path, or relative
-   * to the caller's cwd.
+   * Path to a **site setup module** (the `--setup` flag): imported for side effects before
+   * render in the SSR entry and in the client entry — `lstset`/`mathset`/`secset`/`bibset` site
+   * config, baked as the reset baseline. Absolute path, or relative to the caller's cwd.
    */
   setupModule?: string;
   /**
+   * Skip the client build and every script tag: a zero-JS static page (the `--static` flag).
+   * Default `false` — the document hydrates as a Solid app.
+   */
+  static?: boolean;
+  /**
    * Output directory (`index.html` + `assets/`). Default: the input path with its extension
-   * stripped (`doc.nota → doc/`). The directory is created if missing; only its `assets/` subdir
-   * is cleared between builds (never the whole directory). For {@link buildNota} (inline source)
-   * the default is an **ephemeral** temp dir deleted on return — set `outDir` to keep the files.
+   * stripped (`doc.nota → doc/`). Only its `assets/` subdir is cleared between builds. For
+   * {@link buildNota} (inline source) the default is an **ephemeral** temp dir deleted on
+   * return — set `outDir` to keep the files.
    */
   outDir?: string;
 }
@@ -158,29 +104,27 @@ export interface BuildOptions {
 export interface BuildOutput {
   /** The `index.html` document string (also written to {@link outDir}). */
   html: string;
-  /** The island manifest (`{}` when island-free). */
-  manifest: Manifest;
-  /** Whether the document has any islands (⇒ a client bundle was built + `<script>` emitted). */
-  hasIslands: boolean;
+  /** Whether a client bundle was built + scripts emitted (`false` under `static`). */
+  hydrated: boolean;
   /** Absolute path of the output directory the page was written into. */
   outDir: string;
-  /** Absolute path of the client island bundle (`assets/index.js`), when islands exist. */
+  /** Absolute path of the client bundle (`assets/index.js`), when hydrated. */
   clientJsPath?: string;
   /** `outDir`-relative paths of the CSS files linked in `<head>` (empty when the doc has none). */
   cssFiles: string[];
 }
 
-/** `{ html, manifest }` produced by the SSR step. */
+/** What the SSR bundle exports. */
 interface SsrResult {
   html: string;
-  manifest: Manifest;
+  stateScript: string;
+  hydrationScript: string;
 }
 
 /** Everything the two builds share. */
 interface PipelineContext {
   absDocPath: string;
   workDir: string;
-  adapterModule: string;
   resolveFrom: string;
   nodeEnv: string;
   setupModule?: string;
@@ -205,57 +149,69 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
 }
 
 /**
- * Pin the framework-owned bare specifiers to the CLI's own dependency copies: `react`, `react-dom`,
- * and `@nota-lang/{runtime,react,prelude}` (+ subpaths) resolve via `require.resolve` from
- * {@link BuildOptions.resolveFrom}. This is what lets `nota build` work on a doc **anywhere** —
- * including inside a foreign JS project, whose own React copy must not split the island tree's
- * (one React per page). Everything else resolves from the doc's directory as usual.
+ * Pin the framework-owned bare specifiers to the CLI's own dependency copies: `solid-js` and
+ * `@nota-lang/{solid,prelude}` (+ subpaths) resolve from {@link BuildOptions.resolveFrom}. This
+ * is what lets `nota build` work on a doc **anywhere** — including inside a foreign JS project,
+ * whose own solid-js copy must not split the reactive runtime or the doc-state context (one
+ * instance per page). Everything else resolves from the doc's directory as usual.
  */
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
   const anchor = join(resolveFrom, "package.json");
-  const pinned =
-    /^(?:react|react-dom|@nota-lang\/(?:runtime|react|prelude))(?:\/|$)/;
+  const pinned = /^(?:solid-js|@nota-lang\/(?:solid|prelude))(?:\/|$)/;
   return {
     name: "nota-cli:pinned-resolver",
     enforce: "pre",
     async resolveId(id, _importer, opts) {
       if (!pinned.test(id)) return null;
       // Delegate to the FULL resolver pipeline (Vite's conditional-exports resolution — browser
-      // conditions in the client build, node in the SSR build; a `createRequire().resolve` here
-      // would force node editions like react-dom/server.node.js into the browser bundle), just
-      // re-anchored at the CLI package. `skipSelf` keeps the delegation out of this hook.
+      // conditions in the client build, node in the SSR build), just re-anchored at the CLI
+      // package. `skipSelf` keeps the delegation out of this hook.
       return await this.resolve(id, anchor, { ...opts, skipSelf: true });
     }
   };
 }
 
-/** The SSR wiring entry (mirrored by the client entry from {@link generateClientEntry}). */
+/** The SSR wiring entry. */
 function ssrEntrySource(ctx: PipelineContext): string {
-  // The setup module runs for its side effects before render — it must mutate the *bundle's*
-  // runtime/prelude instances (registry + lstset config); the config it set is then baked as the
-  // per-render reset baseline.
-  const setupImports =
+  const setup =
     ctx.setupModule !== undefined
       ? `import ${JSON.stringify(ctx.setupModule)};
 import { bakeConfigBaseline } from "@nota-lang/prelude";
+bakeConfigBaseline();
 `
       : "";
-  const setupBake =
-    ctx.setupModule !== undefined ? "bakeConfigBaseline();\n" : "";
-  return `${setupImports}import Doc from ${JSON.stringify(ctx.absDocPath)};
-import { render, setAdapter } from "@nota-lang/runtime";
-import adapter from ${JSON.stringify(ctx.adapterModule)};
-setAdapter(adapter);
-${setupBake}export const result = render(Doc);
+  return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
+import { docStateScript, renderDocument } from "@nota-lang/solid";
+import { generateHydrationScript } from "solid-js/web";
+const rendered = renderDocument(Doc);
+export const result = {
+  html: rendered.html,
+  stateScript: docStateScript(rendered.state),
+  hydrationScript: generateHydrationScript()
+};
+`;
+}
+
+/** The client wiring entry: seed from the page snapshot, hydrate the document. */
+function clientEntrySource(ctx: PipelineContext): string {
+  const setup =
+    ctx.setupModule !== undefined
+      ? `import ${JSON.stringify(ctx.setupModule)};
+import { bakeConfigBaseline } from "@nota-lang/prelude";
+bakeConfigBaseline();
+`
+      : "";
+  return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
+import { hydrateDocument } from "@nota-lang/solid";
+hydrateDocument(Doc);
 `;
 }
 
 /**
- * The shared default config. Hermetic on purpose: no `vite.config` / `.env` / `public/` discovery
- * from the doc's directory — a doc inside a foreign Vite project must not inherit that project's
- * build policy. (PostCSS config discovery is Vite-internal and deliberately left on — it is how a
- * doc project customizes its CSS.)
+ * The shared default config. Hermetic on purpose: no `vite.config` / `.env` / `public/`
+ * discovery from the doc's directory — a doc inside a foreign Vite project must not inherit
+ * that project's build policy.
  */
 function sharedConfig(ctx: PipelineContext): InlineConfig {
   return {
@@ -268,33 +224,17 @@ function sharedConfig(ctx: PipelineContext): InlineConfig {
     publicDir: false,
     base: "./",
     experimental: {
-      // Bake asset URLs into JS as literal page-relative strings (`./assets/x-H.ext`) in BOTH
-      // builds: (a) the SSR bundle must not embed `import.meta.url`-relative (file:///tmp/…) URLs
-      // into the rendered HTML, and (b) the client replay must recompute byte-identical URLs for
-      // hydration. `index.html` sits at the out-dir root, so page-relative is correct; CSS-hosted
-      // URLs keep Vite's handling — but see `copySsrAssets`, which repairs the SSR build's
-      // root-absolute css URLs at copy time (rolldown-vite emits `/assets/…` there regardless of
-      // the relative base, and ignores a `{ relative: true }` answer from this hook).
+      // Bake asset URLs into JS as literal page-relative strings in BOTH builds: the SSR HTML
+      // and the client hydration must agree byte-for-byte on every URL.
       renderBuiltUrl: (filename, { hostType }) =>
         hostType === "js" ? `./${filename}` : undefined
     },
-    // React's render paths read NODE_ENV (production → clean SSR output + minified client).
     define: { "process.env.NODE_ENV": JSON.stringify(ctx.nodeEnv) },
     plugins: [
-      nota({
-        preludeModule: AMBIENT_ID,
-        extraAmbientNames: AMBIENT_CALL_NAMES
-      }),
+      nota(),
       virtualsPlugin({
-        [AMBIENT_ID]: AMBIENT_SOURCE,
         [SSR_ENTRY_ID]: ssrEntrySource(ctx),
-        [CLIENT_ENTRY_ID]: generateClientEntry({
-          moduleId: ctx.absDocPath,
-          adapterModule: ctx.adapterModule,
-          // Re-run the site setup on the client (registerComponents/lstset) + bake the baseline,
-          // so the replay's reset() restores the same config and slot bytes match the server's.
-          setupModule: ctx.setupModule
-        })
+        [CLIENT_ENTRY_ID]: clientEntrySource(ctx)
       }),
       cliResolverPlugin(ctx.resolveFrom)
     ]
@@ -335,9 +275,8 @@ function emittedOf(result: unknown): EmittedFiles {
 }
 
 /**
- * Rolldown wraps a plugin error (the reader's compile diagnostic) in its own build error; keep the
- * reader's message reachable (the CLI's `/failed to compile/` surface) by preferring a cause that
- * carries it.
+ * Rolldown wraps a plugin error (the reader's compile diagnostic) in its own build error; keep
+ * the reader's message reachable by preferring a cause that carries it.
  */
 function rethrowBuildError(err: unknown): never {
   if (err instanceof Error && !/failed to compile/i.test(err.message)) {
@@ -354,18 +293,15 @@ function rethrowBuildError(err: unknown): never {
 
 /**
  * Build #1 (SSR): bundle the SSR wiring entry for Node (workspace deps bundled in —
- * `ssr.noExternal` — because the runtime `dist` uses bundler-style extensionless ESM imports Node
- * can't resolve), emitting the doc's CSS/assets (`ssrEmitAssets`), then `import()` the bundle and
- * read the rendered `{ html, manifest }`. `render` is synchronous, so the result is available at
- * module-load time. A fresh work dir per build keeps the ESM cache honest.
+ * `ssr.noExternal` — the dists use bundler-style extensionless ESM imports Node can't resolve),
+ * emitting the doc's CSS/assets, then `import()` the bundle and read the rendered result.
+ * `renderDocument` is synchronous, so the result is available at module-load time.
  */
 async function ssrRender(
   ctx: PipelineContext
 ): Promise<{ result: SsrResult } & EmittedFiles> {
   const { build } = await import("vite");
   const ssrOutDir = join(ctx.workDir, "ssr");
-  // The input's key is the chunk name, which names chunk-derived assets: a static doc's CSS lands
-  // as assets/<docStem>-<hash>.css rather than leaking the internal entry name.
   const docStem =
     basename(ctx.absDocPath)
       .replace(/\.[^.]+$/, "")
@@ -379,9 +315,8 @@ async function ssrRender(
         outDir: ssrOutDir,
         emptyOutDir: false,
         ssrEmitAssets: true,
-        // Never data-URI-inline assets: the SSR and client builds must make the SAME decision for
-        // every asset URL (a divergence would break hydration byte-parity), and "?url emits a
-        // file" is the CLI's documented behavior. Same setting in both builds.
+        // Never data-URI-inline assets: both builds must make the SAME decision for every asset
+        // URL (a divergence would break hydration byte-parity).
         assetsInlineLimit: 0,
         minify: false,
         rollupOptions: {
@@ -405,9 +340,10 @@ async function ssrRender(
 }
 
 /**
- * Build #2 (client, islands only): bundle the replay entry for the browser straight into the final
- * out dir — one **IIFE** chunk at `assets/index.js` (a classic `<script src>`: eval-able in the
- * hydration e2e, and not subject to `file://` module-CORS), plus the doc's CSS/assets.
+ * Build #2 (client, unless static): bundle the hydration entry for the browser straight into
+ * the final out dir — one **IIFE** chunk at `assets/index.js` (a classic `<script src>`:
+ * eval-able in the hydration e2e, and not subject to `file://` module-CORS), plus the doc's
+ * CSS/assets.
  */
 async function buildClient(
   ctx: PipelineContext,
@@ -428,8 +364,7 @@ async function buildClient(
         rollupOptions: {
           input: { index: CLIENT_ENTRY_ID },
           output: {
-            // IIFE implies no code-splitting (rolldown: codeSplitting=false), so dynamic imports
-            // inline automatically — one self-contained chunk.
+            // IIFE implies no code-splitting, so dynamic imports inline — one chunk.
             format: "iife",
             entryFileNames: "assets/[name].js",
             assetFileNames: "assets/[name]-[hash][extname]"
@@ -444,16 +379,12 @@ async function buildClient(
 }
 
 /**
- * Copy emitted **asset files** (never chunks) from the SSR build into the final out dir, so every
- * `./assets/…` URL baked into the SSR HTML exists on disk. Asset names are content-hashed with the
- * same pattern in both builds, so an islands doc's client build writing the same assets is a
- * harmless overwrite.
- *
- * Copied **stylesheets are repaired to css-relative URLs**: the SSR build resolves css-hosted
- * asset references (a stylesheet's fonts — the KaTeX shape) to root-absolute `/assets/…`
- * regardless of the relative base, which breaks any non-root deploy. Every emitted asset lives
- * under the same `assets/` dir as the stylesheet itself, so `/assets/x` → `x` (css-relative
- * sibling) is exact under this pipeline's own naming scheme.
+ * Copy emitted **asset files** (never chunks) from the SSR build into the final out dir, so
+ * every `./assets/…` URL baked into the SSR HTML exists on disk. Copied **stylesheets are
+ * repaired to css-relative URLs**: the SSR build resolves css-hosted asset references (a
+ * stylesheet's fonts — the KaTeX shape) to root-absolute `/assets/…` regardless of the relative
+ * base; every emitted asset lives under the same `assets/` dir as the stylesheet itself, so
+ * `/assets/x` → `x` is exact under this pipeline's naming scheme.
  */
 function copySsrAssets(
   ssrOutDir: string,
@@ -499,39 +430,37 @@ function baseTitle(sourcePath?: string): string {
 }
 
 /**
- * Assemble the `index.html` document. The island `<script>` is a classic `src` reference to the
- * IIFE bundle; the manifest is inlined as a `<script type="application/json">` **debug metadata**
- * view (hydration never reads it — the client replays `Doc` to recover per-island data). For an
- * island-free doc, **no `<script>` is emitted at all** (the zero-JS property).
+ * Assemble the `index.html` document. The body is the SSR HTML inside `<div id="nota-root">`;
+ * when hydrating, the Solid hydration script rides in `<head>`, the doc-state snapshot script
+ * and the client IIFE `<script src>` after the root. A static page emits **no script at all**.
  */
 function assembleHtml(args: {
   bodyHtml: string;
-  manifest: Manifest;
   title: string;
   cssHrefs: string[];
-  scriptSrc?: string;
+  hydration?: {
+    stateScript: string;
+    hydrationScript: string;
+    scriptSrc: string;
+  };
 }): string {
-  const { bodyHtml, manifest, title, cssHrefs, scriptSrc } = args;
+  const { bodyHtml, title, cssHrefs, hydration } = args;
   const head = [
     '<meta charset="utf-8" />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
     `<title>${escapeHtml(title)}</title>`,
     ...cssHrefs.map(
       href => `<link rel="stylesheet" href="${escapeHtml(href)}" />`
-    )
+    ),
+    ...(hydration ? [hydration.hydrationScript] : [])
   ];
 
-  const scripts: string[] = [];
-  if (scriptSrc !== undefined) {
-    // Manifest as inspectable JSON debug metadata (hydration never reads it — the replay does).
-    scripts.push(
-      `<script type="application/json" id="nota-manifest">${JSON.stringify(
-        manifest
-      )}</script>`
-    );
-    // The replay hydration bundle (IIFE — a classic script, after the DOM it hydrates).
-    scripts.push(`<script src="${escapeHtml(scriptSrc)}"></script>`);
-  }
+  const scripts = hydration
+    ? [
+        hydration.stateScript,
+        `<script src="${escapeHtml(hydration.scriptSrc)}"></script>`
+      ]
+    : [];
 
   return `<!doctype html>
 <html lang="en">
@@ -539,7 +468,7 @@ function assembleHtml(args: {
 ${head.map(h => `  ${h}`).join("\n")}
 </head>
 <body>
-${bodyHtml}
+<div id="nota-root">${bodyHtml}</div>
 ${scripts.join("\n")}
 </body>
 </html>
@@ -559,11 +488,6 @@ function defaultOutDir(absDocPath: string): string {
 /**
  * Build one `.nota` **file** into a document directory (`index.html` + `assets/`), written to
  * {@link BuildOptions.outDir} (default: the input with its extension stripped).
- *
- * @param inputPath path to the `.nota` file — the Vite module-graph entry, so its directory is
- *   what doc-relative imports resolve against
- * @param options {@link BuildOptions}
- * @returns {@link BuildOutput} — the HTML string, manifest, islands flag, and output paths
  */
 export async function buildNotaFile(
   inputPath: string,
@@ -576,12 +500,12 @@ export async function buildNotaFile(
   const outDir = resolve(options.outDir ?? defaultOutDir(absDocPath));
   const title = options.title ?? baseTitle(absDocPath);
   const nodeEnv = options.dev ? "development" : "production";
+  const hydrated = options.static !== true;
   const ctx: PipelineContext = {
     absDocPath,
     workDir: mkdtempSync(join(tmpdir(), "nota-build-")),
-    adapterModule: options.adapterModule ?? "@nota-lang/react",
-    // `MODULE_DIR` is `<pkg>/src` (under vitest) or `<pkg>/dist` (shipped) — both one level under
-    // the package root, whose `node_modules` has the pinned deps linked.
+    // `MODULE_DIR` is `<pkg>/src` (under vitest) or `<pkg>/dist` (shipped) — both one level
+    // under the package root, whose `node_modules` has the pinned deps linked.
     resolveFrom: options.resolveFrom ?? join(MODULE_DIR, ".."),
     nodeEnv,
     setupModule:
@@ -593,24 +517,23 @@ export async function buildNotaFile(
   try {
     // 1. SSR build + render.
     const ssr = await ssrRender(ctx);
-    const { html: bodyHtml, manifest } = ssr.result;
-    const hasIslands = Object.keys(manifest).length > 0;
+    const { html: bodyHtml, stateScript, hydrationScript } = ssr.result;
 
-    // Prepare the out dir: only `assets/` is ours to clear — never blanket-empty a directory the
-    // user may own (`doc.nota → doc/` can pre-exist).
+    // Prepare the out dir: only `assets/` is ours to clear — never blanket-empty a directory
+    // the user may own (`doc.nota → doc/` can pre-exist).
     mkdirSync(outDir, { recursive: true });
     rmSync(join(outDir, "assets"), { recursive: true, force: true });
 
-    // 2. islands: client build straight into the out dir (island-free docs skip it — zero-JS).
+    // 2. the client build (skipped under --static — zero-JS).
     let cssFiles: string[];
     let clientJsRel: string | undefined;
-    if (hasIslands) {
+    if (hydrated) {
       const client = await buildClient(ctx, outDir);
       cssFiles = client.cssFiles;
       clientJsRel = client.entryChunk ?? "assets/index.js";
-      // The client build owns CSS emission (skip the SSR copies — same content, maybe-different
-      // hashes would orphan); non-CSS assets are copied so SSR-baked URLs exist even if hashes
-      // ever diverged across builds.
+      // The client build owns CSS emission (skip the SSR copies — same content,
+      // maybe-different hashes would orphan); non-CSS assets are copied so SSR-baked URLs
+      // exist even if hashes ever diverged across builds.
       copySsrAssets(join(ctx.workDir, "ssr"), ssr.assetFiles, outDir);
     } else {
       copySsrAssets(
@@ -624,17 +547,22 @@ export async function buildNotaFile(
     // 3. assemble + write index.html.
     const html = assembleHtml({
       bodyHtml,
-      manifest,
       title,
       cssHrefs: cssFiles.map(f => `./${f}`),
-      scriptSrc: clientJsRel !== undefined ? `./${clientJsRel}` : undefined
+      hydration:
+        hydrated && clientJsRel !== undefined
+          ? {
+              stateScript,
+              hydrationScript,
+              scriptSrc: `./${clientJsRel}`
+            }
+          : undefined
     });
     writeFileSync(join(outDir, "index.html"), html, "utf8");
 
     return {
       html,
-      manifest,
-      hasIslands,
+      hydrated,
       outDir,
       clientJsPath:
         clientJsRel !== undefined ? join(outDir, clientJsRel) : undefined,
@@ -652,9 +580,9 @@ export async function buildNotaFile(
 /**
  * Build a `.nota` **source string** (convenience for tests / inline docs): the source is
  * materialized in a temp dir and run through {@link buildNotaFile}. Because the temp dir is the
- * module-graph root, **doc-relative imports are meaningless here** — use {@link buildNotaFile} for
- * documents with local imports. Unless `options.outDir` is set, the output directory is ephemeral
- * (deleted on return): the returned `html`/`manifest` remain valid, the file paths do not.
+ * module-graph root, **doc-relative imports are meaningless here** — use {@link buildNotaFile}
+ * for documents with local imports. Unless `options.outDir` is set, the output directory is
+ * ephemeral (deleted on return).
  */
 export async function buildNota(
   source: string,
@@ -667,7 +595,6 @@ export async function buildNota(
     writeFileSync(docPath, source, "utf8");
     return await buildNotaFile(docPath, {
       ...options,
-      // Preserve the historical default title for pathless inline sources.
       title: options.title ?? baseTitle(options.sourcePath),
       outDir: options.outDir ?? join(srcDir, "out")
     });

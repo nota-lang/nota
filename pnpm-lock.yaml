@@ -62,27 +62,18 @@ importers:
 
   packages/cli:
     dependencies:
-      '@nota-lang/compiler':
-        specifier: workspace:*
-        version: link:../compiler
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/react':
+      '@nota-lang/solid':
         specifier: workspace:*
-        version: link:../react
-      '@nota-lang/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+        version: link:../solid
       '@nota-lang/vite':
         specifier: workspace:*
         version: link:../vite
-      react:
-        specifier: ^19.2.7
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
+      solid-js:
+        specifier: ^1.9.3
+        version: 1.9.13
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
