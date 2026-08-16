@@ -22,13 +22,15 @@
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/runtime": "workspace:*"
+    "@nota-lang/solid": "workspace:*",
+    "solid-js": "^1.9.3",
+    "vite-plugin-solid": "^2.11.10"
   },
   "peerDependencies": {
     "vite": "^8.0.16"
   },
   "devDependencies": {
-    "@nota-lang/react": "workspace:*",
+    "jsdom": "^29.1.1",
     "vite": "^8.0.16"
   },
   "license": "MIT",

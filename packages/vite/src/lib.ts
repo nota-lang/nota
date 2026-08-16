@@ -1,96 +1,82 @@
 /**
- * `@nota-lang/vite` — the Vite transform plugin (the mdx-equivalent for `.nota`).
+ * `@nota-lang/vite` — the Vite integration for `.nota` (design/solid.md §SSG).
  *
- * This is the **only actual Vite surface** nota ships and the whole of `@nota-lang/vite`: a single
- * `transform` hook that turns `.nota` modules into JS + sourcemap, filtered by extension, leaving
- * everything else untouched. It is structurally the mdx Vite/Rollup plugin
- * (`references/mdx/packages/rollup/lib/index.js`) — one extension-filtered `transform`, no rendering.
- * The decode/SSG/islands machinery is *not* here (the plugin is mechanism, not policy); rendering is
- * the integrator's job via `@nota-lang/runtime`'s `render`/`hydrateDocument`.
+ * {@link nota} returns a **two-plugin preset** (the solid-mdx pattern):
  *
- * The actual `.nota → JS` work is delegated to `@nota-lang/compiler` (`compile`), which runs the
- * oxc reader and prepends the `@nota-lang/runtime` import plus the ambient-prelude import for the
- * emit's free names. This plugin is the thin Vite adapter around it: extension filtering, option
- * forwarding (`preludeModule`/`extraAmbientNames` → the compiler's `prelude`), and the
- * fallback-only `resolveId`.
+ * 1. the `.nota → Solid JSX` transform (`enforce: "pre"`), delegating to `@nota-lang/compiler`
+ *    (reader emit → jsxify → prepended `@nota-lang/solid` / `solid-js` / ambient-prelude
+ *    imports), plus the fallback `resolveId` for exactly those prepended imports; and
+ * 2. a pre-configured **vite-plugin-solid** claiming `.nota` alongside `.jsx`/`.tsx`, compiling
+ *    the JSX per build target (dom / ssr, hydratable) — SSR-vs-dom follows each build's own ssr
+ *    flag, so one preset serves the dev server, an SSG build, and a client build.
+ *
+ * An app that configures its own `vite-plugin-solid` passes `{ solid: false }` and adds
+ * `".nota"` to its plugin's `extensions` itself. The old island registry / `generateClientEntry`
+ * are gone — a document hydrates as one Solid app (`hydrateDocument`).
  */
 
 import { createRequire } from "node:module";
 import { compile } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
+import viteSolid from "vite-plugin-solid";
 
-// --- the client hydration-entry helper (replay hydration) ---
-export {
-  type ClientEntryOptions,
-  generateClientEntry
-} from "./registry.js";
-
-/** Options for the {@link nota} plugin. */
+/** Options for the {@link nota} preset. */
 export interface NotaPluginOptions {
   /**
    * File extensions this plugin claims (each with the leading dot). Defaults to `[".nota"]`.
-   * Mirrors mdx's `extnames` filter — an id is transformed iff it ends with one of these (after
-   * stripping any `?query` suffix Vite appends).
+   * An id is transformed iff it ends with one of these (after stripping any `?query` suffix).
    */
   extensions?: string[];
   /**
-   * Module the ambient prelude bindings are imported from when the compiled module references them
-   * free — the whole ambient prelude surface (`AMBIENT_PRELUDE_NAMES` in `@nota-lang/compiler`,
-   * which owns the injection; the plugin only forwards this as the compiler's `prelude.module`).
-   * Default `"@nota-lang/prelude"`; `false` disables the injection (the integrator supplies the
-   * ambient names another way).
+   * Module the ambient prelude bindings are imported from when the compiled module references
+   * them free. Default `"@nota-lang/prelude"`; `false` disables the injection (the integrator
+   * supplies the ambient names another way).
    */
   preludeModule?: string | false;
   /**
-   * Extra ambient names injected beyond the built-in prelude surface — free names the integrator's
-   * {@link preludeModule} supplies. The CLI passes the React hooks (`useState`, …) +
-   * `registerComponents` here, pointing `preludeModule` at a module that re-exports them; every
-   * listed name must be an export of that module. Forwarded as the compiler's `prelude.extraNames`.
-   * Ignored when `preludeModule` is `false`. Default `[]`.
+   * Extra ambient names beyond the built-in prelude surface — free names the integrator's
+   * {@link preludeModule} supplies (site-specific components). Forwarded as the compiler's
+   * `prelude.extraNames`. Ignored when `preludeModule` is `false`. Default `[]`.
    */
   extraAmbientNames?: string[];
+  /**
+   * `false` to omit the bundled vite-plugin-solid (the app configures its own — remember to add
+   * `".nota"` to its `extensions`). Default: included, with
+   * `{ extensions: [".nota"], solid: { hydratable: true } }`.
+   */
+  solid?: boolean;
 }
 
 /**
- * The modules the plugin's own emit imports — the compiler-prepended `@nota-lang/runtime` line and
- * the default ambient-prelude module. {@link nota}'s `resolveId` falls back to *this
- * package's* copies for exactly these, so a project that installed only `@nota-lang/vite` still
- * resolves them (under pnpm's strict layout a transitive dep is not importable from user code).
+ * The modules the transform's emit imports (compiler-prepended). The transform plugin's
+ * `resolveId` falls back to *this package's* copies for exactly these, so a project that
+ * installed only `@nota-lang/vite` still resolves them (under pnpm's strict layout a transitive
+ * dep is not importable from user code). Fallback-only: when the project has its own copy it
+ * must win — `@nota-lang/solid` carries the doc-state context and `solid-js` its reactive
+ * runtime, and two instances would split them.
  */
-const EMIT_IMPORT_FALLBACKS = ["@nota-lang/runtime", "@nota-lang/prelude"];
+const EMIT_IMPORT_FALLBACKS = [
+  "@nota-lang/solid",
+  "@nota-lang/prelude",
+  "solid-js"
+];
 
 /**
- * The nota Vite plugin: makes `.nota` files importable.
+ * The `.nota` transform plugin (half of the {@link nota} preset; exported for integrators that
+ * compose their own solid pipeline).
  *
- * `transform(code, id)` — for an `id` ending in a claimed extension (default `.nota`), compile the
- * source to a JS module via `@nota-lang/compiler` and return `{ code, map }`; for any other id,
- * return `null` (passthrough — Vite tries the next plugin).
+ * `transform(code, id)` — for an id ending in a claimed extension, compile to a Solid JSX module
+ * via `@nota-lang/compiler` and return `{ code, map }`. vite-plugin-solid (claiming the same
+ * extension, running after this `enforce: "pre"` hook) then compiles the JSX per target.
  *
- * `resolveId(source)` — a **fallback-only** resolution for the imports the plugin itself prepends
- * ({@link EMIT_IMPORT_FALLBACKS}): normal resolution runs first (`this.resolve` with `skipSelf`),
- * and only when the user's project cannot resolve the name do we answer with this package's own
- * copy. Fallback-only matters: the runtime carries module-level state (the active adapter, the
- * registry, the `raw` brand), so when the project *does* have `@nota-lang/runtime`, that copy must
- * win — two runtime instances would split that state.
- *
- * - **Extension filter.** Like mdx, we strip Vite's `?query`/`#hash` suffix before matching, so
- *   `foo.nota?import` and `foo.nota?t=123` (HMR cache-bust) still match.
- * - **Sourcemap.** Forwarded from the compiler (`undefined` for now — the CLI does not yet emit a
- *   v3 map; sourcemap support is a forthcoming reader upgrade). Returning `{ code, map }` is the
- *   stable shape; once the compiler yields a map it flows through unchanged.
- * - **HMR.** v1 relies on Vite's **default transform-based HMR**: because the plugin participates in
- *   the module graph as a `transform`, an edited `.nota` re-runs `transform` and Vite invalidates
- *   importers. A bespoke `handleHotUpdate` (full-reload vs. partial, island-aware) is a later
- *   refinement, not needed for the importable-and-hot-reloads baseline.
- * - **`enforce: "pre"`.** Run before the core JS transforms (esbuild) so they see real JS, not the
- *   raw `.nota` source — the same ordering mdx/vue/svelte use for non-JS source modules.
- *
- * @param options optional {@link NotaPluginOptions}
- * @returns a Vite `Plugin`
+ * - **Extension filter.** `?query`/`#hash` are stripped before matching (`foo.nota?t=123` still
+ *   matches); `?raw`/`?url`/`?inline` are never claimed (the asset pipeline wants the file as
+ *   data).
+ * - **HMR.** Vite's default transform-based HMR: an edited `.nota` re-runs `transform` and Vite
+ *   invalidates importers; vite-plugin-solid's solid-refresh applies where it can.
  */
-export function nota(options: NotaPluginOptions = {}): Plugin {
+export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? [".nota"];
-  // The compiler owns the injection; the plugin just translates its options to the shim's shape.
   const prelude =
     options.preludeModule === false
       ? (false as const)
@@ -99,12 +85,6 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
           extraNames: options.extraAmbientNames ?? []
         };
 
-  /**
-   * Does this module id name a `.nota` (or configured) source, ignoring any `?query`/`#hash`?
-   * A `?raw`/`?url`/`?inline` query is Vite's asset pipeline asking for the file *as data* —
-   * `import src from "./doc.nota?raw"` must yield the source string, not the compiled module —
-   * so those ids are never claimed (the same carve-out mdx/vue plugins make).
-   */
   function claims(id: string): boolean {
     const [path, query = ""] = id.split("?");
     if (/(?:^|&)(raw|url|inline)(?:&|=|$)/.test(query.split("#")[0])) {
@@ -117,10 +97,14 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
     name: "@nota-lang/vite",
     enforce: "pre",
     async resolveId(source: string, importer: string | undefined) {
-      if (!EMIT_IMPORT_FALLBACKS.includes(source)) {
+      if (
+        !EMIT_IMPORT_FALLBACKS.some(
+          m => source === m || source.startsWith(`${m}/`)
+        )
+      ) {
         return null;
       }
-      // Prefer the project's own copy (see the plugin doc — runtime state identity).
+      // Prefer the project's own copy (see EMIT_IMPORT_FALLBACKS — module-state identity).
       const normal = await this.resolve(source, importer, { skipSelf: true });
       if (normal) {
         return normal;
@@ -135,16 +119,39 @@ export function nota(options: NotaPluginOptions = {}): Plugin {
     },
     transform(code: string, id: string) {
       if (!claims(id)) {
-        // Not ours — passthrough so the next plugin (or Vite core) handles it.
         return null;
       }
-      // Delegate to the compiler shim: runs the wasm reader and prepends the runtime import plus
-      // the ambient prelude import for the emit's free names (real scope analysis, not regexes).
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id, prelude });
       return { code: out, map };
     }
   };
+}
+
+/**
+ * The nota Vite preset: the `.nota` transform + a pre-configured vite-plugin-solid claiming
+ * `.nota` (unless `{ solid: false }`). Spread-safe — Vite accepts nested plugin arrays.
+ *
+ * @param options optional {@link NotaPluginOptions}
+ * @returns the plugin array
+ */
+export function nota(options: NotaPluginOptions = {}): Plugin[] {
+  const extensions = options.extensions ?? [".nota"];
+  const plugins: Plugin[] = [notaTransform(options)];
+  if (options.solid !== false) {
+    const s = viteSolid({
+      extensions,
+      // `ssr: true` ENABLES per-transform target selection (without it vite-plugin-solid always
+      // compiles generate:"dom", whose top-level template() calls throw inside an SSR module
+      // graph); browser transforms still compile dom. Do NOT reuse this preset inside a vitest
+      // config — vitest routes every module through its node runner with the ssr flag set, which
+      // would SSR-compile jsdom tests (the reforest spike's documented gotcha).
+      ssr: true,
+      solid: { hydratable: true }
+    }) as unknown as Plugin | Plugin[];
+    plugins.push(...(Array.isArray(s) ? s : [s]));
+  }
+  return plugins;
 }
 
 export default nota;

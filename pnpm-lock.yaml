@@ -355,13 +355,19 @@ importers:
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/runtime':
+      '@nota-lang/solid':
         specifier: workspace:*
-        version: link:../runtime
+        version: link:../solid
+      solid-js:
+        specifier: ^1.9.3
+        version: 1.9.13
+      vite-plugin-solid:
+        specifier: ^2.11.10
+        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
     devDependencies:
-      '@nota-lang/react':
-        specifier: workspace:*
-        version: link:../react
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)

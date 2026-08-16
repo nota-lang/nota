@@ -1,226 +1,88 @@
 /**
- * `@nota-lang/vite` transform-plugin unit tests (mirroring mdx's plugin test in
- * `references/mdx/packages/rollup/lib/index.js`).
- *
- * We invoke the plugin's `transform` hook **directly** — no full Vite build needed — and assert:
- *   - a `.nota` id → JS module + sourcemap shape out (with the runtime import prepended,
- *     since the hook delegates to the real `@nota-lang/compiler` → oxc reader);
- *   - a non-`.nota` id → `null` (passthrough);
- *   - extension filtering, including Vite's `?query` suffix (`foo.nota?import`, HMR `?t=…`);
- *   - a configurable extension list.
- *
- * These drive the real in-process wasm reader (via the compiler shim), so they require the
- * node-target wasm build (`oxc/napi/nota_wasm/pkg-node` — `just nota-build` in oxc/).
+ * Transform-hook unit tests (the hook invoked directly — no Vite build): extension claiming,
+ * the asset-query carve-out, and the compiled JSX surface.
  */
-
-import type { Plugin } from "vite";
 import { describe, expect, test } from "vitest";
-import { nota } from "../src/lib";
+import { nota, notaTransform } from "../src/lib";
 
-const NOTA_SOURCE =
-  "%let Note = blockComponent((children) => @aside{@children})\n@Note{Hello @em{world}}\n";
+type TransformFn = (
+  code: string,
+  id: string
+) => { code: string; map?: unknown } | null;
 
-/**
- * Vite types `transform` as an `ObjectHook` (either a function or `{ handler }`). Our plugin uses
- * the plain-function form; this normalizes either shape and invokes it with the plugin as `this`
- * (the real Rollup/Vite calls the hook with the plugin context as `this`; our hook doesn't touch it).
- */
-async function runTransform(plugin: Plugin, code: string, id: string) {
-  const hook = plugin.transform;
+function getTransform(opts?: Parameters<typeof notaTransform>[0]): TransformFn {
+  const hook = notaTransform(opts).transform;
   const fn = typeof hook === "function" ? hook : hook?.handler;
   if (!fn) throw new Error("plugin has no transform hook");
-  return await (
-    fn as (this: unknown, code: string, id: string) => unknown
-  ).call({}, code, id);
+  return fn as unknown as TransformFn;
 }
 
-describe("nota() plugin shape", () => {
-  test("is a Vite plugin named @nota-lang/vite with enforce:pre and a transform hook", () => {
-    const plugin = nota();
-    expect(plugin.name).toBe("@nota-lang/vite");
-    expect(plugin.enforce).toBe("pre");
-    expect(plugin.transform).toBeTypeOf("function");
+const DOC = "# Hi\n\nSome *bold* prose.\n\n- a\n- b\n";
+
+describe("claiming", () => {
+  test("claims .nota (with ?query/#hash), passes everything else through", () => {
+    const t = getTransform();
+    expect(t(DOC, "/x/doc.nota")).not.toBeNull();
+    expect(t(DOC, "/x/doc.nota?t=123")).not.toBeNull();
+    expect(t(DOC, "/x/doc.nota#frag")).not.toBeNull();
+    expect(t("code", "/x/app.tsx")).toBeNull();
+    expect(t("code", "/x/doc.notarize")).toBeNull();
+  });
+
+  test("?raw/?url/?inline are the asset pipeline's — never claimed", () => {
+    const t = getTransform();
+    expect(t(DOC, "/x/doc.nota?raw")).toBeNull();
+    expect(t(DOC, "/x/doc.nota?url")).toBeNull();
+    expect(t(DOC, "/x/doc.nota?inline")).toBeNull();
+  });
+
+  test("custom extensions replace the default", () => {
+    const t = getTransform({ extensions: [".ntx"] });
+    expect(t(DOC, "/x/doc.ntx")).not.toBeNull();
+    expect(t(DOC, "/x/doc.nota")).toBeNull();
   });
 });
 
-describe("transform: .nota id → JS + sourcemap shape", () => {
-  test("compiles a .nota id to a JS module with the runtime import prepended", async () => {
-    const result = (await runTransform(
-      nota(),
-      NOTA_SOURCE,
-      "/abs/path/to/note.nota"
-    )) as {
-      code: string;
-      map?: object;
-    } | null;
-
-    expect(result).not.toBeNull();
-    expect(result?.code).toContain(
-      'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";'
+describe("output surface", () => {
+  test("emits a Solid JSX module with the structural + prelude imports", () => {
+    const out = getTransform()(DOC, "/x/doc.nota");
+    if (!out) throw new Error("not transformed");
+    expect(out.code).toContain("export default function Doc()");
+    expect(out.code).toContain("<NotaDoc>");
+    expect(out.code).toContain("<UlLi>");
+    expect(out.code).toMatch(
+      /import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/
     );
-    // it's real emitted JS from the reader
-    expect(result?.code).toContain("export default function Doc()");
-    expect(result?.code).toContain("blockComponent(");
-    // component name as 2nd arg (single-expression body → name lands after the body's closing paren).
-    expect(result?.code).toContain(', "Note");');
-    expect(result?.code).toContain('h("aside", {}');
-    // the result carries a `map` key (undefined for now — CLI emits no v3 map yet, see plugin docs)
-    expect(result && "map" in result).toBe(true);
+    expect(out.code).toMatch(
+      /import \{ Heading \} from "@nota-lang\/prelude";/
+    );
+    expect(out.code).not.toMatch(/\bh\(/);
   });
 
-  test("a .nota id with a ?query suffix still matches (Vite import / HMR cache-bust)", async () => {
-    for (const id of [
-      "/x/note.nota?import",
-      "/x/note.nota?t=1717171717",
-      "/x/note.nota#frag"
-    ]) {
-      const result = (await runTransform(nota(), NOTA_SOURCE, id)) as {
-        code: string;
-      } | null;
-      expect(result, `expected ${id} to be transformed`).not.toBeNull();
-      expect(result?.code).toContain("export default function Doc()");
-    }
-  });
-
-  test("asset-pipeline queries (?raw/?url/?inline) are never claimed", async () => {
-    for (const id of [
-      "/x/note.nota?raw",
-      "/x/note.nota?url",
-      "/x/note.nota?inline",
-      "/x/note.nota?import&raw"
-    ]) {
-      const result = await runTransform(nota(), NOTA_SOURCE, id);
-      expect(result, `expected ${id} to pass through`).toBeNull();
-    }
-  });
-});
-
-describe("transform: ambient prelude injection", () => {
-  const asResult = (r: unknown) => r as { code: string } | null;
-
-  test("free Tex/CodeInline references get a prelude import (after the runtime import)", async () => {
-    const result = asResult(
-      await runTransform(nota(), "Math $x^2$ and `f(x)`\n", "/d.nota")
+  test("preludeModule redirects the ambient import; false disables it", () => {
+    const custom = getTransform({ preludeModule: "/site/prelude.ts" })(
+      DOC,
+      "/x/doc.nota"
     );
-    // Sorted free-name order, on the line after the runtime import.
-    expect(result?.code).toMatch(
-      /runtime";\nimport \{ CodeInline, Tex \} from "@nota-lang\/prelude";\n/
-    );
-  });
-
-  test("no math/code in the doc → no prelude import", async () => {
-    const result = asResult(
-      await runTransform(nota(), "Just @em{prose}.\n", "/d.nota")
-    );
-    expect(result?.code).not.toContain("@nota-lang/prelude");
-  });
-
-  test("a %import of the same name suppresses the injection (lexical override)", async () => {
-    const result = asResult(
-      await runTransform(
-        nota(),
-        '%import { Tex } from "./my-tex.js"\nMath $x^2$\n',
-        "/d.nota"
-      )
-    );
-    // the user's own binding wins — injecting would be a duplicate-binding SyntaxError
-    expect(result?.code).not.toContain("@nota-lang/prelude");
-    expect(result?.code).toContain('from "./my-tex.js"');
-  });
-
-  test("preludeModule: false disables injection; a custom specifier is honored", async () => {
-    const off = asResult(
-      await runTransform(nota({ preludeModule: false }), "$x$\n", "/d.nota")
-    );
+    expect(custom?.code).toContain('from "/site/prelude.ts"');
+    const off = getTransform({ preludeModule: false })(DOC, "/x/doc.nota");
     expect(off?.code).not.toContain("@nota-lang/prelude");
-    const custom = asResult(
-      await runTransform(
-        nota({ preludeModule: "/my/prelude.ts" }),
-        "$x$\n",
-        "/d.nota"
-      )
+  });
+
+  test("a reader diagnostic throws with the source path", () => {
+    expect(() => getTransform()("@p{unterminated", "/x/bad.nota")).toThrow(
+      /failed to compile[\s\S]*bad\.nota/
     );
-    expect(custom?.code).toMatch(/import \{ Tex \} from "\/my\/prelude.ts";\n/);
   });
 });
 
-describe("transform: extraAmbientNames (integrator-supplied ambient calls)", () => {
-  const asResult = (r: unknown) => r as { code: string } | null;
-
-  test("a free useState( call binds to the preludeModule, alongside the built-ins", async () => {
-    const result = asResult(
-      await runTransform(
-        nota({
-          preludeModule: "virtual:nota-ambient",
-          extraAmbientNames: ["useState", "registerComponents"]
-        }),
-        "%let s = useState(0)\nMath $x^2$\n",
-        "/d.nota"
-      )
-    );
-    // One import line: the built-in slot (Tex) and the extra (useState) from the same module;
-    // registerComponents is never referenced in this doc, so it is not injected.
-    expect(result?.code).toMatch(
-      /import \{ Tex, useState \} from "virtual:nota-ambient";\n/
-    );
-  });
-
-  test("a doc-bound useState suppresses the injection (lexical override)", async () => {
-    const result = asResult(
-      await runTransform(
-        nota({ extraAmbientNames: ["useState"] }),
-        '%import { useState } from "./my-hooks.js"\n%let s = useState(0)\nhi\n',
-        "/d.nota"
-      )
-    );
-    expect(result?.code).not.toContain("@nota-lang/prelude");
-    expect(result?.code).toContain('from "./my-hooks.js"');
-  });
-
-  test("default (no option): a free useState stays free — the integrator owns hooks", async () => {
-    const result = asResult(
-      await runTransform(nota(), "%let s = useState(0)\nhi\n", "/d.nota")
-    );
-    expect(result?.code).not.toMatch(/import \{[^}]*useState/);
-  });
-});
-
-describe("transform: non-.nota id → null passthrough", () => {
-  test("returns null for .ts / .js / .mdx / extensionless ids", async () => {
-    for (const id of [
-      "/x/foo.ts",
-      "/x/foo.js",
-      "/x/foo.mdx",
-      "/x/notanota",
-      "/x/foo.nota.ts"
-    ]) {
-      const result = await runTransform(nota(), "export const x = 1;", id);
-      expect(result, `expected ${id} to pass through`).toBeNull();
-    }
-  });
-});
-
-describe("transform: configurable extensions", () => {
-  test("a custom extension list claims those ids and only those", async () => {
-    const plugin = nota({ extensions: [".note"] });
-    // claimed
-    const claimed = (await runTransform(
-      plugin,
-      NOTA_SOURCE,
-      "/x/doc.note"
-    )) as { code: string } | null;
-    expect(claimed).not.toBeNull();
-    expect(claimed?.code).toContain("export default function Doc()");
-    // .nota no longer claimed when the list is overridden
-    const passed = await runTransform(plugin, NOTA_SOURCE, "/x/doc.nota");
-    expect(passed).toBeNull();
-  });
-});
-
-describe("transform: a malformed .nota surfaces the reader's error", () => {
-  test("the hook throws (Vite turns it into a build/overlay error)", async () => {
-    await expect(
-      runTransform(nota(), "@p{unterminated", "/x/bad.nota")
-    ).rejects.toThrow(/failed to compile/);
+describe("the preset shape", () => {
+  test("nota() bundles vite-plugin-solid; { solid: false } omits it", () => {
+    const full = nota();
+    expect(full.length).toBeGreaterThan(1);
+    expect(full[0].name).toBe("@nota-lang/vite");
+    expect(full.some(p => /solid/.test(p.name ?? ""))).toBe(true);
+    const bare = nota({ solid: false });
+    expect(bare).toHaveLength(1);
   });
 });

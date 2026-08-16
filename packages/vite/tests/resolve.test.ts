@@ -1,18 +1,15 @@
 /**
- * `resolveId` fallback tests — the plugin resolves the imports *it* prepends
- * (`@nota-lang/runtime`, the default prelude) to its own copies **only when the user's project
- * can't** (pnpm's strict layout makes transitive deps unimportable from user code). Normal
- * resolution must win when it succeeds: the runtime carries module-level state (adapter, registry,
- * `raw` brand), and two instances would split it.
- *
- * Like the transform tests, the hook is invoked directly with a mock Rollup context — no full Vite
- * build needed.
+ * `resolveId` fallback tests — the transform plugin resolves the imports *it* prepends
+ * (`@nota-lang/solid`, the default prelude, `solid-js`) to its own copies **only when the user's
+ * project can't** (pnpm's strict layout makes transitive deps unimportable from user code).
+ * Normal resolution must win when it succeeds: those modules carry per-instance state (the
+ * doc-state context, Solid's reactive runtime), and two instances would split it.
  */
 
 import { existsSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { describe, expect, test } from "vitest";
-import { nota } from "../src/lib";
+import { notaTransform } from "../src/lib";
 
 type ResolveIdFn = (
   this: { resolve: (...args: unknown[]) => Promise<unknown> },
@@ -20,15 +17,13 @@ type ResolveIdFn = (
   importer: string | undefined
 ) => Promise<unknown>;
 
-/** Extract the `resolveId` hook (function or `{ handler }` ObjectHook) from the plugin. */
 function getResolveId(): ResolveIdFn {
-  const hook = nota().resolveId;
+  const hook = notaTransform().resolveId;
   const fn = typeof hook === "function" ? hook : hook?.handler;
   if (!fn) throw new Error("plugin has no resolveId hook");
   return fn as unknown as ResolveIdFn;
 }
 
-/** A mock Rollup plugin context whose `this.resolve` yields `resolution`. */
 function ctx(resolution: unknown) {
   const calls: unknown[][] = [];
   return {
@@ -40,7 +35,7 @@ function ctx(resolution: unknown) {
   };
 }
 
-describe("resolveId: fallback-only resolution of the plugin's own emit imports", () => {
+describe("resolveId: fallback-only resolution of the emit's imports", () => {
   test("non-emit sources pass through untouched (no resolve probe)", async () => {
     const c = ctx(null);
     const resolveId = getResolveId();
@@ -49,35 +44,28 @@ describe("resolveId: fallback-only resolution of the plugin's own emit imports",
     expect(c.calls).toHaveLength(0);
   });
 
-  test("the project's own resolution wins when it exists (runtime state identity)", async () => {
-    const projectCopy = {
-      id: "/app/node_modules/@nota-lang/runtime/dist/lib.js"
-    };
-    const c = ctx(projectCopy);
-    const result = await getResolveId().call(
-      c,
-      "@nota-lang/runtime",
-      "/app/doc.nota"
+  test("normal resolution wins when it succeeds", async () => {
+    const winner = { id: "/app/node_modules/@nota-lang/solid/dist/lib.jsx" };
+    const c = ctx(winner);
+    const resolveId = getResolveId();
+    expect(await resolveId.call(c, "@nota-lang/solid", "/app/doc.nota")).toBe(
+      winner
     );
-    expect(result).toBe(projectCopy);
-    // The probe must skip this plugin itself, or it would recurse into this very hook.
-    expect(c.calls[0]?.[2]).toMatchObject({ skipSelf: true });
+    expect(c.calls).toHaveLength(1);
   });
 
-  test.each([
-    "@nota-lang/runtime",
-    "@nota-lang/prelude"
-  ])("falls back to this package's copy of %s when the project can't resolve it", async source => {
-    const result = (await getResolveId().call(
-      ctx(null),
-      source,
-      "/some/user/project/doc.nota"
-    )) as string;
-    // An absolute path into a real on-disk copy (the workspace link in dev, the plugin's
-    // node_modules when installed).
-    expect(typeof result).toBe("string");
-    expect(isAbsolute(result)).toBe(true);
-    expect(result).toContain(source.split("/")[1]);
-    expect(existsSync(result)).toBe(true);
+  test("falls back to this package's copy when the project can't resolve", async () => {
+    const resolveId = getResolveId();
+    for (const source of [
+      "@nota-lang/solid",
+      "@nota-lang/prelude",
+      "solid-js"
+    ]) {
+      const c = ctx(null);
+      const resolved = await resolveId.call(c, source, "/app/doc.nota");
+      expect(typeof resolved).toBe("string");
+      expect(isAbsolute(resolved as string)).toBe(true);
+      expect(existsSync(resolved as string)).toBe(true);
+    }
   });
 });
