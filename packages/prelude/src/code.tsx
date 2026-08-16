@@ -6,10 +6,11 @@
  * (`textOf` — strings verbatim, armed scalars stringified, elements contribute their text
  * content), tokenized whole, and rendered via `innerHTML`.
  *
- * **v0 regression, flagged in design/solid.md:** armed-part *decorations* (an element inside
- * code becoming a shiki decoration over its range) are dropped — armed elements contribute
- * their text only, with a one-time build warning. Restoring them means mapping resolved-child
- * offsets to decoration ranges; deferred with the reader-vNext work.
+ * **Armed parts are decorations** (the restored old model, now over *resolved* children): an
+ * armed element contributes its text content to the source AND records a shiki decoration over
+ * that range — `tagName` and attribute `properties` recovered from the resolved node (DOM
+ * inspection client-side, opening-tag sniffing on SSR chunks; hydration bookkeeping attrs are
+ * dropped). A text-less armed part contributes nothing and warns once.
  *
  * The highlighter is a **sync** core (JS regex engine; grammars/themes eagerly imported).
  * Language resolution: the fence `lang` tag wins, else `lstset({lang})`; no lang (or an unknown
@@ -17,7 +18,11 @@
  */
 
 import { type ResolvedChild, textOf } from "@nota-lang/solid";
-import { createHighlighterCoreSync, type HighlighterCore } from "shiki/core";
+import {
+  createHighlighterCoreSync,
+  type DecorationItem,
+  type HighlighterCore
+} from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import css from "shiki/langs/css.mjs";
 import html from "shiki/langs/html.mjs";
@@ -94,29 +99,99 @@ export function resetCodeWarningsForTest(): void {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Source recovery
+// Source recovery: parts → contiguous text + decorations
 // ---------------------------------------------------------------------------------------------
 
-/** The code text of the resolved parts; warns once when an armed element loses its decoration. */
-function sourceText(parts: ResolvedChild[]): string {
-  let out = "";
-  for (const part of parts) {
-    if (typeof part === "string" || typeof part === "number") {
-      out += textOf(part);
-      continue;
+/** Hydration bookkeeping attributes that must not ride into a decoration's properties. */
+const BOOKKEEPING_ATTRS = new Set(["data-hk"]);
+
+const ENTITIES: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'"
+};
+const decodeEntities = (v: string): string =>
+  v.replace(/&(?:amp|lt|gt|quot|#39);/g, m => ENTITIES[m]);
+
+/** The root tag + attributes of a resolved element part (DOM node or SSR chunk), if any. */
+function partElement(
+  part: ResolvedChild
+): { tagName: string; properties: Record<string, string> } | null {
+  if (part === null || part === undefined || typeof part !== "object") {
+    return null;
+  }
+  const chunk = (part as { t?: string }).t;
+  if (typeof chunk === "string") {
+    const m = /^<([a-zA-Z][a-zA-Z0-9-]*)((?:[^>"]|"[^"]*")*)>/.exec(chunk);
+    if (!m) {
+      return null; // marker-led chunk (dynamic-rooted component) — no recoverable root
     }
+    const properties: Record<string, string> = {};
+    for (const [, name, value] of m[2].matchAll(
+      /([a-zA-Z_][\w-]*)="([^"]*)"/g
+    )) {
+      if (!BOOKKEEPING_ATTRS.has(name)) {
+        properties[name] = decodeEntities(value);
+      }
+    }
+    return { tagName: m[1].toLowerCase(), properties };
+  }
+  const node = part as Node;
+  if (node.nodeType === 1) {
+    const el = node as Element;
+    const properties: Record<string, string> = {};
+    for (const attr of Array.from(el.attributes)) {
+      if (!BOOKKEEPING_ATTRS.has(attr.name)) {
+        properties[attr.name] = attr.value;
+      }
+    }
+    return { tagName: el.tagName.toLowerCase(), properties };
+  }
+  return null;
+}
+
+interface Reconstruction {
+  text: string;
+  decorations: DecorationItem[];
+}
+
+/**
+ * Reconstruct one contiguous source text from the resolved parts: strings/scalars append
+ * verbatim; an armed element contributes its text content and records a decoration over that
+ * range (a text-less part contributes nothing, with a build warning).
+ */
+function reconstruct(parts: ResolvedChild[]): Reconstruction {
+  let text = "";
+  const decorations: DecorationItem[] = [];
+  for (const part of parts) {
     if (part === null || part === undefined || typeof part === "boolean") {
       continue;
     }
-    // An armed element (or component output): its text joins the code; the decoration is
-    // dropped (the flagged v0 regression).
-    warnOnce(
-      "an armed markup part inside a code span contributes its text only " +
-        "(decorations are not yet supported in the Solid runtime)"
-    );
-    out += textOf(part);
+    if (typeof part === "string" || typeof part === "number") {
+      text += textOf(part);
+      continue;
+    }
+    const partText = textOf(part);
+    if (partText === "") {
+      warnOnce(
+        "a text-less armed part inside a code span contributes nothing (no range to decorate)"
+      );
+      continue;
+    }
+    const el = partElement(part);
+    if (el) {
+      decorations.push({
+        start: text.length,
+        end: text.length + partText.length,
+        tagName: el.tagName,
+        properties: el.properties
+      });
+    }
+    text += partText;
   }
-  return out;
+  return { text, decorations };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -146,9 +221,11 @@ export function CodeBlock(props: ParentProps & { lang?: string }): JSX.Element {
   const explicit = typeof props.lang === "string" ? props.lang : undefined;
   const lang = effectiveLang(explicit);
   if (lang !== undefined) {
-    const out = highlighter().codeToHtml(sourceText(resolved.toArray()), {
+    const { text, decorations } = reconstruct(resolved.toArray());
+    const out = highlighter().codeToHtml(text, {
       lang,
-      theme: config().theme
+      theme: config().theme,
+      decorations
     });
     return <div class="nota-code-block" innerHTML={out} />;
   }
@@ -168,10 +245,12 @@ export function CodeInline(props: ParentProps): JSX.Element {
   const resolved = children(() => props.children);
   const lang = effectiveLang(undefined);
   if (lang !== undefined) {
-    const out = highlighter().codeToHtml(sourceText(resolved.toArray()), {
+    const { text, decorations } = reconstruct(resolved.toArray());
+    const out = highlighter().codeToHtml(text, {
       lang,
       theme: config().theme,
-      structure: "inline"
+      structure: "inline",
+      decorations
     });
     return <code class="nota-code-inline" innerHTML={out} />;
   }

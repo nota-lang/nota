@@ -364,6 +364,29 @@ describe("tex + code", () => {
     expect(html).toMatch(/<code class="nota-code-inline"[^>]*>f\(x\)/);
   });
 
+  test("armed elements become shiki decorations over their text range", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <CodeBlock lang="js">
+          {"let "}
+          <span class="hl" data-note="target">
+            {"x"}
+          </span>
+          {" = 1;"}
+        </CodeBlock>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    // The whole text tokenized (shiki pre present)…
+    expect(html).toMatch(/<pre class="shiki/);
+    // …with the armed element as a decoration wrapping its range: tag + props survive, the
+    // hydration key does not.
+    expect(html).toMatch(
+      /<span[^>]*class="hl"[^>]*data-note="target"[^>]*>x<\/span>/
+    );
+    expect(html).not.toMatch(/class="hl"[^>]*data-hk/);
+  });
+
   test("lstset({lang}) is positional: a later block highlights, config resets per test", () => {
     const Doc = () => (
       <NotaDoc>
