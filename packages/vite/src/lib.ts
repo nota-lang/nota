@@ -123,7 +123,11 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
       }
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id, prelude });
-      return { code: out, map };
+      // Brand the default export (the emit is `export default function Doc()`), so a host
+      // renderer that dispatches on component type (the Astro integration's check()) can
+      // recognize a Nota document exactly, without try-rendering. Appended past the mapped
+      // region, so the source map is untouched.
+      return { code: `${out}\nDoc.isNotaDoc = true;\n`, map };
     }
   };
 }

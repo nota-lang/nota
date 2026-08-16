@@ -57,6 +57,9 @@ describe("output surface", () => {
       /import \{ Heading \} from "@nota-lang\/prelude";/
     );
     expect(out.code).not.toMatch(/\bh\(/);
+    // The host-renderer brand rides after the emit (Astro check() dispatch).
+    expect(out.code).toContain("export default function Doc()");
+    expect(out.code).toContain("Doc.isNotaDoc = true;");
   });
 
   test("preludeModule redirects the ambient import; false disables it", () => {
