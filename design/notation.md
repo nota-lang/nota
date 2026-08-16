@@ -247,11 +247,36 @@ All three are expressions, so they nest in markup and embedded code alike, and
 whitespace after `@for`/`@if` is insignificant. Imperative forms with no value-shape
 (`while`, `try`, C-style or side-effecting `for`) have no `@`-form — write them in `%`.
 
+## Comments
+
+`//` and `/* … */`, Typst/C style. Both fire in **markup text position** — never inside raw spans
+(code / math / verbatim, where they are content) or embedded JS (which has its own comments) — and
+a comment is **trivia**: excised from the child stream, never emitted (it rides the parse's
+comments channel for the ESTree view and the highlight pass).
+
+- `//` runs to the end of its line. The extent is raw, C-style: in a single-line braced body it
+  claims the `}` too (`@p{a // b}` is a loud unclosed-body diagnostic, not silence); bounded
+  bodies (heading / list-item lines, colon bodies) clip it at their own end (`# Title // note`
+  works).
+- `/* … */` runs to the matching close, **nesting counted** (Typst's rule: `/* a /* b */ c */` is
+  one comment). Unterminated is a fatal diagnostic.
+- A comment with its line to itself is consumed *with* the line's newline, so a comment-only line
+  contributes no phantom soft/paragraph break, and a heading/list/`%` on the next line still
+  fires. A trailing comment leaves its line's newline (a soft break).
+- `\/` escapes the opener (`\//` renders `//`). Consequence of firing anywhere in prose, as in
+  Typst: a bare URL is claimed by `//` — use the `[text](url)` sugar, a code span, or the escape.
+
+```
+a // note⏎b        → ⟦ "a", "⏎", "b" ⟧          // comment excised; the newline survives
+a⏎// note⏎b        → ⟦ "a", "⏎", "b" ⟧          // comment-only line: no phantom break
+a /* x /* y */ */ b → ⟦ "a ", " b" ⟧            // nested; excised in place
+```
+
 ## Markup sugar
 
 Lightweight prose markers, after Typst (except headings, which use `#`). Each
 desugars to an ordinary element, so all the rules above (nesting, whitespace,
-escaping) carry over; the escaped form (`\* \_ \# \- \+`) is the literal character.
+escaping) carry over; the escaped form (`\* \_ \~ \# \- \+ \[ \!`) is the literal character.
 Line-start markers (`#`/`-`/`+`/`N.`/`%`) fire at a line start — and the **start of a
 markup body counts as one** (Typst's content-block rule): a braced body, colon body, or
 bounded sub-range opening directly with a marker opens the construct, with its first-line
@@ -259,9 +284,11 @@ extent clipped at the body's own closer (`@{- item}` opens a list item, clipped 
 body's own `}`). Literal braces in prose do not open a body, so `a {- b} c` stays text.
 
 ### Emphasis
-`*…*` → `@strong{…}`, `_…_` → `@em{…}`; bodies nest markup like any element.
+`*…*` → `@strong{…}`, `_…_` → `@em{…}`, `~~…~~` → `@s{…}` (strikethrough — the one two-byte
+marker; a lone `~` is always literal); bodies nest markup like any element.
 Following Typst, a marker opens only at a left word boundary and closes only at a
-right one, so intra-word `*`/`_` are literal without escaping.
+right one (for `~~`, judged across the pair), so intra-word `*`/`_`/`~~` are literal without
+escaping.
 
 **The line clamp.** An inline span never crosses a newline (CommonMark-style): `*…*`, `_…_`,
 `` `…` ``, and inline `$…$` must close on their opening line, else the opener is literal text —
@@ -310,6 +337,53 @@ deeper opens a nested list, which attaches to the item above it.
 ```
 An explicit `N.` (e.g. `1.`) is an alternate `@ol` marker; the written numbers are
 ignored, the browser renders the sequence.
+
+### Thematic break
+A line-start run of 3+ `-` with a whitespace-only tail (indentation tolerated) → `@hr{}` — a
+block, so the runtime breaks paragraphs around it. It fires through the same line-start hook as
+lists/headings (so it obeys the content-block rule and the brace/bounded clips); inline `---`
+stays literal text (the decode-stage smart-dash pass's material). A `- ` list marker needs its
+space, so the two line shapes never collide.
+```
+---              → <hr/>
+a --- b          → literal text (→ an em dash at the decode stage)
+```
+
+### Links & images
+`[text](url)` → `@a[href: "url"]{text}`; `![alt](src)` → `@img[src: "src", alt: "alt"]{}`.
+Inline links only — **no autolinks, no reference links, no titles**. The whole shape must close on
+its opening line (the line clamp); the `(` must be glued to the `]`. The *text* is an ordinary
+markup body (emphasis / `@`-forms / raw spans nest; nested `[`/`]` pair); the *url* and *alt* are
+raw — `\<c>` escapes cook, nested `(`/`)` pair in urls, targets are whitespace-trimmed. Links bind
+tighter than emphasis (a `_` or `*` inside a link's text or url cannot close an outer span), and a
+link's url may contain `//` (the link is reached first). Precedence at a `[`: the `[^` footnote
+digraph, then the link shape, then an attrs group, else a literal `[`. Alt is plain text — an HTML
+`alt` is a string. Both `<img>` attributes always emit (`alt=""` is the decorative marker).
+```
+see [the *docs*](https://x.com)  → see <a href="https://x.com">the <strong>docs</strong></a>
+![An owl](owl.png)               → <img src="owl.png" alt="An owl"/>
+[^1](u)                          → footnote mark + literal "(u)" (the digraph wins)
+```
+
+### Attrs groups
+A **trailing bare `[props]` group** attaches attributes to its construct — pandoc's heading-attrs
+idea in Nota's own props syntax:
+```
+# Title [id: "intro", class: "wide"]     → <Heading rank={1} id="intro" class="wide">…
+- item [class: "hot"]                    → the item's <li class="hot">
+…end of a paragraph. [class: "note"]     → the formed <p class="nota-para note">
+```
+Two gates keep prose honest: **(1)** the interior must open with a props-shaped first entry —
+`ident:`, a quoted key, or `...spread` — so `see [1]` and `[just words]` stay literal; **(2)** the
+group must be *trailing*: after its `]`, only whitespace up to the line end / the enclosing
+frame's end (or the braced body's own `}`). Past the gates the ordinary `[props]` machinery parses
+the group — a malformed entry is a loud diagnostic, and `\[` escapes the opener. Attachment: a
+trailing group in a **heading or list-item body hoists onto that construct's element** (the sugar
+constructs with no native props syntax); anywhere else it lowers to the ambient `<Attrs …/>`
+marker, which the runtime's Reforest pass strips and applies to **the paragraph it is forming** (a
+lone marker between paragraphs decorates the preceding one; paragraph attrs are **string-valued**
+— they round-trip through the rendered marker). Inside a non-flow element's braced body the marker
+has no paragraph former and renders inert — use the element's native props there.
 
 ### Doc-state references
 Four inline sugars for the ambient doc-state family, each a **rewrite to the element
@@ -413,6 +487,15 @@ span.
 ```python⏎f(x)⏎```  → <CodeBlock lang="python">{String.raw`f(x)`}</CodeBlock>
 ````
 
+## Smart punctuation (a decode-stage pass, not syntax)
+
+Curly quotes/apostrophes, `---`→`—` / `--`→`–` (eating *horizontal* whitespace only — never a
+newline, which is the paragraph-break marker), and `...`→`…` are applied to prose **at the decode
+(Reforest) stage**, Pollen's typography rules verbatim (solid.md §Smart punctuation). They are not
+reader syntax: the emit carries the source text, and the runtime transforms text on both server
+and client identically. Raw spans (code/math/verbatim) and `[data-nota-nosmart]` elements are
+excluded; default on, disabled per document via the render drivers' `smart` option.
+
 ## Whitespace
 
 Follows Scribble's reader. Per body line, leading/trailing spaces are dropped, except between
@@ -453,6 +536,13 @@ form of exactly these calls.
 | `@(user.posts[0])` | `user.posts[0]` |
 | `*bold*` | `h("strong", {}, ["bold"])` |
 | `_italic_` | `h("em", {}, ["italic"])` |
+| `~~struck~~` | `h("s", {}, ["struck"])` |
+| `---` (standalone line) | `h("hr", {}, [])` |
+| `[text](url)` | `h("a", { href: "url" }, ["text"])` (text is markup; url raw, trimmed, `\<c>` cooked) |
+| `![alt](src)` | `h("img", { src: "src", alt: "alt" }, [])` (alt is plain text; both attrs always emit) |
+| `# T [id: "x"]` | `h(Heading, { rank: 1, id: "x" }, ["T"])` (trailing attrs hoist — heading/list-item) |
+| `para. [class: "n"]` | `…, h(Attrs, { class: "n" }, [])` (flow position → the Reforest-applied marker) |
+| `a // note` | `h(…, {}, ["a"])` (a comment is trivia — excised, never emitted) |
 | `# Title` | `h(Heading, { rank: 1 }, ["Title"])` (heading sugar → the ambient `Heading` slot) |
 | `### Sub *bit*` | `h(Heading, { rank: 3 }, ["Sub ", h("strong", {}, ["bit"])])` |
 | `@h1{Title}` | `h("h1", {}, ["Title"])` (raw host tag: unnumbered/un-Toc'd) |

@@ -82,6 +82,10 @@ implemented in `oxc_transformer/src/nota/{build,lower}.rs`; goldens pin it):
 | `@for (x of xs) {…}` | `<For each={xs}>{(x) => <>…</>}</For>` |
 | `@if (c) {…} else {…}` | `<Show when={c} fallback={<>…</>}><>…</></Show>` |
 | `@(expr){…}` dynamic tag | `<Dynamic component={expr} …>` |
+| `~~strike~~` / `---` line / `[t](u)` / `![a](s)` | `<s>` / `<hr/>` / `<a href>` / `<img/>` (plain host elements — notation.md) |
+| trailing attrs group (heading / list item) | hoisted props on `<Heading>` / `<UlLi>`/`<OlLi>` (spread onto the `<li>`) |
+| trailing attrs group (flow position) | `<Attrs …/>` — the marker Reforest strips onto its paragraph |
+| `//` / `/* */` comments | nothing (trivia — excised before the emit) |
 | text runs | `{"…"}` containers, adjacent pieces coalesced (see ¶ below) |
 | component definitions in `%`-code | untouched user code — plain Solid arrows (`(props) => …`) |
 
@@ -128,7 +132,33 @@ Vendored from `~/Code/reforest` (`packages/reforest/src/lib.tsx`, our own spike)
 
 Semantics otherwise as proven in the spike: inline runs → `<p>`, blank-line-in-string →
 paragraph break, blocks pass through, `<UlLi>`/`<OlLi>` runs coalesce by kind, whitespace-only
-children bridge list runs. Categorization is post-resolution — **a component is "inline" or
+children bridge list runs.
+
+Two 2026-08 additions ride the pass:
+
+- **Attrs markers** (notation.md §Attrs groups). A flow-position attrs group lowers to
+  `<Attrs …/>`, which renders an invisible `<span data-nota-attrs …>` under **`NoHydration`** —
+  load-bearing: the marker never reaches the reforested output, so it must not claim a hydration
+  key. `parse` strips the marker and applies its **string-valued** attributes to the paragraph it
+  is forming (a lone marker decorates the preceding paragraph; tight containers swallow markers —
+  hoisted list-item attrs arrive as real `UlLi`/`OlLi` props instead, spread onto the `<li>`).
+- **Smart punctuation** (§ below) transforms the resolved children *before* `parse`.
+
+## Smart punctuation — Pollen's rules at the decode stage
+
+`@nota-lang/solid`'s `smart.ts` transliterates Pollen's `smart-quotes`/`smart-dashes`/
+`smart-ellipses` (`pollen/unstable/typography.rkt`) and runs them inside every `Reforest` over the
+**resolved** children — strings in place, client DOM via a text-node walk, server SSR chunks via
+an HTML-aware segment walk — so both sides transform identically, which is what lets hydration
+claim the transformed text. Quote *context* is judged over the flattened text of the run
+(Pollen's txexpr flatten: `do '` + `<em>not'</em>` curls both), with excluded regions —
+`code`/`pre`/`kbd`/`samp`/`script`/`style`/`textarea`/`math`/`svg` and anything carrying
+`data-nota-nosmart` — contributing one opaque word-ish placeholder. Two deliberate divergences
+from Pollen: dashes eat **horizontal whitespace only** (a `\s`-greedy rule would destroy the
+`"\n\n"` paragraph-break contract), and the pass is idempotent by construction (curly quotes,
+`—`, `–`, `…` are fixed points — re-running over hydrated text is a no-op). Default **on**;
+`renderDocument`/`hydrateDocument` thread a `smart` option (per-flag or `false`) through the
+doc-state store to every Reforest under it — server and client must agree, like `renderId`. Categorization is post-resolution — **a component is "inline" or
 "block" according to the root element it actually rendered**, seen through the boundary (DOM
 inspection client-side, chunk sniffing server-side). The declared-kind constructors
 (`inlineComponent`/`blockComponent`) are therefore meaningless and are **gone** — a document

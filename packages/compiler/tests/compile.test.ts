@@ -219,6 +219,22 @@ describe("compile (diagnostics — a reader error throws)", () => {
 });
 
 describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)", () => {
+  test("prose-sugars.nota: the shared fixture compiles with every sugar in place", () => {
+    const { code } = compile(read("prose-sugars.nota"), {
+      sourcePath: "prose-sugars.nota"
+    });
+    expect(code).toContain('<Heading rank={1} id="sugars" class="demo">');
+    expect(code).toContain("<s>");
+    expect(code).toContain('<a href="https://example.com/a_b">');
+    expect(code).toContain('<img src="sample.svg" alt="An owl" />');
+    expect(code).toContain("<hr />");
+    expect(code).toContain('<UlLi class="hot">');
+    expect(code).toContain('<Attrs class="note" />');
+    // Comments are trivia; escapes survive as literal text.
+    expect(code).not.toContain("comment-only line");
+    expect(code).toContain("// stays literal slashes");
+  });
+
   test("comments are trivia; thematic break and strike lower to host elements", () => {
     const { code } = compile(
       "a // gone\n\n/* also gone */\n~~struck~~ text\n\n---\n",
