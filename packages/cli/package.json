@@ -9,9 +9,6 @@
     "dist"
   ],
   "type": "module",
-  "scripts": {
-    "inspect": "tsx scripts/inspect.ts"
-  },
   "depot": {
     "platform": "node",
     "target": "script",

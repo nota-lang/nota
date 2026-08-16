@@ -5,10 +5,10 @@
  * across the package boundary) so the tests don't depend on Vite's `fs.allow`. If
  * `integration/golden.nota` changes, update this to match.
  */
-export const GOLDEN_NOTA = `%let Colorized = inlineComponent((children) => {
+export const GOLDEN_NOTA = `%let Colorized = (props: { children?: unknown }) => {
   let [color, setColor] = createSignal("red");
-  return @span[onClick: () => setColor("green")][style: {color: color()}]{@children};
-})
+  return @span[onClick: () => setColor("green")][style: {color: color()}]{@(props.children)};
+}
 
 @for (x of ["a", "b"]) {
   - @Colorized{@x}

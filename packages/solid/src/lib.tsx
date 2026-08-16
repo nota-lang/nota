@@ -713,22 +713,3 @@ export function hydrateDocument(
   return dispose;
 }
 
-// ===================================================================================================
-// Compat shims — the marked-constructor surface, dissolved
-// ===================================================================================================
-
-/**
- * Compat sugar for the emit's `inlineComponent((children, props) => …)` calls. The inline/block
- * kind distinction is gone — {@link Reforest} categorizes a component by the root element it
- * actually renders, seen through the boundary — so both constructors reduce to props plumbing.
- * Reader vNext emits plain arrows and these disappear.
- */
-export function inlineComponent<P extends { children?: JSX.Element }>(
-  fn: (children: JSX.Element | undefined, props: P) => JSX.Element,
-  _name?: string
-): (props: P) => JSX.Element {
-  return props => fn(props.children, props);
-}
-
-/** See {@link inlineComponent} — the kind distinction is dissolved. */
-export const blockComponent = inlineComponent;

@@ -2,11 +2,10 @@
  * Regenerate `src/preamble.generated.ts` from the built runtime `.d.ts` — the typed emit surface
  * baked into the resolution-independent typing preamble.
  *
- * Run after any change to the runtime's typed emit surface (`h` overloads, the DOM attribute map,
- * `inlineComponent`/`blockComponent`, …) or the ambient prelude shapes in `preamble-gen.ts`:
+ * Run after any change to the ambient surfaces in `preamble-gen.ts` (the JSX namespace, the
+ * structural components, the solid-js/prelude declarations):
  *
  * ```sh
- * cd packages/runtime && depot build          # the generator reads runtime/dist/*.d.ts
  * cd packages/language-server && npx tsx scripts/gen-preamble.ts
  * ```
  *

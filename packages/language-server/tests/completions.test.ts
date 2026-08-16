@@ -62,7 +62,7 @@ describe("headContext (the `@|` line-prefix classifier)", () => {
 describe("scanComponents (document scan for capitalized bindings)", () => {
   test("finds %let/%const/%export component bindings, ignores lowercase", () => {
     const src =
-      "%let Colorized = inlineComponent(f)\n%const Note = blockComponent(g)\n%export let Aside = x\n% let helper = 1\n";
+      "%let Colorized = (props) => props.children\n%const Note = (props) => props.children\n%export let Aside = x\n% let helper = 1\n";
     const found = scanComponents(src);
     expect(found).toContain("Colorized");
     expect(found).toContain("Note");
@@ -73,7 +73,7 @@ describe("scanComponents (document scan for capitalized bindings)", () => {
 
 describe("headCompletions (the merged `@|` item set)", () => {
   test("includes host tags, prelude slots, and in-scope components; de-duped", () => {
-    const src = "%let Widget = inlineComponent(f)\n@p{x}\n";
+    const src = "%let Widget = (props) => props.children\n@p{x}\n";
     const items = headCompletions(src);
     const labels = items.map(i => i.label);
     expect(labels).toContain("p"); // host tag

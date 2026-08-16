@@ -146,7 +146,7 @@ describe("diagnostics (TS over the virtual .tsx, mapped back to .nota)", () => {
 
   test("positive control: a declared component does NOT raise Cannot-find-name", () => {
     const source =
-      '% const Aside = inlineComponent((children) => h("aside", {}, children));\n@Aside{hi}\n';
+      "% const Aside = (props: { children?: unknown }) => props.children;\n@Aside{hi}\n";
     const diags = harness.notaDiagnostics(source);
     const asideError = diags.find(d =>
       /Cannot find name 'Aside'/.test(d.message)

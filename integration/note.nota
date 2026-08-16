@@ -1,2 +1,2 @@
-%let Note = blockComponent((children) => @aside{@children})
+%let Note = (props: { children?: unknown }) => @aside{@(props.children)}
 @Note{Hello @em{world}}

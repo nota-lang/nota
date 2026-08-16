@@ -64,15 +64,13 @@ export const SOLID_AMBIENT_NAMES = [
 /**
  * The `@nota-lang/solid` surface an emit may reference free: the structural names the reader's
  * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
- * components) plus the compat constructors a document's `%`-code may call.
+ * components).
  */
 export const SOLID_RUNTIME_NAMES = [
   "NotaDoc",
   "Reforest",
   "UlLi",
-  "OlLi",
-  "inlineComponent",
-  "blockComponent"
+  "OlLi"
 ] as const;
 
 /** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags). */

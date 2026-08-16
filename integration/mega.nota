@@ -1,12 +1,12 @@
 %%%
 export const meta = { title: "Nota Mega-Test" };
 
-const Chip = inlineComponent((children) => @span[class: "chip"]{@children});
-const Aside = blockComponent((children) => @aside{@children});
-const Colorized = inlineComponent((children) => {
+const Chip = (props: { children?: unknown }) => @span[class: "chip"]{@(props.children)};
+const Aside = (props: { children?: unknown }) => @aside{@(props.children)};
+const Colorized = (props: { children?: unknown }) => {
   let [color, setColor] = createSignal("red");
-  return @span[onClick: () => setColor("green")][style: {color: color()}]{@children};
-});
+  return @span[onClick: () => setColor("green")][style: {color: color()}]{@(props.children)};
+};
 
 const name = "Will";
 const url = "/home";

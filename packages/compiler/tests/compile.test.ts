@@ -27,14 +27,12 @@ const integrationDir = join(here, "..", "..", "..", "integration");
 const read = (name: string) => readFileSync(join(integrationDir, name), "utf8");
 
 describe("compile (JSX emit surface + prepended imports)", () => {
-  test("golden.nota: NotaDoc wrap, For recovery, UlLi sentinel, compat constructor", () => {
+  test("golden.nota: NotaDoc wrap, For recovery, UlLi sentinel, plain-arrow component", () => {
     const src = read("golden.nota");
     const { code } = compile(src, { sourcePath: "golden.nota" });
 
-    // The structural names the rewrite introduced + the compat constructor, from @nota-lang/solid.
-    expect(code).toMatch(
-      /^import \{ NotaDoc, UlLi, inlineComponent \} from "@nota-lang\/solid";/m
-    );
+    // The structural names the rewrite introduced, from @nota-lang/solid.
+    expect(code).toMatch(/^import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/m);
     // The solid-js ambient surface: createSignal is free in the doc's %-code; For was recovered.
     expect(code).toMatch(/^import \{ createSignal, For \} from "solid-js";/m);
 
@@ -42,9 +40,8 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     expect(code).toContain("export default function Doc()");
     expect(code).toContain("return <NotaDoc>");
 
-    // The component binding stays DOCUMENT-LOCAL through the compat constructor (name-attach
-    // preserved; reader vNext emits a plain arrow and drops both).
-    expect(code).toMatch(/let Colorized = inlineComponent\(/);
+    // The component is a plain Solid arrow, and its binding stays DOCUMENT-LOCAL.
+    expect(code).toMatch(/let Colorized = \(props\) => \{/);
     expect(code).not.toMatch(/export let Colorized/);
     expect(code).not.toContain('"Colorized")'); // name-attach is gone with the manifest
 
@@ -59,12 +56,12 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     expect(code).not.toContain("@nota-lang/runtime");
   });
 
-  test("note.nota: blockComponent named, aside gets a Reforest interior, em stays tight", () => {
+  test("note.nota: plain-arrow component, aside gets a Reforest interior, em stays tight", () => {
     const src = read("note.nota");
     const { code } = compile(src, { sourcePath: "note.nota" });
 
     expect(code).toContain("export default function Doc()");
-    expect(code).toMatch(/let Note = blockComponent\(/);
+    expect(code).toMatch(/let Note = \(props\) => </);
     expect(code).not.toMatch(/export let Note/);
     expect(code).not.toContain('"Note")'); // name-attach is gone with the manifest
     // aside is a flow container: its interior decodes as flow via <Reforest> (emit policy).
@@ -180,16 +177,10 @@ describe("compile (ambient prelude injection + freeNames)", () => {
 
   test("freeNames: sorted, cover the structural JSX surface, exclude bound names", () => {
     const { freeNames } = compile(read("golden.nota"));
-    for (const name of [
-      "NotaDoc",
-      "UlLi",
-      "For",
-      "inlineComponent",
-      "createSignal"
-    ]) {
+    for (const name of ["NotaDoc", "UlLi", "For", "createSignal"]) {
       expect(freeNames).toContain(name);
     }
-    for (const gone of ["h", "decode", "Fragment"]) {
+    for (const gone of ["h", "decode", "Fragment", "inlineComponent"]) {
       expect(freeNames).not.toContain(gone);
     }
     expect(freeNames).not.toContain("Colorized");

@@ -9,7 +9,7 @@
  * *only* from the preamble.
  *
  * On that harness we assert, through the real virtual-`.tsx` pipeline:
- * - **hover** on `blockComponent` shows its real signature (was `any`: "no inferred type");
+ * - **hover** on an ambient (`createSignal`) shows its real signature (was `any`: "no inferred type");
  * - a **wrong prop value on a known host tag** (`@a[href: 123]`) is a TS error mapped back to the
  *   `.nota` (the typed `h` overload + the Nota attribute map);
  * - an **unknown tag** (`@custom-el[foo: 1]`) is legal (the arbitrary-string fallback);
@@ -102,22 +102,21 @@ describe("typed surface resolves with no node_modules (D3)", () => {
     const bad = h
       .diagnostics()
       .filter(d =>
-        /Cannot find module|Cannot find name 'h'|Cannot find name 'decode'|Cannot find name 'Fragment'|Cannot find name 'inlineComponent'|Cannot find name 'blockComponent'/.test(
+        /Cannot find module|Cannot find name 'h'|Cannot find name 'decode'|Cannot find name 'Fragment'/.test(
           d.message
         )
       );
     expect(bad, JSON.stringify(h.diagnostics())).toEqual([]);
   });
 
-  test("hover on `blockComponent` shows its real signature (not `any`)", () => {
-    const source =
-      '%let Note = blockComponent((children) => h("aside", {}, children))\n@Note{hi}\n';
+  test("hover on an ambient (`createSignal`) shows its real signature (not `any`)", () => {
+    const source = "%let s = createSignal(0)\n@p{hi}\n";
     const h = noNodeModulesHarness(source);
-    const hover = h.hoverAt(source.indexOf("blockComponent"));
-    expect(hover, "no hover — the runtime import did not resolve").toBeTruthy();
-    // The signature mentions the constructor and its component-body / CompFn types.
-    expect(hover).toMatch(/blockComponent/);
-    expect(hover).toContain("(children: unknown, props:");
+    const hover = h.hoverAt(source.indexOf("createSignal"));
+    expect(hover, "no hover — the ambient declaration did not resolve").toBeTruthy();
+    // The generic signature instantiates at the call site — a real type, not `any`.
+    expect(hover).toMatch(/createSignal/);
+    expect(hover).toContain("value: number");
   });
 });
 

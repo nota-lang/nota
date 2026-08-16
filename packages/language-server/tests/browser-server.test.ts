@@ -92,7 +92,7 @@ afterAll(() => {
 const DOC_URI = "file:///workspace/doc.nota";
 const DOC_TEXT = [
   '%let bad: number = "str";',
-  "%let Note = blockComponent((children) => @aside{@children})",
+  "%let Note = (props: { children?: unknown }) => @aside{@(props.children)}",
   "@Note{Hello @em{world}}",
   ""
 ].join("\n");

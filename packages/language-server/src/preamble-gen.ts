@@ -80,8 +80,6 @@ const AMBIENT_STRUCTURAL = [
   "declare const OlLi: (props: { children?: unknown }) => unknown;",
   "declare const For: <T>(props: { each: readonly T[] | undefined | null; fallback?: unknown; children: (item: T, index: () => number) => unknown }) => unknown;",
   "declare const Dynamic: (props: { component: unknown; children?: unknown; [prop: string]: unknown }) => unknown;",
-  "declare const inlineComponent: <P extends { children?: unknown }>(fn: (children: unknown, props: P) => unknown) => (props: P) => unknown;",
-  "declare const blockComponent: typeof inlineComponent;",
   ""
 ].join("\n");
 

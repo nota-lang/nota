@@ -42,7 +42,7 @@ So the whole design collapses to:
 | `mark`/`query`/`DocIndex`/force/index passes | the **doc-state store**: registrations + memos |
 | trailer registry (`registerTrailer`) | store-registered trailers + `<TrailerOutlet>` in `NotaDoc` |
 | component registry (`slot`/`registerComponents`) | lexical `%import` + the integrator's `preludeModule` |
-| `inlineComponent`/`blockComponent` kinds | dissolved — categorization is by *rendered root tag* |
+| `inlineComponent`/`blockComponent` | deleted — plain Solid arrows; categorization is by *rendered root tag* |
 | vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onMount` delegation) |
 | `@nota-lang/react`, `@nota-lang/react-router` | removed from the workspace |
 | `@nota-lang/runtime` | deleted (the LSP preamble is self-contained ambient declarations) |
@@ -82,7 +82,7 @@ implemented in `oxc_transformer/src/nota/{build,lower}.rs`; goldens pin it):
 | `@for (x of xs) {…}` | `<For each={xs}>{(x) => <>…</>}</For>` |
 | `@(expr){…}` dynamic tag | `<Dynamic component={expr} …>` |
 | text runs | `{"…"}` containers, adjacent pieces coalesced (see ¶ below) |
-| `inlineComponent`/`blockComponent` calls in `%`-code | untouched user code (compat shims in `@nota-lang/solid`) |
+| component definitions in `%`-code | untouched user code — plain Solid arrows (`(props) => …`) |
 
 Three of those rows carry semantics:
 
@@ -120,13 +120,10 @@ Semantics otherwise as proven in the spike: inline runs → `<p>`, blank-line-in
 paragraph break, blocks pass through, `<UlLi>`/`<OlLi>` runs coalesce by kind, whitespace-only
 children bridge list runs. Categorization is post-resolution — **a component is "inline" or
 "block" according to the root element it actually rendered**, seen through the boundary (DOM
-inspection client-side, chunk sniffing server-side). The declared-kind constructors are therefore
-meaningless; they survive only as compat sugar:
-
-```ts
-export const inlineComponent = (fn, _name?) => (props) => fn(props.children, props);
-export const blockComponent = inlineComponent;
-```
+inspection client-side, chunk sniffing server-side). The declared-kind constructors
+(`inlineComponent`/`blockComponent`) are therefore meaningless and are **gone** — a document
+component is a plain Solid arrow (`%let Note = (props: { children?: unknown }) =>
+@aside{@(props.children)}`; the annotation types the LSP view and the emit strips it).
 
 Known sniffing limits (inherited from the spike, acceptable v0): a component rooted in dynamic
 text SSRs a marker-led chunk and categorizes as inline; the `data-category` declaration protocol
@@ -273,11 +270,10 @@ The surviving system, by layer — with the judgment calls the sweep made explic
 ## Follow-ups — status
 
 1. ✅ **Reader vNext: native JSX emit** — landed on oxc branch `solid` (goldens regenerated;
-   jsxify deleted; the compiler shim is pure free-name import binding). One deviation from the
-   original plan: `inlineComponent`/`blockComponent` stay as 2-line compat shims in
-   `@nota-lang/solid` — the calls are *user-written* notation, so the reader no longer
-   special-cases them at all (name-attach dropped); retiring the idiom itself is a notation
-   design question, not an emit one.
+   jsxify deleted; the compiler shim is pure free-name import binding). The
+   `inlineComponent`/`blockComponent` compat shims briefly outlived it, then were deleted
+   outright: document components are plain Solid arrows, annotated for the strict LSP view
+   (`(props: { children?: unknown }) => …`) with the annotation stripped from the runtime emit.
 2. ✅ Language-server preamble v2 (global JSX namespace + intrinsics table + solid surfaces);
    ✅ playground on in-page babel-preset-solid (Solid UI, pure-CSR preview).
 3. ✅ Code decorations over resolved children. `data-category` protocol: still only if

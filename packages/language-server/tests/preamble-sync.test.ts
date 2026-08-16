@@ -26,12 +26,11 @@ describe("preamble generation", () => {
   });
 
   test("inlines the runtime surface as module-local ambient declarations (resolution-independent)", () => {
-    // The typed `h` overloads and the marked-component constructors are present as module-local
-    // ambient declarations (no import, no `declare module` augmentation) — so they resolve with no
-    // `node_modules` (asserted end-to-end in `typed-surface.test.ts`).
+    // The structural components are present as module-local ambient declarations (no import, no
+    // `declare module` augmentation) — so they resolve with no `node_modules` (asserted
+    // end-to-end in `typed-surface.test.ts`).
     expect(PREAMBLE).toContain("declare const NotaDoc");
-    expect(PREAMBLE).toContain("declare const blockComponent");
-    expect(PREAMBLE).toContain("declare const inlineComponent");
+    expect(PREAMBLE).toContain("declare const Reforest");
     // …and the ambient prelude slots the emit references as free identifiers.
     expect(PREAMBLE).toContain("declare const Tex:");
     expect(PREAMBLE).toContain("declare const Heading:");

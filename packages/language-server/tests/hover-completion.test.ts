@@ -28,7 +28,7 @@ import {
  */
 const DOC =
   '% const greeting: string = "hi";\n' +
-  '% const Aside = inlineComponent((children) => h("aside", {}, children));\n' +
+  "% const Aside = (props: { children?: unknown }) => props.children;\n" +
   "@Aside{@(greeting)}\n" +
   "@p{plain}\n";
 
@@ -50,8 +50,8 @@ describe("hover (TS quickInfo mapped to .nota)", () => {
 
   test("hover on a component identifier @Aside shows the binding's type", () => {
     const h = createFeatureHarness(DOC);
-    // `inlineComponent(...)` returns the preamble's component-fn type — hover on the *use* reports it,
-    // proving the component-identifier range carries `semantic` (hover) back to `.nota`.
+    // The binding's arrow type — hover on the *use* reports it, proving the
+    // component-identifier range carries `semantic` (hover) back to `.nota`.
     expect(hoverAt(h, ASIDE_USE)).toContain("const Aside: (props:");
   });
 
@@ -75,8 +75,7 @@ describe("completion (TS completions mapped to .nota)", () => {
   test("completion in a % block offers a component declared earlier in the document", () => {
     // A standalone scenario: `Banner` is declared, then referenced partially in a later `%` line.
     const src =
-      '% const Banner = inlineComponent((c) => h("div", {}, c));\n' +
-      "% const reference = Ban;\n";
+      "% const Banner = () => null;\n" + "% const reference = Ban;\n";
     const h = createFeatureHarness(src);
     // Cursor right after the partial `Ban` identifier.
     const at = src.indexOf("Ban;") + "Ban".length;

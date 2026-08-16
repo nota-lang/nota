@@ -29,7 +29,7 @@ import {
  */
 const DOC =
   '% const greeting: string = "hi";\n' +
-  '% const Aside = inlineComponent((children) => h("aside", {}, children));\n' +
+  "% const Aside = (props: { children?: unknown }) => props.children;\n" +
   "@Aside{first @(greeting)}\n" +
   "@Aside{second}\n";
 

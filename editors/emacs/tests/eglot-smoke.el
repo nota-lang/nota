@@ -38,7 +38,7 @@ Signal an error mentioning WHAT on timeout; return PRED's value."
   (unwind-protect
       (progn
         (with-temp-file file
-          (insert "%let Note = blockComponent((children) => @aside{@children})\n"
+          (insert "%let Note = (props: { children?: unknown }) => @aside{@(props.children)}\n"
                   "@Note{Hello @em{world}}\n"
                   "%let bad: number = \"str\";\n"))
         (with-current-buffer (find-file-noselect file)
