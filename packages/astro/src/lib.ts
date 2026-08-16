@@ -22,6 +22,8 @@
  * story, chosen per page.
  */
 
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type NotaPluginOptions, nota } from "@nota-lang/vite";
 import type { AstroIntegration } from "astro";
@@ -64,7 +66,7 @@ export default function notaAstro(
   return {
     name: "@nota-lang/astro",
     hooks: {
-      "astro:config:setup": ({ addRenderer, updateConfig }) => {
+      "astro:config:setup": ({ addRenderer, config, updateConfig }) => {
         addRenderer({
           name: "@nota-lang/astro",
           serverEntrypoint: entry("server"),
@@ -76,12 +78,51 @@ export default function notaAstro(
             // The classic ssr key, not only configEnvironment: the dev server's module runner
             // consults this one when deciding to externalize, and a natively-imported .jsx dist
             // is fatal there (build bundles regardless).
-            ssr: { noExternal: [...JSX_DIST_PACKAGES] }
+            ssr: { noExternal: [...JSX_DIST_PACKAGES] },
+            server: {
+              fs: {
+                // Dev serves the renderer entrypoints by absolute path, and a workspace-linked
+                // Nota checkout puts every @nota-lang dist outside the project root — both are
+                // refused by Vite's serving allow-list unless listed. Setting fs.allow disables
+                // Vite's project-root default, so the root rides along explicitly.
+                allow: [
+                  fileURLToPath(config.root),
+                  ...notaPackageDirs(fileURLToPath(config.root))
+                ]
+              }
+            }
           }
         });
       }
     }
   };
+}
+
+/**
+ * The directories dev-mode file serving must reach: this package (the renderer entrypoints are
+ * absolute ids into it) and the installed {@link JSX_DIST_PACKAGES} roots (under a `link:`ed
+ * checkout their real paths sit outside the consumer's root). Each package resolves from the
+ * consumer's root first (that graph is what dev actually serves), falling back to this package's
+ * own deps; unresolvable names are skipped — nothing to allow for them.
+ */
+function notaPackageDirs(root: string): string[] {
+  const resolvers = [
+    createRequire(join(root, "package.json")),
+    createRequire(import.meta.url)
+  ];
+  const dirs = new Set<string>([fileURLToPath(new URL("..", import.meta.url))]);
+  for (const name of JSX_DIST_PACKAGES) {
+    for (const req of resolvers) {
+      try {
+        // Entry file → dist dir → package root.
+        dirs.add(join(dirname(req.resolve(name)), ".."));
+        break;
+      } catch {
+        /* try the next resolver */
+      }
+    }
+  }
+  return [...dirs];
 }
 
 /** Per-environment config for the JSX-dist packages (see {@link JSX_DIST_PACKAGES}). */
@@ -90,7 +131,14 @@ function configEnvironment(): Plugin {
     name: "@nota-lang/astro:config-environment",
     configEnvironment(name: string) {
       if (name === "client") {
-        return { optimizeDeps: { exclude: JSX_DIST_PACKAGES } };
+        return {
+          optimizeDeps: {
+            // shiki rides along: its per-language modules load dynamically by name, so the
+            // optimizer discovers them mid-session and invalidates in-flight pages (504
+            // "Outdated Optimize Dep" on every cold dev start). Unoptimized serving is fine.
+            exclude: [...JSX_DIST_PACKAGES, "shiki"]
+          }
+        };
       }
       return {
         resolve: { noExternal: [...JSX_DIST_PACKAGES] },
