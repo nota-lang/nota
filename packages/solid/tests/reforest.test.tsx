@@ -7,7 +7,7 @@ import type { JSX } from "solid-js";
 import { createSignal, Show } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, test } from "vitest";
-import { OlLi, Reforest, textOf, UlLi } from "../src/lib";
+import { Attrs, OlLi, Reforest, textOf, UlLi } from "../src/lib";
 
 let disposers: (() => void)[] = [];
 
@@ -149,6 +149,31 @@ describe("lists", () => {
     expect(root.querySelectorAll("ul")[0].children).toHaveLength(3);
   });
 
+  test("extra props (hoisted attrs groups) spread onto the li", () => {
+    // `- item [class: "hot"]` hoists the attrs group onto UlLi/OlLi as real props.
+    const root = mount(() => (
+      <Reforest>
+        <UlLi class="hot" data-x="1">
+          item
+        </UlLi>
+        <OlLi id="o1" title="tip">
+          oitem
+        </OlLi>
+      </Reforest>
+    ));
+    const uli = root.querySelector("ul > li");
+    if (!uli) throw new Error("no ul li");
+    expect(uli.className).toBe("hot");
+    expect(uli.getAttribute("data-x")).toBe("1");
+    expect(uli.getAttribute("data-list")).toBe("ul"); // the static marker survives the spread
+    expect(uli.textContent).toBe("item");
+    const oli = root.querySelector("ol > li");
+    if (!oli) throw new Error("no ol li");
+    expect(oli.id).toBe("o1");
+    expect(oli.getAttribute("title")).toBe("tip");
+    expect(oli.getAttribute("data-list")).toBe("ol");
+  });
+
   test("nested item runs coalesce inside a tight item interior", () => {
     const root = mount(() => (
       <Reforest>
@@ -285,6 +310,42 @@ describe("smart punctuation (the string rules + the DOM walk)", () => {
 });
 
 describe("attrs markers (client)", () => {
+  test("the <Attrs> component decorates the forming paragraph; the marker leaves no DOM remnant", () => {
+    const root = mount(() => (
+      <Reforest>
+        {"styled text "}
+        <Attrs class="note" data-x="1" />
+        {"\n\nplain"}
+      </Reforest>
+    ));
+    const ps = root.querySelectorAll("p");
+    expect(ps).toHaveLength(2);
+    expect(ps[0].classList.contains("nota-para")).toBe(true);
+    expect(ps[0].classList.contains("note")).toBe(true);
+    expect(ps[0].getAttribute("data-x")).toBe("1");
+    expect(ps[0].textContent).toContain("styled text");
+    expect(ps[1].className).toBe("nota-para"); // the next paragraph is untouched
+    expect(root.querySelector("[data-nota-attrs]")).toBeNull(); // marker stripped from the output
+  });
+
+  test("a lone <Attrs> decorates the preceding paragraph", () => {
+    const root = mount(() => (
+      <Reforest>
+        {"first para"}
+        {"\n\n"}
+        <Attrs class="x" />
+        {"\n\n"}
+        {"second"}
+      </Reforest>
+    ));
+    const ps = root.querySelectorAll("p");
+    expect(ps).toHaveLength(2);
+    expect(ps[0].classList.contains("x")).toBe(true);
+    expect(ps[0].textContent).toBe("first para");
+    expect(ps[1].classList.contains("x")).toBe(false);
+    expect(root.querySelector("[data-nota-attrs]")).toBeNull();
+  });
+
   test("parse extracts marker attributes onto the paragraph", async () => {
     const { parse } = await import("../src/reforest");
     const marker = document.createElement("span");

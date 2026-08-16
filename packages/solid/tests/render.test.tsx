@@ -3,11 +3,17 @@
  * over SSR chunks, the doc-state store, the two-pass renderDocument driver (forward references,
  * convergence), trailers, and the snapshot embed.
  */
-import { type JSX, children as resolveChildren, Show } from "solid-js";
+import {
+  createSignal,
+  type JSX,
+  children as resolveChildren,
+  Show
+} from "solid-js";
 import { renderToString } from "solid-js/web";
 import { describe, expect, test } from "vitest";
 import {
   Attrs,
+  categorize,
   createDocState,
   DOC_STATE_ID,
   DocStateContext,
@@ -59,6 +65,28 @@ describe("reforest over SSR chunks", () => {
     expect(html).toMatch(/<p[^>]*class="nota-para"[^>]*>before .*<em/);
     expect(html).toMatch(/<figure/);
     expect((html.match(/<p /g) ?? []).length).toBe(2);
+  });
+
+  test("marker-led chunk (dynamic-text component root) categorizes as inline", () => {
+    // The ACCEPTED v0 sniffing limit (design/solid.md §Smart punctuation, categorization ¶):
+    // a component whose root is dynamic text SSRs a chunk led by hydration-marker comments, so
+    // the sniffer sees no root tag and falls back to inline. A future fix (the `data-category`
+    // declaration protocol) should consciously flip this test.
+    expect(categorize({ t: "<!--#-->dyn<!--/-->" })).toEqual({
+      kind: "inline"
+    });
+    const [word] = createSignal("dynamic");
+    const DynText = () => <>{word()}</>;
+    const html = renderToString(() => (
+      <Reforest>
+        {"before "}
+        <DynText />
+        {" after"}
+      </Reforest>
+    ));
+    // The whole run stays ONE paragraph — the marker-led chunk joined the inline run.
+    expect((html.match(/<p /g) ?? []).length).toBe(1);
+    expect(html).toMatch(/<p[^>]*>before .*dynamic.* after<\/p>/);
   });
 
   test("textOf strips tags and decodes entities from chunks", () => {
@@ -187,6 +215,33 @@ describe("renderDocument (two-pass SSG)", () => {
     );
     expect(renderDocument(Placed).html).not.toContain("footnotes");
     expect(renderDocument(Unplaced).html).toContain("footnotes");
+  });
+
+  test("multiple trailers render after the body in registration order; re-registration is a no-op", () => {
+    const Reg = () => {
+      const state = useDocState();
+      state.trailer("uno", () => <div class="t-uno">first</div>);
+      state.trailer("dos", () => <div class="t-dos">second</div>);
+      // Idempotent by name: the FIRST registration wins (same override story as the old registry).
+      state.trailer("uno", () => <div class="t-uno">OVERRIDE</div>);
+      return null;
+    };
+    const Doc2 = () => (
+      <NotaDoc>
+        {"body prose"}
+        <Reg />
+      </NotaDoc>
+    );
+    const { html } = renderDocument(Doc2);
+    const iBody = html.indexOf("body prose");
+    const iUno = html.indexOf("t-uno");
+    const iDos = html.indexOf("t-dos");
+    expect(iBody).toBeGreaterThan(-1);
+    expect(iUno).toBeGreaterThan(iBody); // trailers land at document end…
+    expect(iDos).toBeGreaterThan(iUno); // …in registration order
+    expect(html).toContain(">first<");
+    expect(html).toContain(">second<");
+    expect(html).not.toContain("OVERRIDE");
   });
 });
 
@@ -359,6 +414,34 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
     expect(on.html).toContain("“quoted”–dashed");
     const off = renderDocument(Doc2, { smart: false });
     expect(off.html).toContain('"quoted" -- dashed');
+  });
+
+  test("per-flag options toggle each rule independently", () => {
+    const prose = '"x" -- y...';
+    const noQuotes = renderToString(() => (
+      <Reforest smart={{ quotes: false }}>{prose}</Reforest>
+    ));
+    expect(noQuotes).toContain('"x"–y…'); // quotes raw; dashes + ellipses still transform
+    const noDashes = renderToString(() => (
+      <Reforest smart={{ dashes: false }}>{prose}</Reforest>
+    ));
+    expect(noDashes).toContain("“x” -- y…"); // dashes (and their whitespace) raw
+    const noEllipses = renderToString(() => (
+      <Reforest smart={{ ellipses: false }}>{prose}</Reforest>
+    ));
+    expect(noEllipses).toContain("“x”–y...");
+    const allOff = renderToString(() => (
+      <Reforest smart={{ quotes: false, dashes: false, ellipses: false }}>
+        {prose}
+      </Reforest>
+    ));
+    expect(allOff).toContain('"x" -- y...'); // equivalent to smart={false}
+  });
+
+  test("renderDocument threads per-flag options (not just false)", () => {
+    const Doc2 = () => <NotaDoc>{'"quoted" -- dashed...'}</NotaDoc>;
+    const { html } = renderDocument(Doc2, { smart: { quotes: false } });
+    expect(html).toContain('"quoted"–dashed…');
   });
 
   test("a paragraph break survives the dash rule (horizontal whitespace only)", () => {

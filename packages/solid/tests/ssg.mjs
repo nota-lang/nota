@@ -31,12 +31,15 @@ try {
     const runner = createServerModuleRunner(server.environments.ssr);
     mod = await runner.import("/tests/fixtures/ssg-entry.tsx");
   }
-  const { body, state, scopedBody } = mod.run();
+  const { body, state, scopedBody, plainBody } = mod.run();
   mkdirSync(join(pkgRoot, "tests/.built"), { recursive: true });
   writeFileSync(join(pkgRoot, "tests/.built/body.html"), body);
   writeFileSync(join(pkgRoot, "tests/.built/state.json"), state);
   writeFileSync(join(pkgRoot, "tests/.built/body-scoped.html"), scopedBody);
-  console.log("wrote tests/.built/{body.html,state.json,body-scoped.html}");
+  writeFileSync(join(pkgRoot, "tests/.built/body-plain.html"), plainBody);
+  console.log(
+    "wrote tests/.built/{body.html,state.json,body-scoped.html,body-plain.html}"
+  );
 } finally {
   await server.close();
 }

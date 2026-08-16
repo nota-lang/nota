@@ -8,10 +8,19 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { sharedConfig } from "solid-js";
+import { createSignal, Show, sharedConfig } from "solid-js";
+import { render } from "solid-js/web";
 import { beforeAll, describe, expect, test } from "vitest";
-import { DOC_STATE_ID, hydrateDocument, onRenderReset } from "../src/lib";
-import { Doc } from "./fixtures/doc";
+import {
+  createDocState,
+  DOC_STATE_ID,
+  DocStateContext,
+  type FactHandle,
+  hydrateDocument,
+  onRenderReset,
+  useDocState
+} from "../src/lib";
+import { Doc, PlainDoc } from "./fixtures/doc";
 
 // vitest runs with cwd at the package root.
 const pkgRoot = process.cwd();
@@ -26,9 +35,17 @@ beforeAll(() => {
     join(pkgRoot, "tests/.built/body-scoped.html"),
     "utf8"
   );
+  ssrPlainBody = readFileSync(
+    join(pkgRoot, "tests/.built/body-plain.html"),
+    "utf8"
+  );
 }, 60_000);
 
 let ssrScopedBody: string;
+let ssrPlainBody: string;
+
+/** The fixture's smart-punct sentence, as the server must have transformed it. */
+const SMART_SENTENCE = "She said “stop”–then—a pause… done.";
 
 const click = (el: Element) =>
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -61,6 +78,16 @@ describe("ssg + hydration", () => {
     expect(article.lastElementChild?.matches("footer.colophon")).toBe(true);
   });
 
+  test("smart punctuation is baked into the served HTML", () => {
+    // The straight forms went in (fixture); the curly/em-dash forms come out. The zero-mutation
+    // assertion in the hydration test below then proves the client re-derives this exact text
+    // while claiming (the transform runs identically server- and client-side).
+    expect(ssrBody).toContain(SMART_SENTENCE);
+    expect(ssrBody).not.toContain('"stop"');
+    expect(ssrBody).not.toContain("-- then"); // (bare `--` occurs in comment markers)
+    expect(ssrBody).not.toContain("pause...");
+  });
+
   test("hydration claims the reforested DOM; doc-state goes reactive after release", () => {
     Object.assign(globalThis, {
       _$HY: { events: [], completed: new WeakSet(), r: {} }
@@ -80,6 +107,9 @@ describe("ssg + hydration", () => {
     const counter = article.querySelector("button.counter");
     if (!counter) throw new Error("no counter");
     const htmlBefore = normalize(article.innerHTML);
+    // The observed DOM includes the smart-transformed prose — the zero-mutation assertion below
+    // therefore proves hydration CLAIMED the transformed text (client re-ran the same transform).
+    expect(htmlBefore).toContain(SMART_SENTENCE);
 
     // Watch for any structural or text mutation during hydration + seed release.
     const observer = new MutationObserver(() => {});
@@ -112,12 +142,30 @@ describe("ssg + hydration", () => {
     const nav = article.querySelector("nav.toc");
     if (!nav) throw new Error("no nav");
     expect(nav.querySelectorAll("a")).toHaveLength(2);
-    const add = article.querySelector("button.add-heading");
-    if (!add) throw new Error("no add button");
-    click(add);
+    const toggle = article.querySelector("button.toggle-heading");
+    if (!toggle) throw new Error("no toggle button");
+    click(toggle);
     expect(article.querySelector("#gamma")).toBeTruthy();
     expect(nav.querySelectorAll("a")).toHaveLength(3);
     expect(nav.textContent).toContain("Gamma");
+
+    // Toggling OFF unmounts the heading — onCleanup unregisters it, and the Toc shrinks back.
+    click(toggle);
+    expect(article.querySelector("#gamma")).toBeNull();
+    expect(nav.querySelectorAll("a")).toHaveLength(2);
+    expect([...nav.querySelectorAll("a")].map(a => a.textContent)).toEqual([
+      "Alpha",
+      "Beta"
+    ]);
+
+    // And back ON: a fresh registration (at the end — registration order approximates document
+    // order, the documented v0 caveat; gamma IS last here, so the order is also correct).
+    click(toggle);
+    expect([...nav.querySelectorAll("a")].map(a => a.textContent)).toEqual([
+      "Alpha",
+      "Beta",
+      "Gamma"
+    ]);
 
     dispose();
     root.remove();
@@ -191,6 +239,127 @@ describe("ssg + hydration", () => {
     expect(runs).toBe(1);
     dispose();
     off();
+    root.remove();
+  });
+});
+
+describe("hydrateDocument fallbacks", () => {
+  test("default root resolves #nota-root; default seed reads the page script", () => {
+    Object.assign(globalThis, {
+      _$HY: { events: [], completed: new WeakSet(), r: {} }
+    });
+    sharedConfig.done = false;
+    const root = document.createElement("div");
+    root.id = "nota-root";
+    document.body.appendChild(root);
+    root.innerHTML = ssrBody;
+    const stateEl = document.createElement("script");
+    stateEl.type = "application/json";
+    stateEl.id = DOC_STATE_ID;
+    stateEl.textContent = ssrState;
+    document.body.appendChild(stateEl);
+    const article = root.querySelector("article.nota-doc");
+    if (!article) throw new Error("no article");
+
+    const observer = new MutationObserver(() => {});
+    observer.observe(article, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+    const dispose = hydrateDocument(Doc); // no opts at all: root + seed both defaulted
+    const visible = observer
+      .takeRecords()
+      .filter(r =>
+        [...r.addedNodes, ...r.removedNodes].some(n => n.nodeType !== 8)
+      );
+    observer.disconnect();
+    expect(visible).toEqual([]); // claimed in the default root, under the page seed
+    expect(root.querySelector("article.nota-doc")).toBe(article);
+    const counter = article.querySelector("button.counter");
+    if (!counter) throw new Error("no counter");
+    click(counter);
+    expect(counter.textContent).toBe("clicks: 1");
+
+    dispose();
+    root.remove();
+    stateEl.remove();
+  });
+
+  test("no #nota-root falls back to document.body; no seed script means unseeded hydration", () => {
+    Object.assign(globalThis, {
+      _$HY: { events: [], completed: new WeakSet(), r: {} }
+    });
+    sharedConfig.done = false;
+    // PlainDoc reads no doc-state, so seedless hydration must still claim byte-for-byte.
+    document.body.innerHTML = ssrPlainBody;
+    expect(document.getElementById("nota-root")).toBeNull(); // → body fallback
+    expect(document.getElementById(DOC_STATE_ID)).toBeNull(); // → readPageSeed() undefined
+    const article = document.body.querySelector("article.nota-doc");
+    if (!article) throw new Error("no article");
+
+    const observer = new MutationObserver(() => {});
+    observer.observe(article, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+    const dispose = hydrateDocument(PlainDoc);
+    const visible = observer
+      .takeRecords()
+      .filter(r =>
+        [...r.addedNodes, ...r.removedNodes].some(n => n.nodeType !== 8)
+      );
+    observer.disconnect();
+    expect(visible).toEqual([]); // claimed into <body>, unseeded
+    expect(document.body.querySelector("article.nota-doc")).toBe(article);
+    const counter = article.querySelector("button.counter");
+    if (!counter) throw new Error("no counter");
+    click(counter);
+    expect(counter.textContent).toBe("clicks: 1");
+
+    dispose();
+    document.body.innerHTML = "";
+  });
+});
+
+describe("doc-state unregistration (client)", () => {
+  test("unmount unregisters via onCleanup and re-sequences seq; remount registers at the end", () => {
+    const state = createDocState();
+    const handles: FactHandle[] = [];
+    const Reg = (p: { id: string }) => {
+      handles.push(useDocState().register("heading", { id: p.id }));
+      return null;
+    };
+    const [mid, setMid] = createSignal(true);
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    const dispose = render(
+      () => (
+        <DocStateContext.Provider value={state}>
+          <Reg id="a" />
+          <Show when={mid()}>
+            <Reg id="b" />
+          </Show>
+          <Reg id="c" />
+        </DocStateContext.Provider>
+      ),
+      root
+    );
+    expect(state.live("heading").map(f => f.id)).toEqual(["a", "b", "c"]);
+    expect(handles.map(h => h.seq)).toEqual([1, 2, 3]);
+
+    setMid(false); // <Show> unmounts b → onCleanup unregisters it
+    expect(state.live("heading").map(f => f.id)).toEqual(["a", "c"]);
+    expect(handles[0].seq).toBe(1);
+    expect(handles[2].seq).toBe(2); // re-sequenced: c's per-kind seq shifted 3 → 2
+
+    setMid(true); // remount: b re-registers as a NEW registration, at the end (v0 order caveat)
+    expect(state.live("heading").map(f => f.id)).toEqual(["a", "c", "b"]);
+    expect(handles).toHaveLength(4);
+    expect(handles[3].seq).toBe(3);
+
+    dispose();
     root.remove();
   });
 });
