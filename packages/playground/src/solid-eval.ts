@@ -25,9 +25,7 @@ import {
 import * as prelude from "@nota-lang/prelude";
 import * as notaSolid from "@nota-lang/solid";
 import solidPreset from "babel-preset-solid";
-// biome-ignore lint/style/useImportType: value namespaces — the module map hands these out at eval time.
 import * as solidJs from "solid-js";
-// biome-ignore lint/style/useImportType: value namespace.
 import * as solidWeb from "solid-js/web";
 
 /**
