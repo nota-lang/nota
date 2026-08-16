@@ -15,12 +15,7 @@
  * are `nota-para`/`nota-list`/`nota-section`.
  */
 
-import {
-  children,
-  createMemo,
-  type JSX,
-  type ParentProps
-} from "solid-js";
+import { children, createMemo, type JSX, type ParentProps } from "solid-js";
 
 /**
  * A serialized SSR output chunk, as produced by solid-js/web's server `ssr()` runtime. On the

@@ -23,7 +23,7 @@
  */
 
 import { fileURLToPath } from "node:url";
-import { nota, type NotaPluginOptions } from "@nota-lang/vite";
+import { type NotaPluginOptions, nota } from "@nota-lang/vite";
 import type { AstroIntegration } from "astro";
 import type { Plugin } from "vite";
 
@@ -71,7 +71,13 @@ export default function notaAstro(
           clientEntrypoint: entry("client")
         });
         updateConfig({
-          vite: { plugins: [...nota(options), configEnvironment()] }
+          vite: {
+            plugins: [...nota(options), configEnvironment()],
+            // The classic ssr key, not only configEnvironment: the dev server's module runner
+            // consults this one when deciding to externalize, and a natively-imported .jsx dist
+            // is fatal there (build bundles regardless).
+            ssr: { noExternal: [...JSX_DIST_PACKAGES] }
+          }
         });
       }
     }

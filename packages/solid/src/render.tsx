@@ -9,7 +9,7 @@
  */
 
 import type { JSX } from "solid-js";
-import { hydrate as solidHydrate, renderToString } from "solid-js/web";
+import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
 
 /** A document component (the `.nota` emit's default export). */

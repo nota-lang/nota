@@ -56,14 +56,13 @@ describe("hydrated page (client:load island)", () => {
       string,
       { title?: string }[]
     >;
-    expect(state.heading?.map(h => h.title)).toEqual([
-      "Introduction",
-      "Usage"
-    ]);
+    expect(state.heading?.map(h => h.title)).toEqual(["Introduction", "Usage"]);
   });
 
   test("forward references are resolved in the static bytes (two-pass)", () => {
-    const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(hydrated);
+    const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(
+      hydrated
+    );
     expect(nav).toBeTruthy();
     expect((nav as RegExpExecArray)[1]).toContain("Introduction");
     expect((nav as RegExpExecArray)[1]).toContain("Usage");
@@ -81,7 +80,9 @@ describe("static page (no directive)", () => {
   });
 
   test("the document is still converged: forward Toc resolved, sections numbered", () => {
-    const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(staticPage);
+    const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(
+      staticPage
+    );
     expect(nav).toBeTruthy();
     expect((nav as RegExpExecArray)[1]).toContain("Usage");
     expect(staticPage.indexOf("<nav")).toBeLessThan(

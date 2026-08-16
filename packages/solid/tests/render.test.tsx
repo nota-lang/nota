@@ -130,9 +130,7 @@ describe("renderDocument (two-pass SSG)", () => {
   test("renderId prefixes every hydration key; state is unaffected", () => {
     const plain = renderDocument(Doc);
     const scoped = renderDocument(Doc, { renderId: "i7" });
-    const keys = [...scoped.html.matchAll(/data-hk="([^"]*)"/g)].map(
-      m => m[1]
-    );
+    const keys = [...scoped.html.matchAll(/data-hk="([^"]*)"/g)].map(m => m[1]);
     expect(keys.length).toBeGreaterThan(0);
     expect(keys.every(k => k.startsWith("i7"))).toBe(true);
     expect(scoped.state).toEqual(plain.state);

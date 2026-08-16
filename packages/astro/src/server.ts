@@ -41,8 +41,7 @@ function nextIslandId(result: object): string {
 
 function isNotaDoc(c: unknown): c is DocComponent {
   return (
-    typeof c === "function" &&
-    (c as { isNotaDoc?: unknown }).isNotaDoc === true
+    typeof c === "function" && (c as { isNotaDoc?: unknown }).isNotaDoc === true
   );
 }
 
