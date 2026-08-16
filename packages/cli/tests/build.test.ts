@@ -125,6 +125,23 @@ describe("--setup", () => {
   });
 });
 
+describe("production artifact", () => {
+  test("the client bundle carries production Solid even under an ambient NODE_ENV", async () => {
+    // This suite runs with NODE_ENV=test (vitest). Vite fills NODE_ENV from `mode` only when
+    // UNSET, and solid-js's `development` export condition keys off it — without the pipeline
+    // pinning NODE_ENV, shipped bundles silently carried Solid's dev build (its dev-only
+    // "multiple instances of Solid" banner is the marker asserted on here).
+    const out = await buildNota("Just *text*.\n", {
+      sourcePath: "env.nota",
+      resolveFrom: pkgRoot,
+      outDir: join(tmpBase, "env-out")
+    });
+    expect(out.clientJsPath).toBeDefined();
+    const bundle = readFileSync(out.clientJsPath as string, "utf8");
+    expect(bundle).not.toContain("multiple instances of Solid");
+  });
+});
+
 describe("diagnostics", () => {
   test("a malformed doc fails the build with the reader's message reachable", async () => {
     await expect(

@@ -506,6 +506,13 @@ export async function buildNotaFile(
         : undefined
   };
 
+  // Pin NODE_ENV to this pipeline's own mode for the duration of the builds. Vite derives
+  // "is production" from process.env.NODE_ENV and only fills it from `mode` when UNSET — so an
+  // ambient NODE_ENV (a test runner's "test", a CI stage's "development") would flip solid-js's
+  // `development` export condition and silently bundle Solid's dev build into shipped output.
+  // The CLI's own --dev flag is the one source of truth.
+  const prevNodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = nodeEnv;
   try {
     // 1. SSR build + render.
     const ssr = await ssrRender(ctx);
@@ -561,6 +568,11 @@ export async function buildNotaFile(
       cssFiles
     };
   } finally {
+    if (prevNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = prevNodeEnv;
+    }
     try {
       rmSync(ctx.workDir, { recursive: true, force: true });
     } catch {
