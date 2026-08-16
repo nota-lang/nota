@@ -1,7 +1,7 @@
 %%%
 export const meta = { title: "Nota Mega-Test" };
 
-const Box = blockComponent((children) => @div[class: "box"]{@children});
+const Chip = inlineComponent((children) => @span[class: "chip"]{@children});
 const Aside = blockComponent((children) => @aside{@children});
 const Colorized = inlineComponent((children) => {
   let [color, setColor] = createSignal("red");
@@ -14,10 +14,10 @@ const disabled = true;
 const rest = { id: "demo" };
 const items = ["x", "y", "z"];
 const i = 1;
-const ui = { Card: Box };
-const comps = { card: Box };
+const ui = { Card: Chip };
+const comps = { card: Chip };
 const k = "card";
-const getTag = () => "section";
+const getTag = () => "em";
 %%%
 
 # Nota Mega-Test
@@ -30,11 +30,15 @@ spanning a soft line break.
 ## Elements & props
 
 A @a[href:"/x"][title:"home"]{static link}, a @a[href:url]{dynamic link}, and an
-@input[type:"text", disabled, ...rest] self-closing field. A @figure[cap:@em{a caption}]{body}
-carries a markup-valued prop; balanced braces stay literal: @p{a set {1, 2, 3}}.
+@input[type:"text", disabled, ...rest] self-closing field; balanced braces stay literal:
+@em{a set {1, 2, 3}}.
 
-Dynamic tags: @(Box){direct}, @(ui.Card){member}, @(getTag()){call}, @(comps[k])[n:1]{computed}.
-Also a @{bare @b{fragment}} and an expression @(1 + 2).
+A markup-valued prop on a block element, at block position:
+
+@figure[cap:@em{a caption}]{The figure body.}
+
+Dynamic tags (all inline here): @(Chip){direct}, @(ui.Card){member}, @(getTag()){call},
+@(comps[k])[n:1]{computed}. Also a @{bare @b{fragment}} and an expression @(1 + 2).
 
 ## Control flow
 
@@ -97,6 +101,7 @@ def f(x):
 
 @aside{
   An intro sibling.
+
   % const count = items.length
   @p{Then @count items, wrapped in an IIFE.}
 }
