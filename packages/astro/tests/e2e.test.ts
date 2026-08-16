@@ -18,6 +18,7 @@ const site = fileURLToPath(new URL("./fixtures/site/", import.meta.url));
 
 let hydrated = "";
 let staticPage = "";
+let multi = "";
 
 /** Decode the entity escaping Astro applies to attribute values. */
 const decodeAttr = (s: string): string =>
@@ -35,6 +36,7 @@ beforeAll(async () => {
   await build({ root: site, logLevel: "error" });
   hydrated = readFileSync(join(site, "dist/index.html"), "utf8");
   staticPage = readFileSync(join(site, "dist/static/index.html"), "utf8");
+  multi = readFileSync(join(site, "dist/multi/index.html"), "utf8");
 }, 240_000);
 
 describe("hydrated page (client:load island)", () => {
@@ -69,6 +71,60 @@ describe("hydrated page (client:load island)", () => {
     expect(hydrated.indexOf("<nav")).toBeLessThan(
       hydrated.indexOf('id="introduction"')
     );
+  });
+});
+
+describe("multi-island page (two client:load documents)", () => {
+  /** The page's islands, each with its renderId and the data-hk keys inside it. */
+  const islands = (): { renderId: string; keys: string[]; body: string }[] =>
+    [...multi.matchAll(/<astro-island[\s\S]*?<\/astro-island>/g)].map(m => {
+      const body = m[0];
+      const id = /data-nota-render-id="([^"]*)"/.exec(body);
+      if (!id) throw new Error("island without a renderId");
+      return {
+        renderId: id[1],
+        keys: [...body.matchAll(/data-hk="([^"]*)"/g)].map(k => k[1]),
+        body
+      };
+    });
+
+  test("each island gets its own renderId (per-page counter: n0, n1)", () => {
+    expect(islands().map(i => i.renderId)).toEqual(["n0", "n1"]);
+  });
+
+  test("hydration-key spaces are renderId-scoped and disjoint", () => {
+    for (const island of islands()) {
+      expect(island.keys.length).toBeGreaterThan(0);
+      for (const key of island.keys) {
+        expect(key.startsWith(island.renderId)).toBe(true);
+      }
+    }
+    const [a, b] = islands();
+    expect(a.keys.filter(k => k.startsWith(b.renderId))).toEqual([]);
+    expect(b.keys.filter(k => k.startsWith(a.renderId))).toEqual([]);
+  });
+
+  test("both documents converge independently: snapshot attr + resolved forward Toc each", () => {
+    for (const island of islands()) {
+      const m = /data-nota-doc-state="([^"]*)"/.exec(island.body);
+      expect(m).toBeTruthy();
+      const state = JSON.parse(decodeAttr((m as RegExpExecArray)[1])) as Record<
+        string,
+        { title?: string }[]
+      >;
+      expect(state.heading?.map(h => h.title)).toEqual([
+        "Introduction",
+        "Usage"
+      ]);
+      const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(
+        island.body
+      );
+      expect(nav).toBeTruthy();
+      expect((nav as RegExpExecArray)[1]).toContain("Usage");
+      expect(island.body.indexOf("<nav")).toBeLessThan(
+        island.body.indexOf('id="introduction"')
+      );
+    }
   });
 });
 
