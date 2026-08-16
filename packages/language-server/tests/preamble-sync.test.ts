@@ -1,13 +1,21 @@
 /**
  * **Preamble drift guard.**
  *
- * The typing preamble is *generated* from the runtime's built `.d.ts` (`scripts/gen-preamble.ts` →
- * `src/preamble.generated.ts`) and committed. This test re-runs the generator and asserts the
- * committed constant matches — so a change to the runtime's typed emit surface that is not
- * regenerated fails CI (run `npx tsx scripts/gen-preamble.ts` to fix). It also pins the invariants
- * the preamble-shift rule depends on: whole-lines-only, and no dangling intra-package imports.
+ * The typing preamble is *generated* from the hand-written ambient declarations in
+ * `src/preamble-gen.ts`, coverage-guarded against the compiler's canonical free-name lists
+ * (`scripts/gen-preamble.ts` → `src/preamble.generated.ts`) and committed. This test re-runs the
+ * generator and asserts the committed constant matches — so a change to the typed emit surface
+ * that is not regenerated fails CI (run `npx tsx scripts/gen-preamble.ts` to fix). It also pins
+ * the invariants the preamble-shift rule depends on: whole-lines-only, no dangling intra-package
+ * imports, and full coverage of every name the emit can reference free.
  */
 
+import {
+  AMBIENT_PRELUDE_NAMES,
+  SOLID_AMBIENT_NAMES,
+  SOLID_RUNTIME_NAMES,
+  SOLID_WEB_NAMES
+} from "@nota-lang/compiler";
 import { describe, expect, test } from "vitest";
 import { PREAMBLE, PREAMBLE_LENGTH } from "../src/preamble";
 import { buildPreamble } from "../src/preamble-gen";
@@ -34,6 +42,30 @@ describe("preamble generation", () => {
     // …and the ambient prelude slots the emit references as free identifiers.
     expect(PREAMBLE).toContain("declare const Tex:");
     expect(PREAMBLE).toContain("declare const Heading:");
+  });
+
+  test("covers every canonical ambient name (the union of all four compiler lists)", () => {
+    // The full free-name surface an emit can reference: structural (`@nota-lang/solid`),
+    // `solid-js/web`, `solid-js`, and the ambient prelude. A loop, not a spot check — a name
+    // added to any list without a preamble declaration must fail here.
+    const allNames = [
+      ...SOLID_RUNTIME_NAMES,
+      ...SOLID_WEB_NAMES,
+      ...SOLID_AMBIENT_NAMES,
+      ...AMBIENT_PRELUDE_NAMES
+    ];
+    for (const name of allNames) {
+      expect(
+        new RegExp(`^declare (const|function) ${name}\\b`, "m").test(PREAMBLE),
+        `preamble is missing an ambient declaration for '${name}'`
+      ).toBe(true);
+    }
+  });
+
+  test("Attrs (the flow-position attrs-group marker) is declared", () => {
+    // Regression: `Attrs` is in SOLID_RUNTIME_NAMES but was once absent from the preamble, so
+    // every document with a flow-position attrs group got "Cannot find name 'Attrs'".
+    expect(PREAMBLE).toContain("declare const Attrs:");
   });
 
   test("no import, no `declare module`, no dangling relative imports / stray exports", () => {

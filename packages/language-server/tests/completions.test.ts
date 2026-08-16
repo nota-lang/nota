@@ -3,8 +3,10 @@
  *
  * - `@|` head completions (this plugin): tags + prelude slots + in-scope components; suppressed on a
  *   `%` statement line and inside embedded JS.
- * - `@tag[|` prop completions: served by TS through the EOF-recovery anchor + the typed `h`
- *   overload — asserted end-to-end via the feature harness (`h("a", { | })` → `<a>` attributes).
+ * - `@tag[|` prop completions: served by TS through the EOF-recovery anchor + the preamble's
+ *   `JSX.IntrinsicElements` — asserted end-to-end via the feature harness (`@a[|` recovers to
+ *   `<a />`, the anchor maps the cursor into the JSX attribute position, TS offers `<a>`'s
+ *   attributes).
  */
 
 import { describe, expect, test } from "vitest";

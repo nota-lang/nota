@@ -6,7 +6,7 @@
  * (`buildVirtual` → TS diagnostics → mapped to `.nota`) using the production mapper, without the
  * heavier Volar program/connection plumbing.
  *
- * Headline case: `@Unknown{}` lowers to `h(Unknown, {}, [])`, so TS reports
+ * Headline case: `@Unknown{}` lowers to JSX (`<Unknown />`), so TS reports
  * "Cannot find name 'Unknown'" — landing on the `.nota` `@Unknown` range after mapping back. A
  * positive control (a declared component) asserts no such error, so the diagnostic is real scope
  * analysis, not a blanket "everything is undefined".

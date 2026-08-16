@@ -4,12 +4,12 @@
  * Two disjoint completion surfaces:
  * - **`@|` head completions** — this plugin: after a bare `@…` at a markup-head position, offer host
  *   tag names, the ambient prelude slots, and in-scope capitalized components.
- * - **`@tag[|` prop completions** — *no Nota-specific code*: EOF recovery materialises
- *   `h("tag", { | })` with a completion anchor mapping the cursor into the props object, and
- *   `volar-service-typescript` proposes the prop names from the typed `h` overload (the typed emit
- *   surface, design/solid.md). This plugin
- *   only registers `[` as a trigger character so the client fires the request there; the items come
- *   from TS through the mapping.
+ * - **`@tag[|` prop completions** — *no Nota-specific code*: EOF recovery materialises a JSX
+ *   element (`<tag />`) with a completion anchor mapping the cursor into its attribute position,
+ *   and `volar-service-typescript` proposes the attribute names from the preamble's
+ *   `JSX.IntrinsicElements` / the component's ambient props type (the typed emit surface,
+ *   design/solid.md). This plugin only registers `[` as a trigger character so the client fires
+ *   the request there; the items come from TS through the mapping.
  *
  * The head-context test is a deliberately small line-prefix regex (NOT a port of tinymist's cursor
  * classifier — TS answers everything a mapped cursor reaches); it is suppressed on `%`/`%%%`

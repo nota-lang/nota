@@ -24,7 +24,9 @@
 
 import {
   AMBIENT_PRELUDE_NAMES,
-  SOLID_AMBIENT_NAMES
+  SOLID_AMBIENT_NAMES,
+  SOLID_RUNTIME_NAMES,
+  SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 
 /**
@@ -69,15 +71,17 @@ const JSX_NAMESPACE = [
 
 /**
  * The `@nota-lang/solid` structural surface the emit references free (design/solid.md §The
- * pipeline): the document wrapper, the restructurer, the list items, Solid's `For` (typed
- * generically — the `@for` item type flows), `Dynamic` for dynamic tags, and the compat
- * constructors.
+ * pipeline; the compiler's {@link SOLID_RUNTIME_NAMES} + {@link SOLID_WEB_NAMES}): the document
+ * wrapper, the restructurer, the list items, `Attrs` (the flow-position attrs-group marker
+ * Reforest applies to its paragraph), Solid's `For` (typed generically — the `@for` item type
+ * flows), and `Dynamic` for dynamic tags.
  */
 const AMBIENT_STRUCTURAL = [
   "declare const NotaDoc: (props: { children?: unknown }) => unknown;",
   "declare const Reforest: (props: { children?: unknown; tight?: boolean }) => unknown;",
   "declare const UlLi: (props: { children?: unknown }) => unknown;",
   "declare const OlLi: (props: { children?: unknown }) => unknown;",
+  "declare const Attrs: (props: Record<string, unknown>) => unknown;",
   "declare const For: <T>(props: { each: readonly T[] | undefined | null; fallback?: unknown; children: (item: T, index: () => number) => unknown }) => unknown;",
   "declare const Dynamic: (props: { component: unknown; children?: unknown; [prop: string]: unknown }) => unknown;",
   ""
@@ -150,28 +154,27 @@ const AMBIENT_PRELUDE = [
  * by the `preamble-sync` drift test.
  */
 export function buildPreamble(): string {
-  // Coverage guards: every compiler-declared ambient name must have a typing here, so a name
-  // list growing without a preamble update fails generation (and the preamble-sync test in CI)
-  // instead of silently surfacing "Cannot find name" diagnostics.
-  const missingPrelude = AMBIENT_PRELUDE_NAMES.filter(
+  // Coverage guard: every name the emit can reference free — the union of ALL FOUR canonical
+  // compiler lists (structural `SOLID_RUNTIME_NAMES`, `solid-js/web`'s `SOLID_WEB_NAMES`,
+  // `solid-js`'s `SOLID_AMBIENT_NAMES`, and `AMBIENT_PRELUDE_NAMES`) — must have a typing
+  // somewhere in the ambient body, so a name list growing without a preamble update fails
+  // generation (and the preamble-sync test in CI) instead of silently surfacing "Cannot find
+  // name" diagnostics. (A partial guard once missed `Attrs` exactly this way.)
+  const ambientBody = AMBIENT_STRUCTURAL + AMBIENT_SOLID + AMBIENT_PRELUDE;
+  const missing = [
+    ...SOLID_RUNTIME_NAMES,
+    ...SOLID_WEB_NAMES,
+    ...SOLID_AMBIENT_NAMES,
+    ...AMBIENT_PRELUDE_NAMES
+  ].filter(
     name =>
-      !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(
-        AMBIENT_PRELUDE
-      )
+      !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(ambientBody)
   );
-  // `For` lives in the structural block (the reader emits it); accept either home.
-  const missingSolid = SOLID_AMBIENT_NAMES.filter(
-    name =>
-      !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(
-        AMBIENT_STRUCTURAL + AMBIENT_SOLID
-      )
-  );
-  const missing = [...missingPrelude, ...missingSolid];
   if (missing.length > 0) {
     throw new Error(
       `preamble-gen: ambient names missing a typing: ${missing.join(", ")} — ` +
         "add declarations in preamble-gen.ts"
     );
   }
-  return JSX_NAMESPACE + AMBIENT_STRUCTURAL + AMBIENT_SOLID + AMBIENT_PRELUDE;
+  return JSX_NAMESPACE + ambientBody;
 }

@@ -155,7 +155,7 @@ export function buildVirtual(source: string): {
 /**
  * The Nota `VirtualCode` for one `.nota` file: a single root whose snapshot is the preamble +
  * virtual `.tsx`, mapped back to the `.nota` via the shifted mappings. There are no nested
- * `embeddedCodes` — the whole virtual file is one TS document (the markup lowered to `h(...)` calls
+ * `embeddedCodes` — the whole virtual file is one TS document (the markup lowered to Solid JSX
  * inline), so Volar/TS treat it as a single `.tsx` script.
  */
 export interface NotaVirtualCode extends VirtualCode {

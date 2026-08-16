@@ -1,6 +1,7 @@
 /**
- * Regenerate `src/preamble.generated.ts` from the built runtime `.d.ts` — the typed emit surface
- * baked into the resolution-independent typing preamble.
+ * Regenerate `src/preamble.generated.ts` — the resolution-independent typing preamble, built by
+ * `preamble-gen.ts` from its hand-written ambient declarations, coverage-guarded against the
+ * compiler's canonical free-name lists.
  *
  * Run after any change to the ambient surfaces in `preamble-gen.ts` (the JSX namespace, the
  * structural components, the solid-js/prelude declarations):
@@ -28,12 +29,13 @@ const OUT = join(
 
 const preamble = buildPreamble();
 const file = `/**
- * **GENERATED — do not edit.** The resolution-independent typing preamble, baked from the runtime's
- * built \`.d.ts\` by \`scripts/gen-preamble.ts\`. Regenerate after a runtime typed-surface change;
- * the \`preamble-sync\` test guards drift. See \`./preamble-gen.ts\`.
+ * **GENERATED — do not edit.** The resolution-independent typing preamble, baked by
+ * \`scripts/gen-preamble.ts\` from the hand-written ambient declarations in \`./preamble-gen.ts\`
+ * (coverage-guarded against the compiler's canonical free-name lists). Regenerate after any
+ * typed-surface change; the \`preamble-sync\` test guards drift.
  */
 
-/** The typing preamble prepended to every virtual \`.tsx\` (ambient runtime module + prelude globals). */
+/** The typing preamble prepended to every virtual \`.tsx\` (global JSX namespace + ambient structural/solid-js/prelude declarations). */
 export const PREAMBLE = ${JSON.stringify(preamble)};
 
 /** The byte length every \`generatedOffsets\` entry is shifted by (a clean whole-lines constant). */

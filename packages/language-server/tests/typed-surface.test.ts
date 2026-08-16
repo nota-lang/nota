@@ -1,20 +1,21 @@
 /**
- * **Typed emit surface, resolution-independent** (design/decode.md §The typed surface).
+ * **Typed emit surface, resolution-independent** (design/solid.md — the Solid JSX emit).
  *
  * The headline guarantee: a `.nota` in a directory with **no** `node_modules/@nota-lang` still
- * types — the emit surface resolves through the preamble's module-local ambient declarations the
- * preamble inlines, not through disk. So this harness roots the TS language service in a scratch
- * directory that resolves nothing on disk (empty `types`, no local
- * `node_modules`), and only the default lib is read from the filesystem — the runtime types can come
- * *only* from the preamble.
+ * types — the virtual `.tsx` is Solid JSX whose free identifiers (structural components, prelude
+ * slots, solid-js surface) and global `JSX` namespace resolve through the module-local ambient
+ * declarations the preamble inlines, not through disk. So this harness roots the TS language
+ * service in a scratch directory that resolves nothing on disk (empty `types`, no local
+ * `node_modules`), and only the default lib is read from the filesystem — the emit-surface types
+ * can come *only* from the preamble.
  *
  * On that harness we assert, through the real virtual-`.tsx` pipeline:
  * - **hover** on an ambient (`createSignal`) shows its real signature (was `any`: "no inferred type");
- * - a **wrong prop value on a known host tag** (`@a[href: 123]`) is a TS error mapped back to the
- *   `.nota` (the typed `h` overload + the Nota attribute map);
- * - an **unknown tag** (`@custom-el[foo: 1]`) is legal (the arbitrary-string fallback);
- * - a **prelude slot's real prop type** flows (`@Heading` sugar's `rank` is a number) with no
- *   contravariant tag-assignability failure at the `h(Heading, …)` call site.
+ * - a **wrong attribute value on a known host tag** (`@a[href: 123]` → `<a href={123}>`) is a TS
+ *   error (the preamble's `JSX.IntrinsicElements` attribute map);
+ * - an **unknown tag** (`@custom-el[foo: 1]`) is legal (the open string-index fallback);
+ * - a **prelude slot's real prop type** flows (`@Heading` sugar's `rank` is a number) through its
+ *   ambient component declaration at the JSX element.
  */
 
 import { mkdtempSync } from "node:fs";
@@ -44,7 +45,7 @@ function noNodeModulesHarness(notaSource: string) {
     strict: true,
     noEmit: true,
     skipLibCheck: true,
-    types: [] // no ambient @types; @nota-lang/runtime must come from the preamble
+    types: [] // no ambient @types; the emit surface (structural/solid-js/prelude) must come from the preamble
   };
 
   const host: ts.LanguageServiceHost = {
@@ -97,15 +98,24 @@ function noNodeModulesHarness(notaSource: string) {
 }
 
 describe("typed surface resolves with no node_modules (D3)", () => {
-  test("the runtime surface resolves (no 'Cannot find module' / 'Cannot find name h')", () => {
+  test("the emit surface resolves (no 'Cannot find module' / 'Cannot find name' at all)", () => {
+    // ALL "Cannot find" diagnostics, deliberately not a hardcoded name list — a closed list once
+    // let a missing preamble declaration (`Attrs`) slip through unasserted.
     const h = noNodeModulesHarness("@p{hi}\n");
     const bad = h
       .diagnostics()
-      .filter(d =>
-        /Cannot find module|Cannot find name 'h'|Cannot find name 'decode'|Cannot find name 'Fragment'/.test(
-          d.message
-        )
-      );
+      .filter(d => /Cannot find module|Cannot find name/.test(d.message));
+    expect(bad, JSON.stringify(h.diagnostics())).toEqual([]);
+  });
+
+  test("a flow-position attrs group resolves (`<Attrs …/>` is in the preamble)", () => {
+    // `# T [id: "x"]` + a paragraph-trailing `[class: "note"]` emit `<Attrs class="note" />` in
+    // the virtual `.tsx`; the preamble must declare `Attrs` or every such document diagnoses
+    // "Cannot find name 'Attrs'".
+    const h = noNodeModulesHarness(
+      '# T [id: "x"]\n\npara text [class: "note"]\n'
+    );
+    const bad = h.diagnostics().filter(d => /Cannot find name/.test(d.message));
     expect(bad, JSON.stringify(h.diagnostics())).toEqual([]);
   });
 
@@ -123,13 +133,11 @@ describe("typed surface resolves with no node_modules (D3)", () => {
   });
 });
 
-describe("typed h overloads through the .nota → .tsx pipeline", () => {
-  test("a wrong prop value on a known host tag is a TS type error", () => {
-    // `@a[href: 123]` → `h("a", { href: 123 }, …)`; `href` is typed `string` on <a>, so the call
-    // fails to match the typed overload — the wrong value is rejected. (The error is reported on the
-    // synthesised `h(` call, which is generated boilerplate with no `.nota` mapping, so it surfaces
-    // as a "no overload matches" whose message carries the specific `string` mismatch; completion on
-    // the prop region still works — that is the primary editor affordance for props.)
+describe("JSX IntrinsicElements typing through the .nota → .tsx pipeline", () => {
+  test("a wrong attribute value on a known host tag is a TS type error", () => {
+    // `@a[href: 123]` → `<a href={123}>`; the preamble's `JSX.IntrinsicElements` types `href` as
+    // `string` on <a>, so the attribute value is rejected with a `string` mismatch. Completion on
+    // the attribute region works the same way — that is the primary editor affordance for props.
     const source = "@a[href: 123]{link}\n";
     const h = noNodeModulesHarness(source);
     const typeErr = h
@@ -148,8 +156,9 @@ describe("typed h overloads through the .nota → .tsx pipeline", () => {
   });
 
   test("a prelude slot's real prop type flows: bad `rank` on `@Heading` errors", () => {
-    // `@Heading` element form → `h(Heading, { rank: … }, …)`; `Heading`'s `rank` is a number, so a
-    // string `rank` is an error — proving the slot's real prop type reached the call site.
+    // `@Heading` element form → `<Heading rank="x">`; the ambient `Heading` declaration types
+    // `rank` as a number, so a string `rank` is an error — proving the slot's real prop type
+    // reached the JSX element.
     const source = '@Heading[rank: "x"]{Title}\n';
     const h = noNodeModulesHarness(source);
     const typeErr = h
