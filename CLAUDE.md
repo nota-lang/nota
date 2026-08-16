@@ -4,7 +4,30 @@
 > **`design/solid.md` supersedes decode.md here.** The reader (oxc branch `solid`) emits Solid
 > JSX natively; `<Reforest>` + the doc-state store replace decode/islands/replay;
 > runtime/react/react-router are deleted; paper + playground are ported. The description below
-> documents master.
+> documents master. Solid-branch additions (2026-08-16):
+>
+> - **`packages/astro` — `@nota-lang/astro`**, the site-builder integration (Astro chosen over
+>   SolidStart/vike: its renderer API is exactly the (renderToString, hydrate) delegation the
+>   two-pass driver needs — a framework-owned single-pass render would ship pass-1 HTML). The
+>   server entry runs `renderDocument({renderId})` per island, snapshot rides an island
+>   attribute; client entry `hydrateDocument({renderId, seed, root})`; a directive-less `<Doc/>`
+>   renders through `NoHydration` → zero-JS. `check()` dispatches on the vite transform's
+>   `Doc.isNotaDoc` brand (exact, no try-render). Its e2e runs a real `astro build`; the live
+>   consumer is nota-lang.org branch `astro` (see that repo's AGENTS.md — linked-checkout dev
+>   has its own gotcha list there).
+> - **One `solid-js` per page is a correctness invariant** — the vite preset's `resolve.dedupe`
+>   enforces it. A second bundled copy leaves `enableHydration()` uncalled in one of them, so
+>   hydration-context nesting is silently OFF and claiming misses. The cryptic symptoms to
+>   recognize: `TypeError: template is not a function` inside `Dynamic` (prod solid) or
+>   `Hydration Mismatch. Unable to find DOM nodes for hydration key: <shallow key>` (dev solid).
+> - **Vite's "is production" follows `process.env.NODE_ENV`; `mode` only fills it when UNSET.**
+>   An ambient value (vitest's `"test"`, a CI stage's) flips solid-js's `development` export
+>   condition into shipped bundles — the CLI pins NODE_ENV around its builds for this reason;
+>   any new build pipeline must too. (Marker of the failure: solid's "multiple instances of
+>   Solid" banner string present in a production bundle.)
+> - **Astro's `dev`/`preview` are managed daemons.** After rebuilding dists here, run `npx astro
+>   dev stop` in the consumer — a daemon started earlier keeps serving the old integration/dists
+>   (symptom: a bug you just fixed persists). Logs live in the consumer's `.astro/dev.log`.
 
 Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers to **hyperscript**
 (`h`/`Fragment`/`decode` calls, NOT JSX) for any JSX framework (React, Solid), with a Pollen-style
