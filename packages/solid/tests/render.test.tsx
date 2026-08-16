@@ -1,0 +1,222 @@
+/**
+ * The server half (ssr project — JSX compiled with generate:"ssr", node conditions): Reforest
+ * over SSR chunks, the doc-state store, the two-pass renderDocument driver (forward references,
+ * convergence), trailers, and the snapshot embed.
+ */
+import { type JSX, children as resolveChildren, Show } from "solid-js";
+import { renderToString } from "solid-js/web";
+import { describe, expect, test } from "vitest";
+import {
+  createDocState,
+  DOC_STATE_ID,
+  DocStateContext,
+  docStateScript,
+  NotaDoc,
+  OlLi,
+  Reforest,
+  renderDocument,
+  textOf,
+  UlLi,
+  useDocState
+} from "../src/lib";
+import { Doc } from "./fixtures/doc";
+
+describe("reforest over SSR chunks", () => {
+  test("paragraphs, sections, and lists in dead HTML", () => {
+    const html = renderToString(() => (
+      <Reforest>
+        {"one paragraph\n\ntwo paragraph"}
+        <h2>Head</h2>
+        {"owned text"}
+        <UlLi>a</UlLi>
+        <UlLi>b</UlLi>
+        <OlLi>c</OlLi>
+      </Reforest>
+    ));
+    expect(html).toMatch(/<p[^>]*class="nota-para"[^>]*>one paragraph<\/p>/);
+    expect(html).toMatch(/<section[^>]*class="nota-section"/);
+    // The section owns the text and the coalesced lists.
+    const section = html.slice(html.indexOf("<section"));
+    expect(section).toContain("<h2");
+    expect(section).toMatch(/<ul[^>]*class="nota-list"/);
+    expect(section).toMatch(/<ol[^>]*class="nota-list"/);
+    expect(section.match(/<ul /g)).toHaveLength(1);
+  });
+
+  test("chunk categorization sees through component boundaries", () => {
+    const InlineWidget = () => <em>w</em>;
+    const BlockWidget = () => <figure>f</figure>;
+    const html = renderToString(() => (
+      <Reforest>
+        before <InlineWidget /> mid
+        <BlockWidget />
+        after
+      </Reforest>
+    ));
+    // The inline widget's <em> stays inside the first paragraph; the figure splits it.
+    expect(html).toMatch(/<p[^>]*class="nota-para"[^>]*>before .*<em/);
+    expect(html).toMatch(/<figure/);
+    expect((html.match(/<p /g) ?? []).length).toBe(2);
+  });
+
+  test("textOf strips tags and decodes entities from chunks", () => {
+    let got = "";
+    const Probe = (props: { children?: JSX.Element }) => {
+      // Emulate what Heading does: resolve children, extract text.
+      const resolved = resolveChildren(() => props.children);
+      got = textOf(resolved.toArray());
+      return null;
+    };
+    renderToString(() => (
+      <Probe>
+        A &amp; B <em>C</em>
+      </Probe>
+    ));
+    expect(got).toBe("A & B C");
+  });
+});
+
+describe("doc-state store", () => {
+  test("register/read live; seeded reads pin until release", () => {
+    const live = createDocState();
+    live.register("heading", { id: "a" });
+    expect(live.read("heading")).toEqual([{ id: "a" }]);
+
+    const seeded = createDocState({ heading: [{ id: "a" }, { id: "b" }] });
+    seeded.register("heading", { id: "a" });
+    expect(seeded.read("heading")).toHaveLength(2); // seed-pinned
+    expect(seeded.live("heading")).toHaveLength(1);
+    seeded.release();
+    expect(seeded.read("heading")).toHaveLength(1); // live now
+  });
+
+  test("snapshot drops function-valued fields", () => {
+    const s = createDocState();
+    s.register("definition", { key: "k", tooltip: () => "jsx" });
+    expect(s.snapshot()).toEqual({ definition: [{ key: "k" }] });
+  });
+
+  test("useDocState outside NotaDoc is a pointed error", () => {
+    const Bad = () => {
+      useDocState();
+      return null;
+    };
+    expect(() => renderToString(() => <Bad />)).toThrow(/inside <NotaDoc>/);
+  });
+});
+
+describe("renderDocument (two-pass SSG)", () => {
+  test("forward references resolve: the Toc above its headings lists them", () => {
+    const { html, state } = renderDocument(Doc);
+    // The nav precedes the headings in the HTML yet contains their entries.
+    const nav = /<nav[^>]*class="toc"[^>]*>(.*?)<\/nav>/.exec(html);
+    expect(nav).toBeTruthy();
+    expect(nav?.[1]).toContain("Alpha");
+    expect(nav?.[1]).toContain("Beta");
+    expect(nav?.[1]).not.toContain("Gamma"); // Show-gated heading is unmounted
+    expect(html.indexOf("<nav")).toBeLessThan(html.indexOf('id="alpha"'));
+    // The snapshot carries the converged facts.
+    expect(state.heading?.map(h => h.id)).toEqual(["alpha", "beta"]);
+    // Reforested document shell.
+    expect(html).toMatch(/^<article[^>]*class="nota-doc"/);
+    expect(html).toMatch(/<ul[^>]*class="nota-list"/);
+    // The trailer rendered at document end (hydration-marker comments may trail it).
+    expect(html).toMatch(/<footer[^>]*class="colophon"[^>]*>fin<\/footer>/);
+    expect(html.indexOf("colophon")).toBeGreaterThan(html.indexOf('id="beta"'));
+  });
+
+  test("a fact derived from reading another fact fails convergence", () => {
+    const Echo = () => {
+      const state = useDocState();
+      // Registers one fact per already-visible heading — pass 2 sees more than pass 1.
+      state.register("echo", { n: state.read("heading").length });
+      return null;
+    };
+    const H = () => {
+      const state = useDocState();
+      state.register("heading", { id: "x" });
+      return <h2>x</h2>;
+    };
+    const Bad = () => (
+      <NotaDoc>
+        <Echo />
+        <H />
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Bad)).toThrow(/did not converge/);
+  });
+
+  test("flags are positional (set before read in tree order)", () => {
+    const Place = () => {
+      const state = useDocState();
+      state.flag("footnotes-placed");
+      return null;
+    };
+    const Trailer = () => {
+      const state = useDocState();
+      state.trailer("footnotes", () => (
+        <Show when={!state.hasFlag("footnotes-placed")}>
+          <div class="footnotes">list</div>
+        </Show>
+      ));
+      return null;
+    };
+    const Placed = () => (
+      <NotaDoc>
+        <Trailer />
+        <Place />
+      </NotaDoc>
+    );
+    const Unplaced = () => (
+      <NotaDoc>
+        <Trailer />
+      </NotaDoc>
+    );
+    expect(renderDocument(Placed).html).not.toContain("footnotes");
+    expect(renderDocument(Unplaced).html).toContain("footnotes");
+  });
+});
+
+describe("docStateScript", () => {
+  test("embeds JSON with < escaped", () => {
+    const tag = docStateScript({ heading: [{ text: "</script>alert(1)" }] });
+    expect(tag).toContain(`id="${DOC_STATE_ID}"`);
+    expect(tag).not.toContain("</script>alert");
+    const inner = /<script[^>]*>(.*)<\/script>/.exec(tag)?.[1] ?? "";
+    expect(JSON.parse(inner)).toEqual({
+      heading: [{ text: "</script>alert(1)" }]
+    });
+  });
+});
+
+describe("driver-owned store adoption", () => {
+  test("NotaDoc adopts an outer provider store", () => {
+    const outer = createDocState();
+    const Register = () => {
+      useDocState().register("ping", { ok: true });
+      return null;
+    };
+    renderToString(() => (
+      <DocStateContext.Provider value={outer}>
+        <NotaDoc>
+          <Register />
+        </NotaDoc>
+      </DocStateContext.Provider>
+    ));
+    expect(outer.live("ping")).toEqual([{ ok: true }]);
+  });
+
+  test("a bare NotaDoc is self-sufficient", () => {
+    const Register = () => {
+      useDocState().register("ping", { ok: true });
+      return null;
+    };
+    expect(() =>
+      renderToString(() => (
+        <NotaDoc>
+          <Register />
+        </NotaDoc>
+      ))
+    ).not.toThrow();
+  });
+});

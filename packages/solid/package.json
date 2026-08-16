@@ -4,13 +4,13 @@
   "files": [
     "dist"
   ],
-  "main": "dist/lib.js",
+  "main": "dist/lib.jsx",
+  "types": "dist/lib.d.ts",
   "exports": {
     ".": {
-      "default": "./dist/lib.js"
-    },
-    "./*": {
-      "default": "./dist/*.js"
+      "types": "./dist/lib.d.ts",
+      "solid": "./dist/lib.jsx",
+      "default": "./dist/lib.jsx"
     }
   },
   "type": "module",
@@ -19,11 +19,15 @@
     "target": "lib",
     "depot-version": "0.3.4"
   },
-  "dependencies": {
-    "@nota-lang/runtime": "workspace:*"
-  },
   "peerDependencies": {
     "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "solid-js": "^1.9.3",
+    "vite": "^8.0.16",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.8"
   },
   "license": "MIT",
   "repository": {
