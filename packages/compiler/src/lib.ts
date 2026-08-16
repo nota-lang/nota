@@ -2,15 +2,15 @@
  * `@nota-lang/compiler` — the Node shim around the oxc Nota *reader*.
  *
  * The reader lives in the Rust fork (`oxc::nota::compile`); this package is the JS-side glue that
- * makes its output usable from Node. {@link compile} takes a `.nota` source string, rewrites the
- * reader's h-call emit into **Solid JSX** ({@link jsxify} — the interim bridge until reader vNext
- * emits JSX natively, design/solid.md), and returns the module with the imports the reader
- * deliberately omits **prepended**:
+ * makes its output usable from Node. {@link compile} takes a `.nota` source string and returns the
+ * reader's **Solid JSX** module (design/solid.md) with the imports the reader deliberately omits
+ * **prepended** — every binding free-name-driven:
  *
- * 1. the `@nota-lang/solid` import for the structural names the rewrite introduced
+ * 1. the `@nota-lang/solid` import for the structural names the emit references free
  *    (`NotaDoc`/`Reforest`/`UlLi`/`OlLi`) + the compat constructors;
- * 2. the `solid-js` import for the ambient state/control-flow surface the emit references *free*
- *    ({@link SOLID_AMBIENT_NAMES}) + `For` when a `@for` loop was recovered; and
+ * 2. the `solid-js` import for the ambient state/control-flow surface referenced free
+ *    ({@link SOLID_AMBIENT_NAMES} — incl. `For` from `@for` loops), and `Dynamic` from
+ *    `solid-js/web` for dynamic tags; and
  * 3. an **ambient prelude** import binding the prelude names the module references *free* —
  *    the reader reports the emit's free names ({@link CompileResult.freeNames}, from real scope
  *    analysis), and the shim binds the intersection with {@link AMBIENT_PRELUDE_NAMES} (plus any
@@ -28,11 +28,8 @@
  */
 
 import * as reader from "@nota-lang/wasm";
-import { type JsxifyUsed, jsxify } from "./jsxify.js";
 
-export { type JsxifyResult, type JsxifyUsed, jsxify } from "./jsxify.js";
-
-/** The Solid-runtime module the rewritten emit's structural names are bound to. */
+/** The Solid-runtime module the emit's structural names are bound to. */
 export const SOLID_RUNTIME_MODULE = "@nota-lang/solid";
 
 /**
@@ -65,11 +62,21 @@ export const SOLID_AMBIENT_NAMES = [
 ] as const;
 
 /**
- * The `@nota-lang/solid` names an emit may need: the structural names `jsxify` introduces
- * (`NotaDoc`/`Reforest`/`UlLi`/`OlLi` — reported in {@link JsxifyUsed}, not free names) plus the
- * compat constructors the reader still emits as calls.
+ * The `@nota-lang/solid` surface an emit may reference free: the structural names the reader's
+ * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
+ * components) plus the compat constructors a document's `%`-code may call.
  */
-const SOLID_RUNTIME_NAMES = ["inlineComponent", "blockComponent"] as const;
+const SOLID_RUNTIME_NAMES = [
+  "NotaDoc",
+  "Reforest",
+  "UlLi",
+  "OlLi",
+  "inlineComponent",
+  "blockComponent"
+] as const;
+
+/** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags). */
+const SOLID_WEB_NAMES = ["Dynamic"] as const;
 
 /**
  * The ambient prelude surface (design/decode.md §The registry & config) — the names the reader's
@@ -162,10 +169,10 @@ export interface CompileResult {
    */
   code: string;
   /**
-   * The **reader emit's** free names (root-unresolved, value-position identifiers of the bare
-   * module, pre-jsxify, sorted), straight from the reader's scope analysis. Includes the h-call
-   * surface (`h`/`decode`/… — dissolved by the rewrite); the rest is the ambient surface plus
-   * any genuinely unbound user references — useful for diagnostics ("unbound name …").
+   * The emit's free names (root-unresolved, value-position identifiers of the bare module,
+   * sorted), straight from the reader's scope analysis — the structural surface
+   * (`NotaDoc`/`UlLi`/…, bound by the prepended imports), the ambient surface, plus any
+   * genuinely unbound user references — useful for diagnostics ("unbound name …").
    */
   freeNames: string[];
   /** A {@link SourceMapV3}, when the backend produces one (the reader does not yet — see notes). */
@@ -227,51 +234,32 @@ export function compile(
     );
   }
 
-  // Rewrite the h-call surface into Solid JSX (the interim bridge; reader vNext emits JSX
-  // directly and this becomes a no-op deletion — design/solid.md §The pipeline).
-  const { code: jsx, used } = jsxify(emitted);
-
-  // Prepend the imports the reader omits: the @nota-lang/solid structural/compat names, the
-  // solid-js ambient names, then the ambient prelude bindings.
+  // Prepend the imports the reader omits — every binding is free-name-driven (the reader's real
+  // scope analysis; JSX component references are ordinary identifier references): the
+  // @nota-lang/solid structural/compat names, the solid-js ambient names, `Dynamic` from
+  // solid-js/web, then the ambient prelude bindings.
   const code =
-    solidRuntimeImport(freeNames, used) +
-    solidJsImport(freeNames, used) +
+    bindFree(freeNames, SOLID_RUNTIME_NAMES, SOLID_RUNTIME_MODULE) +
+    bindFree(freeNames, SOLID_AMBIENT_NAMES, "solid-js") +
+    bindFree(freeNames, SOLID_WEB_NAMES, "solid-js/web") +
     preludeImport(freeNames, opts.prelude) +
-    jsx;
+    emitted;
 
-  // The reader does not surface a sourcemap yet; structured CodeMappings + a flat v3 map are a
-  // forthcoming reader upgrade (jsxify would compose one via babel generate). The prepended
-  // preamble shifts generated offsets by its line count, which a real map must account for
-  // (trivial to offset, and localized here — the one place that prepends). Kept undefined until
-  // the backend emits it.
+  // The reader does not surface a sourcemap yet. The prepended preamble shifts generated offsets
+  // by its line count, which a real map must account for (trivial to offset, and localized here
+  // — the one place that prepends). Kept undefined until the backend emits it.
   return { code, freeNames, map: undefined };
 }
 
-/**
- * The `@nota-lang/solid` import: the structural names `jsxify` introduced (from {@link JsxifyUsed})
- * plus the compat constructors the emit references free. `""` when nothing needs binding.
- */
-function solidRuntimeImport(freeNames: string[], used: JsxifyUsed): string {
-  const names = [
-    ...(["NotaDoc", "Reforest", "UlLi", "OlLi"] as const).filter(n => used[n]),
-    ...SOLID_RUNTIME_NAMES.filter(n => freeNames.includes(n))
-  ];
-  return names.length > 0
-    ? `import { ${names.join(", ")} } from ${JSON.stringify(SOLID_RUNTIME_MODULE)};\n`
-    : "";
-}
-
-/**
- * The `solid-js` import: the ambient surface the emit references free, plus `For` when `jsxify`
- * introduced it (a `@for` loop). `""` when nothing needs binding.
- */
-function solidJsImport(freeNames: string[], used: JsxifyUsed): string {
-  const names = new Set(SOLID_AMBIENT_NAMES.filter(n => freeNames.includes(n)));
-  if (used.For) {
-    names.add("For");
-  }
-  return names.size > 0
-    ? `import { ${[...names].join(", ")} } from "solid-js";\n`
+/** The import binding `names ∩ freeNames` to `module`, or `""` when nothing needs binding. */
+function bindFree(
+  freeNames: string[],
+  names: readonly string[],
+  module: string
+): string {
+  const needed = names.filter(n => freeNames.includes(n));
+  return needed.length > 0
+    ? `import { ${needed.join(", ")} } from ${JSON.stringify(module)};\n`
     : "";
 }
 

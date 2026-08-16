@@ -260,7 +260,7 @@ describe("compileVirtual (live — wasm reader)", () => {
     });
 
     // The virtual still contains the props object literal (recovered `h("a", {}, …)`).
-    expect(code).toContain('h("a", {');
+    expect(code).toContain("<a");
 
     // A syntax diagnostic is reported (not swallowed), spanning into the `.nota`.
     expect(errors.length).toBe(1);

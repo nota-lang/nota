@@ -2,8 +2,8 @@
  * `@nota-lang/compiler` shim tests.
  *
  * Drives the real reader — the in-process wasm backend — on the shared integration fixtures and
- * asserts the pinned **Solid JSX** emit surface (design/solid.md §The pipeline): the jsxify
- * rewrite (`<NotaDoc>` wrap, `<UlLi>` sentinels, `<For>` recovery, no h-call surface left) and
+ * asserts the pinned **Solid JSX** emit surface (design/solid.md §The pipeline): the native JSX
+ * emit (`<NotaDoc>` wrap, `<UlLi>` sentinels, `<For>`, no h-call surface) and
  * the prepended imports (`@nota-lang/solid` structural names, the `solid-js` ambient surface,
  * the ambient prelude for free names). A malformed `.nota` → `compile` throws with the reader's
  * diagnostics.
@@ -46,7 +46,7 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     // preserved; reader vNext emits a plain arrow and drops both).
     expect(code).toMatch(/let Colorized = inlineComponent\(/);
     expect(code).not.toMatch(/export let Colorized/);
-    expect(code).toContain('"Colorized")');
+    expect(code).not.toContain('"Colorized")'); // name-attach is gone with the manifest
 
     // @for → <For>, with the `-` marker as <UlLi> and the component as a JSX tag.
     expect(code).toMatch(/<For each=\{\["a", "b"\]\}>/);
@@ -66,7 +66,7 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     expect(code).toContain("export default function Doc()");
     expect(code).toMatch(/let Note = blockComponent\(/);
     expect(code).not.toMatch(/export let Note/);
-    expect(code).toContain('"Note")');
+    expect(code).not.toContain('"Note")'); // name-attach is gone with the manifest
     // aside is a flow container: its interior decodes as flow via <Reforest> (emit policy).
     expect(code).toMatch(/<aside><Reforest>/);
     expect(code).toContain('<em>{"world"}</em>');
@@ -178,16 +178,13 @@ describe("compile (ambient prelude injection + freeNames)", () => {
     expect(code).not.toContain("registerWidgets");
   });
 
-  test("freeNames: reader-native (pre-jsxify), sorted, excludes bound names", () => {
+  test("freeNames: sorted, cover the structural JSX surface, exclude bound names", () => {
     const { freeNames } = compile(read("golden.nota"));
-    for (const name of [
-      "h",
-      "decode",
-      "Fragment",
-      "inlineComponent",
-      "createSignal"
-    ]) {
+    for (const name of ["NotaDoc", "UlLi", "For", "inlineComponent", "createSignal"]) {
       expect(freeNames).toContain(name);
+    }
+    for (const gone of ["h", "decode", "Fragment"]) {
+      expect(freeNames).not.toContain(gone);
     }
     expect(freeNames).not.toContain("Colorized");
     expect(freeNames).toEqual([...freeNames].sort());

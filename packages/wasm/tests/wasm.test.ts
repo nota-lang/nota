@@ -11,7 +11,7 @@ import { expect, test } from "vitest";
 test("compile emits the document module (no runtime import — the integrator prepends it)", () => {
   const { code } = compile("# Hello World");
   expect(code).toContain("export default function Doc()");
-  expect(code).toContain('h(Heading, { rank: 1 }, ["Hello World"])');
+  expect(code).toContain('<Heading rank={1}>{"Hello World"}</Heading>');
   expect(code).not.toContain("@nota-lang/runtime");
 });
 
