@@ -82,7 +82,7 @@ implemented in `oxc_transformer/src/nota/{build,lower}.rs`; goldens pin it):
 | `@for (x of xs) {…}` | `<For each={xs}>{(x) => <>…</>}</For>` |
 | `@if (c) {…} else {…}` | `<Show when={c} fallback={<>…</>}><>…</></Show>` |
 | `@(expr){…}` dynamic tag | `<Dynamic component={expr} …>` |
-| `~~strike~~` / `---` line / `[t](u)` / `![a](s)` | `<s>` / `<hr/>` / `<a href>` / `<img/>` (plain host elements — notation.md) |
+| `~~strike~~` / `---` line | `<s>` / `<hr/>` (plain host elements — notation.md) |
 | trailing attrs group (heading / list item) | hoisted props on `<Heading>` / `<UlLi>`/`<OlLi>` (spread onto the `<li>`) |
 | trailing attrs group (flow position) | `<Attrs …/>` — the marker Reforest strips onto its paragraph |
 | `//` / `/* */` comments | nothing (trivia — excised before the emit) |

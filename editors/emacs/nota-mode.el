@@ -93,10 +93,6 @@
   "Face for markup comments (// line, /* block */)."
   :group 'nota)
 
-(defface nota-link-url
-  '((t :inherit font-lock-string-face :underline t))
-  "Face for link/image targets: the url inside [text](url) / ![alt](src)."
-  :group 'nota)
 
 ;;;; Syntax table
 
@@ -302,7 +298,7 @@ fences opening before LIMIT; other fences keep their raw paint."
   "Font-lock matcher for _italic_ emphasis before LIMIT."
   (nota--match-emphasis nota--em-re limit))
 
-;;;; Comment / strike / link matchers
+;;;; Comment / strike matchers
 
 ;; Each of these fires only on UNCLAIMED text (no face yet): the rules above
 ;; them in `nota-font-lock-keywords' -- embedded code, raw spans -- have
@@ -330,19 +326,6 @@ GUARD, when given, is called with no arguments after a candidate match
           (setq found t))))
     found))
 
-(defun nota--comment-opener-before-p (pos)
-  "Non-nil when an unclaimed comment opener (// or /*) precedes POS on its line."
-  (save-excursion
-    (goto-char pos)
-    (let ((bol (line-beginning-position))
-          (found nil))
-      (goto-char bol)
-      (while (and (not found) (re-search-forward "//\\|/\\*" pos t))
-        (let ((beg (match-beginning 0)))
-          (unless (or (nota--claimed-p beg) (eq (char-before beg) ?\\))
-            (setq found t))))
-      found)))
-
 (defun nota--match-line-comment (limit)
   "Font-lock matcher for a // line comment before LIMIT."
   (nota--match-unclaimed "//.*$" limit))
@@ -352,18 +335,6 @@ GUARD, when given, is called with no arguments after a candidate match
 A block comment spanning lines is not line-locally decidable and stays
 unpainted (the LSP semantic tokens own it)."
   (nota--match-unclaimed "/\\*.*?\\*/" limit))
-
-(defun nota--match-link (limit)
-  "Font-lock matcher for [text](url) / ![alt](src) before LIMIT.
-Groups: 1 = the opening (`[' or `!['), 2 = text, 3 = `](', 4 = url,
-5 = `)'.  A `[^' footnote opener is excluded by the text regexp.  This
-rule runs BEFORE the comment rules (a url's `//' is link content, not a
-comment opener), so the reader's positional precedence is restored by
-rejecting a link that sits after a real comment opener on its line."
-  (nota--match-unclaimed
-   "\\(!?\\[\\)\\([^]^[\n][^][\n]*?\\)\\(\\](\\)\\([^()\n]*\\)\\()\\)"
-   limit
-   (lambda () (not (nota--comment-opener-before-p (match-beginning 0))))))
 
 (defun nota--match-strike (limit)
   "Font-lock matcher for ~~strikethrough~~ before LIMIT."
@@ -426,13 +397,6 @@ rejecting a link that sits after a real comment opener on its line."
     ;; Inline math.
     ("\\(\\$\\)\\([^$\n]+\\)\\(\\$\\)"
      (1 'nota-delimiter) (2 'nota-math) (3 'nota-delimiter))
-    ;; Links [text](url) and images ![alt](src): delimiters + url; the text
-    ;; group stays unclaimed so the inline rules below still paint it. Before
-    ;; the comment rules — a url's `//` is link content (the matcher rejects a
-    ;; link sitting after a real comment opener on its line).
-    (nota--match-link
-     (1 'nota-delimiter) (3 'nota-delimiter) (4 'nota-link-url)
-     (5 'nota-delimiter))
     ;; Comments (after the raw spans, whose interiors keep `//` literal; the
     ;; matchers fire on unclaimed text only). Multi-line /* */ stays unpainted.
     (nota--match-line-comment 0 'nota-comment)

@@ -247,23 +247,11 @@ Searches forward from point for NEEDLE."
     ;; Intra-word pairs stay literal (the word-boundary guard).
     (should (nota-test--unfontified "b~~c" 2))))
 
-(ert-deftest nota-comment-vs-link-positional-precedence ()
-  ;; The reader is positional: a link's url may hold `//`, but a link after a
-  ;; comment opener is comment content.
-  (nota-test--with-buffer "// see [x](u)\nand [y](https://z) fine\n"
-    (should (nota-test--face-of "// see" 'nota-comment))
-    (should-not (nota-test--face-of "](u)" 'nota-delimiter))
-    (should (nota-test--face-of "https://z" 'nota-link-url))
-    (should-not (nota-test--face-of "//z" 'nota-comment))))
-
-(ert-deftest nota-links-and-images ()
-  (nota-test--with-buffer "see [the docs](https://x.com) and ![owl](o.png)\nplain [1] here\n"
-    (should (nota-test--face-of "https://x.com" 'nota-link-url))
-    (should (nota-test--face-of "o.png" 'nota-link-url))
-    (should (nota-test--face-of "](" 'nota-delimiter))
-    ;; The link text stays open for inline painting; stray brackets stay prose.
-    (should (nota-test--unfontified "the docs"))
-    (should (nota-test--unfontified "[1]"))))
+(ert-deftest nota-markdown-link-shapes-stay-prose ()
+  ;; The link sugar was reverted: bracket shapes are plain prose (links are @a elements).
+  (nota-test--with-buffer "see [the docs](x.com) here\n"
+    (should (nota-test--unfontified "[the docs]"))
+    (should (nota-test--unfontified "(x.com)"))))
 
 ;;;; Integration corpus smoke: fontification must not error.
 

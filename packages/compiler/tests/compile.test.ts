@@ -225,8 +225,10 @@ describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)",
     });
     expect(code).toContain('<Heading rank={1} id="sugars" class="demo">');
     expect(code).toContain("<s>");
+    // Links/images are element forms (the markdown sugar was reverted; shapes stay prose).
     expect(code).toContain('<a href="https://example.com/a_b">');
     expect(code).toContain('<img src="sample.svg" alt="An owl" />');
+    expect(code).toContain("[these](here.html)");
     expect(code).toContain("<hr />");
     expect(code).toContain('<UlLi class="hot">');
     expect(code).toContain('<Attrs class="note" />');
@@ -243,16 +245,6 @@ describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)",
     expect(code).not.toContain("gone");
     expect(code).toContain("<s>");
     expect(code).toContain("<hr />");
-  });
-
-  test("links and images lower to host <a>/<img>", () => {
-    const { code } = compile(
-      "see [the *docs*](https://x.com/p_q) and ![An owl](owl.png)\n",
-      { sourcePath: "links.nota" }
-    );
-    expect(code).toContain('<a href="https://x.com/p_q">');
-    expect(code).toContain("<strong>");
-    expect(code).toContain('<img src="owl.png" alt="An owl" />');
   });
 
   test("heading attrs hoist; a paragraph attrs group binds the Attrs marker", () => {

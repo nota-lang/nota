@@ -1,8 +1,9 @@
 // A comment-only line: consumed with its newline (no phantom paragraph break).
 # Prose sugars [id: "sugars", class: "demo"]
 
-The 2026-08 surface: ~~struck~~ text, a [link *with markup*](https://example.com/a_b),
-and an image ![An owl](sample.svg) inline. /* a nested /* block */ comment */ Escapes:
+The 2026-08 surface: ~~struck~~ text, a link via @a[href: "https://example.com/a_b"]{the
+*docs*}, and an image via @img[src: "sample.svg", alt: "An owl"]. Markdown link shapes like
+[these](here.html) stay literal prose. /* a nested /* block */ comment */ Escapes:
 \// stays literal slashes, \~~ stays tildes, \[not: attrs].
 
 Smart-punct material — "quotes", 'singles', it's 5 -- or 6 --- dots... — is transformed
@@ -12,6 +13,5 @@ at the decode stage, so `"code" -- ...` and $a -- b$ stay raw.
 
 - item one [class: "hot"]
 - item ~~two~~ // a trailing comment inside the item
-+ ordered with a [link](u)
 
 A closing paragraph with attrs. [class: "note"]

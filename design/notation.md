@@ -264,7 +264,8 @@ comments channel for the ESTree view and the highlight pass).
   contributes no phantom soft/paragraph break, and a heading/list/`%` on the next line still
   fires. A trailing comment leaves its line's newline (a soft break).
 - `\/` escapes the opener (`\//` renders `//`). Consequence of firing anywhere in prose, as in
-  Typst: a bare URL is claimed by `//` — use the `[text](url)` sugar, a code span, or the escape.
+  Typst: a bare URL is claimed by `//` — use an `@a[href: "…"]{…}` element (the url is embedded
+  JS, where `//` is string content), a code span, or the escape.
 
 ```
 a // note⏎b        → ⟦ "a", "⏎", "b" ⟧          // comment excised; the newline survives
@@ -349,21 +350,13 @@ space, so the two line shapes never collide.
 a --- b          → literal text (→ an em dash at the decode stage)
 ```
 
-### Links & images
-`[text](url)` → `@a[href: "url"]{text}`; `![alt](src)` → `@img[src: "src", alt: "alt"]{}`.
-Inline links only — **no autolinks, no reference links, no titles**. The whole shape must close on
-its opening line (the line clamp); the `(` must be glued to the `]`. The *text* is an ordinary
-markup body (emphasis / `@`-forms / raw spans nest; nested `[`/`]` pair); the *url* and *alt* are
-raw — `\<c>` escapes cook, nested `(`/`)` pair in urls, targets are whitespace-trimmed. Links bind
-tighter than emphasis (a `_` or `*` inside a link's text or url cannot close an outer span), and a
-link's url may contain `//` (the link is reached first). Precedence at a `[`: the `[^` footnote
-digraph, then the link shape, then an attrs group, else a literal `[`. Alt is plain text — an HTML
-`alt` is a string. Both `<img>` attributes always emit (`alt=""` is the decorative marker).
-```
-see [the *docs*](https://x.com)  → see <a href="https://x.com">the <strong>docs</strong></a>
-![An owl](owl.png)               → <img src="owl.png" alt="An owl"/>
-[^1](u)                          → footnote mark + literal "(u)" (the digraph wins)
-```
+### Links & images — deliberately NO markdown sugar
+`[text](url)` and `![alt](src)` are **literal prose** (a link sugar existed briefly, 2026-08, and
+was reverted — the bracket syntax is reserved). Links and images are element forms:
+`@a[href: "…"]{text}` and `@img[src: "…", alt: "…"]`. The likely future link surface is the
+`&`-ref family (a `&target` that resolves to an href), not brackets. Note the comment
+interaction: a bare `https://…` in prose is claimed by `//` — put urls in props (embedded JS,
+where `//` is string content) or escape.
 
 ### Attrs groups
 A **trailing bare `[props]` group** attaches attributes to its construct — pandoc's heading-attrs
@@ -538,8 +531,6 @@ form of exactly these calls.
 | `_italic_` | `h("em", {}, ["italic"])` |
 | `~~struck~~` | `h("s", {}, ["struck"])` |
 | `---` (standalone line) | `h("hr", {}, [])` |
-| `[text](url)` | `h("a", { href: "url" }, ["text"])` (text is markup; url raw, trimmed, `\<c>` cooked) |
-| `![alt](src)` | `h("img", { src: "src", alt: "alt" }, [])` (alt is plain text; both attrs always emit) |
 | `# T [id: "x"]` | `h(Heading, { rank: 1, id: "x" }, ["T"])` (trailing attrs hoist — heading/list-item) |
 | `para. [class: "n"]` | `…, h(Attrs, { class: "n" }, [])` (flow position → the Reforest-applied marker) |
 | `a // note` | `h(…, {}, ["a"])` (a comment is trivia — excised, never emitted) |

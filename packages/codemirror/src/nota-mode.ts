@@ -144,8 +144,7 @@ const KIND_STYLES: Record<string, Record<string, string>> = {
   "js-number": { color: peach },
   "js-comment": { color: muted, fontStyle: "italic" },
   "js-operator": { color: teal },
-  comment: { color: muted, fontStyle: "italic" },
-  "link-url": { color: blue, textDecoration: "underline" }
+  comment: { color: muted, fontStyle: "italic" }
 };
 
 /** The editor theme: one rule per kind, in {@link KIND_STYLES} (tie-breaking) order. */
