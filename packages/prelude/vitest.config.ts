@@ -6,7 +6,7 @@ import solid from "vite-plugin-solid";
  * Two vitest projects (the @nota-lang/solid pattern): **ssr** (node conditions, JSX compiled
  * with generate:"ssr") drives renderDocument over full documents — headings/numbering/Toc/
  * Ref/footnotes/cite/definitions/Tex/CodeBlock; **dom** (jsdom, browser conditions) drives the
- * client-side tooltip behavior.
+ * client-side tooltip behavior + the pure-CSR resolution semantics.
  */
 const inlineDeps = { inline: [/^(?!.*vitest).*$/] };
 
@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "dom",
           environment: "jsdom",
-          include: ["tests/tooltip.test.tsx"],
+          include: ["tests/tooltip.test.tsx", "tests/csr.test.tsx"],
           deps: inlineDeps
         }
       }

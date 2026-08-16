@@ -5,28 +5,36 @@
  * pointed-error paths.
  */
 import { NotaDoc, renderDocument } from "@nota-lang/solid";
-import { beforeEach, describe, expect, test } from "vitest";
+import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Bibliography,
   bibset,
   Cite,
   CodeBlock,
   CodeInline,
+  config,
+  counters,
   Definition,
   Footnote,
   FootnoteMark,
   Footnotes,
+  FootnotesList,
   FootnoteText,
   Heading,
+  headingIds,
+  headingNumbers,
   Label,
   lstset,
+  mathset,
   Ref,
   resetCodeWarningsForTest,
   resetConfigForTest,
   secset,
   Tex,
   Title,
-  Toc
+  Toc,
+  texRef
 } from "../src/lib";
 
 beforeEach(() => {
@@ -96,6 +104,85 @@ describe("headings + numbering + toc", () => {
   });
 });
 
+describe("heading mechanics", () => {
+  test("out-of-range ranks clamp to 1–6; no rank defaults to 1", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Heading rank={99}>Deep</Heading>
+        <Heading rank={0}>Shallow</Heading>
+        <Heading>Plain</Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain('<h6 id="deep"');
+    expect(html).toContain('<h1 id="shallow"');
+    expect(html).toContain('<h1 id="plain"');
+  });
+
+  test("extra props (a hoisted attrs group) spread onto the h-tag", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Heading rank={2} class="fancy" data-x="1">
+          Styled
+        </Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/<h2[^>]*class="fancy\s*"[^>]*data-x="1"[^>]*>Styled/);
+  });
+
+  test("headingIds/headingNumbers are pure: skipped ranks collapse, slugs dedup", () => {
+    const facts = [
+      { rank: 1, title: "A" },
+      { rank: 3, title: "B" }
+    ];
+    // `#` then `###` → 1 then 1.1 (skipped rank collapses).
+    expect(headingNumbers(facts, 6)).toEqual(["1", "1.1"]);
+    expect(headingNumbers(facts, 1)).toEqual(["1", undefined]);
+    expect(headingNumbers(facts, 0)).toEqual([undefined, undefined]);
+    expect(
+      headingIds([
+        { rank: 1, title: "Same" },
+        { rank: 1, title: "Same" },
+        { rank: 1, title: "!!!", explicitId: "x" },
+        { rank: 1, title: "???" }
+      ])
+    ).toEqual(["same", "same-2", "x", "section"]);
+  });
+
+  test("Toc({depth}) caps the ranks shown", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Toc depth={1} />
+        <Heading rank={1}>One</Heading>
+        <Heading rank={2}>Two</Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const nav = /<nav class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(html);
+    expect(nav).toBeTruthy();
+    expect(nav?.[1]).toContain('href="#one"');
+    expect(nav?.[1]).not.toContain('href="#two"');
+  });
+});
+
+describe("counters", () => {
+  test("counts facts by pos, keyed by pos; a reset fact restarts the count", () => {
+    const f = (pos: number) => ({ pos });
+    expect([...counters([f(2), f(5), f(9)], [f(4)]).entries()]).toEqual([
+      [2, 1],
+      [5, 1],
+      [9, 2]
+    ]);
+    // No resets: a plain running count.
+    expect([...counters([f(1), f(3)]).entries()]).toEqual([
+      [1, 1],
+      [3, 2]
+    ]);
+    expect(counters([]).size).toBe(0);
+  });
+});
+
 describe("label / ref", () => {
   test("a ref binds to the nearest preceding heading and shows its number", () => {
     const Doc = () => {
@@ -138,6 +225,26 @@ describe("label / ref", () => {
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(/no @Definition or @Label/);
+  });
+
+  test("a label with no preceding heading is a pointed error (seeded pass)", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Label id="early" />
+        <Ref id="early" />
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(/no heading precedes/);
+  });
+
+  test("a missing Label id is a pointed error", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Heading rank={1}>H</Heading>
+        <Label />
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(/@Label: missing id/);
   });
 
   test("duplicate labels are a pointed error", () => {
@@ -203,6 +310,63 @@ describe("footnotes", () => {
     );
   });
 
+  test("a paragraph break in a footnote body decodes into two paragraphs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        {"Text"}
+        <FootnoteMark label="p" />
+        <FootnoteText label="p">
+          {"first fn para.\n\nsecond fn para."}
+        </FootnoteText>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const list =
+      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    expect(list).toBeTruthy();
+    // Flow decoding via Reforest: two nota-para inside the entry, backlink in the last.
+    expect(list?.[1]?.match(/<p class="nota-para">/g)).toHaveLength(2);
+    expect(list?.[1]).toMatch(
+      /<p class="nota-para">second fn para\.[\s\S]*?nota-fnbacklink/
+    );
+  });
+
+  test("an unreferenced FootnoteText is dropped silently", () => {
+    const Doc = () => (
+      <NotaDoc>
+        {"Body"}
+        <Footnote>{"used note"}</Footnote>
+        <FootnoteText label="ghost">{"never shown"}</FootnoteText>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const list =
+      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    expect(list?.[1]?.match(/<li /g)).toHaveLength(1);
+    expect(html).not.toContain("never shown");
+  });
+
+  test("a standalone FootnotesList renders in place without suppressing the trailer", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Footnote>{"one"}</Footnote>
+        <FootnotesList />
+        <Footnote>{"two"}</Footnote>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    const lists = [
+      ...html.matchAll(
+        /<section class="nota-footnotes"[^>]*>([\s\S]*?)<\/section>/g
+      )
+    ];
+    // Unlike @Footnotes, FootnotesList sets no placement flag: the trailer still appends.
+    expect(lists).toHaveLength(2);
+    // The placed list sees the footnotes accumulated so far; the trailer sees all.
+    expect(lists[0][1].match(/<li /g)).toHaveLength(1);
+    expect(lists[1][1].match(/<li /g)).toHaveLength(2);
+  });
+
   test("a referenced label with no definition is a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
@@ -266,6 +430,47 @@ describe("cite / bibliography", () => {
     );
   });
 
+  test("bibset({style:'alpha'}) labels by (author, title) sort, not citation order", () => {
+    const Doc = () => {
+      bibset({
+        src: {
+          zeta: { author: "Zeta", title: "Zed" },
+          alpha: { author: "Alpha", title: "Aleph" }
+        },
+        style: "alpha"
+      });
+      return (
+        <NotaDoc>
+          <Cite>{"zeta"}</Cite>
+          {" then "}
+          <Cite>{"alpha"}</Cite>
+          {".\n\n"}
+          <Bibliography />
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    // zeta cited first but sorts second: [2]; alpha gets [1].
+    expect(html).toMatch(/<a href="#bib-zeta"[^>]*>\[2\]<\/a>/);
+    expect(html).toMatch(/<a href="#bib-alpha"[^>]*>\[1\]<\/a>/);
+    // The bibliography lists in label (sorted) order.
+    const bib = /<ol class="nota-bibliography"[^>]*>([\s\S]*?)<\/ol>/.exec(
+      html
+    );
+    expect(bib?.[1]?.indexOf("bib-alpha")).toBeLessThan(
+      bib?.[1]?.indexOf("bib-zeta") ?? -1
+    );
+  });
+
+  test("an empty cite key list is a pointed error", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Cite>{" , "}</Cite>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(/@Cite: empty key/);
+  });
+
   test("an unknown cite key is a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
@@ -310,6 +515,141 @@ describe("definitions", () => {
     expect(() => renderDocument(Doc)).toThrow(
       /duplicate definition for id "d"/
     );
+  });
+
+  test("Definition({block}) renders a div flow container instead of a span", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Definition id="blk" block tooltip="tip">
+          {"Block body"}
+        </Definition>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/<div id="def-blk" class="nota-definition">/);
+    expect(html).not.toMatch(/<span id="def-blk"/);
+  });
+});
+
+describe("mathset", () => {
+  test("default output is MathML (no KaTeX CSS needed)", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Tex>{"x^2"}</Tex>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain("<math");
+    expect(html).not.toContain("katex-html");
+  });
+
+  test("mathset({output:'html'}) switches Tex to KaTeX HTML spans", () => {
+    const Doc = () => {
+      mathset({ output: "html" });
+      return (
+        <NotaDoc>
+          <Tex>{"x^2"}</Tex>
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain("katex-html");
+    expect(html).not.toContain("<math");
+  });
+
+  test("mathset({macros}) feeds KaTeX; a \\gdef never escapes its own Tex", () => {
+    const WithMacro = () => {
+      mathset({ macros: { "\\R": "\\mathbb{R}" } });
+      return (
+        <NotaDoc>
+          <Tex>{"\\R"}</Tex>
+        </NotaDoc>
+      );
+    };
+    // \mathbb{R} → a double-struck R in MathML.
+    expect(clean(renderDocument(WithMacro).html)).toContain("double-struck");
+
+    // KaTeX mutates the macros table on \gdef; Tex hands it a per-call copy, so the doc-global
+    // table stays config-owned: no leak into a later Tex in the same document…
+    const LeakInDoc = () => (
+      <NotaDoc>
+        <Tex>{"\\gdef\\ans{42}\\ans"}</Tex>
+        <Tex>{"\\ans"}</Tex>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(LeakInDoc)).toThrow(
+      /Undefined control sequence/
+    );
+
+    // …and none across renders.
+    const GdefOnly = () => (
+      <NotaDoc>
+        <Tex>{"\\gdef\\ans{42}\\ans"}</Tex>
+      </NotaDoc>
+    );
+    expect(clean(renderDocument(GdefOnly).html)).toContain("42");
+    expect("\\ans" in config().macros).toBe(false);
+    const UsesGdef = () => (
+      <NotaDoc>
+        <Tex>{"\\ans"}</Tex>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(UsesGdef)).toThrow(
+      /Undefined control sequence/
+    );
+  });
+
+  test("mathset is positional: a later Tex renders under the new output mode", () => {
+    const Doc = () => (
+      <NotaDoc>
+        {(() => {
+          mathset({ output: "html" });
+          return null;
+        })()}
+        <Tex>{"y"}</Tex>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain("katex-html");
+  });
+});
+
+describe("texRef", () => {
+  test("under mathset({output:'html'}) the wrapped source carries data-nota-def", () => {
+    const Doc = () => {
+      mathset({ output: "html" });
+      return (
+        <NotaDoc>
+          <Definition id="dep" label="dep" tooltip="The dependency relation.">
+            {"deps"}
+          </Definition>
+          {" as "}
+          <Tex>{texRef("dep", "\\kappa")}</Tex>
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    // The rendered math is wired for the delegated tooltip handler…
+    expect(html).toMatch(/<span[^>]*data-nota-def="dep"/);
+    // …and the definition anchor it references exists.
+    expect(html).toContain('id="def-dep"');
+  });
+
+  test("MathML output drops the \\htmlData attribute (math renders un-wired)", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Tex>{texRef("dep", "\\kappa")}</Tex>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain("<math");
+    expect(html).not.toContain("data-nota-def");
+  });
+
+  test("invalid handle characters are a pointed error", () => {
+    for (const bad of ["a,b", "a=b", "a{b", "a}b"]) {
+      expect(() => texRef(bad, "x")).toThrow(/may not contain/);
+    }
   });
 });
 
@@ -399,5 +739,95 @@ describe("tex + code", () => {
     );
     const html = clean(renderDocument(Doc).html);
     expect(html).toMatch(/<pre class="shiki/);
+  });
+
+  test("a text-less armed part contributes nothing and warns once (across both passes)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Doc = () => (
+      <NotaDoc>
+        <CodeBlock lang="js">
+          {"let "}
+          <span class="hl" />
+          {"x = 1;"}
+        </CodeBlock>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/<pre class="shiki/);
+    const armed = warnSpy.mock.calls.filter(([msg]) =>
+      String(msg).includes("text-less armed part")
+    );
+    expect(armed).toHaveLength(1); // warnOnce dedups across the two SSG passes
+    warnSpy.mockRestore();
+  });
+
+  test("lstset({langs, themes, theme}) registers extensions; a new set rebuilds the highlighter", () => {
+    const wibble: LanguageRegistration = {
+      name: "wibble",
+      scopeName: "source.wibble",
+      patterns: [{ match: "\\bzap\\b", name: "keyword.control.wibble" }],
+      repository: {}
+    };
+    const hotpink: ThemeRegistrationAny = {
+      name: "hotpink",
+      settings: [
+        { settings: { foreground: "#111111", background: "#FFFFFF" } },
+        { scope: "keyword", settings: { foreground: "#FF1493" } }
+      ]
+    };
+    const DocA = () => {
+      lstset({
+        langs: [wibble],
+        themes: [hotpink],
+        theme: "hotpink",
+        lang: "wibble"
+      });
+      return (
+        <NotaDoc>
+          <CodeBlock>{"zap it"}</CodeBlock>
+        </NotaDoc>
+      );
+    };
+    const a = clean(renderDocument(DocA).html);
+    expect(a).toMatch(/<pre class="shiki hotpink"/);
+    expect(a).toMatch(/<span style="color:#FF1493">zap<\/span>/);
+
+    // A subsequent lstset with a different theme set: the memoized highlighter must rebuild
+    // (a stale instance would fail to resolve the new theme).
+    const seagreen: ThemeRegistrationAny = {
+      name: "seagreen",
+      settings: [{ settings: { foreground: "#222222", background: "#EEFFEE" } }]
+    };
+    const DocB = () => {
+      lstset({ themes: [seagreen], theme: "seagreen", lang: "js" });
+      return (
+        <NotaDoc>
+          <CodeBlock>{"let x = 1;"}</CodeBlock>
+        </NotaDoc>
+      );
+    };
+    const b = clean(renderDocument(DocB).html);
+    expect(b).toMatch(
+      /<pre class="shiki seagreen" style="background-color:#EEFFEE/
+    );
+  });
+
+  test("CodeInline highlights under a doc-global lstset({lang}) — the \\lstinline analogue", () => {
+    const Doc = () => {
+      lstset({ lang: "js" });
+      return (
+        <NotaDoc>
+          {"Call "}
+          <CodeInline>{"let q = f(x);"}</CodeInline>
+          {" now."}
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    // structure:"inline": span runs directly inside the code host, no nested <pre>.
+    expect(html).toMatch(
+      /<code class="nota-code-inline"[^>]*><span style="color:/
+    );
+    expect(html).not.toMatch(/nota-code-inline[^>]*><pre/);
   });
 });

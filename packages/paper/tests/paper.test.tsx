@@ -4,15 +4,18 @@
  * tooltip bank, the Language/BNF DSL (texRef-wired handles; the Bnf table as anchored
  * definitions), and inference rules.
  */
-import { Ref, resetConfigForTest } from "@nota-lang/prelude";
+import { mathset, Ref, resetConfigForTest, Tex } from "@nota-lang/prelude";
 import { NotaDoc, renderDocument } from "@nota-lang/solid";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   Abstract,
+  Affiliation,
   Author,
   Authors,
   Caption,
+  Center,
   Figure,
+  Institution,
   IR,
   inferRule,
   language,
@@ -100,6 +103,29 @@ describe("scaffold", () => {
     );
   });
 
+  test("affiliation / institution / center render their classed containers", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Authors>
+          <Author>
+            <Name>{"Will"}</Name>
+            <Affiliation>{"Brown University"}</Affiliation>
+            <Institution>{"Dept. of Computer Science"}</Institution>
+          </Author>
+        </Authors>
+        <Center>{"centered"}</Center>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain(
+      '<div class="nota-author-affiliation">Brown University</div>'
+    );
+    expect(html).toContain(
+      '<div class="nota-institution">Dept. of Computer Science</div>'
+    );
+    expect(html).toContain('<div class="nota-center">centered</div>');
+  });
+
   test("a caption with no preceding figure renders unlabeled", () => {
     const Doc = () => (
       <NotaDoc>
@@ -150,6 +176,28 @@ describe("language / Bnf", () => {
     expect(html).not.toContain("nota-def=gram-sessty}{!");
     // The bank carries the table for tooltip pops.
     expect(html).toMatch(/data-def="gram-sessty"/);
+  });
+
+  test("under mathset({output:'html'}) handles render clickable data-nota-def wiring", () => {
+    const Doc = () => {
+      mathset({ output: "html" });
+      return (
+        <NotaDoc>
+          <L.Bnf />
+          {"In prose "}
+          <Tex>{L.sessty}</Tex>
+          {" and in a rule:"}
+          <IR bot={L.send("\\tau", "\\sigma")} />
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    // The kind handle in prose and the filled form in the IR each carry the wiring; the Bnf
+    // table itself (the definition site, body + tooltip bank) stays plain.
+    expect(html).toMatch(/<span[^>]*data-nota-def="gram-sessty"/);
+    expect(html.match(/data-nota-def="gram-sessty"/g)).toHaveLength(2);
+    // The wired references point at a real anchor: the kind's Definition block.
+    expect(html).toContain('id="def-gram-sessty"');
   });
 
   test("name collisions are pointed errors", () => {
