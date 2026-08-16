@@ -62,6 +62,21 @@ const EMIT_IMPORT_FALLBACKS = [
 ];
 
 /**
+ * Packages whose **module state must be a singleton per page**: solid-js's reactive runtime +
+ * hydration flags (`sharedConfig`, `enableHydration` — a second copy silently renders with
+ * hydration context nesting disabled, so claiming misses and the client rebuilds the DOM) and
+ * the `@nota-lang/*` packages carrying the doc-state context. Deduped so that a dependency
+ * graph with two physical copies (the linked-workspace layout, or a consumer's own solid-js at
+ * a different patch version) still bundles exactly one.
+ */
+const DEDUPED_PACKAGES = [
+  "solid-js",
+  "@nota-lang/solid",
+  "@nota-lang/prelude",
+  "@nota-lang/paper"
+];
+
+/**
  * The `.nota` transform plugin (half of the {@link nota} preset; exported for integrators that
  * compose their own solid pipeline).
  *
@@ -96,6 +111,7 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   return {
     name: "@nota-lang/vite",
     enforce: "pre",
+    config: () => ({ resolve: { dedupe: DEDUPED_PACKAGES } }),
     async resolveId(source: string, importer: string | undefined) {
       if (
         !EMIT_IMPORT_FALLBACKS.some(
