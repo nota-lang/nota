@@ -19,6 +19,13 @@ export const BUILT_DIR = join(here, ".golden.built");
  */
 export const CLOSURE_BUILT_DIR = join(here, ".closure.built");
 
+/**
+ * The conditional fixture's built document directory (`integration/conditional.nota` — `@if`
+ * lowered to Solid's `<Show>`: a reactive branch with a `fallback`, plus taken/untaken
+ * fallback-less branches).
+ */
+export const CONDITIONAL_BUILT_DIR = join(here, ".conditional.built");
+
 /** A built directory's `index.html`. */
 export function indexHtmlOf(dir: string): string {
   return join(dir, "index.html");

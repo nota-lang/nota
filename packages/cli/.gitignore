@@ -1,3 +1,4 @@
 # Hydration e2e build artifacts (produced by tests/buildGolden.globalSetup.ts)
 tests/.golden.built/
 tests/.closure.built/
+tests/.conditional.built/

@@ -80,11 +80,12 @@ implemented in `oxc_transformer/src/nota/{build,lower}.rs`; goldens pin it):
 | `@Comp{…}` | `<Comp …>{…}</Comp>` (an identifier *reference* — free-name analysis + mappings) |
 | `@{…}` fragment | `<>{…}</>` |
 | `@for (x of xs) {…}` | `<For each={xs}>{(x) => <>…</>}</For>` |
+| `@if (c) {…} else {…}` | `<Show when={c} fallback={<>…</>}><>…</></Show>` |
 | `@(expr){…}` dynamic tag | `<Dynamic component={expr} …>` |
 | text runs | `{"…"}` containers, adjacent pieces coalesced (see ¶ below) |
 | component definitions in `%`-code | untouched user code — plain Solid arrows (`(props) => …`) |
 
-Three of those rows carry semantics:
+Four of those rows carry semantics:
 
 - **Text coalescing.** The Scribble pass produces one `"\n"` text piece per interior newline;
   the lowering coalesces adjacent pieces — a blank source line surfaces as `"\n\n"` inside one
@@ -98,6 +99,15 @@ Three of those rows carry semantics:
   classifier left is reforest's phrasing-content set.
 - **`<For>` is native.** Solid has no `key`; keyed reconciliation is `<For>` — `@for` lowers to
   it directly (no keyed-map shape anywhere); user-written `.map`s in `%`-code are untouched.
+- **`<Show>` is native too.** `@if` lowers to `<Show>`, not an interpolated ternary: Solid's JSX
+  compiler makes a ternary one memo over the whole conditional, so any change to the test re-runs
+  it, while `<Show>` only tears down and rebuilds when `when` crosses truthiness. `else` becomes
+  the `fallback` prop and `else if` nests another `<Show>` inside it; **no `else` ⇒ no `fallback`
+  prop**, since Solid renders nothing by default. Two details the goldens pin: `<Show>` stays
+  *unkeyed* (the ternary-matching semantics — `keyed` would rebuild on every distinct truthy
+  value), and each branch nests as a **fragment** rather than having its children spliced in,
+  because `<Show>` reads a lone function child as its keyed accessor callback and `@if (c) {@(f)}`
+  must not silently mean that.
 
 The compiler shim prepends the free-name-driven imports: `@nota-lang/solid`
 (NotaDoc/Reforest/UlLi/OlLi + the compat constructors), `solid-js` (the ambient state surface:

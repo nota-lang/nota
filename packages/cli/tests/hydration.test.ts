@@ -8,6 +8,8 @@
  * - **closure.nota** — a document-local component inside `@for` closing over the loop variable
  *   with per-instance signals. No replay machinery: the document hydrates as one Solid app and
  *   the closures are the program's own.
+ * - **conditional.nota** — `@if` → Solid's `<Show>`: SSR bakes the taken branches only, and a
+ *   click swaps the reactive branch through its `fallback` on the claimed nodes.
  *
  * **How a page is "loaded".** jsdom does not execute scripts, so we reproduce a browser load:
  * install the `<body>` markup (keeping the JSON state script — `hydrateDocument` reads it),
@@ -20,13 +22,23 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
-import { BUILT_DIR, CLOSURE_BUILT_DIR, indexHtmlOf } from "./builtHtmlPath";
+import {
+  BUILT_DIR,
+  CLOSURE_BUILT_DIR,
+  CONDITIONAL_BUILT_DIR,
+  indexHtmlOf
+} from "./builtHtmlPath";
 
 let HTML = "";
 let CLOSURE_HTML = "";
+let CONDITIONAL_HTML = "";
 beforeAll(() => {
   HTML = readFileSync(indexHtmlOf(BUILT_DIR), "utf8");
   CLOSURE_HTML = readFileSync(indexHtmlOf(CLOSURE_BUILT_DIR), "utf8");
+  CONDITIONAL_HTML = readFileSync(
+    indexHtmlOf(CONDITIONAL_BUILT_DIR),
+    "utf8"
+  );
 });
 
 afterEach(() => {
@@ -105,5 +117,42 @@ describe("closure.nota: document-local components with per-instance state", () =
     expect(buttons[1].textContent).toContain("n=1");
     // Claimed nodes, not rebuilt.
     expect(document.querySelectorAll("ul li button")[0]).toBe(buttons[0]);
+  });
+});
+
+describe("conditional.nota: `@if` renders and reacts through `<Show>`", () => {
+  test("SSR bakes only the taken branches", () => {
+    // A fallback-less `<Show>` renders nothing when false — the untaken branch must not be in
+    // the served HTML at all (the ternary emit's `: null` had the same effect; this pins that
+    // the `<Show>` rewrite kept it).
+    expect(CONDITIONAL_HTML).toContain("always here");
+    expect(CONDITIONAL_HTML).not.toContain("never here");
+    // The reactive branch starts false, so SSR bakes its `fallback`, not its consequent.
+    expect(CONDITIONAL_HTML).toContain("hidden");
+    expect(CONDITIONAL_HTML).not.toContain("shown");
+  });
+
+  test("a click swaps the branch on the claimed nodes", () => {
+    loadAndBoot(CONDITIONAL_BUILT_DIR, CONDITIONAL_HTML);
+    const toggle = document.querySelector("#toggle");
+    const btn = toggle?.querySelector("button");
+    if (!btn) throw new Error("no toggle button");
+    // Hydration claimed the server's fallback rather than rebuilding it.
+    expect(document.querySelector("#no")?.textContent).toBe("hidden");
+    expect(document.querySelector("#yes")).toBeNull();
+
+    click(btn);
+    expect(document.querySelector("#yes")?.textContent).toBe("shown");
+    expect(document.querySelector("#no")).toBeNull();
+
+    // And back — `<Show>` is unkeyed, so the branch swap is driven purely by `when` crossing
+    // truthiness, in both directions.
+    click(btn);
+    expect(document.querySelector("#no")?.textContent).toBe("hidden");
+    expect(document.querySelector("#yes")).toBeNull();
+
+    // The surrounding document is untouched by the swaps.
+    expect(document.querySelector("#taken")?.textContent).toBe("always here");
+    expect(document.querySelector("#untaken")).toBeNull();
   });
 });

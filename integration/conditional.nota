@@ -1,0 +1,13 @@
+%let Toggle = () => {
+  let [on, setOn] = createSignal(false);
+  return @span[id: "toggle"]{
+    @button[type: "button"][onClick: () => setOn(!on())]{toggle}
+    @if (on()) {@em[id: "yes"]{shown}} else {@em[id: "no"]{hidden}}
+  };
+};
+
+@Toggle{}
+
+@if (1 > 0) {@p[id: "taken"]{always here}}
+
+@if (1 > 2) {@p[id: "untaken"]{never here}}
