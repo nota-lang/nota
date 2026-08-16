@@ -17,6 +17,7 @@ import {
   useContext
 } from "solid-js";
 import { isServer } from "solid-js/web";
+import type { SmartOptions } from "./smart";
 
 /** One registered fact. JSON-serializable fields survive {@link DocState.snapshot}; function-
  * valued fields (e.g. a definition's tooltip thunk) are for same-pass readers and are dropped. */
@@ -72,6 +73,18 @@ export interface DocState {
   hasFlag(name: string): boolean;
   /** Was this store created with a seed (SSG pass 2 / hydration)? */
   readonly seeded: boolean;
+  /**
+   * The document's smart-punctuation setting (threaded from the render drivers; `undefined` ⇒
+   * defaults, `false` ⇒ off). Read by every `Reforest` pass under this store — server and client
+   * must agree, so it rides the store, not a component prop.
+   */
+  readonly smart?: SmartOptions | false;
+}
+
+/** Store-creation options ({@link createDocState}). */
+export interface DocStateOptions {
+  /** Smart punctuation for this document's Reforest passes ({@link DocState.smart}). */
+  smart?: SmartOptions | false;
 }
 
 /**
@@ -80,7 +93,10 @@ export interface DocState {
  * {@link DocState.release} — so forward references resolve to converged values while the live
  * registrations accumulate underneath.
  */
-export function createDocState(seed?: Snapshot): DocState {
+export function createDocState(
+  seed?: Snapshot,
+  options: DocStateOptions = {}
+): DocState {
   const [version, setVersion] = createSignal(0);
   // Deliberately NOT a signal: release() must be silent. At release time live == seed (the
   // document converged), so notifying readers would re-run every doc-state consumer to produce
@@ -171,6 +187,9 @@ export function createDocState(seed?: Snapshot): DocState {
     },
     get seeded() {
       return seed !== undefined;
+    },
+    get smart() {
+      return options.smart;
     }
   };
   return state;

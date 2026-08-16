@@ -22,4 +22,5 @@ export * from "./doc-state";
 export * from "./nota-doc";
 export * from "./reforest";
 export * from "./render";
+export * from "./smart";
 export * from "./text";

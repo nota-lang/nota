@@ -235,3 +235,72 @@ describe("textOf", () => {
     expect(textOf(h)).toBe("The fine print 42");
   });
 });
+
+describe("smart punctuation (the string rules + the DOM walk)", () => {
+  test("Pollen's own test vectors", async () => {
+    const { smartDashesString, smartQuotesString, smartEllipsesString } =
+      await import("../src/smart");
+    expect(smartDashesString("I had --- maybe 13 -- 20 --- hob-nobs.")).toBe(
+      "I had—maybe 13–20—hob-nobs."
+    );
+    const tricky = "\"Why,\" she could've asked, \"are we in O‘ahu watching 'Mame'?\"";
+    expect(smartQuotesString(tricky)).toBe(
+      "“Why,” she could’ve asked, “are we in O‘ahu watching ‘Mame’?”"
+    );
+    expect(smartQuotesString('"what\'s in it for me?",')).toBe(
+      "“what’s in it for me?”,"
+    );
+    expect(smartQuotesString("\"'Impossible.' Yes.\"")).toBe("“‘Impossible.’ Yes.”");
+    expect(smartQuotesString('("No.")')).toBe("(“No.”)");
+    expect(smartEllipsesString("so...")).toBe("so…");
+    // The Nota divergence: dashes never eat a newline (the paragraph-break contract).
+    expect(smartDashesString("a --\n\nb")).toBe("a–\n\nb");
+  });
+
+  test("the DOM walk transforms text nodes, skips exclusions, and is idempotent", async () => {
+    const { smarten } = await import("../src/smart");
+    const el = document.createElement("div");
+    el.innerHTML = 'say "hi" and <code>"raw"</code> and <span data-nota-nosmart="">"keep"</span>';
+    smarten([el]);
+    const once = el.innerHTML;
+    expect(once).toContain("say “hi”");
+    expect(once).toContain("<code>\"raw\"</code>");
+    expect(once).toContain('"keep"');
+    smarten([el]);
+    expect(el.innerHTML).toBe(once); // idempotent
+  });
+
+  test("an excluded region reads as one word for quote context", async () => {
+    const { smarten } = await import("../src/smart");
+    const el = document.createElement("div");
+    el.innerHTML = "<code>f</code>'s output";
+    smarten([el]);
+    // The apostrophe after the code span is an apostrophe, not an opening quote.
+    expect(el.innerHTML).toContain("</code>’s output");
+  });
+});
+
+describe("attrs markers (client)", () => {
+  test("parse extracts marker attributes onto the paragraph", async () => {
+    const { parse } = await import("../src/reforest");
+    const marker = document.createElement("span");
+    marker.setAttribute("data-nota-attrs", "");
+    marker.setAttribute("class", "note");
+    marker.setAttribute("data-x", "1");
+    const items = parse(["text ", marker]);
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      kind: "para",
+      attrs: { class: "note", "data-x": "1" }
+    });
+  });
+
+  test("tight mode swallows markers", async () => {
+    const { parse } = await import("../src/reforest");
+    const marker = document.createElement("span");
+    marker.setAttribute("data-nota-attrs", "");
+    marker.setAttribute("class", "x");
+    const items = parse(["item ", marker], { tight: true });
+    expect(items).toEqual([{ kind: "bare", nodes: ["item "] }]);
+  });
+});

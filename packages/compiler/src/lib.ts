@@ -65,13 +65,14 @@ export const SOLID_AMBIENT_NAMES = [
 /**
  * The `@nota-lang/solid` surface an emit may reference free: the structural names the reader's
  * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
- * components).
+ * components; `Attrs` — the flow-position attrs-group marker Reforest applies to its paragraph).
  */
 export const SOLID_RUNTIME_NAMES = [
   "NotaDoc",
   "Reforest",
   "UlLi",
-  "OlLi"
+  "OlLi",
+  "Attrs"
 ] as const;
 
 /** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags). */

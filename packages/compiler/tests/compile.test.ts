@@ -217,3 +217,37 @@ describe("compile (diagnostics — a reader error throws)", () => {
     expect((err.diagnostics ?? "").length).toBeGreaterThan(0);
   });
 });
+
+describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)", () => {
+  test("comments are trivia; thematic break and strike lower to host elements", () => {
+    const { code } = compile(
+      "a // gone\n\n/* also gone */\n~~struck~~ text\n\n---\n",
+      { sourcePath: "sugars.nota" }
+    );
+    expect(code).not.toContain("gone");
+    expect(code).toContain("<s>");
+    expect(code).toContain("<hr />");
+  });
+
+  test("links and images lower to host <a>/<img>", () => {
+    const { code } = compile(
+      "see [the *docs*](https://x.com/p_q) and ![An owl](owl.png)\n",
+      { sourcePath: "links.nota" }
+    );
+    expect(code).toContain('<a href="https://x.com/p_q">');
+    expect(code).toContain("<strong>");
+    expect(code).toContain('<img src="owl.png" alt="An owl" />');
+  });
+
+  test("heading attrs hoist; a paragraph attrs group binds the Attrs marker", () => {
+    const { code, freeNames } = compile(
+      '# Title [id: "intro", class: "wide"]\n\npara text [class: "note"]\n',
+      { sourcePath: "attrs.nota" }
+    );
+    expect(code).toContain('<Heading rank={1} id="intro" class="wide">');
+    expect(code).toContain('<Attrs class="note" />');
+    // The marker is a structural free name, bound from @nota-lang/solid.
+    expect(freeNames).toContain("Attrs");
+    expect(code).toMatch(/^import \{ .*Attrs.* \} from "@nota-lang\/solid";/m);
+  });
+});

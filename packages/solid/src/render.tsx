@@ -11,6 +11,7 @@
 import type { JSX } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
+import type { SmartOptions } from "./smart";
 
 /** A document component (the `.nota` emit's default export). */
 export type DocComponent = () => JSX.Element;
@@ -23,6 +24,12 @@ export interface RenderDocumentOptions {
    * its own key space; the client must pass the same id to {@link hydrateDocument}.
    */
   renderId?: string;
+  /**
+   * Smart punctuation (Pollen's quote/dash/ellipsis rules; default all on; `false` disables).
+   * The client must pass the same setting to {@link hydrateDocument} — the transform runs
+   * identically on both sides, which is what makes hydration claim the transformed text.
+   */
+  smart?: SmartOptions | false;
 }
 
 /** The result of {@link renderDocument}. */
@@ -45,7 +52,8 @@ export function renderDocument(
   options: RenderDocumentOptions = {}
 ): RenderedDocument {
   const renderOptions = { renderId: options.renderId };
-  const pass1 = createDocState();
+  const stateOptions = { smart: options.smart };
+  const pass1 = createDocState(undefined, stateOptions);
   renderToString(
     () => (
       <DocStateContext.Provider value={pass1}>
@@ -56,7 +64,7 @@ export function renderDocument(
   );
   const seed = pass1.snapshot();
 
-  const pass2 = createDocState(seed);
+  const pass2 = createDocState(seed, stateOptions);
   const html = renderToString(
     () => (
       <DocStateContext.Provider value={pass2}>
@@ -111,6 +119,11 @@ export interface HydrateOptions {
    * attribute) passes it directly.
    */
   seed?: Snapshot;
+  /**
+   * Smart punctuation — must equal the {@link RenderDocumentOptions.smart} the server render
+   * used (claiming reproduces the server text by re-running the same transform).
+   */
+  smart?: SmartOptions | false;
 }
 
 /**
@@ -126,7 +139,7 @@ export function hydrateDocument(
   const root =
     opts.root ?? document.getElementById("nota-root") ?? document.body;
   const seed = opts.seed ?? readPageSeed();
-  const state = createDocState(seed);
+  const state = createDocState(seed, { smart: opts.smart });
   const dispose = solidHydrate(
     () => (
       <DocStateContext.Provider value={state}>

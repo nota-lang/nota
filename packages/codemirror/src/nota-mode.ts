@@ -118,6 +118,7 @@ const KIND_STYLES: Record<string, Record<string, string>> = {
   heading: { color: red, fontWeight: "700" },
   "emphasis-strong": { fontWeight: "700" },
   "emphasis-em": { fontStyle: "italic" },
+  "emphasis-strike": { textDecoration: "line-through" },
   // `math`/`code`/`style-text` are the flat fallback (verbatim always): an interior with a known
   // language is overlaid by embedded sub-language tokens (embedded-langs.ts), which replace this
   // paint. `style-text` is a `@style{…}` body (always CSS, so overlaid unless empty).
@@ -142,7 +143,9 @@ const KIND_STYLES: Record<string, Record<string, string>> = {
   "js-string": { color: green },
   "js-number": { color: peach },
   "js-comment": { color: muted, fontStyle: "italic" },
-  "js-operator": { color: teal }
+  "js-operator": { color: teal },
+  comment: { color: muted, fontStyle: "italic" },
+  "link-url": { color: blue, textDecoration: "underline" }
 };
 
 /** The editor theme: one rule per kind, in {@link KIND_STYLES} (tie-breaking) order. */

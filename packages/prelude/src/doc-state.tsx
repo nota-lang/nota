@@ -27,7 +27,13 @@ import {
   textOf,
   useDocState
 } from "@nota-lang/solid";
-import { children, type JSX, type ParentProps, Show } from "solid-js";
+import {
+  children,
+  type JSX,
+  type ParentProps,
+  Show,
+  splitProps
+} from "solid-js";
 import { Dynamic } from "solid-js/web";
 
 import { config } from "./config";
@@ -155,14 +161,17 @@ function clampRank(rank: unknown): number {
 }
 
 /**
- * The default `Heading` (the `#` sugar target). Props: `rank` (1–6), optional `id`. Registers a
- * heading fact and renders `<hN id>` with a `<span class="nota-secnum">` prefix when
- * `rank ≤ secset({numberDepth})`. `id` = explicit prop ?? deduped slug of the title text.
+ * The default `Heading` (the `#` sugar target). Props: `rank` (1–6), optional `id`; any other
+ * props (a hoisted `# Title [class: "x"]` attrs group — notation.md §Attrs) spread onto the
+ * rendered `<hN>`. Registers a heading fact and renders `<hN id>` with a
+ * `<span class="nota-secnum">` prefix when `rank ≤ secset({numberDepth})`. `id` = explicit prop
+ * ?? deduped slug of the title text.
  */
 export function Heading(
-  props: ParentProps & { rank?: number; id?: string }
+  props: ParentProps & { rank?: number; id?: string } & Record<string, unknown>
 ): JSX.Element {
   const state = useDocState();
+  const [, rest] = splitProps(props, ["rank", "id", "children"]);
   const resolved = children(() => props.children);
   const rank = clampRank(props.rank);
   const explicitId = typeof props.id === "string" ? props.id : undefined;
@@ -176,7 +185,7 @@ export function Heading(
   const id = () => headingIds(facts())[i];
   const num = () => headingNumbers(facts(), config().numberDepth)[i];
   return (
-    <Dynamic component={`h${rank}`} id={id()}>
+    <Dynamic component={`h${rank}`} id={id()} {...rest}>
       <Show when={num() !== undefined}>
         <span class="nota-secnum">{num()}</span>{" "}
       </Show>

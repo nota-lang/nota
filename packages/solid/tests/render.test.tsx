@@ -7,6 +7,7 @@ import { type JSX, children as resolveChildren, Show } from "solid-js";
 import { renderToString } from "solid-js/web";
 import { describe, expect, test } from "vitest";
 import {
+  Attrs,
   createDocState,
   DOC_STATE_ID,
   DocStateContext,
@@ -229,5 +230,90 @@ describe("driver-owned store adoption", () => {
         </NotaDoc>
       ))
     ).not.toThrow();
+  });
+});
+
+describe("attrs markers over SSR chunks (notation.md §Attrs)", () => {
+  test("a marker decorates the paragraph it sits in and is stripped", () => {
+    const html = renderToString(() => (
+      <Reforest>
+        {"styled text "}
+        <Attrs class="note" data-x="1" />
+        {"\n\nplain"}
+      </Reforest>
+    ));
+    expect(html).toMatch(/class="nota-para note\s*"/);
+    expect(html).toContain('data-x="1"');
+    expect(html).not.toContain("data-nota-attrs");
+    // The second paragraph is untouched.
+    expect(html).toMatch(/<p[^>]*class="nota-para"[^>]*>plain<\/p>/);
+  });
+
+  test("a lone marker attaches to the preceding paragraph", () => {
+    const html = renderToString(() => (
+      <Reforest>
+        {"first para"}
+        {"\n\n"}
+        <Attrs class="x" />
+        {"\n\n"}
+        {"second"}
+      </Reforest>
+    ));
+    expect(html).toMatch(/class="nota-para x\s*"[^>]*>first para<\/p>/);
+    expect(html).toContain("second</p>");
+  });
+});
+
+describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)", () => {
+  test("quotes, dashes, and ellipses smarten in prose; code interiors stay raw", () => {
+    const html = renderToString(() => (
+      <Reforest>
+        {'He said "yes" -- it\'s 5...'}
+        <code>{'"raw" -- ...'}</code>
+      </Reforest>
+    ));
+    expect(html).toContain("He said “yes”–it’s 5…");
+    // Solid's SSR leaves `"` unescaped in text content — the code interior stays raw.
+    expect(html).toContain('"raw" -- ...');
+  });
+
+  test("quote context crosses inline-element boundaries (Pollen's flatten)", () => {
+    const html = renderToString(() => (
+      <Reforest>
+        {"do '"}
+        <em>{"not'"}</em>
+      </Reforest>
+    ));
+    expect(html).toContain("do ‘");
+    expect(html).toContain("not’");
+  });
+
+  test("smart={false} and the store setting disable the pass", () => {
+    const off = renderToString(() => (
+      <Reforest smart={false}>{'"x" -- y...'}</Reforest>
+    ));
+    expect(off).toContain('"x" -- y...');
+
+    const viaStore = renderToString(() => (
+      <DocStateContext.Provider value={createDocState(undefined, { smart: false })}>
+        <Reforest>{'"x" -- y...'}</Reforest>
+      </DocStateContext.Provider>
+    ));
+    expect(viaStore).toContain('"x" -- y...');
+  });
+
+  test("renderDocument threads the smart setting through both passes", () => {
+    const Doc2 = () => <NotaDoc>{'"quoted" -- dashed'}</NotaDoc>;
+    const on = renderDocument(Doc2);
+    expect(on.html).toContain("“quoted”–dashed");
+    const off = renderDocument(Doc2, { smart: false });
+    expect(off.html).toContain('"quoted" -- dashed');
+  });
+
+  test("a paragraph break survives the dash rule (horizontal whitespace only)", () => {
+    const html = renderToString(() => <Reforest>{"a --\n\nb"}</Reforest>);
+    // Two paragraphs — the en dash must not eat the blank line.
+    expect(html).toMatch(/<p[^>]*>a\s*–<\/p>/);
+    expect(html).toMatch(/<p[^>]*>b<\/p>/);
   });
 });
