@@ -1,21 +1,24 @@
 /**
  * `@nota-lang/compiler` shim tests.
  *
- * Drives the real reader — the in-process wasm backend (`@nota-lang/wasm-node`) — on the two shared
- * integration fixtures and asserts the pinned
- * emit surface (design/notation.md §Emit reference): the prepended `@nota-lang/runtime` import (the
- * reader omits it),
- * `export default function Doc()`, the keyed `@for` Fragment (`Fragment({ key: _i }`), the `nota-ul-li`
- * list sentinel, and the named component constructors `inlineComponent(fn, "Colorized")` /
- * `blockComponent(fn, "Note")`. A malformed `.nota` → `compile` throws with the reader's
+ * Drives the real reader — the in-process wasm backend — on the shared integration fixtures and
+ * asserts the pinned **Solid JSX** emit surface (design/solid.md §The pipeline): the jsxify
+ * rewrite (`<NotaDoc>` wrap, `<UlLi>` sentinels, `<For>` recovery, no h-call surface left) and
+ * the prepended imports (`@nota-lang/solid` structural names, the `solid-js` ambient surface,
+ * the ambient prelude for free names). A malformed `.nota` → `compile` throws with the reader's
  * diagnostics.
  */
 
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "@babel/parser";
 import { describe, expect, test } from "vitest";
-import { AMBIENT_PRELUDE_NAMES, compile, RUNTIME_IMPORT } from "../src/lib";
+import {
+  AMBIENT_PRELUDE_NAMES,
+  compile,
+  SOLID_AMBIENT_NAMES
+} from "../src/lib";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // tests/ → packages/compiler → packages → repo root → integration/
@@ -23,66 +26,56 @@ const integrationDir = join(here, "..", "..", "..", "integration");
 
 const read = (name: string) => readFileSync(join(integrationDir, name), "utf8");
 
-describe("compile (emit surface + prepended runtime import)", () => {
-  test("golden.nota: prepends the runtime import; component + Doc + keyed @for + nota-ul-li", () => {
+describe("compile (JSX emit surface + prepended imports)", () => {
+  test("golden.nota: NotaDoc wrap, For recovery, UlLi sentinel, compat constructor", () => {
     const src = read("golden.nota");
     const { code } = compile(src, { sourcePath: "golden.nota" });
 
-    // the reader omits the runtime import; the shim prepends EXACTLY this line.
-    expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
-    expect(code).toContain(
-      'import { h, decode, Fragment, inlineComponent, blockComponent } from "@nota-lang/runtime";'
+    // The structural names the rewrite introduced + the compat constructor, from @nota-lang/solid.
+    expect(code).toMatch(
+      /^import \{ NotaDoc, UlLi, inlineComponent \} from "@nota-lang\/solid";/m
     );
+    // The solid-js ambient surface: createSignal is free in the doc's %-code; For was recovered.
+    expect(code).toMatch(/^import \{ createSignal, For \} from "solid-js";/m);
 
-    // document mode emits the default Doc.
+    // document mode emits the default Doc, body wrapped in <NotaDoc>.
     expect(code).toContain("export default function Doc()");
+    expect(code).toContain("return <NotaDoc>");
 
-    // The component binding stays DOCUMENT-LOCAL (an ordinary lexical statement inside Doc — no
-    // hoist, no export; replay hydration recovers its closure, design/decode.md §Replay
-    // hydration) and carries its
-    // binding name as the constructor's 2nd arg (the island's debug-manifest `comp`).
+    // The component binding stays DOCUMENT-LOCAL through the compat constructor (name-attach
+    // preserved; reader vNext emits a plain arrow and drops both).
     expect(code).toMatch(/let Colorized = inlineComponent\(/);
     expect(code).not.toMatch(/export let Colorized/);
-    expect(code).toContain('}, "Colorized");');
+    expect(code).toContain('"Colorized")');
 
-    // keyed @for — each iteration wraps in Fragment({ key: _i }, …).
-    expect(code).toContain("Fragment({ key: _i }");
-    // the `-` list marker lowers to the `nota-ul-li` sentinel (runtime struct coalesces to <ul><li>).
-    expect(code).toContain('h("nota-ul-li", {}');
-    // the component tag is invoked as a component (identifier, not string).
-    expect(code).toContain("h(Colorized, {}");
-    // Doc's body is decode()-wrapped.
-    expect(code).toContain("return decode(Fragment(");
+    // @for → <For>, with the `-` marker as <UlLi> and the component as a JSX tag.
+    expect(code).toMatch(/<For each=\{\["a", "b"\]\}>/);
+    expect(code).toContain("<UlLi><Colorized>{x}</Colorized></UlLi>");
+
+    // The h-call surface is fully dissolved.
+    expect(code).not.toMatch(/\bh\(/);
+    expect(code).not.toMatch(/\bdecode\(/);
+    expect(code).not.toMatch(/\bFragment\(/);
+    expect(code).not.toContain("@nota-lang/runtime");
   });
 
-  test("note.nota: blockComponent named, aside host, em nesting", () => {
+  test("note.nota: blockComponent named, aside gets a Reforest interior, em stays tight", () => {
     const src = read("note.nota");
     const { code } = compile(src, { sourcePath: "note.nota" });
 
-    expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
     expect(code).toContain("export default function Doc()");
-    // The binding name passed to blockComponent (drives the debug-manifest `comp` for the island).
-    // note.nota's body is a single expression, so the name lands right after the closing paren of
-    // the body (`…[children]), "Note");`) rather than after a `}` (cf. golden's multi-line body).
-    // Document-local — no export (replay hydration recovers the closure).
     expect(code).toMatch(/let Note = blockComponent\(/);
     expect(code).not.toMatch(/export let Note/);
-    expect(code).toContain(', "Note");');
-    expect(code).toContain('h("aside", {}');
-    expect(code).toContain('h("em", {}, ["world"])');
+    expect(code).toContain('"Note")');
+    // aside is a flow container: its interior decodes as flow via <Reforest> (emit policy).
+    expect(code).toMatch(/<aside><Reforest>/);
+    expect(code).toContain('<em>{"world"}</em>');
   });
 
-  test("the prepended emit re-parses as a valid ES module (validity invariant)", () => {
-    // A cheap global catch for codegen/prepend bugs: the result must be syntactically valid JS.
-    // `new Function` won't accept import statements, so strip the import line and check the body
-    // parses (the import itself is a fixed literal we control).
+  test("the emit re-parses as a valid JSX module (validity invariant)", () => {
     const { code } = compile(read("note.nota"), { sourcePath: "note.nota" });
-    const body = code.slice(RUNTIME_IMPORT.length);
-    // Wrap in an async arrow so top-level `export`/`await` (document mode may emit async) don't choke
-    // a bare Function parse: we only assert *the generated statements* tokenize.
-    const withoutExports = body.replace(/^export\s+(default\s+)?/gm, "");
-    expect(
-      () => new Function(`return (async () => { ${withoutExports} })`)
+    expect(() =>
+      parse(code, { sourceType: "module", plugins: ["jsx"] })
     ).not.toThrow();
   });
 
@@ -94,12 +87,8 @@ describe("compile (emit surface + prepended runtime import)", () => {
 
 describe("compile (non-ASCII input — no wasm heap corruption)", () => {
   // Regression: a `.nota` containing a multibyte UTF-8 char (em-dash, U+2014) followed by enough
-  // trailing content used to crash the wasm reader with a dlmalloc assertion
-  // (`psize <= size + max_overhead`) surfacing as `unreachable`. Root cause: wasm-bindgen's
-  // `passStringToWasm0` over-allocates the input buffer (realloc to a worst-case UTF-8 size) and the
-  // reader frees it as a `Box<str>` at content length, a `dealloc` size mismatch that corrupts the
-  // wasm heap. Fixed by nota_wasm's size-tracking `#[global_allocator]`. The crash was heap-layout
-  // sensitive, so we compile repeatedly.
+  // trailing content used to crash the wasm reader with a dlmalloc assertion — see the
+  // size-tracking `#[global_allocator]` in nota_wasm. Heap-layout sensitive, so compile repeatedly.
   const multibyte = [
     ["em-dash (3-byte)", "—"],
     ["e-acute (2-byte)", "é"],
@@ -110,7 +99,6 @@ describe("compile (non-ASCII input — no wasm heap corruption)", () => {
     test(`repeatedly compiles a doc with a ${name} + trailing content`, () => {
       const src = `# Heading\n\nA paragraph with a ${ch} char, followed by plenty of trailing text so the\nbuffer is over-allocated, then a second sentence to be safe.\n`;
       let out = "";
-      // Heap corruption is layout-dependent — one call may pass, so hammer it.
       expect(() => {
         for (let i = 0; i < 50; i++)
           out = compile(src, { sourcePath: "u.nota" }).code;
@@ -129,17 +117,16 @@ describe("compile (non-ASCII input — no wasm heap corruption)", () => {
     }).not.toThrow();
     const { code } = compile(src, { sourcePath: "hello.nota" });
     expect(code).toContain("install — not a");
-    expect(code).toContain('h("nota-ul-li", {}');
+    expect(code).toContain("<UlLi>");
   });
 });
 
 describe("compile (ambient prelude injection + freeNames)", () => {
-  test("free Tex/CodeInline references get a prelude import, after the runtime import", () => {
+  test("free Tex/CodeInline references get a prelude import", () => {
     const { code } = compile("Math $x^2$ and `f(x)`\n");
-    expect(code.startsWith(RUNTIME_IMPORT)).toBe(true);
     // Sorted (the reader reports free names sorted; the filter preserves order).
-    expect(code.slice(RUNTIME_IMPORT.length)).toMatch(
-      /^import \{ CodeInline, Tex \} from "@nota-lang\/prelude";\n/
+    expect(code).toMatch(
+      /^import \{ CodeInline, Tex \} from "@nota-lang\/prelude";$/m
     );
   });
 
@@ -151,7 +138,7 @@ describe("compile (ambient prelude injection + freeNames)", () => {
   test("a config-fn call (secset) injects; a prose mention of its text does not", () => {
     const injected = compile("% secset({ n: 1 })\n# Title\n");
     expect(injected.code).toMatch(
-      /import \{ Heading, secset \} from "@nota-lang\/prelude";\n/
+      /^import \{ Heading, secset \} from "@nota-lang\/prelude";$/m
     );
     const prose = compile("@p{secset( is not a call}\n");
     expect(prose.code).not.toContain("@nota-lang/prelude");
@@ -173,33 +160,32 @@ describe("compile (ambient prelude injection + freeNames)", () => {
     expect(custom.code).toContain('import { Tex } from "/my/prelude.ts";\n');
   });
 
-  test("extraNames: a free useState binds alongside the built-ins; unused extras don't", () => {
-    const { code } = compile("%let s = useState(0)\nMath $x^2$\n", {
+  test("the solid-js ambient surface binds free state/control-flow names", () => {
+    const { code } = compile("%let [n, setN] = createSignal(0)\nhi @{n()}\n");
+    expect(code).toMatch(/^import \{ createSignal \} from "solid-js";$/m);
+  });
+
+  test("extraNames: a free custom name binds alongside the built-ins; unused extras don't", () => {
+    const { code } = compile("%let s = useSiteTheme()\nMath $x^2$\n", {
       prelude: {
         module: "virtual:nota-ambient",
-        extraNames: ["useState", "registerComponents"]
+        extraNames: ["useSiteTheme", "registerWidgets"]
       }
     });
     expect(code).toMatch(
-      /import \{ Tex, useState \} from "virtual:nota-ambient";\n/
+      /import \{ Tex, useSiteTheme \} from "virtual:nota-ambient";\n/
     );
-    expect(code).not.toContain("registerComponents");
+    expect(code).not.toContain("registerWidgets");
   });
 
-  test("default: a free useState stays free (the integrator owns hooks) but is reported", () => {
-    const { code, freeNames } = compile("%let s = useState(0)\nhi\n");
-    expect(code).not.toMatch(/import \{[^}]*useState/);
-    expect(freeNames).toContain("useState");
-  });
-
-  test("freeNames: sorted, includes the runtime surface + ambient refs, excludes bound names", () => {
+  test("freeNames: reader-native (pre-jsxify), sorted, excludes bound names", () => {
     const { freeNames } = compile(read("golden.nota"));
     for (const name of [
       "h",
       "decode",
       "Fragment",
       "inlineComponent",
-      "useState"
+      "createSignal"
     ]) {
       expect(freeNames).toContain(name);
     }
@@ -207,9 +193,12 @@ describe("compile (ambient prelude injection + freeNames)", () => {
     expect(freeNames).toEqual([...freeNames].sort());
   });
 
-  test("AMBIENT_PRELUDE_NAMES covers the component slots and the config fns", () => {
+  test("the ambient name lists cover their surfaces", () => {
     for (const name of ["Tex", "Heading", "Label", "secset", "bibset"]) {
       expect(AMBIENT_PRELUDE_NAMES).toContain(name);
+    }
+    for (const name of ["createSignal", "Show", "For", "onMount"]) {
+      expect(SOLID_AMBIENT_NAMES).toContain(name);
     }
   });
 });
@@ -225,11 +214,9 @@ describe("compile (diagnostics — a reader error throws)", () => {
     }
     expect(thrown).toBeInstanceOf(Error);
     const err = thrown as Error & { diagnostics?: string };
-    // The message names the source and carries the reader's diagnostic text.
     expect(err.message).toContain("failed to compile");
     expect(err.message).toContain("bad.nota");
     expect(err.message.toLowerCase()).toContain("expected");
-    // Raw diagnostics preserved for programmatic consumers (e.g. a Vite overlay).
     expect(typeof err.diagnostics).toBe("string");
     expect((err.diagnostics ?? "").length).toBeGreaterThan(0);
   });

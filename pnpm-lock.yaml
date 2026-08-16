@@ -122,16 +122,28 @@ importers:
 
   packages/compiler:
     dependencies:
-      '@nota-lang/runtime':
-        specifier: workspace:*
-        version: link:../runtime
+      '@babel/generator':
+        specifier: ^7.28.0
+        version: 7.29.8
+      '@babel/parser':
+        specifier: ^7.28.0
+        version: 7.29.8
+      '@babel/traverse':
+        specifier: ^7.28.0
+        version: 7.29.8
+      '@babel/types':
+        specifier: ^7.28.0
+        version: 7.29.8
       '@nota-lang/wasm':
         specifier: workspace:*
         version: link:../wasm
     devDependencies:
-      '@nota-lang/react':
-        specifier: workspace:*
-        version: link:../react
+      '@types/babel__generator':
+        specifier: ^7.27.0
+        version: 7.27.0
+      '@types/babel__traverse':
+        specifier: ^7.28.0
+        version: 7.28.0
 
   packages/language-server:
     dependencies:

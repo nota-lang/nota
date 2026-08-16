@@ -1,6 +1,6 @@
 %let Colorized = inlineComponent((children) => {
-  let [color, setColor] = useState("red");
-  return @span[onClick: () => setColor("green")][style: {color}]{@children};
+  let [color, setColor] = createSignal("red");
+  return @span[onClick: () => setColor("green")][style: {color: color()}]{@children};
 })
 
 @for (x of ["a", "b"]) {

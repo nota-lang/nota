@@ -20,16 +20,20 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
-    "@nota-lang/runtime": "workspace:*",
+    "@babel/generator": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/types": "^7.28.0",
     "@nota-lang/wasm": "workspace:*"
-  },
-  "devDependencies": {
-    "@nota-lang/react": "workspace:*"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/compiler"
+  },
+  "devDependencies": {
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.28.0"
   }
 }
