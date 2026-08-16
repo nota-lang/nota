@@ -23,7 +23,7 @@ export default defineConfig(() => ({
         test: {
           name: "build",
           environment: "node",
-          include: ["tests/build.test.ts"],
+          include: ["tests/build.test.ts", "tests/bin.test.ts"],
           deps: inlineDeps,
           testTimeout: 120_000,
           hookTimeout: 120_000

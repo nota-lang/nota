@@ -44,16 +44,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { nota } from "@nota-lang/vite";
 import type { InlineConfig, Plugin as VitePlugin } from "vite";
 
-/**
- * This module's directory, resolved in a way that works **both** when shipped as the rollup
- * CJS bundle (`dist/cli.cjs`) and when loaded as ESM under vitest (`src/build.ts`). Vite's
- * lib-CJS build rewrites `import.meta.url` to `undefined`, so a bare
- * `fileURLToPath(import.meta.url)` throws there; under CJS the `__dirname` global is correct.
- */
-const MODULE_DIR =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : dirname(fileURLToPath(import.meta.url));
+/** This module's directory (ESM everywhere: the `dist/cli.js` bundle and vitest both load ESM). */
+const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 
 /** Virtual module ids (resolved/loaded by {@link virtualsPlugin}). */
 const SSR_ENTRY_ID = "virtual:nota-ssr-entry";
