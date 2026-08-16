@@ -8,31 +8,37 @@
   "main": "dist/lib.js",
   "exports": {
     ".": {
+      "types": "./dist/lib.d.ts",
+      "solid": "./dist/lib.js",
       "default": "./dist/lib.js"
     },
-    "./paper.css": "./css/paper.css",
-    "./*": {
-      "default": "./dist/*.js"
-    }
+    "./paper.css": "./css/paper.css"
   },
   "type": "module",
   "depot": {
-    "platform": "node",
+    "platform": "browser",
     "target": "lib",
     "depot-version": "0.3.4"
   },
   "dependencies": {
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/runtime": "workspace:*",
+    "@nota-lang/solid": "workspace:*",
     "katex": "^0.16.22"
   },
   "devDependencies": {
-    "@types/katex": "^0.16.7"
+    "@types/katex": "^0.16.7",
+    "solid-js": "^1.9.3",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.8"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/paper"
+  },
+  "types": "dist/lib.d.ts",
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
   }
 }

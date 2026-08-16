@@ -4,12 +4,12 @@
  * {@link inferRule} builds KaTeX-legal TeX (`\dfrac`, `\quad`-joined premises, optional
  * `\begin{array}{c}` chunking via `premisesPerRow`, and `\textsf{\small …}` for the name —
  * KaTeX has no `\textsc`, empirically);
- * {@link IR} is the component form, rendering through the prelude's `Tex` slot as display math.
+ * {@link IR} is the component form, rendering through the prelude's `Tex` as display math.
  * A rule with no premises uses a thin-space numerator (`\dfrac{\,}{c}`) so the bar still draws.
  */
 
 import { Tex } from "@nota-lang/prelude";
-import { type CompProps, h } from "@nota-lang/runtime";
+import type { JSX } from "solid-js";
 
 /** Options for {@link inferRule}. */
 export interface InferRuleOptions {
@@ -49,9 +49,14 @@ export function inferRule(opts: InferRuleOptions): string {
 /**
  * The inference-rule component. Props: `top` (premise TeX, a string or string array), `bot`
  * (the conclusion TeX — required), `name` (rule name), `perRow` (premises per numerator row).
- * Renders as display math through the `Tex` slot.
+ * Renders as display math through `Tex`.
  */
-export function IR(props: CompProps): unknown {
+export function IR(props: {
+  top?: string | string[];
+  bot?: string;
+  name?: string;
+  perRow?: number;
+}): JSX.Element {
   const bot = props.bot;
   if (typeof bot !== "string" || bot.trim() === "") {
     throw new Error(
@@ -67,12 +72,9 @@ export function IR(props: CompProps): unknown {
         : [String(top)];
   const name = typeof props.name === "string" ? props.name : undefined;
   const perRow = typeof props.perRow === "number" ? props.perRow : undefined;
-  return h(Tex, { display: true }, [
-    inferRule({
-      premises,
-      conclusion: bot,
-      name,
-      premisesPerRow: perRow
-    })
-  ]);
+  return (
+    <Tex display>
+      {inferRule({ premises, conclusion: bot, name, premisesPerRow: perRow })}
+    </Tex>
+  );
 }

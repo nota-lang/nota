@@ -7,19 +7,18 @@
  * `(...args) => texRef("gram-" + k, tex(...args))` — so `$|@(L.sessty)$` renders σ as a clickable
  * reference to the kind's grammar rows, and `$|@(L.arrow(a, b))$` likewise for a filled form.
  *
- * `L.Bnf` is a component rendering the grammar itself: one `Definition` block per kind (anchor id
- * `gram-<kind>`), each containing that kind's rows as a KaTeX display `\begin{array}{llcll}`.
- * **Inside the table nothing is texRef-wrapped** — the table is the definition *site*, not a
- * reference site — so `Bnf` (and `sig` resolution within it) uses a parallel set of *plain*
- * handles (raw metas, form fns returning raw TeX). Clicking a wrapped metavariable anywhere in the
- * paper's math pops the kind's grammar rows from the tooltip bank; double-click jumps to the table.
+ * `L.Bnf` renders the grammar itself: one `Definition` block per kind (anchor id `gram-<kind>`),
+ * each containing that kind's rows as a KaTeX display `\begin{array}{llcll}` — passed twice:
+ * as the definition's body (the anchored table) and as its explicit `tooltip` (the bank entry a
+ * reference pops). **Inside the table nothing is texRef-wrapped** — the table is the definition
+ * *site* — so `Bnf` (and `sig` resolution within it) uses a parallel set of *plain* handles.
  *
  * Note `texRef` needs KaTeX HTML output for the `\htmlData` attribute to survive — set
  * `mathset({ output: "html" })` site-wide (see the prelude docs).
  */
 
 import { Definition, Tex, texRef } from "@nota-lang/prelude";
-import { type CompProps, h, type VNode } from "@nota-lang/runtime";
+import type { JSX } from "solid-js";
 
 /** One production of a kind. */
 export interface FormSpec {
@@ -52,7 +51,7 @@ export type LanguageHandles = Record<string, any>;
 
 /** The result of {@link language}: kind/form handles plus the `Bnf` table component. */
 export type Language = LanguageHandles & {
-  Bnf: (props: CompProps) => unknown;
+  Bnf: () => JSX.Element;
 };
 
 /**
@@ -130,14 +129,22 @@ export function language(spec: LanguageSpec): Language {
     }
   }
 
-  const Bnf = (_props: CompProps): unknown => {
-    const blocks: VNode[] = Object.entries(spec).map(([k, kind]) =>
-      h(Definition, { id: `gram-${k}`, block: true }, [
-        h(Tex, { display: true }, [kindRows(kind, plainHandles)])
-      ])
-    );
-    return h("div", { class: "nota-bnf" }, blocks);
-  };
+  const Bnf = (): JSX.Element => (
+    <div class="nota-bnf">
+      {Object.entries(spec).map(([k, kind]) => {
+        const rows = kindRows(kind, plainHandles);
+        return (
+          <Definition
+            id={`gram-${k}`}
+            block
+            tooltip={<Tex display>{rows}</Tex>}
+          >
+            <Tex display>{rows}</Tex>
+          </Definition>
+        );
+      })}
+    </div>
+  );
 
   return { ...refHandles, Bnf };
 }

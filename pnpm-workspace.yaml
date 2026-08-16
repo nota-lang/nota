@@ -1,13 +1,12 @@
 packages:
   - 'packages/*'
   # Mothballed by the Solid specialization (design/solid.md; this branch): the React adapter,
-  # the React Router integrator, paper (h-call components pending the Solid port), and the
+  # the React Router integrator, and the
   # playground (a React app over the old runtime; returns with in-browser JSX compilation —
   # design/solid.md §Follow-ups). Dirs kept for diffing; excluded so the workspace stays
   # installable without React.
   - '!packages/react'
   - '!packages/react-router'
-  - '!packages/paper'
   - '!packages/playground'
 
 allowBuilds:
