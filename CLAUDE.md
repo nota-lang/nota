@@ -1,9 +1,10 @@
 # Nota — orientation for Claude
 
-> **Branch `solid`:** this branch runs the Solid-only specialization experiment —
-> **`design/solid.md` supersedes decode.md here** (reforest-based `<Reforest>` + doc-state store
-> replace decode/islands/replay; emit is Solid JSX via the compiler's `jsxify`; react/
-> react-router/paper/playground are workspace-excluded). The description below documents master.
+> **Branch `solid`:** this branch runs the Solid-only specialization —
+> **`design/solid.md` supersedes decode.md here.** The reader (oxc branch `solid`) emits Solid
+> JSX natively; `<Reforest>` + the doc-state store replace decode/islands/replay;
+> runtime/react/react-router are deleted; paper + playground are ported. The description below
+> documents master.
 
 Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers to **hyperscript**
 (`h`/`Fragment`/`decode` calls, NOT JSX) for any JSX framework (React, Solid), with a Pollen-style
