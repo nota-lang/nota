@@ -1,162 +1,179 @@
 /**
  * **Generator for the resolution-independent typing preamble** — the typed emit surface
- * (design/decode.md §The typed surface) made to type-check with no `node_modules`.
+ * (design/solid.md) made to type-check with no `node_modules`.
  *
- * The virtual `.tsx` references the runtime surface (`h` / `decode` / `Fragment` /
- * `inlineComponent` / `blockComponent`) and the ambient prelude slots (`Tex` / `CodeInline` /
- * `Heading` / …) as free identifiers. For a `.nota` **outside** `packages/*` there is no
- * `node_modules/@nota-lang/runtime` to resolve an `import` against — so the old preamble's
- * `import { h, … } from "@nota-lang/runtime"` bound to nothing and every runtime symbol became
- * `any` ("`blockComponent` has no inferred type").
+ * The virtual `.tsx` is **Solid JSX**: it references the structural components
+ * (`NotaDoc`/`Reforest`/`UlLi`/`OlLi`/`For`/`Dynamic`), the ambient prelude components
+ * (`Tex`/`Heading`/…), and the `solid-js` state surface (`createSignal`, `Show`, …) as free
+ * identifiers, and its markup is JSX syntax. For a `.nota` **outside** `packages/*` there is no
+ * `node_modules` to resolve imports against, so the preamble supplies everything ambiently:
  *
- * This generator inlines the runtime's **built** `.d.ts` as **module-local ambient declarations** at
- * the top of the virtual `.tsx`: the runtime's own type surface (its `.d.ts` closure
- * {@link RUNTIME_DTS_CLOSURE}) with the `export` keyword stripped (so the names are module-local, not
- * re-exported) and the intra-package relative `import`s removed (the referenced types are all in the
- * closure). The reader emits `h`/`decode`/`Fragment`/`inlineComponent`/`blockComponent` as **free
- * identifiers**, so these ambient declarations satisfy them with no import and no module resolution —
- * hence no `node_modules`. A `declare module` would instead be read as a *module augmentation* (the
- * virtual `.tsx` is a module) and fail when `@nota-lang/runtime` is absent from disk; module-local
- * ambient declarations avoid that entirely. The closure is verbatim, so the preamble **cannot drift**
- * from the shipped runtime types — a `preamble-sync` test re-runs this and fails on any mismatch.
+ * - a **global `JSX` namespace** (classic JSX resolution — no `jsxImportSource`, hence no module
+ *   resolution): `Element` is `unknown`-permissive; `IntrinsicElements` seeds common elements
+ *   with their distinctive attributes over a permissive open-map base (the old runtime
+ *   `NotaIntrinsicElements` table) — `@a[href]` completes and value-checks while `nota-*`/custom
+ *   tags stay legal ("never lie");
+ * - the structural + prelude + solid surfaces as **module-local ambient declarations** —
+ *   `For`/`Show`/`createSignal` carry real generic signatures, so an `@for` body's item type
+ *   flows from the iterable.
  *
- * The output is baked into `src/preamble.generated.ts` at build time (via `scripts/gen-preamble.ts`)
- * so the shipped server carries the preamble as a constant — it does not read the runtime `.d.ts` at
- * editor runtime.
+ * The output is baked into `src/preamble.generated.ts` (via `scripts/gen-preamble.ts`) so the
+ * shipped server carries the preamble as a constant; the `preamble-sync` test fails CI on drift.
+ * Whole lines only — prepending shifts every generated offset by a clean constant.
  */
 
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { AMBIENT_PRELUDE_NAMES } from "@nota-lang/compiler";
+import {
+  AMBIENT_PRELUDE_NAMES,
+  SOLID_AMBIENT_NAMES
+} from "@nota-lang/compiler";
 
 /**
- * The runtime `.d.ts` files whose declarations the emit surface's type closure needs, in dependency
- * order. Closed under intra-package imports: every relative `import` among the runtime modules
- * targets a file already in this set, so stripping those imports leaves a self-contained set of
- * declarations (each referenced type is declared in the same concatenation). Verified by the
- * `preamble-sync` test type-checking a representative virtual `.tsx`.
+ * The global JSX namespace (classic resolution — the TS project sets `jsx` so `.tsx` parses, and
+ * this namespace types it without any `jsx-runtime` module lookup). `declare global` is legal
+ * here because the virtual `.tsx` is a module (it has `export default`).
  */
-export const RUNTIME_DTS_CLOSURE = [
-  "dom",
-  "raw",
-  "doc",
-  "vnode",
-  "component",
-  "h"
-] as const;
-
-/** Resolve the built runtime `dist/` directory (where the `.d.ts` live) via node resolution. */
-function runtimeDistDir(): string {
-  const require = createRequire(import.meta.url);
-  // `@nota-lang/runtime`'s entry resolves to `dist/lib.js`; the `.d.ts` are its siblings.
-  return dirname(require.resolve("@nota-lang/runtime"));
-}
-
-/**
- * Turn a runtime `.d.ts` body into module-local ambient declarations: drop the intra-package
- * relative `import`s and every `export { … }`/re-export line, and strip the leading `export ` keyword
- * from each declaration (keeping any `declare`, needed for an ambient `const`/`function` at module
- * scope). The result declares the same names *locally* (not re-exported), so the emit's free
- * `h`/`decode`/… identifiers resolve to them — with no import and no module resolution. The
- * referenced types are all in the closure, so removing the relative imports leaves every
- * cross-reference resolvable.
- */
-function stripToLocalAmbient(dts: string): string {
-  return (
-    dts
-      .split("\n")
-      .filter(line => {
-        const t = line.trim();
-        // Drop imports (all — the closure is self-contained) and any `export { … }` / re-export lines.
-        if (/^import\b/.test(t)) return false;
-        if (/^export\s*\{/.test(t)) return false;
-        return true;
-      })
-      // Strip the leading `export ` keyword (`export declare function h` → `declare function h`,
-      // `export interface X` → `interface X`), keeping `declare` for ambient const/function.
-      .map(line => line.replace(/^(\s*)export\s+/, "$1"))
-      .join("\n")
-  );
-}
-
-/**
- * The runtime surface as module-local ambient declarations — the `.d.ts` closure inlined so the
- * emit's free `h`/`decode`/`Fragment`/`inlineComponent`/`blockComponent` identifiers resolve to
- * their real (typed-overload) signatures without importing `@nota-lang/runtime`.
- */
-function runtimeAmbientBlock(): string {
-  const dir = runtimeDistDir();
-  return `${RUNTIME_DTS_CLOSURE.map(name =>
-    stripToLocalAmbient(readFileSync(join(dir, `${name}.d.ts`), "utf8"))
-  ).join("\n")}\n`;
-}
-
-/**
- * Ambient declarations for the free identifiers the emit references that are the prelude's slots —
- * the registry slots plus the doc-state family and its config fns (design/decode.md §The registry &
- * config, §Doc-state). The reader emits these as free identifiers, so they are declared as
- * ambient **globals** (not module members). Each is a plain function tag with its *real* prop shape —
- * the typed `h` overloads (a function-tag overload inferring props from the tag's parameter type)
- * make these narrowed types flow at the `h(Tex, …)` / `h(Heading, …)` call sites, so the old
- * index-signature `SLOT` workaround (which existed only to dodge a contravariant tag-assignability
- * failure) is gone. Each keeps a permissive `[prop: string]: unknown` tail so an unexpected reader-
- * emitted prop never errors ("never lie"), while the named props give completion + value-checking.
- *
- * `useState` is the framework hook the integrator supplies (the canonical golden references it as a
- * free identifier in a component body); typed as the React-shaped hook.
- */
-const AMBIENT_PRELUDE = [
-  "declare const useState: <T>(init: T) => [T, (v: T) => void];",
-  "declare const CodeInline: (props: { lang?: string; [prop: string]: unknown }) => unknown;",
-  "declare const CodeBlock: (props: { lang?: string; [prop: string]: unknown }) => unknown;",
-  "declare const Tex: (props: { display?: boolean; [prop: string]: unknown }) => unknown;",
-  "declare const Heading: (props: { rank: number; id?: string; [prop: string]: unknown }) => unknown;",
-  "declare const Toc: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const Label: (props: { id?: string; [prop: string]: unknown }) => unknown;",
-  "declare const Ref: (props: { id?: string; [prop: string]: unknown }) => unknown;",
-  "declare const Footnote: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const FootnoteMark: (props: { label?: string; [prop: string]: unknown }) => unknown;",
-  "declare const FootnoteText: (props: { label?: string; [prop: string]: unknown }) => unknown;",
-  "declare const Footnotes: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const FootnotesList: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const Cite: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const Bibliography: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const Title: (props: { [prop: string]: unknown }) => unknown;",
-  "declare const Definition: (props: { id: string; label?: unknown; tooltip?: unknown; block?: boolean; [prop: string]: unknown }) => unknown;",
-  "declare function texRef(id: string, tex: string): string;",
-  "declare function lstset(options: { lang?: string; theme?: string; langs?: unknown; themes?: unknown[] }): void;",
-  "declare function mathset(options: { macros?: Record<string, string> }): void;",
-  "declare function secset(options: { [k: string]: unknown }): void;",
-  "declare function bibset(options: { [k: string]: unknown }): void;",
-  "declare function registerComponents(components: Record<string, unknown>): void;",
+const JSX_NAMESPACE = [
+  "interface NotaGlobalAttributes {",
+  "  id?: string;",
+  "  class?: string;",
+  "  style?: string | Record<string, string | number>;",
+  "  title?: string;",
+  "  role?: string;",
+  "  hidden?: boolean;",
+  "  tabindex?: number;",
+  '  dir?: "ltr" | "rtl" | "auto";',
+  "  lang?: string;",
+  "  children?: unknown;",
+  "  [attr: string]: unknown;",
+  "}",
+  "declare global {",
+  "  namespace JSX {",
+  "    type Element = unknown;",
+  "    interface ElementChildrenAttribute {",
+  "      children: unknown;",
+  "    }",
+  "    interface IntrinsicElements {",
+  "      a: NotaGlobalAttributes & { href?: string; target?: string; rel?: string; download?: string | boolean };",
+  '      img: NotaGlobalAttributes & { src?: string; alt?: string; width?: number | string; height?: number | string; loading?: "eager" | "lazy" };',
+  "      input: NotaGlobalAttributes & { type?: string; name?: string; value?: string | number; placeholder?: string; disabled?: boolean; checked?: boolean; required?: boolean; readonly?: boolean };",
+  "      label: NotaGlobalAttributes & { for?: string };",
+  "      td: NotaGlobalAttributes & { colspan?: number; rowspan?: number; headers?: string; scope?: string };",
+  "      th: NotaGlobalAttributes & { colspan?: number; rowspan?: number; headers?: string; scope?: string };",
+  '      ol: NotaGlobalAttributes & { start?: number; reversed?: boolean; type?: "1" | "a" | "A" | "i" | "I" };',
+  "      [tag: string]: NotaGlobalAttributes;",
+  "    }",
+  "  }",
+  "}",
   ""
 ].join("\n");
 
 /**
- * Build the full typing preamble text — the runtime surface as module-local ambient declarations
- * (inlined `.d.ts`) + the ambient prelude declarations. Whole lines only (every constituent ends in
- * `\n`), so prepending it to the bare virtual `.tsx` shifts every generated offset by a clean
- * constant and no mapping ever points *into* the preamble.
+ * The `@nota-lang/solid` structural surface the emit references free (design/solid.md §The
+ * pipeline): the document wrapper, the restructurer, the list items, Solid's `For` (typed
+ * generically — the `@for` item type flows), `Dynamic` for dynamic tags, and the compat
+ * constructors.
+ */
+const AMBIENT_STRUCTURAL = [
+  "declare const NotaDoc: (props: { children?: unknown }) => unknown;",
+  "declare const Reforest: (props: { children?: unknown; tight?: boolean }) => unknown;",
+  "declare const UlLi: (props: { children?: unknown }) => unknown;",
+  "declare const OlLi: (props: { children?: unknown }) => unknown;",
+  "declare const For: <T>(props: { each: readonly T[] | undefined | null; fallback?: unknown; children: (item: T, index: () => number) => unknown }) => unknown;",
+  "declare const Dynamic: (props: { component: unknown; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const inlineComponent: <P extends { children?: unknown }>(fn: (children: unknown, props: P) => unknown) => (props: P) => unknown;",
+  "declare const blockComponent: typeof inlineComponent;",
+  ""
+].join("\n");
+
+/**
+ * The `solid-js` ambient state/control-flow surface (the compiler's {@link SOLID_AMBIENT_NAMES})
+ * — pragmatic signatures: generics where inference pays (signals, memos, resources, `Show`,
+ * `Index`), permissive `unknown` elsewhere.
+ */
+const AMBIENT_SOLID = [
+  "declare const createSignal: <T>(value: T, options?: { equals?: false | ((prev: T, next: T) => boolean); name?: string }) => [() => T, (v: T | ((prev: T) => T)) => T];",
+  "declare const createMemo: <T>(fn: (prev?: T) => T, value?: T) => () => T;",
+  "declare const createEffect: <T>(fn: (prev?: T) => T, value?: T) => void;",
+  "declare const createResource: <T, S = true>(source: S | (() => S), fetcher?: (source: S) => T | Promise<T>) => [() => T | undefined, { refetch: () => void; mutate: (v: T) => T }];",
+  "declare const createContext: <T>(defaultValue?: T) => { id: symbol; defaultValue: T | undefined };",
+  "declare const useContext: <T>(context: { id: symbol; defaultValue: T | undefined }) => T | undefined;",
+  "declare const batch: <T>(fn: () => T) => T;",
+  "declare const untrack: <T>(fn: () => T) => T;",
+  "declare const on: (deps: unknown, fn: (...args: unknown[]) => unknown, options?: { defer?: boolean }) => (...args: unknown[]) => unknown;",
+  "declare const onMount: (fn: () => void) => void;",
+  "declare const onCleanup: (fn: () => void) => void;",
+  "declare const children: (fn: () => unknown) => { (): unknown; toArray(): unknown[] };",
+  "declare const mergeProps: (...sources: unknown[]) => Record<string, unknown>;",
+  "declare const splitProps: <T extends Record<string, unknown>>(props: T, ...keys: (keyof T)[][]) => Record<string, unknown>[];",
+  "declare const Show: <T>(props: { when: T | undefined | null | false; keyed?: boolean; fallback?: unknown; children?: unknown | ((item: () => T) => unknown) }) => unknown;",
+  "declare const Index: <T>(props: { each: readonly T[] | undefined | null; fallback?: unknown; children: (item: () => T, index: number) => unknown }) => unknown;",
+  "declare const Switch: (props: { fallback?: unknown; children?: unknown }) => unknown;",
+  "declare const Match: <T>(props: { when: T | undefined | null | false; children?: unknown }) => unknown;",
+  "declare const Suspense: (props: { fallback?: unknown; children?: unknown }) => unknown;",
+  "declare const ErrorBoundary: (props: { fallback: unknown | ((err: unknown, reset: () => void) => unknown); children?: unknown }) => unknown;",
+  ""
+].join("\n");
+
+/**
+ * Ambient declarations for the prelude components + config fns (design/solid.md §The prelude).
+ * Each is a plain component with its *real* named props over a permissive `[prop: string]:
+ * unknown` tail — named props give completion + value-checking; the tail keeps "never lie".
+ */
+const AMBIENT_PRELUDE = [
+  "declare const CodeInline: (props: { children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const CodeBlock: (props: { lang?: string; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Tex: (props: { display?: boolean; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Heading: (props: { rank?: number; id?: string; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Toc: (props: { depth?: number; [prop: string]: unknown }) => unknown;",
+  "declare const Label: (props: { id?: string; [prop: string]: unknown }) => unknown;",
+  "declare const Ref: (props: { id?: string; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Footnote: (props: { children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const FootnoteMark: (props: { label?: string; [prop: string]: unknown }) => unknown;",
+  "declare const FootnoteText: (props: { label?: string; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Footnotes: (props: { [prop: string]: unknown }) => unknown;",
+  "declare const FootnotesList: (props: { [prop: string]: unknown }) => unknown;",
+  "declare const Cite: (props: { children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Bibliography: (props: { [prop: string]: unknown }) => unknown;",
+  "declare const Title: (props: { children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare const Definition: (props: { id: string; label?: unknown; tooltip?: unknown; block?: boolean; children?: unknown; [prop: string]: unknown }) => unknown;",
+  "declare function texRef(id: string, tex: string): string;",
+  "declare function lstset(options: { lang?: string; theme?: string; langs?: unknown; themes?: unknown[] }): void;",
+  'declare function mathset(options: { macros?: Record<string, string>; output?: "mathml" | "html" | "htmlAndMathml" }): void;',
+  "declare function secset(options: { numberDepth?: number }): void;",
+  'declare function bibset(options: { src?: Record<string, { author?: string; title?: string; year?: string | number; url?: string }>; style?: "numeric" | "alpha" }): void;',
+  ""
+].join("\n");
+
+/**
+ * Build the full typing preamble text: the global JSX namespace + the structural, solid-js, and
+ * prelude surfaces as module-local ambient declarations. Whole lines only.
  *
- * Called at **build time** by `scripts/gen-preamble.ts` (baked into `preamble.generated.ts`) and by
- * the `preamble-sync` drift test.
+ * Called at **build time** by `scripts/gen-preamble.ts` (baked into `preamble.generated.ts`) and
+ * by the `preamble-sync` drift test.
  */
 export function buildPreamble(): string {
-  // Coverage guard: every compiler-declared ambient name must have a typing here, so the
-  // compiler's AMBIENT_PRELUDE_NAMES growing without a preamble update fails generation (and the
-  // preamble-sync test in CI) instead of silently surfacing "Cannot find name" diagnostics.
-  const missing = AMBIENT_PRELUDE_NAMES.filter(
+  // Coverage guards: every compiler-declared ambient name must have a typing here, so a name
+  // list growing without a preamble update fails generation (and the preamble-sync test in CI)
+  // instead of silently surfacing "Cannot find name" diagnostics.
+  const missingPrelude = AMBIENT_PRELUDE_NAMES.filter(
     name =>
       !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(
         AMBIENT_PRELUDE
       )
   );
+  // `For` lives in the structural block (the reader emits it); accept either home.
+  const missingSolid = SOLID_AMBIENT_NAMES.filter(
+    name =>
+      !new RegExp(`^declare (const|function) ${name}\\b`, "m").test(
+        AMBIENT_STRUCTURAL + AMBIENT_SOLID
+      )
+  );
+  const missing = [...missingPrelude, ...missingSolid];
   if (missing.length > 0) {
     throw new Error(
-      `preamble-gen: ambient prelude names missing a typing: ${missing.join(", ")} — ` +
-        "add declarations to AMBIENT_PRELUDE in preamble-gen.ts"
+      `preamble-gen: ambient names missing a typing: ${missing.join(", ")} — ` +
+        "add declarations in preamble-gen.ts"
     );
   }
-  return runtimeAmbientBlock() + AMBIENT_PRELUDE;
+  return JSX_NAMESPACE + AMBIENT_STRUCTURAL + AMBIENT_SOLID + AMBIENT_PRELUDE;
 }

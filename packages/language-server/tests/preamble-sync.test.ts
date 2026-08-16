@@ -29,9 +29,9 @@ describe("preamble generation", () => {
     // The typed `h` overloads and the marked-component constructors are present as module-local
     // ambient declarations (no import, no `declare module` augmentation) — so they resolve with no
     // `node_modules` (asserted end-to-end in `typed-surface.test.ts`).
-    expect(PREAMBLE).toContain("declare function h<");
-    expect(PREAMBLE).toContain("declare function blockComponent");
-    expect(PREAMBLE).toContain("declare function inlineComponent");
+    expect(PREAMBLE).toContain("declare const NotaDoc");
+    expect(PREAMBLE).toContain("declare const blockComponent");
+    expect(PREAMBLE).toContain("declare const inlineComponent");
     // …and the ambient prelude slots the emit references as free identifiers.
     expect(PREAMBLE).toContain("declare const Tex:");
     expect(PREAMBLE).toContain("declare const Heading:");

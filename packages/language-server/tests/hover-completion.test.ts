@@ -9,7 +9,7 @@
  *     string`); hover on a component identifier shows the binding's type (`@Aside` → `const Aside:
  *     CompFn`);
  *   - **completion** inside a `%` block / interpolation offers in-scope bindings — including a
- *     component declared earlier in the document and the ambient `useState`;
+ *     component declared earlier in the document and the ambient `createSignal`;
  *   - the **capability gates**: a *host* tag (`@p`) is unmapped → offers nothing; a
  *     *component identifier* (`@Aside`) is navigation+hover but **not** completion/format/structure.
  */
@@ -50,9 +50,9 @@ describe("hover (TS quickInfo mapped to .nota)", () => {
 
   test("hover on a component identifier @Aside shows the binding's type", () => {
     const h = createFeatureHarness(DOC);
-    // `inlineComponent(...)` returns the runtime `CompFn` type — hover on the *use* reports it,
+    // `inlineComponent(...)` returns the preamble's component-fn type — hover on the *use* reports it,
     // proving the component-identifier range carries `semantic` (hover) back to `.nota`.
-    expect(hoverAt(h, ASIDE_USE)).toBe("const Aside: CompFn");
+    expect(hoverAt(h, ASIDE_USE)).toContain("const Aside: (props:");
   });
 
   test("hover on the % binding site itself shows its type", () => {
@@ -68,8 +68,8 @@ describe("completion (TS completions mapped to .nota)", () => {
     // The earlier `%` bindings are in scope…
     expect(names.has("greeting")).toBe(true);
     expect(names.has("Aside")).toBe(true);
-    // …as is the ambient-prelude `useState` (supplied by the preamble).
-    expect(names.has("useState")).toBe(true);
+    // …as is the ambient `createSignal` (supplied by the preamble).
+    expect(names.has("createSignal")).toBe(true);
   });
 
   test("completion in a % block offers a component declared earlier in the document", () => {

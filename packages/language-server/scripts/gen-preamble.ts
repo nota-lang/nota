@@ -20,7 +20,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildPreamble } from "../src/preamble-gen.ts";
 
-const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "preamble.generated.ts");
+const OUT = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "src",
+  "preamble.generated.ts"
+);
 
 const preamble = buildPreamble();
 const file = `/**

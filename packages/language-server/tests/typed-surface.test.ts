@@ -117,7 +117,7 @@ describe("typed surface resolves with no node_modules (D3)", () => {
     expect(hover, "no hover — the runtime import did not resolve").toBeTruthy();
     // The signature mentions the constructor and its component-body / CompFn types.
     expect(hover).toMatch(/blockComponent/);
-    expect(hover).toMatch(/Comp(Body|Fn)/);
+    expect(hover).toContain("(children: unknown, props:");
   });
 });
 

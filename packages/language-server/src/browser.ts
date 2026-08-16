@@ -60,7 +60,10 @@ const TSCONFIG = JSON.stringify({
     allowJs: true,
     skipLibCheck: true,
     strict: true,
-    noEmit: true
+    noEmit: true,
+    // The virtual emit is Solid JSX; "preserve" + the preamble's global JSX namespace types it
+    // with classic resolution — no jsx-runtime module lookup, so still disk-free.
+    jsx: "preserve"
   }
 });
 

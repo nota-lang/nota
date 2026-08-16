@@ -57,16 +57,20 @@ function tokenAt(
 }
 
 describe("semantic tokens (TS classifications mapped to .nota, gated by `semantic`)", () => {
-  test("a component identifier (@Aside) gets a variable token at its .nota offset", () => {
+  test("the component binding (Aside) gets a semantic token at its .nota offset", () => {
     const h = createFeatureHarness(DOC);
     const tokens = semanticTokensAt(h);
-    const tok = tokenAt(tokens, ASIDE_USE);
-    // `@Aside` lowers to a reference `h(Aside, …)`; TS classifies the binding ref as a variable, and
-    // the component-identifier mapping (`semantic:true`) carries it back onto the `.nota` `Aside`.
+    // `@Aside` is a JSX tag name now, and TS's 2020 semantic classifier does not classify JSX
+    // element-name references (hover/nav on the tag still work — see hover-completion). The
+    // asserted token is therefore the *binding* in the `% const Aside = …` statement (an
+    // EmbeddedJs mapping); reader-driven highlighting owns the tag's color.
+    const tok = tokens.find(
+      t =>
+        t.length === "Aside".length &&
+        DOC.slice(t.notaStart, t.notaStart + t.length) === "Aside"
+    );
     expect(tok, JSON.stringify(tokens)).toBeDefined();
-    expect(tok!.notaStart).toBe(ASIDE_USE);
-    expect(tok!.length).toBe("Aside".length);
-    expect(tok!.tokenType).toBe("variable");
+    expect(["variable", "function"]).toContain(tok!.tokenType);
   });
 
   test("an embedded variable (@(greeting)) gets a variable token at its .nota offset", () => {

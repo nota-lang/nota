@@ -15,13 +15,13 @@
 
 import type { CodeMapping as ReaderCodeMapping } from "@nota-lang/compiler";
 import { describe, expect, test } from "vitest";
+import { extendMappings } from "../src/language-plugin";
 import {
   buildVirtual,
   PREAMBLE,
   PREAMBLE_LENGTH,
   shiftMappings
 } from "../src/lib";
-import { extendMappings } from "../src/language-plugin";
 
 describe("extendMappings (member-access segment extension)", () => {
   const caps = {
@@ -85,10 +85,10 @@ describe("preamble", () => {
     expect(PREAMBLE_LENGTH).toBe(PREAMBLE.length);
     // The runtime surface the reader references as free identifiers is declared module-locally
     // (resolution-independent: no import, so h/decode/Fragment resolve with no node_modules).
-    expect(PREAMBLE).toContain("declare function h<");
-    expect(PREAMBLE).toContain("declare function decode(");
+    expect(PREAMBLE).toContain("declare const NotaDoc");
+    expect(PREAMBLE).toContain("declare const For");
     // The ambient prelude free identifiers are declared.
-    expect(PREAMBLE).toContain("declare const useState:");
+    expect(PREAMBLE).toContain("declare const createSignal:");
   });
 });
 

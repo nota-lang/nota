@@ -163,7 +163,7 @@ test("hover answers through the virtual .tsx", async () => {
     textDocument: { uri: DOC_URI },
     position: { line: 1, character: 6 } // inside `Note`
   })) as { contents: { value: string } } | null;
-  expect(hover?.contents.value).toContain("CompFn");
+  expect(hover?.contents.value).toContain("(props:");
 });
 
 test("reader-driven semantic tokens serve over postMessage", async () => {

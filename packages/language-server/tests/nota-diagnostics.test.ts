@@ -24,7 +24,7 @@ describe("EOF recovery → non-empty virtual", () => {
   test("`@a[` still emits the props object literal + a completion anchor mapping", () => {
     const { code, mappings } = buildVirtual("@a[");
     // The recovered virtual contains the props object literal (not the empty-module fallback).
-    expect(code).toContain('h("a", {');
+    expect(code).toContain("<a");
     // The prop-completion anchor: a zero-width `completion` mapping at `.nota` offset 3.
     const anchor = mappings.find(
       m => m.sourceOffsets[0] === 3 && m.lengths[0] === 0
@@ -69,8 +69,8 @@ describe("notaSyntaxDiagnostics", () => {
     expect(diags[0].range.start.line).toBe(2);
   });
 
-  test("a reserved-name collision (`%let h = …`) surfaces as a diagnostic", () => {
-    const diags = notaSyntaxDiagnostics("%let h = 1\n@p{x}\n");
+  test("a reserved-name collision (`%let NotaDoc = …`) surfaces as a diagnostic", () => {
+    const diags = notaSyntaxDiagnostics("%let NotaDoc = 1\n@p{x}\n");
     expect(diags.length).toBeGreaterThanOrEqual(1);
   });
 });

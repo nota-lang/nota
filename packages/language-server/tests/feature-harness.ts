@@ -75,7 +75,7 @@ export function createFeatureHarness(notaSource: string): FeatureHarness {
     target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Bundler,
-    jsx: ts.JsxEmit.ReactJSX,
+    jsx: ts.JsxEmit.Preserve,
     strict: true,
     noEmit: true,
     skipLibCheck: true,
