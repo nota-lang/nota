@@ -77,10 +77,12 @@ describe("reforest over SSR chunks", () => {
 });
 
 describe("doc-state store", () => {
-  test("register/read live; seeded reads pin until release", () => {
+  test("register/read live (pos-stamped); seeded reads pin until release", () => {
     const live = createDocState();
     live.register("heading", { id: "a" });
-    expect(live.read("heading")).toEqual([{ id: "a" }]);
+    live.register("label", { key: "l" });
+    expect(live.read("heading")).toEqual([{ id: "a", pos: 1 }]);
+    expect(live.read("label")).toEqual([{ key: "l", pos: 2 }]); // pos is cross-kind document order
 
     const seeded = createDocState({ heading: [{ id: "a" }, { id: "b" }] });
     seeded.register("heading", { id: "a" });
@@ -93,7 +95,7 @@ describe("doc-state store", () => {
   test("snapshot drops function-valued fields", () => {
     const s = createDocState();
     s.register("definition", { key: "k", tooltip: () => "jsx" });
-    expect(s.snapshot()).toEqual({ definition: [{ key: "k" }] });
+    expect(s.snapshot()).toEqual({ definition: [{ key: "k", pos: 1 }] });
   });
 
   test("useDocState outside NotaDoc is a pointed error", () => {
@@ -203,7 +205,7 @@ describe("driver-owned store adoption", () => {
         </NotaDoc>
       </DocStateContext.Provider>
     ));
-    expect(outer.live("ping")).toEqual([{ ok: true }]);
+    expect(outer.live("ping")).toEqual([{ ok: true, pos: 1 }]);
   });
 
   test("a bare NotaDoc is self-sufficient", () => {

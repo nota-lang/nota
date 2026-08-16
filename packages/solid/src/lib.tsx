@@ -427,9 +427,11 @@ export interface FactHandle {
 
 export interface DocState {
   /**
-   * Register a fact during render. Returns its handle (`seq` is 1-based per kind, in
-   * registration = document order). On the client the registration auto-unregisters when the
-   * owning computation is disposed, so doc-state is reactive under `<Show>`/`<For>`.
+   * Register a fact during render. The stored fact is `{...fact, pos}` where `pos` is a
+   * store-global 1-based sequence — cross-kind document order, what "nearest preceding heading"
+   * style queries key on. Returns its handle (`seq` is 1-based per kind). On the client the
+   * registration auto-unregisters when the owning computation is disposed, so doc-state is
+   * reactive under `<Show>`/`<For>`.
    */
   register(kind: string, fact: Fact): FactHandle;
   /** Remove a registration (rarely needed directly — see {@link register}). */
@@ -479,6 +481,7 @@ export function createDocState(seed?: Snapshot): DocState {
   // serving the (equal) seed until the next real registration bumps `version`, which re-runs
   // them under released = true.
   let released = seed === undefined;
+  let nextPos = 0;
   const facts = new Map<string, FactHandle[]>();
   const trailerMap = new Map<string, () => JSX.Element>();
   const flags = new Set<string>();
@@ -493,7 +496,12 @@ export function createDocState(seed?: Snapshot): DocState {
     register(kind, fact) {
       const list = facts.get(kind) ?? [];
       facts.set(kind, list);
-      const handle: FactHandle = { kind, seq: list.length + 1, fact };
+      nextPos += 1;
+      const handle: FactHandle = {
+        kind,
+        seq: list.length + 1,
+        fact: { ...fact, pos: nextPos }
+      };
       list.push(handle);
       bump();
       // Client-side, tie the registration to the owning computation so conditional content

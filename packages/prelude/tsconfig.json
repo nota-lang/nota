@@ -5,7 +5,9 @@
   ],
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
   },
   "typedocOptions": {
     "entryPoints": [

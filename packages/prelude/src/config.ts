@@ -1,26 +1,19 @@
 /**
- * Prelude configuration: `lstset` / `mathset` + `secset` / `bibset` (design/decode.md §The
- * registry & config).
+ * Prelude configuration: `lstset` / `mathset` + `secset` / `bibset` (design/solid.md §The
+ * prelude).
  *
- * `lstset` (after LaTeX's listings package) sets the global code options the default
- * `CodeInline`/`CodeBlock` consult: the default `lang`, the `theme`, and extension
- * grammar/theme registrations. `mathset` sets the KaTeX `macros` the default `Tex` passes through.
- * `secset` sets the doc-state heading `numberDepth` and `bibset` the citation source/style
- * the `@Cite`/`@Bibliography` constructs read — **all four share the same scope machinery**.
+ * `lstset` (after LaTeX's listings package) sets the code options the default
+ * `CodeInline`/`CodeBlock` consult; `mathset` the KaTeX macros/output the default `Tex` passes
+ * through; `secset` the heading `numberDepth`; `bibset` the citation source/style.
  *
- * **Scope semantics (pinned):** config is *document-global, last-write-wins* — the component
- * slots expand as static templates inside `decode`, after the whole `Doc` body has evaluated, so a mid-document
- * `% lstset(…)` is NOT positional (unlike `\lstset`). Config is **reset to a baseline on every
- * `render()`** (via the runtime's `onRenderReset` hook), so one document's config never leaks into
- * the next in a multi-document build.
- *
- * The **baseline** starts as the shipped defaults. A site-wide setup module (the CLI's `--setup`
- * hook) may call `lstset`/`mathset` and then {@link bakeConfigBaseline} — from then on, per-render
- * resets restore *that* configuration instead of the shipped defaults. (Contrast
- * `registerComponents`, which is global-persistent and needs no baking.)
+ * **Scope semantics (changed from decode.md, intentionally):** config calls are **positional** —
+ * statements execute in document order during the single component-body run, so a mid-document
+ * `% lstset(…)` affects subsequent code blocks only (matching LaTeX's actual `\lstset`), not
+ * "last write wins globally". Config is module-global with a bakeable baseline: a site setup
+ * module calls `lstset`/… then {@link bakeConfigBaseline}; {@link resetConfig} restores the
+ * baseline (the CLI calls it before each document build).
  */
 
-import { onRenderReset } from "@nota-lang/runtime";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 
 /** Options for {@link lstset}. All fields merge into the current document config. */
@@ -30,8 +23,7 @@ export interface LstsetOptions {
   /** Shiki theme name. Must be a preloaded theme (`github-light`/`github-dark`) or one
    *  registered via {@link LstsetOptions.themes}. */
   theme?: string;
-  /** Extension grammars (shiki `LanguageRegistration`s, e.g. `import hs from
-   *  "shiki/langs/haskell.mjs"` → `langs: hs`). Accumulate. */
+  /** Extension grammars (shiki `LanguageRegistration`s). Accumulate. */
   langs?: LanguageRegistration[] | LanguageRegistration[][];
   /** Extension themes (shiki theme registrations). Accumulate. */
   themes?: ThemeRegistrationAny[];
@@ -42,10 +34,9 @@ export interface MathsetOptions {
   /** KaTeX macros (`{ "\\R": "\\mathbb{R}" }`). Merge into the current macro table. */
   macros?: Record<string, string>;
   /**
-   * KaTeX output mode (last-write-wins). The default `"mathml"` needs no stylesheet or fonts;
-   * `"html"` (or the belt-and-suspenders `"htmlAndMathml"`) requires the KaTeX CSS + fonts on the
-   * page, and is what makes `texRef` definition references clickable — KaTeX only emits
-   * `\htmlData` attributes in HTML output.
+   * KaTeX output mode. The default `"mathml"` needs no stylesheet or fonts; `"html"` (or
+   * `"htmlAndMathml"`) requires the KaTeX CSS + fonts on the page, and is what makes `texRef`
+   * definition references clickable — KaTeX only emits `\htmlData` attributes in HTML output.
    */
   output?: "mathml" | "html" | "htmlAndMathml";
 }
@@ -60,7 +51,7 @@ export interface BibEntry {
 
 /** Options for {@link secset} (heading numbering). */
 export interface SecsetOptions {
-  /** Number headings of rank ≤ this depth (0 = off, the default). Last-write-wins. */
+  /** Number headings of rank ≤ this depth (0 = off, the default). */
   numberDepth?: number;
 }
 
@@ -79,13 +70,10 @@ export interface PreludeConfig {
   extraLangs: LanguageRegistration[];
   extraThemes: ThemeRegistrationAny[];
   macros: Record<string, string>;
-  /** KaTeX output mode (see {@link MathsetOptions.output}). */
   mathOutput: "mathml" | "html" | "htmlAndMathml";
   /** Heading numbering depth. `0` = numbering off. */
   numberDepth: number;
-  /** Citation source keyed by cite key. */
   bibSrc: Record<string, BibEntry>;
-  /** Citation label style. */
   bibStyle: "numeric" | "alpha";
 }
 
@@ -114,7 +102,7 @@ function clone(c: PreludeConfig): PreludeConfig {
 let baseline: PreludeConfig = clone(DEFAULTS);
 let current: PreludeConfig = clone(baseline);
 
-/** Set global code options (listings-style). Document-global, last-write-wins; see module docs. */
+/** Set code options (listings-style). Positional; see module docs. */
 export function lstset(opts: LstsetOptions): void {
   if (opts.lang !== undefined) {
     current.lang = opts.lang;
@@ -130,7 +118,7 @@ export function lstset(opts: LstsetOptions): void {
   }
 }
 
-/** Set global math options (KaTeX macros + output mode). Same scope semantics as {@link lstset}. */
+/** Set math options (KaTeX macros + output mode). Positional. */
 export function mathset(opts: MathsetOptions): void {
   if (opts.macros !== undefined) {
     Object.assign(current.macros, opts.macros);
@@ -140,14 +128,14 @@ export function mathset(opts: MathsetOptions): void {
   }
 }
 
-/** Set the heading numbering depth. Same scope semantics as {@link lstset}. */
+/** Set the heading numbering depth. Positional (place before the headings it should govern). */
 export function secset(opts: SecsetOptions): void {
   if (opts.numberDepth !== undefined) {
     current.numberDepth = opts.numberDepth;
   }
 }
 
-/** Set the citation source/style. Same scope semantics as {@link lstset} (`src` merges). */
+/** Set the citation source/style (`src` merges). Positional. */
 export function bibset(opts: BibsetOptions): void {
   if (opts.src !== undefined) {
     Object.assign(current.bibSrc, opts.src);
@@ -158,14 +146,19 @@ export function bibset(opts: BibsetOptions): void {
 }
 
 /**
- * Commit the *current* config as the per-render reset baseline. Call once from site setup code
- * (after your `lstset`/`mathset` calls); the CLI's `--setup` path does this automatically.
+ * Commit the *current* config as the reset baseline. Call once from site setup code (after your
+ * `lstset`/`mathset` calls); {@link resetConfig} then restores this configuration.
  */
 export function bakeConfigBaseline(): void {
   baseline = clone(current);
 }
 
-/** The live config (read by the default components at expansion time). */
+/** Restore the baked baseline (the CLI calls this before each document build). */
+export function resetConfig(): void {
+  current = clone(baseline);
+}
+
+/** The live config (read by the default components at render time). */
 export function config(): Readonly<PreludeConfig> {
   return current;
 }
@@ -175,8 +168,3 @@ export function resetConfigForTest(): void {
   baseline = clone(DEFAULTS);
   current = clone(baseline);
 }
-
-// Per-render reset: render() → runtime reset() → restore the baked baseline.
-onRenderReset(() => {
-  current = clone(baseline);
-});
