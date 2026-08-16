@@ -113,7 +113,10 @@ describe("typed surface resolves with no node_modules (D3)", () => {
     const source = "%let s = createSignal(0)\n@p{hi}\n";
     const h = noNodeModulesHarness(source);
     const hover = h.hoverAt(source.indexOf("createSignal"));
-    expect(hover, "no hover — the ambient declaration did not resolve").toBeTruthy();
+    expect(
+      hover,
+      "no hover — the ambient declaration did not resolve"
+    ).toBeTruthy();
     // The generic signature instantiates at the call site — a real type, not `any`.
     expect(hover).toMatch(/createSignal/);
     expect(hover).toContain("value: number");

@@ -35,10 +35,7 @@ let CONDITIONAL_HTML = "";
 beforeAll(() => {
   HTML = readFileSync(indexHtmlOf(BUILT_DIR), "utf8");
   CLOSURE_HTML = readFileSync(indexHtmlOf(CLOSURE_BUILT_DIR), "utf8");
-  CONDITIONAL_HTML = readFileSync(
-    indexHtmlOf(CONDITIONAL_BUILT_DIR),
-    "utf8"
-  );
+  CONDITIONAL_HTML = readFileSync(indexHtmlOf(CONDITIONAL_BUILT_DIR), "utf8");
 });
 
 afterEach(() => {

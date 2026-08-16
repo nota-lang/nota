@@ -32,7 +32,9 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     const { code } = compile(src, { sourcePath: "golden.nota" });
 
     // The structural names the rewrite introduced, from @nota-lang/solid.
-    expect(code).toMatch(/^import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/m);
+    expect(code).toMatch(
+      /^import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/m
+    );
     // The solid-js ambient surface: createSignal is free in the doc's %-code; For was recovered.
     expect(code).toMatch(/^import \{ createSignal, For \} from "solid-js";/m);
 

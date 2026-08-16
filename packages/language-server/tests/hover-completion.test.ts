@@ -74,8 +74,7 @@ describe("completion (TS completions mapped to .nota)", () => {
 
   test("completion in a % block offers a component declared earlier in the document", () => {
     // A standalone scenario: `Banner` is declared, then referenced partially in a later `%` line.
-    const src =
-      "% const Banner = () => null;\n" + "% const reference = Ban;\n";
+    const src = "% const Banner = () => null;\n" + "% const reference = Ban;\n";
     const h = createFeatureHarness(src);
     // Cursor right after the partial `Ban` identifier.
     const at = src.indexOf("Ban;") + "Ban".length;
