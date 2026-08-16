@@ -14,8 +14,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const BUILT_DIR = join(here, ".golden.built");
 
 /**
- * The closure fixture's built document directory (`integration/closure.nota` — the
- * replay-hydration headline: a document-local island inside `@for` closing over the loop variable).
+ * The closure fixture's built document directory (`integration/closure.nota` — a document-local
+ * component inside `@for` closing over the loop variable, hydrated as part of the one Solid app).
  */
 export const CLOSURE_BUILT_DIR = join(here, ".closure.built");
 
@@ -24,7 +24,7 @@ export function indexHtmlOf(dir: string): string {
   return join(dir, "index.html");
 }
 
-/** A built directory's client island bundle (the IIFE the page's `<script src>` loads). */
+/** A built directory's client bundle (the IIFE the page's `<script src>` loads). */
 export function clientJsOf(dir: string): string {
   return join(dir, "assets", "index.js");
 }

@@ -24,8 +24,8 @@ import ts from "typescript";
 import { beforeEach, describe, expect, test } from "vitest";
 import { buildVirtual } from "../src/language-plugin";
 
-// `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (runtime `.d.ts`,
-// lib.d.ts) resolves so the virtual `.tsx`'s `@nota-lang/runtime` import type-checks.
+// `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (lib.d.ts)
+// resolves for the TS service.
 const PKG_ROOT = resolve(import.meta.dirname, "..");
 
 /**
@@ -34,7 +34,7 @@ const PKG_ROOT = resolve(import.meta.dirname, "..");
  */
 function createHarness() {
   // A real `.tsx` extension so TS includes it in the program; the basename keeps the `.nota` origin
-  // visible. Resolved under the package root so module resolution finds the workspace runtime types.
+  // visible. Resolved under the package root so module resolution finds the TS default libs.
   const virtualFileName = resolve(PKG_ROOT, "__fixture__.nota.tsx");
 
   let virtualCode = "";
@@ -119,8 +119,8 @@ describe("diagnostics (TS over the virtual .tsx, mapped back to .nota)", () => {
     harness = createHarness();
   });
 
-  test("sanity: the runtime types resolve (no module/exported-member errors)", () => {
-    // If the runtime `.d.ts` didn't resolve, `h`/`decode`/`Fragment` refs would all error.
+  test("sanity: the ambient surface resolves (no module/exported-member errors)", () => {
+    // If the preamble's ambient declarations were broken, the structural refs would all error.
     const diags = harness.notaDiagnostics("@p{hello}\n");
     const moduleErrors = diags.filter(d =>
       /Cannot find module|has no exported member|Cannot find name 'h'|Cannot find name 'decode'|Cannot find name 'Fragment'/.test(

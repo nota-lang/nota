@@ -1,7 +1,0 @@
-{
-  "root": false,
-  "extends": "//",
-  "javascript": {
-    "jsxRuntime": "reactClassic"
-  }  
-}

@@ -7,7 +7,7 @@
  * - **`@tag[|` prop completions** — *no Nota-specific code*: EOF recovery materialises
  *   `h("tag", { | })` with a completion anchor mapping the cursor into the props object, and
  *   `volar-service-typescript` proposes the prop names from the typed `h` overload (the typed emit
- *   surface, design/decode.md §The typed surface). This plugin
+ *   surface, design/solid.md). This plugin
  *   only registers `[` as a trigger character so the client fires the request there; the items come
  *   from TS through the mapping.
  *
@@ -106,7 +106,7 @@ export const NOTA_HOST_TAGS = [
 /**
  * The ambient prelude slot / doc-state names the reader references as free identifiers (the registry
  * slots plus the doc-state family — heading sugar lowers to the ambient `Heading` slot; see
- * design/decode.md §The registry & config) — offered as component-like completions at `@|`.
+ * design/solid.md §The prelude) — offered as component-like completions at `@|`.
  * Derived from the compiler's {@link AMBIENT_PRELUDE_NAMES} (the single source of truth for the
  * ambient surface), keeping the capitalized component slots (the config fns — `lstset`/`texRef`/… —
  * are embedded-JS calls, not `@`-heads).

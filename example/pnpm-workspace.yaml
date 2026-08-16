@@ -1,0 +1,14 @@
+# Marks this directory as its own pnpm workspace root, so `pnpm install` here stops its upward
+# search at this file instead of picking up the parent nota repo's pnpm-workspace.yaml. This
+# project is a standalone consumer of the packed @nota-lang/* tarballs (../pack/*.tgz) — deliberately
+# not a member of the root workspace, so it never sees workspace:* deps or hoisted devDependencies.
+
+# pnpm >= 10 reads overrides from here, not package.json#pnpm. @nota-lang/vite's packed tarball
+# pins its @nota-lang/* deps to plain semver (e.g. "0.1.0"), which isn't published to the real
+# npm registry — force every one of them to the matching local tarball instead.
+overrides:
+  rollup: 'npm:@rollup/wasm-node'
+  '@nota-lang/compiler': 'file:../pack/nota-lang-compiler.tgz'
+  '@nota-lang/prelude': 'file:../pack/nota-lang-prelude.tgz'
+  '@nota-lang/runtime': 'file:../pack/nota-lang-runtime.tgz'
+  '@nota-lang/wasm': 'file:../pack/nota-lang-wasm.tgz'

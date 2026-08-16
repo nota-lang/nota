@@ -1,7 +1,7 @@
 /**
  * The editor's seed document — a clean showcase of Nota markup + the pipeline.
  *
- * Deliberately NOT `GOLDEN_NOTA`: the golden is the pane *parity fixture* (island + inline
+ * Deliberately NOT `GOLDEN_NOTA`: the golden is the pipeline e2e fixture (a stateful inline
  * component), while the seed is a first-contact tour — a heading, prose with inline elements, an
  * element with props, a `%` statement, and a `@for` loop. (A historical reason is gone: the golden's
  * markup-inside-`%`-code shape used to break the TextMate-grammar highlighter; the reader-driven

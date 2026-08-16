@@ -2,9 +2,9 @@
  * **Typed emit surface, resolution-independent** (design/decode.md §The typed surface).
  *
  * The headline guarantee: a `.nota` in a directory with **no** `node_modules/@nota-lang` still
- * types — the runtime surface resolves through the ambient `declare module "@nota-lang/runtime"` the
+ * types — the emit surface resolves through the preamble's module-local ambient declarations the
  * preamble inlines, not through disk. So this harness roots the TS language service in a scratch
- * directory that cannot resolve `@nota-lang/runtime` on disk (empty `types`, no local
+ * directory that resolves nothing on disk (empty `types`, no local
  * `node_modules`), and only the default lib is read from the filesystem — the runtime types can come
  * *only* from the preamble.
  *

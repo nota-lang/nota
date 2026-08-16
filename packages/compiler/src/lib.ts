@@ -66,7 +66,7 @@ export const SOLID_AMBIENT_NAMES = [
  * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
  * components) plus the compat constructors a document's `%`-code may call.
  */
-const SOLID_RUNTIME_NAMES = [
+export const SOLID_RUNTIME_NAMES = [
   "NotaDoc",
   "Reforest",
   "UlLi",
@@ -76,10 +76,10 @@ const SOLID_RUNTIME_NAMES = [
 ] as const;
 
 /** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags). */
-const SOLID_WEB_NAMES = ["Dynamic"] as const;
+export const SOLID_WEB_NAMES = ["Dynamic"] as const;
 
 /**
- * The ambient prelude surface (design/decode.md §The registry & config) — the names the reader's
+ * The ambient prelude surface (design/solid.md §The prelude) — the names the reader's
  * emit may reference free without the document binding them:
  *
  * - the **component slots**: `Tex`/`CodeInline`/`CodeBlock` (math/code), `Heading` (`#` sugar), and

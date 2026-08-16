@@ -1,10 +1,5 @@
 packages:
   - 'packages/*'
-  # Mothballed by the Solid specialization (design/solid.md; this branch): the React adapter
-  # and the React Router integrator. Dirs kept for diffing; excluded so the workspace stays
-  # installable without React.
-  - '!packages/react'
-  - '!packages/react-router'
 
 allowBuilds:
   esbuild: true

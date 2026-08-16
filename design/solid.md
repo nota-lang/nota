@@ -45,21 +45,21 @@ So the whole design collapses to:
 | `inlineComponent`/`blockComponent` kinds | dissolved — categorization is by *rendered root tag* |
 | vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onMount` delegation) |
 | `@nota-lang/react`, `@nota-lang/react-router` | removed from the workspace |
-| `@nota-lang/runtime` | mothballed shim (typing for the LSP until reader vNext) |
+| `@nota-lang/runtime` | deleted (the LSP preamble is self-contained ambient declarations) |
 
 What survives untouched: the reader's notation → tree semantics, the Scribble whitespace pass, the
 free-name analysis + ambient-prelude injection (JSX references components as free identifiers, so
 the mechanism carries over verbatim), reader-driven highlighting, and the whole IDE story's
-*architecture* (the virtual emit will track the new surface in reader vNext).
+*architecture* (the virtual emit is the same JSX, typed by the regenerated preamble).
 
 ## The pipeline
 
 ```
 doc.nota
-  │  oxc reader (unchanged tonight: h-call emit + freeNames)
+  │  oxc reader (branch solid): native Solid JSX emit + freeNames
   ▼
-bare emit ──jsxify──▶ Solid JSX module          ← @nota-lang/compiler (interim; reader vNext emits JSX directly)
-  │  + ambient imports (@nota-lang/solid, @nota-lang/prelude, solid-js)
+bare JSX module ── @nota-lang/compiler ──▶ + free-name-driven ambient imports
+  │                 (@nota-lang/solid, solid-js, solid-js/web, @nota-lang/prelude)
   ▼
 vite-plugin-solid  (dom | ssr+hydratable — the consumer's build target decides)
   ▼                                      ▼
@@ -67,47 +67,42 @@ client module                     server module
   hydrate(() => <Doc/>, root)       renderDocument(Doc) → { html, state }   (two-pass, see §Doc-state)
 ```
 
-`jsxify` is a small babel pass over the reader's emit — the emit is mechanically regular
-(reader-generated `h`/`Fragment`/`decode` calls with user `%`-code interleaved), so the rewrite is
-a faithful deserialization of the tree back into syntax. It is the **executable spec for reader
-vNext's native JSX emit**; when the reader emits JSX directly, jsxify and the h-call surface are
-deleted. Rules:
+**Landed:** the reader now emits this JSX **natively** (oxc branch `solid`); the interim
+`jsxify` babel bridge served as its executable spec and has been deleted. The emit table (all
+implemented in `oxc_transformer/src/nota/{build,lower}.rs`; goldens pin it):
 
-| emit | JSX |
+| notation | JSX emit |
 |---|---|
-| `decode(X)` (Doc body wrap) | `<NotaDoc>{X′}</NotaDoc>` |
-| `h("p", {…}, kids)` | `<p …>{kids′}</p>` |
-| `h("nota-ul-li"/"nota-ol-li", …)` | `<UlLi>…</UlLi>` / `<OlLi>…</OlLi>` |
-| `h(flowTag, …)` (div, blockquote, figure, td, …) | `<flowTag><Reforest>…</Reforest></flowTag>` |
-| `h(Comp, {…}, kids)` | `<Comp …>{kids′}</Comp>` |
-| `Fragment(props?, …kids)` | `<>{kids′}</>` (props/key dropped — Solid has no key) |
-| `xs.map((x,_i) => Fragment({key:_i}, body))` (the `@for` shape) | `<For each={xs}>{(x,_i) => <>{body′}</>}</For>` |
-| adjacent string children | coalesced into one `{"…"}` (see ¶ below) |
-| `inlineComponent`/`blockComponent` | left as calls — 2-line compat shims in `@nota-lang/solid` |
-| everything else (`%`-code) | untouched (h-calls in expression position rewrite recursively) |
+| the document body | `<NotaDoc>{…}</NotaDoc>` |
+| `@p{…}` (host tag) | `<p …>{…}</p>` |
+| `-` / `+` list markers | `<UlLi>…</UlLi>` / `<OlLi>…</OlLi>` |
+| flow-container host tags (div, blockquote, figure, td, …) | `<tag …><Reforest>…</Reforest></tag>` |
+| `@Comp{…}` | `<Comp …>{…}</Comp>` (an identifier *reference* — free-name analysis + mappings) |
+| `@{…}` fragment | `<>{…}</>` |
+| `@for (x of xs) {…}` | `<For each={xs}>{(x) => <>…</>}</For>` |
+| `@(expr){…}` dynamic tag | `<Dynamic component={expr} …>` |
+| text runs | `{"…"}` containers, adjacent pieces coalesced (see ¶ below) |
+| `inlineComponent`/`blockComponent` calls in `%`-code | untouched user code (compat shims in `@nota-lang/solid`) |
 
 Three of those rows carry semantics:
 
-- **Text coalescing.** The reader emits one `"\n"` text child per interior newline
-  (decode.md's producer contract). Reforest detects paragraph breaks by blank line *within a
-  string child*, so jsxify coalesces adjacent string children — a blank source line surfaces as
-  `"\n\n"` inside one string, which is exactly reforest's `PARA_BREAK`. A single `"\n"` stays a
-  soft break inside the paragraph, verbatim. The whitespace contract is unchanged; only its
-  consumer moved.
+- **Text coalescing.** The Scribble pass produces one `"\n"` text piece per interior newline;
+  the lowering coalesces adjacent pieces — a blank source line surfaces as `"\n\n"` inside one
+  string child, which is exactly reforest's `PARA_BREAK`. A single `"\n"` stays a soft break
+  inside the paragraph, verbatim. (Text is unmapped boilerplate for the IDE mappings, so
+  coalescing is mapping-safe.)
 - **Flow containers become an emit policy.** Old `struct` recursed implicit paragraphing into
   `HOST_FLOW_TAGS` at runtime via a tag table. `children()` resolution can't restructure *inside*
-  an already-rendered element, so the wrap moves to the emit: the reader statically knows the tag,
-  and jsxify (later the reader) wraps flow-tag children in `<Reforest>`. The runtime tag tables
-  die; the one classifier left is reforest's phrasing-content set.
-- **`<For>` recovery.** Solid has no `key`; keyed reconciliation is `<For>`. jsxify recognizes the
-  reader's exact `@for` shape (a `.map` whose callback returns `Fragment({key: _i}, …)`) and
-  rewrites it; user-written `.map`s in `%`-code are untouched.
+  an already-rendered element, so the wrap moves to the emit: the reader statically knows the
+  tag and wraps flow-tag children in `<Reforest>`. The runtime tag tables die; the one
+  classifier left is reforest's phrasing-content set.
+- **`<For>` is native.** Solid has no `key`; keyed reconciliation is `<For>` — `@for` lowers to
+  it directly (no keyed-map shape anywhere); user-written `.map`s in `%`-code are untouched.
 
-The compiler shim's prepended import changes from `@nota-lang/runtime` to the free-name-driven
-trio: `@nota-lang/solid` (NotaDoc/Reforest/UlLi/OlLi/inlineComponent/…), `@nota-lang/prelude`
-(unchanged mechanism), and `solid-js` (the ambient state surface: `createSignal`, `createMemo`,
-`createEffect`, `Show`, `For`, `onMount`, `onCleanup` — replacing the React-hook ambient set;
-documents write Solid idioms in `%`-code now).
+The compiler shim prepends the free-name-driven imports: `@nota-lang/solid`
+(NotaDoc/Reforest/UlLi/OlLi + the compat constructors), `solid-js` (the ambient state surface:
+`createSignal`, `Show`, `For`, … — documents write Solid idioms in `%`-code), `solid-js/web`
+(`Dynamic`, for dynamic tags), and `@nota-lang/prelude` (unchanged policy mechanism).
 
 ## `<Reforest>` — decode, resolved
 
@@ -203,10 +198,10 @@ unreferenced-definition drop, duplicate errors); only the mechanism changes:
 - **`Tex`**: KaTeX→MathML sync as before; output lands via Solid's `innerHTML` (SSR-safe). Armed
   parts: scalars were stringified into the TeX source by the emit already; a vnode-armed part is
   detected via resolution and stays a fatal diagnostic.
-- **`CodeInline`/`CodeBlock`**: sync shiki over `textOf(children)`. **v0 regression, flagged:**
-  armed-part *decorations* (elements inside code becoming shiki decorations) are dropped for now
-  — armed elements contribute their text only. Restoring them = mapping resolved child offsets
-  to decoration ranges; deferred with the reader-vNext work.
+- **`CodeInline`/`CodeBlock`**: sync shiki over the reconstructed source. Armed-part
+  *decorations* are **restored**: an armed element contributes its text and records a shiki
+  decoration over that range (tag + attributes recovered from the resolved node; hydration
+  bookkeeping stripped).
 - **Config** (`lstset`/`mathset`/`secset`/`bibset`): same functions, but **positional** now — a
   mid-document `%lstset(…)` affects subsequent code blocks only (statements execute in document
   order during the single component-body run), not "last write wins globally". This matches
@@ -240,25 +235,55 @@ an island census.
 - **`@nota-lang/compiler`** — `compile()` now returns the JSX module (jsxify inside); prepends
   the solid/prelude/solid-js ambient imports. `compileVirtual`/`highlightSpans` untouched.
 - **`@nota-lang/vite`**, **`@nota-lang/cli`** — per above.
-- **Removed from the workspace** (dirs kept for diffing): `react`, `react-router`, `paper`
-  (its components are h-call-based; porting it is mechanical follow-up work after the prelude
-  pattern settles), and `playground` (a React app over the old runtime; returns with
-  in-browser JSX compilation).
-- **`@nota-lang/runtime`** — mothballed in place with a deprecation README: it no longer appears
-  in any emit or dependency edge, but the LSP's generated typing preamble derives from its
-  `.d.ts`, so it stays buildable until reader vNext replaces the virtual emit.
-- **Deferred, tracked**: language-server virtual emit still types the h-call surface (stale
-  against real emit until reader vNext); playground needs in-browser JSX compilation
-  (babel-standalone + babel-preset-solid, as Solid's own playground does); paper port;
-  nota-lang.org (react-router) unaffected on master.
+- **Deleted**: `react` and `react-router` (git history keeps them). `paper` and `playground`
+  are ported (see Follow-ups).
+- **`@nota-lang/runtime`** — deleted (the LSP preamble now generates from ambient
+  declarations, not the runtime `.d.ts`; zero consumers remained).
+- nota-lang.org (react-router) unaffected on master.
 
-## Follow-ups, in order
+## Post-landing architecture notes (the simplification sweep's analysis)
 
-1. **Reader vNext: native JSX emit** — move jsxify's table into the lowering
-   (`oxc_transformer/src/nota/build.rs`), including `<For>` for `@for`, flow-container
-   `<Reforest>` wraps, coalesced text, and plain-arrow components; delete jsxify + the compat
-   shims; regenerate goldens; virtual emit follows and the LSP preamble regenerates against
-   `@nota-lang/solid`'s `.d.ts`.
-2. Playground on babel-standalone; language-server preamble swap (with 1).
-3. Code decorations over resolved offsets; `data-category` protocol if sniffing bites.
-4. Paper port; DOM-order doc-state if dynamic insertion renumbering matters.
+The surviving system, by layer — with the judgment calls the sweep made explicit:
+
+- **Reader (oxc, ~1k lines of Nota-specific Rust).** One lowering, Nota AST → Solid JSX; the
+  parser is purely syntactic. `compile_with_mappings` (mappings without EOF recovery) currently
+  has no product consumer (the LSP uses `compile_virtual`) — kept: it is the coherent middle
+  entry of the shared pipeline, ~30 lines of wrapper.
+- **`@nota-lang/compiler` (~150 lines of real code).** Reduced to its essence: run the reader,
+  bind free names to four module surfaces, pass through virtual/highlight. The one policy knob
+  (`preludeModule`/`extraNames`) is the whole reason the shim exists as a seam — the reader
+  stays mechanism. The canonical ambient name lists are exported from here and consumed by the
+  LSP preamble generator (coverage-guarded) and the playground scope (imported), so the three
+  ambient surfaces cannot drift.
+- **`@nota-lang/solid` (one file).** Reforest + the doc-state store + two ~40-line drivers.
+  Deliberate dualities kept, each load-bearing: `read()` (seed-pinned, for forward readers) vs
+  `live()` (position-complete readers holding non-JSON thunks — trailers); silent `release()`
+  (a notifying release re-rendered converged-equal values as visible DOM churn); `tight` mode
+  (the old "tight nodes get only groupLists" as a Reforest prop rather than a tag table).
+- **Prelude.** Plain components + pure derivations. `titleTextOf` stays prelude-side (it knows
+  the prelude's own meta classes); generic `textOf` stays runtime-side.
+- **vite/cli.** The preset is [transform, vite-plugin-solid]; the CLI keeps the two-build
+  structure because SSR and client genuinely need different compilations of the same graph —
+  irreducible under per-target JSX compilation.
+- **Known consciously-accepted approximations** (unchanged from the landing): registration
+  order approximates document order (`pos`); a construct rendered inside a trailer thunk
+  registers at the trailer's position; a mid-document `@Footnotes` sees footnotes accumulated
+  so far; Definition bodies are not tooltip fallbacks (double-registration hazard).
+
+## Follow-ups — status
+
+1. ✅ **Reader vNext: native JSX emit** — landed on oxc branch `solid` (goldens regenerated;
+   jsxify deleted; the compiler shim is pure free-name import binding). One deviation from the
+   original plan: `inlineComponent`/`blockComponent` stay as 2-line compat shims in
+   `@nota-lang/solid` — the calls are *user-written* notation, so the reader no longer
+   special-cases them at all (name-attach dropped); retiring the idiom itself is a notation
+   design question, not an emit one.
+2. ✅ Language-server preamble v2 (global JSX namespace + intrinsics table + solid surfaces);
+   ✅ playground on in-page babel-preset-solid (Solid UI, pure-CSR preview).
+3. ✅ Code decorations over resolved children. `data-category` protocol: still only if
+   sniffing bites in practice.
+4. ✅ Paper port (store-numbered figures; Bnf tooltips explicit). DOM-order doc-state: still
+   deferred until dynamic-insertion renumbering matters in practice.
+
+Removed outright in the post-landing sweep: `@nota-lang/runtime`, `@nota-lang/react`,
+`@nota-lang/react-router` (git history keeps them).

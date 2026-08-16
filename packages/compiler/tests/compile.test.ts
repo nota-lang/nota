@@ -180,7 +180,13 @@ describe("compile (ambient prelude injection + freeNames)", () => {
 
   test("freeNames: sorted, cover the structural JSX surface, exclude bound names", () => {
     const { freeNames } = compile(read("golden.nota"));
-    for (const name of ["NotaDoc", "UlLi", "For", "inlineComponent", "createSignal"]) {
+    for (const name of [
+      "NotaDoc",
+      "UlLi",
+      "For",
+      "inlineComponent",
+      "createSignal"
+    ]) {
       expect(freeNames).toContain(name);
     }
     for (const gone of ["h", "decode", "Fragment"]) {

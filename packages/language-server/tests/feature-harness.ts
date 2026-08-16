@@ -28,8 +28,8 @@ import { SourceMap } from "@volar/language-core";
 import ts from "typescript";
 import { buildVirtual } from "../src/language-plugin";
 
-// `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (runtime `.d.ts`,
-// lib.d.ts) resolves so the virtual `.tsx`'s `@nota-lang/runtime` import type-checks.
+// `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (lib.d.ts)
+// resolves for the TS service.
 const PKG_ROOT = resolve(import.meta.dirname, "..");
 
 /** A capability predicate over a mapping's `data` (the Volar gate per feature). */
@@ -65,7 +65,7 @@ export interface FeatureHarness {
  */
 export function createFeatureHarness(notaSource: string): FeatureHarness {
   // A real `.tsx` extension so TS includes it in the program; the basename keeps the `.nota` origin
-  // visible. Resolved under the package root so module resolution finds the workspace runtime types.
+  // visible. Resolved under the package root so module resolution finds the TS default libs.
   const virtualFileName = resolve(PKG_ROOT, "__feature__.nota.tsx");
 
   const { code, mappings } = buildVirtual(notaSource);

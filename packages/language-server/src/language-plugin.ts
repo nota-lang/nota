@@ -28,10 +28,8 @@ import { PREAMBLE, PREAMBLE_LENGTH } from "./preamble.js";
 export const NOTA_LANGUAGE_ID = "nota";
 
 /**
- * The `languageId` the virtual code is emitted as — `typescriptreact`, since the reader's virtual
- * emit is `.tsx` (type-preserving) and the markup lowers to `h(...)` *call*
- * expressions, which are plain TS — but emitting as `.tsx` keeps the door open for any
- * JSX the embedded JS might contain and matches the `.tsx` extension `@volar/typescript` is told to
+ * The `languageId` the virtual code is emitted as — `typescriptreact`: the reader's virtual emit
+ * is type-preserving **Solid JSX**, matching the `.tsx` extension `@volar/typescript` is told to
  * treat the script as.
  */
 export const VIRTUAL_LANGUAGE_ID = "typescriptreact";

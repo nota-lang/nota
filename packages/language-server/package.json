@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
-    "@nota-lang/runtime": "workspace:*",
     "@volar/language-core": "~2.4.0",
     "@volar/language-server": "~2.4.0",
     "@volar/typescript": "~2.4.0",

@@ -17,6 +17,11 @@
  */
 
 import * as Babel from "@babel/standalone";
+import {
+  SOLID_AMBIENT_NAMES,
+  SOLID_RUNTIME_NAMES,
+  SOLID_WEB_NAMES
+} from "@nota-lang/compiler";
 import * as prelude from "@nota-lang/prelude";
 import * as notaSolid from "@nota-lang/solid";
 import solidPreset from "babel-preset-solid";
@@ -50,38 +55,11 @@ function ambientScope(): Map<string, unknown> {
       if (n in ns) scope.set(n, ns[n]);
     }
   };
-  put(notaSolid as unknown as Record<string, unknown>, [
-    "NotaDoc",
-    "Reforest",
-    "UlLi",
-    "OlLi",
-    "inlineComponent",
-    "blockComponent"
-  ]);
-  put(solidJs as unknown as Record<string, unknown>, [
-    "createSignal",
-    "createMemo",
-    "createEffect",
-    "createResource",
-    "createContext",
-    "useContext",
-    "batch",
-    "untrack",
-    "on",
-    "onMount",
-    "onCleanup",
-    "children",
-    "mergeProps",
-    "splitProps",
-    "Show",
-    "For",
-    "Index",
-    "Switch",
-    "Match",
-    "Suspense",
-    "ErrorBoundary"
-  ]);
-  put(solidWeb as unknown as Record<string, unknown>, ["Dynamic"]);
+  // The canonical name lists from the compiler — the same sets its import binding uses, so the
+  // playground scope can never drift from the emit surface.
+  put(notaSolid as unknown as Record<string, unknown>, SOLID_RUNTIME_NAMES);
+  put(solidJs as unknown as Record<string, unknown>, SOLID_AMBIENT_NAMES);
+  put(solidWeb as unknown as Record<string, unknown>, SOLID_WEB_NAMES);
   for (const [k, v] of Object.entries(prelude)) {
     scope.set(k, v);
   }
