@@ -240,9 +240,10 @@ an island census.
 - **`@nota-lang/compiler`** — `compile()` now returns the JSX module (jsxify inside); prepends
   the solid/prelude/solid-js ambient imports. `compileVirtual`/`highlightSpans` untouched.
 - **`@nota-lang/vite`**, **`@nota-lang/cli`** — per above.
-- **Removed from the workspace** (dirs kept for diffing): `react`, `react-router`, and `paper`
+- **Removed from the workspace** (dirs kept for diffing): `react`, `react-router`, `paper`
   (its components are h-call-based; porting it is mechanical follow-up work after the prelude
-  pattern settles).
+  pattern settles), and `playground` (a React app over the old runtime; returns with
+  in-browser JSX compilation).
 - **`@nota-lang/runtime`** — mothballed in place with a deprecation README: it no longer appears
   in any emit or dependency edge, but the LSP's generated typing preamble derives from its
   `.d.ts`, so it stays buildable until reader vNext replaces the virtual emit.
