@@ -1,6 +1,7 @@
 {
   "name": "@nota-lang/explorable",
   "version": "0.1.0",
+  "description": "Interaction primitives for explorable explanations (Slider/Action/Sticky) as plain Solid components over document-declared state.",
   "files": [
     "dist",
     "css"

@@ -251,13 +251,7 @@ importers:
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      katex:
-        specifier: ^0.16.22
-        version: 0.16.47
     devDependencies:
-      '@types/katex':
-        specifier: ^0.16.7
-        version: 0.16.8
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13

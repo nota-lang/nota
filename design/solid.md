@@ -324,7 +324,7 @@ The surviving system, by layer — with the judgment calls the sweep made explic
   stays mechanism. The canonical ambient name lists are exported from here and consumed by the
   LSP preamble generator (coverage-guarded) and the playground scope (imported), so the three
   ambient surfaces cannot drift.
-- **`@nota-lang/core` (one file).** Reforest + the doc-state store + two ~40-line drivers.
+- **`@nota-lang/core` (8 files).** Reforest + the doc-state store + two ~40-line drivers.
   Deliberate dualities kept, each load-bearing: `read()` (seed-pinned, for forward readers) vs
   `live()` (position-complete readers holding non-JSON thunks — trailers); silent `release()`
   (a notifying release re-rendered converged-equal values as visible DOM churn); `tight` mode

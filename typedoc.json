@@ -6,12 +6,14 @@
   },
   "entryPointStrategy": "packages",
   "entryPoints": [
-    "packages/solid",
-    "packages/compiler",
-    "packages/prelude",
-    "packages/paper",
-    "packages/vite",
     "packages/astro",
-    "packages/codemirror"
+    "packages/cli",
+    "packages/codemirror",
+    "packages/compiler",
+    "packages/core",
+    "packages/explorable",
+    "packages/paper",
+    "packages/prelude",
+    "packages/vite"
   ]
 }

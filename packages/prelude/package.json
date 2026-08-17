@@ -1,6 +1,7 @@
 {
   "name": "@nota-lang/prelude",
   "version": "0.1.0",
+  "description": "The standard ambient prelude for Nota: Tex, code highlighting, doc-state components, and definition tooltips.",
   "files": [
     "dist"
   ],

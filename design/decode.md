@@ -1,5 +1,9 @@
 # Nota Decode — the runtime
 
+> **Superseded on `main`:** the Solid specialization landed — [solid.md](./solid.md) is the
+> authoritative runtime spec now. This file is retained as the archived spec of the
+> master-branch decode/hyperscript architecture.
+
 `decode` is the pass that turns a *flat* sequence of small content pieces into the *nested* HTML
 structure a document actually wants. It does three jobs:
 

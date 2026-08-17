@@ -1,9 +1,10 @@
 # Nota Design
 
-> **Branch `solid`:** the emit is now **Solid JSX** — what this file calls the "JSX readability
-> view" is the *actual* emit, and the hyperscript forms below document master. The authoritative
-> emit table for this branch is [solid.md](./solid.md) §The pipeline; the surface-syntax
-> semantics here (everything up to the lowering targets) are unchanged.
+> **On `main`:** the emit is **Solid JSX** — what this file calls the "JSX readability view" is
+> the *actual* emit; the hyperscript forms below document the archived master-branch architecture
+> ([decode.md](./decode.md)). The authoritative emit table is [solid.md](./solid.md) §The
+> pipeline; the surface-syntax semantics here (everything up to the lowering targets) are
+> unchanged.
 
 Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers to
 **hyperscript** — `h`/`Fragment`/`decode` calls from `@nota-lang/runtime`, NOT JSX text — for any

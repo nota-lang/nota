@@ -1,6 +1,7 @@
 {
   "name": "@nota-lang/paper",
   "version": "0.1.0",
+  "description": "Academic-paper constructs over the Solid doc-state store: grammar/inference-rule DSLs and paper scaffolding (title/abstract/figures).",
   "files": [
     "dist",
     "css"
@@ -22,11 +23,9 @@
   },
   "dependencies": {
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/core": "workspace:*",
-    "katex": "^0.16.22"
+    "@nota-lang/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/katex": "^0.16.7",
     "solid-js": "^1.9.3",
     "vite-plugin-solid": "^2.11.10",
     "vitest": "^4.1.8"

@@ -3,8 +3,8 @@
 `nota-mode.el` provides:
 
 - **`nota-mode`** for `.nota` files: a conservative "never lie" font-lock
-  tier (a transliteration of the vscode-nota TextMate grammar) that only
-  paints what is line-locally decidable. Fenced regions (` ``` `, `$$`,
+  tier (a transliteration of the deleted vscode-nota TextMate grammar) that
+  only paints what is line-locally decidable. Fenced regions (` ``` `, `$$`,
   `%%%`, `|{ … }|`) are suppressed via `syntax-propertize` so inline rules
   cannot misfire inside them.
 - **Native embedded JS/TS fontification** — the Emacs analogue of the
