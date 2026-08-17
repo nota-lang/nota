@@ -2,17 +2,18 @@
  * **Reader-driven semantic tokens.**
  *
  * The reader's `highlight()` pass already classifies the *whole* `.nota` — markup sigils, tag names,
- * prop names, and the embedded-JS token classes — tracking the markup⇄JS mutual nesting a TextMate
- * grammar structurally cannot (that is why the CodeMirror playground paints these directly). This
- * module serves those spans as LSP semantic tokens from a Nota Volar service plugin, so VS Code gets
- * the same faithful highlighting.
+ * prop names, and the embedded-JS token classes — tracking the markup⇄JS mutual nesting a TextMate-
+ * style grammar structurally cannot. This module serves those spans as LSP semantic tokens over the
+ * connection (see `server-core.ts`'s module doc for why that's a connection-level override, not this
+ * module's own `LanguageServicePlugin`), so any LSP client gets the same faithful highlighting — VS
+ * Code via `vscode-languageclient`, Emacs via `eglot` (both launching the same `bin.ts` binary).
  *
  * The reader emits spans in **paint order** (outer under-layers before the overlays they contain);
  * LSP semantic tokens must be **non-overlapping**. Following tinymist's `tokenize_tree`, we flatten
  * the overlapping spans into non-overlapping runs: the topmost overlay at each byte determines the
- * token **type**, and the four *under-layer* kinds (`heading`, `emphasis-strong`, `emphasis-em`,
- * `math`) become **modifier** bits on the runs they cover (with a base type when they are the only
- * cover — e.g. a heading's or emphasis's text).
+ * token **type**, and the five *under-layer* kinds (`heading`, `emphasis-strong`, `emphasis-em`,
+ * `emphasis-strike`, `math`) become **modifier** bits on the runs they cover (with a base type when
+ * they are the only cover — e.g. a heading's or emphasis's text).
  *
  * Spans are **source-native** byte offsets — no preamble/mapping shift — so this plugin operates on
  * the `.nota` document directly (unlike `volar-service-typescript`, which maps virtual-`.tsx` tokens
@@ -20,27 +21,40 @@
  * (reader-only); it caches the last-good tokens per document and serves them when
  * `highlight` throws mid-edit (editor parity with the playground).
  *
- * **Delegation-aware suppression.** On lines the TextMate grammar delegates to a real embedded
- * grammar — `%` statement lines, `%%%` fence interiors, and ts/js/json code-fence interiors — the
- * grammar's `source.ts`/`source.json` paint is *richer* than the reader's coarse token classes
- * (`storage.type.function.arrow.ts` vs a generic `operator`; `entity.name.function` vs nothing for a
- * plain identifier). Emitting our coarse tokens there makes every keystroke flicker grammar-color →
- * semantic-color and permanently downgrades the palette (the user-visible "`=>` is blue and red"
- * bug). So on delegation-legal lines ({@link delegatedLines} — the same classifier as the
- * vscode-nota conformance test) the embedded-JS and raw-code kinds are **suppressed** and TextMate
- * owns those bytes; the markup kinds (sigils, tags, prop names, interpolations — exactly what the
- * embedded grammar gets wrong on markup re-entry like `@div[…]` inside JS) still overlay everywhere.
+ * **Delegation-aware suppression.** This rationale was originally written against the deleted
+ * vscode-nota package's TextMate grammar (a `source.ts`/`source.json` `contentName` embedding); the
+ * live analogue is `editors/emacs/nota-mode.el`'s native font-lock delegation — for BOTH a `%`
+ * statement line's rest and a `%%%`/ts/js/json fence interior, it copies real faces out of a hidden
+ * buffer running Emacs's own major mode (its own doc calls this "the Emacs analogue of the TextMate
+ * grammar's source.ts delegation, which the server's semantic tokens deliberately defer to on these
+ * lines"). `@nota-lang/codemirror` is a *narrower* case of the same idea: it sub-tokenizes code-fence
+ * and math interiors with CM's own parsers, but paints `%` lines straight from the reader's own
+ * (unsuppressed) token classes — this LSP suppression has no bearing on it there.
+ *
+ * Either way, a real per-language mode/grammar paints those bytes *richer* than the reader's coarse
+ * token classes (`storage.type.function.arrow` vs a generic `operator`; a real function-name face vs
+ * nothing for a plain identifier). A second, coarser paint on the same bytes would flicker
+ * grammar-color → semantic-color on every keystroke and downgrade the palette (the user-visible "`=>`
+ * is blue and red" bug). So on delegation-legal lines ({@link delegatedLines}, `./line-context.ts`)
+ * the embedded-JS and raw-code kinds are **suppressed** here, ceding those bytes to whatever native
+ * fontification the client provides; the markup kinds (sigils, tags, prop names, interpolations —
+ * exactly what an embedded JS/TS grammar gets wrong on markup re-entry like `@div[…]` inside JS)
+ * still overlay everywhere, including on delegated lines.
  */
 
 import { highlightSpans } from "@nota-lang/compiler";
-import { lineClassifiers } from "@nota-lang/compiler/reader";
 import type {
   LanguageServicePlugin,
   SemanticToken,
   SemanticTokensLegend
 } from "@volar/language-server";
 import { makeByteConverter } from "./byte-offsets.js";
-import { NOTA_LANGUAGE_ID } from "./language-plugin.js";
+import { delegatedLines } from "./line-context.js";
+
+// Re-exported for existing consumers (`tests/semantic-tokens-nota.test.ts`) — `delegatedLines` now
+// lives in `./line-context.ts` alongside `literalFenceLines`/`statementFenceLines`, the fence/line
+// classifiers `completions.ts` and `server-core.ts` also consume (module doc there).
+export { delegatedLines } from "./line-context.js";
 
 /**
  * The semantic-token **type legend** (the plugin returns indices into this; Volar remaps to the
@@ -176,11 +190,39 @@ export interface TokenRun {
   kind: string;
 }
 
+/** A span carrying its position in the caller's array — the sweep in {@link flattenSpans} needs this
+ *  to break exact-duplicate-range ties the same way a plain left-to-right array scan would. */
+interface IndexedSpan {
+  start: number;
+  end: number;
+  kind: string;
+  index: number;
+}
+
+/** Push `s` onto `map.get(key)`, creating the bucket on first use. */
+function bucket<K>(map: Map<K, IndexedSpan[]>, key: K, s: IndexedSpan): void {
+  const list = map.get(key);
+  if (list) {
+    list.push(s);
+  } else {
+    map.set(key, [s]);
+  }
+}
+
 /**
  * Flatten the reader's overlapping paint-order spans into non-overlapping {@link TokenRun}s
- * (tinymist's slicing). At each byte, the innermost overlay determines the type; the four
+ * (tinymist's slicing). At each byte, the innermost overlay determines the type; the five
  * under-layer kinds contribute modifier bits (and a base type when they are the only cover).
  * Adjacent runs with identical `(type, modifiers)` are coalesced.
+ *
+ * A **sweep-line merge**: each span is added to the `active` set exactly once (at its start
+ * boundary) and removed exactly once (at its end boundary) — O(spans) add/remove total, with
+ * `active`'s size bounded by the markup's nesting depth at that point (small and roughly constant
+ * in practice), not by the total span count. The winner-selection logic per interval is unchanged
+ * from a plain left-to-right scan — a prior version re-scanned the FULL span list at every boundary
+ * (O(boundaries × spans): fine for one document, wasteful on every keystroke's re-highlight of a
+ * large one) — `active` is kept sorted by each span's original array index so the strict-inequality
+ * tie-breaks below see candidates in the same relative order that full re-scan did.
  */
 export function flattenSpans(
   spans: { start: number; end: number; kind: string }[]
@@ -193,14 +235,49 @@ export function flattenSpans(
     (a, b) => a - b
   );
 
+  // Index spans by where they start/end covering an interval. Zero/negative-width spans never
+  // cover any `[lo, hi)` (`hi > lo` always, so `s.end <= s.start` can't satisfy `s.end >= hi`) —
+  // excluded up front so they never enter `active` (an add and remove at the identical boundary,
+  // in that order, would otherwise leave a phantom entry `active` never removes again).
+  const startsAt = new Map<number, IndexedSpan[]>();
+  const endsAt = new Map<number, IndexedSpan[]>();
+  spans.forEach((s, index) => {
+    if (s.end <= s.start) {
+      return;
+    }
+    const indexed: IndexedSpan = { ...s, index };
+    bucket(startsAt, s.start, indexed);
+    bucket(endsAt, s.end, indexed);
+  });
+
+  const active: IndexedSpan[] = [];
   const runs: TokenRun[] = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
     const lo = bounds[i];
     const hi = bounds[i + 1];
-    if (hi <= lo) {
+
+    // Retire spans ending exactly at `lo` (they don't cover `[lo, hi)`), then admit spans starting
+    // exactly at `lo` — inserted at their original-index position so `active` stays index-ordered.
+    for (const s of endsAt.get(lo) ?? []) {
+      const at = active.indexOf(s);
+      if (at >= 0) {
+        active.splice(at, 1);
+      }
+    }
+    for (const s of startsAt.get(lo) ?? []) {
+      let at = active.findIndex(a => a.index > s.index);
+      if (at < 0) {
+        at = active.length;
+      }
+      active.splice(at, 0, s);
+    }
+
+    if (hi <= lo || active.length === 0) {
       continue;
     }
-    // Innermost overlay (largest start, then smallest end) and the union of under-layer modifiers.
+
+    // Innermost overlay (largest start, then smallest end) and the union of under-layer modifiers —
+    // identical selection rules over `active` (spans covering this interval) as the old full scan.
     let overlay = -1;
     let overlayKind = "";
     let overlayStart = -1;
@@ -209,10 +286,7 @@ export function flattenSpans(
     let modBase = -1;
     let modBaseKind = "";
     let modBaseStart = -1;
-    for (const s of spans) {
-      if (s.start > lo || s.end < hi) {
-        continue; // does not cover [lo, hi)
-      }
+    for (const s of active) {
       const under = UNDER_LAYERS[s.kind];
       if (under) {
         modifiers |= under.modifier;
@@ -261,11 +335,11 @@ export function flattenSpans(
 
 /**
  * The reader kinds suppressed on {@link delegatedLines}: the embedded-JS token classes and the flat
- * raw-code interior. On those lines the TextMate grammar's real `source.ts`/`source.json` embedding
- * already paints richer, TS-convention colors (arrows as `storage.type.function.arrow`, call names
- * as `entity.name.function`) — our coarser classes would fight it (keystroke flicker + palette
- * downgrade). Markup kinds are never suppressed: they cover exactly the markup re-entry the embedded
- * grammar mis-reads (`@div[…]` inside JS looks like a decorator/array to TS).
+ * raw-code interior (module doc's **Delegation-aware suppression** section — the live
+ * per-client-native-mode rationale, arrows as `storage.type.function.arrow` vs a generic `operator`,
+ * call names as `entity.name.function` vs nothing). Markup kinds are never suppressed: they cover
+ * exactly the markup re-entry an embedded JS/TS mode mis-reads (`@div[…]` inside JS looks like a
+ * decorator/array to it).
  */
 const SUPPRESSED_ON_DELEGATED = new Set([
   "js-keyword",
@@ -275,102 +349,6 @@ const SUPPRESSED_ON_DELEGATED = new Set([
   "js-operator",
   "code"
 ]);
-
-/** The fence language tags the grammar delegates to a real embedded grammar (mirrors the grammar). */
-const DELEGATED_FENCE_LANGS = new Set([
-  "ts",
-  "tsx",
-  "typescript",
-  "js",
-  "jsx",
-  "javascript",
-  "json"
-]);
-
-// The reader's own line-classifier patterns (the lexer's regex sources over the wasm boundary)
-// drive the `%`-line rules below, so those can no longer diverge from the parse.
-const LINE_CLASSIFIERS = lineClassifiers();
-const PERCENT_LINE = new RegExp(LINE_CLASSIFIERS.percentLine);
-const FENCE_LINE = new RegExp(LINE_CLASSIFIERS.fenceLine);
-const FENCE_CLOSE_LINE = new RegExp(LINE_CLASSIFIERS.fenceCloseLine);
-
-/**
- * The backtick fence (```` ``` ````) has **no exported reader classifier** — unlike the `%`
- * patterns above, `scan_fenced_code` (`oxc/crates/oxc_parser/src/lexer/nota.rs`) is a procedural
- * scan, not a regex the wasm boundary can hand over — so these two are a **hand transliteration**
- * of its open/close rules, and CAN silently drift if that scan changes (it already had: see the
- * fence matrix in `tests/semantic-tokens-nota.test.ts`, which pins the two rules that had drifted).
- *
- * - **Open** — a run of ≥3 backticks (leading indentation tolerated, unbounded), whose same-line
- *   tail contains no backtick and is not the file's last line (a fence needs a body-starting
- *   newline after it). The tail's first whitespace-delimited token is the language tag.
- * - **Close** — a line whose first non-whitespace (after skipping only spaces/tabs, same as the
- *   open) is a run of **at least** the open's tick count. Trailing content after that run —
- *   more ticks, prose, anything — is allowed and is NOT required to be backtick-free; the reader
- *   resumes right after the closing run and leaves the rest of the line to whatever follows.
- *   (The two most common ways this was previously wrong: requiring an *exact* tick-count match,
- *   and requiring the close line to contain *only* the ticks.)
- */
-const BACKTICK_FENCE_OPEN = /^[ \t]*(`{3,})([^`\n]*)$/;
-const BACKTICK_FENCE_CLOSE = /^[ \t]*(`+)/;
-
-/**
- * The 0-based lines whose content belongs to an embedded language — `%` statement lines, `%%%`
- * statement-fence interiors, and the interiors of code fences whose language tag we ship an
- * embedded grammar for ({@link DELEGATED_FENCE_LANGS}). Fence *delimiter* lines are not
- * delegated (the reader's `code-delim`/`code-lang` kinds are not suppressed anyway). The
- * `%`-family classification consumes the reader's own patterns above.
- */
-export function delegatedLines(source: string): Set<number> {
-  const delegated = new Set<number>();
-  const lines = source.split("\n");
-  type Mode =
-    | { at: "markup" }
-    | { at: "statement-fence" }
-    | { at: "code-fence"; ticks: number; isDelegated: boolean };
-  let mode: Mode = { at: "markup" };
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (mode.at === "statement-fence") {
-      if (FENCE_CLOSE_LINE.test(line)) {
-        mode = { at: "markup" }; // closing delimiter line — not delegated
-      } else {
-        delegated.add(i);
-      }
-      continue;
-    }
-    if (mode.at === "code-fence") {
-      const close = BACKTICK_FENCE_CLOSE.exec(line);
-      if (close && close[1].length >= mode.ticks) {
-        mode = { at: "markup" }; // closing delimiter line — not delegated
-      } else if (mode.isDelegated) {
-        delegated.add(i);
-      }
-      continue;
-    }
-    // markup context
-    if (FENCE_LINE.test(line)) {
-      mode = { at: "statement-fence" };
-      continue;
-    }
-    // `i < lines.length - 1`: a fence needs a body, i.e. a newline after the opener line — true
-    // for every split-produced line except (by construction) the last, which never had one.
-    const open = i < lines.length - 1 ? BACKTICK_FENCE_OPEN.exec(line) : null;
-    if (open) {
-      const lang = open[2].trim().split(/\s+/)[0] ?? "";
-      mode = {
-        at: "code-fence",
-        ticks: open[1].length,
-        isDelegated: DELEGATED_FENCE_LANGS.has(lang.toLowerCase())
-      };
-      continue;
-    }
-    if (PERCENT_LINE.test(line)) {
-      delegated.add(i); // `%` statement line: rest-of-line is embedded JS/TS
-    }
-  }
-  return delegated;
-}
 
 /**
  * Convert `.nota` **byte** offsets (the reader's spans) to LSP **UTF-16** `(line, character)`
@@ -413,9 +391,10 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
       }
       const start = posAt(segStart);
       const length = posAt(nl).character - start.character;
-      // Per-line suppression: TextMate's embedded grammar owns this segment (module doc). Checked
-      // per line-segment (not per run) so a run straddling a delegated and a non-delegated line —
-      // a template literal continuing past a `%` line — keeps its non-delegated part painted.
+      // Per-line suppression: the client's own native mode/grammar owns this segment (module doc's
+      // Delegation-aware suppression). Checked per line-segment (not per run) so a run straddling a
+      // delegated and a non-delegated line — a template literal continuing past a `%` line — keeps
+      // its non-delegated part painted.
       if (length > 0 && !(suppressible && delegated.has(start.line))) {
         tokens.push([
           start.line,
@@ -437,8 +416,8 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
  *
  * The service-plugin channel would remap our plugin-local type/modifier indices to the client legend
  * for us, but that channel never routes the `.nota` source doc to us (Volar offers only the virtual
- * `.tsx` — see the source-document routing note in `server.ts`), so the connection-level handler
- * serves these tokens directly — and it
+ * `.tsx` — see the source-document routing note in `server-core.ts`'s module doc), so the
+ * connection-level handler serves these tokens directly — and it
  * MUST index them against the legend the server actually advertised. Volar merges the TS plugin's
  * legend first (`namespace`, …, `operator`), then ours (`notaSigil`, …), so a plugin-local index
  * (into {@link NOTA_TOKEN_TYPES}/{@link NOTA_TOKEN_MODIFIERS}) is the WRONG index in the merged
@@ -485,32 +464,19 @@ export function encodeSemanticTokens(
 }
 
 /**
- * The Nota semantic-tokens Volar service plugin. Serves `semanticTokens/full` (full only — no delta,
- * no range in v1) from the reader's `highlight` over the `.nota` source, with a last-good cache per
- * document served when `highlight` throws mid-edit.
+ * The Nota semantic-tokens Volar service plugin. Registered purely so its `semanticTokensProvider`
+ * capability (the legend) merges into the server's advertised capabilities — `create()` is a no-op
+ * because Volar's `languageFeatureWorker` never offers a service plugin the `.nota` source doc (only
+ * the generated virtual `.tsx`, which has no reader-driven tokens to serve), so a
+ * `provideDocumentSemanticTokens` here would never run (it used to exist anyway, duplicating verbatim
+ * the last-good-cache logic the live path also needs). The live path is `readerTokens` inside
+ * `registerNotaConnectionFeatures` (`server-core.ts`), which calls {@link notaSemanticTokens} directly
+ * and owns the one real last-good cache, serving both `full` and `onRange` at the connection level.
  */
 export const notaSemanticTokensPlugin: LanguageServicePlugin = {
   name: "nota-semantic-tokens",
   capabilities: {
     semanticTokensProvider: { legend: NOTA_SEMANTIC_LEGEND }
   },
-  create() {
-    // Last-good tokens per document uri — served when a mid-edit source fails to parse.
-    const cache = new Map<string, SemanticToken[]>();
-    return {
-      provideDocumentSemanticTokens(document) {
-        if (document.languageId !== NOTA_LANGUAGE_ID) {
-          return undefined;
-        }
-        try {
-          const tokens = notaSemanticTokens(document.getText());
-          cache.set(document.uri, tokens);
-          return tokens;
-        } catch {
-          // Reader threw (source mid-edit / unparseable) — serve the last-good tokens.
-          return cache.get(document.uri) ?? [];
-        }
-      }
-    };
-  }
+  create: () => ({})
 };

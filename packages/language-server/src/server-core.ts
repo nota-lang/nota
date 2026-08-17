@@ -44,6 +44,7 @@ import {
   notaSyntaxDiagnostics
 } from "./diagnostics.js";
 import { NOTA_LANGUAGE_ID } from "./language-plugin.js";
+import { literalFenceLines } from "./line-context.js";
 import {
   encodeSemanticTokens,
   notaSemanticTokens,
@@ -60,10 +61,66 @@ function documentText(server: LanguageServer, uri: string): string | undefined {
   return server.documents.get(URI.parse(uri))?.getText();
 }
 
+/**
+ * The event-listener shape {@link LastGoodCache} needs to hook eviction — a narrow structural subset
+ * of Volar's `documents.onDidClose` (itself a `vscode.Event<TextDocumentChangeEvent<SnapshotDocument>>`
+ * — a function taking a listener, with extra optional params this never passes), loose enough that a
+ * test can hand it a minimal stub instead of a real Volar `LanguageServer`.
+ */
+interface CloseSource {
+  onDidClose(listener: (e: { document: { uri: string } }) => void): unknown;
+}
+
+/**
+ * A per-document "last good" value cache that evicts on close. Without this, a URI's last-good value
+ * sits in this Map for the rest of the server process even after its document closes (or — a scratch
+ * file renamed/deleted mid-session — will never reopen under that URI again). Wiring
+ * `documents.onDidClose` in the constructor (rather than inline where the cache is used, as a prior
+ * version did) makes the eviction directly unit-testable against a minimal {@link CloseSource} stub
+ * (`tests/server-core.test.ts`), without a real Volar `Connection`/`LanguageServer`.
+ */
+export class LastGoodCache<T> {
+  private readonly byUri = new Map<string, T>();
+
+  constructor(documents: CloseSource) {
+    documents.onDidClose(({ document }) => {
+      this.byUri.delete(document.uri);
+    });
+  }
+
+  get(uri: string): T | undefined {
+    return this.byUri.get(uri);
+  }
+
+  set(uri: string, value: T): void {
+    this.byUri.set(uri, value);
+  }
+}
+
 /** The line-prefix (line start → `position`) of `text`, for the `@|` head-context classifier. */
 function linePrefixAt(text: string, position: Position): string {
   const line = text.split("\n")[position.line] ?? "";
   return line.slice(0, position.character);
+}
+
+/**
+ * Whether `@|` head completions ({@link headCompletions}) should be merged in at `position` within
+ * `text`: {@link headContext} accepts the line-prefix AND `position`'s line is not inside a literal
+ * fence interior. `headContext` only ever sees a single line's prefix — it cannot tell whether that
+ * line sits inside a still-open multi-line `%%%`/code fence — so that half of the check needs the
+ * full document, which only this call site has ({@link literalFenceLines}, `./line-context.js`; see
+ * its doc for why a fence interior is suppressed even though `@` is grammar-legal there). Exported
+ * and unit-tested directly (`tests/completions.test.ts`) since it is the actual decision
+ * `connection.onCompletion` below makes, not just a re-implementation of it.
+ */
+export function shouldOfferHeadCompletions(
+  text: string,
+  position: Position
+): boolean {
+  return (
+    headContext(linePrefixAt(text, position)) !== null &&
+    !literalFenceLines(text).has(position.line)
+  );
 }
 
 /**
@@ -119,11 +176,11 @@ function registerNotaConnectionFeatures(
 ): void {
   // ---- Semantic tokens (reader-driven for `.nota`, TS-mapped otherwise). --------------------------
   // Index the reader tokens against the MERGED legend the server actually advertised (TS types first,
-  // then ours) — NOT the plugin-local legend. Last-good cache mirrors the plugin (serve prior tokens
-  // when a mid-edit source fails to parse).
+  // then ours) — NOT the plugin-local legend (`notaSemanticTokensPlugin`'s own `create()` is a
+  // capability-only stub — see its doc — so this is the ONE last-good cache, not a mirror of another).
   const legend: SemanticTokensLegend | undefined =
     capabilities.semanticTokensProvider?.legend;
-  const semanticCache = new Map<string, SemanticToken[]>();
+  const semanticCache = new LastGoodCache<SemanticToken[]>(server.documents);
   const readerTokens = (uriStr: string): SemanticToken[] => {
     const text = documentText(server, uriStr) ?? "";
     try {
@@ -205,10 +262,9 @@ function registerNotaConnectionFeatures(
     list.items = list.items.map(item => handleCompletionItem(server, item));
     if (isNotaUri(uri)) {
       const text = documentText(server, params.textDocument.uri) ?? "";
-      const prefix = linePrefixAt(text, params.position);
       // `@|` markup head → offer host tags + prelude slots + in-scope components (the reader-owned
       // surface TS cannot see; markup positions come back empty from TS, so the merge is additive).
-      if (headContext(prefix) !== null) {
+      if (shouldOfferHeadCompletions(text, params.position)) {
         const seen = new Set(list.items.map(i => i.label));
         for (const item of headCompletions(text)) {
           if (!seen.has(item.label)) {

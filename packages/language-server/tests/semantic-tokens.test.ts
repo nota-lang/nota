@@ -39,8 +39,6 @@ const DOC =
   "@Aside{@(greeting)}\n" +
   "@p{plain}\n";
 
-/** The `Aside` token in the `@Aside{…}` component use (after the `% const Aside` binding). */
-const ASIDE_USE = DOC.indexOf("Aside", DOC.indexOf("@Aside"));
 /** The `greeting` token inside the `@(greeting)` interpolation. */
 const GREETING_USE = DOC.indexOf("greeting", DOC.indexOf("@("));
 /** The `p` of the `@p{…}` host tag. */
@@ -88,8 +86,9 @@ describe("semantic tokens (TS classifications mapped to .nota, gated by `semanti
   test("a host tag (@p) gets NO semantic token", () => {
     const h = createFeatureHarness(DOC);
     const tokens = semanticTokensAt(h);
-    // The host tag lowers to a string literal `h("p", …)` with **no** mapping back to the `.nota`
-    // (the reader emits none), so the `semantic` gate is closed there — no token is painted on `@p`.
+    // The host tag lowers to a JSX intrinsic element (`<p>…</p>`) with **no** mapping back to the
+    // `.nota` tag name itself (the reader emits none), so the `semantic` gate is closed there — no
+    // token is painted on `@p`.
     expect(tokenAt(tokens, P_TAG), JSON.stringify(tokens)).toBeUndefined();
   });
 

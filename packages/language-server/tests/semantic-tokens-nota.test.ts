@@ -2,9 +2,10 @@
  * **Reader-driven semantic tokens** — the flattening + the token stream.
  *
  * Asserts the tinymist-style slicing: overlapping paint-order spans become non-overlapping runs, the
- * innermost overlay wins the token *type*, and the four under-layer kinds (heading / emphasis /
- * math) ride as *modifier* bits. Exercises an embedded-JS region (a `%` statement's `const`/number),
- * a heading (marker type + heading modifier on the text), and an emphasis span.
+ * innermost overlay wins the token *type*, and the five under-layer kinds (heading / emphasis-strong
+ * / emphasis-em / emphasis-strike / math) ride as *modifier* bits. Exercises an embedded-JS region (a
+ * `%` statement's `const`/number), a heading (marker type + heading modifier on the text), and an
+ * emphasis span.
  */
 
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -75,10 +76,11 @@ describe("makeByteToPosition (UTF-8 byte → UTF-16 position)", () => {
 });
 
 describe("notaSemanticTokens (end-to-end token stream)", () => {
-  test("`%` statement line: JS classes are SUPPRESSED (TextMate's source.ts owns them)", () => {
-    // Delegation-aware suppression (module doc): the grammar delegates the `%` line to source.ts,
-    // whose paint is richer than our coarse classes — emitting ours caused the flicker/mixed-color
-    // arrow bug. The `%` sigil itself (a markup kind) still paints.
+  test("`%` statement line: JS classes are SUPPRESSED (the client's own native fontification owns them)", () => {
+    // Delegation-aware suppression (module doc): a client with its own embedded-language mode for a
+    // `%` line (Emacs's native fontification is the live example) paints richer than our coarse
+    // classes — emitting ours caused the flicker/mixed-color arrow bug. The `%` sigil itself (a
+    // markup kind) still paints.
     const toks = tokensOf("% const n = () => 1\n");
     expect(toks).toContainEqual({ text: "%", type: "notaSigil", mods: [] });
     expect(toks.some(t => t.type === "keyword")).toBe(false);

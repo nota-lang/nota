@@ -152,10 +152,11 @@ describe("language server end-to-end (real boot, heap-capped)", () => {
     expect(toks.some(t => t.type === "notaHeadingMarker")).toBe(true);
 
     // Delegation-aware suppression (the "blue and red arrow" fix): the `%`-line arrow gets NO
-    // reader token — TextMate's source.ts already paints it as one storage.type.function.arrow
-    // token, and a competing semantic `operator` flickers over it on every refresh. The PROPS
-    // arrow — where the grammar is deliberately blind — is exactly ONE reader token, typed
-    // `operator`, covering the whole `=>`.
+    // reader token — a client-native embedded mode (Emacs's is the live example; `semantic-tokens.ts`'s
+    // module doc) already paints it as one function-arrow token, and a competing semantic `operator`
+    // would flicker over it on every refresh. The PROPS arrow — where a native embedded mode is
+    // deliberately not applied — is exactly ONE reader token, typed `operator`, covering the whole
+    // `=>`.
     const arrows = toks.filter(t => t.text === "=>");
     expect(arrows.length, JSON.stringify(toks)).toBe(1);
     expect(arrows[0].line).toBe(4);

@@ -99,8 +99,8 @@ describe("completion (TS completions mapped to .nota)", () => {
 describe("capability gates (MappingCapabilities)", () => {
   test("a HOST tag (@p) is unmapped — no hover, no completion, no navigation", () => {
     const h = createFeatureHarness(DOC);
-    // Host tags lower to string literals (`h("p", …)`) with no leverage to the `.nota`; the reader
-    // emits *no* mapping for them, so every gate is closed at the host-tag range.
+    // Host tags lower to a JSX intrinsic element (`<p>…</p>`) with no leverage back to the `.nota`
+    // tag name; the reader emits *no* mapping for it, so every gate is closed at the host-tag range.
     expect(h.gen(P_TAG)).toBeNull();
     expect(h.gen(P_TAG, d => d.completion)).toBeNull();
     expect(h.gen(P_TAG, d => d.navigation)).toBeNull();

@@ -1,12 +1,20 @@
 /**
  * **Completions.**
  *
- * - `@|` head completions (this plugin): tags + prelude slots + in-scope components; suppressed on a
- *   `%` statement line and inside embedded JS.
+ * - `@|` head completions ({@link headContext}/{@link headCompletions}, called directly from
+ *   `registerNotaConnectionFeatures` in `server-core.ts` — the live path; `notaCompletionsPlugin`'s
+ *   own `create()` is a capability-only stub, see its doc): tags + prelude slots + in-scope
+ *   components; NOT suppressed on a bare `%` statement line (markup re-entry is legal there — see
+ *   `headContext`'s doc) but suppressed inside a literal fence interior (`%%%`/delegated code fence)
+ *   via `shouldOfferHeadCompletions`, since only the full-document call site can see one.
  * - `@tag[|` prop completions: served by TS through the EOF-recovery anchor + the preamble's
  *   `JSX.IntrinsicElements` — asserted end-to-end via the feature harness (`@a[|` recovers to
  *   `<a />`, the anchor maps the cursor into the JSX attribute position, TS offers `<a>`'s
  *   attributes).
+ *
+ * The real merged behaviour over the wire (TS items + `@|` items, through the actual connection
+ * handler) is asserted end-to-end in `server-e2e.test.ts`; this file unit-tests the pure functions
+ * the live path calls.
  */
 
 import { describe, expect, test } from "vitest";
@@ -49,16 +57,23 @@ describe("headContext (the `@|` line-prefix classifier)", () => {
     expect(headContext("hello @em")).toBe("em");
     expect(headContext("@my-wid")).toBe("my-wid");
   });
-  test("does not match after a space, or an `@(expr)` head", () => {
+  test("does not match after a space, an `@(expr)` head, or a `[` prop trigger", () => {
     // In Nota markup `@` is ALWAYS a form trigger (even glued to preceding text: `a@x` = "a" + an
     // `@x` form), so a mid-text `@x` legitimately offers completions — the regex is deliberately loose.
     expect(headContext("email@x")).toBe("x");
     expect(headContext("@em ")).toBeNull(); // trailing space — the head already ended
     expect(headContext("@(")).toBeNull(); // dynamic-tag head, TS handles the expr
+    expect(headContext("@a[")).toBeNull(); // `[` prop trigger — TS serves props via the mapping
   });
-  test("is suppressed on a `%`/`%%%` statement line (embedded JS)", () => {
-    expect(headContext("% const x = @")).toBeNull();
-    expect(headContext("%%% @")).toBeNull();
+  test("is NOT suppressed on a bare `%` statement line — `@` genuinely re-enters markup there", () => {
+    // Was suppressed here in a prior design; fixed to align with the semantic-token tier, which
+    // paints `@div[…]` on a `%` line for the same underlying reason: the reader's statement parser
+    // re-enters markup at `@` on a `%` line for real (design/solid.md; `line-context.ts`'s module
+    // doc goes into the grammar detail). A literal fence interior is a DIFFERENT, full-document
+    // check this line-prefix-only function can't make — see `shouldOfferHeadCompletions` in
+    // `server-core.ts` and `tests/line-context.test.ts`.
+    expect(headContext("% const x = @")).toBe("");
+    expect(headContext("%let a = @div")).toBe("div");
   });
 });
 
@@ -71,6 +86,21 @@ describe("scanComponents (document scan for capitalized bindings)", () => {
     expect(found).toContain("Note");
     expect(found).toContain("Aside");
     expect(found).not.toContain("helper");
+  });
+
+  test("also finds a binding declared inside a `%%%` fence body (no leading `%` there)", () => {
+    // The fence's own delimiter lines carry `%%%`, but its body lines don't — a body-line binding
+    // like `export const Widget = …` is invisible to the `%+`-anchored regex alone.
+    const src =
+      "%%%\nexport const Widget = (props) => props.children;\nlet helper = 1;\n%%%\n";
+    const found = scanComponents(src);
+    expect(found).toContain("Widget");
+    expect(found).not.toContain("helper"); // lowercase — not a component
+  });
+
+  test("does NOT scan bindings inside a backtick code fence (opaque example text)", () => {
+    const src = "```ts\nexport const NotAComponent = 1;\n```\n";
+    expect(scanComponents(src)).not.toContain("NotAComponent");
   });
 });
 
@@ -91,62 +121,60 @@ describe("headCompletions (the merged `@|` item set)", () => {
   });
 });
 
-describe("the completion plugin", () => {
-  const instance = notaCompletionsPlugin.create({} as never);
-
-  function complete(source: string, offset: number) {
-    // Build a minimal TextDocument-shaped stub: the plugin only uses languageId + getText.
-    const lines = source.slice(0, offset).split("\n");
-    const line = lines.length - 1;
-    const character = lines[lines.length - 1].length;
-    const doc = {
-      languageId: "nota",
-      uri: "file:///x.nota",
-      getText: (range?: {
-        start: { line: number; character: number };
-        end: { line: number; character: number };
-      }) =>
-        range
-          ? (source
-              .split("\n")
-              [range.start.line]?.slice(
-                range.start.character,
-                range.end.character
-              ) ?? "")
-          : source
-    };
-    return instance.provideCompletionItems?.(
-      doc as never,
-      { line, character },
-      {} as never,
-      {} as never
+describe("shouldOfferHeadCompletions (the live connection-level decision, server-core.ts)", () => {
+  test("true at a bare `@|` on an ordinary markup line", async () => {
+    const { shouldOfferHeadCompletions } = await import("../src/server-core");
+    const text = "# Title\n\n@\n";
+    expect(shouldOfferHeadCompletions(text, { line: 2, character: 1 })).toBe(
+      true
     );
-  }
+  });
 
+  test("true at `@|` on a bare `%` statement line — markup re-entry", async () => {
+    const { shouldOfferHeadCompletions } = await import("../src/server-core");
+    const text = "%let a = @\n";
+    expect(shouldOfferHeadCompletions(text, { line: 0, character: 10 })).toBe(
+      true
+    );
+  });
+
+  test("false at `@|` inside a `%%%` fence body — literal interior, even though headContext alone would accept it", async () => {
+    const { shouldOfferHeadCompletions } = await import("../src/server-core");
+    const text = "%%%\nconst x = @\n%%%\n";
+    expect(shouldOfferHeadCompletions(text, { line: 1, character: 11 })).toBe(
+      false
+    );
+  });
+
+  test("false at `@|` inside a delegated backtick code fence", async () => {
+    const { shouldOfferHeadCompletions } = await import("../src/server-core");
+    const text = "```ts\nconst x = @\n```\n";
+    expect(shouldOfferHeadCompletions(text, { line: 1, character: 11 })).toBe(
+      false
+    );
+  });
+
+  test("false where headContext itself already declines (e.g. a `[` prop trigger)", async () => {
+    const { shouldOfferHeadCompletions } = await import("../src/server-core");
+    const text = "@a[\n";
+    expect(shouldOfferHeadCompletions(text, { line: 0, character: 3 })).toBe(
+      false
+    );
+  });
+});
+
+// `notaCompletionsPlugin`'s `create()` is a capability-advertisement-only stub (see its doc in
+// `../src/completions`) — Volar never routes the `.nota` source doc to a service plugin, so there is
+// no `provideCompletionItems` path left to unit-test here. What it advertises is real (merged into
+// the server's `initialize` capabilities) and is worth pinning directly; the actual `@|` completion
+// behaviour over the wire — the connection-level merge of these trigger characters firing a request
+// that `headContext`/`headCompletions` (tested above) then answer — is asserted end-to-end in
+// `server-e2e.test.ts`.
+describe("notaCompletionsPlugin (capability advertisement)", () => {
   test("registers `@` and `[` as trigger characters", () => {
     expect(
       notaCompletionsPlugin.capabilities.completionProvider?.triggerCharacters
     ).toEqual(["@", "["]);
-  });
-
-  test("offers head completions at `@|`", () => {
-    const src = "@";
-    const result = complete(src, 1);
-    const labels = (result as { items: { label: string }[] })?.items.map(
-      i => i.label
-    );
-    expect(labels).toContain("p");
-    expect(labels).toContain("Tex");
-  });
-
-  test("returns undefined on a `%` line (embedded JS) — TS handles it", () => {
-    const src = "% const x = @";
-    expect(complete(src, src.length)).toBeUndefined();
-  });
-
-  test("returns undefined at a `[` prop trigger — TS serves props via the mapping", () => {
-    const src = "@a[";
-    expect(complete(src, src.length)).toBeUndefined();
   });
 });
 

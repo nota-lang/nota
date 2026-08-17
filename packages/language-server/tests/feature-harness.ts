@@ -29,11 +29,69 @@ import ts from "typescript";
 import { buildVirtual } from "../src/language-plugin";
 
 // `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (lib.d.ts)
-// resolves for the TS service.
-const PKG_ROOT = resolve(import.meta.dirname, "..");
+// resolves for the TS service. Exported so the other harnesses over this same host builder
+// (`diagnostics.test.ts`) don't each re-derive it.
+export const PKG_ROOT = resolve(import.meta.dirname, "..");
 
 /** A capability predicate over a mapping's `data` (the Volar gate per feature). */
 export type CapFilter = (data: MappingCapabilities) => boolean;
+
+/**
+ * Build a `ts.LanguageServiceHost` over a single virtual `.tsx` file — the shared boilerplate every
+ * per-suite harness in this package needs ({@link createFeatureHarness} below; `diagnostics.test.ts`;
+ * `typed-surface.test.ts`), previously three ~25-line copies with three DIVERGENT `jsx` settings.
+ * `currentDirectory` is the one axis that genuinely needs to vary per caller — `typed-surface.test.ts`
+ * roots it in a fresh directory with no `node_modules` on purpose (proving resolution independence is
+ * its whole point); `code` is a thunk rather than a plain string so a caller COULD serve evolving
+ * content, though none currently need to (each test builds one harness per case).
+ *
+ * `jsx: "preserve"` matches the shipped server config (`browser.ts`'s `TSCONFIG`) — the virtual emit
+ * is Solid JSX; "preserve" + the preamble's global JSX namespace types it with classic resolution, no
+ * `jsx-runtime` module lookup. Two of the three copies this replaces had drifted to `ReactJSX` — it
+ * happened to still catch the same diagnostics for these fixtures, but type-checked under a
+ * DIFFERENT mode than what ships, which is exactly the kind of drift a shared harness prevents.
+ */
+export function createLanguageServiceHost(
+  virtualFileName: string,
+  currentDirectory: string,
+  code: () => string
+): ts.LanguageServiceHost {
+  const compilerOptions: ts.CompilerOptions = {
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    jsx: ts.JsxEmit.Preserve,
+    strict: true,
+    noEmit: true,
+    skipLibCheck: true,
+    // No ambient `@types` anywhere — every consumer of this host cares that the typed surface
+    // resolves from the preamble alone, not disk `@types` (sharpest in `typed-surface.test.ts`,
+    // true incidentally for the others).
+    types: []
+  };
+  return {
+    getCompilationSettings: () => compilerOptions,
+    getScriptFileNames: () => [virtualFileName],
+    getScriptVersion: fileName => (fileName === virtualFileName ? "1" : "0"),
+    getScriptSnapshot: fileName => {
+      if (fileName === virtualFileName) {
+        return ts.ScriptSnapshot.fromString(code());
+      }
+      if (existsSync(fileName)) {
+        return ts.ScriptSnapshot.fromString(readFileSync(fileName, "utf8"));
+      }
+      return undefined;
+    },
+    getCurrentDirectory: () => currentDirectory,
+    getDefaultLibFileName: opts => ts.getDefaultLibFilePath(opts),
+    readFile: ts.sys.readFile,
+    fileExists: ts.sys.fileExists,
+    directoryExists: ts.sys.directoryExists,
+    getDirectories: ts.sys.getDirectories,
+    readDirectory: ts.sys.readDirectory,
+    realpath: ts.sys.realpath
+  };
+}
 
 /**
  * A live virtual `.tsx` for one `.nota` source, with a real TS `LanguageService` over it and the
@@ -61,50 +119,18 @@ export interface FeatureHarness {
 /**
  * Build a {@link FeatureHarness} for a `.nota` source. Compiles via the production {@link buildVirtual}
  * (typing preamble + shifted mappings) and installs the result as a real-`.tsx` virtual file under a
- * TS language service configured like the editor's (strict, bundler resolution, ReactJSX).
+ * TS language service ({@link createLanguageServiceHost}) rooted at the package root (so module
+ * resolution finds the TS default libs on disk).
  */
 export function createFeatureHarness(notaSource: string): FeatureHarness {
   // A real `.tsx` extension so TS includes it in the program; the basename keeps the `.nota` origin
-  // visible. Resolved under the package root so module resolution finds the TS default libs.
+  // visible.
   const virtualFileName = resolve(PKG_ROOT, "__feature__.nota.tsx");
 
   const { code, mappings } = buildVirtual(notaSource);
   const sourceMap = new SourceMap<MappingCapabilities>(mappings);
 
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    jsx: ts.JsxEmit.Preserve,
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: []
-  };
-
-  const host: ts.LanguageServiceHost = {
-    getCompilationSettings: () => compilerOptions,
-    getScriptFileNames: () => [virtualFileName],
-    getScriptVersion: fileName => (fileName === virtualFileName ? "1" : "0"),
-    getScriptSnapshot: fileName => {
-      if (fileName === virtualFileName) {
-        return ts.ScriptSnapshot.fromString(code);
-      }
-      if (existsSync(fileName)) {
-        return ts.ScriptSnapshot.fromString(readFileSync(fileName, "utf8"));
-      }
-      return undefined;
-    },
-    getCurrentDirectory: () => PKG_ROOT,
-    getDefaultLibFileName: opts => ts.getDefaultLibFilePath(opts),
-    readFile: ts.sys.readFile,
-    fileExists: ts.sys.fileExists,
-    directoryExists: ts.sys.directoryExists,
-    getDirectories: ts.sys.getDirectories,
-    readDirectory: ts.sys.readDirectory,
-    realpath: ts.sys.realpath
-  };
-
+  const host = createLanguageServiceHost(virtualFileName, PKG_ROOT, () => code);
   const ls = ts.createLanguageService(host);
 
   function gen(notaOffset: number, filter?: CapFilter): number | null {

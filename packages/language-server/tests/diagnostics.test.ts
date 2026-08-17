@@ -2,7 +2,8 @@
  * **Diagnostics.** Drives the TS language service directly over the virtual `.tsx` + the (shifted)
  * `CodeMapping`s and maps each diagnostic back to its **`.nota`** range through Volar's own
  * `SourceMap` (`@volar/source-map`, re-exported by `@volar/language-core`). This drives the language
- * service directly over the virtual code + mappings — it exercises the exact production path
+ * service directly over the virtual code + mappings, via the same shared
+ * `createLanguageServiceHost` `feature-harness.ts` builds — it exercises the exact production path
  * (`buildVirtual` → TS diagnostics → mapped to `.nota`) using the production mapper, without the
  * heavier Volar program/connection plumbing.
  *
@@ -17,73 +18,22 @@
  * `generatedOffsets` index exactly this content — so the round-trip is faithful to production.
  */
 
-import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { SourceMap } from "@volar/language-core";
 import ts from "typescript";
 import { beforeEach, describe, expect, test } from "vitest";
 import { buildVirtual } from "../src/language-plugin";
-
-// `import.meta.dirname` is `<pkg>/tests`; the package root is where `node_modules` (lib.d.ts)
-// resolves for the TS service.
-const PKG_ROOT = resolve(import.meta.dirname, "..");
+import { createLanguageServiceHost, PKG_ROOT } from "./feature-harness";
 
 /**
- * One mutable virtual `.tsx` driven by a real TS language service. `setSource(notaSource)` compiles
- * the `.nota` via `buildVirtual` and installs the result as the virtual file's content + mappings.
+ * A virtual `.tsx` driven by a real TS language service, one fresh `ts.LanguageService` per
+ * `notaDiagnostics` call (the reader is fast; each test in this file calls it exactly once, so
+ * there is no benefit to the incremental-update machinery a single mutable instance would need).
  */
 function createHarness() {
   // A real `.tsx` extension so TS includes it in the program; the basename keeps the `.nota` origin
-  // visible. Resolved under the package root so module resolution finds the TS default libs.
+  // visible.
   const virtualFileName = resolve(PKG_ROOT, "__fixture__.nota.tsx");
-
-  let virtualCode = "";
-  let sourceMap = new SourceMap<{ verification?: unknown }>([]);
-  let version = 0;
-
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    jsx: ts.JsxEmit.ReactJSX,
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: []
-  };
-
-  const host: ts.LanguageServiceHost = {
-    getCompilationSettings: () => compilerOptions,
-    getScriptFileNames: () => [virtualFileName],
-    getScriptVersion: fileName =>
-      fileName === virtualFileName ? String(version) : "0",
-    getScriptSnapshot: fileName => {
-      if (fileName === virtualFileName) {
-        return ts.ScriptSnapshot.fromString(virtualCode);
-      }
-      if (existsSync(fileName)) {
-        return ts.ScriptSnapshot.fromString(readFileSync(fileName, "utf8"));
-      }
-      return undefined;
-    },
-    getCurrentDirectory: () => PKG_ROOT,
-    getDefaultLibFileName: opts => ts.getDefaultLibFilePath(opts),
-    readFile: ts.sys.readFile,
-    fileExists: ts.sys.fileExists,
-    directoryExists: ts.sys.directoryExists,
-    getDirectories: ts.sys.getDirectories,
-    readDirectory: ts.sys.readDirectory,
-    realpath: ts.sys.realpath
-  };
-
-  const ls = ts.createLanguageService(host);
-
-  function setSource(notaSource: string): void {
-    const { code, mappings } = buildVirtual(notaSource);
-    virtualCode = code;
-    sourceMap = new SourceMap(mappings);
-    version++;
-  }
 
   /**
    * Semantic diagnostics over the virtual `.tsx`, each mapped back to its `.nota` offset (the first
@@ -94,7 +44,14 @@ function createHarness() {
     message: string;
     notaStart: number | null;
   }[] {
-    setSource(notaSource);
+    const { code, mappings } = buildVirtual(notaSource);
+    const sourceMap = new SourceMap<{ verification?: unknown }>(mappings);
+    const host = createLanguageServiceHost(
+      virtualFileName,
+      PKG_ROOT,
+      () => code
+    );
+    const ls = ts.createLanguageService(host);
     const diags = ls.getSemanticDiagnostics(virtualFileName);
     return diags.map(d => {
       const message = ts.flattenDiagnosticMessageText(d.messageText, "\n");
@@ -112,6 +69,21 @@ function createHarness() {
   return { notaDiagnostics };
 }
 
+describe("createLanguageServiceHost (shared across this file and typed-surface.test.ts)", () => {
+  test("jsx mode matches the shipped server config, not a per-suite guess", () => {
+    // Regression pin for the fix: this file and typed-surface.test.ts each used to hard-code their
+    // OWN `ts.JsxEmit.ReactJSX`, silently diverged from what actually ships (`browser.ts`'s
+    // `TSCONFIG` sets `jsx: "preserve"`) — a virtual `.tsx` that type-checks under a different JSX
+    // mode than production is not a faithful harness.
+    const host = createLanguageServiceHost(
+      resolve(PKG_ROOT, "__jsx-mode-check__.nota.tsx"),
+      PKG_ROOT,
+      () => ""
+    );
+    expect(host.getCompilationSettings().jsx).toBe(ts.JsxEmit.Preserve);
+  });
+});
+
 describe("diagnostics (TS over the virtual .tsx, mapped back to .nota)", () => {
   let harness: ReturnType<typeof createHarness>;
 
@@ -119,11 +91,15 @@ describe("diagnostics (TS over the virtual .tsx, mapped back to .nota)", () => {
     harness = createHarness();
   });
 
-  test("sanity: the ambient surface resolves (no module/exported-member errors)", () => {
-    // If the preamble's ambient declarations were broken, the structural refs would all error.
+  test("sanity: the ambient surface resolves (no module/exported-member/undefined-name errors)", () => {
+    // If the preamble's ambient declarations were broken, the structural refs (`NotaDoc`, …) would
+    // all error. ALL "Cannot find name" diagnostics, deliberately not a hardcoded name list (the
+    // emit's free identifiers are Solid JSX components now, not `h`/`decode`/`Fragment` — a closed
+    // list tracking specific names silently stops catching anything once the emit moves on; see
+    // `typed-surface.test.ts`'s identical "not a hardcoded name list" reasoning).
     const diags = harness.notaDiagnostics("@p{hello}\n");
     const moduleErrors = diags.filter(d =>
-      /Cannot find module|has no exported member|Cannot find name 'h'|Cannot find name 'decode'|Cannot find name 'Fragment'/.test(
+      /Cannot find module|has no exported member|Cannot find name/.test(
         d.message
       )
     );

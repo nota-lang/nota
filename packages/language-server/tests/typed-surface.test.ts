@@ -25,11 +25,14 @@ import { SourceMap } from "@volar/language-core";
 import ts from "typescript";
 import { describe, expect, test } from "vitest";
 import { buildVirtual } from "../src/language-plugin";
+import { createLanguageServiceHost } from "./feature-harness";
 
 /**
  * A TS language service over the virtual `.tsx` for a `.nota`, rooted in a scratch directory with no
  * resolvable `@nota-lang/*` on disk — so the runtime types resolve *only* through the preamble's
- * ambient module. Mirrors `diagnostics.test.ts` but with a node_modules-free current directory.
+ * ambient module. Otherwise the same {@link createLanguageServiceHost} `diagnostics.test.ts` uses,
+ * with a fresh `node_modules`-free `currentDirectory` per call (its doc explains why that's the one
+ * axis this shared builder actually parameterizes).
  */
 function noNodeModulesHarness(notaSource: string) {
   const dir = mkdtempSync(join(tmpdir(), "nota-typed-"));
@@ -37,36 +40,7 @@ function noNodeModulesHarness(notaSource: string) {
   const { code, mappings } = buildVirtual(notaSource);
   const sourceMap = new SourceMap(mappings);
 
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    jsx: ts.JsxEmit.ReactJSX,
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [] // no ambient @types; the emit surface (structural/solid-js/prelude) must come from the preamble
-  };
-
-  const host: ts.LanguageServiceHost = {
-    getCompilationSettings: () => compilerOptions,
-    getScriptFileNames: () => [virtualFileName],
-    getScriptVersion: () => "1",
-    getScriptSnapshot: fileName =>
-      fileName === virtualFileName
-        ? ts.ScriptSnapshot.fromString(code)
-        : ts.sys.fileExists(fileName)
-          ? ts.ScriptSnapshot.fromString(ts.sys.readFile(fileName) ?? "")
-          : undefined,
-    getCurrentDirectory: () => dir,
-    getDefaultLibFileName: opts => ts.getDefaultLibFilePath(opts),
-    readFile: ts.sys.readFile,
-    fileExists: ts.sys.fileExists,
-    directoryExists: ts.sys.directoryExists,
-    getDirectories: ts.sys.getDirectories,
-    readDirectory: ts.sys.readDirectory,
-    realpath: ts.sys.realpath
-  };
+  const host = createLanguageServiceHost(virtualFileName, dir, () => code);
   const ls = ts.createLanguageService(host);
 
   function gen(notaOffset: number): number | null {

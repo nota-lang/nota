@@ -83,8 +83,9 @@ describe("preamble", () => {
   test("PREAMBLE is whole lines (every line ends in \\n) so the shift is a clean constant", () => {
     expect(PREAMBLE.endsWith("\n")).toBe(true);
     expect(PREAMBLE_LENGTH).toBe(PREAMBLE.length);
-    // The runtime surface the reader references as free identifiers is declared module-locally
-    // (resolution-independent: no import, so h/decode/Fragment resolve with no node_modules).
+    // The structural Solid JSX surface the reader references as free identifiers (`NotaDoc`,
+    // `For`, …) is declared module-locally (resolution-independent: no import, so they resolve
+    // with no node_modules).
     expect(PREAMBLE).toContain("declare const NotaDoc");
     expect(PREAMBLE).toContain("declare const For");
     // The ambient prelude free identifiers are declared.

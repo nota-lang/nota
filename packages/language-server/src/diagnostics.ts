@@ -9,7 +9,10 @@
  *
  * The reader now recovers (EOF error-recovery) and returns the syntax/lowering problems as
  * {@link NotaError}s (byte-spanned into the `.nota`). This module turns them into LSP `Diagnostic`s
- * and packages the thin Volar {@link LanguageServicePlugin} that serves them for `*.nota` documents.
+ * via {@link notaSyntaxDiagnostics} — the live function `server-core.ts` calls at its
+ * `sendDiagnostics` choke point — and also exports the thin Volar {@link LanguageServicePlugin} that
+ * exists solely to advertise the `diagnosticProvider` capability (see its own doc for why its
+ * `create()` never actually serves anything).
  */
 
 import { compileVirtual, type NotaError } from "@nota-lang/compiler";
@@ -19,7 +22,6 @@ import {
   type LanguageServicePlugin
 } from "@volar/language-server";
 import { makeByteConverter } from "./byte-offsets.js";
-import { NOTA_LANGUAGE_ID } from "./language-plugin.js";
 
 /** The `source` field stamped on every Nota syntax diagnostic (shown in the editor's Problems UI). */
 export const NOTA_DIAGNOSTIC_SOURCE = "nota";
@@ -59,10 +61,16 @@ export function notaSyntaxDiagnostics(source: string): Diagnostic[] {
 }
 
 /**
- * The Nota syntax-diagnostics Volar service plugin: reports {@link notaSyntaxDiagnostics} for
- * `*.nota` documents. Registered alongside `volar-service-typescript` in `server.ts`; the TS plugin
- * handles the virtual `.tsx`'s type errors, this one the `.nota`'s own syntax errors — the two
- * diagnostic streams are disjoint (different documents) and merge in the editor's Problems view.
+ * The Nota syntax-diagnostics Volar service plugin. Registered (alongside `volar-service-typescript`)
+ * in the plugin list passed to `server.initialize` (`server-core.ts`) purely so its
+ * `diagnosticProvider` capability merges into the server's advertised capabilities; its `create()` is
+ * a no-op because Volar's `languageFeatureWorker` never offers a service plugin the `.nota` source doc
+ * (only the generated virtual `.tsx`, which this plugin has nothing to say about), so a
+ * `provideDiagnostics` here would never run. The live Nota syntax diagnostics are pushed by
+ * {@link notaSyntaxDiagnostics} through `interceptDiagnostics` in `server-core.ts`, which merges them
+ * onto Volar's TS diagnostics at the `connection.sendDiagnostics` choke point — the two diagnostic
+ * streams (TS over the virtual, Nota syntax over the source) are disjoint and merge there for the
+ * editor's Problems view.
  */
 export const notaDiagnosticsServicePlugin: LanguageServicePlugin = {
   name: "nota-syntax-diagnostics",
@@ -72,14 +80,5 @@ export const notaDiagnosticsServicePlugin: LanguageServicePlugin = {
       workspaceDiagnostics: false
     }
   },
-  create() {
-    return {
-      provideDiagnostics(document) {
-        if (document.languageId !== NOTA_LANGUAGE_ID) {
-          return null;
-        }
-        return notaSyntaxDiagnostics(document.getText());
-      }
-    };
-  }
+  create: () => ({})
 };
