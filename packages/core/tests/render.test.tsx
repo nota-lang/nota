@@ -21,8 +21,10 @@ import {
   NotaDoc,
   OlLi,
   onRenderReset,
+  parseOpeningTag,
   Reforest,
   renderDocument,
+  scanOpeningTag,
   textOf,
   UlLi,
   useDocState
@@ -122,6 +124,42 @@ describe("reforest over SSR chunks", () => {
       </Probe>
     ));
     expect(got).toBe("A & B C");
+  });
+});
+
+describe("scanOpeningTag / parseOpeningTag (exported opening-tag sniffers)", () => {
+  test("scanOpeningTag: tag as-authored + the raw attrs region, quote-safe for both styles", () => {
+    expect(scanOpeningTag('<li title="a>b" data-list="ol">x</li>')).toEqual({
+      tag: "li",
+      attrs: ' title="a>b" data-list="ol"'
+    });
+    expect(scanOpeningTag("<span title='a>b' class='hl'>x</span>")).toEqual({
+      tag: "span",
+      attrs: " title='a>b' class='hl'"
+    });
+    expect(scanOpeningTag("<DIV>")).toEqual({ tag: "DIV", attrs: "" }); // case preserved
+    expect(scanOpeningTag("plain text, no tag")).toBeNull();
+    expect(scanOpeningTag("<!--#-->marker-led<!--/-->")).toBeNull();
+  });
+
+  test("parseOpeningTag: lowercased tag + structured attrs, both quote styles, entity-decoded", () => {
+    expect(parseOpeningTag('<DIV class="a &amp; b" data-x="1">')).toEqual({
+      tag: "div",
+      attrs: { class: "a & b", "data-x": "1" }
+    });
+    // Single-quoted values extract too — code.tsx's decoration reconstruction and the
+    // prelude's title-text meta-class sniff both consume this instead of a double-quote-only
+    // regex of their own.
+    expect(parseOpeningTag("<span title='a>b' class='hl'>")).toEqual({
+      tag: "span",
+      attrs: { title: "a>b", class: "hl" }
+    });
+    // A bare (valueless) attribute maps to "".
+    expect(parseOpeningTag("<input disabled>")).toEqual({
+      tag: "input",
+      attrs: { disabled: "" }
+    });
+    expect(parseOpeningTag("no tag here")).toBeNull();
   });
 });
 

@@ -24,6 +24,9 @@
  */
 
 import {
+  type DocState,
+  isSSRChunk,
+  parseOpeningTag,
   Reforest,
   type ResolvedChild,
   textOf,
@@ -31,6 +34,8 @@ import {
 } from "@nota-lang/core";
 import {
   children,
+  createMemo,
+  createRoot,
   type JSX,
   type ParentProps,
   Show,
@@ -62,35 +67,29 @@ import {
  * Title text of resolved heading/cite children, skipping the prelude's own meta elements
  * (footnote `<sup class="nota-fnref">`, cite links) so a footnote inside a heading doesn't leak
  * its number into the slug/Toc entry — the analogue of the old textContent's mark/query skip.
+ * The chunk/Node dispatch (everything but the meta-class skip) delegates to `textOf`; the
+ * class sniff shares core's quote-aware {@link parseOpeningTag} instead of a second,
+ * double-quote-only opening-tag regex.
  */
 function titleTextOf(parts: ResolvedChild[]): string {
   const META_CLASS = /\bnota-(fnref|cite|secnum)\b/;
+  const metaClass = (part: ResolvedChild): boolean => {
+    if (part === null || part === undefined || typeof part !== "object") {
+      return false;
+    }
+    if (isSSRChunk(part)) {
+      return META_CLASS.test(parseOpeningTag(part.t)?.attrs.class ?? "");
+    }
+    return (
+      part.nodeType === 1 &&
+      META_CLASS.test((part as Element).getAttribute("class") ?? "")
+    );
+  };
   let out = "";
   for (const part of parts) {
-    if (part === null || part === undefined || typeof part === "boolean") {
-      continue;
-    }
-    if (typeof part === "string" || typeof part === "number") {
+    if (!metaClass(part)) {
       out += textOf(part);
-      continue;
     }
-    if (typeof (part as { t?: string }).t === "string") {
-      const chunk = (part as { t: string }).t;
-      const cls = /^<[a-zA-Z][^>]*\bclass="([^"]*)"/.exec(chunk);
-      if (cls && META_CLASS.test(cls[1])) {
-        continue;
-      }
-      out += textOf(part);
-      continue;
-    }
-    const el = part as Node;
-    if (
-      el.nodeType === 1 &&
-      META_CLASS.test((el as Element).getAttribute("class") ?? "")
-    ) {
-      continue;
-    }
-    out += textOf(part);
   }
   return out;
 }
@@ -138,6 +137,102 @@ function targetsKind(
 }
 
 // =============================================================================================
+// Shared memoized reference model
+// =============================================================================================
+
+/** Headings + their ids/numbers, the resolved id namespace, and footnote/bib use numbering —
+ * everything downstream of one `state.read()` pair, computed once per doc-state instance and
+ * shared by every consumer below instead of each re-deriving it independently. */
+interface ReferenceModel {
+  anchors: () => AnchorFact[];
+  refs: () => RefFact[];
+  headings: () => AnchorFact[];
+  /** `pos` → index into {@link headings} — a heading's own O(1) self-lookup. */
+  headingIndex: () => Map<number, number>;
+  ids: () => string[];
+  numbers: () => (string | undefined)[];
+  resolved: () => Map<string, ResolvedAnchor>;
+  footnoteNumbering: () => {
+    numOf: Map<string, number>;
+    firstRefPos: Map<string, number>;
+  };
+  bibNumbering: () => {
+    labels: Map<string, number>;
+    firstRefPos: Map<string, number>;
+  };
+}
+
+const referenceModels = new WeakMap<DocState, ReferenceModel>();
+
+/**
+ * The shared memoized derivation layer for one doc-state instance. Every `Heading`/`Toc`/`Ref`/
+ * `FootnoteSup`/`BibRefLink`/`Cite`/`Bibliography` reading the SAME store used to re-derive the
+ * heading id/number arrays and re-run `resolveAnchors` independently per read — O(n²) across a
+ * document's headings, and the namespace walked once per `Ref`/`Cite`/`Bibliography` instance.
+ * One `createMemo` per derivation here, read by all of them instead.
+ *
+ * Built in its own detached root, not the calling component's: an earlier consumer (a
+ * `<Show>`-wrapped heading, e.g.) may unmount before a later one reads the shared cache, and a
+ * memo attached to THAT consumer's owner would be disposed along with it — frozen at its last
+ * value for every later reader (exactly the unmount-before-later-consumer scenario the live-
+ * renumbering tests pin: see csr.test.tsx). The root is intentionally never disposed; its
+ * lifetime is the store's own — a per-document cache, reclaimed with the store (`referenceModels`
+ * is a WeakMap, so nothing here outlives the last reference to its `DocState`) — the same
+ * "verified benign module state" shape as this package's other long-lived caches (code.tsx's
+ * highlighter, def.tsx's `handlersInstalled`).
+ */
+function referenceModel(state: DocState): ReferenceModel {
+  const cached = referenceModels.get(state);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const model = createRoot((): ReferenceModel => {
+    const anchors = createMemo(() => readAnchors(state));
+    const refs = createMemo(() => readRefs(state));
+    const headings = createMemo(() =>
+      anchorsOf(anchors(), ANCHOR_KINDS.heading)
+    );
+    const headingIndex = createMemo(
+      () => new Map(headings().map((f, i) => [f.pos as number, i]))
+    );
+    const ids = createMemo(() => headingIds(headings()));
+    const numbers = createMemo(() =>
+      headingNumbers(headings(), config().numberDepth)
+    );
+    const resolved = createMemo(() => resolution(anchors()));
+    const footnoteNumbering = createMemo(() => {
+      const res = resolved();
+      const as = anchors();
+      return useNumbers(refs(), key =>
+        targetsKind(key, ANCHOR_KINDS.footnote, res, as)
+      );
+    });
+    const bibNumbering = createMemo(() => {
+      const res = resolved();
+      const rs = refs();
+      const labels = bibLabels(rs, res);
+      const { firstRefPos } = useNumbers(rs, key =>
+        targetsKind(key, ANCHOR_KINDS.bib, res, anchors())
+      );
+      return { labels, firstRefPos };
+    });
+    return {
+      anchors,
+      refs,
+      headings,
+      headingIndex,
+      ids,
+      numbers,
+      resolved,
+      footnoteNumbering,
+      bibNumbering
+    };
+  });
+  referenceModels.set(state, model);
+  return model;
+}
+
+// =============================================================================================
 // Heading + numbering
 // =============================================================================================
 
@@ -173,10 +268,10 @@ export function Heading(
     explicitId
   } satisfies Omit<AnchorFact, "pos">);
   const myPos = handle.fact.pos as number;
-  const headings = () => anchorsOf(readAnchors(state), ANCHOR_KINDS.heading);
-  const myIndex = () => headings().findIndex(f => f.pos === myPos);
-  const id = () => headingIds(headings())[myIndex()];
-  const num = () => headingNumbers(headings(), config().numberDepth)[myIndex()];
+  const model = referenceModel(state);
+  const myIndex = () => model.headingIndex().get(myPos) ?? -1;
+  const id = () => model.ids()[myIndex()];
+  const num = () => model.numbers()[myIndex()];
   return (
     <Dynamic component={`h${rank}`} id={id()} {...rest}>
       <Show when={num() !== undefined}>
@@ -213,11 +308,12 @@ interface TocEntry {
  */
 export function Toc(props: { depth?: number }): JSX.Element {
   const state = useDocState();
+  const model = referenceModel(state);
   const depth = typeof props.depth === "number" ? props.depth : 6;
   const entries = (): TocEntry[] => {
-    const facts = anchorsOf(readAnchors(state), ANCHOR_KINDS.heading);
-    const ids = headingIds(facts);
-    const nums = headingNumbers(facts, config().numberDepth);
+    const facts = model.headings();
+    const ids = model.ids();
+    const nums = model.numbers();
     return facts
       .map((f, i) => ({
         rank: f.rank ?? 1,
@@ -281,12 +377,13 @@ export function Label(props: { id?: string }): JSX.Element {
 
 /** Nearest preceding heading of `pos`: its `[id, numberOrTitle]`, or null when none. */
 function precedingHeading(
-  anchors: AnchorFact[],
+  state: DocState,
   pos: number
 ): [string, string] | null {
-  const headings = anchorsOf(anchors, ANCHOR_KINDS.heading);
-  const ids = headingIds(headings);
-  const nums = headingNumbers(headings, config().numberDepth);
+  const model = referenceModel(state);
+  const headings = model.headings();
+  const ids = model.ids();
+  const nums = model.numbers();
   let t = -1;
   for (let i = 0; i < headings.length; i++) {
     if ((headings[i].pos as number) < pos) {
@@ -351,9 +448,10 @@ function FootnoteSup(props: {
   refPos: number;
 }): JSX.Element {
   const state = useDocState();
-  const model = () => footnoteModel(readAnchors(state), readRefs(state));
-  const num = () => model().numOf.get(props.targetKey);
-  const first = () => model().firstRefPos.get(props.targetKey) === props.refPos;
+  const model = referenceModel(state);
+  const num = () => model.footnoteNumbering().numOf.get(props.targetKey);
+  const first = () =>
+    model.footnoteNumbering().firstRefPos.get(props.targetKey) === props.refPos;
   return (
     <sup class="nota-fnref">
       <a
@@ -377,18 +475,10 @@ function BibRefLink(props: {
   children?: JSX.Element;
 }): JSX.Element {
   const state = useDocState();
-  const model = () => {
-    const anchors = readAnchors(state);
-    const refs = readRefs(state);
-    const res = resolution(anchors);
-    const labels = bibLabels(refs, res);
-    const { firstRefPos } = useNumbers(refs, key =>
-      targetsKind(key, ANCHOR_KINDS.bib, res, anchors)
-    );
-    return { labels, firstRefPos };
-  };
-  const num = () => model().labels.get(props.key_);
-  const first = () => model().firstRefPos.get(props.key_) === props.refPos;
+  const model = referenceModel(state);
+  const num = () => model.bibNumbering().labels.get(props.key_);
+  const first = () =>
+    model.bibNumbering().firstRefPos.get(props.key_) === props.refPos;
   const text = () => {
     const n = num() !== undefined ? String(num()) : PENDING;
     const page = props.page !== undefined ? `, p. ${props.page}` : "";
@@ -423,6 +513,7 @@ export function Ref(
   props: ParentProps & { id?: string; page?: string }
 ): JSX.Element {
   const state = useDocState();
+  const model = referenceModel(state);
   const key = typeof props.id === "string" ? props.id.trim() : "";
   if (key === "") {
     throw new Error(
@@ -437,7 +528,7 @@ export function Ref(
   const body = () => (hasAuthored() ? resolved() : undefined);
 
   const target = (): ResolvedAnchor | null => {
-    const t = resolution(readAnchors(state)).get(key);
+    const t = model.resolved().get(key);
     if (t === undefined) {
       if (state.seeded) {
         throw new Error(
@@ -456,7 +547,6 @@ export function Ref(
         if (t === null) {
           return <PendingRef>{body()}</PendingRef>;
         }
-        const anchors = readAnchors(state);
         switch (t.fact.kind) {
           case ANCHOR_KINDS.definition:
             return (
@@ -469,7 +559,7 @@ export function Ref(
               </a>
             );
           case ANCHOR_KINDS.label: {
-            const h = precedingHeading(anchors, t.fact.pos as number);
+            const h = precedingHeading(state, t.fact.pos as number);
             if (h === null) {
               if (state.seeded) {
                 throw new Error(
@@ -485,9 +575,8 @@ export function Ref(
             );
           }
           case ANCHOR_KINDS.heading: {
-            const headings = anchorsOf(anchors, ANCHOR_KINDS.heading);
-            const i = headings.indexOf(t.fact);
-            const num = headingNumbers(headings, config().numberDepth)[i];
+            const i = model.headingIndex().get(t.fact.pos as number) ?? -1;
+            const num = model.numbers()[i];
             return (
               <a href={`#${t.id}`} class="nota-ref">
                 {body() ?? (num !== undefined ? num : (t.fact.title ?? ""))}
@@ -505,7 +594,7 @@ export function Ref(
           default: {
             // Generic arm: extension kinds (paper's `figure`) are JSON data, no renderer
             // registry — href + refPrefix + anchor-order ordinal (+ declared tooltip wiring).
-            const n = anchorOrdinals(anchors, t.fact.kind).get(
+            const n = anchorOrdinals(model.anchors(), t.fact.kind).get(
               t.fact.pos as number
             );
             const tooltip = t.fact.tooltip === true;
@@ -642,6 +731,7 @@ export function Footnotes(): JSX.Element {
  */
 export function Cite(props: ParentProps): JSX.Element {
   const state = useDocState();
+  const model = referenceModel(state);
   const resolved = children(() => props.children);
   const keys = titleTextOf(resolved.toArray())
     .split(",")
@@ -661,7 +751,7 @@ export function Cite(props: ParentProps): JSX.Element {
     if (!state.seeded) {
       return;
     }
-    const res = resolution(readAnchors(state));
+    const res = model.resolved();
     for (const { key } of uses) {
       if (res.get(key) === undefined) {
         throw new Error(
@@ -729,8 +819,9 @@ function BibEntryLine(props: { key_: string }): JSX.Element {
  */
 export function Bibliography(): JSX.Element {
   const state = useDocState();
+  const model = referenceModel(state);
   const ordered = () => {
-    const labels = bibLabels(readRefs(state), resolution(readAnchors(state)));
+    const labels = model.bibNumbering().labels;
     return [...labels.entries()].sort((a, b) => a[1] - b[1]);
   };
   return (

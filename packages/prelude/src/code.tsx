@@ -18,8 +18,9 @@
  */
 
 import {
-  decodeEntities,
   HYDRATION_KEY_ATTR,
+  isSSRChunk,
+  parseOpeningTag,
   type ResolvedChild,
   textOf
 } from "@nota-lang/core";
@@ -132,21 +133,20 @@ function partElement(
   if (part === null || part === undefined || typeof part !== "object") {
     return null;
   }
-  const chunk = (part as { t?: string }).t;
-  if (typeof chunk === "string") {
-    const m = /^<([a-zA-Z][a-zA-Z0-9-]*)((?:[^>"]|"[^"]*")*)>/.exec(chunk);
-    if (!m) {
+  if (isSSRChunk(part)) {
+    // Quote-aware + bare-attribute-aware, shared with core's own opening-tag sniffers (a
+    // hand-rolled double-quote-only regex here used to drift from them independently).
+    const opening = parseOpeningTag(part.t);
+    if (!opening) {
       return null; // marker-led chunk (dynamic-rooted component) — no recoverable root
     }
     const properties: Record<string, string> = {};
-    for (const [, name, value] of m[2].matchAll(
-      /([a-zA-Z_][\w-]*)="([^"]*)"/g
-    )) {
+    for (const [name, value] of Object.entries(opening.attrs)) {
       if (!BOOKKEEPING_ATTRS.has(name)) {
-        properties[name] = decodeEntities(value);
+        properties[name] = value;
       }
     }
-    return { tagName: m[1].toLowerCase(), properties };
+    return { tagName: opening.tag, properties };
   }
   const node = part as Node;
   if (node.nodeType === 1) {

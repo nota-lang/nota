@@ -51,8 +51,10 @@ const EXCLUDED_TAGS = new Set([
   "svg"
 ]);
 
-/** The per-element opt-out attribute (`@span[data-nota-nosmart: true]{…}`). */
-export const NOSMART_ATTR = "data-nota-nosmart";
+/** The per-element opt-out attribute (`@span[data-nota-nosmart: true]{…}`). Module-internal: the
+ * reader emits this string directly (a cross-language wire contract), and no TS package outside
+ * this module consumes it either. */
+const NOSMART_ATTR = "data-nota-nosmart";
 
 /** HTML void elements (never push nesting depth in the chunk walk). */
 const VOID_TAGS = new Set([

@@ -58,8 +58,10 @@ export type Category =
   | { kind: "attrs" }
   | { kind: "skip" };
 
-/** The attrs-marker attribute the {@link Attrs} component renders (notation.md §Attrs). */
-export const ATTRS_MARKER = "data-nota-attrs";
+/** The attrs-marker attribute the {@link Attrs} component renders (notation.md §Attrs). Module-
+ * internal: the reader emits this string directly (a cross-language wire contract, so no import
+ * is possible on that side), and no TS package outside this module consumes it either. */
+const ATTRS_MARKER = "data-nota-attrs";
 
 /** Solid's hydration-key bookkeeping attribute (`solid-js/web` stamps it on SSR output). */
 export const HYDRATION_KEY_ATTR = "data-hk";
@@ -118,9 +120,13 @@ const HEADING_RE = /^h([1-6])$/;
  * region — double- and single-quoted attribute values may contain a literal `>` without ending
  * the tag (a naive `[^>]*` attr group truncates there). The one place that knows where an
  * opening tag ends, shared by {@link categorize} (attrs-marker / list-kind sniffing) and
- * {@link extractAttrs} (full name/value extraction).
+ * {@link extractAttrs} (full name/value extraction) — and exported for other packages that sniff
+ * SSR chunk text (the prelude's code decorations and title-text extraction) instead of
+ * hand-rolling a second, usually less quote-safe, opening-tag regex.
  */
-function scanOpeningTag(html: string): { tag: string; attrs: string } | null {
+export function scanOpeningTag(
+  html: string
+): { tag: string; attrs: string } | null {
   const m = /^<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/.exec(
     html
   );
@@ -129,6 +135,26 @@ function scanOpeningTag(html: string): { tag: string; attrs: string } | null {
 
 /** Attribute-token regex over an already-bounded attrs region (name, optionally `="value"`). */
 const ATTR_TOKEN_RE = /([a-zA-Z_:][-\w:.]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g;
+
+/**
+ * {@link scanOpeningTag} plus attribute-token parsing in one call: the tag name (lowercased) and
+ * its attributes as a name→value record (bare/valueless attributes map to `""`; entity-decoded).
+ * The general-purpose facade for callers that want structured attrs instead of the raw region —
+ * {@link extractAttrs} layers marker-stripping on top for Reforest's own paragraph-attrs use.
+ */
+export function parseOpeningTag(
+  html: string
+): { tag: string; attrs: ExtractedAttrs } | null {
+  const opening = scanOpeningTag(html);
+  if (!opening) {
+    return null;
+  }
+  const attrs: ExtractedAttrs = {};
+  for (const a of opening.attrs.matchAll(ATTR_TOKEN_RE)) {
+    attrs[a[1]] = decodeEntities(a[2] ?? a[3] ?? "");
+  }
+  return { tag: opening.tag.toLowerCase(), attrs };
+}
 
 /**
  * Is `name` present as an actual attribute of the (quote-aware-bounded) attrs region — not
@@ -196,11 +222,11 @@ const SKIPPED_MARKER_ATTRS = new Set([ATTRS_MARKER, HYDRATION_KEY_ATTR]);
 function extractAttrs(c: Node | SSRChunk): ExtractedAttrs {
   const out: ExtractedAttrs = {};
   if (isSSRChunk(c)) {
-    const opening = scanOpeningTag(c.t);
+    const opening = parseOpeningTag(c.t);
     if (!opening) return out;
-    for (const a of opening.attrs.matchAll(ATTR_TOKEN_RE)) {
-      if (SKIPPED_MARKER_ATTRS.has(a[1])) continue;
-      out[a[1]] = decodeEntities(a[2] ?? a[3] ?? "");
+    for (const [name, value] of Object.entries(opening.attrs)) {
+      if (SKIPPED_MARKER_ATTRS.has(name)) continue;
+      out[name] = value;
     }
     return out;
   }
