@@ -7,7 +7,9 @@
  * - **default = hydrating Solid app**: the Solid hydration bootstrap in `<head>`, the doc-state
  *   snapshot JSON, a `<script src="./assets/index.js">`, and a self-contained IIFE on disk.
  * - **the asset pipeline** (`asset.nota`): a `?url` svg import and a CSS import flow through
- *   vite — emitted under `assets/`, referenced page-relative.
+ *   vite — emitted under `assets/`, referenced page-relative; a css-hosted asset reference (the
+ *   KaTeX-fonts shape) is rewritten off the SSR build's root-absolute `/assets/…` form and
+ *   resolves on disk.
  * - **`--setup`**: a site module's `lstset` runs before render (shiki-highlighted output).
  * - a reader diagnostic fails the build with the compile error reachable.
  */
@@ -120,6 +122,47 @@ describe("the asset pipeline", () => {
       `<link rel="stylesheet" href="./${out.cssFiles[0]}" />`
     );
     expect(existsSync(join(outDir, out.cssFiles[0]))).toBe(true);
+  });
+
+  test("css-hosted asset URLs (the KaTeX-fonts shape) are rewritten off /assets/ and resolve on disk", async () => {
+    // copySsrAssets' CSS repair (build.ts) rests on the assetFileNames scheme: the SSR build
+    // resolves a css-hosted asset reference (a stylesheet's fonts — what KaTeX's css does) to a
+    // root-absolute `/assets/…` URL regardless of the relative `base`; an island-free doc ships
+    // that CSS as-is, so the root-absolute form must be repaired to css-relative or the font 404s
+    // on any non-root deploy. Pin it explicitly with a synthetic stylesheet + asset, rather than
+    // relying on it incidentally holding for some other fixture's CSS.
+    const dir = mkdtempSync(join(tmpdir(), "nota-cssrel-"));
+    try {
+      writeFileSync(
+        join(dir, "pic.svg"),
+        `<svg xmlns="http://www.w3.org/2000/svg"/>`
+      );
+      writeFileSync(
+        join(dir, "f.css"),
+        "body { background-image: url(./pic.svg); }"
+      );
+      writeFileSync(join(dir, "doc.nota"), '%import "./f.css"\n\nHello\n');
+      const out = await buildNotaFile(join(dir, "doc.nota"), {
+        resolveFrom: pkgRoot,
+        static: true,
+        outDir: join(dir, "out")
+      });
+      expect(out.cssFiles.length).toBe(1);
+      const css = readFileSync(join(out.outDir, out.cssFiles[0]), "utf8");
+      const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m =>
+        m[1].replace(/["']/g, "")
+      );
+      expect(urls.length).toBeGreaterThan(0);
+      for (const u of urls) {
+        expect(u.startsWith("/"), `still root-absolute: ${u}`).toBe(false);
+        expect(
+          existsSync(join(out.outDir, dirname(out.cssFiles[0]), u)),
+          `rewritten url resolves to nothing on disk: ${u}`
+        ).toBe(true);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

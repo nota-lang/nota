@@ -4,8 +4,9 @@
  * {@link nota} returns a **two-plugin preset** (the solid-mdx pattern):
  *
  * 1. the `.nota → Solid JSX` transform (`enforce: "pre"`), delegating to `@nota-lang/compiler`
- *    (reader emit → jsxify → prepended `@nota-lang/core` / `solid-js` / ambient-prelude
- *    imports), plus the fallback `resolveId` for exactly those prepended imports; and
+ *    (the reader's native Solid JSX emit, with prepended `@nota-lang/core` / `solid-js` /
+ *    ambient-prelude imports), plus the fallback `resolveId` for exactly those prepended
+ *    imports; and
  * 2. a pre-configured **vite-plugin-solid** claiming `.nota` alongside `.jsx`/`.tsx`, compiling
  *    the JSX per build target (dom / ssr, hydratable) — SSR-vs-dom follows each build's own ssr
  *    flag, so one preset serves the dev server, an SSG build, and a client build.
@@ -18,6 +19,7 @@
 import { createRequire } from "node:module";
 import {
   compile,
+  DOC_EXPORT_NAME,
   FRAMEWORK_MODULES,
   FRAMEWORK_PACKAGES
 } from "@nota-lang/compiler";
@@ -65,16 +67,35 @@ export interface NotaPluginOptions {
 const EMIT_IMPORT_FALLBACKS = FRAMEWORK_MODULES;
 
 /**
+ * The `@nota-lang/*` packages — beyond the framework itself — that ship a Solid-JSX-preserved
+ * dist (a `"solid"` package.json export condition, compiled per target by the consumer's
+ * vite-plugin-solid, same as `@nota-lang/core`/`@nota-lang/prelude`): `paper`'s scaffolding,
+ * `explorable`'s interaction primitives. Not derivable from the reader's emit surface (nothing
+ * about them is reader-emitted) — hand-maintained, one entry per such package.
+ */
+const SOLID_JSX_DIST_PACKAGES: readonly string[] = [
+  "@nota-lang/paper",
+  "@nota-lang/explorable"
+];
+
+/**
  * Packages whose **module state must be a singleton per page**: solid-js's reactive runtime +
  * hydration flags (`sharedConfig`, `enableHydration` — a second copy silently renders with
- * hydration context nesting disabled, so claiming misses and the client rebuilds the DOM) and
- * the `@nota-lang/*` packages carrying the doc-state context. Deduped so that a dependency
+ * hydration context nesting disabled, so claiming misses and the client rebuilds the DOM), plus
+ * every `@nota-lang/*` package carrying doc-state context or shipping Solid-JSX dist
+ * ({@link FRAMEWORK_PACKAGES} + {@link SOLID_JSX_DIST_PACKAGES}). Deduped so that a dependency
  * graph with two physical copies (the linked-workspace layout, or a consumer's own solid-js at
  * a different patch version) still bundles exactly one.
+ *
+ * Consumers: `@nota-lang/astro` prefix-filters this list for its `noExternal`/`optimizeDeps`
+ * JSX-dist policy (`astro/src/lib.ts`'s `JSX_DIST_PACKAGES`); `@nota-lang/cli` pins only
+ * `FRAMEWORK_PACKAGES` itself (its own resolver, `cli/src/build.ts`'s `cliResolverPlugin` — a
+ * doc's `paper`/`explorable` imports resolve normally from the doc's own node_modules, not the
+ * CLI's).
  */
 export const DEDUPED_PACKAGES: readonly string[] = [
   ...FRAMEWORK_PACKAGES,
-  "@nota-lang/paper"
+  ...SOLID_JSX_DIST_PACKAGES
 ];
 
 /**
@@ -140,11 +161,12 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
       }
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id, prelude });
-      // Brand the default export (the emit is `export default function Doc()`), so a host
-      // renderer that dispatches on component type (the Astro integration's check()) can
-      // recognize a Nota document exactly, without try-rendering. Appended past the mapped
-      // region, so the source map is untouched.
-      return { code: `${out}\nDoc.isNotaDoc = true;\n`, map };
+      // Brand the default export (the emit is `export default function ${DOC_EXPORT_NAME}()`,
+      // e.g. `Doc` — @nota-lang/compiler's DOC_EXPORT_NAME, derived from the reader's emit
+      // surface rather than hardcoded here), so a host renderer that dispatches on component
+      // type (the Astro integration's check()) can recognize a Nota document exactly, without
+      // try-rendering. Appended past the mapped region, so the source map is untouched.
+      return { code: `${out}\n${DOC_EXPORT_NAME}.isNotaDoc = true;\n`, map };
     }
   };
 }

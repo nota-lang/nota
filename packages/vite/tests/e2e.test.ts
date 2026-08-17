@@ -1,7 +1,7 @@
 /**
- * The full-pipeline e2e: a real `.nota` file → the nota() preset (reader → jsxify →
- * vite-plugin-solid SSR compile) → `renderDocument` (two-pass, seeded) — executed inside the
- * Vite SSR module graph via a fixture entry, so the doc-state context is one instance.
+ * The full-pipeline e2e: a real `.nota` file → the nota() preset (reader's native Solid JSX
+ * emit → vite-plugin-solid SSR compile) → `renderDocument` (two-pass, seeded) — executed inside
+ * the Vite SSR module graph via a fixture entry, so the doc-state context is one instance.
  *
  * This is the live loop the old `packages/react/tests/integration.test.ts` + compiler e2e
  * closed for the h-call architecture, rebuilt for the Solid one.

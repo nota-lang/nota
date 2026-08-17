@@ -17,9 +17,10 @@ import { parse } from "@babel/parser";
 import { describe, expect, test } from "vitest";
 import {
   AMBIENT_PRELUDE_NAMES,
-  compile,
-  SOLID_AMBIENT_NAMES,
   CORE_RUNTIME_NAMES,
+  compile,
+  DOC_EXPORT_NAME,
+  SOLID_AMBIENT_NAMES,
   SOLID_WEB_NAMES
 } from "../src/lib";
 
@@ -190,9 +191,9 @@ describe("compile (ambient prelude injection + freeNames)", () => {
   test("binding an emit-referenced prelude name is a reader diagnostic", () => {
     // The other half of the lexical-override story: `Tex` is emit-referenced (`$…$` lowers to
     // it), so a document binding would silently break math — the reader diagnoses it instead.
-    expect(() => compile('%import { Tex } from "./my-tex.js"\n$x^2$\n')).toThrow(
-      /Tex.*collides/
-    );
+    expect(() =>
+      compile('%import { Tex } from "./my-tex.js"\n$x^2$\n')
+    ).toThrow(/Tex.*collides/);
   });
 
   test("prelude: false disables injection; a custom module is honored", () => {
@@ -352,6 +353,15 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
         ...surface.prelude
       ].sort()
     );
+  });
+
+  test("DOC_EXPORT_NAME is the reader's default-export name (`Doc`)", async () => {
+    // DOC_EXPORT_NAME derives from emitSurface().reserved minus the four emit-name groups —
+    // this pins the concrete value so a reader rename is caught here, not just at the derivation
+    // no longer resolving to exactly one name (the invariant asserted above).
+    const { emitSurface } = await import("../src/reader.js");
+    expect(DOC_EXPORT_NAME).toBe("Doc");
+    expect(emitSurface().reserved).toContain(DOC_EXPORT_NAME);
   });
 });
 

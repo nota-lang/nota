@@ -62,10 +62,10 @@ export interface BuildOptions {
   /** Document `<title>` (default: the input basename, else `"Nota Document"`). */
   title?: string;
   /**
-   * Package root whose `node_modules` pins the **framework-owned** bare specifiers (`solid-js`,
-   * `@nota-lang/{solid,prelude}`) — see {@link cliResolverPlugin}. Defaults to this package's
-   * root. Everything else (the doc's own imports) resolves from the doc's directory, as in any
-   * Vite app.
+   * Package root whose `node_modules` pins the **framework-owned** bare specifiers
+   * (`FRAMEWORK_PACKAGES` — `@nota-lang/core`, `@nota-lang/prelude`, `solid-js`) — see
+   * {@link cliResolverPlugin}. Defaults to this package's root. Everything else (the doc's own
+   * imports) resolves from the doc's directory, as in any Vite app.
    */
   resolveFrom?: string;
   /**
@@ -142,11 +142,12 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
 }
 
 /**
- * Pin the framework-owned bare specifiers to the CLI's own dependency copies: `solid-js` and
- * `@nota-lang/{solid,prelude}` (+ subpaths) resolve from {@link BuildOptions.resolveFrom}. This
- * is what lets `nota build` work on a doc **anywhere** — including inside a foreign JS project,
- * whose own solid-js copy must not split the reactive runtime or the doc-state context (one
- * instance per page). Everything else resolves from the doc's directory as usual.
+ * Pin the framework-owned bare specifiers (`FRAMEWORK_PACKAGES` — `@nota-lang/core`,
+ * `@nota-lang/prelude`, `solid-js`; + subpaths) to the CLI's own dependency copies, resolved
+ * from {@link BuildOptions.resolveFrom}. This is what lets `nota build` work on a doc
+ * **anywhere** — including inside a foreign JS project, whose own solid-js copy must not split
+ * the reactive runtime or the doc-state context (one instance per page). Everything else
+ * resolves from the doc's directory as usual.
  */
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
@@ -274,19 +275,30 @@ function emittedOf(result: unknown): EmittedFiles {
 
 /**
  * Rolldown wraps a plugin error (the reader's compile diagnostic) in its own build error; keep
- * the reader's message reachable by preferring a cause that carries it.
+ * the reader's message reachable by preferring a cause that carries it. Walks the `.cause` chain
+ * for the first error exposing `@nota-lang/compiler`'s programmatic `.diagnostics` (set by
+ * `toCompileError` — every diagnostic `compile()` throws carries one); falls back to the old
+ * `/failed to compile/i` message-text sniff for a wrapped error whose cause predates
+ * `.diagnostics` (a stale compiler dist), and to the original error if neither matches.
  */
 function rethrowBuildError(err: unknown): never {
-  if (err instanceof Error && !/failed to compile/i.test(err.message)) {
-    for (
-      let cause = (err as { cause?: unknown }).cause;
-      cause instanceof Error;
-      cause = (cause as { cause?: unknown }).cause
+  let textFallback: Error | undefined;
+  for (
+    let cause: unknown = err;
+    cause instanceof Error;
+    cause = (cause as { cause?: unknown }).cause
+  ) {
+    if (typeof (cause as { diagnostics?: unknown }).diagnostics === "string") {
+      throw cause;
+    }
+    if (
+      textFallback === undefined &&
+      /failed to compile/i.test(cause.message)
     ) {
-      if (/failed to compile/i.test(cause.message)) throw cause;
+      textFallback = cause;
     }
   }
-  throw err;
+  throw textFallback ?? err;
 }
 
 /**

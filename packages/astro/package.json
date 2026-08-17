@@ -1,6 +1,7 @@
 {
   "name": "@nota-lang/astro",
   "version": "0.1.0",
+  "description": "Astro integration for .nota documents: SSG via the two-pass render/hydrate driver, zero-JS by default.",
   "files": [
     "dist"
   ],

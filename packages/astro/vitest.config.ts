@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 
 /**
- * Three vitest projects (the ssr/dom split mirrors packages/solid — Solid ships two builds
+ * Three vitest projects (the ssr/dom split mirrors packages/core — Solid ships two builds
  * selected by export conditions, and vite-plugin-solid compiles JSX per target):
  *
  * - **e2e** — plain Node; runs a real `astro build` over the fixture site and asserts on the

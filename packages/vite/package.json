@@ -1,6 +1,7 @@
 {
   "name": "@nota-lang/vite",
   "version": "0.1.0",
+  "description": "Vite integration for .nota: a two-plugin preset (transform to Solid JSX + vite-plugin-solid) compiling per build target.",
   "files": [
     "dist"
   ],

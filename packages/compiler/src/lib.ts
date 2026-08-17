@@ -91,9 +91,23 @@ export const SOLID_AMBIENT_NAMES = [
   "ErrorBoundary"
 ] as const;
 
-/** The reader's grouped emit-name surface — the wasm-introspected truth the lists below derive
- * from (`oxc_transformer`'s `*_EMIT_NAMES`; see `emitSurface()` in the reader). */
-const EMIT_SURFACE = reader.emitSurface();
+/**
+ * The reader's grouped emit-name surface — the wasm-introspected truth the lists below derive
+ * from (`oxc_transformer`'s `*_EMIT_NAMES`; see `emitSurface()` in the reader). Guarded like the
+ * `freeNames` check in {@link compile} below: a wasm build predating `emitSurface()` would
+ * otherwise kill every import of this package with a bare "reader.emitSurface is not a function"
+ * TypeError instead of a pointed one.
+ */
+let EMIT_SURFACE: ReturnType<typeof reader.emitSurface>;
+try {
+  EMIT_SURFACE = reader.emitSurface();
+} catch (err) {
+  throw new Error(
+    `nota: reader.emitSurface() is unavailable — stale src/generated wasm build? (${
+      err instanceof Error ? err.message : String(err)
+    })`
+  );
+}
 
 /**
  * The `@nota-lang/core` surface an emit may reference free: the structural names the reader's
@@ -102,6 +116,22 @@ const EMIT_SURFACE = reader.emitSurface();
  * **Derived from the reader** (`emitSurface().structural`) — no hand-copied mirror to drift.
  */
 export const CORE_RUNTIME_NAMES: readonly string[] = EMIT_SURFACE.structural;
+
+/**
+ * The emitted document's default-export name (`export default function Doc() { … }`) — the one
+ * {@link EMIT_SURFACE}`.reserved` name outside the four emit-name groups (`reserved` is `Doc` +
+ * `structural`/`solid`/`solidWeb`/`prelude`; pinned by the compiler test suite: "the reader's
+ * emit groups are covered by the ambient policy lists"). Consumers that must reference the
+ * emitted default export by name (the vite plugin's `Doc.isNotaDoc` brand) derive it from here
+ * instead of hardcoding `"Doc"`.
+ */
+export const DOC_EXPORT_NAME: string = EMIT_SURFACE.reserved.filter(
+  name =>
+    !EMIT_SURFACE.structural.includes(name) &&
+    !EMIT_SURFACE.solid.includes(name) &&
+    !EMIT_SURFACE.solidWeb.includes(name) &&
+    !EMIT_SURFACE.prelude.includes(name)
+)[0];
 
 /** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags).
  * Derived from the reader (`emitSurface().solidWeb`). */
@@ -193,8 +223,8 @@ export interface SourceMapV3 {
 /** The result of {@link compile}: the emitted Solid JSX module and (when available) its sourcemap. */
 export interface CompileResult {
   /**
-   * The emitted Solid JSX module — the reader's emit through {@link jsxify}, with the
-   * `@nota-lang/core` / `solid-js` / ambient-prelude imports prepended.
+   * The emitted Solid JSX module — the reader's native JSX emit, with the `@nota-lang/core` /
+   * `solid-js` / ambient-prelude imports prepended.
    */
   code: string;
   /**
@@ -234,9 +264,10 @@ function preludeImport(
 /**
  * Compile a `.nota` source string to an emitted JS module.
  *
- * Runs the in-process wasm reader. The {@link RUNTIME_IMPORT} is prepended to the result, followed
- * by the ambient prelude import for the free names the emit references (see {@link CompileOptions.prelude}).
- * A reader diagnostic is surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
+ * Runs the in-process wasm reader, then prepends the free-name-driven `@nota-lang/core` /
+ * `solid-js` / `solid-js/web` imports ({@link bindFree}) followed by the ambient prelude import
+ * for the free names the emit references (see {@link CompileOptions.prelude}). A reader
+ * diagnostic is surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
  *
  * @param source the `.nota` file contents
  * @param opts   optional {@link CompileOptions}
