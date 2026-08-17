@@ -1,0 +1,39 @@
+{
+  "name": "@nota-lang/explorable",
+  "version": "0.1.0",
+  "files": [
+    "dist",
+    "css"
+  ],
+  "main": "dist/lib.js",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "solid": "./dist/lib.js",
+      "default": "./dist/lib.js"
+    },
+    "./explorable.css": "./css/explorable.css"
+  },
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "devDependencies": {
+    "@nota-lang/core": "workspace:*",
+    "solid-js": "^1.9.3",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.8"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/explorable"
+  },
+  "types": "dist/lib.d.ts",
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  }
+}

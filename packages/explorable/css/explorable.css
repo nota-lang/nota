@@ -1,0 +1,69 @@
+/* @nota-lang/explorable — interaction-primitive styling.
+ * Knobs (CSS custom properties, settable on :root or any ancestor):
+ *   --nota-sticky-top     sticky offset for .nota-sticky panels (default 2rem)
+ *   --nota-accent         slider track/thumb accent (default #35507a)
+ *   --nota-action-color   action-link color (default #35507a)
+ */
+
+/* A sticky zero-height panel: pins its content at the top offset while the document scrolls,
+ * occupying no flow space. Horizontal placement is the document's business. */
+.nota-sticky {
+  position: sticky;
+  top: var(--nota-sticky-top, 2rem);
+  height: 0;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* A labeled range input. */
+.nota-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin: 1.25em 0;
+  max-width: 26em;
+}
+
+.nota-slider-label {
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.nota-slider input[type="range"] {
+  flex: 1;
+  min-width: 8em;
+  accent-color: var(--nota-accent, #35507a);
+}
+
+.nota-slider-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85em;
+  min-width: 3ch;
+  text-align: right;
+  color: color-mix(in srgb, currentColor 65%, transparent);
+}
+
+/* An inline action link: a real <button>, dressed as prose. */
+.nota-action {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--nota-action-color, #35507a);
+  border-bottom: 1px dashed currentColor;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.nota-action:hover {
+  color: color-mix(in srgb, var(--nota-action-color, #35507a) 70%, black);
+  border-bottom-style: solid;
+}
+
+.nota-action:focus-visible {
+  outline: 2px solid var(--nota-accent, #35507a);
+  outline-offset: 2px;
+}
