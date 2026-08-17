@@ -132,6 +132,9 @@ importers:
 
   packages/core:
     devDependencies:
+      '@nota-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
@@ -144,6 +147,9 @@ importers:
       vite-plugin-solid:
         specifier: ^2.11.10
         version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      vite-plugin-wasm:
+        specifier: ^3.5.0
+        version: 3.6.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
