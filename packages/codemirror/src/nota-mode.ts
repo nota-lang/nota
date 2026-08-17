@@ -176,7 +176,7 @@ function decorationsForKinds(): Decoration[] {
 
 /**
  * One classified span, for tests and debug tooling (the playground's dump-tokens CLI). `kind` is the
- * reader's stable kebab-case name. Requires `nota_wasm` to be initialized.
+ * reader's stable kebab-case name.
  */
 export interface NotaSpan {
   from: number;
@@ -371,8 +371,9 @@ function computeDecorations(doc: string): DecorationSet | null {
 
 /**
  * The CM6 extension: a ViewPlugin that re-highlights on every document change (the wasm parse is
- * sub-millisecond at document scale), plus the kind theme. Assumes `nota_wasm` is initialized —
- * the consumer awaits its `init` before installing the extension.
+ * sub-millisecond at document scale), plus the kind theme. The wasm reader
+ * (`@nota-lang/compiler/reader`) instantiates when the module graph loads — no init step; this
+ * extension is usable as soon as the import resolves (lib.ts).
  */
 export function notaHighlighting(): Extension {
   const plugin = ViewPlugin.fromClass(

@@ -4,20 +4,18 @@
  * mode's language. Formatting is async (Prettier lazy-loads + returns a promise), so it runs in
  * an effect into a signal, showing the raw `code` until the first format lands.
  *
- * `mode` drives both halves: `"js"` → babel parser + JS highlight (the JSX/compiled tabs);
- * `"html"` → html parser + HTML highlight. `fill` makes the view fill its container and scroll
- * internally; without it the view grows to its content.
+ * `mode` drives both halves: `"js"` → babel parser + JS highlight (the JSX/compiled tabs). `fill`
+ * makes the view fill its container and scroll internally; without it the view grows to its
+ * content.
  */
 
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import { CodeView } from "./CodeView";
 import { formatCode } from "./format";
-import { htmlLanguage } from "./html-mode";
 import { jsLanguage } from "./js-mode";
 
 const MODES = {
-  js: { parser: "babel", language: jsLanguage },
-  html: { parser: "html", language: htmlLanguage }
+  js: { parser: "babel", language: jsLanguage }
 } as const;
 
 export interface CodePaneProps {

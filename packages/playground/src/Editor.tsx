@@ -61,7 +61,7 @@ export function Editor(props: EditorProps) {
     view = null;
   });
 
-  // Swap the language extension in/out when it changes (e.g. an async highlighter resolving).
+  // Swap the language extension in/out whenever the `language` prop changes.
   createEffect(() => {
     const language = props.language;
     view?.dispatch({

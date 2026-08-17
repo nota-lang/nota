@@ -11,7 +11,12 @@
 
 import { startBrowserServer } from "@nota-lang/language-server/browser";
 
-const tsLibs = import.meta.glob<string>(
+/**
+ * The TypeScript default-lib sources, bundled as raw assets by this exact `import.meta.glob`.
+ * Exported so tests consume this real object instead of duplicating the glob pattern as a second
+ * string literal that could silently drift from this one (`tests/lsp.test.ts`).
+ */
+export const tsLibs = import.meta.glob<string>(
   "/node_modules/typescript/lib/lib.*.d.ts",
   { query: "?raw", import: "default", eager: true }
 );

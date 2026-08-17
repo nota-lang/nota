@@ -42,7 +42,7 @@ export const catppuccinLatte = HighlightStyle.define([
   },
   { tag: [t.number, t.bool, t.null, t.atom], color: peach },
   { tag: [t.escape, t.character], color: peach },
-  // Call sites read as functions: `h(...)`, `decode(...)`, `.map(...)`; HTML/JSON keys read as names.
+  // Call sites read as functions: `createSignal(...)`, `.map(...)`; HTML/JSON keys read as names.
   {
     tag: [t.function(t.variableName), t.function(t.propertyName)],
     color: blue

@@ -8,7 +8,7 @@
  * bridges them.
  *
  * One worker + client per page (module-level singleton): the playground has a single document, and
- * React re-mounts must not leak workers.
+ * an `Editor` re-mount must not leak workers.
  */
 
 import {

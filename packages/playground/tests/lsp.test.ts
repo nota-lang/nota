@@ -5,18 +5,15 @@
  *
  * 1. the string⇄structured-clone {@link workerTransport} adapter between `@codemirror/lsp-client`
  *    and the Volar browser connection;
- * 2. the `import.meta.glob` over `typescript/lib` resolving through pnpm's symlinked
- *    `node_modules` (the worker bundles the default libs as raw assets).
+ * 2. the worker's `import.meta.glob` over `typescript/lib` resolving through pnpm's symlinked
+ *    `node_modules` (the worker bundles the default libs as raw assets) — consuming
+ *    `worker-server.ts`'s own exported {@link tsLibs} (not a re-declared glob) so a pattern that
+ *    breaks there fails this test too, instead of two independently-typed literals drifting apart.
  */
 
 import { expect, test } from "vitest";
 import { notaLsp, workerTransport } from "../src/lsp/client";
-
-// The same glob the worker entry uses (vitest evaluates import.meta.glob through vite).
-const tsLibs = import.meta.glob<string>(
-  "/node_modules/typescript/lib/lib.*.d.ts",
-  { query: "?raw", import: "default", eager: true }
-);
+import { tsLibs } from "../src/lsp/worker-server";
 
 test("the typescript lib glob resolves through pnpm symlinks", () => {
   const names = Object.keys(tsLibs).map(k => k.split("/").pop());

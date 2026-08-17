@@ -19,8 +19,9 @@
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { classHighlighter, highlightTree } from "@lezer/highlight";
+import { highlightTree, tagHighlighter } from "@lezer/highlight";
 import {
+  catppuccinLatte,
   embeddedRegions,
   highlightSpans,
   KIND_STYLES,
@@ -49,46 +50,46 @@ const KIND_COLORS: Record<
 );
 
 /**
- * Embedded sub-language tag → terminal style, mirroring the Catppuccin `HighlightStyle` the editor
- * applies to code/math interiors (highlight-style.ts). Keyed by `@lezer/highlight` `classHighlighter`
- * names sans the `tok-` prefix; tags the editor leaves default (plain `variableName`, `definition`)
- * are absent → rendered in the default foreground, exactly as in the editor.
+ * Embedded sub-language tag → terminal style, **derived** from the editor's own Catppuccin
+ * `HighlightStyle` (`catppuccinLatte`, highlight-style.ts) — a hand-typed hex copy here once
+ * drifted, the same risk {@link KIND_COLORS} above solves by deriving from `KIND_STYLES`. Each
+ * spec's own most-specific tag names its terminal label, and {@link embeddedHighlighter} resolves
+ * a real token's tags against those labels with the editor's own specificity precedence (e.g.
+ * `attributeName` wins over its `propertyName` ancestor) — so a tag the editor leaves uncolored
+ * (plain `variableName`) stays unstyled here too, and a recolor in highlight-style.ts can't leave
+ * this table behind.
  */
+const EMBEDDED_STYLES = catppuccinLatte.specs.map(spec => ({
+  tag: spec.tag,
+  label: String(Array.isArray(spec.tag) ? spec.tag[0] : spec.tag),
+  color: spec.color as string | undefined,
+  bold: spec.fontWeight === "700",
+  italic: spec.fontStyle === "italic"
+}));
+
+/** Resolves an embedded token's tags to its {@link EMBEDDED_STYLES} label, most-specific first —
+ * the same `tagHighlighter` resolution `@lezer/highlight`'s own `classHighlighter` uses, just
+ * keyed on `catppuccinLatte`'s labels instead of its fixed `tok-*` vocabulary. */
+const embeddedHighlighter = tagHighlighter(
+  EMBEDDED_STYLES.map(({ tag, label }) => ({ tag, class: label }))
+);
+
 const TOK_COLORS: Record<
   string,
   { color?: string; bold?: boolean; italic?: boolean }
-> = {
-  keyword: { color: "#8839ef" },
-  string: { color: "#40a02b" },
-  regexp: { color: "#40a02b" },
-  number: { color: "#fe640b" },
-  bool: { color: "#fe640b" },
-  null: { color: "#fe640b" },
-  atom: { color: "#fe640b" },
-  escape: { color: "#fe640b" },
-  propertyName: { color: "#1e66f5" },
-  typeName: { color: "#1e66f5" },
-  className: { color: "#1e66f5" },
-  namespace: { color: "#1e66f5" },
-  tagName: { color: "#1e66f5" },
-  attributeName: { color: "#df8e1d" },
-  operator: { color: "#04a5e5" },
-  punctuation: { color: "#7c7f93" },
-  bracket: { color: "#7c7f93" },
-  comment: { color: "#8c8fa1", italic: true },
-  meta: { color: "#8c8fa1" },
-  invalid: { color: "#d20f39" }
-};
+> = Object.fromEntries(
+  EMBEDDED_STYLES.map(({ label, color, bold, italic }) => [
+    label,
+    { color, bold, italic }
+  ])
+);
 
-/** Resolve a `classHighlighter` class string (`"tok-variableName tok-definition"`) to a style. */
+/** Resolve an {@link embeddedHighlighter} class string to a style (its first class is always the
+ * most-specific tag's match, and — by construction — always a known {@link TOK_COLORS} label). */
 function tokStyle(
   classes: string
 ): { color?: string; bold?: boolean; italic?: boolean } | undefined {
-  for (const cls of classes.split(" ")) {
-    const style = TOK_COLORS[cls.replace(/^tok-/, "")];
-    if (style) return style;
-  }
-  return undefined;
+  return TOK_COLORS[classes.split(" ")[0]];
 }
 
 const args = process.argv.slice(2);
@@ -135,8 +136,8 @@ for (const span of spans) {
   }
 }
 
-// Embedded overlay: tokenize each code/math interior with its language (classHighlighter tags), reset
-// the interior so the flat green doesn't bleed between tokens, then paint the tokens.
+// Embedded overlay: tokenize each code/math interior with its language (embeddedHighlighter tags),
+// reset the interior so the flat green doesn't bleed between tokens, then paint the tokens.
 interface EmbeddedTok {
   from: number;
   to: number;
@@ -149,7 +150,7 @@ for (const region of regions) {
   if (!language) continue; // unknown language / inline code: keep the reader's flat paint
   highlightTree(
     language.parser.parse(source.slice(region.from, region.to)),
-    classHighlighter,
+    embeddedHighlighter,
     (from, to, tag) => {
       embedded.push({ from: region.from + from, to: region.from + to, tag });
     }
@@ -206,7 +207,7 @@ if (wantSpans) {
       const range = `[${tok.from}..${tok.to})`;
       const excerpt = JSON.stringify(source.slice(tok.from, tok.to));
       console.log(
-        `${range.padEnd(12)} ${tok.tag.replace(/tok-/g, "").padEnd(24)} ${excerpt.length > 40 ? `${excerpt.slice(0, 37)}…` : excerpt}`
+        `${range.padEnd(12)} ${tok.tag.padEnd(24)} ${excerpt.length > 40 ? `${excerpt.slice(0, 37)}…` : excerpt}`
       );
     }
   }

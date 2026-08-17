@@ -15,7 +15,6 @@ export {
   languageFor
 } from "./embedded-langs";
 export { catppuccinHighlight, catppuccinLatte } from "./highlight-style";
-export { PALETTE } from "./palette";
 export {
   type EmbeddedRegion,
   type EmbeddedSpan,
@@ -26,3 +25,4 @@ export {
   type NotaSpan,
   notaHighlighting
 } from "./nota-mode";
+export { PALETTE } from "./palette";
