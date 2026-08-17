@@ -4,7 +4,7 @@
  * definitions (anchors + bank), Tex (KaTeX MathML), CodeBlock/CodeInline (sync shiki), and the
  * pointed-error paths.
  */
-import { NotaDoc, renderDocument } from "@nota-lang/solid";
+import { NotaDoc, renderDocument } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {

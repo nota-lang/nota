@@ -5,7 +5,7 @@
  * definitions), and inference rules.
  */
 import { mathset, Ref, resetConfigForTest, Tex } from "@nota-lang/prelude";
-import { NotaDoc, renderDocument } from "@nota-lang/solid";
+import { NotaDoc, renderDocument } from "@nota-lang/core";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   Abstract,

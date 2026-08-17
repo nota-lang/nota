@@ -4,7 +4,7 @@
  * Drives the real reader — the in-process wasm backend — on the shared integration fixtures and
  * asserts the pinned **Solid JSX** emit surface (design/solid.md §The pipeline): the native JSX
  * emit (`<NotaDoc>` wrap, `<UlLi>` sentinels, `<For>`, no h-call surface) and
- * the prepended imports (`@nota-lang/solid` structural names, the `solid-js` ambient surface,
+ * the prepended imports (`@nota-lang/core` structural names, the `solid-js` ambient surface,
  * the ambient prelude for free names). A malformed `.nota` → `compile` throws with the reader's
  * diagnostics.
  */
@@ -19,7 +19,7 @@ import {
   AMBIENT_PRELUDE_NAMES,
   compile,
   SOLID_AMBIENT_NAMES,
-  SOLID_RUNTIME_NAMES,
+  CORE_RUNTIME_NAMES,
   SOLID_WEB_NAMES
 } from "../src/lib";
 
@@ -35,9 +35,9 @@ describe("compile (JSX emit surface + prepended imports)", () => {
     const src = read("golden.nota");
     const { code } = compile(src, { sourcePath: "golden.nota" });
 
-    // The structural names the rewrite introduced, from @nota-lang/solid.
+    // The structural names the rewrite introduced, from @nota-lang/core.
     expect(code).toMatch(
-      /^import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/m
+      /^import \{ NotaDoc, UlLi \} from "@nota-lang\/core";/m
     );
     // The solid-js ambient surface: createSignal is free in the doc's %-code; For was recovered.
     expect(code).toMatch(/^import \{ createSignal, For \} from "solid-js";/m);
@@ -290,11 +290,11 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
     return names;
   }
 
-  test("SOLID_RUNTIME_NAMES ⊆ @nota-lang/solid's exports", () => {
+  test("CORE_RUNTIME_NAMES ⊆ @nota-lang/core's exports", () => {
     const surface = exportedValueNames(
-      join(repoRoot, "packages", "solid", "src", "lib.tsx")
+      join(repoRoot, "packages", "core", "src", "lib.tsx")
     );
-    expect(SOLID_RUNTIME_NAMES.filter(n => !surface.has(n))).toEqual([]);
+    expect(CORE_RUNTIME_NAMES.filter(n => !surface.has(n))).toEqual([]);
   });
 
   test("AMBIENT_PRELUDE_NAMES ⊆ @nota-lang/prelude's exports", () => {
@@ -305,10 +305,10 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
   });
 
   // solid-js is not a dependency of this package either; resolve it the way a built document
-  // would — through @nota-lang/solid's own dependency graph. `createRequire` from that package
+  // would — through @nota-lang/core's own dependency graph. `createRequire` from that package
   // loads the CJS server build; the export *surface* is identical across solid's builds.
   const solidRequire = createRequire(
-    join(repoRoot, "packages", "solid", "package.json")
+    join(repoRoot, "packages", "core", "package.json")
   );
 
   test("SOLID_AMBIENT_NAMES ⊆ solid-js's exports", () => {
@@ -377,8 +377,8 @@ describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)",
     );
     expect(code).toContain('<Heading rank={1} id="intro" class="wide">');
     expect(code).toContain('<Attrs class="note" />');
-    // The marker is a structural free name, bound from @nota-lang/solid.
+    // The marker is a structural free name, bound from @nota-lang/core.
     expect(freeNames).toContain("Attrs");
-    expect(code).toMatch(/^import \{ .*Attrs.* \} from "@nota-lang\/solid";/m);
+    expect(code).toMatch(/^import \{ .*Attrs.* \} from "@nota-lang\/core";/m);
   });
 });

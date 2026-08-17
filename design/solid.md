@@ -59,7 +59,7 @@ doc.nota
   │  oxc reader (branch solid): native Solid JSX emit + freeNames
   ▼
 bare JSX module ── @nota-lang/compiler ──▶ + free-name-driven ambient imports
-  │                 (@nota-lang/solid, solid-js, solid-js/web, @nota-lang/prelude)
+  │                 (@nota-lang/core, solid-js, solid-js/web, @nota-lang/prelude)
   ▼
 vite-plugin-solid  (dom | ssr+hydratable — the consumer's build target decides)
   ▼                                      ▼
@@ -113,7 +113,7 @@ Four of those rows carry semantics:
   because `<Show>` reads a lone function child as its keyed accessor callback and `@if (c) {@(f)}`
   must not silently mean that.
 
-The compiler shim prepends the free-name-driven imports: `@nota-lang/solid`
+The compiler shim prepends the free-name-driven imports: `@nota-lang/core`
 (NotaDoc/Reforest/UlLi/OlLi + the compat constructors), `solid-js` (the ambient state surface:
 `createSignal`, `Show`, `For`, … — documents write Solid idioms in `%`-code), `solid-js/web`
 (`Dynamic`, for dynamic tags), and `@nota-lang/prelude` (unchanged policy mechanism).
@@ -121,7 +121,7 @@ The compiler shim prepends the free-name-driven imports: `@nota-lang/solid`
 ## `<Reforest>` — decode, resolved
 
 Vendored from `~/Code/reforest` (`packages/reforest/src/lib.tsx`, our own spike) into
-`@nota-lang/solid`, with two Nota-specific divergences:
+`@nota-lang/core`, with two Nota-specific divergences:
 
 1. **Sections nest.** Reforest v2 delimits *flat* sibling sections by design; Nota's spec
    (decode.md §struct) is hierarchical — a heading owns following siblings until the next heading
@@ -146,7 +146,7 @@ Two 2026-08 additions ride the pass:
 
 ## Smart punctuation — Pollen's rules at the decode stage
 
-`@nota-lang/solid`'s `smart.ts` transliterates Pollen's `smart-quotes`/`smart-dashes`/
+`@nota-lang/core`'s `smart.ts` transliterates Pollen's `smart-quotes`/`smart-dashes`/
 `smart-ellipses` (`pollen/unstable/typography.rkt`) and runs them inside every `Reforest` over the
 **resolved** children — strings in place, client DOM via a text-node walk, server SSR chunks via
 an HTML-aware segment walk — so both sides transform identically, which is what lets hydration
@@ -198,7 +198,7 @@ process:
   after first render. Correct by construction, just not pre-resolved.
 
 `renderDocument(Doc)` (two-pass + convergence + snapshot) and `hydrateDocument(Doc, opts)` (seed +
-hydrate) are ~40 lines in `@nota-lang/solid` — they replace `render`, `island`, capture mode, the
+hydrate) are ~40 lines in `@nota-lang/core` — they replace `render`, `island`, capture mode, the
 manifest, and `hydrateDocument`'s replay machinery.
 
 Ordering caveat (v0): document order is approximated by registration order (= mount order). A
@@ -245,7 +245,7 @@ unreferenced-definition drop, duplicate errors); only the mechanism changes:
   LaTeX's actual `\lstset` and is the more defensible semantics; flagged as an intentional
   change. Because config is module-global and the driver renders twice, the reset-to-baked-
   baseline runs at the start of **every** pass (and before hydration claims), via
-  `@nota-lang/solid`'s `onRenderReset` seam — the prelude registers `resetConfig` at module
+  `@nota-lang/core`'s `onRenderReset` seam — the prelude registers `resetConfig` at module
   load; without the per-pass reset, pass 1's end-state seeds pass 2 and positionality is
   destroyed in the converged HTML.
 
@@ -268,7 +268,7 @@ an island census.
 
 ## Workspace changes (this branch)
 
-- **`@nota-lang/solid`** — rewritten: `Reforest`/`UlLi`/`OlLi` (vendored + nested sections),
+- **`@nota-lang/core`** — rewritten: `Reforest`/`UlLi`/`OlLi` (vendored + nested sections),
   `NotaDoc`, the doc-state store, `renderDocument`/`hydrateDocument`, `textOf`, compat shims.
   Ships JSX-preserved dist with a `"solid"` export condition (the consumer's vite-plugin-solid
   compiles it per target — precompiling would pin one target; reforest packaging gotcha).
@@ -296,7 +296,7 @@ The surviving system, by layer — with the judgment calls the sweep made explic
   stays mechanism. The canonical ambient name lists are exported from here and consumed by the
   LSP preamble generator (coverage-guarded) and the playground scope (imported), so the three
   ambient surfaces cannot drift.
-- **`@nota-lang/solid` (one file).** Reforest + the doc-state store + two ~40-line drivers.
+- **`@nota-lang/core` (one file).** Reforest + the doc-state store + two ~40-line drivers.
   Deliberate dualities kept, each load-bearing: `read()` (seed-pinned, for forward readers) vs
   `live()` (position-complete readers holding non-JSON thunks — trailers); silent `release()`
   (a notifying release re-rendered converged-equal values as visible DOM churn); `tight` mode

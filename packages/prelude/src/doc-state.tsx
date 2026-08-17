@@ -1,7 +1,7 @@
 /**
  * The prelude doc-state constructs, Solid-native (design/solid.md §The prelude): headings +
  * numbering + a table of contents, `@Label`/`@Ref`, footnotes, `@Cite`/`@Bibliography` — plain
- * Solid components over the `@nota-lang/solid` doc-state store. Registrations ≙ the old marks;
+ * Solid components over the `@nota-lang/core` doc-state store. Registrations ≙ the old marks;
  * the pure derivations below ≙ the old queries; the store ≙ `DocIndex`.
  *
  * ## Resolution-error policy
@@ -26,7 +26,7 @@ import {
   type ResolvedChild,
   textOf,
   useDocState
-} from "@nota-lang/solid";
+} from "@nota-lang/core";
 import {
   children,
   type JSX,

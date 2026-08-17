@@ -11,7 +11,7 @@ import {
   type DocComponent,
   hydrateDocument,
   type Snapshot
-} from "@nota-lang/solid";
+} from "@nota-lang/core";
 import { createComponent, render } from "solid-js/web";
 
 export default (element: HTMLElement) =>

@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "katex": "^0.16.22"
   },
   "devDependencies": {

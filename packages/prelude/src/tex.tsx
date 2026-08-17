@@ -15,7 +15,7 @@
  * (a block). MathML needs no KaTeX stylesheet or fonts.
  */
 
-import type { ResolvedChild } from "@nota-lang/solid";
+import type { ResolvedChild } from "@nota-lang/core";
 import katex from "katex";
 import { children, type JSX, type ParentProps } from "solid-js";
 

@@ -23,7 +23,7 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "@nota-lang/vite": "workspace:*",
     "solid-js": "^1.9.3"
   },

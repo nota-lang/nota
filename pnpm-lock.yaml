@@ -44,9 +44,9 @@ importers:
 
   packages/astro:
     dependencies:
-      '@nota-lang/solid':
+      '@nota-lang/core':
         specifier: workspace:*
-        version: link:../solid
+        version: link:../core
       '@nota-lang/vite':
         specifier: workspace:*
         version: link:../vite
@@ -75,12 +75,12 @@ importers:
       '@nota-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@nota-lang/core':
+        specifier: workspace:*
+        version: link:../core
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/solid':
-        specifier: workspace:*
-        version: link:../solid
       '@nota-lang/vite':
         specifier: workspace:*
         version: link:../vite
@@ -130,6 +130,24 @@ importers:
         specifier: ^7.28.0
         version: 7.29.8
 
+  packages/core:
+    devDependencies:
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      solid-js:
+        specifier: ^1.9.3
+        version: 1.9.13
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
+      vite-plugin-solid:
+        specifier: ^2.11.10
+        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+
   packages/language-server:
     dependencies:
       '@nota-lang/compiler':
@@ -156,12 +174,12 @@ importers:
 
   packages/paper:
     dependencies:
+      '@nota-lang/core':
+        specifier: workspace:*
+        version: link:../core
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/solid':
-        specifier: workspace:*
-        version: link:../solid
       katex:
         specifier: ^0.16.22
         version: 0.16.47
@@ -211,15 +229,15 @@ importers:
       '@nota-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@nota-lang/core':
+        specifier: workspace:*
+        version: link:../core
       '@nota-lang/language-server':
         specifier: workspace:*
         version: link:../language-server
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/solid':
-        specifier: workspace:*
-        version: link:../solid
       babel-preset-solid:
         specifier: ^1.9.3
         version: 1.9.12(@babel/core@7.29.7)(solid-js@1.9.13)
@@ -251,9 +269,9 @@ importers:
 
   packages/prelude:
     dependencies:
-      '@nota-lang/solid':
+      '@nota-lang/core':
         specifier: workspace:*
-        version: link:../solid
+        version: link:../core
       katex:
         specifier: ^0.16.22
         version: 0.16.47
@@ -280,35 +298,17 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
-  packages/solid:
-    devDependencies:
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
-      solid-js:
-        specifier: ^1.9.3
-        version: 1.9.13
-      vite:
-        specifier: ^8.0.16
-        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
-      vite-plugin-solid:
-        specifier: ^2.11.10
-        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-
   packages/vite:
     dependencies:
       '@nota-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@nota-lang/core':
+        specifier: workspace:*
+        version: link:../core
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
-      '@nota-lang/solid':
-        specifier: workspace:*
-        version: link:../solid
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13

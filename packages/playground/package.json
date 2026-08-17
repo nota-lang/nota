@@ -21,7 +21,7 @@
     "@nota-lang/compiler": "workspace:*",
     "@nota-lang/language-server": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "babel-preset-solid": "^1.9.3",
     "prettier": "^3.8.4",
     "solid-js": "^1.9.3",

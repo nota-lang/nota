@@ -5,7 +5,7 @@
  * Plus the client/DOM-node path of armed shiki decorations (SSR chunks are the other half,
  * covered in render.test.tsx).
  */
-import { NotaDoc } from "@nota-lang/solid";
+import { NotaDoc } from "@nota-lang/core";
 import { createSignal, Show } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";

@@ -25,7 +25,7 @@
 import {
   AMBIENT_PRELUDE_NAMES,
   SOLID_AMBIENT_NAMES,
-  SOLID_RUNTIME_NAMES,
+  CORE_RUNTIME_NAMES,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 
@@ -70,8 +70,8 @@ const JSX_NAMESPACE = [
 ].join("\n");
 
 /**
- * The `@nota-lang/solid` structural surface the emit references free (design/solid.md §The
- * pipeline; the compiler's {@link SOLID_RUNTIME_NAMES} + {@link SOLID_WEB_NAMES}): the document
+ * The `@nota-lang/core` structural surface the emit references free (design/solid.md §The
+ * pipeline; the compiler's {@link CORE_RUNTIME_NAMES} + {@link SOLID_WEB_NAMES}): the document
  * wrapper, the restructurer, the list items, `Attrs` (the flow-position attrs-group marker
  * Reforest applies to its paragraph), Solid's `For` (typed generically — the `@for` item type
  * flows), and `Dynamic` for dynamic tags.
@@ -155,14 +155,14 @@ const AMBIENT_PRELUDE = [
  */
 export function buildPreamble(): string {
   // Coverage guard: every name the emit can reference free — the union of ALL FOUR canonical
-  // compiler lists (structural `SOLID_RUNTIME_NAMES`, `solid-js/web`'s `SOLID_WEB_NAMES`,
+  // compiler lists (structural `CORE_RUNTIME_NAMES`, `solid-js/web`'s `SOLID_WEB_NAMES`,
   // `solid-js`'s `SOLID_AMBIENT_NAMES`, and `AMBIENT_PRELUDE_NAMES`) — must have a typing
   // somewhere in the ambient body, so a name list growing without a preamble update fails
   // generation (and the preamble-sync test in CI) instead of silently surfacing "Cannot find
   // name" diagnostics. (A partial guard once missed `Attrs` exactly this way.)
   const ambientBody = AMBIENT_STRUCTURAL + AMBIENT_SOLID + AMBIENT_PRELUDE;
   const missing = [
-    ...SOLID_RUNTIME_NAMES,
+    ...CORE_RUNTIME_NAMES,
     ...SOLID_WEB_NAMES,
     ...SOLID_AMBIENT_NAMES,
     ...AMBIENT_PRELUDE_NAMES

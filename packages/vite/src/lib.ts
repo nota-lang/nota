@@ -4,7 +4,7 @@
  * {@link nota} returns a **two-plugin preset** (the solid-mdx pattern):
  *
  * 1. the `.nota → Solid JSX` transform (`enforce: "pre"`), delegating to `@nota-lang/compiler`
- *    (reader emit → jsxify → prepended `@nota-lang/solid` / `solid-js` / ambient-prelude
+ *    (reader emit → jsxify → prepended `@nota-lang/core` / `solid-js` / ambient-prelude
  *    imports), plus the fallback `resolveId` for exactly those prepended imports; and
  * 2. a pre-configured **vite-plugin-solid** claiming `.nota` alongside `.jsx`/`.tsx`, compiling
  *    the JSX per build target (dom / ssr, hydratable) — SSR-vs-dom follows each build's own ssr
@@ -52,11 +52,11 @@ export interface NotaPluginOptions {
  * `resolveId` falls back to *this package's* copies for exactly these, so a project that
  * installed only `@nota-lang/vite` still resolves them (under pnpm's strict layout a transitive
  * dep is not importable from user code). Fallback-only: when the project has its own copy it
- * must win — `@nota-lang/solid` carries the doc-state context and `solid-js` its reactive
+ * must win — `@nota-lang/core` carries the doc-state context and `solid-js` its reactive
  * runtime, and two instances would split them.
  */
 const EMIT_IMPORT_FALLBACKS = [
-  "@nota-lang/solid",
+  "@nota-lang/core",
   "@nota-lang/prelude",
   "solid-js"
 ];
@@ -71,7 +71,7 @@ const EMIT_IMPORT_FALLBACKS = [
  */
 const DEDUPED_PACKAGES = [
   "solid-js",
-  "@nota-lang/solid",
+  "@nota-lang/core",
   "@nota-lang/prelude",
   "@nota-lang/paper"
 ];

@@ -6,7 +6,7 @@
  * reader's **Solid JSX** module (design/solid.md) with the imports the reader deliberately omits
  * **prepended** — every binding free-name-driven:
  *
- * 1. the `@nota-lang/solid` import for the structural names the emit references free
+ * 1. the `@nota-lang/core` import for the structural names the emit references free
  *    (`NotaDoc`/`Reforest`/`UlLi`/`OlLi`) + the compat constructors;
  * 2. the `solid-js` import for the ambient state/control-flow surface referenced free
  *    ({@link SOLID_AMBIENT_NAMES} — incl. `For` from `@for` loops), and `Dynamic` from
@@ -31,7 +31,7 @@
 import * as reader from "./reader.js";
 
 /** The Solid-runtime module the emit's structural names are bound to. */
-export const SOLID_RUNTIME_MODULE = "@nota-lang/solid";
+export const CORE_RUNTIME_MODULE = "@nota-lang/core";
 
 /**
  * The `solid-js` ambient surface (design/solid.md): the state/control-flow names a document's
@@ -63,11 +63,11 @@ export const SOLID_AMBIENT_NAMES = [
 ] as const;
 
 /**
- * The `@nota-lang/solid` surface an emit may reference free: the structural names the reader's
+ * The `@nota-lang/core` surface an emit may reference free: the structural names the reader's
  * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
  * components; `Attrs` — the flow-position attrs-group marker Reforest applies to its paragraph).
  */
-export const SOLID_RUNTIME_NAMES = [
+export const CORE_RUNTIME_NAMES = [
   "NotaDoc",
   "Reforest",
   "UlLi",
@@ -166,7 +166,7 @@ export interface SourceMapV3 {
 export interface CompileResult {
   /**
    * The emitted Solid JSX module — the reader's emit through {@link jsxify}, with the
-   * `@nota-lang/solid` / `solid-js` / ambient-prelude imports prepended.
+   * `@nota-lang/core` / `solid-js` / ambient-prelude imports prepended.
    */
   code: string;
   /**
@@ -237,10 +237,10 @@ export function compile(
 
   // Prepend the imports the reader omits — every binding is free-name-driven (the reader's real
   // scope analysis; JSX component references are ordinary identifier references): the
-  // @nota-lang/solid structural/compat names, the solid-js ambient names, `Dynamic` from
+  // @nota-lang/core structural/compat names, the solid-js ambient names, `Dynamic` from
   // solid-js/web, then the ambient prelude bindings.
   const code =
-    bindFree(freeNames, SOLID_RUNTIME_NAMES, SOLID_RUNTIME_MODULE) +
+    bindFree(freeNames, CORE_RUNTIME_NAMES, CORE_RUNTIME_MODULE) +
     bindFree(freeNames, SOLID_AMBIENT_NAMES, "solid-js") +
     bindFree(freeNames, SOLID_WEB_NAMES, "solid-js/web") +
     preludeImport(freeNames, opts.prelude) +

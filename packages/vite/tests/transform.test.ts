@@ -51,7 +51,7 @@ describe("output surface", () => {
     expect(out.code).toContain("<NotaDoc>");
     expect(out.code).toContain("<UlLi>");
     expect(out.code).toMatch(
-      /import \{ NotaDoc, UlLi \} from "@nota-lang\/solid";/
+      /import \{ NotaDoc, UlLi \} from "@nota-lang\/core";/
     );
     expect(out.code).toMatch(
       /import \{ Heading \} from "@nota-lang\/prelude";/
@@ -99,7 +99,7 @@ describe("the one-solid-js invariant", () => {
     const dedupe = conf?.resolve?.dedupe ?? [];
     for (const pkg of [
       "solid-js",
-      "@nota-lang/solid",
+      "@nota-lang/core",
       "@nota-lang/prelude",
       "@nota-lang/paper"
     ]) {

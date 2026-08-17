@@ -9,7 +9,7 @@
  * slugs/numbering on the same calls.
  */
 
-import { NotaDoc, textOf, useDocState } from "@nota-lang/solid";
+import { NotaDoc, textOf, useDocState } from "@nota-lang/core";
 import { children, createSignal, Index, type ParentProps } from "solid-js";
 
 function Counter() {

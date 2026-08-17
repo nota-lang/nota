@@ -13,7 +13,7 @@
  *   the converged output).
  */
 
-import { type DocComponent, renderDocument } from "@nota-lang/solid";
+import { type DocComponent, renderDocument } from "@nota-lang/core";
 import type { JSX } from "solid-js";
 import {
   createComponent,

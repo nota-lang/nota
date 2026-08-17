@@ -1,5 +1,5 @@
 {
-  "name": "@nota-lang/solid",
+  "name": "@nota-lang/core",
   "version": "0.1.0",
   "files": [
     "dist"
@@ -33,6 +33,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
-    "directory": "packages/solid"
+    "directory": "packages/core"
   }
 }

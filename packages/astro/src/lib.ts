@@ -36,7 +36,7 @@ import type { Plugin } from "vite";
  * would compile the JSX without the Solid transform).
  */
 const JSX_DIST_PACKAGES = [
-  "@nota-lang/solid",
+  "@nota-lang/core",
   "@nota-lang/prelude",
   "@nota-lang/paper"
 ];

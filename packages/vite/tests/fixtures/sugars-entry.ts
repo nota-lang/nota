@@ -3,7 +3,7 @@
  * `[^n]: body` only; no element forms). Same shape as ./ssg-entry.ts: loaded through the Vite
  * SSR pipeline so the whole graph shares one doc-state context instance.
  */
-import { docStateScript, renderDocument } from "@nota-lang/solid";
+import { docStateScript, renderDocument } from "@nota-lang/core";
 import Doc from "./sugars.nota";
 
 export function run(): { html: string; stateScript: string } {

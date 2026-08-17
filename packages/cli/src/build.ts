@@ -174,7 +174,7 @@ bakeConfigBaseline();
 `
       : "";
   return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
-import { docStateScript, renderDocument } from "@nota-lang/solid";
+import { docStateScript, renderDocument } from "@nota-lang/core";
 import { generateHydrationScript } from "solid-js/web";
 const rendered = renderDocument(Doc);
 export const result = {
@@ -195,7 +195,7 @@ bakeConfigBaseline();
 `
       : "";
   return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
-import { hydrateDocument } from "@nota-lang/solid";
+import { hydrateDocument } from "@nota-lang/core";
 hydrateDocument(Doc);
 `;
 }

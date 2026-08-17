@@ -3,7 +3,7 @@
  * clones open; outside-click / Escape dismiss; double-click jumps to the definition. CSR render
  * (a bare NotaDoc self-store) — the hydration path is covered by the CLI acceptance suite.
  */
-import { NotaDoc } from "@nota-lang/solid";
+import { NotaDoc } from "@nota-lang/core";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {

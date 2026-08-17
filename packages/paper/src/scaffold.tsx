@@ -15,7 +15,7 @@
  */
 
 import { DefBank } from "@nota-lang/prelude";
-import { type Fact, Reforest, useDocState } from "@nota-lang/solid";
+import { type Fact, Reforest, useDocState } from "@nota-lang/core";
 import { type JSX, type ParentProps, Show } from "solid-js";
 
 /** The paper title: a raw, unnumbered, un-TOC'd `h1`. */

@@ -20,7 +20,7 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "katex": "^0.16.22",
     "shiki": "^3.9.2"
   },

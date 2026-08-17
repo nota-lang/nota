@@ -11,14 +11,14 @@
  * `% lstset(…)` affects subsequent code blocks only (matching LaTeX's actual `\lstset`), not
  * "last write wins globally". Config is module-global with a bakeable baseline: a site setup
  * module calls `lstset`/… then {@link bakeConfigBaseline}; {@link resetConfig} restores the
- * baseline. The reset is registered with `@nota-lang/solid`'s render-reset seam
+ * baseline. The reset is registered with `@nota-lang/core`'s render-reset seam
  * ({@link onRenderReset}) at module load, so every document render — **each SSG pass** of
  * `renderDocument`, and `hydrateDocument` before claiming — starts from the baseline. Without
  * the per-pass reset, pass 1's end-state would seed pass 2 and positionality would be destroyed
  * in the converged HTML.
  */
 
-import { onRenderReset } from "@nota-lang/solid";
+import { onRenderReset } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 
 /** Options for {@link lstset}. All fields merge into the current document config. */

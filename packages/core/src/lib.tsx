@@ -1,5 +1,5 @@
 /**
- * `@nota-lang/solid` — the Nota runtime, specialized to Solid (design/solid.md).
+ * `@nota-lang/core` — the Nota runtime, specialized to Solid (design/solid.md).
  *
  * A `.nota` document compiles to a plain Solid component whose body is wrapped in
  * {@link NotaDoc}: a document-state provider around a {@link Reforest} pass plus a trailer

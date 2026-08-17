@@ -1,6 +1,6 @@
 /**
  * `resolveId` fallback tests — the transform plugin resolves the imports *it* prepends
- * (`@nota-lang/solid`, the default prelude, `solid-js`) to its own copies **only when the user's
+ * (`@nota-lang/core`, the default prelude, `solid-js`) to its own copies **only when the user's
  * project can't** (pnpm's strict layout makes transitive deps unimportable from user code).
  * Normal resolution must win when it succeeds: those modules carry per-instance state (the
  * doc-state context, Solid's reactive runtime), and two instances would split it.
@@ -45,10 +45,10 @@ describe("resolveId: fallback-only resolution of the emit's imports", () => {
   });
 
   test("normal resolution wins when it succeeds", async () => {
-    const winner = { id: "/app/node_modules/@nota-lang/solid/dist/lib.jsx" };
+    const winner = { id: "/app/node_modules/@nota-lang/core/dist/lib.jsx" };
     const c = ctx(winner);
     const resolveId = getResolveId();
-    expect(await resolveId.call(c, "@nota-lang/solid", "/app/doc.nota")).toBe(
+    expect(await resolveId.call(c, "@nota-lang/core", "/app/doc.nota")).toBe(
       winner
     );
     expect(c.calls).toHaveLength(1);
@@ -57,7 +57,7 @@ describe("resolveId: fallback-only resolution of the emit's imports", () => {
   test("falls back to this package's copy when the project can't resolve", async () => {
     const resolveId = getResolveId();
     for (const source of [
-      "@nota-lang/solid",
+      "@nota-lang/core",
       "@nota-lang/prelude",
       "solid-js"
     ]) {

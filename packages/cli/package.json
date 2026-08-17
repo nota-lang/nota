@@ -17,7 +17,7 @@
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "@nota-lang/vite": "workspace:*",
     "solid-js": "^1.9.3",
     "vite": "^8.0.16"

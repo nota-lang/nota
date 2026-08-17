@@ -12,7 +12,7 @@
  * - `CodeInline` / `CodeBlock` — sync shiki (armed parts contribute text; decorations are a
  *   flagged v0 regression).
  * - The doc-state family (`Heading`/`Title`/`Toc`/`Label`/`Ref`/footnotes/`Cite`/
- *   `Bibliography`) — components over the `@nota-lang/solid` doc-state store (registrations +
+ *   `Bibliography`) — components over the `@nota-lang/core` doc-state store (registrations +
  *   derivations; the LaTeX-.aux two-pass model at SSG time, reactive on the client).
  * - `Definition`/`texRef` + the tooltip system — Solid components; the tooltip bank is a
  *   store-registered trailer whose handlers attach on hydration, and definition references

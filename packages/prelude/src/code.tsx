@@ -17,7 +17,7 @@
  * one, with a warning) → plain `<pre><code>`.
  */
 
-import { type ResolvedChild, textOf } from "@nota-lang/solid";
+import { type ResolvedChild, textOf } from "@nota-lang/core";
 import {
   createHighlighterCoreSync,
   type DecorationItem,

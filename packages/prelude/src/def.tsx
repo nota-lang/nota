@@ -23,7 +23,7 @@
  * output the math renders correctly but un-wired.
  */
 
-import { type Fact, textOf, useDocState } from "@nota-lang/solid";
+import { type Fact, textOf, useDocState } from "@nota-lang/core";
 import { For, type JSX, onMount, type ParentProps } from "solid-js";
 
 interface DefinitionFact extends Fact {

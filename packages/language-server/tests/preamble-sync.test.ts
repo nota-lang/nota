@@ -13,7 +13,7 @@
 import {
   AMBIENT_PRELUDE_NAMES,
   SOLID_AMBIENT_NAMES,
-  SOLID_RUNTIME_NAMES,
+  CORE_RUNTIME_NAMES,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 import { describe, expect, test } from "vitest";
@@ -45,11 +45,11 @@ describe("preamble generation", () => {
   });
 
   test("covers every canonical ambient name (the union of all four compiler lists)", () => {
-    // The full free-name surface an emit can reference: structural (`@nota-lang/solid`),
+    // The full free-name surface an emit can reference: structural (`@nota-lang/core`),
     // `solid-js/web`, `solid-js`, and the ambient prelude. A loop, not a spot check — a name
     // added to any list without a preamble declaration must fail here.
     const allNames = [
-      ...SOLID_RUNTIME_NAMES,
+      ...CORE_RUNTIME_NAMES,
       ...SOLID_WEB_NAMES,
       ...SOLID_AMBIENT_NAMES,
       ...AMBIENT_PRELUDE_NAMES
@@ -63,7 +63,7 @@ describe("preamble generation", () => {
   });
 
   test("Attrs (the flow-position attrs-group marker) is declared", () => {
-    // Regression: `Attrs` is in SOLID_RUNTIME_NAMES but was once absent from the preamble, so
+    // Regression: `Attrs` is in CORE_RUNTIME_NAMES but was once absent from the preamble, so
     // every document with a flow-position attrs group got "Cannot find name 'Attrs'".
     expect(PREAMBLE).toContain("declare const Attrs:");
   });

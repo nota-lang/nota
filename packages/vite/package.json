@@ -22,7 +22,7 @@
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/solid": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "solid-js": "^1.9.3",
     "vite-plugin-solid": "^2.11.10"
   },

@@ -4,7 +4,7 @@
  * renderId — yielding the island's inner HTML + doc-state snapshot for the attribute transport.
  * Loaded through Vite's SSR pipeline by tests/ssg.mjs.
  */
-import { renderDocument } from "@nota-lang/solid";
+import { renderDocument } from "@nota-lang/core";
 import { Doc } from "./doc";
 
 export function run(): { html: string; state: string } {
