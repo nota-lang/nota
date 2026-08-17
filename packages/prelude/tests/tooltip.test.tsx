@@ -119,3 +119,56 @@ describe("def tooltips (CSR)", () => {
     }
   });
 });
+
+describe("def tooltips on a multi-document page (Astro-islands scenario)", () => {
+  test("a ref in the SECOND document resolves against that document's OWN bank, not the first's", () => {
+    resetDefTooltipHandlersForTest();
+    const root1 = document.createElement("div");
+    const root2 = document.createElement("div");
+    document.body.appendChild(root1);
+    document.body.appendChild(root2);
+
+    // Two INDEPENDENT documents (two bare <NotaDoc> islands, each self-provisioning its own
+    // doc-state store — the Astro shape) that happen to share a definition id, so a page-global
+    // ".nota-def-tooltips" lookup would resolve the first bank and silently render doc 1's
+    // content for a doc-2 ref.
+    function Doc1() {
+      return (
+        <NotaDoc>
+          <Definition id="shared" label="One" tooltip="Doc ONE's tooltip.">
+            {"shared"}
+          </Definition>{" "}
+          <Ref id="shared" />
+        </NotaDoc>
+      );
+    }
+    function Doc2() {
+      return (
+        <NotaDoc>
+          <Definition id="shared" label="Two" tooltip="Doc TWO's tooltip.">
+            {"shared"}
+          </Definition>{" "}
+          <Ref id="shared" />
+        </NotaDoc>
+      );
+    }
+
+    const dispose1 = render(() => <Doc1 />, root1);
+    const dispose2 = render(() => <Doc2 />, root2);
+    try {
+      const ref2 = root2.querySelector("a[data-nota-def]");
+      if (!ref2) throw new Error("no def ref in doc2");
+      click(ref2);
+      const tip = document.querySelector(".nota-def-tooltip-open");
+      expect(tip).toBeTruthy();
+      // The SECOND document's own bank must be consulted — not the first (page-first) bank.
+      expect(tip?.textContent).toBe("Doc TWO's tooltip.");
+      expect(tip?.textContent).not.toBe("Doc ONE's tooltip.");
+    } finally {
+      dispose1();
+      dispose2();
+      root1.remove();
+      root2.remove();
+    }
+  });
+});

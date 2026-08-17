@@ -136,7 +136,15 @@ export function installDefTooltipHandlers(): void {
     }
     hide();
     const key = anchor.getAttribute("data-nota-def") ?? "";
-    const bank = document.querySelector(".nota-def-tooltips");
+    // Resolve the bank within the triggering anchor's OWN document root (core render.tsx's
+    // `<article class="nota-doc">`) — a page hosting several documents (Astro islands) has one
+    // bank per document, and a page-global `document.querySelector` would always find the
+    // first, leaving every later document's refs silently un-tooltipped. Fall back to a
+    // page-wide lookup when no enclosing root is found (e.g. a bare CSR mount in tests).
+    const root = anchor.closest("article.nota-doc");
+    const bank =
+      root?.querySelector(".nota-def-tooltips") ??
+      document.querySelector(".nota-def-tooltips");
     // CSS.escape is absent in some DOM shims (jsdom); keys are author-controlled, so fall back.
     const escaped =
       typeof CSS !== "undefined" && CSS.escape ? CSS.escape(key) : key;

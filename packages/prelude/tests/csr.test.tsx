@@ -11,12 +11,14 @@ import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   CodeBlock,
+  Footnote,
   FootnoteMark,
   FootnoteText,
   Heading,
   Label,
   Ref,
-  resetConfigForTest
+  resetConfigForTest,
+  secset
 } from "../src/lib";
 
 let dispose: (() => void) | null = null;
@@ -86,6 +88,69 @@ describe("unseeded forward references (CSR)", () => {
     const content = root.querySelector(".nota-fn-content");
     expect(content?.textContent).toContain("the labeled body");
     expect(content?.textContent).not.toContain("?");
+  });
+});
+
+describe("live renumbering (unmount-before-later-consumer)", () => {
+  test("a later heading's id/num re-derive after an earlier heading unmounts", () => {
+    secset({ numberDepth: 1 });
+    const [show, setShow] = createSignal(true);
+    const Doc = () => (
+      <NotaDoc>
+        <Show when={show()}>
+          <Heading rank={1}>First</Heading>
+        </Show>
+        <Heading rank={1}>Second</Heading>
+        <Heading rank={1}>Third</Heading>
+      </NotaDoc>
+    );
+    if (!root) throw new Error("no root");
+    dispose = render(() => <Doc />, root);
+
+    const headingsBefore = Array.from(root.querySelectorAll("h1"));
+    expect(headingsBefore.map(h => h.id)).toEqual(["first", "second", "third"]);
+    expect(
+      headingsBefore.map(h => h.querySelector(".nota-secnum")?.textContent)
+    ).toEqual(["1", "2", "3"]);
+
+    setShow(false); // unmount "First" — Second and Third re-sequence underneath it
+
+    const headingsAfter = Array.from(root.querySelectorAll("h1"));
+    expect(
+      headingsAfter.map(h => h.textContent?.replace(/^\d+\s*/, ""))
+    ).toEqual(["Second", "Third"]);
+    // Both id() and num() must re-derive against the NEW positions, not the mount-time index.
+    expect(headingsAfter.map(h => h.id)).toEqual(["second", "third"]);
+    expect(
+      headingsAfter.map(h => h.querySelector(".nota-secnum")?.textContent)
+    ).toEqual(["1", "2"]);
+  });
+
+  test("a later footnote mark's number re-derives after an earlier footnote unmounts", () => {
+    const [show, setShow] = createSignal(true);
+    const Doc = () => (
+      <NotaDoc>
+        <Show when={show()}>
+          <Footnote>{"first note"}</Footnote>
+        </Show>
+        <Footnote>{"second note"}</Footnote>
+        <Footnote>{"third note"}</Footnote>
+      </NotaDoc>
+    );
+    if (!root) throw new Error("no root");
+    dispose = render(() => <Doc />, root);
+
+    const supsBefore = Array.from(root.querySelectorAll("sup.nota-fnref"));
+    expect(supsBefore.map(s => s.textContent)).toEqual(["1", "2", "3"]);
+
+    setShow(false); // unmount the first footnote mark
+
+    const supsAfter = Array.from(root.querySelectorAll("sup.nota-fnref"));
+    expect(supsAfter.map(s => s.textContent)).toEqual(["1", "2"]);
+    const hrefs = supsAfter.map(s =>
+      s.querySelector("a")?.getAttribute("href")
+    );
+    expect(hrefs).toEqual(["#fn-1", "#fn-2"]);
   });
 });
 

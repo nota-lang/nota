@@ -22,6 +22,7 @@
 
 import {
   type Fact,
+  type FactHandle,
   Reforest,
   type ResolvedChild,
   textOf,
@@ -195,10 +196,13 @@ export function Heading(
     title: titleTextOf(resolved.toArray()),
     explicitId
   } satisfies Omit<HeadingFact, "pos">);
-  const i = handle.seq - 1;
+  // `handle.seq` is read lazily (NOT captured into a local) — unregistering an earlier heading
+  // re-sequences every later handle in place (core doc-state.ts's unregister), so this must
+  // reflect the CURRENT seq at computation time or id()/num() drift onto a neighbor's slot.
   const facts = () => state.read("heading") as HeadingFact[];
-  const id = () => headingIds(facts())[i];
-  const num = () => headingNumbers(facts(), config().numberDepth)[i];
+  const id = () => headingIds(facts())[handle.seq - 1];
+  const num = () =>
+    headingNumbers(facts(), config().numberDepth)[handle.seq - 1];
   return (
     <Dynamic component={`h${rank}`} id={id()} {...rest}>
       <Show when={num() !== undefined}>
@@ -438,12 +442,17 @@ function footnoteNumbers(refs: FootnoteFact[]): {
   return { numOf, firstIndex };
 }
 
-/** The reference `<sup>` for the footnote fact at reference-list index `i`. */
-function FootnoteSup(props: { index: number }): JSX.Element {
+/** The reference `<sup>` for the footnote fact registered at `handle`. Takes the handle (not a
+ * plain `handle.seq - 1` index) so the reference-list position is read fresh at computation time
+ * — an earlier footnote unregistering re-sequences every later handle in place (core
+ * doc-state.ts's unregister), and a captured index would go stale the same way a captured
+ * `handle.seq` would. */
+function FootnoteSup(props: { handle: FactHandle }): JSX.Element {
   const state = useDocState();
   const model = () => footnoteNumbers(state.read("footnote") as FootnoteFact[]);
-  const num = () => model().numOf[props.index];
-  const first = () => model().firstIndex.get(num()) === props.index;
+  const index = () => props.handle.seq - 1;
+  const num = () => model().numOf[index()];
+  const first = () => model().firstIndex.get(num()) === index();
   return (
     <sup class="nota-fnref">
       <a id={first() ? `fnref-${num()}` : undefined} href={`#fn-${num()}`}>
@@ -477,7 +486,7 @@ export function Footnote(props: ParentProps): JSX.Element {
   const handle = state.register("footnote", {
     content: () => props.children
   });
-  return <FootnoteSup index={handle.seq - 1} />;
+  return <FootnoteSup handle={handle} />;
 }
 
 /**
@@ -494,7 +503,7 @@ export function FootnoteMark(props: { label?: string }): JSX.Element {
   }
   ensureFootnotesTrailer(state);
   const handle = state.register("footnote", { label });
-  return <FootnoteSup index={handle.seq - 1} />;
+  return <FootnoteSup handle={handle} />;
 }
 
 /**
