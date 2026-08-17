@@ -3,20 +3,32 @@
  * paper: title block, author block, abstract, small-caps, float/flex layout helpers, and
  * numbered figures with captions.
  *
- * Figures ride the doc-state store: `Figure` registers a `"figure"` fact — its per-kind `seq`
- * IS the figure number — and, when it has an `id`, a `"definition"` fact whose `labelText` is
- * `"Figure N"` and whose tooltip bank renders the figure body, so `&id` references render
- * "Figure N" with a tooltip showing the figure itself. `Caption` counts the figures registered
- * at positions before its own (`pos`) and prefixes "Figure N: "; a caption with no preceding
- * figure renders unlabeled.
+ * Figures ride the **unified reference registry** (design/references.md): `Figure` registers a
+ * `figure`-kind anchor — an extension kind, pure JSON data — whose number is its anchor-order
+ * ordinal, derived at read time (never baked). An id'd figure is a strong anchor carrying
+ * `href: "#fig-id"`, `refPrefix: "Figure "`, and a tooltip bank of the figure body, so `&id`
+ * references render "Figure N" through `Ref`'s generic arm, link to the real `fig-` element,
+ * and tooltip the figure itself. `Caption` reads its enclosing figure's ordinal through
+ * context and prefixes "Figure N: "; a caption outside any figure renders unlabeled.
  *
  * `Title` is the prelude's component (a raw `h1.nota-title`, not `Heading`): unnumbered and
  * absent from the TOC — the paper-title analogue of `\section*`.
  */
 
-import { DefBank, FACT_KINDS } from "@nota-lang/prelude";
-import { type Fact, Reforest, useDocState } from "@nota-lang/core";
-import { type JSX, type ParentProps, Show } from "solid-js";
+import { Reforest, useDocState } from "@nota-lang/core";
+import {
+  type AnchorFact,
+  anchorOrdinals,
+  DefBank,
+  FACT_KINDS
+} from "@nota-lang/prelude";
+import {
+  createContext,
+  type JSX,
+  type ParentProps,
+  Show,
+  useContext
+} from "solid-js";
 
 /** The paper title: a raw, unnumbered, un-TOC'd `h1`. */
 export { Title } from "@nota-lang/prelude";
@@ -90,10 +102,17 @@ export function Center(props: ParentProps): JSX.Element {
   return <div class="nota-center">{props.children}</div>;
 }
 
+/** The anchor kind paper's figures register (paper-owned; the prelude ships none of it). */
+export const FIGURE_KIND = "figure";
+
+/** The enclosing figure's ordinal accessor, provided by `Figure` for its `Caption`. */
+const FigureContext = createContext<() => number | undefined>();
+
 /**
- * A numbered figure. Props: optional `id` — when set, the `<figure>` gets `id="fig-<id>"` and a
- * definition registers under the same key with the label "Figure N" and the figure body as its
- * tooltip bank, so `&id` references number correctly and tooltip the figure (see module docs).
+ * A numbered figure — a `figure`-kind anchor. Optional `id`: when set, the `<figure>` gets
+ * `id="fig-<id>"` and the anchor is strong (`&id` renders "Figure N" via the generic `Ref`
+ * arm, links here, and tooltips the figure body); without one the figure is anonymous — it
+ * still counts in the numbering.
  */
 export function Figure(props: ParentProps & { id?: string }): JSX.Element {
   const state = useDocState();
@@ -101,21 +120,38 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
     typeof props.id === "string" && props.id.trim() !== ""
       ? props.id.trim()
       : undefined;
-  const handle = state.register("figure", { key: id });
+  const handle = state.register(FACT_KINDS.anchor, {
+    kind: FIGURE_KIND,
+    id,
+    refPrefix: "Figure ",
+    ...(id !== undefined
+      ? {
+          href: `#fig-${id}`,
+          tooltip: true,
+          bank: () => <div class="nota-figure-tooltip">{props.children}</div>
+        }
+      : {})
+  });
+  const myPos = handle.fact.pos as number;
+  const ordinal = () =>
+    anchorOrdinals(
+      state.read(FACT_KINDS.anchor) as AnchorFact[],
+      FIGURE_KIND
+    ).get(myPos);
   if (id !== undefined) {
-    state.register(FACT_KINDS.definition, {
-      key: id,
-      labelText: `Figure ${handle.seq}`,
-      bank: () => <div class="nota-figure-tooltip">{props.children}</div>
-    });
     // The bank renders from the shared "definitions" trailer; registering it here (idempotent)
-    // covers documents whose only definitions are figures.
+    // covers documents whose only tooltip anchors are figures.
     state.trailer("definitions", () => <DefBank />);
   }
   return (
-    <figure id={id !== undefined ? `fig-${id}` : undefined} class="nota-figure">
-      {props.children}
-    </figure>
+    <FigureContext.Provider value={ordinal}>
+      <figure
+        id={id !== undefined ? `fig-${id}` : undefined}
+        class="nota-figure"
+      >
+        {props.children}
+      </figure>
+    </FigureContext.Provider>
   );
 }
 
@@ -125,18 +161,13 @@ export function Subfigure(props: ParentProps): JSX.Element {
 }
 
 /**
- * A figure caption: `<figcaption>` prefixed with "Figure N: " for the nearest preceding figure
- * fact (by `pos`); unlabeled when no figure precedes.
+ * A figure caption: `<figcaption>` prefixed with "Figure N: " — N is the enclosing `Figure`'s
+ * ordinal, read through context (correct even when an earlier figure mounts later). A caption
+ * outside any figure renders unlabeled.
  */
 export function Caption(props: ParentProps): JSX.Element {
-  const state = useDocState();
-  const handle = state.register("figure-caption", {});
-  const ownPos = handle.fact.pos as number;
-  const number = () => {
-    const figures = state.read("figure") as Fact[];
-    const preceding = figures.filter(f => (f.pos as number) < ownPos);
-    return preceding.length > 0 ? preceding.length : undefined;
-  };
+  const ordinal = useContext(FigureContext);
+  const number = () => ordinal?.();
   return (
     <figcaption class="nota-caption">
       <Show when={number() !== undefined}>
