@@ -1,0 +1,505 @@
+/* The Barnes-Hut explorable — document design.
+ *
+ * Layout: a centered ~76rem frame; prose in a 41rem column on its left; the diagram rides
+ * the right margin inside the explorable Sticky panel (zero flow height, pinned on scroll).
+ * Ink/chrome tokens follow the dataviz reference palette; the diagram keeps the original
+ * article's warm annotation colors (quad flash, mass red, force purple).
+ */
+
+:root {
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --hairline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --surface: #fcfcfb;
+  --accent: #1c5cab;
+  --nota-accent: var(--accent);
+  --nota-action-color: var(--accent);
+  --nota-sticky-top: 3.5rem;
+  --mass-red: #b03a2e;
+  --flash: #d5aaaa;
+  --force-line: #991151;
+  --force-purple: #6b2f8f;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  background: var(--surface);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 17px/1.65 Charter, Georgia, "Times New Roman", serif;
+  text-rendering: optimizeLegibility;
+}
+
+#nota-root {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* ------------------------------------------------------------------ the two columns */
+
+.nota-doc > .nota-section {
+  max-width: 41rem;
+}
+
+.nota-sticky .bh {
+  display: block;
+  margin-left: 44.5rem;
+  width: 500px;
+  background: var(--surface);
+}
+
+@media (max-width: 1300px) {
+  .nota-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+  .nota-sticky .bh {
+    margin: 0 auto 2rem;
+    width: min(500px, 100%);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-bottom: 1px solid var(--hairline);
+  }
+}
+
+/* ------------------------------------------------------------------------ front matter */
+
+h1,
+h2,
+h3,
+.nota-title {
+  font-family: var(--sans);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.nota-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.subtitle {
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  color: var(--ink-2);
+  margin: 0 0 0.5rem;
+}
+
+.byline {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 2.5rem;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 1.5rem;
+}
+
+.byline a {
+  color: inherit;
+}
+
+.nota-section h1 {
+  font-size: 1.45rem;
+  font-weight: 650;
+  margin: 2.5rem 0 0.75rem;
+}
+
+.nota-section h2 {
+  font-size: 1.1rem;
+  font-weight: 650;
+  margin: 2rem 0 0.5rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* Footnotes (prelude defaults, lightly dressed). */
+.nota-footnotes {
+  font-size: 0.85em;
+  color: var(--ink-2);
+}
+
+/* --------------------------------------------------------------- explorable controls */
+
+.nota-slider {
+  font-family: var(--sans);
+  color: var(--ink-2);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 0.6em 0.9em;
+  background: color-mix(in srgb, var(--surface) 60%, white);
+}
+
+.nota-action {
+  font-style: inherit;
+}
+
+/* ------------------------------------------------------------------- the diagram (bh) */
+
+.bh {
+  touch-action: none;
+  user-select: none;
+  font-family: var(--sans);
+}
+
+.bh-links line {
+  stroke: #ccc;
+  stroke-width: 1;
+  transition: stroke-opacity 0.5s;
+  pointer-events: none;
+}
+
+.bh:not([data-laying-out]) .bh-links line {
+  stroke-opacity: 0;
+}
+
+.bh-nodes circle {
+  fill: #666;
+  transition: fill-opacity 0.5s;
+}
+
+.bh[data-laying-out] .bh-nodes circle {
+  cursor: grab;
+}
+
+.bh[data-estimating] {
+  cursor: crosshair;
+}
+
+.bh-quads rect {
+  fill: none;
+  stroke: var(--hairline);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* Insertion: the new cells flash out; the inserted point pops in. */
+.bh-insertion rect,
+.bh-insertion circle {
+  pointer-events: none;
+}
+
+.bh-flash-box {
+  fill: none;
+  stroke: var(--flash);
+  stroke-width: 2;
+  animation: bh-flash 1.4s ease-out forwards;
+}
+
+@keyframes bh-flash {
+  0%,
+  35% {
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-opacity: 0;
+  }
+}
+
+.bh-inserted {
+  fill: var(--mass-red);
+  animation: bh-pop 1.6s ease-out forwards;
+}
+
+@keyframes bh-pop {
+  0% {
+    r: 0;
+    fill-opacity: 1;
+  }
+  30% {
+    r: 5.5;
+    fill-opacity: 1;
+  }
+  45%,
+  70% {
+    r: 4;
+    fill-opacity: 1;
+  }
+  100% {
+    r: 4;
+    fill-opacity: 0;
+  }
+}
+
+/* Estimation: approximated cells, force components, considered masses, the probe. */
+.bh-forces rect,
+.bh-forces line,
+.bh-probe-layer circle,
+.bh-probe-layer line {
+  pointer-events: none;
+}
+
+.bh-used-cell {
+  fill: none;
+  stroke: var(--flash);
+  stroke-width: 2;
+}
+
+.bh-force-line {
+  stroke: var(--force-line);
+  stroke-opacity: 0.3;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+
+.bh-charge {
+  fill: var(--mass-red);
+}
+
+.bh-probe {
+  fill: white;
+  stroke: var(--force-purple);
+  stroke-width: 1.5;
+}
+
+.bh-force-vector {
+  stroke: var(--force-purple);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* The center-of-mass accumulation animation. */
+.bh-accum circle,
+.bh-accum rect {
+  pointer-events: none;
+}
+
+.bh-gather {
+  fill: var(--mass-red);
+  fill-opacity: 0.9;
+  transition:
+    cx 0.5s ease-in 0.25s,
+    cy 0.5s ease-in 0.25s;
+}
+
+.bh-com-pop {
+  fill: var(--mass-red);
+  animation: bh-com-pop 1.35s ease-out forwards;
+}
+
+@keyframes bh-com-pop {
+  0%,
+  55% {
+    r: 0;
+    fill-opacity: 0;
+  }
+  70% {
+    fill-opacity: 1;
+  }
+  80% {
+    fill-opacity: 1;
+  }
+  100% {
+    fill-opacity: 0.9;
+  }
+}
+
+.bh-com-done {
+  fill: #666;
+  fill-opacity: 0.25;
+}
+
+/* ------------------------------------------------------------------------- the charts */
+
+.plot {
+  position: relative;
+  margin: 2rem 0;
+  font-family: var(--sans);
+}
+
+.plot-svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.plot-legend {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 0 0.35rem;
+}
+
+.plot-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  padding: 0.25em 0.55em;
+  font: 600 12px var(--sans);
+  color: var(--ink-2);
+  cursor: default;
+  transition: opacity 0.2s;
+}
+
+.plot-legend-item:hover {
+  background: color-mix(in srgb, var(--hairline) 45%, transparent);
+}
+
+.plot-legend-item.is-dimmed {
+  opacity: 0.4;
+}
+
+.plot-legend-key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.plot-title {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink-2);
+}
+
+.plot-grid {
+  stroke: var(--hairline);
+  stroke-width: 1;
+}
+
+.plot-baseline {
+  stroke: var(--baseline);
+  stroke-width: 1;
+}
+
+.plot-tick {
+  font-size: 11px;
+  fill: var(--muted);
+}
+
+.plot-tick-y {
+  text-anchor: end;
+}
+
+.plot-tick-x {
+  text-anchor: middle;
+}
+
+.plot-axis-label {
+  font-size: 11px;
+  fill: var(--muted);
+  text-anchor: middle;
+}
+
+.plot-series {
+  transition: opacity 0.2s;
+}
+
+.plot-series.is-dimmed {
+  opacity: 0.25;
+}
+
+.plot-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.plot-line-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+}
+
+.plot-end-dot,
+.plot-cursor-dot {
+  stroke: var(--surface);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.plot-end-label {
+  font-size: 12px;
+  fill: var(--ink-2);
+}
+
+.plot-leader {
+  stroke: var(--baseline);
+  stroke-width: 1;
+}
+
+.plot-crosshair {
+  stroke: var(--baseline);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.plot-tooltip {
+  position: absolute;
+  top: 3rem;
+  transform: translateX(calc(12px - var(--flip, 0) * (100% + 24px)));
+  background: white;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(11, 11, 11, 0.08);
+  padding: 0.5rem 0.7rem;
+  font-size: 12px;
+  color: var(--ink-2);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.plot-tooltip-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.plot-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  line-height: 1.7;
+}
+
+.plot-tooltip-row strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.plot-tooltip-row.is-dimmed {
+  opacity: 0.45;
+}
+
+.plot-tooltip-series {
+  color: var(--muted);
+}
+
+/* θ references in prose: ink text, series-colored swatch + underline. */
+.theta-ref {
+  white-space: nowrap;
+  border-bottom: 1.5px solid var(--series-color, currentColor);
+  padding-bottom: 1px;
+  border-radius: 1px;
+  transition: background 0.15s;
+}
+
+.theta-ref-swatch {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 2px;
+  margin-right: 0.3em;
+  background: var(--series-color, currentColor);
+  vertical-align: baseline;
+}
+
+.theta-ref.is-focused {
+  background: color-mix(in srgb, var(--series-color, currentColor) 12%, transparent);
+}

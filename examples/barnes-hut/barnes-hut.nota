@@ -1,0 +1,238 @@
+%%%
+import { createMutable } from "solid-js/store";
+import { Action, Slider, Sticky } from "@nota-lang/explorable";
+import "@nota-lang/explorable/explorable.css";
+import { BarnesHut } from "./src/barnes-hut";
+import { ErrorPlot, ThetaRef, TimePlot } from "./src/plots";
+import "./barnes-hut.css";
+
+// The document's reactive state: one mutable store. Reads track, writes update —
+// in prose, in controls, and in the diagram alike.
+const S = createMutable({
+  charge: -30,      // force strength (negative repels, positive attracts)
+  step: 0,          // points inserted into the quadtree
+  theta: 0,         // the Barnes-Hut θ threshold
+  accum: 0,         // bump to replay the center-of-mass animation
+  layout: true,     // run the live force-directed layout
+  estimate: false,  // show the force-estimation probe
+  focus: null as number | null  // θ series focused in the figures
+});
+
+// Document-local prose controls: @Do[…]{…} is an action link whose props are the
+// state patch (evaluated at click time), and @T[theta: …]{…} references a θ series
+// in the figures, focusing it on hover.
+const Do = (props: { children?: unknown }) => {
+  const [own, patch] = splitProps(props, ["children"]);
+  return @Action[do: () => Object.assign(S, patch)]{@(own.children)};
+};
+const T = (props: { theta: number; children?: unknown }) =>
+  @ThetaRef[theta: props.theta, focus: S.focus, setFocus: f => S.focus = f]{
+    @(props.children)};
+%%%
+
+// The diagram rides the right margin in a sticky panel. It sits ABOVE the title on
+// purpose: before any heading it is a direct child of the article, so the panel can
+// stick for the document's whole scroll range (inside a section it could only stick
+// within that section's box).
+@Sticky{
+  @BarnesHut[
+    size: S.step,
+    theta: S.theta,
+    charge: S.charge,
+    layout: S.layout && !S.estimate,
+    estimate: S.estimate,
+    accumulate: S.accum]
+}
+
+@Title{The Barnes-Hut Approximation}
+@p[class: "subtitle"]{Efficient computation of N-body forces}
+@p[class: "byline"]{
+  @a[href: "https://jheer.github.io/barnes-hut/"]{An explorable} by Jeffrey Heer,
+  reimplemented in Nota}
+
+# Introduction
+
+Computers are exciting tools for discovery, with which we can model and explore complex
+phenomena. For example, to test theories about the formation of the universe, we can
+perform _simulations_ to predict how galaxies evolve. We could gather the estimated mass
+and location of stars and model their gravitational interactions over time.
+
+Another avenue for discovery is to _visualize_ complex information to reveal structure
+and patterns. Consider this network diagram, showing connections between people in a
+social network. We can examine community groups and identify people who bridge between
+them.
+
+Though they may seem quite different at first, these two examples share a common need.
+They both require computing forces that arise from pairwise interactions among a set of
+points, often referred to as an _N-body problem_. In the case of astronomical simulation,
+we seek to model the gravitational forces among stars. In the case of network
+visualization, we compute the layout using a similar physical simulation: nodes in the
+network act as charged particles that repel each other, links act as springs that pull
+related nodes together.
+
+_To get a sense of how this force-directed layout works, drag the nodes or use the slider to adjust the force strength._
+Negative values indicate repulsive forces, while positive values indicate attractive
+forces.
+
+@Slider[value: S.charge, set: v => S.charge = v,
+        min: -30, max: 10, step: 1, label: "Force strength"]
+
+A straightforward approach to computing N-body forces is to consider all pairs of
+individual points and add up the contributions of each interaction. This naïve scheme
+has _quadratic complexity_: as the number of points $n$ increases, the running time
+grows proportionally to $n^2$, quickly leading to intractably long calculations. How
+might we do better?
+
+# The Barnes-Hut Approximation
+
+To accelerate computation and make large-scale simulations possible, the astronomers
+Josh Barnes and Piet Hut devised a clever scheme: approximate long-range forces by
+replacing a group of distant points with their center of mass. In exchange for a small
+amount of error, this scheme significantly speeds up calculation, with complexity
+$n \log n$ rather than $n^2$.
+
+Central to this approximation is a _spatial index_: a "map" of space that helps us model
+groups of points as a single center of mass. In two dimensions, we can use a
+@a[href: "https://en.wikipedia.org/wiki/Quadtree"]{quadtree} data structure, which
+subdivides square regions of space into four equal-sized quadrants. (In three
+dimensions, an @a[href: "https://en.wikipedia.org/wiki/Octree"]{octree} divides a cubic
+volume into eight sub-cubes.)
+
+The Barnes-Hut approximation involves three steps:
+
++ Construct the spatial index (quadtree)
++ Calculate centers of mass
++ Estimate forces
+
+Let's explore each step in turn. We will assume we are computing _repulsive_ forces for
+the purposes of network layout. This setup is akin to modeling anti-gravity or electric
+forces with similarly-charged particles. While we will use the term "center of mass",
+this could readily be replaced with "center of charge".
+
+_As you read through, click the @Action[do: () => alert("👍 🎉")]{action links} to update the diagram!_
+
+## Step 1: Construct the Quadtree
+
+We begin with @Do[layout: false, step: 0]{a set of two-dimensional input points}. When
+we @Do[layout: false, step: 1]{insert the first point into the quadtree}, it is added to
+the top-level root cell of the tree.
+
+@Do[layout: false, step: 2]{When we insert another point}, the tree expands by
+subdividing the space. With
+@Do[layout: false, step: Math.min(S.step + 1, 77)]{each}
+@Do[layout: false, step: Math.min(S.step + 1, 77)]{subsequent}
+@Do[layout: false, step: Math.min(S.step + 1, 77)]{insertion},
+more fine-grained cells are added until all points reside in their own cell.
+
+_Advance the slider to add each point and produce the full quadtree._
+
+@Slider[value: S.step, set: v => S.step = v,
+        min: 0, max: 77, step: 1, label: "Inserted points"]
+
+## Step 2: Calculate Centers of Mass
+
+After quadtree construction,
+@Do[layout: false, accum: S.accum + 1]{we calculate centers of mass for each cell of
+the tree}. The center of mass of a quadtree cell is the weighted average of the centers
+of its four child cells.
+
+We visit the leaf node cells first and then visit subsequent parent cells, merging data
+as we pass upwards through the tree. Once the traversal completes, each cell has been
+updated with the position and strength of its center of mass.
+
+## Step 3: Estimate N-Body Forces
+
+Now we are ready to estimate forces!
+
+@Do[theta: 0, estimate: true]{To measure forces at a given point, let's add a "probe" to
+our diagram}. The purple line extending from the probe indicates the direction and
+magnitude of the total force at that location.[^probe-scale] The dotted lines extending
+to the probe represent the force components exerted by individual points.
+
+[^probe-scale]: To promote visibility, the purple line is three times longer than the
+  actual pixel distance the probe would be moved in a single timestep of the force
+  simulation.
+
+_Move the probe (click or drag) to explore the force field._
+
+Ignoring the quadtree, we can naïvely calculate forces by summing the contributions of
+_all_ individual points. Of course, we want to use the quadtree to accelerate
+calculation and approximate long-range forces. Rather than compute interactions among
+individual points, @Do[theta: 1, estimate: true]{we can compute interactions with
+centers of mass}, using smaller quadtree cells for nearer points and larger cells for
+more distant points.
+
+At this point we skipped a critical detail: what constitutes "long-range" versus
+"short-range" forces? We consider both the _distance_ to the center of a quadtree cell
+and that cell's _width_. If the ratio _width / distance_ falls below a chosen
+threshold — a parameter $\Theta$ (_theta_) — we treat the quadtree cell as a source of
+long-range forces and use its center of mass. Otherwise, we will recursively visit the
+child cells in the quadtree.
+
+When $\Theta = 1$, a quadtree cell's center of mass will be used — and its internal
+points ignored — if the distance from the sample point to the cell's center is greater
+than or equal to the cell's width.
+
+_Adjust the $\Theta$ parameter to view its effect on force estimation._
+
+@Slider[value: S.theta, set: v => S.theta = v,
+        min: 0, max: 2, step: 0.1, label: "Theta Θ", format: v => v.toFixed(1)]
+
+How does the number of considered points change based on the probe location and
+$\Theta$? How does the direction and magnitude of the total force vary with $\Theta$?
+
+We can now perform force estimation for each individual point, using the Barnes-Hut
+approximation to limit the total number of comparisons!
+
+# Performance Analysis
+
+To assess the performance of the Barnes-Hut approximation, we can look at both the
+running time and accuracy of force estimation. We will compare naïve ($n^2$) calculation
+to different settings of the $\Theta$ parameter.
+
+We will take measurements using different point sets, ranging from 500 to 10,000 points.
+For each point count, we average the results from 50 separate runs of force estimation,
+each time using a different set of points placed at uniformly random coordinates within
+a 900 × 500 pixel rectangle.
+
+@TimePlot[focus: S.focus, setFocus: f => S.focus = f]
+
+The running time results confirm that the Barnes-Hut approximation can significantly
+speed up computation. As expected, the @T[theta: 0]{naïve approach} exhibits a quadratic
+relationship, whereas increasing the $\Theta$ parameter leads to faster calculations. A
+low setting of @T[theta: 0.5]{Θ = 0.5} does not fare better than the naïve approach
+until processing about 6,000 points. Until that point, the overhead of quadtree
+construction and center of mass calculation outstrips any gains in force estimation. In
+contrast, for @T[theta: 1]{Θ = 1} and @T[theta: 1.5]{Θ = 1.5} we see significant
+improvements in running time.
+
+To evaluate approximation error, we measure the average vector distance between the
+results of the naïve scheme and Barnes-Hut. In the context of a force-directed graph
+layout, this error represents the difference (in pixels) between node positions after
+applying the naïve and approximate methods.
+
+@ErrorPlot[focus: S.focus, setFocus: f => S.focus = f]
+
+Looking at the error results, we first see that the average error is relatively small:
+only ~5% of a single pixel in difference! However, we should take care interpreting
+these results, as we use the _average_ error per point and the _maximum_ error may be
+substantially higher. While @T[theta: 1]{Θ = 1} and @T[theta: 1.5]{Θ = 1.5} exhibit
+similar _running times_, here we see notably higher _error rates_ for
+@T[theta: 1.5]{Θ = 1.5} versus @T[theta: 1]{Θ = 1} and @T[theta: 0.5]{Θ = 0.5}.
+
+These results suggest that a good default value for $\Theta$ — with low running time
+_and_ low approximation error — is around 1.0. Indeed, in practice it is common to see
+default settings slightly below 1. In visualization applications, where errors on the
+order of a few pixels are not a problem, even higher $\Theta$ values may be used without
+issue.
+
+# Conclusion
+
+The Barnes-Hut approximation has had a major impact on both physical simulation and
+network visualization, enabling n-body calculations to scale to much larger data sets
+than naïve force calculation permits.
+
+@Do[step: 77, estimate: false, layout: true]{Returning to our initial network diagram},
+we can use Barnes-Hut to efficiently compute repulsive forces at each timestep. For each
+animation frame, we perform the approximation anew, creating a new quadtree,
+accumulating centers of mass, and (approximately) estimating forces.
