@@ -176,12 +176,23 @@ describe("compile (ambient prelude injection + freeNames)", () => {
   });
 
   test("a %import of the same name suppresses the injection (lexical override)", () => {
+    // `Toc`, not `Tex`: the emit-referenced prelude names are RESERVED now (a binding is a
+    // reader diagnostic — see the reserved-collision test); user-typed ambient names like `Toc`
+    // stay lexically overridable, and the override suppresses the ambient injection.
     const { code, freeNames } = compile(
-      '%import { Tex } from "./my-tex.js"\nMath $x^2$\n'
+      '%import { Toc } from "./my-toc.js"\n@Toc{}\n'
     );
     expect(code).not.toContain("@nota-lang/prelude");
-    expect(code).toContain('from "./my-tex.js"');
-    expect(freeNames).not.toContain("Tex");
+    expect(code).toContain('from "./my-toc.js"');
+    expect(freeNames).not.toContain("Toc");
+  });
+
+  test("binding an emit-referenced prelude name is a reader diagnostic", () => {
+    // The other half of the lexical-override story: `Tex` is emit-referenced (`$…$` lowers to
+    // it), so a document binding would silently break math — the reader diagnoses it instead.
+    expect(() => compile('%import { Tex } from "./my-tex.js"\n$x^2$\n')).toThrow(
+      /Tex.*collides/
+    );
   });
 
   test("prelude: false disables injection; a custom module is honored", () => {
@@ -319,6 +330,28 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
   test("SOLID_WEB_NAMES ⊆ solid-js/web's exports", () => {
     const web = solidRequire("solid-js/web") as Record<string, unknown>;
     expect(SOLID_WEB_NAMES.filter(n => !(n in web))).toEqual([]);
+  });
+
+  test("the reader's emit groups are covered by the ambient policy lists", async () => {
+    // The reader emits For/Show (solid-js) and Tex/Heading/… (prelude) as free names; the policy
+    // lists here decide binding, so each emitted group must be inside its policy list — the
+    // rust↔TS check that never existed while both sides were hand-copied.
+    const { emitSurface } = await import("../src/reader.js");
+    const surface = emitSurface();
+    const solid = SOLID_AMBIENT_NAMES as readonly string[];
+    const prelude = AMBIENT_PRELUDE_NAMES as readonly string[];
+    expect(surface.solid.filter(n => !solid.includes(n))).toEqual([]);
+    expect(surface.prelude.filter(n => !prelude.includes(n))).toEqual([]);
+    // The reserved set is exactly `Doc` + every group (the collision-diagnostic surface).
+    expect([...surface.reserved].sort()).toEqual(
+      [
+        "Doc",
+        ...surface.structural,
+        ...surface.solid,
+        ...surface.solidWeb,
+        ...surface.prelude
+      ].sort()
+    );
   });
 });
 

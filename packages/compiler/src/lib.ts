@@ -7,15 +7,16 @@
  * **prepended** — every binding free-name-driven:
  *
  * 1. the `@nota-lang/core` import for the structural names the emit references free
- *    (`NotaDoc`/`Reforest`/`UlLi`/`OlLi`) + the compat constructors;
+ *    ({@link CORE_RUNTIME_NAMES} — derived from the reader's `emitSurface()`);
  * 2. the `solid-js` import for the ambient state/control-flow surface referenced free
  *    ({@link SOLID_AMBIENT_NAMES} — incl. `For` from `@for` loops), and `Dynamic` from
  *    `solid-js/web` for dynamic tags; and
- * 3. an **ambient prelude** import binding the prelude names the module references *free* —
+ * 3. an ambient-prelude import binding the prelude names the module references *free* —
  *    the reader reports the emit's free names ({@link CompileResult.freeNames}, from real scope
  *    analysis), and the shim binds the intersection with {@link AMBIENT_PRELUDE_NAMES} (plus any
- *    integrator {@link PreludeOptions.extraNames}) to {@link PreludeOptions.module}. A name the
- *    document binds itself (`%import { Tex } from …`) is not free, so the user's binding wins.
+ *    integrator {@link PreludeOptions.extraNames}) to {@link PreludeOptions.module}. (A document
+ *    binding of an emit-surface name — `%import { Tex } from …` — is a reader diagnostic;
+ *    per-document overrides go through the integrator's prelude seam, not shadowing.)
  *
  * The reader stays mechanism (which names are free); which module supplies them is policy and
  * lives here, under the integrator's control (`prelude: false` disables the injection).
@@ -62,21 +63,21 @@ export const SOLID_AMBIENT_NAMES = [
   "ErrorBoundary"
 ] as const;
 
+/** The reader's grouped emit-name surface — the wasm-introspected truth the lists below derive
+ * from (`oxc_transformer`'s `*_EMIT_NAMES`; see `emitSurface()` in the reader). */
+const EMIT_SURFACE = reader.emitSurface();
+
 /**
  * The `@nota-lang/core` surface an emit may reference free: the structural names the reader's
  * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
  * components; `Attrs` — the flow-position attrs-group marker Reforest applies to its paragraph).
+ * **Derived from the reader** (`emitSurface().structural`) — no hand-copied mirror to drift.
  */
-export const CORE_RUNTIME_NAMES = [
-  "NotaDoc",
-  "Reforest",
-  "UlLi",
-  "OlLi",
-  "Attrs"
-] as const;
+export const CORE_RUNTIME_NAMES: readonly string[] = EMIT_SURFACE.structural;
 
-/** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags). */
-export const SOLID_WEB_NAMES = ["Dynamic"] as const;
+/** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags).
+ * Derived from the reader (`emitSurface().solidWeb`). */
+export const SOLID_WEB_NAMES: readonly string[] = EMIT_SURFACE.solidWeb;
 
 /**
  * The ambient prelude surface (design/solid.md §The prelude) — the names the reader's
