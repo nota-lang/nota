@@ -89,6 +89,25 @@ describe("reforest over SSR chunks", () => {
     expect(html).toMatch(/<p[^>]*>before .*dynamic.* after<\/p>/);
   });
 
+  test("a quoted attr value containing '>' does not truncate the opening-tag scan", () => {
+    // A naive `[^>]*` attr group stops at the ">" inside `title="a>b"`, never reaching
+    // `data-list="ol"` — and so falls back to the "ul" default.
+    expect(categorize({ t: '<li title="a>b" data-list="ol">x</li>' })).toEqual({
+      kind: "item",
+      list: "ol"
+    });
+  });
+
+  test("the marker substring inside an attribute's VALUE does not miscategorize as attrs", () => {
+    // A raw `blob.includes(ATTRS_MARKER)` false-positives here: "data-nota-attrs" appears only
+    // as prose inside `title`'s value, never as an actual attribute of the chunk's root tag.
+    expect(
+      categorize({
+        t: '<blockquote title="see data-nota-attrs for details">hi</blockquote>'
+      })
+    ).toEqual({ kind: "block" });
+  });
+
   test("textOf strips tags and decodes entities from chunks", () => {
     let got = "";
     const Probe = (props: { children?: JSX.Element }) => {

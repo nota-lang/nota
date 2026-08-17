@@ -15,7 +15,6 @@
  * are `nota-para`/`nota-list`/`nota-section`.
  */
 
-import { decodeEntities } from "./entities";
 import {
   children,
   createMemo,
@@ -26,6 +25,7 @@ import {
 } from "solid-js";
 import { NoHydration } from "solid-js/web";
 import { DocStateContext } from "./doc-state";
+import { decodeEntities } from "./entities";
 import { type SmartOptions, smarten } from "./smart";
 
 /**
@@ -113,6 +113,35 @@ export const INLINE_TAGS = new Set([
 
 const HEADING_RE = /^h([1-6])$/;
 
+/**
+ * Quote-aware scan of an SSR chunk's opening tag: the tag name and the raw text of its attribute
+ * region — double- and single-quoted attribute values may contain a literal `>` without ending
+ * the tag (a naive `[^>]*` attr group truncates there). The one place that knows where an
+ * opening tag ends, shared by {@link categorize} (attrs-marker / list-kind sniffing) and
+ * {@link extractAttrs} (full name/value extraction).
+ */
+function scanOpeningTag(html: string): { tag: string; attrs: string } | null {
+  const m = /^<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/.exec(
+    html
+  );
+  return m ? { tag: m[1], attrs: m[2] } : null;
+}
+
+/** Attribute-token regex over an already-bounded attrs region (name, optionally `="value"`). */
+const ATTR_TOKEN_RE = /([a-zA-Z_:][-\w:.]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g;
+
+/**
+ * Is `name` present as an actual attribute of the (quote-aware-bounded) attrs region — not
+ * merely as a substring inside some OTHER attribute's quoted value? A raw `blob.includes(name)`
+ * false-positives on the latter (e.g. a `title="mentions data-nota-attrs"` chunk).
+ */
+function hasAttrToken(attrs: string, name: string): boolean {
+  for (const a of attrs.matchAll(ATTR_TOKEN_RE)) {
+    if (a[1] === name) return true;
+  }
+  return false;
+}
+
 const categorizeElement = (tag: string, dataList: string | null): Category => {
   const heading = HEADING_RE.exec(tag);
   if (heading) return { kind: "heading", level: Number(heading[1]) };
@@ -133,11 +162,14 @@ export function categorize(c: ResolvedChild): Category {
     // Server: recover the root tag (and list kind) by sniffing the serialized chunk. The chunk
     // is a component's already-rendered output, so this sees through component boundaries the
     // same way node inspection does on the client.
-    const m = /^<([a-zA-Z][a-zA-Z0-9-]*)([^>]*)>/.exec(c.t);
-    if (!m) return { kind: "inline" }; // marker-led or bare-text chunk
-    if (m[2].includes(ATTRS_MARKER)) return { kind: "attrs" };
-    const dataList = /\bdata-list="(ul|ol)"/.exec(m[2]);
-    return categorizeElement(m[1].toLowerCase(), dataList ? dataList[1] : null);
+    const opening = scanOpeningTag(c.t);
+    if (!opening) return { kind: "inline" }; // marker-led or bare-text chunk
+    if (hasAttrToken(opening.attrs, ATTRS_MARKER)) return { kind: "attrs" };
+    const dataList = /\bdata-list="(ul|ol)"/.exec(opening.attrs);
+    return categorizeElement(
+      opening.tag.toLowerCase(),
+      dataList ? dataList[1] : null
+    );
   }
   if (c.nodeType === TEXT_NODE) return { kind: "inline" };
   if (c.nodeType === ELEMENT_NODE) {
@@ -164,10 +196,9 @@ const SKIPPED_MARKER_ATTRS = new Set([ATTRS_MARKER, HYDRATION_KEY_ATTR]);
 function extractAttrs(c: Node | SSRChunk): ExtractedAttrs {
   const out: ExtractedAttrs = {};
   if (isSSRChunk(c)) {
-    const m = /^<[a-zA-Z][a-zA-Z0-9-]*((?:"[^"]*"|'[^']*'|[^>"'])*)>/.exec(c.t);
-    if (!m) return out;
-    const attr = /([a-zA-Z_:][-\w:.]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g;
-    for (const a of m[1].matchAll(attr)) {
+    const opening = scanOpeningTag(c.t);
+    if (!opening) return out;
+    for (const a of opening.attrs.matchAll(ATTR_TOKEN_RE)) {
       if (SKIPPED_MARKER_ATTRS.has(a[1])) continue;
       out[a[1]] = decodeEntities(a[2] ?? a[3] ?? "");
     }
