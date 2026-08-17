@@ -2,3 +2,4 @@
 tests/.golden.built/
 tests/.closure.built/
 tests/.conditional.built/
+tests/.dynamic.built/

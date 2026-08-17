@@ -5,3 +5,23 @@
   };
   - @Example{}
 }
+
+%let Grid = () => {
+  let [rows, setRows] = createSignal([{ key: "a" }, { key: "b" }]);
+  return @div[id: "grid"]{
+    @button[id: "prepend", type: "button"][onClick: () => setRows([{ key: "c" }, ...rows()])]{prepend}
+    @ul[id: "grid-list"]{
+      @for ({ key } of rows()) {
+        % let Cell = () => {
+          let [n, setN] = createSignal(0);
+          return @button[type: "button", class: "cell"][onClick: () => setN(n() + 1)]{@key=@n};
+        };
+        @li{@Cell{}}
+      }
+    }
+  };
+};
+
+@Grid{}
+
+@for ([k, v] of [["p", 1], ["q", 2]]) {@span[class: "kv"]{@k=@v}}

@@ -79,6 +79,35 @@ describe("output surface", () => {
   });
 });
 
+describe("the one-solid-js invariant", () => {
+  test("config() pins resolve.dedupe on solid-js and the state-carrying @nota-lang packages", () => {
+    // One solid-js per page is a correctness invariant: a second bundled copy leaves
+    // enableHydration() uncalled in one of them, so hydration-context nesting is silently OFF
+    // and claiming misses ("template is not a function" in Dynamic / "Hydration Mismatch").
+    // The @nota-lang packages ride along because they carry per-instance module state (the
+    // doc-state context, the config singletons). The transform plugin's config() hook is where
+    // the pin lives — assert it survives.
+    const hook = notaTransform().config;
+    const fn = typeof hook === "function" ? hook : hook?.handler;
+    if (!fn) throw new Error("plugin has no config hook");
+    const conf = (
+      fn as (
+        c: unknown,
+        env: unknown
+      ) => { resolve?: { dedupe?: string[] } } | null
+    ).call({}, {}, { command: "build", mode: "production" });
+    const dedupe = conf?.resolve?.dedupe ?? [];
+    for (const pkg of [
+      "solid-js",
+      "@nota-lang/solid",
+      "@nota-lang/prelude",
+      "@nota-lang/paper"
+    ]) {
+      expect(dedupe).toContain(pkg);
+    }
+  });
+});
+
 describe("the preset shape", () => {
   test("nota() bundles vite-plugin-solid; { solid: false } omits it", () => {
     const full = nota();

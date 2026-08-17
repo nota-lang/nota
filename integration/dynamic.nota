@@ -1,0 +1,26 @@
+%secset({ numberDepth: 2 })
+
+@Toc{}
+
+# Alpha
+
+The heading above renders through the prelude Heading (a Dynamic over "h"+rank);
+this paragraph sits under it.
+
+%let Fancy = (props: { children?: unknown }) => @mark[id: "fancy"]{@(props.children)};
+
+A dynamic tag whose expression is a component: @(Fancy){highlighted}.
+
+@Definition[id: "nota", label: "Nota", tooltip: "A document language."]{Nota} is defined here;
+the reference &nota pops a tooltip after hydration.
+
+%let Counter = () => {
+  let [n, setN] = createSignal(0);
+  return @button[id: "counter", type: "button"][onClick: () => setN(n() + 1)]{n=@n};
+};
+
+@Counter{}
+
+# Beta
+
+A second section so the Toc nests two entries.

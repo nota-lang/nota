@@ -1,0 +1,16 @@
+%secset({ numberDepth: 2 })
+
+# Introduction
+
+<sec-intro>
+
+A forward reference &sec-usage and a footnote[^a].
+
+# Usage
+
+<sec-usage>
+
+Back to &sec-intro; the same footnote again[^a] and a second[^b].
+
+[^a]: The shared note body.
+[^b]: The second note body.

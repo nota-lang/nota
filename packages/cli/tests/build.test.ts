@@ -139,6 +139,13 @@ describe("production artifact", () => {
     expect(out.clientJsPath).toBeDefined();
     const bundle = readFileSync(out.clientJsPath as string, "utf8");
     expect(bundle).not.toContain("multiple instances of Solid");
+    // Exactly ONE Solid client runtime in the bundle — the resolve.dedupe invariant (a second
+    // solid-js copy leaves enableHydration() uncalled in one of them, so claiming silently
+    // misses). Marker: "_$DX_DELEGATE", dom-expressions' event-delegation registry key. It is a
+    // quoted property-name STRING (minification cannot rename it), it appears exactly once in
+    // solid-js/web's client runtime (verified against the shipped dist), and it is absent from
+    // app code — so its count equals the number of bundled Solid runtimes.
+    expect(bundle.match(/_\$DX_DELEGATE/g)).toHaveLength(1);
   });
 });
 

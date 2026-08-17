@@ -12,7 +12,9 @@
  *   program's closures.
  * - `conditional.nota` — `@if`, which lowers to Solid's `<Show>`. Covers the reactive branch
  *   swap (the thing `<Show>` buys over the interpolated ternary it replaced) and the two static
- *   fallback-less branches.
+ *   fallback-less branches, plus an `else if` chain (nested `<Show>` fallbacks).
+ * - `dynamic.nota` — the `<Dynamic>` hydration surface (prelude `Heading`, an `@(expr)` dynamic
+ *   tag) + the definition tooltip's hydration path (`DefBank`'s `onMount` handlers) + a counter.
  */
 
 import { dirname, join } from "node:path";
@@ -21,7 +23,8 @@ import { buildNotaFile } from "../src/build";
 import {
   BUILT_DIR,
   CLOSURE_BUILT_DIR,
-  CONDITIONAL_BUILT_DIR
+  CONDITIONAL_BUILT_DIR,
+  DYNAMIC_BUILT_DIR
 } from "./builtHtmlPath";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -40,5 +43,9 @@ export default async function setup(): Promise<void> {
   await buildNotaFile(join(integrationDir, "conditional.nota"), {
     resolveFrom: pkgRoot,
     outDir: CONDITIONAL_BUILT_DIR
+  });
+  await buildNotaFile(join(integrationDir, "dynamic.nota"), {
+    resolveFrom: pkgRoot,
+    outDir: DYNAMIC_BUILT_DIR
   });
 }
