@@ -120,8 +120,8 @@
 ;; inside another fence's interior is inert.
 (defconst nota--syntax-propertize
   (syntax-propertize-rules
-   ;; %%% statement fence, alone on its line.
-   ("^[ \t]*\\(%\\)%%[ \t]*$" (1 "\""))
+   ;; %%% statement fence (3+ %s, matching the reader's `%{3,}`), alone on its line.
+   ("^[ \t]*\\(%\\)%%%*[ \t]*$" (1 "\""))
    ;; ``` code fence (3+ backticks, optional language tag), line-anchored.
    ("^[ \t]*\\(`\\)``+[ \t]*[A-Za-z0-9_+#.-]*[ \t]*$" (1 "\""))
    ;; $$ display-math fence, alone on its line.
@@ -230,8 +230,8 @@ whole region is protected with `default'."
 (defconst nota--fence-open-re
   (concat "^[ \t]*\\(?:"
           "`\\{3,\\}[ \t]*\\([A-Za-z0-9_+#.-]*\\)[ \t]*"
-          "\\|\\(%%%\\)[ \t]*\\)$")
-  "A code-fence (group 1: language tag) or %%% fence (group 2) opening line.")
+          "\\|\\(%%%+\\)[ \t]*\\)$")
+  "A code-fence (group 1: language tag) or %%% fence (group 2, 3+ %s) opening line.")
 
 (defun nota--match-embedded-fences (limit)
   "Font-lock matcher: natively fontify embedded-code fence interiors.
@@ -244,7 +244,7 @@ fences opening before LIMIT; other fences keep their raw paint."
              (open-end (match-end 0))
              (statementp (match-beginning 2))
              (lang (if statementp "" (match-string-no-properties 1)))
-             (close-re (if statementp "^[ \t]*%%%[ \t]*$"
+             (close-re (if statementp "^[ \t]*%%%+[ \t]*$"
                          "^[ \t]*`\\{3,\\}[ \t]*$")))
         (if (or (nth 3 (syntax-ppss open-beg))          ; inside another fence
                 (and (not statementp) (null (nota--embedded-mode lang))))
@@ -327,14 +327,44 @@ GUARD, when given, is called with no arguments after a candidate match
     found))
 
 (defun nota--match-line-comment (limit)
-  "Font-lock matcher for a // line comment before LIMIT."
-  (nota--match-unclaimed "//.*$" limit))
+  "Font-lock matcher for a // comment (to end of line) before LIMIT.
+Rejected when an unclosed `[' precedes on the line — the `//' then sits
+inside a prop group (`[href: \"https://…\"]`), where the slashes are
+string content, not a comment (the reader-conformance test caught the
+URL false paint)."
+  (nota--match-unclaimed
+   "//.*$" limit
+   (lambda ()
+     (let ((bol (line-beginning-position))
+           (beg (match-beginning 0))
+           (depth 0))
+       (save-excursion
+         (goto-char bol)
+         (while (re-search-forward "[][]" beg t)
+           (unless (eq (char-before (match-beginning 0)) ?\\)
+             (setq depth (+ depth (if (string= (match-string 0) "[") 1 -1))))))
+       (<= depth 0)))))
 
 (defun nota--match-block-comment (limit)
-  "Font-lock matcher for a same-line /* ... */ block comment before LIMIT.
+  "Font-lock matcher for a same-line, *nesting-balanced* /* ... */ before LIMIT.
+`/* a /* b */ c */' is ONE comment to the reader; matching to the first
+`*/' would leave the tail as prose for the emphasis rules to mis-paint.
 A block comment spanning lines is not line-locally decidable and stays
 unpainted (the LSP semantic tokens own it)."
-  (nota--match-unclaimed "/\\*.*?\\*/" limit))
+  (let (found)
+    (while (and (not found) (re-search-forward "/\\*" limit t))
+      (let ((start (match-beginning 0))
+            (eol (line-end-position))
+            (depth 1))
+        (if (or (nota--claimed-p start) (eq (char-before start) ?\\))
+            (goto-char (match-end 0))
+          (while (and (> depth 0) (re-search-forward "/\\*\\|\\*/" eol t))
+            (setq depth (+ depth (if (string= (match-string 0) "*/") -1 1))))
+          (if (zerop depth)
+              (progn (set-match-data (list start (point)))
+                     (setq found t))
+            (goto-char (min limit (1+ start)))))))
+    found))
 
 (defun nota--match-strike (limit)
   "Font-lock matcher for ~~strikethrough~~ before LIMIT."
@@ -360,8 +390,9 @@ unpainted (the LSP semantic tokens own it)."
     ;; bytes before any markup rule can touch them (the delegation tier).
     (nota--match-embedded-fences (0 nil nil t))
     (nota--match-embedded-statements (0 nil nil t))
-    ;; Backslash escapes of the documented sigil set.
-    ("\\\\[]@{}|$*_:<&`#+%~/!()\\\\[-]" 0 'nota-escape)
+    ;; Backslash escapes — universal, exactly the reader's rule (`\<c>` is literal `<c>` for any
+    ;; character; the old hand-picked charset was a silent subset).
+    ("\\\\." 0 'nota-escape)
     ;; Line-leading % statement sigil (the JS rest is owned by the embedded
     ;; fontification above, mirroring the TextMate source.ts delegation).
     ("^[ \t]*\\(%\\)\\(?:[^%\n].*\\)?$" 1 'nota-sigil)
@@ -370,11 +401,13 @@ unpainted (the LSP semantic tokens own it)."
     ;; Thematic break: a run of 3+ dashes alone on its line (a `- ` list
     ;; marker needs its space, so the two rules cannot collide).
     ("^[ \t]*\\(-\\{3,\\}\\)[ \t]*$" 1 'nota-delimiter)
-    ;; List markers: - / + bullets and N. ordered.
-    ("^[ \t]*\\([-+]\\)[ \t]" 1 'nota-delimiter)
-    ("^[ \t]*\\([0-9]+\\.\\)[ \t]" 1 'nota-delimiter)
-    ;; Block-sugar prop line marker.
-    ("^[ \t]*\\(|\\)[ \t]" 1 'nota-delimiter)
+    ;; List markers: - / + bullets and N. ordered — one literal *space* after the marker,
+    ;; exactly the reader's `LIST_MARKER` (a tab does not open a list there).
+    ("^[ \t]*\\([-+]\\) " 1 'nota-delimiter)
+    ("^[ \t]*\\([0-9]+\\.\\) " 1 'nota-delimiter)
+    ;; Block-sugar prop line marker — bare `|` suffices (the reader's `PROP_LINE` requires no
+    ;; trailing whitespace; `|width: 10` is a valid prop line).
+    ("^[ \t]*\\(|\\)" 1 'nota-delimiter)
     ;; Control-flow head @if/@for, only when followed by a `(' head.
     ("\\(@\\)\\(if\\|for\\)\\>[ \t]*("
      (1 'nota-sigil) (2 'font-lock-keyword-face))

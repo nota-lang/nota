@@ -112,8 +112,11 @@ Reader architecture lives with the code: `oxc/NOTA_READER.md`.
   JS/TS fontification for `%`-lines and `%%%`/```ts fences (org-src-style hidden-buffer face copy —
   the Emacs analogue of the tmLanguage's source.ts delegation), + eglot wiring for the
   language server. Not an npm package. Tests: `emacs -Q --batch -L editors/emacs -l
-  editors/emacs/tests/nota-mode-test.el -f ert-run-tests-batch-and-exit` (ERT) and
-  `... -l editors/emacs/tests/eglot-smoke.el` (e2e against the built server).
+  editors/emacs/tests/nota-mode-test.el -f ert-run-tests-batch-and-exit` (ERT),
+  `... -l editors/emacs/tests/eglot-smoke.el` (e2e against the built server), and
+  `... -l editors/emacs/tests/conformance.el` (never-lie subset-correctness: every nota-* face
+  over `integration/*.nota` must be justified by a reader highlight span — needs the built
+  `@nota-lang/compiler` + node).
 - `references/` — external reference repos (mdx, typst, scribble, pollen, oxc); gitignored.
 
 ## Tooling

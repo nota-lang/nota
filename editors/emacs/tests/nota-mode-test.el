@@ -268,3 +268,28 @@ Searches forward from point for NEEDLE."
 (provide 'nota-mode-test)
 
 ;;; nota-mode-test.el ends here
+
+;;;; Reader-alignment regressions (the four divergences found by the 2026-08 list audit)
+
+(ert-deftest nota-statement-fence-four-percents ()
+  "A %%%%-run (>=3) opens/closes a statement fence, matching the reader's %{3,}."
+  (nota-test--with-buffer "%%%%\nlet s = 1;\n%%%%\nafter *strong*\n"
+    (should (nota-test--face-of "let s" 'font-lock-keyword-face))
+    (should (nota-test--face-of "strong" 'nota-strong))))
+
+(ert-deftest nota-list-marker-requires-a-space ()
+  "`- <tab>` is NOT a list marker (the reader's LIST_MARKER requires one literal space)."
+  (nota-test--with-buffer "-\tx\n- y\n"
+    (should-not (nota-test--face-of "-\tx" 'nota-delimiter))
+    (should (nota-test--face-of "- y" 'nota-delimiter))))
+
+(ert-deftest nota-prop-line-bare-pipe ()
+  "`|width: 10` (no space after |) is a prop line, as in the reader's PROP_LINE."
+  (nota-test--with-buffer "@section:\n|width: 10\n"
+    (should (nota-test--face-of "|width" 'nota-delimiter))))
+
+(ert-deftest nota-escape-is-universal ()
+  "Any \\<c> paints as an escape (the reader's rule), not a hand-picked subset."
+  (nota-test--with-buffer "a \\> b \\q c\n"
+    (should (nota-test--face-of "\\>" 'nota-escape))
+    (should (nota-test--face-of "\\q" 'nota-escape))))
