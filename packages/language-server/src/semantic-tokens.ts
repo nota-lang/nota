@@ -39,6 +39,7 @@ import type {
   SemanticToken,
   SemanticTokensLegend
 } from "@volar/language-server";
+import { makeByteConverter } from "./byte-offsets.js";
 import { NOTA_LANGUAGE_ID } from "./language-plugin.js";
 
 /**
@@ -287,13 +288,31 @@ const DELEGATED_FENCE_LANGS = new Set([
 ]);
 
 // The reader's own line-classifier patterns (the lexer's regex sources over the wasm boundary)
-// — the `%`-line rules here can no longer diverge from the parse. The backtick fence has no
-// exported classifier (a procedural scan), so its shape below mirrors the lexer's
-// `scan_fenced_code`: ≥3 ticks, any backtick-free info string, first whitespace token = lang.
+// drive the `%`-line rules below, so those can no longer diverge from the parse.
 const LINE_CLASSIFIERS = lineClassifiers();
 const PERCENT_LINE = new RegExp(LINE_CLASSIFIERS.percentLine);
 const FENCE_LINE = new RegExp(LINE_CLASSIFIERS.fenceLine);
 const FENCE_CLOSE_LINE = new RegExp(LINE_CLASSIFIERS.fenceCloseLine);
+
+/**
+ * The backtick fence (```` ``` ````) has **no exported reader classifier** — unlike the `%`
+ * patterns above, `scan_fenced_code` (`oxc/crates/oxc_parser/src/lexer/nota.rs`) is a procedural
+ * scan, not a regex the wasm boundary can hand over — so these two are a **hand transliteration**
+ * of its open/close rules, and CAN silently drift if that scan changes (it already had: see the
+ * fence matrix in `tests/semantic-tokens-nota.test.ts`, which pins the two rules that had drifted).
+ *
+ * - **Open** — a run of ≥3 backticks (leading indentation tolerated, unbounded), whose same-line
+ *   tail contains no backtick and is not the file's last line (a fence needs a body-starting
+ *   newline after it). The tail's first whitespace-delimited token is the language tag.
+ * - **Close** — a line whose first non-whitespace (after skipping only spaces/tabs, same as the
+ *   open) is a run of **at least** the open's tick count. Trailing content after that run —
+ *   more ticks, prose, anything — is allowed and is NOT required to be backtick-free; the reader
+ *   resumes right after the closing run and leaves the rest of the line to whatever follows.
+ *   (The two most common ways this was previously wrong: requiring an *exact* tick-count match,
+ *   and requiring the close line to contain *only* the ticks.)
+ */
+const BACKTICK_FENCE_OPEN = /^[ \t]*(`{3,})([^`\n]*)$/;
+const BACKTICK_FENCE_CLOSE = /^[ \t]*(`+)/;
 
 /**
  * The 0-based lines whose content belongs to an embedded language — `%` statement lines, `%%%`
@@ -321,8 +340,8 @@ export function delegatedLines(source: string): Set<number> {
       continue;
     }
     if (mode.at === "code-fence") {
-      const close = /^[ \t]*(`{3,})[ \t]*$/.exec(line);
-      if (close && close[1].length === mode.ticks) {
+      const close = BACKTICK_FENCE_CLOSE.exec(line);
+      if (close && close[1].length >= mode.ticks) {
         mode = { at: "markup" }; // closing delimiter line — not delegated
       } else if (mode.isDelegated) {
         delegated.add(i);
@@ -334,7 +353,9 @@ export function delegatedLines(source: string): Set<number> {
       mode = { at: "statement-fence" };
       continue;
     }
-    const open = /^[ \t]*(`{3,})[ \t]*([^`\n]*)$/.exec(line);
+    // `i < lines.length - 1`: a fence needs a body, i.e. a newline after the opener line — true
+    // for every split-produced line except (by construction) the last, which never had one.
+    const open = i < lines.length - 1 ? BACKTICK_FENCE_OPEN.exec(line) : null;
     if (open) {
       const lang = open[2].trim().split(/\s+/)[0] ?? "";
       mode = {
@@ -353,49 +374,14 @@ export function delegatedLines(source: string): Set<number> {
 
 /**
  * Convert `.nota` **byte** offsets (the reader's spans) to LSP **UTF-16** `(line, character)`
- * positions. The reader emits UTF-8 byte offsets; LSP positions count UTF-16 code units — they
- * coincide for ASCII but diverge on multibyte text, so we walk the source once by code point.
- * Returns `posAt(byte) → { line, character }` (nearest boundary at or below `byte`).
+ * positions — a thin wrapper over the package-shared {@link makeByteConverter} (`./byte-offsets.ts`;
+ * also used at the Volar mapping boundary in `language-plugin.ts` and by `diagnostics.ts`), kept as
+ * its own named export since this module's tests exercise it directly.
  */
 export function makeByteToPosition(
   source: string
 ): (byte: number) => { line: number; character: number } {
-  const checkpoints: { byte: number; line: number; character: number }[] = [];
-  let byte = 0;
-  let line = 0;
-  let character = 0;
-  for (let i = 0; i < source.length; ) {
-    checkpoints.push({ byte, line, character });
-    const cp = source.codePointAt(i) ?? 0;
-    const utf16 = cp > 0xffff ? 2 : 1;
-    const utf8 = cp <= 0x7f ? 1 : cp <= 0x7ff ? 2 : cp <= 0xffff ? 3 : 4;
-    if (cp === 10 /* \n */) {
-      line++;
-      character = 0;
-    } else {
-      character += utf16;
-    }
-    byte += utf8;
-    i += utf16;
-  }
-  checkpoints.push({ byte, line, character });
-  return (target: number) => {
-    // Binary search for the greatest checkpoint whose byte <= target.
-    let lo = 0;
-    let hi = checkpoints.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi + 1) >> 1;
-      if (checkpoints[mid].byte <= target) {
-        lo = mid;
-      } else {
-        hi = mid - 1;
-      }
-    }
-    const c = checkpoints[lo];
-    // Within a single-code-unit ASCII stretch, interpolate the remaining columns.
-    const delta = target - c.byte;
-    return { line: c.line, character: c.character + delta };
-  };
+  return makeByteConverter(source).toPosition;
 }
 
 /**
@@ -409,8 +395,12 @@ export function notaSemanticTokens(source: string): SemanticToken[] {
   const posAt = makeByteToPosition(source);
   const delegated = delegatedLines(source);
   // Newline byte offsets, so a run that straddles lines (a block code/math fence) can be split into
-  // one token per line — a single LSP semantic token cannot span a newline.
-  const bytes = Buffer.from(source, "utf8");
+  // one token per line — a single LSP semantic token cannot span a newline. `TextEncoder`, not
+  // `Buffer`: this pipeline is shared with the browser Web Worker flavor (`browser.ts`), which has
+  // no `Buffer` global — a prior `Buffer.from` here threw on every call, silently swallowed by the
+  // last-good-cache `catch` in `server-core.ts`, so the browser flavor served permanently-empty
+  // semantic tokens.
+  const bytes = new TextEncoder().encode(source);
   const tokens: SemanticToken[] = [];
   for (const run of runs) {
     const suppressible = SUPPRESSED_ON_DELEGATED.has(run.kind);

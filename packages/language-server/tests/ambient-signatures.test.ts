@@ -104,7 +104,14 @@ describe("real upstream signatures (change → review the preamble declaration)"
 test("prelude types are built", () => {
   expect(
     readFileSync(
-      join(PKG_ROOT, "node_modules", "@nota-lang", "prelude", "dist", "lib.d.ts"),
+      join(
+        PKG_ROOT,
+        "node_modules",
+        "@nota-lang",
+        "prelude",
+        "dist",
+        "lib.d.ts"
+      ),
       "utf8"
     ).length
   ).toBeGreaterThan(0);

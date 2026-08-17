@@ -48,6 +48,19 @@ describe("hover (TS quickInfo mapped to .nota)", () => {
     expect(hoverAt(h, GREETING_USE)).toBe("const greeting: string");
   });
 
+  test("hover still resolves at a cursor AFTER a multibyte prefix (non-ASCII fixture)", () => {
+    // "café — " ahead of the interpolation is a UTF-8-byte-vs-UTF-16 divergent prefix (see
+    // mapping.test.ts's non-ASCII fixtures for the exact byte/unit counts): if the mapping
+    // boundary ever regresses to treating the reader's byte offsets as already UTF-16, `.nota`
+    // offsets computed via `indexOf` (UTF-16, like every offset in this test file) land on the
+    // wrong generated position and this hover comes back `null` or wrong.
+    const src =
+      '% const greeting: string = "hi";\n' + "@p{café — @(greeting)}\n";
+    const h = createFeatureHarness(src);
+    const at = src.indexOf("greeting", src.indexOf("@("));
+    expect(hoverAt(h, at)).toBe("const greeting: string");
+  });
+
   test("hover on a component identifier @Aside shows the binding's type", () => {
     const h = createFeatureHarness(DOC);
     // The binding's arrow type — hover on the *use* reports it, proving the

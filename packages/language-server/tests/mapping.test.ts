@@ -208,3 +208,50 @@ describe("buildVirtual (live round-trip over embedded JS)", () => {
     expect(go - PREAMBLE_LENGTH).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe("buildVirtual — non-ASCII fixtures (UTF-8 byte offset → UTF-16 offset at the mapping boundary)", () => {
+  // The reader's CodeMapping offsets are UTF-8 BYTE offsets on both sides (compiler lib.ts); Volar's
+  // `Mapping` (what `buildVirtual` must return) indexes a JS string, i.e. UTF-16 code units. "café —
+  // " ahead of the interpolation is a multibyte prefix where the two spaces diverge: 'é' is 2 UTF-8
+  // bytes / 1 UTF-16 unit, '—' is 3 UTF-8 bytes / 1 UTF-16 unit — 10 bytes vs. 7 UTF-16 units, a
+  // 3-unit divergence by the time `user` starts. If the mapping boundary ever regresses to passing
+  // the reader's byte offsets straight through as though they were already UTF-16 (the historical
+  // bug this pins), every assertion below fails.
+  const SOURCE = "% const n: number = count()\n@p{café — @(user)}\n";
+
+  test("ROUND-TRIP still holds: every mapped segment's generated slice equals its source token", () => {
+    const { code, mappings } = buildVirtual(SOURCE);
+    let segments = 0;
+    for (const m of mappings) {
+      for (let k = 0; k < m.sourceOffsets.length; k++) {
+        const so = m.sourceOffsets[k];
+        const go = m.generatedOffsets[k];
+        const len = m.lengths[k];
+        const genLen = m.generatedLengths?.[k] ?? len;
+        expect(code.slice(go, go + genLen)).toBe(SOURCE.slice(so, so + len));
+        segments++;
+      }
+    }
+    expect(segments).toBeGreaterThan(0);
+  });
+
+  test('the `user` interpolation — AFTER a multibyte prefix — still maps to exactly "user"', () => {
+    const { code, mappings } = buildVirtual(SOURCE);
+    // `String.prototype.indexOf` counts UTF-16 code units — exactly what a mapped `sourceOffsets`
+    // entry must now equal.
+    const srcUser = SOURCE.indexOf("user");
+    expect(srcUser).toBeGreaterThan(0);
+
+    let found: { go: number; len: number } | undefined;
+    for (const m of mappings) {
+      for (let k = 0; k < m.sourceOffsets.length; k++) {
+        if (m.sourceOffsets[k] === srcUser) {
+          found = { go: m.generatedOffsets[k], len: m.lengths[k] };
+        }
+      }
+    }
+    expect(found, "a mapping for `user` must exist").toBeDefined();
+    const { go, len } = found!;
+    expect(code.slice(go, go + len)).toBe("user");
+  });
+});

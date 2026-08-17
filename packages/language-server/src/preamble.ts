@@ -12,8 +12,12 @@
  * **The preamble-shift rule.** Prepending text to `code` pushes every generated offset forward by
  * `PREAMBLE_LENGTH` bytes. The reader's `generatedOffsets` index the *bare* `.tsx`; after the
  * prepend they must be shifted by `PREAMBLE_LENGTH`. `sourceOffsets` index the `.nota` and are
- * **unchanged**. `shiftMappings` (language-plugin) performs exactly this. The preamble is whole
- * lines only and never the target of a mapping, so the shift is a pure additive constant.
+ * **unchanged**. `shiftMappings` (language-plugin) performs exactly this, still in UTF-8 byte
+ * space — `PREAMBLE_LENGTH` is a byte length (baked at generation time; `./preamble.generated.ts`
+ * asserts PREAMBLE is ASCII, which is what makes that byte length also equal `PREAMBLE.length`).
+ * `buildVirtual` converts the shifted result to UTF-16 (what Volar's `Mapping` actually indexes) as
+ * a separate, later step (`mappingsToUtf16`) — see `./byte-offsets.ts`. The preamble is whole lines
+ * only and never the target of a mapping, so the byte shift is a pure additive constant.
  */
 
 export { PREAMBLE, PREAMBLE_LENGTH } from "./preamble.generated.js";

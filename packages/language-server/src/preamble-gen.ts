@@ -24,8 +24,8 @@
 
 import {
   AMBIENT_PRELUDE_NAMES,
-  SOLID_AMBIENT_NAMES,
   CORE_RUNTIME_NAMES,
+  SOLID_AMBIENT_NAMES,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 

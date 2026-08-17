@@ -12,8 +12,8 @@
 
 import {
   AMBIENT_PRELUDE_NAMES,
-  SOLID_AMBIENT_NAMES,
   CORE_RUNTIME_NAMES,
+  SOLID_AMBIENT_NAMES,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 import { describe, expect, test } from "vitest";
@@ -25,7 +25,18 @@ describe("preamble generation", () => {
     expect(PREAMBLE).toBe(buildPreamble());
   });
 
-  test("PREAMBLE_LENGTH equals the string length", () => {
+  test("PREAMBLE_LENGTH equals PREAMBLE's UTF-8 byte length (the unit generatedOffsets shift by)", () => {
+    // The real invariant: PREAMBLE_LENGTH must be a byte length, since `shiftMappings` adds it to
+    // the reader's byte offsets. It is baked as a literal at generation time (gen-preamble.ts), not
+    // recomputed as `PREAMBLE.length` (UTF-16 code units) — this asserts the byte-length identity
+    // directly instead of leaning on the ASCII coincidence the next test also happens to pin.
+    expect(PREAMBLE_LENGTH).toBe(new TextEncoder().encode(PREAMBLE).length);
+  });
+
+  test("PREAMBLE is pure ASCII (byte length and UTF-16 length coincide)", () => {
+    expect([...PREAMBLE].every(ch => (ch.codePointAt(0) ?? 0) <= 0x7f)).toBe(
+      true
+    );
     expect(PREAMBLE_LENGTH).toBe(PREAMBLE.length);
   });
 

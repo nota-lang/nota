@@ -7,6 +7,14 @@
  * language service over the virtual `.tsx` (via `@volar/typescript`, keyed by the `typescript`
  * field's `getServiceScript`), and maps results — diagnostics, hover, completion,
  * rename — back to `.nota` ranges through these mappings.
+ *
+ * **Offset spaces.** The reader emits `CodeMapping`s in UTF-8 **byte** offsets on both sides (its
+ * native unit — `oxc` operates on `&str`); Volar's `Mapping` indexes a JS string, i.e. UTF-16 code
+ * units. `shiftMappings`/`extendMappings` below stay in byte space (a pure prepend-shift and a
+ * byte-wise trailing-content extension), and {@link buildVirtual} converts to UTF-16 as the LAST
+ * step, over the *final* texts each side indexes (`.nota` source, and `PREAMBLE + bare` — see
+ * `mappingsToUtf16` and the shared `./byte-offsets.ts`). Doing the shift before the unit conversion
+ * keeps `shiftMappings` unit-agnostic (its own tests pass it synthetic numbers, not real text).
  */
 
 import {
@@ -22,6 +30,7 @@ import type {
 import type { TypeScriptServiceScript } from "@volar/typescript";
 import ts from "typescript";
 import type { URI } from "vscode-uri";
+import { makeByteConverter } from "./byte-offsets.js";
 import { PREAMBLE, PREAMBLE_LENGTH } from "./preamble.js";
 
 /** The `languageId` Volar tags `.nota` source scripts with. */
@@ -124,7 +133,70 @@ export function extendMappings(
 }
 
 /**
- * Build the virtual `.tsx` source + shifted mappings for a `.nota` source string. Split out from the
+ * Convert a mapping array's offsets from UTF-8 **byte** offsets (the reader's native unit, still
+ * carried by `shiftMappings`'s output) to UTF-16 **code-unit** offsets — what Volar's `Mapping`
+ * actually indexes. The mapping-boundary half of the package's byte→UTF-16 conversion (the other
+ * half is `semantic-tokens.ts`/`diagnostics.ts` converting the reader's highlight/error spans the
+ * same way; see `./byte-offsets.ts`).
+ *
+ * Segment **lengths** are converted too, not just start offsets — recovered from the converted *end*
+ * offset (`toUtf16(byteStart + byteLength)`), not by reusing the byte length — because a mapped
+ * segment's own content can itself contain multibyte text (e.g. a JSX text child copied verbatim
+ * from `.nota` prose with an accented word), where UTF-16 length also differs from the UTF-8 byte
+ * length. `generatedLengths` stays `undefined` (Volar's "same as `lengths`") unless the source
+ * already carried one or the two sides' converted lengths actually differ.
+ *
+ * Pure: returns fresh mapping objects; `source`/`code` are read-only.
+ *
+ * @param source the `.nota` source text — what `sourceOffsets` index
+ * @param code   the full virtual code text (preamble + bare emit) — what `generatedOffsets` index
+ */
+export function mappingsToUtf16(
+  source: string,
+  code: string,
+  mappings: readonly VolarCodeMapping[]
+): VolarCodeMapping[] {
+  const src = makeByteConverter(source);
+  const gen = makeByteConverter(code);
+  return mappings.map(m => {
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
+    const generatedLengths: number[] = [];
+    let generatedDiffers = false;
+    for (let k = 0; k < m.sourceOffsets.length; k++) {
+      const soByte = m.sourceOffsets[k];
+      const sLenByte = m.lengths[k];
+      const goByte = m.generatedOffsets[k];
+      const gLenByte = m.generatedLengths?.[k] ?? sLenByte;
+
+      const so = src.toUtf16(soByte);
+      const go = gen.toUtf16(goByte);
+      const sLen = src.toUtf16(soByte + sLenByte) - so;
+      const gLen = gen.toUtf16(goByte + gLenByte) - go;
+
+      sourceOffsets.push(so);
+      generatedOffsets.push(go);
+      lengths.push(sLen);
+      generatedLengths.push(gLen);
+      if (gLen !== sLen) {
+        generatedDiffers = true;
+      }
+    }
+    return {
+      sourceOffsets,
+      generatedOffsets,
+      lengths,
+      ...(m.generatedLengths != null || generatedDiffers
+        ? { generatedLengths }
+        : {}),
+      data: m.data
+    };
+  });
+}
+
+/**
+ * Build the virtual `.tsx` source + UTF-16 mappings for a `.nota` source string. Split out from the
  * `LanguagePlugin` so it is unit-testable without any Volar/TS plumbing (the mapping-fidelity
  * test calls this directly).
  *
@@ -133,8 +205,9 @@ export function extendMappings(
  * `.nota`) for the diagnostics service plugin (`./diagnostics.ts`) to surface.
  *
  * @param source the `.nota` file contents
- * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted to index it;
- *   `{ errors }` = recovered Nota diagnostics (empty for a well-formed file).
+ * @returns `{ code }` = {@link PREAMBLE} + bare virtual `.tsx`; `{ mappings }` = shifted past the
+ *   preamble and converted to UTF-16 (see {@link mappingsToUtf16}); `{ errors }` = recovered Nota
+ *   diagnostics (empty for a well-formed file).
  */
 export function buildVirtual(source: string): {
   code: string;
@@ -142,12 +215,14 @@ export function buildVirtual(source: string): {
   errors: NotaError[];
 } {
   const { code: bare, mappings, errors } = compileVirtual(source);
+  const code = PREAMBLE + bare;
+  const byteMappings = shiftMappings(
+    extendMappings(source, bare, mappings),
+    PREAMBLE_LENGTH
+  );
   return {
-    code: PREAMBLE + bare,
-    mappings: shiftMappings(
-      extendMappings(source, bare, mappings),
-      PREAMBLE_LENGTH
-    ),
+    code,
+    mappings: mappingsToUtf16(source, code, byteMappings),
     errors
   };
 }

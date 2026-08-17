@@ -73,4 +73,31 @@ describe("notaSyntaxDiagnostics", () => {
     const diags = notaSyntaxDiagnostics("%let NotaDoc = 1\n@p{x}\n");
     expect(diags.length).toBeGreaterThanOrEqual(1);
   });
+
+  test("a reserved-name collision AFTER a multibyte prefix lands on the right character (non-ASCII fixture)", () => {
+    // "café — text" (11 UTF-16 units, 14 UTF-8 bytes — a 3-unit divergence: 'é' is 2 bytes/1 unit,
+    // '—' is 3 bytes/1 unit) precedes the `%let` line. `NotaError.start`/`len` are UTF-8 byte
+    // offsets; if `offsetToPosition` ever regresses to treating them as already UTF-16 (the
+    // historical bug this pins — it used to walk `charCodeAt` up to the raw byte offset), the
+    // diagnostic lands 3 characters into "NotaDoc" instead of at its start.
+    const src = "café — text\n%let NotaDoc = 1\n@p{x}\n";
+    const diags = notaSyntaxDiagnostics(src);
+    expect(diags.length).toBe(1);
+
+    // Independent oracle for the expected `.nota` (line, character) of "NotaDoc": plain UTF-16
+    // string search + newline counting, no shared byte-offset-conversion code involved.
+    const idx = src.indexOf("NotaDoc");
+    const before = src.slice(0, idx);
+    const expectedLine = (before.match(/\n/g) ?? []).length;
+    const expectedChar = idx - (before.lastIndexOf("\n") + 1);
+
+    expect(diags[0].range.start).toEqual({
+      line: expectedLine,
+      character: expectedChar
+    });
+    expect(diags[0].range.end).toEqual({
+      line: expectedLine,
+      character: expectedChar + "NotaDoc".length
+    });
+  });
 });

@@ -7,8 +7,9 @@
  * a heading (marker type + heading modifier on the text), and an emphasis span.
  */
 
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
+  delegatedLines,
   flattenSpans,
   makeByteToPosition,
   NOTA_TOKEN_MODIFIERS,
@@ -137,6 +138,85 @@ describe("notaSemanticTokens (end-to-end token stream)", () => {
   test("the token stream is stable (deterministic) across calls", () => {
     const src = "# H @em{x}\n$a+b$ `c`\n% let z = 2\n";
     expect(notaSemanticTokens(src)).toEqual(notaSemanticTokens(src));
+  });
+});
+
+describe("delegatedLines (backtick-fence mirror, transliterating the reader's scan_fenced_code)", () => {
+  test("a close fence with trailing content after the ticks still closes (reader allows it)", () => {
+    const lines = [
+      "before", // 0 — markup
+      "```ts", // 1 — open, 3 ticks
+      "code()", // 2 — content, delegated
+      "``` and more", // 3 — close: 3 ticks + trailing content; the reader closes here
+      "after" // 4 — AFTER the fence: back to markup
+    ];
+    const delegated = delegatedLines(lines.join("\n"));
+    expect(delegated.has(1)).toBe(false); // the open (delimiter) line is never delegated
+    expect(delegated.has(2)).toBe(true);
+    expect(delegated.has(3)).toBe(false); // the close (delimiter) line is never delegated
+    expect(delegated.has(4)).toBe(false);
+  });
+
+  test("a close fence with MORE ticks than the open still closes (reader requires only ≥)", () => {
+    const lines = [
+      "before", // 0
+      "```ts", // 1 — open, 3 ticks
+      "code()", // 2 — content, delegated
+      "````", // 3 — close: 4 ticks, more than the open's 3
+      "after" // 4 — AFTER the fence: back to markup
+    ];
+    const delegated = delegatedLines(lines.join("\n"));
+    expect(delegated.has(2)).toBe(true);
+    expect(delegated.has(3)).toBe(false);
+    expect(delegated.has(4)).toBe(false);
+  });
+
+  test("an indented open fence is recognized, and an indented close with trailing content still closes it", () => {
+    const lines = [
+      "before", // 0
+      "  ```ts", // 1 — open: 2-space indent + 3 ticks (reader allows leading whitespace)
+      "  code()", // 2 — content, delegated
+      "  ``` trailing", // 3 — close: indented + trailing content (both rules at once)
+      "after" // 4 — AFTER the fence: back to markup
+    ];
+    const delegated = delegatedLines(lines.join("\n"));
+    expect(delegated.has(2)).toBe(true);
+    expect(delegated.has(3)).toBe(false);
+    expect(delegated.has(4)).toBe(false);
+  });
+
+  test("negative control: fewer ticks than the open does NOT close — the fence runs to EOF", () => {
+    // Guards the ">=" direction: a close needs to actually MEET the open's tick count, not just
+    // be a backtick run of any length.
+    const lines = [
+      "````ts", // 0 — open: 4 ticks
+      "code()", // 1 — content, delegated
+      "```", // 2 — only 3 ticks (< 4 required): stays fence content, not a close
+      "after" // 3 — the fence never closes: still fence content (unterminated-fence semantics)
+    ];
+    const delegated = delegatedLines(lines.join("\n"));
+    expect(delegated.has(0)).toBe(false);
+    expect(delegated.has(1)).toBe(true);
+    expect(delegated.has(2)).toBe(true);
+    expect(delegated.has(3)).toBe(true);
+  });
+});
+
+describe("notaSemanticTokens without a global Buffer (browser Web Worker parity)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("still produces tokens — regression for the shared pipeline's `Buffer.from` call", () => {
+    // Browser Web Workers have no `Buffer` global. `notaSemanticTokens` is the pipeline both the
+    // node and browser server flavors share (server-core.ts's `readerTokens` and the (dead but
+    // still-imported) service-plugin path both call straight through it) — a `Buffer` reference
+    // there throws under a worker, and the throw is swallowed by the last-good-cache `catch` in
+    // both callers, so the browser flavor silently served an empty token list forever. Stubbing
+    // `Buffer` to `undefined` around the call reproduces the worker environment without a real one.
+    vi.stubGlobal("Buffer", undefined);
+    const toks = notaSemanticTokens("# Title\n@p{hello *world*}\n");
+    expect(toks.length).toBeGreaterThan(0);
   });
 });
 
