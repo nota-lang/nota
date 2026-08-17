@@ -4,7 +4,7 @@
  * definitions (anchors + bank), Tex (KaTeX MathML), CodeBlock/CodeInline (sync shiki), and the
  * pointed-error paths.
  */
-import { NotaDoc, renderDocument } from "@nota-lang/core";
+import { NotaDoc, renderDocument, useDocState } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -17,7 +17,9 @@ import {
   CodeInline,
   config,
   counters,
+  DefBank,
   Definition,
+  FACT_KINDS,
   Footnote,
   FootnoteMark,
   Footnotes,
@@ -69,9 +71,10 @@ describe("headings + numbering + toc", () => {
   test("numbers, ids, and the forward Toc resolve", () => {
     const { html: rawHtml, state } = renderDocument(Doc);
     const html = clean(rawHtml);
-    // Title is not a heading fact.
+    // Title is not a heading anchor.
     expect(html).toContain('class="nota-title"');
-    expect(state.heading).toHaveLength(3);
+    expect(state.anchor).toHaveLength(3);
+    expect(state.anchor?.every(a => a.kind === "heading")).toBe(true);
     // Numbering: 1 / 1.1 / 2 with secnum spans.
     expect(html).toMatch(/<span class="nota-secnum"[^>]*>1<\/span>/);
     expect(html).toMatch(/<span class="nota-secnum"[^>]*>1\.1<\/span>/);
@@ -226,7 +229,7 @@ describe("label / ref", () => {
         <Ref id="ghost" />
       </NotaDoc>
     );
-    expect(() => renderDocument(Doc)).toThrow(/no @Definition or @Label/);
+    expect(() => renderDocument(Doc)).toThrow(/no anchor for id "ghost"/);
   });
 
   test("a label with no preceding heading is a pointed error (seeded pass)", () => {
@@ -258,7 +261,7 @@ describe("label / ref", () => {
         <Ref id="x" />
       </NotaDoc>
     );
-    expect(() => renderDocument(Doc)).toThrow(/duplicate @Label/);
+    expect(() => renderDocument(Doc)).toThrow(/duplicate label anchors/);
   });
 });
 
@@ -375,7 +378,7 @@ describe("footnotes", () => {
         <FootnoteMark label="missing" />
       </NotaDoc>
     );
-    expect(() => renderDocument(Doc)).toThrow(/no @FootnoteText definition/);
+    expect(() => renderDocument(Doc)).toThrow(/no anchor for id "missing"/);
   });
 
   test("duplicate definitions for one label are a pointed error", () => {
@@ -386,7 +389,7 @@ describe("footnotes", () => {
         <FootnoteText label="d">{"two"}</FootnoteText>
       </NotaDoc>
     );
-    expect(() => renderDocument(Doc)).toThrow(/duplicate definition/);
+    expect(() => renderDocument(Doc)).toThrow(/duplicate footnote anchors/);
   });
 });
 
@@ -416,10 +419,14 @@ describe("cite / bibliography", () => {
     };
     const html = clean(renderDocument(Doc).html);
     // pollen cited first → [1]; knuth84 → [2]; the multi-key renders [2, 1].
-    expect(html).toMatch(/<a href="#bib-pollen"[^>]*>\[1\]<\/a>/);
+    expect(html).toMatch(/<a[^>]*href="#bib-pollen"[^>]*>\[1\]<\/a>/);
     expect(html).toMatch(
-      /\[<a href="#bib-knuth84"[^>]*>2<\/a>, <a href="#bib-pollen"[^>]*>1<\/a>\]/
+      /\[<a[^>]*href="#bib-knuth84"[^>]*>2<\/a>, <a[^>]*href="#bib-pollen"[^>]*>1<\/a>\]/
     );
+    // The first citing site of each key carries the citeref backlink id…
+    expect(html).toMatch(/<a id="citeref-1"[^>]*href="#bib-pollen"/);
+    expect(html).toMatch(/<a id="citeref-2"[^>]*href="#bib-knuth84"/);
+    expect(html.match(/id="citeref-1"/g)).toHaveLength(1);
     const bib = /<ol class="nota-bibliography"[^>]*>([\s\S]*?)<\/ol>/.exec(
       html
     );
@@ -429,6 +436,13 @@ describe("cite / bibliography", () => {
     expect(bib?.[1]).toMatch(/<a href="https:\/\/p"/);
     expect(bib?.[1]?.indexOf("bib-pollen")).toBeLessThan(
       bib?.[1]?.indexOf("bib-knuth84") ?? -1
+    );
+    // …and each entry backlinks to it.
+    expect(bib?.[1]).toMatch(
+      /<a href="#citeref-1" class="nota-citebacklink">↩<\/a>/
+    );
+    expect(bib?.[1]).toMatch(
+      /<a href="#citeref-2" class="nota-citebacklink">↩<\/a>/
     );
   });
 
@@ -453,8 +467,8 @@ describe("cite / bibliography", () => {
     };
     const html = clean(renderDocument(Doc).html);
     // zeta cited first but sorts second: [2]; alpha gets [1].
-    expect(html).toMatch(/<a href="#bib-zeta"[^>]*>\[2\]<\/a>/);
-    expect(html).toMatch(/<a href="#bib-alpha"[^>]*>\[1\]<\/a>/);
+    expect(html).toMatch(/<a[^>]*href="#bib-zeta"[^>]*>\[2\]<\/a>/);
+    expect(html).toMatch(/<a[^>]*href="#bib-alpha"[^>]*>\[1\]<\/a>/);
     // The bibliography lists in label (sorted) order.
     const bib = /<ol class="nota-bibliography"[^>]*>([\s\S]*?)<\/ol>/.exec(
       html
@@ -480,6 +494,159 @@ describe("cite / bibliography", () => {
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(/no bibliography entry/);
+  });
+});
+
+describe("unified references (&id across kinds)", () => {
+  test("a ref reaches a heading directly: forward slug + explicit id, numbered and not", () => {
+    const Doc = () => (
+      <NotaDoc>
+        {"See "}
+        <Ref id="details" />
+        {" and "}
+        <Ref id="intro">{"the intro"}</Ref>
+        {".\n\n"}
+        <Heading rank={1}>Details</Heading>
+        <Heading rank={1} id="intro">
+          {"Custom Title"}
+        </Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    // Slug-resolved (weak, unnumbered → title text); explicit-id-resolved with authored text.
+    expect(html).toMatch(
+      /<a href="#details"[^>]*class="nota-ref"[^>]*>Details<\/a>/
+    );
+    expect(html).toMatch(/<a href="#intro"[^>]*>the intro<\/a>/);
+  });
+
+  test("a numbered heading ref shows the section number", () => {
+    const Doc = () => {
+      secset({ numberDepth: 2 });
+      return (
+        <NotaDoc>
+          <Heading rank={1}>Alpha</Heading>
+          <Heading rank={2}>Beta</Heading>
+          {"see "}
+          <Ref id="beta" />
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/<a href="#beta"[^>]*>1\.1<\/a>/);
+  });
+
+  test("a strong anchor silently shadows a colliding heading slug", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Heading rank={1}>Nota</Heading>
+        <Definition id="nota" label="the language">
+          {"Nota"}
+        </Definition>
+        {"see "}
+        <Ref id="nota" />
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    // The definition wins; no duplicate error (derived names must not explode documents).
+    expect(html).toMatch(
+      /<a href="#def-nota"[^>]*data-nota-def="nota"[^>]*>the language<\/a>/
+    );
+  });
+
+  test("two strong anchors with one id are a pointed cross-kind error", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Heading rank={1}>H</Heading>
+        <Label id="x" />
+        <Definition id="x">{"body"}</Definition>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(
+      /duplicate anchor id "x" \(a label and a definition\)/
+    );
+  });
+
+  test("footnote definitions are referenced with &id: shared numbers, list, no in-place render", () => {
+    const Doc = () => (
+      <NotaDoc>
+        {"First"}
+        <Ref id="x" />
+        {" then"}
+        <Footnote>{"anon note"}</Footnote>
+        {" again"}
+        <Ref id="x" />
+        {".\n\n"}
+        <Footnote id="x">{"labeled body"}</Footnote>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    // First-use order: x=1, anon=2; the repeat shares 1; only the first carries the backlink id.
+    expect(html).toMatch(/<a id="fnref-1" href="#fn-1"[^>]*>1<\/a>/);
+    expect(html).toMatch(/<a id="fnref-2" href="#fn-2"[^>]*>2<\/a>/);
+    expect(html.match(/href="#fn-1"/g)).toHaveLength(2);
+    expect(html.match(/id="fnref-1"/g)).toHaveLength(1);
+    const list =
+      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    expect(list?.[1]?.match(/<li /g)).toHaveLength(2);
+    expect(list?.[1]).toContain("labeled body");
+    expect(list?.[1]).toContain("anon note");
+    // The definition renders nothing at its own position (its body only appears in the list).
+    expect(html.indexOf("labeled body")).toBeGreaterThan(
+      html.indexOf("nota-footnotes")
+    );
+  });
+
+  test("a bib key ref is a citation; a page prop renders the locator", () => {
+    const Doc = () => {
+      bibset({
+        src: { knuth84: { author: "Knuth", title: "TeXbook", year: 1984 } }
+      });
+      return (
+        <NotaDoc>
+          {"See "}
+          <Ref id="knuth84" page="33" />
+          {".\n\n"}
+          <Bibliography />
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<a id="citeref-1" href="#bib-knuth84" class="nota-cite"[^>]*>\[1, p\. 33\]<\/a>/
+    );
+    expect(html).toMatch(/<li id="bib-knuth84"[^>]*>Knuth\. TeXbook\. 1984\./);
+  });
+
+  test("an extension kind (figure-style anchor) rides the generic arm: ordinal, href, tooltip", () => {
+    const RawFigure = (props: { id: string; bank: string }) => {
+      const state = useDocState();
+      state.register(FACT_KINDS.anchor, {
+        kind: "figure",
+        id: props.id,
+        href: `#fig-${props.id}`,
+        refPrefix: "Figure ",
+        tooltip: true,
+        bank: () => props.bank
+      });
+      state.trailer("definitions", () => <DefBank />);
+      return <figure id={`fig-${props.id}`} />;
+    };
+    const Doc = () => (
+      <NotaDoc>
+        <RawFigure id="one" bank="first preview" />
+        <RawFigure id="two" bank="second preview" />
+        {"as "}
+        <Ref id="two" />
+        {" shows"}
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<a href="#fig-two"[^>]*class="nota-ref nota-def-ref"[^>]*data-nota-def="two"[^>]*>Figure 2<\/a>/
+    );
+    // The generalized bank renders the figure's tooltip entry.
+    expect(html).toMatch(/data-def="two"[^>]*>second preview/);
   });
 });
 
@@ -515,7 +682,7 @@ describe("definitions", () => {
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(
-      /duplicate definition for id "d"/
+      /duplicate definition anchors for id "d"/
     );
   });
 

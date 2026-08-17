@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "ssr",
           environment: "node",
-          include: ["tests/render.test.tsx"],
+          include: ["tests/render.test.tsx", "tests/refs.test.ts"],
           deps: inlineDeps
         }
       },

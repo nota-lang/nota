@@ -57,19 +57,33 @@ export {
 export {
   Bibliography,
   Cite,
-  counters,
-  FACT_KINDS,
   Footnote,
   FootnoteMark,
   Footnotes,
   FootnotesList,
   FootnoteText,
   Heading,
-  headingIds,
-  headingNumbers,
   Label,
   Ref,
   Title,
   Toc
 } from "./doc-state";
+export {
+  ANCHOR_KINDS,
+  type AnchorFact,
+  anchorKey,
+  anchorOrdinals,
+  anchorsOf,
+  counters,
+  FACT_KINDS,
+  headingIds,
+  headingNumbers,
+  type RefFact,
+  type ResolvedAnchor,
+  refsTo,
+  refTargetKey,
+  resolveAnchors,
+  slugify,
+  useNumbers
+} from "./refs";
 export { Tex } from "./tex";

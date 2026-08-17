@@ -23,16 +23,17 @@
  * output the math renders correctly but un-wired.
  */
 
-import { type Fact, textOf, useDocState } from "@nota-lang/core";
+import { textOf, useDocState } from "@nota-lang/core";
 import { For, type JSX, onMount, type ParentProps } from "solid-js";
 
-import { FACT_KINDS } from "./doc-state";
-
-interface DefinitionFact extends Fact {
-  key: string;
-  labelText?: string;
-  bank?: () => JSX.Element;
-}
+import { config } from "./config";
+import {
+  ANCHOR_KINDS,
+  type AnchorFact,
+  anchorKey,
+  FACT_KINDS,
+  resolveAnchors
+} from "./refs";
 
 /** The plain text of a non-children JSX prop value (string | number | node | chunk | getter). */
 function textOfValue(v: unknown): string | undefined {
@@ -68,11 +69,13 @@ export function Definition(
     );
   }
   const labelText = textOfValue(props.label);
-  state.register(FACT_KINDS.definition, {
-    key,
+  state.register(FACT_KINDS.anchor, {
+    kind: ANCHOR_KINDS.definition,
+    id: key,
     labelText,
+    tooltip: true,
     bank: () => (props.tooltip != null ? props.tooltip : (labelText ?? key))
-  } satisfies DefinitionFact);
+  });
   state.trailer("definitions", () => <DefBank />);
   return props.block === true ? (
     <div id={`def-${key}`} class="nota-definition">
@@ -185,9 +188,13 @@ export function installDefTooltipHandlers(): void {
     }
     ev.preventDefault();
     hide();
-    const target = document.getElementById(
-      `def-${a.getAttribute("data-nota-def")}`
-    );
+    // Jump to the reference's own target: its href when it is an in-page anchor (a figure ref
+    // points at `#fig-…`), else the `def-` convention (a `texRef`'d math span has no href).
+    const href = a.getAttribute("href") ?? "";
+    const target =
+      href.startsWith("#") && href.length > 1
+        ? document.getElementById(href.slice(1))
+        : document.getElementById(`def-${a.getAttribute("data-nota-def")}`);
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "center" });
       target.classList.add("nota-def-target");
@@ -207,30 +214,26 @@ export function resetDefTooltipHandlersForTest(): void {
 }
 
 /**
- * The `"definitions"` trailer: the hidden tooltip bank (one entry per definition, SSR'd inert)
- * + the `onMount` handler installation. Duplicate definitions throw here — the trailer position
- * sees every definition above it.
+ * The `"definitions"` trailer: the hidden tooltip bank — one entry per **bank-carrying
+ * anchor** of any kind (definitions; paper's tooltipped figures), SSR'd inert — + the
+ * `onMount` handler installation. Duplicate ids throw here (via the namespace resolution) —
+ * the trailer position sees every anchor above it, so a duplicate with no references is still
+ * caught.
  */
 export function DefBank(): JSX.Element {
   const state = useDocState();
-  const defs = () => {
-    const all = state.live(FACT_KINDS.definition) as DefinitionFact[];
-    const seen = new Set<string>();
-    for (const d of all) {
-      if (seen.has(d.key)) {
-        throw new Error(`@Definition: duplicate definition for id "${d.key}"`);
-      }
-      seen.add(d.key);
-    }
-    return all;
+  const entries = () => {
+    const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
+    resolveAnchors(anchors, Object.keys(config().bibSrc)); // throws on duplicate ids
+    return anchors.filter(a => a.bank !== undefined);
   };
   onMount(installDefTooltipHandlers);
   return (
     <div class="nota-def-tooltips" aria-hidden="true">
-      <For each={defs()}>
-        {d => (
-          <div class="nota-def-tooltip" data-def={d.key}>
-            {d.bank?.()}
+      <For each={entries()}>
+        {a => (
+          <div class="nota-def-tooltip" data-def={anchorKey(a)}>
+            {a.bank?.()}
           </div>
         )}
       </For>
