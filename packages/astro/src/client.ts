@@ -14,7 +14,7 @@ import {
 } from "@nota-lang/core";
 import { createComponent, render } from "solid-js/web";
 
-import { datasetKey, DOC_STATE_ATTR, RENDER_ID_ATTR } from "./markers";
+import { DOC_STATE_ATTR, datasetKey, RENDER_ID_ATTR } from "./markers";
 
 export default (element: HTMLElement) =>
   (

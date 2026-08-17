@@ -15,13 +15,12 @@
 
 import { type DocComponent, renderDocument } from "@nota-lang/core";
 import type { JSX } from "solid-js";
-
-import { DOC_STATE_ATTR, RENDER_ID_ATTR } from "./markers";
 import {
   createComponent,
   generateHydrationScript,
   NoHydration
 } from "solid-js/web";
+import { DOC_STATE_ATTR, RENDER_ID_ATTR } from "./markers";
 
 /** What Astro binds as `this` in renderer hooks; `result` is stable per rendered page. */
 interface RendererContext {

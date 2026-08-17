@@ -9,7 +9,7 @@
  *   scripts — the zero-JS story as a per-page choice.
  */
 
-import { readFileSync, rmSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -145,5 +145,22 @@ describe("static page (no directive)", () => {
       staticPage.indexOf('id="introduction"')
     );
     expect(staticPage).toContain("nota-secnum");
+  });
+});
+
+describe("production artifact", () => {
+  test("no built client JS asset carries dev Solid even under an ambient NODE_ENV", () => {
+    // This suite runs with NODE_ENV=test (vitest). Vite/Astro fill NODE_ENV from the build
+    // command only when UNSET, and solid-js's `development` export condition keys off it —
+    // without the integration pinning NODE_ENV for `astro build`, shipped bundles silently
+    // carried Solid's dev build (its dev-only "multiple instances of Solid" banner is the marker
+    // asserted on here — mirrors cli/tests/build.test.ts's "production artifact" suite).
+    const assetsDir = join(site, "dist/_astro");
+    const jsFiles = readdirSync(assetsDir).filter(f => f.endsWith(".js"));
+    expect(jsFiles.length).toBeGreaterThan(0);
+    for (const file of jsFiles) {
+      const bundle = readFileSync(join(assetsDir, file), "utf8");
+      expect(bundle).not.toContain("multiple instances of Solid");
+    }
   });
 });

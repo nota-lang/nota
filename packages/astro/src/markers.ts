@@ -11,4 +11,6 @@ export const DOC_STATE_ATTR = "data-nota-doc-state";
 
 /** The `dataset` property name for a `data-*` attribute (the DOM's kebab→camel conversion). */
 export const datasetKey = (attr: string): string =>
-  attr.replace(/^data-/, "").replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+  attr
+    .replace(/^data-/, "")
+    .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());

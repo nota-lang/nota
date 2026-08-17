@@ -25,7 +25,11 @@
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DEDUPED_PACKAGES, type NotaPluginOptions, nota } from "@nota-lang/vite";
+import {
+  DEDUPED_PACKAGES,
+  type NotaPluginOptions,
+  nota
+} from "@nota-lang/vite";
 import type { AstroIntegration } from "astro";
 import type { Plugin } from "vite";
 
@@ -61,10 +65,31 @@ export default function notaAstro(
   const ext = import.meta.url.endsWith(".ts") ? "ts" : "js";
   const entry = (name: string) =>
     fileURLToPath(new URL(`./${name}.${ext}`, import.meta.url));
+  // NODE_ENV pin state, captured in astro:config:setup and undone in astro:build:done below.
+  let prevNodeEnv: string | undefined;
+  let pinned = false;
   return {
     name: "@nota-lang/astro",
     hooks: {
-      "astro:config:setup": ({ addRenderer, config, updateConfig }) => {
+      "astro:config:setup": ({
+        addRenderer,
+        command,
+        config,
+        updateConfig
+      }) => {
+        // Invariant (repo-wide, see CLAUDE.md): Vite's and Astro's own "is production" checks
+        // follow process.env.NODE_ENV and only fill it from the command/mode when it is UNSET —
+        // an ambient value (a test runner's "test", a CI stage's "development") rides along
+        // untouched and flips solid-js's `development` export condition into the client bundle
+        // this build ships (mirrors the pin in cli/src/build.ts). Ambient NODE_ENV must never
+        // leak into built output, so pin it here for `astro build` only — never the dev server —
+        // and restore it in astro:build:done so it doesn't leak past this integration's own
+        // build (e.g. into a later in-process build sharing this Node process, as in the e2e).
+        if (command === "build") {
+          prevNodeEnv = process.env.NODE_ENV;
+          process.env.NODE_ENV = "production";
+          pinned = true;
+        }
         addRenderer({
           name: "@nota-lang/astro",
           serverEntrypoint: entry("server"),
@@ -91,6 +116,15 @@ export default function notaAstro(
             }
           }
         });
+      },
+      "astro:build:done": () => {
+        if (!pinned) return;
+        if (prevNodeEnv === undefined) {
+          delete process.env.NODE_ENV;
+        } else {
+          process.env.NODE_ENV = prevNodeEnv;
+        }
+        pinned = false;
       }
     }
   };
