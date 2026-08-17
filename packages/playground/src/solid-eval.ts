@@ -5,11 +5,15 @@
  *      the reader's JSX emit into executable Solid client code — the same compilation
  *      vite-plugin-solid does in a real build, run in the page (Solid's own playground does
  *      exactly this).
- *   2. {@link evalModule}: the compiled module's `import`s (the compiler-prepended ambient
- *      bindings + babel's `solid-js/web` runtime imports) resolve against {@link MODULE_MAP} —
- *      the namespaces the playground itself bundles, so the evaluated document shares ONE Solid
- *      instance with the preview pane. `export`s are stripped (a `new Function` body is a
- *      script) and re-materialized as a `return`.
+ *   2. {@link evalModule}: a second, targeted `Babel.transform` pass ({@link importExportPlugin})
+ *      rewrites the compiled module's `import`s (the compiler-prepended ambient bindings +
+ *      babel's `solid-js/web` runtime imports + any `%import`s the document itself wrote) into
+ *      {@link MODULE_MAP} lookups — the namespaces the playground itself bundles, so the
+ *      evaluated document shares ONE Solid instance with the preview pane. `export`s are
+ *      collected then stripped (a `new Function` body is a script) and re-materialized as a
+ *      `return`. This is **AST-based, not text surgery**: a document's verbatim/template content
+ *      can legitimately contain a line starting with `import`/`export` (a raw code sample), and
+ *      only a real parse tells that apart from an actual module boundary.
  *
  * The preview then just `render(() => <Doc/>)`s — pure CSR, where doc-state resolves
  * *reactively* (a Toc above its headings fills in live; the two-pass SSG converged form is a
@@ -18,12 +22,12 @@
 
 import * as Babel from "@babel/standalone";
 import {
-  SOLID_AMBIENT_NAMES,
   CORE_RUNTIME_NAMES,
+  SOLID_AMBIENT_NAMES,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
-import * as prelude from "@nota-lang/prelude";
 import * as notaSolid from "@nota-lang/core";
+import * as prelude from "@nota-lang/prelude";
 import solidPreset from "babel-preset-solid";
 import * as solidJs from "solid-js";
 import * as solidWeb from "solid-js/web";
@@ -79,71 +83,144 @@ export function babelCompile(jsxModule: string): string {
 }
 
 /**
- * Strip every top-level `import` declaration from `body`, resolving each against
- * {@link MODULE_MAP} into `scope` bindings (an import shadows an ambient name, matching real
- * ESM). Supports named imports (with `as`; `type` entries skipped), `* as ns`, and side-effect
- * imports (a no-op). Default/mixed clauses, unknown packages, and relative paths throw a pointed
- * error the error pane surfaces.
+ * A hand-shaped, deliberately loose view over the Babel/ESTree node shapes
+ * {@link importExportPlugin} reads and rewrites. `@babel/types`/`@babel/traverse` aren't
+ * resolvable as their own packages here (only bundled inside `@babel/standalone`, which exposes
+ * no `.d.ts`), so this is a minimal structural stand-in rather than an import: one flat optional-
+ * field shape (instead of a true discriminated union) so every read goes through an explicit
+ * runtime check — `t.isX`-style narrowing isn't available without the real types, and this way
+ * nothing depends on it.
  */
-function resolveImports(body: string, scope: Map<string, unknown>): string {
-  const importRe =
-    /^import\s*["']([^"']+)["'][ \t]*;?|^import\s+(type\s+)?([\s\S]*?)\s*from\s*["']([^"']+)["'][ \t]*;?/gm;
-  return body.replace(
-    importRe,
-    (
-      _m,
-      bareSpec: string | undefined,
-      typeOnly: string | undefined,
-      clause = "",
-      spec?: string
-    ) => {
-      if (typeOnly) {
-        return "";
-      }
-      const specifier = bareSpec ?? spec ?? "";
-      const mod = MODULE_MAP[specifier];
-      if (!mod) {
-        throw new Error(
-          `The playground can only resolve imports of ${Object.keys(MODULE_MAP)
-            .map(s => `"${s}"`)
-            .join(", ")} — "${specifier}" is not available here. ` +
-            "(A real build resolves any module; in the playground, prelude names like lstset " +
-            "are also ambient — no import needed.)"
-        );
-      }
-      if (bareSpec !== undefined) {
-        return "";
-      }
-      const ns = clause.match(/^\*\s*as\s+([A-Za-z_$][\w$]*)$/);
-      if (ns) {
-        scope.set(ns[1], mod);
-        return "";
-      }
-      const braced = clause.match(/^\{([\s\S]*)\}$/);
-      if (!braced) {
-        throw new Error(
-          `The playground supports named ({ x }), namespace (* as ns), and side-effect imports — ` +
-            `rewrite \`import ${clause} from "${specifier}"\` as a named import.`
-        );
-      }
-      for (const entry of braced[1].split(",")) {
-        const e = entry.trim();
-        if (e === "" || e.startsWith("type ")) {
-          continue;
+interface AstNode {
+  type: string;
+  name?: string; // Identifier
+  value?: string; // StringLiteral
+  source?: AstNode | null; // ImportDeclaration.source / Export*Declaration.source
+  specifiers?: AstNode[]; // ImportDeclaration.specifiers
+  imported?: AstNode; // ImportSpecifier.imported
+  local?: AstNode; // Import*Specifier.local
+  declaration?: AstNode | null; // Export*Declaration.declaration
+  declarations?: { id: AstNode }[]; // VariableDeclaration.declarations
+  id?: AstNode | null; // Function/ClassDeclaration.id
+}
+
+/** The subset of a Babel `NodePath` {@link importExportPlugin} uses. */
+interface AstPath {
+  node: AstNode;
+  remove(): void;
+  replaceWith(node: AstNode): void;
+}
+
+interface AstVisitor {
+  ImportDeclaration(path: AstPath): void;
+  ExportDefaultDeclaration(path: AstPath): void;
+  ExportNamedDeclaration(path: AstPath): void;
+}
+
+/** The default/named export names {@link importExportPlugin} collects as it strips `export`s. */
+interface ExportCollector {
+  defaultName: string | null;
+  named: string[];
+}
+
+/**
+ * A Babel plugin (parse → visit → regenerate, so string/template-literal *content* is never
+ * mistaken for a module boundary — the AST-based replacement for the old `gm`-anchored regex
+ * surgery): rewrites every top-level `import` declaration into {@link MODULE_MAP} lookups,
+ * mutating `scope` (an import shadows an ambient name, matching real ESM — named, `* as ns`,
+ * default, and side-effect forms all resolve; mixed default+named clauses resolve too, each
+ * specifier independently), and removes the declaration. An unresolvable specifier (not in
+ * {@link MODULE_MAP} — a relative path or an arbitrary package; a real build resolves those, the
+ * playground can't) records `problem.specifier` instead of throwing mid-traversal, so the caller
+ * throws once, after the transform, with a plain (non-Babel-wrapped) pointed message.
+ *
+ * Also collects + strips `export`/`export default` (keeping the underlying declaration) into
+ * `exported`, the same shape {@link evalModule} built by hand before: a default export is
+ * captured only when it's a *named* function/class declaration (the only shape the reader's emit
+ * ever produces — `export default function Doc() {…}`); an `export { a, b };` list form is
+ * dropped, uncaptured, matching the prior behavior.
+ */
+function importExportPlugin(
+  scope: Map<string, unknown>,
+  exported: ExportCollector,
+  problem: { specifier: string | null }
+): { visitor: AstVisitor } {
+  return {
+    visitor: {
+      ImportDeclaration(path) {
+        if (problem.specifier !== null) {
+          return; // already found the first unresolvable import; stop resolving further ones
         }
-        const m = e.match(
-          /^([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/
-        );
-        if (!m) {
-          throw new Error(
-            `The playground could not parse the import entry "${e}".`
-          );
+        const specifier = path.node.source?.value;
+        if (specifier === undefined) {
+          return;
         }
-        scope.set(m[2] ?? m[1], mod[m[1]]);
+        const mod = MODULE_MAP[specifier];
+        if (!mod) {
+          problem.specifier = specifier;
+          return;
+        }
+        for (const spec of path.node.specifiers ?? []) {
+          const local = spec.local?.name;
+          if (!local) {
+            continue;
+          }
+          if (spec.type === "ImportDefaultSpecifier") {
+            scope.set(local, mod.default);
+          } else if (spec.type === "ImportNamespaceSpecifier") {
+            scope.set(local, mod);
+          } else {
+            // ImportSpecifier: `imported` is an Identifier (`{ x }`) or a StringLiteral (the
+            // `{ "x" as y }` re-export-rename form) — either way its bound name/value is the key.
+            const importedName = spec.imported?.name ?? spec.imported?.value;
+            if (importedName) {
+              scope.set(local, mod[importedName]);
+            }
+          }
+        }
+        path.remove();
+      },
+      ExportDefaultDeclaration(path) {
+        const decl = path.node.declaration;
+        const name = decl?.id?.name;
+        if (
+          decl &&
+          (decl.type === "FunctionDeclaration" ||
+            decl.type === "ClassDeclaration") &&
+          name
+        ) {
+          exported.defaultName = name;
+          path.replaceWith(decl);
+        } else {
+          // Not a named function/class declaration (unreachable from the reader's own emit,
+          // which always writes `export default function Doc() {…}`) — drop it rather than risk
+          // re-emitting an invalid standalone statement (an anonymous `function() {}` isn't one).
+          path.remove();
+        }
+      },
+      ExportNamedDeclaration(path) {
+        const { declaration, source } = path.node;
+        if (declaration) {
+          if (declaration.type === "VariableDeclaration") {
+            for (const d of declaration.declarations ?? []) {
+              if (d.id.type === "Identifier" && d.id.name) {
+                exported.named.push(d.id.name);
+              }
+            }
+          } else if (declaration.id?.name) {
+            exported.named.push(declaration.id.name);
+          }
+          path.replaceWith(declaration);
+        } else if (!source) {
+          // `export { a, b };` (a local re-export list, no `declaration`) — dropped whole,
+          // matching the string-surgery predecessor (which never captured these names either).
+          path.remove();
+        }
+        // `export { a } from "spec";` (has `source`): left alone, same as before — unreachable
+        // from the reader's emit, and the prior regex didn't match this shape either.
       }
-      return "";
     }
-  );
+  };
 }
 
 /** The document component (the module's default export). */
@@ -152,33 +229,38 @@ export type DocFn = () => unknown;
 /**
  * Evaluate a **babel-compiled** document module and return its exports
  * (`{ default: Doc, …named }`): resolve imports into scope bindings, strip `export`s (keeping
- * declarations), and `return` the export identifiers.
+ * declarations), and `return` the export identifiers. Runs its own `Babel.transform` pass
+ * (parse → {@link importExportPlugin} → regenerate) — see the module docstring for why this is
+ * AST-based rather than the string surgery it replaces.
  */
 export function evalModule(compiled: string): Record<string, unknown> {
   const scope = ambientScope();
-  let body = resolveImports(compiled, scope);
+  const exported: ExportCollector = { defaultName: null, named: [] };
+  const problem: { specifier: string | null } = { specifier: null };
 
-  const defMatch = body.match(
-    /export\s+default\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/
-  );
-  const defaultName = defMatch ? defMatch[1] : null;
-  const named: string[] = [];
-  for (const m of body.matchAll(
-    /export\s+(?:async\s+)?(?:let|const|var|function|class)\s+([A-Za-z_$][\w$]*)/g
-  )) {
-    named.push(m[1]);
+  const out = Babel.transform(compiled, {
+    filename: "compiled.js",
+    sourceType: "module",
+    plugins: [importExportPlugin(scope, exported, problem)]
+  });
+
+  if (problem.specifier !== null) {
+    throw new Error(
+      `The playground can only resolve imports of ${Object.keys(MODULE_MAP)
+        .map(s => `"${s}"`)
+        .join(", ")} — "${problem.specifier}" is not available here. ` +
+        "(A real build resolves any module; in the playground, prelude names like lstset " +
+        "are also ambient — no import needed.)"
+    );
   }
-
-  body = body.replace(/export\s+default\s+/g, "");
-  body = body.replace(
-    /^(\s*)export\s+(?=(?:async\s+)?(?:let|const|var|function|class)\b)/gm,
-    "$1"
-  );
-  body = body.replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, "");
+  if (typeof out?.code !== "string") {
+    throw new Error("babel: no output for the import/export rewrite");
+  }
+  const body = out.code;
 
   const entries = [
-    ...(defaultName ? [`default: ${defaultName}`] : []),
-    ...named
+    ...(exported.defaultName ? [`default: ${exported.defaultName}`] : []),
+    ...exported.named
   ].join(", ");
 
   // eslint-disable-next-line @typescript-eslint/no-implied-eval -- intentional: run the compiled document.
