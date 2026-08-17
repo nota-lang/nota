@@ -112,6 +112,64 @@
     st)
   "Syntax table for `nota-mode'.")
 
+;;;; Fence grammar (shared)
+
+;; The %%%/``` fence-delimiter shapes are needed at three call sites below --
+;; `nota--syntax-propertize' (which must capture just the delimiter's first
+;; char: a syntax-table generic string quote pairs on ONE character, so
+;; capturing the whole run would toggle once per char and silently cancel
+;; out on an even-length run), `nota--fence-open-re' (deciding whether
+;; embedded-code fontification should engage), and the close-line scanner
+;; inside `nota--match-embedded-fences' (finding where that fontification
+;; block ends). Single-sourced here instead of hand-written at each site.
+;;
+;; Each family has an OPEN shape, anchored at both ends (a fence opener
+;; stands alone on its line, mod an optional backtick language tag -- the
+;; reader's `scan_fenced_code' info-string rule / its `FENCE_LINE'), and a
+;; CLOSE shape, anchored only at the start (the reader's close scan --
+;; `find_backtick_close'/`scan_fenced_code' for backtick, `FENCE_CLOSE_LINE'
+;; for %%% -- tolerates trailing content after the run, e.g. a `}' closing
+;; an enclosing body, and resumes right past it; anchoring a CLOSE pattern
+;; at `$' would silently fail to close on such a line). tests/conformance.el's
+;; fence-agreement cases pin these against the reader (`lineClassifiers',
+;; which the reader exports, for %%%; `highlightSpans', since the reader
+;; exports no backtick line classifier, for backtick).
+
+(defconst nota--fence-min-run 3
+  "Minimum delimiter-char count for a %%%/``` fence (the reader's `{3,}').")
+
+(defconst nota--backtick-fence-lang-re "[A-Za-z0-9_+#.-]*"
+  "A fenced-code language tag (the info string's first token).")
+
+(defconst nota--percent-fence-open-re
+  (format "^[ \t]*%%\\{%d,\\}[ \t]*$" nota--fence-min-run)
+  "A %%% fence opener line, alone but for surrounding whitespace.")
+(defconst nota--percent-fence-close-re
+  (format "^[ \t]*%%\\{%d,\\}" nota--fence-min-run)
+  "A %%% fence closer line's leading run (trailing content is the caller's).")
+(defconst nota--percent-fence-propertize-re
+  (format "^[ \t]*\\(%%\\)%%\\{%d,\\}[ \t]*$" (1- nota--fence-min-run))
+  "Group 1 is the single first `%%', for `nota--syntax-propertize's pairing;
+otherwise matches `nota--percent-fence-open-re'.")
+
+(defconst nota--backtick-fence-open-re
+  (format "^[ \t]*`\\{%d,\\}[ \t]*\\(%s\\)[ \t]*$"
+          nota--fence-min-run nota--backtick-fence-lang-re)
+  "A ``` fence opener line (group 1: the language tag).")
+(defconst nota--backtick-fence-close-re
+  (format "^[ \t]*`\\{%d,\\}" nota--fence-min-run)
+  "A ``` fence closer line's leading run (trailing content is the caller's).")
+(defconst nota--backtick-fence-propertize-re
+  (format "^[ \t]*\\(`\\)`\\{%d,\\}[ \t]*%s[ \t]*$"
+          (1- nota--fence-min-run) nota--backtick-fence-lang-re)
+  "Group 1 is the single first backtick, for `nota--syntax-propertize's
+pairing; otherwise matches `nota--backtick-fence-open-re'.")
+
+(defconst nota--fence-open-re
+  (format "^[ \t]*\\(?:`\\{%d,\\}[ \t]*\\(%s\\)[ \t]*\\|\\(%%\\{%d,\\}\\)[ \t]*\\)$"
+          nota--fence-min-run nota--backtick-fence-lang-re nota--fence-min-run)
+  "A code-fence (group 1: language tag) or %%% fence (group 2, non-nil) opening line.")
+
 ;;;; Fenced regions (syntax-propertize)
 
 ;; Each fence delimiter's first char is marked as a string quote.  String
@@ -120,10 +178,12 @@
 ;; inside another fence's interior is inert.
 (defconst nota--syntax-propertize
   (syntax-propertize-rules
-   ;; %%% statement fence (3+ %s, matching the reader's `%{3,}`), alone on its line.
-   ("^[ \t]*\\(%\\)%%%*[ \t]*$" (1 "\""))
-   ;; ``` code fence (3+ backticks, optional language tag), line-anchored.
-   ("^[ \t]*\\(`\\)``+[ \t]*[A-Za-z0-9_+#.-]*[ \t]*$" (1 "\""))
+   ;; %%% statement fence: shape shared with `nota--percent-fence-open-re' (see "Fence
+   ;; grammar" above).
+   (nota--percent-fence-propertize-re (1 "\""))
+   ;; ``` code fence: shape shared with `nota--backtick-fence-open-re' (see "Fence grammar"
+   ;; above).
+   (nota--backtick-fence-propertize-re (1 "\""))
    ;; $$ display-math fence, alone on its line.
    ("^[ \t]*\\(\\$\\)\\$[ \t]*$" (1 "\""))
    ;; Multi-line verbatim: |{ at end of line ... }| at line start.
@@ -227,12 +287,6 @@ whole region is protected with `default'."
       (set-match-data (list (point) (point)))
       t)))
 
-(defconst nota--fence-open-re
-  (concat "^[ \t]*\\(?:"
-          "`\\{3,\\}[ \t]*\\([A-Za-z0-9_+#.-]*\\)[ \t]*"
-          "\\|\\(%%%+\\)[ \t]*\\)$")
-  "A code-fence (group 1: language tag) or %%% fence (group 2, 3+ %s) opening line.")
-
 (defun nota--match-embedded-fences (limit)
   "Font-lock matcher: natively fontify embedded-code fence interiors.
 Handles ```lang fences with a supported language and %%% statement
@@ -244,8 +298,8 @@ fences opening before LIMIT; other fences keep their raw paint."
              (open-end (match-end 0))
              (statementp (match-beginning 2))
              (lang (if statementp "" (match-string-no-properties 1)))
-             (close-re (if statementp "^[ \t]*%%%+[ \t]*$"
-                         "^[ \t]*`\\{3,\\}[ \t]*$")))
+             (close-re (if statementp nota--percent-fence-close-re
+                         nota--backtick-fence-close-re)))
         (if (or (nth 3 (syntax-ppss open-beg))          ; inside another fence
                 (and (not statementp) (null (nota--embedded-mode lang))))
             (goto-char open-end)
@@ -300,11 +354,16 @@ fences opening before LIMIT; other fences keep their raw paint."
 
 ;;;; Comment / strike matchers
 
-;; Each of these fires only on UNCLAIMED text (no face yet): the rules above
-;; them in `nota-font-lock-keywords' -- embedded code, raw spans -- have
-;; already claimed their bytes, so a `//' inside a code span or a `~~' inside
-;; embedded JS can never match.  This is the matcher-level analogue of the
-;; nil-OVERRIDE ordering the rest of the tier relies on.
+;; `nota--match-line-comment' and `nota--match-block-comment' fire only on text that is both
+;; UNCLAIMED (no face yet from an earlier rule) and syntactically prose (not inside a fence,
+;; per `syntax-ppss') -- checked explicitly via `nota--claimed-p', since a same-line `//'/`/*'
+;; can trigger anywhere in the search region regardless of context (a `[href: "https://…"]'
+;; prop value, an inline code span). `nota--match-strike' (below), like the emphasis matchers
+;; above it, has no such check: it relies solely on the list-level nil-OVERRIDE that the top of
+;; `nota-font-lock-keywords' describes -- font-lock skips a highlight's face application
+;; outright when any character in its span already carries one, so bytes an earlier-listed
+;; rule already painted (embedded code, raw spans) simply can't take `nota-strike' either, just
+;; via the list's ordering rather than a check in the matcher itself.
 
 (defun nota--claimed-p (pos)
   "Non-nil when POS already carries a face or sits inside a fence string.

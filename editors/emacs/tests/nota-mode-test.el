@@ -265,10 +265,6 @@ Searches forward from point for NEEDLE."
           (font-lock-mode 1)
           (should (progn (font-lock-ensure) t)))))))
 
-(provide 'nota-mode-test)
-
-;;; nota-mode-test.el ends here
-
 ;;;; Reader-alignment regressions (the four divergences found by the 2026-08 list audit)
 
 (ert-deftest nota-statement-fence-four-percents ()
@@ -293,3 +289,7 @@ Searches forward from point for NEEDLE."
   (nota-test--with-buffer "a \\> b \\q c\n"
     (should (nota-test--face-of "\\>" 'nota-escape))
     (should (nota-test--face-of "\\q" 'nota-escape))))
+
+(provide 'nota-mode-test)
+
+;;; nota-mode-test.el ends here
