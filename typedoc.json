@@ -6,7 +6,6 @@
   },
   "entryPointStrategy": "packages",
   "entryPoints": [
-    "packages/astro",
     "packages/cli",
     "packages/codemirror",
     "packages/compiler",
@@ -14,6 +13,7 @@
     "packages/explorable",
     "packages/paper",
     "packages/prelude",
+    "packages/solid-start",
     "packages/vite"
   ]
 }
