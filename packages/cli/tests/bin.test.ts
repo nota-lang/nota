@@ -164,9 +164,12 @@ describe("the mega surface, rendered", () => {
     const nav = /<nav class="nota-toc">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
     expect(nav).toContain("1.7 Doc-state sugar");
     expect(nav).toContain("A level-6 heading"); // rank 6 > numberDepth 2: listed, unnumbered
-    expect(html).toContain('<a href="#bib-knuth84" class="nota-cite">[1]</a>');
+    // The first citing site carries the citeref backlink id; the entry links back to it.
     expect(html).toContain(
-      '<li id="bib-knuth84">Knuth. The TeXbook. 1984.</li>'
+      '<a id="citeref-1" href="#bib-knuth84" class="nota-cite">[1]</a>'
+    );
+    expect(html).toMatch(
+      /<li id="bib-knuth84">Knuth\. The TeXbook\. 1984\. <a href="#citeref-1" class="nota-citebacklink">↩<\/a><\/li>/
     );
   });
 

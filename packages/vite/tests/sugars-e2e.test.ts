@@ -76,13 +76,26 @@ describe("doc-state sugars render the element forms' numbering", () => {
     expect(fns?.[1]?.match(/<li id="fn-/g)).toHaveLength(2);
   });
 
-  test("the snapshot carries the sugar-registered facts", () => {
+  test("the snapshot carries the sugar-registered facts (anchor/ref wire format)", () => {
     const inner = />(.*)<\/script>$/.exec(stateScript)?.[1] ?? "";
     const snapshot = JSON.parse(inner) as {
-      label?: Array<{ key: string }>;
-      footnote?: Array<{ label?: string }>;
+      anchor?: Array<{ kind: string; id?: string }>;
+      ref?: Array<{ target?: string }>;
     };
-    expect(snapshot.label?.map(l => l.key)).toEqual(["sec-intro", "sec-usage"]);
-    expect(snapshot.footnote?.map(f => f.label)).toEqual(["a", "a", "b"]);
+    const anchors = snapshot.anchor ?? [];
+    expect(anchors.filter(a => a.kind === "label").map(a => a.id)).toEqual([
+      "sec-intro",
+      "sec-usage"
+    ]);
+    // `[^a]`/`[^a]`/`[^b]` marks are refs; `[^a]:`/`[^b]:` definitions are footnote anchors.
+    expect(anchors.filter(a => a.kind === "footnote").map(a => a.id)).toEqual([
+      "a",
+      "b"
+    ]);
+    expect(
+      (snapshot.ref ?? [])
+        .map(r => r.target)
+        .filter(t => t === "a" || t === "b")
+    ).toEqual(["a", "a", "b"]);
   });
 });

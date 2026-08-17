@@ -56,9 +56,11 @@ describe("hydrated page (client:load island)", () => {
     expect(m).toBeTruthy();
     const state = JSON.parse(decodeAttr((m as RegExpExecArray)[1])) as Record<
       string,
-      { title?: string }[]
+      { kind?: string; title?: string }[]
     >;
-    expect(state.heading?.map(h => h.title)).toEqual(["Introduction", "Usage"]);
+    expect(
+      state.anchor?.filter(a => a.kind === "heading").map(a => a.title)
+    ).toEqual(["Introduction", "Usage"]);
   });
 
   test("forward references are resolved in the static bytes (two-pass)", () => {
@@ -110,12 +112,11 @@ describe("multi-island page (two client:load documents)", () => {
       expect(m).toBeTruthy();
       const state = JSON.parse(decodeAttr((m as RegExpExecArray)[1])) as Record<
         string,
-        { title?: string }[]
+        { kind?: string; title?: string }[]
       >;
-      expect(state.heading?.map(h => h.title)).toEqual([
-        "Introduction",
-        "Usage"
-      ]);
+      expect(
+        state.anchor?.filter(a => a.kind === "heading").map(a => a.title)
+      ).toEqual(["Introduction", "Usage"]);
       const nav = /<nav[^>]*class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(
         island.body
       );

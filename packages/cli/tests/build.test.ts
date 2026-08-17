@@ -71,14 +71,16 @@ describe("default build (hydrating Solid app)", () => {
     expect(out.hydrated).toBe(true);
     // Solid's hydration bootstrap in head (defines _$HY + event capture).
     expect(out.html).toContain("_$HY");
-    // The doc-state snapshot (static.nota has headings → heading facts).
+    // The doc-state snapshot (static.nota has headings → heading anchors).
     const state =
       /<script type="application\/json" id="nota-doc-state">([\s\S]*?)<\/script>/.exec(
         out.html
       );
     expect(state).toBeTruthy();
-    const snapshot = JSON.parse(state?.[1] ?? "{}");
-    expect(snapshot.heading?.length).toBe(2);
+    const snapshot = JSON.parse(state?.[1] ?? "{}") as {
+      anchor?: Array<{ kind: string }>;
+    };
+    expect(snapshot.anchor?.filter(a => a.kind === "heading")).toHaveLength(2);
     // The client bundle: referenced page-relative, on disk, self-contained IIFE.
     expect(out.html).toContain('<script src="./assets/index.js"></script>');
     expect(out.clientJsPath).toBeTruthy();
