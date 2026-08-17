@@ -150,7 +150,7 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
   const anchor = join(resolveFrom, "package.json");
-  const pinned = /^(?:solid-js|@nota-lang\/(?:solid|prelude))(?:\/|$)/;
+  const pinned = /^(?:solid-js|@nota-lang\/(?:core|prelude))(?:\/|$)/;
   return {
     name: "nota-cli:pinned-resolver",
     enforce: "pre",
