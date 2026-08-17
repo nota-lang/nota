@@ -25,7 +25,7 @@
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type NotaPluginOptions, nota } from "@nota-lang/vite";
+import { DEDUPED_PACKAGES, type NotaPluginOptions, nota } from "@nota-lang/vite";
 import type { AstroIntegration } from "astro";
 import type { Plugin } from "vite";
 
@@ -35,11 +35,9 @@ import type { Plugin } from "vite";
  * bundled — Node cannot execute raw JSX — and nowhere may esbuild prebundle them (optimizeDeps
  * would compile the JSX without the Solid transform).
  */
-const JSX_DIST_PACKAGES = [
-  "@nota-lang/core",
-  "@nota-lang/prelude",
-  "@nota-lang/paper"
-];
+const JSX_DIST_PACKAGES = DEDUPED_PACKAGES.filter(p =>
+  p.startsWith("@nota-lang/")
+);
 
 /** Options for the {@link notaAstro} integration — the `@nota-lang/vite` preset options. */
 export type NotaAstroOptions = NotaPluginOptions;

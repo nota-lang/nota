@@ -32,12 +32,18 @@ const language = notaHighlighting();
 // stays reader-driven (above). `[]` in worker-less environments (jsdom tests).
 const lsp = notaLsp();
 
-const TABS: { id: Tab; label: string; hint: string }[] = [
-  { id: "ast", label: "AST", hint: "parsed tree" },
-  { id: "jsx", label: "JSX", hint: "emitted Solid module" },
-  { id: "js", label: "Compiled JS", hint: "babel-preset-solid output" },
-  { id: "rendered", label: "Rendered", hint: "live document" }
-];
+// A Record over `Tab` (not an array) so exhaustiveness is compile-checked in both directions:
+// a Tab without an entry, or an entry without a Tab, is a type error.
+const TAB_INFO: Record<Tab, { label: string; hint: string }> = {
+  ast: { label: "AST", hint: "parsed tree" },
+  jsx: { label: "JSX", hint: "emitted Solid module" },
+  js: { label: "Compiled JS", hint: "babel-preset-solid output" },
+  rendered: { label: "Rendered", hint: "live document" }
+};
+const TABS = (Object.keys(TAB_INFO) as Tab[]).map(id => ({
+  id,
+  ...TAB_INFO[id]
+}));
 
 export function App() {
   // Seed from the last-saved source (persisted in localStorage), falling back to the seed doc.

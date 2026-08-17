@@ -15,6 +15,8 @@
 
 import { type DocComponent, renderDocument } from "@nota-lang/core";
 import type { JSX } from "solid-js";
+
+import { DOC_STATE_ATTR, RENDER_ID_ATTR } from "./markers";
 import {
   createComponent,
   generateHydrationScript,
@@ -77,8 +79,8 @@ async function renderToStaticMarkup(
   const { html, state } = renderDocument(Component, { renderId });
   return {
     attrs: {
-      "data-nota-render-id": renderId,
-      "data-nota-doc-state": JSON.stringify(state)
+      [RENDER_ID_ATTR]: renderId,
+      [DOC_STATE_ATTR]: JSON.stringify(state)
     },
     html
   };

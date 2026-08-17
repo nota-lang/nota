@@ -14,6 +14,8 @@ import {
 } from "@nota-lang/core";
 import { createComponent, render } from "solid-js/web";
 
+import { datasetKey, DOC_STATE_ATTR, RENDER_ID_ATTR } from "./markers";
+
 export default (element: HTMLElement) =>
   (
     Component: unknown,
@@ -28,10 +30,10 @@ export default (element: HTMLElement) =>
       element.innerHTML = "";
       dispose = render(() => createComponent(Doc, {}), element);
     } else {
-      const state = element.dataset.notaDocState;
+      const state = element.dataset[datasetKey(DOC_STATE_ATTR)];
       dispose = hydrateDocument(Doc, {
         root: element,
-        renderId: element.dataset.notaRenderId,
+        renderId: element.dataset[datasetKey(RENDER_ID_ATTR)],
         seed: state !== undefined ? (JSON.parse(state) as Snapshot) : undefined
       });
     }

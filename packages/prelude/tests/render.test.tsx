@@ -8,6 +8,8 @@ import { NotaDoc, renderDocument } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
+  BASE_LANG_NAMES,
+  BASE_THEME_NAMES,
   Bibliography,
   bibset,
   Cite,
@@ -881,5 +883,18 @@ describe("tex + code", () => {
       /<code class="nota-code-inline"[^>]*><span style="color:/
     );
     expect(html).not.toMatch(/nota-code-inline[^>]*><pre/);
+  });
+});
+
+describe("list consistency (single-sourced surfaces)", () => {
+  test("the config default theme is a preloaded theme", () => {
+    resetConfigForTest();
+    expect(BASE_THEME_NAMES).toContain(config().theme);
+  });
+
+  test("BASE_LANG_NAMES is introspected non-empty and includes the canonical grammars", () => {
+    for (const name of ["typescript", "python", "rust"]) {
+      expect(BASE_LANG_NAMES).toContain(name);
+    }
   });
 });

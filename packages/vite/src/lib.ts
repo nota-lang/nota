@@ -16,9 +16,16 @@
  */
 
 import { createRequire } from "node:module";
-import { compile } from "@nota-lang/compiler";
+import {
+  compile,
+  FRAMEWORK_MODULES,
+  FRAMEWORK_PACKAGES
+} from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 import viteSolid from "vite-plugin-solid";
+
+/** The default extension set, shared by the transform and the solid-preset config below. */
+const DEFAULT_EXTENSIONS = [".nota"];
 
 /** Options for the {@link nota} preset. */
 export interface NotaPluginOptions {
@@ -55,11 +62,7 @@ export interface NotaPluginOptions {
  * must win — `@nota-lang/core` carries the doc-state context and `solid-js` its reactive
  * runtime, and two instances would split them.
  */
-const EMIT_IMPORT_FALLBACKS = [
-  "@nota-lang/core",
-  "@nota-lang/prelude",
-  "solid-js"
-];
+const EMIT_IMPORT_FALLBACKS = FRAMEWORK_MODULES;
 
 /**
  * Packages whose **module state must be a singleton per page**: solid-js's reactive runtime +
@@ -69,10 +72,8 @@ const EMIT_IMPORT_FALLBACKS = [
  * graph with two physical copies (the linked-workspace layout, or a consumer's own solid-js at
  * a different patch version) still bundles exactly one.
  */
-const DEDUPED_PACKAGES = [
-  "solid-js",
-  "@nota-lang/core",
-  "@nota-lang/prelude",
+export const DEDUPED_PACKAGES: readonly string[] = [
+  ...FRAMEWORK_PACKAGES,
   "@nota-lang/paper"
 ];
 
@@ -91,7 +92,7 @@ const DEDUPED_PACKAGES = [
  *   invalidates importers; vite-plugin-solid's solid-refresh applies where it can.
  */
 export function notaTransform(options: NotaPluginOptions = {}): Plugin {
-  const extensions = options.extensions ?? [".nota"];
+  const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
   const prelude =
     options.preludeModule === false
       ? (false as const)
@@ -111,7 +112,7 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   return {
     name: "@nota-lang/vite",
     enforce: "pre",
-    config: () => ({ resolve: { dedupe: DEDUPED_PACKAGES } }),
+    config: () => ({ resolve: { dedupe: [...DEDUPED_PACKAGES] } }),
     async resolveId(source: string, importer: string | undefined) {
       if (
         !EMIT_IMPORT_FALLBACKS.some(
@@ -156,7 +157,7 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
  * @returns the plugin array
  */
 export function nota(options: NotaPluginOptions = {}): Plugin[] {
-  const extensions = options.extensions ?? [".nota"];
+  const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
   const plugins: Plugin[] = [notaTransform(options)];
   if (options.solid !== false) {
     const s = viteSolid({

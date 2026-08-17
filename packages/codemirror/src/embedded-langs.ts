@@ -62,6 +62,8 @@ const ALIASES: Record<string, string> = {
   mjs: "javascript",
   cjs: "javascript",
   ts: "typescript",
+  cts: "typescript",
+  mts: "typescript",
   py: "python",
   rs: "rust",
   sh: "shell",

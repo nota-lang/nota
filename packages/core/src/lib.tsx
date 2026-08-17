@@ -19,6 +19,7 @@
  */
 
 export * from "./doc-state";
+export * from "./entities";
 export * from "./nota-doc";
 export * from "./reforest";
 export * from "./render";

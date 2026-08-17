@@ -14,7 +14,7 @@
  * absent from the TOC — the paper-title analogue of `\section*`.
  */
 
-import { DefBank } from "@nota-lang/prelude";
+import { DefBank, FACT_KINDS } from "@nota-lang/prelude";
 import { type Fact, Reforest, useDocState } from "@nota-lang/core";
 import { type JSX, type ParentProps, Show } from "solid-js";
 
@@ -103,7 +103,7 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
       : undefined;
   const handle = state.register("figure", { key: id });
   if (id !== undefined) {
-    state.register("definition", {
+    state.register(FACT_KINDS.definition, {
       key: id,
       labelText: `Figure ${handle.seq}`,
       bank: () => <div class="nota-figure-tooltip">{props.children}</div>

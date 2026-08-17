@@ -15,6 +15,7 @@
  * are `nota-para`/`nota-list`/`nota-section`.
  */
 
+import { decodeEntities } from "./entities";
 import {
   children,
   createMemo,
@@ -58,13 +59,21 @@ export type Category =
   | { kind: "skip" };
 
 /** The attrs-marker attribute the {@link Attrs} component renders (notation.md §Attrs). */
-const ATTRS_MARKER = "data-nota-attrs";
+export const ATTRS_MARKER = "data-nota-attrs";
+
+/** Solid's hydration-key bookkeeping attribute (`solid-js/web` stamps it on SSR output). */
+export const HYDRATION_KEY_ATTR = "data-hk";
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
-/** Phrasing-content tags per the HTML content model (abridged). */
-const INLINE_TAGS = new Set([
+/**
+ * Phrasing-content tags per the HTML content model (abridged; `math`/`svg` deliberately
+ * inline). Exported for the emit-policy consistency check: the reader's `FLOW_TAGS` (interiors
+ * wrapped in `<Reforest>`) must be disjoint from this set — a flow container categorizing inline
+ * would dissolve its own paragraphs.
+ */
+export const INLINE_TAGS = new Set([
   "a",
   "abbr",
   "b",
@@ -145,15 +154,7 @@ export function categorize(c: ResolvedChild): Category {
 /** String-valued attributes extracted from an attrs marker (Solid's own bookkeeping skipped). */
 export type ExtractedAttrs = Record<string, string>;
 
-const SKIPPED_MARKER_ATTRS = new Set([ATTRS_MARKER, "data-hk"]);
-
-const unescapeHtml = (s: string): string =>
-  s
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
+const SKIPPED_MARKER_ATTRS = new Set([ATTRS_MARKER, HYDRATION_KEY_ATTR]);
 
 /**
  * Pull the string attributes off an attrs marker (client: real attributes; server: the chunk's
@@ -168,7 +169,7 @@ function extractAttrs(c: Node | SSRChunk): ExtractedAttrs {
     const attr = /([a-zA-Z_:][-\w:.]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g;
     for (const a of m[1].matchAll(attr)) {
       if (SKIPPED_MARKER_ATTRS.has(a[1])) continue;
-      out[a[1]] = unescapeHtml(a[2] ?? a[3] ?? "");
+      out[a[1]] = decodeEntities(a[2] ?? a[3] ?? "");
     }
     return out;
   }

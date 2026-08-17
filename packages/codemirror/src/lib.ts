@@ -15,12 +15,14 @@ export {
   languageFor
 } from "./embedded-langs";
 export { catppuccinHighlight, catppuccinLatte } from "./highlight-style";
+export { PALETTE } from "./palette";
 export {
   type EmbeddedRegion,
   type EmbeddedSpan,
   embeddedHighlightSpans,
   embeddedRegions,
   highlightSpans,
+  KIND_STYLES,
   type NotaSpan,
   notaHighlighting
 } from "./nota-mode";

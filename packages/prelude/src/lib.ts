@@ -4,9 +4,10 @@
  *
  * The reader's emit references these as free identifiers; the compiler shim binds them here
  * (or at the integrator's `preludeModule`). Every component is a **plain Solid component** —
- * the old registry slots are gone; override per-document by `%import`ing your own binding
- * (which lexically shadows the ambient one), or site-wide by pointing `preludeModule` at a
- * module re-exporting your customized set.
+ * the old registry slots are gone. Override site-wide by pointing `preludeModule` at a module
+ * re-exporting your customized set; user-typed ambient names (`Toc`, `Cite`, the config fns)
+ * can also be `%import`-shadowed per document, but the emit-referenced names (`Tex`,
+ * `Heading`, …) are reserved — a document binding of those is a reader diagnostic.
  *
  * - `Tex` — KaTeX → MathML (no CSS/fonts needed); `mathset({output:"html"})` opts into HTML.
  * - `CodeInline` / `CodeBlock` — sync shiki (armed parts contribute text; decorations are a
@@ -22,7 +23,13 @@
  * see ./config.
  */
 
-export { CodeBlock, CodeInline, resetCodeWarningsForTest } from "./code";
+export {
+  BASE_LANG_NAMES,
+  BASE_THEME_NAMES,
+  CodeBlock,
+  CodeInline,
+  resetCodeWarningsForTest
+} from "./code";
 export {
   type BibEntry,
   type BibsetOptions,
@@ -51,6 +58,7 @@ export {
   Bibliography,
   Cite,
   counters,
+  FACT_KINDS,
   Footnote,
   FootnoteMark,
   Footnotes,

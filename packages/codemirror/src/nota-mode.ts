@@ -37,6 +37,7 @@ import {
 import { highlight, highlightKindNames } from "@nota-lang/compiler/reader";
 import { embeddedTokens } from "./embedded-langs";
 import { catppuccinHighlight } from "./highlight-style";
+import { PALETTE } from "./palette";
 
 // ---------------------------------------------------------------------------------------------
 // Offset units: the reader speaks UTF-8 bytes; CodeMirror (and JS strings) speak UTF-16
@@ -92,28 +93,32 @@ function highlightUtf16(doc: string): Uint32Array {
   return out;
 }
 
-// Catppuccin Latte (light) — the same palette as highlight-style.ts, so a Nota editor sits
-// cohesively beside consumers' other CM panes on a light theme.
-const teal = "#179299";
-const blue = "#1e66f5";
-const yellow = "#df8e1d";
-const lavender = "#7287fd";
-const maroon = "#e64553";
-const mauve = "#8839ef";
-const red = "#d20f39";
-const green = "#40a02b";
-const peach = "#fe640b";
-const pink = "#ea76cb";
-const overlay = "#7c7f93";
-const muted = "#8c8fa1";
+// Catppuccin Latte (light) — the shared palette (palette.ts), so a Nota editor sits cohesively
+// beside consumers' other CM panes on a light theme.
+const {
+  teal,
+  blue,
+  yellow,
+  lavender,
+  maroon,
+  mauve,
+  red,
+  green,
+  peach,
+  pink,
+  overlay,
+  muted
+} = PALETTE;
 
 /**
  * Kind-name → CSS style, keyed by the reader's stable kebab-case kind names
  * (`highlightKindNames()`). Ordered under-layers → overlays: CM6 puts BOTH classes on a text run
  * where spans overlap, and with equal specificity the *later* stylesheet rule wins — so `sigil`
  * must come after `heading` for the `@`/`#` bytes inside a heading to read as markers.
+ * Exported for consumers deriving their own kind coloring (the playground's token dump); a test
+ * guards key-set equality with `highlightKindNames()`.
  */
-const KIND_STYLES: Record<string, Record<string, string>> = {
+export const KIND_STYLES: Record<string, Record<string, string>> = {
   // Under-layers (whole-construct spans that children overlay).
   heading: { color: red, fontWeight: "700" },
   "emphasis-strong": { fontWeight: "700" },

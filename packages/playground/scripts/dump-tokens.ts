@@ -23,41 +23,30 @@ import { classHighlighter, highlightTree } from "@lezer/highlight";
 import {
   embeddedRegions,
   highlightSpans,
+  KIND_STYLES,
   languageFor
 } from "@nota-lang/codemirror";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
 
-/** Kind → terminal style, mirroring nota-mode's Catppuccin-Latte CM6 theme. */
+/**
+ * Kind → terminal style, **derived** from the editor's `KIND_STYLES` (the CM6 kind theme) — the
+ * hand-mirrored copy here once drifted two kinds behind the reader. Text decorations that don't
+ * translate to ANSI (strike-through) render default.
+ */
 const KIND_COLORS: Record<
   string,
   { color?: string; bold?: boolean; italic?: boolean }
-> = {
-  heading: { color: "#d20f39", bold: true },
-  "emphasis-strong": { bold: true },
-  "emphasis-em": { italic: true },
-  math: { color: "#40a02b" },
-  code: { color: "#40a02b" },
-  "style-text": { color: "#40a02b" },
-  verbatim: { color: "#40a02b" },
-  sigil: { color: "#179299" },
-  "tag-host": { color: "#1e66f5" },
-  "tag-component": { color: "#df8e1d" },
-  "prop-name": { color: "#7287fd" },
-  interpolation: { color: "#e64553" },
-  "control-keyword": { color: "#8839ef" },
-  "heading-marker": { color: "#d20f39", bold: true },
-  "list-marker": { color: "#179299" },
-  "math-delim": { color: "#7c7f93" },
-  "code-delim": { color: "#7c7f93" },
-  "code-lang": { color: "#1e66f5" },
-  escape: { color: "#ea76cb" },
-  "js-keyword": { color: "#8839ef" },
-  "js-string": { color: "#40a02b" },
-  "js-number": { color: "#fe640b" },
-  "js-comment": { color: "#8c8fa1", italic: true },
-  "js-operator": { color: "#179299" }
-};
+> = Object.fromEntries(
+  Object.entries(KIND_STYLES).map(([kind, style]) => [
+    kind,
+    {
+      color: style.color,
+      bold: style.fontWeight === "700",
+      italic: style.fontStyle === "italic"
+    }
+  ])
+);
 
 /**
  * Embedded sub-language tag → terminal style, mirroring the Catppuccin `HighlightStyle` the editor

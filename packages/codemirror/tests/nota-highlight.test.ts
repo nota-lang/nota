@@ -462,3 +462,14 @@ describe("embedded highlighting end-to-end (embeddedHighlightSpans)", () => {
     }
   });
 });
+
+describe("kind coverage (reader ↔ KIND_STYLES sync)", () => {
+  it("KIND_STYLES keys are exactly highlightKindNames() (both directions)", async () => {
+    const { highlightKindNames } = await import("@nota-lang/compiler/reader");
+    const { KIND_STYLES } = await import("../src/nota-mode");
+    const kinds = highlightKindNames();
+    const styled = Object.keys(KIND_STYLES);
+    expect(styled.filter(k => !kinds.includes(k))).toEqual([]);
+    expect(kinds.filter(k => !styled.includes(k))).toEqual([]);
+  });
+});

@@ -11,16 +11,10 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import type { Extension } from "@codemirror/state";
 import { tags as t } from "@lezer/highlight";
 
-// Catppuccin Latte (light) — readable on the white/light panes; mirrors the editor's kind theme.
-const mauve = "#8839ef";
-const green = "#40a02b";
-const peach = "#fe640b";
-const blue = "#1e66f5";
-const yellow = "#df8e1d";
-const sky = "#04a5e5";
-const overlay = "#7c7f93";
-const muted = "#8c8fa1";
-const red = "#d20f39";
+import { PALETTE } from "./palette";
+
+// Catppuccin Latte (light) — the shared palette (palette.ts); mirrors the editor's kind theme.
+const { mauve, green, peach, blue, yellow, sky, overlay, muted, red } = PALETTE;
 
 /**
  * The Catppuccin-Latte {@link HighlightStyle}. Exported so the editor's embedded sub-language

@@ -26,6 +26,8 @@
 import { type Fact, textOf, useDocState } from "@nota-lang/core";
 import { For, type JSX, onMount, type ParentProps } from "solid-js";
 
+import { FACT_KINDS } from "./doc-state";
+
 interface DefinitionFact extends Fact {
   key: string;
   labelText?: string;
@@ -66,7 +68,7 @@ export function Definition(
     );
   }
   const labelText = textOfValue(props.label);
-  state.register("definition", {
+  state.register(FACT_KINDS.definition, {
     key,
     labelText,
     bank: () => (props.tooltip != null ? props.tooltip : (labelText ?? key))
@@ -212,7 +214,7 @@ export function resetDefTooltipHandlersForTest(): void {
 export function DefBank(): JSX.Element {
   const state = useDocState();
   const defs = () => {
-    const all = state.live("definition") as DefinitionFact[];
+    const all = state.live(FACT_KINDS.definition) as DefinitionFact[];
     const seen = new Set<string>();
     for (const d of all) {
       if (seen.has(d.key)) {

@@ -17,7 +17,12 @@
  * one, with a warning) → plain `<pre><code>`.
  */
 
-import { type ResolvedChild, textOf } from "@nota-lang/core";
+import {
+  decodeEntities,
+  HYDRATION_KEY_ATTR,
+  type ResolvedChild,
+  textOf
+} from "@nota-lang/core";
 import {
   createHighlighterCoreSync,
   type DecorationItem,
@@ -61,6 +66,21 @@ const BASE_LANGS = [
 ];
 const BASE_THEMES = [githubLight, githubDark];
 
+/**
+ * The fence languages the curated default grammar set renders — shiki registration names +
+ * their shiki-declared aliases, introspected from the grammars themselves (not a hand list).
+ * Editors mirror this to decide what to sub-tokenize (`@nota-lang/codemirror` guards coverage).
+ */
+export const BASE_LANG_NAMES: readonly string[] = BASE_LANGS.flatMap(g => [
+  g.name,
+  ...(g.aliases ?? [])
+]);
+
+/** The preloaded theme names (`lstset({ theme })` accepts these without extra registration). */
+export const BASE_THEME_NAMES: readonly string[] = BASE_THEMES.flatMap(t =>
+  t.name === undefined ? [] : [t.name]
+);
+
 const engine = createJavaScriptRegexEngine();
 let cached: { key: string; hl: HighlighterCore } | null = null;
 
@@ -103,17 +123,7 @@ export function resetCodeWarningsForTest(): void {
 // ---------------------------------------------------------------------------------------------
 
 /** Hydration bookkeeping attributes that must not ride into a decoration's properties. */
-const BOOKKEEPING_ATTRS = new Set(["data-hk"]);
-
-const ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'"
-};
-const decodeEntities = (v: string): string =>
-  v.replace(/&(?:amp|lt|gt|quot|#39);/g, m => ENTITIES[m]);
+const BOOKKEEPING_ATTRS = new Set([HYDRATION_KEY_ATTR]);
 
 /** The root tag + attributes of a resolved element part (DOM node or SSR chunk), if any. */
 function partElement(

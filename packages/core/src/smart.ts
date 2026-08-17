@@ -52,7 +52,7 @@ const EXCLUDED_TAGS = new Set([
 ]);
 
 /** The per-element opt-out attribute (`@span[data-nota-nosmart: true]{…}`). */
-const NOSMART_ATTR = "data-nota-nosmart";
+export const NOSMART_ATTR = "data-nota-nosmart";
 
 /** HTML void elements (never push nesting depth in the chunk walk). */
 const VOID_TAGS = new Set([

@@ -41,6 +41,7 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { FRAMEWORK_PACKAGES } from "@nota-lang/compiler";
 import { nota } from "@nota-lang/vite";
 import type { InlineConfig, Plugin as VitePlugin } from "vite";
 
@@ -150,7 +151,12 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
   const anchor = join(resolveFrom, "package.json");
-  const pinned = /^(?:solid-js|@nota-lang\/(?:core|prelude))(?:\/|$)/;
+  // Derived from the compiler's framework-package list (the same family the vite plugin dedupes)
+  // — the 2026-08 core rename slipped past this regex while it was hand-written.
+  const escaped = FRAMEWORK_PACKAGES.map(p =>
+    p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  );
+  const pinned = new RegExp(`^(?:${escaped.join("|")})(?:\\/|$)`);
   return {
     name: "nota-cli:pinned-resolver",
     enforce: "pre",

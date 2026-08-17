@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
+import wasm from "vite-plugin-wasm";
 
 /**
  * Two vitest projects, because Solid ships two builds selected by export conditions and
@@ -21,13 +22,16 @@ export default defineConfig(({ mode }) => ({
   test: {
     projects: [
       {
-        plugins: [solid({ ssr: true, solid: { hydratable: true } })],
+        // wasm(): the emit-surface test loads the reader through @nota-lang/compiler, whose
+        // `.wasm` ESM import needs the plugin under vitest's inlining (same as the compiler's
+        // own vitest config).
+        plugins: [solid({ ssr: true, solid: { hydratable: true } }), wasm()],
         resolve: { conditions: ["node"] },
         ssr: { resolve: { conditions: ["node"] } },
         test: {
           name: "ssr",
           environment: "node",
-          include: ["tests/render.test.tsx"],
+          include: ["tests/render.test.tsx", "tests/emit-surface.test.ts"],
           deps: inlineDeps
         }
       },

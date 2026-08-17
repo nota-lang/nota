@@ -91,6 +91,21 @@ function titleTextOf(parts: ResolvedChild[]): string {
 /** The visible unresolved-forward-reference placeholder (unseeded renders only; see module docs). */
 const PENDING = "?";
 
+/**
+ * The doc-state **fact kinds** this prelude registers — the JSON keys of the SSG snapshot wire
+ * format (`@nota-lang/core`'s `Snapshot`). One named copy: other packages extending the store
+ * against these kinds (paper's `Figure` registers a `definition` fact) import them instead of
+ * re-typing the strings. (Paper-owned kinds like `figure` live with paper.)
+ */
+export const FACT_KINDS = {
+  heading: "heading",
+  label: "label",
+  definition: "definition",
+  footnote: "footnote",
+  footnoteText: "footnote-text",
+  cite: "cite"
+} as const;
+
 // =============================================================================================
 // Heading + numbering
 // =============================================================================================
@@ -314,7 +329,7 @@ export function Ref(props: ParentProps & { id?: string }): JSX.Element {
   const hasAuthored = () => resolved.toArray().some(c => c != null);
 
   const target = (): RefTarget => {
-    const defs = (state.read("definition") as DefFact[]).filter(
+    const defs = (state.read(FACT_KINDS.definition) as DefFact[]).filter(
       d => d.key === key
     );
     if (defs.length > 1) {

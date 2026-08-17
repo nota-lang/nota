@@ -2,18 +2,8 @@
  * textOf — see-through text extraction over resolved children.
  */
 
+import { decodeEntities } from "./entities";
 import { isSSRChunk, type ResolvedChild } from "./reforest";
-
-const ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'"
-};
-
-const decodeEntities = (s: string): string =>
-  s.replace(/&(?:amp|lt|gt|quot|#39);/g, m => ENTITIES[m]);
 
 /**
  * The plain text of resolved children — `textContent` on the client, tag-strip + entity-decode

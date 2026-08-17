@@ -34,6 +34,34 @@ import * as reader from "./reader.js";
 /** The Solid-runtime module the emit's structural names are bound to. */
 export const CORE_RUNTIME_MODULE = "@nota-lang/core";
 
+/** The default module the ambient prelude binds from ({@link PreludeOptions.module}). */
+export const PRELUDE_MODULE = "@nota-lang/prelude";
+
+/**
+ * Every module {@link compile} may prepend an import for — the framework-owned module family.
+ * Integrator resolution policy derives from this one list (the vite plugin's emit-import
+ * fallbacks, the CLI's pinned resolver, the playground's module map) instead of re-listing the
+ * specifiers per package.
+ */
+export const FRAMEWORK_MODULES: readonly string[] = [
+  CORE_RUNTIME_MODULE,
+  PRELUDE_MODULE,
+  "solid-js",
+  "solid-js/web"
+];
+
+/** The unique package roots of {@link FRAMEWORK_MODULES} (dedupe/pinning is per-package). */
+export const FRAMEWORK_PACKAGES: readonly string[] = [
+  ...new Set(
+    FRAMEWORK_MODULES.map(m =>
+      m
+        .split("/")
+        .slice(0, m.startsWith("@") ? 2 : 1)
+        .join("/")
+    )
+  )
+];
+
 /**
  * The `solid-js` ambient surface (design/solid.md): the state/control-flow names a document's
  * `%`-code may reference free. Replaces the old React-hook ambient set — documents write Solid
@@ -193,7 +221,7 @@ function preludeImport(
   if (prelude === false) {
     return "";
   }
-  const module = prelude?.module ?? "@nota-lang/prelude";
+  const module = prelude?.module ?? PRELUDE_MODULE;
   const ambient = new Set<string>([
     ...AMBIENT_PRELUDE_NAMES,
     ...(prelude?.extraNames ?? [])

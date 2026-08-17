@@ -33,7 +33,7 @@ import * as solidWeb from "solid-js/web";
  * (`solid-js/web`), the compiler-prepended ambient bindings, and user `%import`s of the same.
  * Anything else is a pointed error — relative paths and arbitrary packages need a real build.
  */
-const MODULE_MAP: Record<string, Record<string, unknown>> = {
+export const MODULE_MAP: Record<string, Record<string, unknown>> = {
   "solid-js": solidJs as unknown as Record<string, unknown>,
   "solid-js/web": solidWeb as unknown as Record<string, unknown>,
   "@nota-lang/core": notaSolid as unknown as Record<string, unknown>,
