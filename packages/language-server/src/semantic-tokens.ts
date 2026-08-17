@@ -72,11 +72,12 @@ export const NOTA_TOKEN_TYPES = [
   "notaStyle"
 ] as const;
 
-/** The semantic-token **modifier legend** — the four Nota under-layers ride as modifier bits. */
+/** The semantic-token **modifier legend** — the five Nota under-layers ride as modifier bits. */
 export const NOTA_TOKEN_MODIFIERS = [
   "notaHeading",
   "notaStrong",
   "notaEmphasis",
+  "notaStrike",
   "notaMath"
 ] as const;
 
@@ -92,7 +93,7 @@ const modBit = (name: (typeof NOTA_TOKEN_MODIFIERS)[number]): number =>
   1 << NOTA_TOKEN_MODIFIERS.indexOf(name);
 
 /**
- * The four **under-layer** highlight kinds: each contributes a modifier bit, and a base token type
+ * The five **under-layer** highlight kinds: each contributes a modifier bit, and a base token type
  * for the runs it covers alone (a heading's/emphasis's/math's text). When an overlay covers the same
  * bytes, the overlay wins the type and the under-layer rides as a modifier only.
  */
@@ -105,6 +106,10 @@ const UNDER_LAYERS: Record<string, { base: number; modifier: number }> = {
   "emphasis-em": {
     base: typeIndex("notaEmphasis"),
     modifier: modBit("notaEmphasis")
+  },
+  "emphasis-strike": {
+    base: typeIndex("notaEmphasis"),
+    modifier: modBit("notaStrike")
   },
   math: { base: typeIndex("notaMath"), modifier: modBit("notaMath") }
 };
@@ -152,6 +157,8 @@ function overlayType(kind: string): number {
       return typeIndex("operator");
     case "style-text":
       return typeIndex("notaStyle");
+    case "comment":
+      return typeIndex("comment");
     default:
       return -1;
   }

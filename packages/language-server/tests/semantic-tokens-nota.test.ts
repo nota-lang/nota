@@ -139,3 +139,23 @@ describe("notaSemanticTokens (end-to-end token stream)", () => {
     expect(notaSemanticTokens(src)).toEqual(notaSemanticTokens(src));
   });
 });
+
+// ---------------------------------------------------------------------------------------------------
+
+describe("kind coverage (reader ↔ token-map sync)", () => {
+  // The reader's kind list is the wire truth (`highlightKindNames()`); every kind must map to a
+  // token when flattened alone — as an overlay type or an under-layer base+modifier. This is the
+  // guard that caught `comment` and `emphasis-strike` being silently dropped after the 2026-08
+  // sugar wave added them.
+  test("every reader highlight kind yields a token (none silently dropped)", async () => {
+    const { highlightKindNames } = await import("@nota-lang/compiler/reader");
+    for (const kind of highlightKindNames()) {
+      const runs = flattenSpans([{ start: 0, end: 1, kind }]);
+      expect(runs.length, `kind "${kind}" produced no run`).toBeGreaterThan(0);
+      expect(
+        runs[0].tokenType,
+        `kind "${kind}" mapped to no token type`
+      ).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
