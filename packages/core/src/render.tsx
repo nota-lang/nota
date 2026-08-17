@@ -8,7 +8,7 @@
  * reproduces the server bytes, then releases to live reactivity.
  */
 
-import type { JSX } from "solid-js";
+import { type JSX, sharedConfig } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
 import { runRenderResets } from "./render-reset";
@@ -42,6 +42,43 @@ export interface RenderedDocument {
 }
 
 /**
+ * **Pass 1 alone**: render `Doc` into a throwaway string purely to collect its doc-state facts,
+ * and return the snapshot — the seed a converged pass 2 renders against.
+ *
+ * Factored out of {@link renderDocument} because a host framework may need the seed *while it is
+ * already rendering* (a SolidStart route wrapper runs inside the page's own `renderToString`, and
+ * so cannot delegate the whole document to a driver). That case is the reason for the
+ * `sharedConfig.context` save/restore: `renderToString` installs a fresh context — hydration-key
+ * counter included — and never restores the previous one, so a nested call would renumber the
+ * enclosing render's remaining keys and break hydration. Both are synchronous, which is what
+ * makes save/restore sufficient.
+ *
+ * Runs the registered render resets ({@link onRenderReset}) first, for the reason in
+ * {@link renderDocument}.
+ */
+export function collectDocState(
+  Doc: DocComponent,
+  options: RenderDocumentOptions = {}
+): Snapshot {
+  const outer = sharedConfig.context;
+  const state = createDocState(undefined, { smart: options.smart });
+  runRenderResets();
+  try {
+    renderToString(
+      () => (
+        <DocStateContext.Provider value={state}>
+          <Doc />
+        </DocStateContext.Provider>
+      ),
+      { renderId: options.renderId }
+    );
+  } finally {
+    sharedConfig.context = outer;
+  }
+  return state.snapshot();
+}
+
+/**
  * SSG: render `Doc` twice. Pass 1 populates the store (forward reads see placeholders; its HTML
  * is discarded). Pass 2 renders with pass 1's snapshot pinned as the seed, so forward references
  * are correct in the static HTML. Pass 2's registrations must reproduce the seed — a mismatch
@@ -59,17 +96,7 @@ export function renderDocument(
 ): RenderedDocument {
   const renderOptions = { renderId: options.renderId };
   const stateOptions = { smart: options.smart };
-  const pass1 = createDocState(undefined, stateOptions);
-  runRenderResets();
-  renderToString(
-    () => (
-      <DocStateContext.Provider value={pass1}>
-        <Doc />
-      </DocStateContext.Provider>
-    ),
-    renderOptions
-  );
-  const seed = pass1.snapshot();
+  const seed = collectDocState(Doc, options);
 
   const pass2 = createDocState(seed, stateOptions);
   runRenderResets();
@@ -96,12 +123,20 @@ export function renderDocument(
 export const DOC_STATE_ID = "nota-doc-state";
 
 /**
+ * The snapshot as embeddable script *content*: JSON with `<` escaped, so `</script>`-shaped
+ * content cannot break out of the element. Exported for hosts that build the `<script>` as a
+ * framework element rather than raw HTML (`@nota-lang/solid-start` renders it as JSX so both
+ * sides of hydration produce identical bytes).
+ */
+export function docStateJson(state: Snapshot): string {
+  return JSON.stringify(state).replace(/</g, "\\u003c");
+}
+
+/**
  * The embeddable snapshot: `<script type="application/json" id="nota-doc-state">…</script>`.
- * `<` is escaped so `</script>`-shaped content cannot break out of the element.
  */
 export function docStateScript(state: Snapshot): string {
-  const json = JSON.stringify(state).replace(/</g, "\\u003c");
-  return `<script type="application/json" id="${DOC_STATE_ID}">${json}</script>`;
+  return `<script type="application/json" id="${DOC_STATE_ID}">${docStateJson(state)}</script>`;
 }
 
 /** The default seed transport: the page's embedded `#nota-doc-state` snapshot script. */

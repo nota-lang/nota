@@ -14,9 +14,11 @@ import { describe, expect, test } from "vitest";
 import {
   Attrs,
   categorize,
+  collectDocState,
   createDocState,
   DOC_STATE_ID,
   DocStateContext,
+  docStateJson,
   docStateScript,
   NotaDoc,
   OlLi,
@@ -194,6 +196,59 @@ describe("doc-state store", () => {
   });
 });
 
+describe("collectDocState (pass 1 as a seam)", () => {
+  test("returns the same seed renderDocument converges on", () => {
+    expect(collectDocState(Doc)).toEqual(renderDocument(Doc).state);
+  });
+
+  test("nested inside an enclosing render, hydration keys are undisturbed", () => {
+    // The load-bearing property for host frameworks that call pass 1 from inside their own
+    // renderToString (SolidStart route wrappers): renderToString installs a fresh
+    // sharedConfig.context and never restores it, so without the save/restore the enclosing
+    // render's remaining keys would renumber and hydration would miss.
+    const Marked = () => (
+      <div>
+        <span>a</span>
+        <span>b</span>
+      </div>
+    );
+    const keysOf = (html: string) =>
+      [...html.matchAll(/data-hk="([^"]*)"/g)].map(m => m[1]);
+
+    const baseline = renderToString(() => (
+      <div>
+        <Marked />
+        <Marked />
+      </div>
+    ));
+    const withNested = renderToString(() => (
+      <div>
+        <Marked />
+        {(() => {
+          collectDocState(Doc);
+          return null;
+        })()}
+        <Marked />
+      </div>
+    ));
+    expect(keysOf(baseline).length).toBeGreaterThan(0);
+    expect(keysOf(withNested)).toEqual(keysOf(baseline));
+  });
+
+  test("each call starts from the baked config baseline", () => {
+    // Same reset discipline as renderDocument's passes — otherwise a host calling pass 1 twice
+    // would inherit the previous document's end-state.
+    let resets = 0;
+    const dispose = onRenderReset(() => {
+      resets += 1;
+    });
+    collectDocState(Doc);
+    collectDocState(Doc);
+    dispose();
+    expect(resets).toBe(2);
+  });
+});
+
 describe("renderDocument (two-pass SSG)", () => {
   test("forward references resolve: the Toc above its headings lists them", () => {
     const { html, state } = renderDocument(Doc);
@@ -359,6 +414,13 @@ describe("docStateScript", () => {
     expect(JSON.parse(inner)).toEqual({
       heading: [{ text: "</script>alert(1)" }]
     });
+  });
+
+  test("docStateJson is the same escaped content, without the wrapper", () => {
+    const state = { heading: [{ text: "</script>alert(1)" }] };
+    expect(docStateScript(state)).toContain(docStateJson(state));
+    expect(docStateJson(state)).not.toContain("</script>alert");
+    expect(JSON.parse(docStateJson(state))).toEqual(state);
   });
 });
 

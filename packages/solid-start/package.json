@@ -1,0 +1,54 @@
+{
+  "name": "@nota-lang/solid-start",
+  "version": "0.1.0",
+  "description": "SolidStart integration for .nota documents: a route is a document, two-pass rendered so forward references converge in the prerendered bytes.",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/document.js",
+  "types": "dist/document.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/document.d.ts",
+      "default": "./dist/document.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./config": {
+      "types": "./dist/lib.d.ts",
+      "default": "./dist/lib.js"
+    }
+  },
+  "type": "module",
+  "depot": {
+    "platform": "browser",
+    "target": "lib",
+    "depot-version": "0.3.4"
+  },
+  "dependencies": {
+    "@nota-lang/core": "workspace:*",
+    "@nota-lang/vite": "workspace:*"
+  },
+  "peerDependencies": {
+    "@solidjs/start": "^2.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@nota-lang/prelude": "workspace:*",
+    "@solidjs/start": "^2.0.0",
+    "jsdom": "^29.1.1",
+    "solid-js": "^1.9.3",
+    "vite": "^8.0.16",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.8",
+    "vite-plugin-wasm": "^3.5.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nota-lang/nota.git",
+    "directory": "packages/solid-start"
+  }
+}
