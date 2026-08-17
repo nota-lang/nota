@@ -159,6 +159,21 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
   const dimmed = (theta: number) =>
     props.focus !== null && props.focus !== theta;
 
+  // End labels: series can converge at the right edge, so spread colliding labels
+  // apart (≥14px) and give any label pushed off its line a short leader.
+  const labelYs = createMemo<Map<number, number>>(() => {
+    const entries = lines()
+      .map(l => ({ theta: l.s.theta, y: props.def.y(l.end[1]) }))
+      .sort((a, b) => a.y - b.y);
+    for (let i = 1; i < entries.length; i++) {
+      const prev = entries[i - 1];
+      if (entries[i].y - prev.y < 14) {
+        entries[i].y = prev.y + 14;
+      }
+    }
+    return new Map(entries.map(e => [e.theta, e.y]));
+  });
+
   // The crosshair: snap to the nearest measured point count.
   const [cursor, setCursor] = createSignal<number | null>(null);
   const onMove = (e: PointerEvent) => {
@@ -285,10 +300,25 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
                   r={4}
                   fill={l.s.color}
                 />
+                <Show
+                  when={
+                    Math.abs(
+                      (labelYs().get(l.s.theta) ?? 0) - props.def.y(l.end[1])
+                    ) > 5
+                  }
+                >
+                  <line
+                    class="plot-leader"
+                    x1={X(l.end[0]) + 6}
+                    y1={props.def.y(l.end[1])}
+                    x2={X(l.end[0]) + 9}
+                    y2={(labelYs().get(l.s.theta) ?? 0) - 4}
+                  />
+                </Show>
                 <text
                   class="plot-end-label"
                   x={X(l.end[0]) + 10}
-                  y={props.def.y(l.end[1]) + 4}
+                  y={(labelYs().get(l.s.theta) ?? props.def.y(l.end[1])) + 4}
                 >
                   {l.s.label}
                 </text>

@@ -534,12 +534,24 @@ export async function buildNotaFile(
     let clientJsRel: string | undefined;
     if (hydrated) {
       const client = await buildClient(ctx, outDir);
-      cssFiles = client.cssFiles;
       clientJsRel = client.entryChunk ?? "assets/index.js";
-      // The client build owns CSS emission (skip the SSR copies — same content,
-      // maybe-different hashes would orphan); non-CSS assets are copied so SSR-baked URLs
-      // exist even if hashes ever diverged across builds.
-      copySsrAssets(join(ctx.workDir, "ssr"), ssr.assetFiles, outDir);
+      if (client.cssFiles.length > 0) {
+        // The client build owns CSS emission (skip the SSR copies — same content,
+        // maybe-different hashes would orphan); non-CSS assets are copied so SSR-baked
+        // URLs exist even if hashes ever diverged across builds.
+        cssFiles = client.cssFiles;
+        copySsrAssets(join(ctx.workDir, "ssr"), ssr.assetFiles, outDir);
+      } else {
+        // The IIFE client build emits no CSS assets under rolldown-vite (observed 8.1:
+        // CSS in the graph is neither emitted nor JS-injected), so the SSR build's
+        // emission is authoritative — copy + link it exactly like the static path.
+        cssFiles = ssr.cssFiles;
+        copySsrAssets(
+          join(ctx.workDir, "ssr"),
+          [...ssr.assetFiles, ...ssr.cssFiles],
+          outDir
+        );
+      }
     } else {
       copySsrAssets(
         join(ctx.workDir, "ssr"),

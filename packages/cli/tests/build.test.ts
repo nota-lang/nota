@@ -105,6 +105,20 @@ describe("the asset pipeline", () => {
     // The svg URL is baked page-relative into the img.
     expect(out.html).toMatch(/<img[^>]*src="\.\/assets\/[^"]+\.svg"/);
   });
+
+  test("a hydrating build links CSS too (the IIFE client emits none; SSR's is used)", async () => {
+    const outDir = join(tmpBase, "asset-hydrated");
+    const out = await buildNotaFile(join(integrationDir, "asset.nota"), {
+      resolveFrom: pkgRoot,
+      outDir
+    });
+    expect(out.hydrated).toBe(true);
+    expect(out.cssFiles.length).toBe(1);
+    expect(out.html).toContain(
+      `<link rel="stylesheet" href="./${out.cssFiles[0]}" />`
+    );
+    expect(existsSync(join(outDir, out.cssFiles[0]))).toBe(true);
+  });
 });
 
 describe("--setup", () => {
