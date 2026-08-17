@@ -37,5 +37,9 @@
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/language-server"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@nota-lang/prelude": "workspace:*",
+    "solid-js": "^1.9.3"
+  }
 }

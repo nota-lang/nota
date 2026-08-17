@@ -1,0 +1,51 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`real upstream signatures (change → review the preamble declaration) > prelude component surface 1`] = `
+"Tex: (props: import("solid-js").ParentProps & { display?: boolean; }) => import("solid-js").JSX.Element
+CodeInline: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
+CodeBlock: (props: import("solid-js").ParentProps & { lang?: string; }) => import("solid-js").JSX.Element
+Heading: (props: import("solid-js").ParentProps & { rank?: number; id?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
+Title: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
+Toc: (props: { depth?: number; }) => import("solid-js").JSX.Element
+Label: (props: { id?: string; }) => import("solid-js").JSX.Element
+Ref: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
+Definition: (props: import("solid-js").ParentProps & { id?: string; label?: import("solid-js").JSX.Element; tooltip?: import("solid-js").JSX.Element; block?: boolean; }) => import("solid-js").JSX.Element
+Footnote: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
+FootnoteMark: (props: { label?: string; }) => import("solid-js").JSX.Element
+FootnoteText: (props: import("solid-js").ParentProps & { label?: string; }) => import("solid-js").JSX.Element
+Footnotes: () => import("solid-js").JSX.Element
+FootnotesList: () => import("solid-js").JSX.Element
+Cite: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
+Bibliography: () => import("solid-js").JSX.Element
+lstset: (opts: import("@nota-lang/prelude").LstsetOptions) => void
+mathset: (opts: import("@nota-lang/prelude").MathsetOptions) => void
+secset: (opts: import("@nota-lang/prelude").SecsetOptions) => void
+bibset: (opts: import("@nota-lang/prelude").BibsetOptions) => void
+texRef: (id: string, tex: string) => string"
+`;
+
+exports[`real upstream signatures (change → review the preamble declaration) > solid-js ambient surface 1`] = `
+"createSignal: { <T>(): import("solid-js").Signal<T | undefined>; <T>(value: T, options?: import("solid-js").SignalOptions<T>): import("solid-js").Signal<T>; }
+createMemo: { <Next extends Prev, Prev = Next>(fn: import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Prev>, Next>): import("solid-js").Accessor<Next>; <Next extends Prev, Init = Next, Prev = Next>(fn: import("solid-js").EffectFunction<Init | Prev, Next>, value: Init, options?: import("solid-js").MemoOptions<Next>): import("solid-js").Accessor<Next>; }
+createEffect: { <Next>(fn: import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>, Next>): void; <Next, Init = Next>(fn: import("solid-js").EffectFunction<Init | Next, Next>, value: Init, options?: import("solid-js").EffectOptions & { render?: boolean; }): void; }
+createResource: { <T, R = unknown, I = T>(fetcher: (k: true, info: import("solid-js").ResourceFetcherInfo<T | I, R>) => T | Promise<T>, options: import("solid-js").ResourceOptions<T | I, true> & { initialValue: I; }): import("solid-js").InitializedResourceReturn<T | I, R>; <T, R = unknown>(fetcher: import("solid-js").ResourceFetcher<true, T, R>, options?: import("solid-js").ResourceOptions<import("solid-js").NoInfer<T>, true>): import("solid-js").ResourceReturn<T, R>; <T, S, R = unknown, I = T>(source: import("solid-js").ResourceSource<S>, fetcher: (k: S, info: import("solid-js").ResourceFetcherInfo<T | I, R>) => T | Promise<T>, options: import("solid-js").ResourceOptions<T | I, S> & { initialValue: I; }): import("solid-js").InitializedResourceReturn<T | I, R>; <T, S, R = unknown>(source: import("solid-js").ResourceSource<S>, fetcher: import("solid-js").ResourceFetcher<S, T, R>, options?: import("solid-js").ResourceOptions<import("solid-js").NoInfer<T>, S>): import("solid-js").ResourceReturn<T, R>; }
+createContext: { <T>(defaultValue?: undefined, options?: import("solid-js").EffectOptions): import("solid-js").Context<T | undefined>; <T>(defaultValue: T, options?: import("solid-js").EffectOptions): import("solid-js").Context<T>; }
+useContext: <T>(context: import("solid-js").Context<T>) => T
+batch: <T>(fn: import("solid-js").Accessor<T>) => T
+untrack: <T>(fn: import("solid-js").Accessor<T>) => T
+on: { <S, Next extends Prev, Prev = Next>(deps: import("solid-js").AccessorArray<S> | import("solid-js").Accessor<S>, fn: import("solid-js").OnEffectFunction<S, undefined | import("solid-js").NoInfer<Prev>, Next>, options?: import("solid-js").OnOptions & { defer?: false; }): import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>, import("solid-js").NoInfer<Next>>; <S, Next extends Prev, Prev = Next>(deps: import("solid-js").AccessorArray<S> | import("solid-js").Accessor<S>, fn: import("solid-js").OnEffectFunction<S, undefined | import("solid-js").NoInfer<Prev>, Next>, options: import("solid-js").OnOptions | { defer: true; }): import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>>; }
+onMount: (fn: () => void) => void
+onCleanup: <T extends () => any>(fn: T) => T
+children: (fn: import("solid-js").Accessor<import("solid-js").JSX.Element>) => import("solid-js").ChildrenReturn
+mergeProps: <T extends unknown[]>(...sources: T) => import("solid-js").MergeProps<T>
+splitProps: <T extends Record<any, any>, K extends [readonly (keyof T)[], ...(readonly (keyof T)[])[]]>(props: T, ...keys: K) => import("solid-js").SplitProps<T, K>
+Show: { <T, TRenderFunction extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed?: false; fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; <T, TRenderFunction extends (item: NonNullable<T>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed: true; fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; }
+For: <T extends readonly any[], U extends import("solid-js").JSX.Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").JSX.Element; children: (item: T[number], index: import("solid-js").Accessor<number>) => U; }) => import("solid-js").JSX.Element
+Index: <T extends readonly any[], U extends import("solid-js").JSX.Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").JSX.Element; children: (item: import("solid-js").Accessor<T[number]>, index: number) => U; }) => import("solid-js").JSX.Element
+Switch: (props: { fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element
+Match: { <T, TRenderFunction extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed?: false; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; <T, TRenderFunction extends (item: NonNullable<T>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed: true; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; }
+Suspense: (props: { fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element
+ErrorBoundary: (props: { fallback: import("solid-js").JSX.Element | ((err: any, reset: () => void) => import("solid-js").JSX.Element); children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element"
+`;
+
+exports[`real upstream signatures (change → review the preamble declaration) > solid-js/web surface 1`] = `"Dynamic: <T extends import("solid-js").ValidComponent>(props: import("solid-js/web").DynamicProps<T>) => import("solid-js").JSX.Element"`;

@@ -34,6 +34,22 @@ import {
  * this namespace types it without any `jsx-runtime` module lookup). `declare global` is legal
  * here because the virtual `.tsx` is a module (it has `export default`).
  */
+/**
+ * The seeded per-tag attribute types of the `JSX.IntrinsicElements` table (over the permissive
+ * open-map base). Structured (not inline strings) so the seeded tag set is introspectable — the
+ * completions test asserts every seeded tag is also offered by `NOTA_HOST_TAGS`.
+ */
+export const SEEDED_INTRINSICS: Record<string, string> = {
+  a: "{ href?: string; target?: string; rel?: string; download?: string | boolean }",
+  img: '{ src?: string; alt?: string; width?: number | string; height?: number | string; loading?: "eager" | "lazy" }',
+  input:
+    "{ type?: string; name?: string; value?: string | number; placeholder?: string; disabled?: boolean; checked?: boolean; required?: boolean; readonly?: boolean }",
+  label: "{ for?: string }",
+  td: "{ colspan?: number; rowspan?: number; headers?: string; scope?: string }",
+  th: "{ colspan?: number; rowspan?: number; headers?: string; scope?: string }",
+  ol: '{ start?: number; reversed?: boolean; type?: "1" | "a" | "A" | "i" | "I" }'
+};
+
 const JSX_NAMESPACE = [
   "interface NotaGlobalAttributes {",
   "  id?: string;",
@@ -55,13 +71,9 @@ const JSX_NAMESPACE = [
   "      children: unknown;",
   "    }",
   "    interface IntrinsicElements {",
-  "      a: NotaGlobalAttributes & { href?: string; target?: string; rel?: string; download?: string | boolean };",
-  '      img: NotaGlobalAttributes & { src?: string; alt?: string; width?: number | string; height?: number | string; loading?: "eager" | "lazy" };',
-  "      input: NotaGlobalAttributes & { type?: string; name?: string; value?: string | number; placeholder?: string; disabled?: boolean; checked?: boolean; required?: boolean; readonly?: boolean };",
-  "      label: NotaGlobalAttributes & { for?: string };",
-  "      td: NotaGlobalAttributes & { colspan?: number; rowspan?: number; headers?: string; scope?: string };",
-  "      th: NotaGlobalAttributes & { colspan?: number; rowspan?: number; headers?: string; scope?: string };",
-  '      ol: NotaGlobalAttributes & { start?: number; reversed?: boolean; type?: "1" | "a" | "A" | "i" | "I" };',
+  ...Object.entries(SEEDED_INTRINSICS).map(
+    ([tag, attrs]) => `      ${tag}: NotaGlobalAttributes & ${attrs};`
+  ),
   "      [tag: string]: NotaGlobalAttributes;",
   "    }",
   "  }",

@@ -13,6 +13,7 @@ import { describe, expect, test } from "vitest";
 import {
   headCompletions,
   headContext,
+  NOTA_HOST_TAGS,
   NOTA_PRELUDE_SLOTS,
   notaCompletionsPlugin,
   scanComponents
@@ -155,5 +156,17 @@ describe("`@tag[|` prop completions via TS (recovery anchor + typed overload)", 
     const items = completionsAt(h, 3); // just after `[` — the recovery anchor
     expect(items.has("href")).toBe(true);
     expect(items.has("target")).toBe(true);
+  });
+});
+
+describe("host-tag list ↔ typed intrinsics table", () => {
+  test("every seeded intrinsic tag is also offered by NOTA_HOST_TAGS", async () => {
+    // The intrinsics table types props for a tag; the host-tag list offers the tag name at `@|`.
+    // A tag typed-but-not-offered would value-check yet never complete.
+    const { SEEDED_INTRINSICS } = await import("../src/preamble-gen");
+    const missing = Object.keys(SEEDED_INTRINSICS).filter(
+      tag => !NOTA_HOST_TAGS.includes(tag)
+    );
+    expect(missing).toEqual([]);
   });
 });

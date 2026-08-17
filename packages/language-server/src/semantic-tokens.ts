@@ -33,6 +33,7 @@
  */
 
 import { highlightSpans } from "@nota-lang/compiler";
+import { lineClassifiers } from "@nota-lang/compiler/reader";
 import type {
   LanguageServicePlugin,
   SemanticToken,
@@ -285,14 +286,21 @@ const DELEGATED_FENCE_LANGS = new Set([
   "json"
 ]);
 
+// The reader's own line-classifier patterns (the lexer's regex sources over the wasm boundary)
+// — the `%`-line rules here can no longer diverge from the parse. The backtick fence has no
+// exported classifier (a procedural scan), so its shape below mirrors the lexer's
+// `scan_fenced_code`: ≥3 ticks, any backtick-free info string, first whitespace token = lang.
+const LINE_CLASSIFIERS = lineClassifiers();
+const PERCENT_LINE = new RegExp(LINE_CLASSIFIERS.percentLine);
+const FENCE_LINE = new RegExp(LINE_CLASSIFIERS.fenceLine);
+const FENCE_CLOSE_LINE = new RegExp(LINE_CLASSIFIERS.fenceCloseLine);
+
 /**
- * The 0-based lines on which the TextMate grammar delegates content to an embedded grammar — the
- * same three categories as the vscode-nota conformance test's delegation-legality check:
- * `%` statement lines, `%%%` statement-fence interiors, and the interiors of code fences whose
- * language tag we ship an embedded grammar for ({@link DELEGATED_FENCE_LANGS}). Fence *delimiter*
- * lines are not delegated (the grammar scopes them itself, and the reader's `code-delim`/`code-lang`
- * kinds are not suppressed anyway). A small line-classifier state machine, kept deliberately in sync
- * with the grammar's `statement-line` / `statement-fence` / `code-fence` rules.
+ * The 0-based lines whose content belongs to an embedded language — `%` statement lines, `%%%`
+ * statement-fence interiors, and the interiors of code fences whose language tag we ship an
+ * embedded grammar for ({@link DELEGATED_FENCE_LANGS}). Fence *delimiter* lines are not
+ * delegated (the reader's `code-delim`/`code-lang` kinds are not suppressed anyway). The
+ * `%`-family classification consumes the reader's own patterns above.
  */
 export function delegatedLines(source: string): Set<number> {
   const delegated = new Set<number>();
@@ -305,7 +313,7 @@ export function delegatedLines(source: string): Set<number> {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (mode.at === "statement-fence") {
-      if (/^\s*%%%\s*$/.test(line)) {
+      if (FENCE_CLOSE_LINE.test(line)) {
         mode = { at: "markup" }; // closing delimiter line — not delegated
       } else {
         delegated.add(i);
@@ -313,7 +321,7 @@ export function delegatedLines(source: string): Set<number> {
       continue;
     }
     if (mode.at === "code-fence") {
-      const close = /^\s*(`{3,})[ \t]*$/.exec(line);
+      const close = /^[ \t]*(`{3,})[ \t]*$/.exec(line);
       if (close && close[1].length === mode.ticks) {
         mode = { at: "markup" }; // closing delimiter line — not delegated
       } else if (mode.isDelegated) {
@@ -322,21 +330,22 @@ export function delegatedLines(source: string): Set<number> {
       continue;
     }
     // markup context
-    if (/^\s*%%%\s*$/.test(line)) {
+    if (FENCE_LINE.test(line)) {
       mode = { at: "statement-fence" };
       continue;
     }
-    const open = /^\s*(`{3,})[ \t]*([A-Za-z0-9_+-]*)[ \t]*$/.exec(line);
+    const open = /^[ \t]*(`{3,})[ \t]*([^`\n]*)$/.exec(line);
     if (open) {
+      const lang = open[2].trim().split(/\s+/)[0] ?? "";
       mode = {
         at: "code-fence",
         ticks: open[1].length,
-        isDelegated: DELEGATED_FENCE_LANGS.has(open[2].toLowerCase())
+        isDelegated: DELEGATED_FENCE_LANGS.has(lang.toLowerCase())
       };
       continue;
     }
-    if (/^\s*%(?!%)/.test(line)) {
-      delegated.add(i); // `%` statement line: rest-of-line is source.ts in the grammar
+    if (PERCENT_LINE.test(line)) {
+      delegated.add(i); // `%` statement line: rest-of-line is embedded JS/TS
     }
   }
   return delegated;
