@@ -62,6 +62,25 @@ Searches forward from point for NEEDLE."
     (should (nota-test--face-of "bold" 'nota-strong))
     (should (nota-test--face-of "bold" 'nota-heading))))
 
+(ert-deftest nota-unclosed-fence-does-not-signal ()
+  "An unclosed fence running to `point-max' must not break fontification.
+The embedded matchers report the span they claimed rather than a
+zero-width match at point: font-lock answers a zero-width match with
+`forward-char' (font-lock.el, \"Beware empty string matches\"), which
+signals `end-of-buffer' at the end of the buffer and aborts the region."
+  (nota-test--with-buffer "```javascript\nlet x = 1;\n"
+    (should (nota-test--face-of "```" 'nota-raw))))
+
+(ert-deftest nota-heading-inside-fence-terminates ()
+  "A `#' line inside a fence is skipped without rewinding the matcher.
+`syntax-ppss' leaves point at its POS, so an unguarded call in
+`nota--match-heading-body' re-matched the same heading forever; a
+regression here manifests as a HANG, not a failed assertion."
+  (nota-test--with-buffer "```\n# Hello\n```\n\n# Real\n"
+    (should-not (nota-test--face-of "# Hello" 'nota-heading 2))
+    (should-not (nota-test--face-of "# Hello" 'nota-delimiter))
+    (should (nota-test--face-of "Real" 'nota-heading))))
+
 (ert-deftest nota-list-markers ()
   (nota-test--with-buffer "- first\n+ second\n3. third\n"
     (should (nota-test--face-of "- " 'nota-delimiter))

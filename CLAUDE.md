@@ -40,16 +40,19 @@ Most tasks need only this file + the package map. For architecture/emit work:
   - **vite** — the `.nota` transform + `nota()` preset. Owns the **one-`solid-js`-per-page
     invariant** via `resolve.dedupe` (`DEDUPED_PACKAGES` = framework set +
     `SOLID_JSX_DIST_PACKAGES`). A new package that ships Solid-compiled JSX in its dist (like
-    paper, explorable) MUST join `SOLID_JSX_DIST_PACKAGES` or astro's derived
+    paper, explorable) MUST join `SOLID_JSX_DIST_PACKAGES` or a host's derived
     `noExternal`/`optimizeDeps` lists silently miss it.
   - **cli** — `nota build doc.nota → doc/`: two programmatic vite builds (SSR render, then
     client) with NODE_ENV pinned; pins `FRAMEWORK_PACKAGES` resolution so a doc builds anywhere;
     links CSS in hydrating builds; zero-JS output for island-free docs.
-  - **astro** — `@nota-lang/astro`, the site-builder integration: renderer pair
-    (`renderDocument`/`hydrateDocument` per island, snapshot on an island attribute), a
-    directive-less `<Doc/>` renders zero-JS through `NoHydration`, `check()` dispatches on the
-    vite transform's `Doc.isNotaDoc` brand, and `astro:config:setup` pins NODE_ENV for builds.
-    Live consumer: nota-lang.org branch `astro`.
+  - **solid-start** — `@nota-lang/solid-start`, the SolidStart v2 integration. A `.nota` module
+    already compiles to a Solid component, which is what a SolidStart route is, so there is no
+    page wrapper and no renderer: `notaRoute(Doc)` supplies the two-pass render from inside the
+    host's own render (core's `collectDocState`), parks the converged snapshot on a
+    request-scoped channel, and `<NotaDocState/>` — placed after `{children}` in the shell —
+    emits it and runs the convergence check. `notaStart()` is the vite preset; note it does NOT
+    offer file-system routing over `.nota`, because SolidStart's router parses route files as
+    TSX to find their exports. Live consumer: nota-lang.org.
   - **language-server** — Volar server: virtual `.tsx` + CodeMappings back to `.nota`. The
     reader's offsets are UTF-8 **bytes**; `src/byte-offsets.ts` is the one byte→UTF-16
     converter, applied at the Volar mapping boundary, diagnostics, and semantic tokens. The
@@ -122,15 +125,17 @@ an example/e2e asserting features the stale dist predates.
   `enableHydration()` uncalled in one of them, so hydration-context nesting is silently OFF.
   Symptoms: `TypeError: template is not a function` inside `Dynamic` (prod solid) or
   `Hydration Mismatch … <shallow key>` (dev solid).
-- **Vite's/Astro's "is production" follows `process.env.NODE_ENV`; the mode only fills it when
-  UNSET.** An ambient value (vitest's `"test"`, a CI stage's) ships solid-js's `development`
-  export condition into production bundles — the cli and the astro integration both pin
-  NODE_ENV around builds; **any new build pipeline must too**. Failure marker: solid's
-  "multiple instances of Solid" banner string in a built bundle (production-artifact tests pin
-  its absence in cli and astro).
-- **Astro's `dev`/`preview` are managed daemons.** After rebuilding dists, run `npx astro dev
-  stop` in the consumer — a stale daemon keeps serving old dists (symptom: a fixed bug
-  persists). Logs: the consumer's `.astro/dev.log`.
+- **Vite's "is production" follows `process.env.NODE_ENV`; the mode only fills it when UNSET.**
+  An ambient value (vitest's `"test"`, a CI stage's) ships solid-js's `development` export
+  condition into production bundles — the cli pins NODE_ENV around builds; **any new build
+  pipeline must too**. Failure marker: solid's "multiple instances of Solid" banner string in a
+  built bundle (a production-artifact test pins its absence in cli). Under SolidStart the
+  inverse also bites: `NODE_ENV=development` makes the Nitro prerender emit ZERO routes and
+  still exit 0.
+- **Markup must parse back to the tree it describes.** HTML tree construction is not a no-op:
+  text in table structure is foster-parented out, and bare `<tr>`s gain an implicit `<tbody>`.
+  The reader's lowering compensates for both (`oxc_transformer/src/nota/lower.rs`) — a document
+  that emits markup the parser rearranges hydrates into a torn page.
 - **macOS zsh:** `noclobber` (`>` fails on existing files — use `>|`); backticks in
   `git commit -m` run command substitution (use `-F`); Bash cwd can reset between calls (use
   absolute paths).
@@ -140,11 +145,11 @@ Distribution is **npm** (`@nota-lang/*`). The ritual: file a PR titled `vX.Y.Z` 
 **`release`** → `pre-release.yml` dry-runs the publish → merging triggers `release.yml`
 (`pnpm -r publish --access public`). Version is stamped in CI from the PR title — no bump
 commits; in-repo versions are placeholders. `pnpm publish` rewrites `workspace:*` deps at pack
-time. Publishes the **9 non-private packages** (astro, cli, codemirror, compiler, core,
-explorable, paper, prelude, vite — the wasm reader ships *inside* `@nota-lang/compiler`'s
+time. Publishes the **9 non-private packages** (cli, codemirror, compiler, core, explorable,
+paper, prelude, solid-start, vite — the wasm reader ships *inside* `@nota-lang/compiler`'s
 `dist/generated/`); language-server and playground are private; `examples/` are never
 published.
 
 ## Build method
-Packages are built in dependency order (reader → core/prelude → vite → cli/astro/playground →
+Packages are built in dependency order (reader → core/prelude → vite → cli/solid-start/playground →
 IDE tiers); every feature ships with tests, green before the next lands.

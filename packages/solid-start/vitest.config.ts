@@ -4,7 +4,7 @@ import solid from "vite-plugin-solid";
 import wasm from "vite-plugin-wasm";
 
 /**
- * The ssr/dom split mirrors packages/core and packages/astro: Solid ships two builds selected by
+ * The ssr/dom split mirrors packages/core: Solid ships two builds selected by
  * export conditions, and one vitest project can only compile one JSX flavor.
  *
  * - **ssr** — Node env + `node` conditions → Solid's server build; covers the route wrapper's

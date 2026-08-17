@@ -149,7 +149,7 @@ No new sigils, no new extent rules, no new highlight kinds (doc-state reuses `Si
 ## Wire format & two-pass
 
 The snapshot collapses to two ordered arrays, `anchor` and `ref` (`FACT_KINDS` shrinks
-accordingly; vite/astro snapshot-shape assertions update). Numbering stays derived at read
+accordingly; vite snapshot-shape assertions update). Numbering stays derived at read
 time — never baked into facts — so convergence and reactive renumbering hold by construction.
 Two-pass, seeding, hydration, `release()`: untouched.
 
@@ -170,6 +170,6 @@ is already deleted.
 - compiler `AMBIENT_PRELUDE_NAMES`, LSP preamble declarations, playground scope: swap
   `FootnoteMark`/`FootnoteText` for `Footnote`'s new props.
 - prelude/core/paper as above; `integration/mega.nota` + `packages/vite/tests/fixtures/*` +
-  cli/vite/astro/paper/codemirror test expectations rewritten to the new forms.
+  cli/vite/paper/codemirror test expectations rewritten to the new forms.
 - Docs: notation.md §Doc-state references + emit-reference rows; NOTA_READER.md `[`-dispatch
   invariant.

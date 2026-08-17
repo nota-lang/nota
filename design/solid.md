@@ -303,7 +303,7 @@ single-sourcing > drift tests > deliberately-manual-with-a-conformance-guard**:
   = ∅`. All emit-surface names (incl. `Tex`/`Heading`/…) are **reserved** — a document binding
   is a diagnostic; per-doc override goes through the integrator's prelude seam.
 - **TS families are single-sourced**: `FRAMEWORK_MODULES`/`FRAMEWORK_PACKAGES` (compiler) feed
-  vite's fallbacks + dedupe, the CLI's pinned-resolver regex, and astro's JSX-dist list; core
+  vite's fallbacks + dedupe and the CLI's pinned-resolver regex; core
   owns the entity decoder and DOM-marker constants; prelude introspects `BASE_LANG_NAMES` from
   the shiki grammars and names the snapshot wire keys (`FACT_KINDS`); codemirror owns the
   palette and exports `KIND_STYLES`.

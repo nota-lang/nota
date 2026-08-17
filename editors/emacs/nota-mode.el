@@ -278,13 +278,14 @@ whole region is protected with `default'."
   (let (found)
     (while (and (not found)
                 (re-search-forward "^[ \t]*%\\([^%\n].*\\)$" limit t))
-      (let ((end (match-end 1)))
+      (let ((beg (match-beginning 1))
+            (end (match-end 1)))
         (unless (nth 3 (syntax-ppss (match-beginning 0)))
-          (nota--fontify-embedded (match-beginning 1) end "")
-          (setq found t))
+          (nota--fontify-embedded beg end "")
+          (setq found (list beg end)))
         (goto-char end)))
     (when found
-      (set-match-data (list (point) (point)))
+      (set-match-data found)
       t)))
 
 (defun nota--match-embedded-fences (limit)
@@ -316,9 +317,9 @@ fences opening before LIMIT; other fences keep their raw paint."
             (nota--fontify-embedded body-beg body-end lang)
             (put-text-property open-beg block-end 'font-lock-multiline t)
             (goto-char block-end)
-            (setq found t)))))
+            (setq found (list open-beg block-end))))))
     (when found
-      (set-match-data (list (point) (point)))
+      (set-match-data found)
       t)))
 
 ;;;; Emphasis matchers
@@ -434,7 +435,7 @@ unpainted (the LSP semantic tokens own it)."
   (let (found)
     (while (and (not found)
                 (re-search-forward "^[ \t]*#\\{1,6\\}[ \t]+\\(.*\\)$" limit t))
-      (unless (nth 3 (syntax-ppss (match-beginning 0)))
+      (unless (save-excursion (nth 3 (syntax-ppss (match-beginning 0))))
         (setq found t)))
     found))
 

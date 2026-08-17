@@ -87,8 +87,8 @@ const SOLID_JSX_DIST_PACKAGES: readonly string[] = [
  * graph with two physical copies (the linked-workspace layout, or a consumer's own solid-js at
  * a different patch version) still bundles exactly one.
  *
- * Consumers: `@nota-lang/astro` prefix-filters this list for its `noExternal`/`optimizeDeps`
- * JSX-dist policy (`astro/src/lib.ts`'s `JSX_DIST_PACKAGES`); `@nota-lang/cli` pins only
+ * Consumers: `@nota-lang/solid-start` re-exports this list for a host that needs its own
+ * `noExternal`/`optimizeDeps` policy; `@nota-lang/cli` pins only
  * `FRAMEWORK_PACKAGES` itself (its own resolver, `cli/src/build.ts`'s `cliResolverPlugin` — a
  * doc's `paper`/`explorable` imports resolve normally from the doc's own node_modules, not the
  * CLI's).
