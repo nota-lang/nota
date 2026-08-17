@@ -1,10 +1,10 @@
 /**
  * Doc-state **sugars** e2e (`tests/fixtures/sugars.nota`): the same full pipeline as
- * ./e2e.test.ts, but the fixture uses ONLY the inline sugar forms — `<label>` anchors, `&ref`
- * cross-references, `[^n]` footnote marks and `[^n]: body` definitions — never the element
- * forms (`@Label[...]`, `@Ref[...]`, `@Footnote{}`). The sugars are reader rewrites *to* the
- * element forms (notation.md §Doc-state references), so the rendered numbering/links must be
- * indistinguishable from what the element-form e2e pins.
+ * ./e2e.test.ts, but the fixture uses the inline sugar forms — `<label>` anchors and `&ref`
+ * references (including post-punctuation footnote uses, `shown.&a`) — with footnote
+ * definitions in their canonical `@Footnote[id]: …` element form (design/references.md; the
+ * `[^…]` digraphs are retired). The sugars are reader rewrites *to* the element forms, so the
+ * rendered numbering/links must be indistinguishable from what the element-form e2e pins.
  */
 import { fileURLToPath } from "node:url";
 import { createServer, type ViteDevServer } from "vite";
@@ -54,8 +54,8 @@ describe("doc-state sugars render the element forms' numbering", () => {
     expect(html).not.toContain("sec-intro<");
   });
 
-  test("[^n] marks number in order and share entries; [^n]: bodies form the list", () => {
-    // First `[^a]` carries the backlink id; the repeat shares number 1 without one.
+  test("&id footnote uses number in order and share entries; @Footnote[id] bodies form the list", () => {
+    // The first `&a` carries the backlink id; the repeat shares number 1 without one.
     expect(html).toContain(
       '<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>'
     );
@@ -76,13 +76,26 @@ describe("doc-state sugars render the element forms' numbering", () => {
     expect(fns?.[1]?.match(/<li id="fn-/g)).toHaveLength(2);
   });
 
-  test("the snapshot carries the sugar-registered facts", () => {
+  test("the snapshot carries the sugar-registered facts (anchor/ref wire format)", () => {
     const inner = />(.*)<\/script>$/.exec(stateScript)?.[1] ?? "";
     const snapshot = JSON.parse(inner) as {
-      label?: Array<{ key: string }>;
-      footnote?: Array<{ label?: string }>;
+      anchor?: Array<{ kind: string; id?: string }>;
+      ref?: Array<{ target?: string }>;
     };
-    expect(snapshot.label?.map(l => l.key)).toEqual(["sec-intro", "sec-usage"]);
-    expect(snapshot.footnote?.map(f => f.label)).toEqual(["a", "a", "b"]);
+    const anchors = snapshot.anchor ?? [];
+    expect(anchors.filter(a => a.kind === "label").map(a => a.id)).toEqual([
+      "sec-intro",
+      "sec-usage"
+    ]);
+    // `&a`/`&a`/`&b` uses are refs; the `@Footnote[id]` definitions are footnote anchors.
+    expect(anchors.filter(a => a.kind === "footnote").map(a => a.id)).toEqual([
+      "a",
+      "b"
+    ]);
+    expect(
+      (snapshot.ref ?? [])
+        .map(r => r.target)
+        .filter(t => t === "a" || t === "b")
+    ).toEqual(["a", "a", "b"]);
   });
 });

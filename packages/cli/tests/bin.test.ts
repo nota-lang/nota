@@ -130,16 +130,23 @@ describe("the mega surface, rendered", () => {
   });
 
   it("doc-state sugars resolve: &ref numbers, shared footnote marks, flow entries", () => {
-    // `&sec_flow` / `&sec-kebab` both anchor the enclosing heading (§1.7) — three refs total
-    // in that paragraph (the third pins `&sec_flow.` keeping its dot literal).
+    // `&sec_flow` / `&sec-kebab` both anchor the enclosing heading (§1.7) — four plain refs
+    // in that paragraph (one pins `&sec_flow.` keeping its dot literal; another pins
+    // `&sec_flow[1]` keeping its non-props bracket prose), plus a custom-text ref.
     expect(html).toContain(
       '<a href="#doc-state-sugar" class="nota-ref">1.7</a>. keeps the'
     );
+    expect(html).toContain(
+      '<a href="#doc-state-sugar" class="nota-ref">1.7</a>[1] keeps'
+    );
+    expect(html).toContain(
+      '<a href="#doc-state-sugar" class="nota-ref">this very section</a>'
+    );
     expect(
       html.match(/<a href="#doc-state-sugar" class="nota-ref">1\.7<\/a>/g)
-    ).toHaveLength(3);
-    // Repeated [^n1] shares number 1: the first mark carries the backlink id, the repeat only
-    // the href; [^n2] numbers 2; the anonymous @Footnote and the element-form n3 follow.
+    ).toHaveLength(4);
+    // Repeated &n1 shares number 1: the first use carries the backlink id, the repeat only
+    // the href; &n2 numbers 2; the anonymous @Footnote and the element-form n3 follow.
     expect(html).toContain(
       '<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>'
     );
@@ -157,16 +164,19 @@ describe("the mega surface, rendered", () => {
     expect(fn1).toContain("The first footnote body, with <em>markup</em>.");
     expect(fn1).toContain("A second paragraph continues");
     // Guards: literal-prose tails stayed text.
-    expect(html).toContain("Literal Vec&lt;T> and R&amp;D stay text.");
+    expect(html).toContain("Literal Vec&lt;T> and R&amp;D stay text;");
   });
 
   it("doc-state constructs: Toc, Cite/Bibliography", () => {
     const nav = /<nav class="nota-toc">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
     expect(nav).toContain("1.7 Doc-state sugar");
     expect(nav).toContain("A level-6 heading"); // rank 6 > numberDepth 2: listed, unnumbered
-    expect(html).toContain('<a href="#bib-knuth84" class="nota-cite">[1]</a>');
+    // The first citing site carries the citeref backlink id; the entry links back to it.
     expect(html).toContain(
-      '<li id="bib-knuth84">Knuth. The TeXbook. 1984.</li>'
+      '<a id="citeref-1" href="#bib-knuth84" class="nota-cite">[1]</a>'
+    );
+    expect(html).toMatch(
+      /<li id="bib-knuth84">Knuth\. The TeXbook\. 1984\. <a href="#citeref-1" class="nota-citebacklink">↩<\/a><\/li>/
     );
   });
 

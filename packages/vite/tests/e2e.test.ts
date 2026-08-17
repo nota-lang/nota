@@ -92,14 +92,18 @@ describe("nota() → renderDocument, end to end", () => {
     expect(html).toMatch(/<div class="nota-def-tooltips" aria-hidden="true">/);
   });
 
-  test("the state script embeds the converged snapshot", () => {
+  test("the state script embeds the converged snapshot (anchor/ref wire format)", () => {
     expect(stateScript).toContain('id="nota-doc-state"');
     const inner = />(.*)<\/script>$/.exec(stateScript)?.[1] ?? "";
-    const snapshot = JSON.parse(inner);
-    expect(snapshot.heading?.map((h: { title: string }) => h.title)).toEqual([
-      "Introduction",
-      "Usage"
-    ]);
-    expect(snapshot.definition?.[0]?.key).toBe("nota");
+    const snapshot = JSON.parse(inner) as {
+      anchor?: Array<{ kind: string; id?: string; title?: string }>;
+      ref?: Array<{ target?: string }>;
+    };
+    const anchors = snapshot.anchor ?? [];
+    expect(anchors.filter(a => a.kind === "heading").map(a => a.title)).toEqual(
+      ["Introduction", "Usage"]
+    );
+    expect(anchors.find(a => a.kind === "definition")?.id).toBe("nota");
+    expect((snapshot.ref ?? []).length).toBeGreaterThan(0);
   });
 });

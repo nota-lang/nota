@@ -112,7 +112,8 @@ export const SOLID_WEB_NAMES: readonly string[] = EMIT_SURFACE.solidWeb;
  * emit may reference free without the document binding them:
  *
  * - the **component slots**: `Tex`/`CodeInline`/`CodeBlock` (math/code), `Heading` (`#` sugar), and
- *   the doc-state family (`<x>`/`&x`/`[^x]`/`[^x]:` sugar lowers to `<Label>`/`<Ref>`/… JSX);
+ *   the unified reference family (`<x>`/`&x[props]{body}` sugar lowers to `<Label>`/`<Ref>` JSX;
+ *   `Footnote`/`Cite`/… are user-typed ambient names — design/references.md);
  * - the **config fns** (**positional** — design/solid.md: statements run in document order, so a
  *   mid-document call affects subsequent blocks only; reset per render): `lstset`/`mathset`/
  *   `secset`/`bibset`, surfacing as bare calls in embedded JS (`% secset({ … })`).
@@ -132,8 +133,6 @@ export const AMBIENT_PRELUDE_NAMES = [
   "Ref",
   "Definition",
   "Footnote",
-  "FootnoteMark",
-  "FootnoteText",
   "Footnotes",
   "FootnotesList",
   "Cite",

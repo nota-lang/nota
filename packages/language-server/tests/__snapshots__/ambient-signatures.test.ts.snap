@@ -8,11 +8,9 @@ Heading: (props: import("solid-js").ParentProps & { rank?: number; id?: string; 
 Title: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
 Toc: (props: { depth?: number; }) => import("solid-js").JSX.Element
 Label: (props: { id?: string; }) => import("solid-js").JSX.Element
-Ref: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
+Ref: (props: import("solid-js").ParentProps & { id?: string; page?: string; }) => import("solid-js").JSX.Element
 Definition: (props: import("solid-js").ParentProps & { id?: string; label?: import("solid-js").JSX.Element; tooltip?: import("solid-js").JSX.Element; block?: boolean; }) => import("solid-js").JSX.Element
-Footnote: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-FootnoteMark: (props: { label?: string; }) => import("solid-js").JSX.Element
-FootnoteText: (props: import("solid-js").ParentProps & { label?: string; }) => import("solid-js").JSX.Element
+Footnote: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
 Footnotes: () => import("solid-js").JSX.Element
 FootnotesList: () => import("solid-js").JSX.Element
 Cite: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element

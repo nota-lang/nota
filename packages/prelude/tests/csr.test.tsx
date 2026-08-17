@@ -12,8 +12,6 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   CodeBlock,
   Footnote,
-  FootnoteMark,
-  FootnoteText,
   Heading,
   Label,
   Ref,
@@ -66,25 +64,29 @@ describe("unseeded forward references (CSR)", () => {
     expect(healed?.getAttribute("href")).toBe("#target");
   });
 
-  test("a FootnoteMark ahead of its FootnoteText shows ? in the list and self-heals", () => {
+  test("a footnote ref ahead of its @Footnote shows ? and becomes the mark when it mounts", () => {
     const [show, setShow] = createSignal(false);
     const Doc = () => (
       <NotaDoc>
         {"Note"}
-        <FootnoteMark label="n" />
+        <Ref id="n" />
         <Show when={show()}>
-          <FootnoteText label="n">{"the labeled body"}</FootnoteText>
+          <Footnote id="n">{"the labeled body"}</Footnote>
         </Show>
       </NotaDoc>
     );
     if (!root) throw new Error("no root");
     dispose = render(() => <Doc />, root);
 
-    // The mark numbers immediately; the entry body is pending.
-    expect(root.querySelector("sup.nota-fnref")?.textContent).toBe("1");
-    expect(root.querySelector(".nota-fn-content")?.textContent).toContain("?");
+    // Unseeded + unresolved: the ref can't even know it's a footnote yet — the generic
+    // pending placeholder, no mark, no list.
+    expect(root.querySelector("a.nota-ref")?.textContent).toBe("?");
+    expect(root.querySelector("sup.nota-fnref")).toBeNull();
+    expect(root.querySelector(".nota-fn-content")).toBeNull();
 
+    // The definition mounts → the ref re-dispatches into the footnote arm and the list fills.
     setShow(true);
+    expect(root.querySelector("sup.nota-fnref")?.textContent).toBe("1");
     const content = root.querySelector(".nota-fn-content");
     expect(content?.textContent).toContain("the labeled body");
     expect(content?.textContent).not.toContain("?");

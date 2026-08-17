@@ -379,36 +379,48 @@ lone marker between paragraphs decorates the preceding one; paragraph attrs are 
 has no paragraph former and renders inert — use the element's native props there.
 
 ### Doc-state references
-Four inline sugars for the ambient doc-state family, each a **rewrite to the element
-form** — so it inherits the element machinery (line clamp, positional rules, bounded-frame
-clipping) instead of new extent rules. The label charset is **Typst minus period** — start
-`[A-Za-z0-9_]`, continue `[A-Za-z0-9_:-]`, ASCII-only. Digits may start a label (`[^1]`,
-Markdown-style); kebab labels work (`<sec-intro>`, `&sec-intro`); the colon is a continue char
-(`<sec:intro>`); the period is **not** in the set, so `&sec.` reads the id as `sec` and leaves
-the `.` literal, and `$`/Unicode are not label chars. `<` and `&` carry a **left-boundary
-guard** — they fire only at the start of a body/line or after whitespace or opening punctuation
-(`(` `[` `{` quote) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose, and the start
-restriction keeps arrow-like prose literal (`<->`, `<-x>`); `[^…]` needs no guard (the digraph is
-unambiguous and glues after a word, Markdown-style). `<ident>` must close with `>` on its opening
-line (the line clamp); `&ident` ends at the first non-ident char; a non-matching open (`< b`,
-`<.x>`, `&,`) is literal text. The element forms themselves are charset-free
-(`@Label[id: "…"]` accepts any string, including `.`/Unicode); only the *sugar* is
-charset-restricted. Sugars fire only in markup-text position (never inside raw spans / embedded
-JS — the positional trigger's condition 1). The whole family is ambient — **no `%import`
-needed** (decode.md §The ambient prelude).
+Two inline sugars for the **unified reference registry** ([references.md](./references.md) —
+sections, definitions, citations, footnotes, and figures are all anchors referenced the same
+way), each a **rewrite to the element form** — so they inherit the element machinery (line
+clamp, positional rules, bounded-frame clipping) instead of new extent rules: `<id>` declares a
+`@Label` anchor and `&id` is `@Ref`, the one reference (what it renders — a section number, a
+footnote mark, a citation `[N]`, a definition tooltip, "Figure N" — is the *anchor's* kind, not
+the sugar's). The label charset is **Typst minus period** — start `[A-Za-z0-9_]`, continue
+`[A-Za-z0-9_:-]`, ASCII-only. Digits may start a label; kebab labels work (`<sec-intro>`,
+`&sec-intro`); the colon is a continue char (`<sec:intro>`); the period is **not** in the set,
+so `&sec.` reads the id as `sec` and leaves the `.` literal, and `$`/Unicode are not label
+chars. `<` and `&` carry a **left-boundary guard** — they fire at the start of a body/line, or
+after whitespace, opening punctuation (`(` `[` `{` quote), or **closing/terminal punctuation**
+(`.` `,` `;` `:` `!` `?` `)` `]` `}`) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose
+(ident-adjacency blocks), a footnote use glues after its sentence (`As shown.&note`), and the
+start restriction keeps arrow-like prose literal (`<->`, `<-x>`). `<ident>` must close with `>`
+on its opening line (the line clamp); `&ident` ends at the first non-ident char; a non-matching
+open (`< b`, `<.x>`, `&,`) is literal text.
+
+A ref composes with **glued postfix groups**, completing its equivalence to the element form:
+a glued `[props]` group continues the ref iff it is props-shaped (the attrs-group first-entry
+gate — `see &sec[1]` keeps `[1]` prose; once one group commits, further glued `[` chain like an
+element head's), and a glued `{body}` supplies authored reference text. The element forms
+themselves are charset-free (`@Label[id: "…"]` accepts any string, including `.`/Unicode); only
+the *sugar* is charset-restricted. Sugars fire only in markup-text position (never inside raw
+spans / embedded JS — the positional trigger's condition 1). The whole family is ambient —
+**no `%import` needed** (decode.md §The ambient prelude).
 ```
-<sec_intro>          → @Label[id: "sec_intro"]{}          // anchor; must close > on its line
-<sec-intro>          → @Label[id: "sec-intro"]{}          // kebab label (the - is a continue char)
-&sec-intro           → @Ref[id: "sec-intro"]{}            // kebab cross-reference
-[^1]                 → @FootnoteMark[label: "1"]{}         // footnote reference (digit-start ok)
-[^n1]: body          → @FootnoteText[label: "n1"]: body    // line-start definition (colon body)
-&sec.  Vec<T>  <->   → Ref("sec") + "."  ; Vec<T> ; <->   // period / guard / start: literal tails
+<sec_intro>              → @Label[id: "sec_intro"]{}          // anchor; must close > on its line
+<sec-intro>              → @Label[id: "sec-intro"]{}          // kebab label (the - is a continue char)
+&sec-intro               → @Ref[id: "sec-intro"]{}            // kebab cross-reference
+As shown.&note1          → "As shown." + @Ref[id: "note1"]{}  // guard fires after closing punct
+&smith2020[page: "33"]   → @Ref[id: "smith2020", page: "33"]{} // glued props-shaped group
+&sec-intro{that section} → @Ref[id: "sec-intro"]{that section} // glued body: authored text
+&sec.  Vec<T>  <->  &sec[1] → literal tails                   // period / guard / start / non-props [
 ```
-Repeated `[^n1]` references share one number and one list entry; the list auto-appends
-at document end unless `@Footnotes` places it (decode.md §Doc-state). The escapes `\<`, `\&`,
-`\[` yield the literal characters via the standard escape machinery (`\[` already covered
-verbatim). A multi-line footnote or one with block content uses the explicit
-`@FootnoteText{…}` form.
+There is **no footnote sugar**: a footnote *use* is `&id` (numbered by first-use order;
+repeats share one number and one list entry), and a footnote *definition* is the ordinary
+element + colon form — `@Footnote[id: "n1"]: body…` — or the id-less inline one-shot
+`@Footnote{body}`. The list auto-appends at document end unless `@Footnotes` places it
+(references.md §The components). The `[^…]` digraphs of earlier drafts are retired: `[^n]` is
+plain prose. The escapes `\<`, `\&` yield the literal characters via the standard escape
+machinery.
 
 ## Verbatim
 
@@ -544,9 +556,9 @@ form of exactly these calls.
 | `@if (c) {a} else if (d) {b}` | `c ? Fragment("a") : d ? Fragment("b") : null` |
 | `@for (x of y) {@li{@x}}` | `y.map((x, _i) => Fragment({ key: _i }, h("li", {}, [x])))` |
 | `<sec-intro>` | `h(Label, { id: "sec-intro" }, [])` (boundary-guarded — `Vec<T>`, `<->` stay text) |
-| `&sec-intro` | `h(Ref, { id: "sec-intro" }, [])` (boundary-guarded — `R&D` stays text) |
-| `[^1]` | `h(FootnoteMark, { label: "1" }, [])` (digit-start labels are legal) |
-| `[^note1]: See *also*…` | `h(FootnoteText, { label: "note1" }, ["See ", h("strong", {}, ["also"]), "…"])` (line-start only; colon-body extent) |
+| `&sec-intro` | `h(Ref, { id: "sec-intro" }, [])` (boundary-guarded — `R&D` stays text; fires after closing punct too) |
+| `&k[page: "33"]{Smith}` | `h(Ref, { id: "k", page: "33" }, ["Smith"])` (glued postfix groups — references.md §Syntax) |
+| `@Footnote[id: "n1"]: body` | `h(Footnote, { id: "n1" }, ["body"])` (an ordinary element — nothing reader-privileged) |
 | `@aside[class: "x"]: body` | `h("aside", { class: "x" }, ["body"])` (props compose with a colon body) |
 | `@code\|{@foo{x}}\|` | `h("code", {}, [String.raw`@foo{x}`])` |
 | `` `@x` `` | `h(CodeInline, {}, [String.raw`@x`])` |

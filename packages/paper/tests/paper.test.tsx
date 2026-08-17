@@ -4,8 +4,9 @@
  * tooltip bank, the Language/BNF DSL (texRef-wired handles; the Bnf table as anchored
  * definitions), and inference rules.
  */
-import { mathset, Ref, resetConfigForTest, Tex } from "@nota-lang/prelude";
+
 import { NotaDoc, renderDocument } from "@nota-lang/core";
+import { mathset, Ref, resetConfigForTest, Tex } from "@nota-lang/prelude";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   Abstract,
@@ -93,9 +94,10 @@ describe("scaffold", () => {
     );
     // The labeled figure gets its anchor id.
     expect(html).toContain('<figure id="fig-pipeline" class="nota-figure"');
-    // The forward &pipeline reference renders "Figure 2" as a def-ref anchor.
+    // The forward &pipeline reference renders "Figure 2" through Ref's generic arm, linking
+    // to the REAL figure element (the old code pointed at a nonexistent #def- anchor).
     expect(html).toMatch(
-      /<a href="#def-pipeline"[^>]*data-nota-def="pipeline"[^>]*>Figure 2<\/a>/
+      /<a href="#fig-pipeline"[^>]*data-nota-def="pipeline"[^>]*>Figure 2<\/a>/
     );
     // The tooltip bank holds the figure body.
     expect(html).toMatch(
