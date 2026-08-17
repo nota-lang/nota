@@ -177,10 +177,10 @@ has always used — render, write the aux file, render again reading it — coll
 process:
 
 - **The store.** `createDocState()` — a per-document reactive store behind a context.
-  Components *register* facts during render (`heading`, `label`, `footnote-ref`,
-  `footnote-def`, `definition`, `cite`, plus named `trailer` thunks) and *read* derived facts
-  through memos (`headings()` in order, `headingNumber(id)`, `footnoteNumber(label)`,
-  `citeLabel(key)`, …). Registrations ≙ the old marks; memos ≙ the old queries; the store ≙
+  Components *register* facts during render (two kinds since the unified-references branch —
+  `anchor` and `ref`, [references.md](./references.md) — plus named `trailer` thunks) and *read*
+  derived facts through pure derivations (heading ids/numbers, first-use footnote and citation
+  numbers, `refsTo` backlinks). Registrations ≙ the old marks; memos ≙ the old queries; the store ≙
   `DocIndex`. Unmount unregisters (`onCleanup`), so doc-state is **reactive**: a heading inserted
   by a `<Show>` renumbers the document live — something the old design could never express.
 - **SSG renders twice.** Pass 1 renders to populate the store (forward reads resolve to
@@ -216,16 +216,22 @@ registry, no registry.
 ## The prelude, Solid-native
 
 Every component becomes a plain Solid component over the store. The behavioral specs from
-decode.md §Doc-state carry over unchanged (slugs/dedup, footnote label semantics, backlinks,
-unreferenced-definition drop, duplicate errors); only the mechanism changes:
+decode.md §Doc-state carry over (slugs/dedup, footnote label semantics, backlinks, duplicate
+errors); the **unified-references branch** then collapses the per-feature mechanisms into the
+anchor/ref registry — [references.md](./references.md) is the spec of record for this family:
 
-- **`Heading`** registers `{rank, id, text}` (id = authored ?? slugified resolved text, deduped)
-  and renders `<hN id>` with its number per `secset` depth. Text extraction uses `textOf(resolved
-  children)` — `textContent` client-side, tag-strip + entity-decode on SSR chunks — the same
-  see-through trick reforest uses for categorization.
-- **`Toc`** renders `<nav>` from the `headings()` memo (seed-corrected on the server).
-- **`Label`/`Ref`** as before; def-aware `Ref` consults definitions first.
-- **Footnotes/Cite/Bibliography**: same numbering/dedup/error semantics, derived in memos.
+- **`Heading`** registers a `heading` anchor `{rank, title, explicitId?}` (effective id =
+  authored ?? slugified resolved text, deduped at read time) and renders `<hN id>` with its
+  number per `secset` depth. Text extraction uses `textOf(resolved children)` — `textContent`
+  client-side, tag-strip + entity-decode on SSR chunks — the same see-through trick reforest
+  uses for categorization.
+- **`Toc`** renders `<nav>` from the heading anchors (seed-corrected on the server).
+- **`Label`** is a strong `label` anchor; the one **`Ref`** dispatches on its resolved
+  anchor's kind (definition tooltip / nearest-heading label / direct heading / footnote mark /
+  citation / the generic figure arm).
+- **Footnotes/Cite/Bibliography**: first-use numbering and only-render-what's-cited are the
+  registry's `refNumber`/`referenced` derivations; footnote ↩ and citation `citeref` backlinks
+  come from the recorded uses.
 - **`Definition`/def-refs**: the anchor renders in place; references render **real anchors**
   (`<a href="#def-key" data-nota-def="key">`) — no-JS clicks jump to the definition (progressive
   enhancement the old scriptful design didn't have). The tooltip bank + delegated

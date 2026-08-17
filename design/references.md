@@ -130,11 +130,18 @@ notation.md already names `&`-refs "the likely future link surface". Two changes
    form it rewrites to:
    - `&id[props]` — a glued props-shaped `[` group continues the form (the attrs-group gate:
      first entry `ident:` / quoted key / `...spread`); non-props-shaped stays literal prose
-     (`see &sec[1]` keeps `[1]` as text).
+     (`see &sec[1]` keeps `[1]` as text). Once one group commits, further glued `[` chain like
+     an element head's.
    - `&id{body}` — a glued `{` opens a markup body (custom reference text).
    - Both: `&smith2020[page: "33"]{Smith}` → `<Ref id="smith2020" page="33">Smith</Ref>`.
-   The dispatch precedence note in NOTA_READER.md (`[` after a ref ident) gains one tier;
-   an unglued `[`/`{` is untouched prose, and bare `&id` is exactly today's emit.
+   An unglued `[`/`{` is untouched prose, and bare `&id` is exactly today's emit.
+3. **The `<`/`&` left-boundary guard also fires after closing/terminal punctuation**
+   (`.` `,` `;` `:` `!` `?` `)` `]` `}`), not just whitespace/opening punctuation. Rationale:
+   the retired `[^n]` glued directly after words, and a footnote mark that cannot follow its
+   sentence is typographically broken — `As shown.&note` must fire. Ident-adjacency still
+   blocks, so `R&D`/`a&b`/`Vec<T>` stay literal; the mark-after-word idiom (`word&n`) remains
+   inexpressible by design (indistinguishable from `R&D`) — place marks after punctuation
+   (Chicago style) or use the element form.
 
 No new sigils, no new extent rules, no new highlight kinds (doc-state reuses `Sigil` +
 `Interpolation`, the documented precedent); net syntax shrinks by one digraph family.
