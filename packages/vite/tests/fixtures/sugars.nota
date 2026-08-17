@@ -4,13 +4,13 @@
 
 <sec-intro>
 
-A forward reference &sec-usage and a footnote[^a].
+A forward reference &sec-usage and a footnote.&a
 
 # Usage
 
 <sec-usage>
 
-Back to &sec-intro; the same footnote again[^a] and a second[^b].
+Back to &sec-intro; the same footnote again,&a and a second.&b
 
-[^a]: The shared note body.
-[^b]: The second note body.
+@Footnote[id: "a"]: The shared note body.
+@Footnote[id: "b"]: The second note body.

@@ -106,15 +106,21 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
 
   it("classifies the doc-state sugar — sigil bytes + label idents, guard intact", () => {
     const spans = highlightSpans(MEGA);
-    // The four sugars reuse existing kinds (no new wire discriminants): the delimiter bytes paint
-    // `sigil`, the label ident paints `interpolation` (the `@name` kind — a name-like reference).
+    // The sugars reuse existing kinds (no new wire discriminants): the delimiter bytes paint
+    // `sigil`, the label ident paints `interpolation` (the `@name` kind — a name-like
+    // reference). (`[^`/`]:` retired with the footnote digraphs — design/references.md.)
     expect(excerpts(spans, MEGA, "sigil")).toEqual(
-      expect.arrayContaining(["<", ">", "&", "[^", "]:"])
+      expect.arrayContaining(["<", ">", "&"])
     );
     // `sec-kebab` pins the restored kebab charset (Typst-minus-period): the `-` is a label
     // continue char, so `<sec-kebab>` / `&sec-kebab` classify as one ident, not `sec` + `-kebab`.
+    // The `n1`/`n2`/`n3` footnote uses are now `&`-refs (post-punctuation glue).
     expect(excerpts(spans, MEGA, "interpolation")).toEqual(
       expect.arrayContaining(["sec_flow", "sec-kebab", "n1", "n2", "n3"])
+    );
+    // A ref's postfix props group paints through the ordinary prop machinery.
+    expect(excerpts(spans, MEGA, "prop-name")).toEqual(
+      expect.arrayContaining(["page"])
     );
     // The boundary guard held: `Vec<T>` / `R&D` stayed literal, so their `<` / `&` / `T` produced no
     // doc-state spans — the ident set never includes `T` or `D`.

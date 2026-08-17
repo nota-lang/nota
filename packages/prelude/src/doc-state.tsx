@@ -575,32 +575,6 @@ export function Footnote(props: ParentProps & { id?: string }): JSX.Element {
   );
 }
 
-/** Compat shim while the reader still emits `[^label]` (removed with that sugar): a labeled
- * footnote use is a `Ref`. */
-export function FootnoteMark(props: { label?: string }): JSX.Element {
-  const label = typeof props.label === "string" ? props.label.trim() : "";
-  if (label === "") {
-    throw new Error(
-      "@FootnoteMark: missing label — use &label (a @Ref) instead"
-    );
-  }
-  return <Ref id={label} />;
-}
-
-/** Compat shim while the reader still emits `[^label]: …` (removed with that sugar): a labeled
- * footnote definition is `@Footnote[id]`. */
-export function FootnoteText(
-  props: ParentProps & { label?: string }
-): JSX.Element {
-  const label = typeof props.label === "string" ? props.label.trim() : "";
-  if (label === "") {
-    throw new Error(
-      '@FootnoteText: missing label — use @Footnote[id: "…"]: … instead'
-    );
-  }
-  return <Footnote id={label}>{props.children}</Footnote>;
-}
-
 /**
  * The default `FootnotesList`: the footnote section (`<ol>` of
  * `<li id="fn-N"><div>…content ↩</div></li>`), or nothing when no footnote use precedes it.

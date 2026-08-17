@@ -109,14 +109,16 @@ def f(x):
 ## Doc-state sugar
 
 An anchor <sec_flow> and a reference &sec_flow resolve; a kebab anchor <sec-kebab>
-and its reference &sec-kebab resolve too. A footnote[^n1] and a repeat[^n1] share a
-number, plus a second[^n2]. Trailing punctuation stays literal: &sec_flow. keeps the
-dot. Literal Vec<T> and R&D stay text.
+and its reference &sec-kebab resolve too. A footnote fires after punctuation.&n1 A
+repeat shares its number,&n1 plus a second.&n2 A custom-text reference
+&sec_flow{this very section} reads naturally. Trailing punctuation stays literal:
+&sec_flow. keeps the dot. Literal Vec<T> and R&D stay text; see &sec_flow[1] keeps
+its bracket prose.
 
-[^n1]: The first footnote body, with @em{markup}.
+@Footnote[id: "n1"]: The first footnote body, with @em{markup}.
 
   A second paragraph continues the first note, so the entry decodes as flow.
-[^n2]: The second footnote body.
+@Footnote[id: "n2"]: The second footnote body.
 
 ## Doc-state constructs
 
@@ -127,10 +129,12 @@ A table of contents lists the headings above:
 
 @Toc{}
 
-Knuth's classic @Cite{knuth84} anchors a bibliography; an anonymous @Footnote{a one-shot note}
-sits beside a labeled one[^n3] defined by the element colon form.
+Knuth's classic @Cite{knuth84} anchors a bibliography; a bare key ref cites with a
+locator &knuth84[page: "33"] through the same entry. An anonymous
+@Footnote{a one-shot note} sits beside a labeled one.&n3 That one is defined by the
+element colon form:
 
-@FootnoteText[label: "n3"]: A third footnote body, via the element colon form.
+@Footnote[id: "n3"]: A third footnote body, via the element colon form.
 
 @aside[class: "x"]: A styled colon-body aside; props compose with the colon.
 

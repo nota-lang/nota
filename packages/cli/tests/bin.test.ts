@@ -130,16 +130,23 @@ describe("the mega surface, rendered", () => {
   });
 
   it("doc-state sugars resolve: &ref numbers, shared footnote marks, flow entries", () => {
-    // `&sec_flow` / `&sec-kebab` both anchor the enclosing heading (§1.7) — three refs total
-    // in that paragraph (the third pins `&sec_flow.` keeping its dot literal).
+    // `&sec_flow` / `&sec-kebab` both anchor the enclosing heading (§1.7) — four plain refs
+    // in that paragraph (one pins `&sec_flow.` keeping its dot literal; another pins
+    // `&sec_flow[1]` keeping its non-props bracket prose), plus a custom-text ref.
     expect(html).toContain(
       '<a href="#doc-state-sugar" class="nota-ref">1.7</a>. keeps the'
     );
+    expect(html).toContain(
+      '<a href="#doc-state-sugar" class="nota-ref">1.7</a>[1] keeps'
+    );
+    expect(html).toContain(
+      '<a href="#doc-state-sugar" class="nota-ref">this very section</a>'
+    );
     expect(
       html.match(/<a href="#doc-state-sugar" class="nota-ref">1\.7<\/a>/g)
-    ).toHaveLength(3);
-    // Repeated [^n1] shares number 1: the first mark carries the backlink id, the repeat only
-    // the href; [^n2] numbers 2; the anonymous @Footnote and the element-form n3 follow.
+    ).toHaveLength(4);
+    // Repeated &n1 shares number 1: the first use carries the backlink id, the repeat only
+    // the href; &n2 numbers 2; the anonymous @Footnote and the element-form n3 follow.
     expect(html).toContain(
       '<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>'
     );
@@ -157,7 +164,7 @@ describe("the mega surface, rendered", () => {
     expect(fn1).toContain("The first footnote body, with <em>markup</em>.");
     expect(fn1).toContain("A second paragraph continues");
     // Guards: literal-prose tails stayed text.
-    expect(html).toContain("Literal Vec&lt;T> and R&amp;D stay text.");
+    expect(html).toContain("Literal Vec&lt;T> and R&amp;D stay text;");
   });
 
   it("doc-state constructs: Toc, Cite/Bibliography", () => {

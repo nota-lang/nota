@@ -132,8 +132,6 @@ export const AMBIENT_PRELUDE_NAMES = [
   "Ref",
   "Definition",
   "Footnote",
-  "FootnoteMark",
-  "FootnoteText",
   "Footnotes",
   "FootnotesList",
   "Cite",

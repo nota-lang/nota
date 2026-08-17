@@ -21,10 +21,8 @@ import {
   Definition,
   FACT_KINDS,
   Footnote,
-  FootnoteMark,
   Footnotes,
   FootnotesList,
-  FootnoteText,
   Heading,
   headingIds,
   headingNumbers,
@@ -270,13 +268,13 @@ describe("footnotes", () => {
     const Doc = () => (
       <NotaDoc>
         {"First"}
-        <FootnoteMark label="a" />
+        <Ref id="a" />
         {" then"}
         <Footnote>{"inline note"}</Footnote>
         {" and again"}
-        <FootnoteMark label="a" />
+        <Ref id="a" />
         {".\n\n"}
-        <FootnoteText label="a">{"the labeled body"}</FootnoteText>
+        <Footnote id="a">{"the labeled body"}</Footnote>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
@@ -319,10 +317,8 @@ describe("footnotes", () => {
     const Doc = () => (
       <NotaDoc>
         {"Text"}
-        <FootnoteMark label="p" />
-        <FootnoteText label="p">
-          {"first fn para.\n\nsecond fn para."}
-        </FootnoteText>
+        <Ref id="p" />
+        <Footnote id="p">{"first fn para.\n\nsecond fn para."}</Footnote>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
@@ -336,12 +332,12 @@ describe("footnotes", () => {
     );
   });
 
-  test("an unreferenced FootnoteText is dropped silently", () => {
+  test("an unreferenced @Footnote[id] definition is dropped silently", () => {
     const Doc = () => (
       <NotaDoc>
         {"Body"}
         <Footnote>{"used note"}</Footnote>
-        <FootnoteText label="ghost">{"never shown"}</FootnoteText>
+        <Footnote id="ghost">{"never shown"}</Footnote>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
@@ -375,7 +371,7 @@ describe("footnotes", () => {
   test("a referenced label with no definition is a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
-        <FootnoteMark label="missing" />
+        <Ref id="missing" />
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(/no anchor for id "missing"/);
@@ -384,9 +380,9 @@ describe("footnotes", () => {
   test("duplicate definitions for one label are a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
-        <FootnoteMark label="d" />
-        <FootnoteText label="d">{"one"}</FootnoteText>
-        <FootnoteText label="d">{"two"}</FootnoteText>
+        <Ref id="d" />
+        <Footnote id="d">{"one"}</Footnote>
+        <Footnote id="d">{"two"}</Footnote>
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(/duplicate footnote anchors/);
