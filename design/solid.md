@@ -284,6 +284,28 @@ an island census.
 
 ## Post-landing architecture notes (the simplification sweep's analysis)
 
+### List ownership (the 2026-08 audit)
+
+Hard-coded mirror lists are dissolved into three tiers, preferring **runtime introspection >
+single-sourcing > drift tests > deliberately-manual-with-a-conformance-guard**:
+
+- **The reader owns the emit surface** and exports it over the wasm boundary: `emitSurface()`
+  (structural / solid / solid-web / prelude emit-name groups + the reserved set + `FLOW_TAGS`)
+  and `lineClassifiers()` (the lexer's regex sources). `CORE_RUNTIME_NAMES`/`SOLID_WEB_NAMES`
+  are *derived* from it; the LSP's delegated-line walk consumes the classifier patterns; tests
+  pin emit-groups ⊆ ambient policy lists, reserved = `Doc` + groups, `FLOW_TAGS ∩ INLINE_TAGS
+  = ∅`. All emit-surface names (incl. `Tex`/`Heading`/…) are **reserved** — a document binding
+  is a diagnostic; per-doc override goes through the integrator's prelude seam.
+- **TS families are single-sourced**: `FRAMEWORK_MODULES`/`FRAMEWORK_PACKAGES` (compiler) feed
+  vite's fallbacks + dedupe, the CLI's pinned-resolver regex, and astro's JSX-dist list; core
+  owns the entity decoder and DOM-marker constants; prelude introspects `BASE_LANG_NAMES` from
+  the shiki grammars and names the snapshot wire keys (`FACT_KINDS`); codemirror owns the
+  palette and exports `KIND_STYLES`.
+- **Policy stays hand-written but alarmed**: the ambient name lists (⊆-surface loops), the
+  preamble's type declarations (real-type snapshot tests), `KIND_STYLES` (key-set equality with
+  `highlightKindNames()`), and the emacs font-lock tier (`tests/conformance.el` —
+  subset-correctness against reader spans over `integration/*.nota`).
+
 The surviving system, by layer — with the judgment calls the sweep made explicit:
 
 - **Reader (oxc, ~1k lines of Nota-specific Rust).** One lowering, Nota AST → Solid JSX; the
