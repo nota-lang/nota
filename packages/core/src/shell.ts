@@ -1,7 +1,7 @@
 /**
- * `@nota-lang/solid-start` — the shell half (server only).
+ * The **shell seam** (server only): the counterpart to {@link notaRoute}.
  *
- * `<NotaDocState/>` goes in the document shell *after* `props.children`, which is what makes it
+ * `NotaDocState` goes in the host's document shell *after* the app's children, which is what makes it
  * work: SSR evaluates the shell's expressions in source order, so by the time this renders the
  * route's document has finished and parked its pass on the request event. Two jobs:
  *
@@ -13,10 +13,10 @@
  *    silently shipping pass-1 numbers.
  */
 
-import { docStateScript } from "@nota-lang/core";
+import { docStateScript } from "./render";
 import type { JSX } from "solid-js";
 import { getRequestEvent, ssr } from "solid-js/web";
-import { takeDocPass } from "./markers";
+import { takeDocPass } from "./doc-pass";
 
 /**
  * The document-state script tag. Render it in the shell after the app:

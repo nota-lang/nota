@@ -14,15 +14,15 @@ import { join } from "node:path";
 import { createComponent, sharedConfig } from "solid-js";
 import { hydrate, render } from "solid-js/web";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { notaRoute } from "../src/document";
-import { Doc, OtherDoc } from "./fixtures/doc";
+import { notaRoute } from "../src/route";
+import { Doc, OtherDoc } from "./fixtures/route-doc";
 
 const pkgRoot = process.cwd();
 let pageHtml: string;
 
 beforeAll(() => {
-  execSync("node tests/ssr.mjs", { cwd: pkgRoot, stdio: "pipe" });
-  pageHtml = readFileSync(join(pkgRoot, "tests/.built/page.html"), "utf8");
+  execSync("node tests/route-ssr.mjs", { cwd: pkgRoot, stdio: "pipe" });
+  pageHtml = readFileSync(join(pkgRoot, "tests/.built/route-page.html"), "utf8");
 }, 60_000);
 
 beforeEach(() => {

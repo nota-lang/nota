@@ -10,9 +10,9 @@
 import type { JSX } from "solid-js";
 import { renderToString } from "solid-js/web";
 import { describe, expect, test } from "vitest";
-import { notaRoute } from "../src/document";
-import { NotaDocState } from "../src/server";
-import { DivergentDoc, Doc, PlainRoute } from "./fixtures/doc";
+import { notaRoute } from "../src/route";
+import { NotaDocState } from "../src/shell";
+import { DivergentDoc, Doc, PlainRoute } from "./fixtures/route-doc";
 
 /** The `StartServer` shape: app subtree, then the shell's trailing scripts. */
 function renderPage(Route: () => JSX.Element): string {

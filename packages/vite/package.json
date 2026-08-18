@@ -8,10 +8,12 @@
   "main": "dist/lib.js",
   "exports": {
     ".": {
+      "types": "./dist/lib.d.ts",
       "default": "./dist/lib.js"
     },
-    "./*": {
-      "default": "./dist/*.js"
+    "./solid-start": {
+      "types": "./dist/solid-start.d.ts",
+      "default": "./dist/solid-start.js"
     }
   },
   "type": "module",
@@ -28,16 +30,23 @@
     "vite-plugin-solid": "^2.11.10"
   },
   "peerDependencies": {
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "@solidjs/start": "^2.0.0"
   },
   "devDependencies": {
     "jsdom": "^29.1.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "@solidjs/start": "^2.0.0"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/vite"
+  },
+  "peerDependenciesMeta": {
+    "@solidjs/start": {
+      "optional": true
+    }
   }
 }

@@ -97,11 +97,7 @@ describe("the one-solid-js invariant", () => {
       ) => { resolve?: { dedupe?: string[] } } | null
     ).call({}, {}, { command: "build", mode: "production" });
     const dedupe = conf?.resolve?.dedupe ?? [];
-    for (const pkg of [
-      "solid-js",
-      "@nota-lang/core",
-      "@nota-lang/prelude"
-    ]) {
+    for (const pkg of ["solid-js", "@nota-lang/core", "@nota-lang/prelude"]) {
       expect(dedupe).toContain(pkg);
     }
   });

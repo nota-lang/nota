@@ -7,11 +7,11 @@
 
 import type { Plugin } from "vite";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { notaStart } from "../src/lib";
+import { notaStart } from "../src/solid-start";
 
 // solidStart() resolves its app entry from process.cwd() at construction time.
 const pkgRoot = process.cwd();
-beforeAll(() => process.chdir(`${pkgRoot}/tests/fixtures/site`));
+beforeAll(() => process.chdir(`${pkgRoot}/tests/fixtures/start-site`));
 afterAll(() => process.chdir(pkgRoot));
 
 const names = (plugins: unknown[]): string[] =>

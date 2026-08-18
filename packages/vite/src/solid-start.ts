@@ -1,6 +1,10 @@
 /**
- * `@nota-lang/solid-start` — the build half: the Vite preset for a SolidStart site that renders
- * `.nota` documents.
+ * `@nota-lang/vite/solid-start` — the Vite preset for a SolidStart site that renders `.nota`
+ * documents.
+ *
+ * Only the *build* half lives here. The runtime seam a document needs — `notaRoute` and
+ * `NotaDocState`, which drive the two-pass render from inside the host's own render — is in
+ * `@nota-lang/core`, next to the other drivers: none of it imports SolidStart.
  *
  * {@link notaStart} composes SolidStart's own plugin array with Nota's `.nota → Solid JSX`
  * transform. The composition has exactly one subtlety, and it is the reason this is a preset
@@ -12,7 +16,7 @@
  * ```ts
  * // vite.config.ts
  * import { defineConfig } from "vite";
- * import { notaStart } from "@nota-lang/solid-start/config";
+ * import { notaStart } from "@nota-lang/vite/solid-start";
  * import nitro from "nitro/vite";
  *
  * export default defineConfig({ plugins: [notaStart(), nitro()] });
@@ -26,8 +30,8 @@
  * and reads better than the magic anyway.
  */
 
-import { type NotaPluginOptions, nota } from "@nota-lang/vite";
 import type { PluginOption } from "vite";
+import { type NotaPluginOptions, nota } from "./lib.js";
 
 /** The extension SolidStart must treat as compilable Solid source. */
 const NOTA_EXTENSION = "nota";
@@ -72,5 +76,3 @@ export async function notaStart(
 }
 
 export default notaStart;
-export type { NotaPluginOptions } from "@nota-lang/vite";
-export { DEDUPED_PACKAGES } from "@nota-lang/vite";

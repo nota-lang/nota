@@ -44,9 +44,6 @@ importers:
 
   examples/barnes-hut:
     dependencies:
-      '@nota-lang/explorable':
-        specifier: workspace:*
-        version: link:../../packages/explorable
       d3-force:
         specifier: ^3.0.0
         version: 3.0.0
@@ -169,21 +166,6 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
-  packages/explorable:
-    devDependencies:
-      '@nota-lang/core':
-        specifier: workspace:*
-        version: link:../core
-      solid-js:
-        specifier: ^1.9.3
-        version: 1.9.13
-      vite-plugin-solid:
-        specifier: ^2.11.10
-        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-
   packages/language-server:
     dependencies:
       '@nota-lang/compiler':
@@ -214,25 +196,6 @@ importers:
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13
-
-  packages/paper:
-    dependencies:
-      '@nota-lang/core':
-        specifier: workspace:*
-        version: link:../core
-      '@nota-lang/prelude':
-        specifier: workspace:*
-        version: link:../prelude
-    devDependencies:
-      solid-js:
-        specifier: ^1.9.3
-        version: 1.9.13
-      vite-plugin-solid:
-        specifier: ^2.11.10
-        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/playground:
     dependencies:
@@ -335,40 +298,6 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
-  packages/solid-start:
-    dependencies:
-      '@nota-lang/core':
-        specifier: workspace:*
-        version: link:../core
-      '@nota-lang/vite':
-        specifier: workspace:*
-        version: link:../vite
-    devDependencies:
-      '@nota-lang/prelude':
-        specifier: workspace:*
-        version: link:../prelude
-      '@solidjs/start':
-        specifier: ^2.0.0
-        version: 2.0.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      jsdom:
-        specifier: ^29.1.1
-        version: 29.1.1
-      solid-js:
-        specifier: ^1.9.3
-        version: 1.9.13
-      vite:
-        specifier: ^8.0.16
-        version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
-      vite-plugin-solid:
-        specifier: ^2.11.10
-        version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      vite-plugin-wasm:
-        specifier: ^3.5.0
-        version: 3.6.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.8(@types/node@25.9.2)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-
   packages/vite:
     dependencies:
       '@nota-lang/compiler':
@@ -387,6 +316,9 @@ importers:
         specifier: ^2.11.10
         version: 2.11.14(solid-js@1.9.13)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
     devDependencies:
+      '@solidjs/start':
+        specifier: ^2.0.0
+        version: 2.0.0(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1

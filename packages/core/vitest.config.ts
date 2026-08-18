@@ -31,7 +31,11 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "ssr",
           environment: "node",
-          include: ["tests/render.test.tsx", "tests/emit-surface.test.ts"],
+          include: [
+            "tests/render.test.tsx",
+            "tests/emit-surface.test.ts",
+            "tests/route.test.tsx"
+          ],
           deps: inlineDeps
         }
       },
@@ -42,7 +46,11 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "dom",
           environment: "jsdom",
-          include: ["tests/reforest.test.tsx", "tests/hydrate.test.tsx"],
+          include: [
+            "tests/reforest.test.tsx",
+            "tests/hydrate.test.tsx",
+            "tests/route-client.test.ts"
+          ],
           deps: inlineDeps
         }
       }

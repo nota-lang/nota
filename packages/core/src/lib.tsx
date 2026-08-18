@@ -18,11 +18,14 @@
  * This module is the package's public surface; the implementation lives in the sibling files.
  */
 
+export * from "./doc-pass";
 export * from "./doc-state";
 export * from "./entities";
 export * from "./nota-doc";
 export * from "./reforest";
 export * from "./render";
 export * from "./render-reset";
+export * from "./route";
+export * from "./shell";
 export * from "./smart";
 export * from "./text";

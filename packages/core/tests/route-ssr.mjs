@@ -27,21 +27,21 @@ const server = await createServer({
 try {
   let mod;
   if (typeof server.ssrLoadModule === "function") {
-    mod = await server.ssrLoadModule("/tests/fixtures/ssr-entry.tsx");
+    mod = await server.ssrLoadModule("/tests/fixtures/route-ssr-entry.tsx");
   } else {
     const { createServerModuleRunner } = await import("vite");
     const runner = createServerModuleRunner(server.environments.ssr);
-    mod = await runner.import("/tests/fixtures/ssr-entry.tsx");
+    mod = await runner.import("/tests/fixtures/route-ssr-entry.tsx");
   }
   const { app, shell } = mod.run();
   mkdirSync(join(pkgRoot, "tests/.built"), { recursive: true });
   // The page as the browser receives it: the app subtree in its mount point, the shell's
   // doc-state script after it (outside the hydrated region — the client reads it, never claims it).
   writeFileSync(
-    join(pkgRoot, "tests/.built/page.html"),
+    join(pkgRoot, "tests/.built/route-page.html"),
     `<div id="app">${app}</div>${shell}`
   );
-  console.log("wrote tests/.built/page.html");
+  console.log("wrote tests/.built/route-page.html");
 } finally {
   await server.close();
 }

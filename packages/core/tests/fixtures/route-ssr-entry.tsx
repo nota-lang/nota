@@ -12,9 +12,9 @@
  * Loaded through Vite's SSR pipeline by tests/ssr.mjs (JSX compiled with generate:"ssr").
  */
 import { renderToString } from "solid-js/web";
-import { notaRoute } from "../../src/document";
-import { NotaDocState } from "../../src/server";
-import { Doc } from "./doc";
+import { notaRoute } from "../../src/route";
+import { NotaDocState } from "../../src/shell";
+import { Doc } from "./route-doc";
 
 export function run(): { app: string; shell: string } {
   const Route = notaRoute(Doc);

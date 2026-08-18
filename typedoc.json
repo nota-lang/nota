@@ -11,7 +11,6 @@
     "packages/compiler",
     "packages/core",
     "packages/prelude",
-    "packages/solid-start",
     "packages/vite"
   ]
 }

@@ -1,11 +1,14 @@
 /**
- * `@nota-lang/solid-start` — the route half: a Nota document as a SolidStart route.
+ * The **route seam**: a Nota document rendered as a route of a host that owns the render loop.
  *
- * A `.nota` module compiles to a plain Solid component, which is already what a SolidStart route
- * is — so unlike the Astro integration there is no page-module wrapper, no renderer registration
- * and no island. The one thing a document needs that an ordinary component does not is the
- * **two-pass render**: forward references (a `Toc` above its headings, a `@ref` to a later
+ * A `.nota` module compiles to a plain Solid component, which is already what a route is in a
+ * router-based framework (SolidStart, say) — so there is no page-module wrapper, no renderer to
+ * register and no island. The one thing a document needs that an ordinary component does not is
+ * the **two-pass render**: forward references (a `Toc` above its headings, a `@ref` to a later
  * section) are a whole-document fact no single pass has.
+ *
+ * This is {@link renderDocument}'s sibling for the case where the host, not Nota, calls
+ * `renderToString`: it drives the same fixpoint from *inside* someone else's render.
  *
  * {@link notaRoute} supplies it from inside the host's own render:
  *
@@ -19,19 +22,13 @@
  *   reactively, which is correct by construction.
  */
 
-import {
-  collectDocState,
-  createDocState,
-  DOC_STATE_ID,
-  type DocComponent,
-  DocStateContext,
-  runRenderResets,
-  type SmartOptions,
-  type Snapshot
-} from "@nota-lang/core";
+import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
+import { collectDocState, type DocComponent, DOC_STATE_ID } from "./render";
+import { runRenderResets } from "./render-reset";
+import type { SmartOptions } from "./smart";
 import { createComponent, type JSX, onMount, sharedConfig } from "solid-js";
 import { getRequestEvent, isServer } from "solid-js/web";
-import { parkDocPass } from "./markers";
+import { parkDocPass } from "./doc-pass";
 
 /** Options for {@link notaRoute}. */
 export interface NotaRouteOptions {

@@ -25,7 +25,11 @@ Most tasks need only this file + the package map. For architecture/emit work:
 - **`packages/*`** — the `@nota-lang/*` TypeScript packages, a **Depot** + pnpm workspace:
   - **core** — the Solid runtime: `<Reforest>` (SSR-chunk/DOM tree reconstruction + grouping),
     the doc-state store (anchor/ref facts, by-`pos` identity), `render`/`hydrate` two-pass
-    drivers, `NotaDoc`, smart punctuation, entities.
+    drivers, `NotaDoc`, smart punctuation, entities. Plus the **host seam** for frameworks that
+    own the render loop (`route.ts`/`shell.ts`/`doc-pass.ts`): `notaRoute(Doc)` runs
+    `collectDocState` and renders against that seed from *inside* the host's `renderToString`,
+    parking the converged pass on a request-scoped channel for `NotaDocState` — placed after the
+    app in the host's shell — to emit and convergence-check. None of it imports SolidStart.
   - **prelude** — the ambient stdlib: `Tex` (KaTeX→MathML), `CodeInline`/`CodeBlock` (sync
     shiki, armed parts→decorations), the reference family (`Heading`/`Toc`/`Ref`/`Label`,
     footnotes as anchors+refs, `Cite`/`Bibliography`, `Figure`/`Subfigure`/`Caption` as
@@ -38,22 +42,18 @@ Most tasks need only this file + the package map. For architecture/emit work:
     (`CORE_RUNTIME_NAMES`, `FRAMEWORK_MODULES`/`FRAMEWORK_PACKAGES`, `DOC_EXPORT_NAME`,
     `LINE_CLASSIFIERS`) every other package derives its name-lists from. No subprocess backend,
     no separate wasm package.
-  - **vite** — the `.nota` transform + `nota()` preset. Owns the **one-`solid-js`-per-page
-    invariant** via `resolve.dedupe` (`DEDUPED_PACKAGES` = framework set +
+  - **vite** — the `.nota` transform + `nota()` preset, plus `@nota-lang/vite/solid-start`
+    (`notaStart()`: the SolidStart v2 preset, an optional peer — it composes `nota({solid:false})`
+    with `solidStart({extensions:["nota"]})`, since exactly one vite-plugin-solid may claim
+    `.nota`). That preset does NOT offer file-system routing over `.nota`: SolidStart's router
+    parses route files as TSX to find their exports, so a `.nota` under `routeDir` is dropped.
+    Owns the **one-`solid-js`-per-page invariant** via `resolve.dedupe` (`DEDUPED_PACKAGES` = framework set +
     `SOLID_JSX_DIST_PACKAGES`). A new package that ships Solid-compiled JSX in its dist (like
     the retired paper/explorable) MUST join `SOLID_JSX_DIST_PACKAGES` — currently empty — or a
     host's derived `noExternal`/`optimizeDeps` lists silently miss it.
   - **cli** — `nota build doc.nota → doc/`: two programmatic vite builds (SSR render, then
     client) with NODE_ENV pinned; pins `FRAMEWORK_PACKAGES` resolution so a doc builds anywhere;
     links CSS in hydrating builds; zero-JS output for island-free docs.
-  - **solid-start** — `@nota-lang/solid-start`, the SolidStart v2 integration. A `.nota` module
-    already compiles to a Solid component, which is what a SolidStart route is, so there is no
-    page wrapper and no renderer: `notaRoute(Doc)` supplies the two-pass render from inside the
-    host's own render (core's `collectDocState`), parks the converged snapshot on a
-    request-scoped channel, and `<NotaDocState/>` — placed after `{children}` in the shell —
-    emits it and runs the convergence check. `notaStart()` is the vite preset; note it does NOT
-    offer file-system routing over `.nota`, because SolidStart's router parses route files as
-    TSX to find their exports. Live consumer: nota-lang.org.
   - **language-server** — Volar server: virtual `.tsx` + CodeMappings back to `.nota`. The
     reader's offsets are UTF-8 **bytes**; `src/byte-offsets.ts` is the one byte→UTF-16
     converter, applied at the Volar mapping boundary, diagnostics, and semantic tokens. The
@@ -142,11 +142,11 @@ Distribution is **npm** (`@nota-lang/*`). The ritual: file a PR titled `vX.Y.Z` 
 **`release`** → `pre-release.yml` dry-runs the publish → merging triggers `release.yml`
 (`pnpm -r publish --access public`). Version is stamped in CI from the PR title — no bump
 commits; in-repo versions are placeholders. `pnpm publish` rewrites `workspace:*` deps at pack
-time. Publishes the **7 non-private packages** (cli, codemirror, compiler, core, prelude,
-solid-start, vite — the wasm reader ships *inside* `@nota-lang/compiler`'s
+time. Publishes the **6 non-private packages** (cli, codemirror, compiler, core, prelude, vite
+— the wasm reader ships *inside* `@nota-lang/compiler`'s
 `dist/generated/`); language-server and playground are private; `examples/` are never
 published.
 
 ## Build method
-Packages are built in dependency order (reader → core/prelude → vite → cli/solid-start/playground →
+Packages are built in dependency order (reader → core/prelude → vite → cli/playground →
 IDE tiers); every feature ships with tests, green before the next lands.

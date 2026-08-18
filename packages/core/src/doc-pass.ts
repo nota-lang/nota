@@ -1,14 +1,14 @@
 /**
  * The request-scoped channel the route wrapper and the document shell share.
  *
- * A Nota route computes its converged seed *while rendering* (inside SolidStart's own
+ * A Nota route computes its converged seed *while rendering* (inside the host's own
  * `renderToString`), but the snapshot has to reach the client as a `<script>` in the page shell —
  * outside the hydrated region, so it never has to match a client render. The shell renders after
  * the route, so the route parks its pass here and `<NotaDocState/>` picks it up.
  *
  * Two transports, preferred in order:
  *
- * 1. **SolidStart's request event**, when one is reachable. Correct under any amount of
+ * 1. **The host's request event**, when one is reachable. Correct under any amount of
  *    concurrency, since the object is per-request. It is not always reachable: `getRequestEvent`
  *    resolves through an AsyncLocalStorage that only `solid-js/web/storage` installs, and
  *    SolidStart imports that module on the server-function path — not on the page path.
@@ -19,7 +19,7 @@
  *    `entry-server` (and prerendering, the case this package is built for, is never concurrent).
  */
 
-import type { DocState, Snapshot } from "@nota-lang/core";
+import type { DocState, Snapshot } from "./doc-state";
 
 /** Property name on SolidStart's request event. */
 const SEED_KEY = "__notaDocPass";

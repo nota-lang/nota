@@ -7,7 +7,7 @@
  * this package's seam and not the prelude's component surface.
  */
 
-import { NotaDoc, textOf, useDocState } from "@nota-lang/core";
+import { NotaDoc, textOf, useDocState } from "../../src/lib";
 import { children, createSignal, Index, type ParentProps } from "solid-js";
 
 export function Counter() {
