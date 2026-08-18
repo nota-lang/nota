@@ -100,8 +100,7 @@ describe("the one-solid-js invariant", () => {
     for (const pkg of [
       "solid-js",
       "@nota-lang/core",
-      "@nota-lang/prelude",
-      "@nota-lang/paper"
+      "@nota-lang/prelude"
     ]) {
       expect(dedupe).toContain(pkg);
     }

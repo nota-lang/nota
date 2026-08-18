@@ -69,11 +69,14 @@ const EMIT_IMPORT_FALLBACKS = FRAMEWORK_MODULES;
 /**
  * The `@nota-lang/*` packages — beyond the framework itself — that ship a Solid-JSX-preserved
  * dist (a `"solid"` package.json export condition, compiled per target by the consumer's
- * vite-plugin-solid, same as `@nota-lang/core`/`@nota-lang/prelude`): `paper`'s scaffolding.
- * Not derivable from the reader's emit surface (nothing about them is reader-emitted) —
- * hand-maintained, one entry per such package.
+ * vite-plugin-solid, same as `@nota-lang/core`/`@nota-lang/prelude`).
+ *
+ * Currently empty: `paper` and `explorable` were the only ones, and both dissolved into the
+ * examples that used them. Kept as the seam rather than inlined, because it is not derivable
+ * from the reader's emit surface — a new package of that shape MUST be listed here, or a host's
+ * derived `noExternal`/`optimizeDeps` lists silently miss it.
  */
-const SOLID_JSX_DIST_PACKAGES: readonly string[] = ["@nota-lang/paper"];
+const SOLID_JSX_DIST_PACKAGES: readonly string[] = [];
 
 /**
  * Packages whose **module state must be a singleton per page**: solid-js's reactive runtime +
@@ -87,8 +90,7 @@ const SOLID_JSX_DIST_PACKAGES: readonly string[] = ["@nota-lang/paper"];
  * Consumers: `@nota-lang/solid-start` re-exports this list for a host that needs its own
  * `noExternal`/`optimizeDeps` policy; `@nota-lang/cli` pins only
  * `FRAMEWORK_PACKAGES` itself (its own resolver, `cli/src/build.ts`'s `cliResolverPlugin` — a
- * doc's `paper` imports resolve normally from the doc's own node_modules, not the
- * CLI's).
+ * doc's own imports resolve normally from the doc's directory, not the CLI's).
  */
 export const DEDUPED_PACKAGES: readonly string[] = [
   ...FRAMEWORK_PACKAGES,

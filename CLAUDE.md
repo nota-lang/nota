@@ -28,8 +28,9 @@ Most tasks need only this file + the package map. For architecture/emit work:
     drivers, `NotaDoc`, smart punctuation, entities.
   - **prelude** — the ambient stdlib: `Tex` (KaTeX→MathML), `CodeInline`/`CodeBlock` (sync
     shiki, armed parts→decorations), the reference family (`Heading`/`Toc`/`Ref`/`Label`,
-    footnotes as anchors+refs, `Cite`/`Bibliography`), the definition-tooltip system (per-doc
-    banks, zero framework JS), and `lstset`/`mathset`/`secset`/`bibset` config (reset per render
+    footnotes as anchors+refs, `Cite`/`Bibliography`, `Figure`/`Subfigure`/`Caption` as
+    figure-kind anchors with derived ordinals, `Smallcaps`), the definition-tooltip system
+    (per-doc banks, zero framework JS), and `lstset`/`mathset`/`secset`/`bibset` config (reset per render
     pass via core's render-reset seam).
   - **compiler** — sync shim over the in-process wasm reader, which **lives in this package**:
     `build.mjs` copies `oxc/target/js` → `src/generated/` (gitignored) and re-exports it raw as
@@ -40,8 +41,8 @@ Most tasks need only this file + the package map. For architecture/emit work:
   - **vite** — the `.nota` transform + `nota()` preset. Owns the **one-`solid-js`-per-page
     invariant** via `resolve.dedupe` (`DEDUPED_PACKAGES` = framework set +
     `SOLID_JSX_DIST_PACKAGES`). A new package that ships Solid-compiled JSX in its dist (like
-    paper, explorable) MUST join `SOLID_JSX_DIST_PACKAGES` or a host's derived
-    `noExternal`/`optimizeDeps` lists silently miss it.
+    the retired paper/explorable) MUST join `SOLID_JSX_DIST_PACKAGES` — currently empty — or a
+    host's derived `noExternal`/`optimizeDeps` lists silently miss it.
   - **cli** — `nota build doc.nota → doc/`: two programmatic vite builds (SSR render, then
     client) with NODE_ENV pinned; pins `FRAMEWORK_PACKAGES` resolution so a doc builds anywhere;
     links CSS in hydrating builds; zero-JS output for island-free docs.
@@ -68,15 +69,11 @@ Most tasks need only this file + the package map. For architecture/emit work:
     worker gotchas: repeat `vite-plugin-wasm` under `worker.plugins`, and the worker entry must
     stay the bootstrap-queue in `src/lsp/worker.ts` (top-level-await module graphs drop early
     `initialize` messages otherwise).
-  - **paper** — academic-writing components: `language()`/`Bnf`, `inferRule`/`IR`, scaffolding
-    (`Title`/`Authors`/`Abstract`/`Figure` as figure-kind anchors with derived ordinals) +
-    `paper.css`. Ships Solid-JSX dist (see the vite invariant).
-  - **explorable** — `@nota-lang/explorable`, interaction primitives for explorable
-    explanations (inputs, layout, `explorable.css`). Ships Solid-JSX dist (see the vite
-    invariant).
 - **`examples/barnes-hut`** — a full explorable document (d3-math quadtree, Solid SVG plots)
-  built by the cli. **Not depot-managed**: `pnpm run check` + `pnpm test` (plain tsc/vitest);
-  its document test builds through the cli's installed dist — rebuild `packages/cli` first.
+  built by the cli, and the owner of its own interaction primitives (`src/inputs.tsx`,
+  `src/layout.tsx` — formerly `@nota-lang/explorable`). **Not depot-managed**: `pnpm run check` +
+  `pnpm test` (plain tsc/vitest); its document test builds through the cli's installed dist —
+  rebuild `packages/cli` first.
 - **`editors/emacs/`** — `nota-mode.el`: conservative "never lie" font-lock tier + native
   embedded JS/TS fontification + eglot wiring. Tests (ERT, batch): `nota-mode-test.el`,
   `eglot-smoke.el`, and `conformance.el` (every `nota-*` face must be justified by a reader
@@ -145,8 +142,8 @@ Distribution is **npm** (`@nota-lang/*`). The ritual: file a PR titled `vX.Y.Z` 
 **`release`** → `pre-release.yml` dry-runs the publish → merging triggers `release.yml`
 (`pnpm -r publish --access public`). Version is stamped in CI from the PR title — no bump
 commits; in-repo versions are placeholders. `pnpm publish` rewrites `workspace:*` deps at pack
-time. Publishes the **9 non-private packages** (cli, codemirror, compiler, core, explorable,
-paper, prelude, solid-start, vite — the wasm reader ships *inside* `@nota-lang/compiler`'s
+time. Publishes the **7 non-private packages** (cli, codemirror, compiler, core, prelude,
+solid-start, vite — the wasm reader ships *inside* `@nota-lang/compiler`'s
 `dist/generated/`); language-server and playground are private; `examples/` are never
 published.
 

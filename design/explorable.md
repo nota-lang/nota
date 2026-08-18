@@ -3,8 +3,7 @@
 **Status: landed on branch `explorable-explanation` (2026-08-17).** The benchmark: reimplement
 Living Papers' Barnes-Hut example — itself a port of Heer's Idyll article, the densest real
 explorable in their repo — with the *least hackiness possible*, and measure where Nota's
-JS-interop actually carries the weight. The artifacts: `packages/explorable`
-(`@nota-lang/explorable`, the generic interaction kit) and `examples/barnes-hut/` (the document
+JS-interop actually carries the weight. The artifact is `examples/barnes-hut/` (the document
 + its components). This file records the mechanism-by-mechanism comparison and the honest gaps.
 
 ## What Living Papers is doing (the hacks under evaluation)
@@ -65,8 +64,9 @@ library code?
 
 ## What had to be built (the residue)
 
-- **`@nota-lang/explorable`** (~120 lines + CSS): `Slider`, `Action`, `Sticky`. This is the
-  generic kit an explorable needs beyond the language; deliberately protocol-only (no state
+- **The interaction kit** (~120 lines + CSS): `Slider`, `Action`, `Sticky`, in the example's own
+  `src/inputs.tsx`/`src/layout.tsx`. This is what an explorable needs beyond the language; it was
+  briefly `@nota-lang/explorable`, but one consumer does not make a package. Protocol-only (no state
   container of its own).
 - **The example's components** (~1.2k lines with tests): the Barnes-Hut math port, the diagram,
   the plots. Real application code — LP's version is the same order (quadtree.js 650 lines +
