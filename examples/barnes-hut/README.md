@@ -11,7 +11,8 @@ document. The design evaluation — Living Papers' mechanisms vs Nota's — is
 - `barnes-hut.nota` — the article. Document state is one `createMutable` store; the prose
   drives the diagram through two doc-local components defined in the preamble (`@Do` action
   links whose props are the click-time state patch; `@T` θ-series focus references), plus
-  `Slider`/`Action`/`Sticky` from `@nota-lang/explorable`.
+  `Slider`/`Action` (src/inputs.tsx) and `Sticky` (src/layout.tsx), which live with this
+  example rather than in a published package.
 - `src/network.ts` — the Les Misérables graph + a deterministic pre-settled d3-force layout
   (stopped simulation, synchronous ticks — SSR-safe and byte-reproducible).
 - `src/quadtree.ts` — the Barnes-Hut math over d3-quadtree as pure functions (accumulation,

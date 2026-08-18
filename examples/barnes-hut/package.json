@@ -9,7 +9,6 @@
     "check": "tsc -p tsconfig.json --noEmit && biome check src tests"
   },
   "dependencies": {
-    "@nota-lang/explorable": "workspace:*",
     "d3-force": "^3.0.0",
     "d3-quadtree": "^3.0.1"
   },

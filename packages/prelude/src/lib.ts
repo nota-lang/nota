@@ -67,6 +67,14 @@ export {
   Toc
 } from "./doc-state";
 export {
+  Caption,
+  FIGURE_KIND,
+  FIGURE_STYLE,
+  Figure,
+  Smallcaps,
+  Subfigure
+} from "./figure";
+export {
   ANCHOR_KINDS,
   type AnchorFact,
   anchorKey,

@@ -12,6 +12,7 @@ import {
   BASE_THEME_NAMES,
   Bibliography,
   bibset,
+  Caption,
   Cite,
   CodeBlock,
   CodeInline,
@@ -20,6 +21,7 @@ import {
   DefBank,
   Definition,
   FACT_KINDS,
+  Figure,
   Footnote,
   Footnotes,
   FootnotesList,
@@ -32,6 +34,8 @@ import {
   Ref,
   resetCodeWarningsForTest,
   resetConfigForTest,
+  Smallcaps,
+  Subfigure,
   secset,
   Tex,
   Title,
@@ -643,6 +647,87 @@ describe("unified references (&id across kinds)", () => {
     );
     // The generalized bank renders the figure's tooltip entry.
     expect(html).toMatch(/data-def="two"[^>]*>second preview/);
+  });
+});
+
+describe("figures", () => {
+  test("numbering is anchor-order; captions read their enclosing figure", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Figure id="one">
+          <Caption>{"first"}</Caption>
+        </Figure>
+        <Figure>
+          <Caption>{"anonymous still counts"}</Caption>
+        </Figure>
+        <Figure id="three">
+          <Caption>{"third"}</Caption>
+        </Figure>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/Figure 1: <\/span>first/);
+    expect(html).toMatch(/Figure 2: <\/span>anonymous still counts/);
+    expect(html).toMatch(/Figure 3: <\/span>third/);
+    // An id'd figure is addressable; an anonymous one is not.
+    expect(html).toContain('id="fig-one"');
+    expect(html).toContain('id="fig-three"');
+  });
+
+  test("&id resolves through the generic Ref arm: number, link and tooltip", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Figure id="plot">
+          <Caption>{"the plot"}</Caption>
+        </Figure>
+        {"see "}
+        <Ref id="plot" />
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<a href="#fig-plot"[^>]*data-nota-def="plot"[^>]*>Figure 1<\/a>/
+    );
+    // The figure body rides along as the tooltip bank.
+    expect(html).toMatch(/data-def="plot"[^>]*>[\s\S]*the plot/);
+  });
+
+  test("the layout style ships exactly once, however many figures", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Figure>
+          <Subfigure>{"a"}</Subfigure>
+          <Subfigure>{"b"}</Subfigure>
+        </Figure>
+        <Figure />
+        <Figure />
+      </NotaDoc>
+    );
+    const html = renderDocument(Doc).html;
+    expect(html.match(/\.nota-caption-label/g)?.length ?? 0).toBe(1);
+    expect(html).toContain('class="nota-subfigure"');
+  });
+
+  test("a caption outside any figure renders unlabeled", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Caption>{"loose"}</Caption>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toContain("loose");
+    expect(html).not.toContain("nota-caption-label");
+  });
+
+  test("Smallcaps wraps its children", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Smallcaps>{"acm"}</Smallcaps>
+      </NotaDoc>
+    );
+    expect(clean(renderDocument(Doc).html)).toMatch(
+      /<span style="font-variant:\s?small-caps;">acm<\/span>/
+    );
   });
 });
 

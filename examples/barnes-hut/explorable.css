@@ -1,4 +1,4 @@
-/* @nota-lang/explorable — interaction-primitive styling.
+/* Interaction-primitive styling for this explorable (src/inputs.tsx, src/layout.tsx).
  * Knobs (CSS custom properties, settable on :root or any ancestor):
  *   --nota-sticky-top     sticky offset for .nota-sticky panels (default 2rem)
  *   --nota-accent         slider track/thumb accent (default #35507a)
