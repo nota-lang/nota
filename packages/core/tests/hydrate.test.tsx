@@ -324,7 +324,7 @@ describe("doc-state unregistration (client)", () => {
     setMid(false); // <Show> unmounts b → onCleanup unregisters it
     expect(state.live("heading").map(f => f.id)).toEqual(["a", "c"]);
 
-    setMid(true); // Without a NotaSource boundary, the remount appends.
+    setMid(true); // A remount is a new registration, so it appends.
     expect(state.live("heading").map(f => f.id)).toEqual(["a", "c", "b"]);
 
     dispose();

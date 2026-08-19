@@ -6,6 +6,10 @@
 > pipeline; the surface-syntax semantics here (everything up to the lowering targets) are
 > unchanged.
 
+Because the current emit is ordinary Solid JSX, a markup expression is evaluated where it
+appears; it is not an inert content value. Reusable markup should be a component or function
+(`%let Intro = () => @{# Hi}` and `@Intro{}`), not a variable holding `@{…}`.
+
 Nota is a document language: `@`-syntax markup (after Pollen/Scribble) that lowers to
 **hyperscript** — `h`/`Fragment`/`decode` calls from `@nota-lang/runtime`, NOT JSX text — for any
 JSX framework (React, Solid). The runtime semantics (`decode`, SSG, islands) are specified in

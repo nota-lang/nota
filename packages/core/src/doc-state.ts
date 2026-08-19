@@ -4,13 +4,11 @@
  */
 
 import {
-  createComponent,
   createContext,
   createSignal,
   getOwner,
   type JSX,
   onCleanup,
-  type ParentProps,
   useContext
 } from "solid-js";
 import { isServer } from "solid-js/web";
@@ -41,21 +39,8 @@ export interface FactHandle {
   fact: LocatedFact;
 }
 
-interface RegistrationSource {
-  token: object;
-  pos: number;
-  instance: number;
-  nextRegistration: number;
-}
-
-interface OrderedFactHandle extends FactHandle {
+interface RegisteredFactHandle extends FactHandle {
   kind: string;
-  mount: number;
-  source?: {
-    pos: number;
-    instance: number;
-    local: number;
-  };
 }
 
 export interface DocState {
@@ -87,8 +72,6 @@ export interface DocState {
   local<T>(key: object, init: () => T): T;
   /** Return a location's index in the resolved document order, or `-1` if absent. */
   index(location: Location): number;
-  /** @internal Claim one rendered instance of a reader source boundary. */
-  source(pos: number): RegistrationSource;
 }
 
 /** Store-creation options ({@link createDocState}). */
@@ -106,10 +89,8 @@ export function createDocState(
   // Release is silent because a converged live store equals its seed. The next registration
   // bumps version and moves readers to live facts.
   let released = seed === undefined;
-  let nextMount = 0;
-  const token = {};
-  const sourceInstances = new Map<number, number>();
-  const entries: OrderedFactHandle[] = [];
+  let nextRegistration = 0;
+  const entries: RegisteredFactHandle[] = [];
   const seededFacts = new Map<string, LocatedFact[]>();
   const noSeededFacts: LocatedFact[] = [];
   for (const entry of seed ?? []) {
@@ -122,24 +103,6 @@ export function createDocState(
   const locals = new Map<object, unknown>();
   const bump = () => setVersion(v => v + 1);
 
-  const compare = (a: OrderedFactHandle, b: OrderedFactHandle): number => {
-    if (a.source && b.source) {
-      return (
-        a.source.pos - b.source.pos ||
-        a.source.instance - b.source.instance ||
-        a.source.local - b.source.local ||
-        a.mount - b.mount
-      );
-    }
-    if (a.source) return -1;
-    if (b.source) return 1;
-    return a.mount - b.mount;
-  };
-
-  const reorder = () => {
-    entries.sort(compare);
-  };
-
   const liveOf = (kind: string): LocatedFact[] => {
     version();
     return entries
@@ -149,30 +112,12 @@ export function createDocState(
 
   const state: DocState = {
     register(kind, fact) {
-      nextMount += 1;
-      const activeSource = useContext(SourceContext);
-      const source = activeSource?.token === token ? activeSource : undefined;
-      const local = source?.nextRegistration ?? 0;
-      if (source) source.nextRegistration += 1;
-      const location = source
-        ? `s:${source.pos}:${source.instance}:${local}`
-        : `m:${nextMount}`;
-      const handle: OrderedFactHandle = {
+      nextRegistration += 1;
+      const handle: RegisteredFactHandle = {
         kind,
-        fact: { ...fact, location },
-        mount: nextMount,
-        ...(source
-          ? {
-              source: {
-                pos: source.pos,
-                instance: source.instance,
-                local
-              }
-            }
-          : {})
+        fact: { ...fact, location: `m:${nextRegistration}` }
       };
       entries.push(handle);
-      reorder();
       bump();
       // Server roots dispose before snapshot(), so only client registrations auto-unregister.
       if (!isServer && getOwner()) {
@@ -181,10 +126,9 @@ export function createDocState(
       return handle;
     },
     unregister(h) {
-      const i = entries.indexOf(h as OrderedFactHandle);
+      const i = entries.indexOf(h as RegisteredFactHandle);
       if (i >= 0) {
         entries.splice(i, 1);
-        reorder();
         bump();
       }
     },
@@ -241,29 +185,12 @@ export function createDocState(
       version();
       const resolved = !released && seed !== undefined ? seed : entries;
       return resolved.findIndex(entry => entry.fact.location === location);
-    },
-    source(pos) {
-      const instance = (sourceInstances.get(pos) ?? 0) + 1;
-      sourceInstances.set(pos, instance);
-      return { token, pos, instance, nextRegistration: 0 };
     }
   };
   return state;
 }
 
 const DocStateContext = createContext<DocState>();
-const SourceContext = createContext<RegistrationSource>();
-
-/** Provide a reader source offset to components that register document facts. */
-export function NotaSource(props: ParentProps<{ pos: number }>): JSX.Element {
-  const source = useDocState().source(props.pos);
-  return createComponent(SourceContext.Provider, {
-    value: source,
-    get children() {
-      return props.children;
-    }
-  });
-}
 
 /** Return the current document store. */
 export function useDocState(): DocState {

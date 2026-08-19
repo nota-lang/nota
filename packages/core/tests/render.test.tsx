@@ -21,7 +21,6 @@ import {
   docStateJson,
   docStateScript,
   NotaDoc,
-  NotaSource,
   OlLi,
   parseOpeningTag,
   Reforest,
@@ -398,27 +397,22 @@ describe("document sessions", () => {
     expect(seen).toEqual(["default", "changed", "default", "changed"]);
   });
 
-  test("registrations follow reader source positions", () => {
+  test("registrations retain registration order", () => {
     const Register = (props: { id: string }) => {
       useDocState().register("item", { id: props.id });
       return null;
     };
     const Doc2 = () => (
       <NotaDoc>
-        <NotaSource pos={20}>
-          <Register id="later" />
-        </NotaSource>
-        <NotaSource pos={10}>
-          <Register id="earlier" />
-        </NotaSource>
+        <Register id="first" />
+        <Register id="second" />
       </NotaDoc>
     );
     const items = renderDocument(Doc2)
       .state.filter(entry => entry.kind === "item")
       .map(entry => entry.fact);
-    expect(items.map(item => item.id)).toEqual(["earlier", "later"]);
-    expect(items.every(item => typeof item.location === "string")).toBe(true);
-    expect(items[0].location).not.toBe(items[1].location);
+    expect(items.map(item => item.id)).toEqual(["first", "second"]);
+    expect(items.map(item => item.location)).toEqual(["m:1", "m:2"]);
   });
 });
 

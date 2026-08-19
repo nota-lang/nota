@@ -5,9 +5,9 @@ compiles `.nota` files **directly to Solid JSX** — a document is a Solid compo
 (paragraphs/lists/sections) happens at runtime in core's `<Reforest>` pass over the rendered
 tree; cross-references resolve through the **unified anchor/ref registry** (one doc-state store;
 headings/labels/figures/footnotes/cites are anchors and uses are refs). Facts have opaque, stable
-locations; their snapshot order is separate from identity. SSG runs a **two-pass render** so
-forward references converge in the static bytes; interactive pages hydrate through ordinary
-Solid hydration. The pre-Solid
+locations assigned in registration order; their snapshot order is separate from identity. SSG
+runs a **two-pass render** so forward references converge in the static bytes; interactive pages
+hydrate through ordinary Solid hydration. The pre-Solid
 architecture (hyperscript `h`/`decode`, islands/replay, the react packages) is deleted;
 `design/decode.md` is its archived spec.
 

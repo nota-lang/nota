@@ -149,7 +149,8 @@ No new sigils, no new extent rules, no new highlight kinds (doc-state reuses `Si
 The snapshot is one document-ordered array of `{kind, fact}` entries. Each fact carries an opaque
 `location`; locations are compared only for identity, while array order (or `DocState.index` for
 cross-kind queries) answers before/after questions. Numbering is derived from ordered per-kind
-views and is never baked into facts, so convergence and reactive renumbering hold by construction.
+views and is never baked into facts, so equivalent render passes converge. Unmounting removes a
+fact reactively; remounting creates a new occurrence at the end of registration order.
 
 ## Editor story (deliberately deferred)
 

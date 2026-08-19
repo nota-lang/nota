@@ -38,7 +38,7 @@ describe("compile (JSX emit surface + prepended imports)", () => {
 
     // The structural names the rewrite introduced, from @nota-lang/core.
     expect(code).toMatch(
-      /^import \{ NotaDoc, NotaSource, UlLi \} from "@nota-lang\/core";/m
+      /^import \{ NotaDoc, UlLi \} from "@nota-lang\/core";/m
     );
     // The solid-js ambient surface: createSignal is free in the doc's %-code; For was recovered.
     expect(code).toMatch(/^import \{ createSignal, For \} from "solid-js";/m);
@@ -54,9 +54,8 @@ describe("compile (JSX emit surface + prepended imports)", () => {
 
     // @for → <For>, with the `-` marker as <UlLi> and the component as a JSX tag.
     expect(code).toMatch(/<For each=\{\["a", "b"\]\}>/);
-    expect(code).toMatch(
-      /<UlLi><NotaSource pos=\{\d+\}><Colorized>\{x\}<\/Colorized><\/NotaSource><\/UlLi>/
-    );
+    expect(code).toMatch(/<UlLi><Colorized>\{x\}<\/Colorized><\/UlLi>/);
+    expect(code).not.toContain("NotaSource");
 
     // The h-call surface is fully dissolved.
     expect(code).not.toMatch(/\bh\(/);

@@ -4,12 +4,7 @@
  * definitions (anchors + bank), Tex (KaTeX MathML), CodeBlock/CodeInline (sync shiki), and the
  * pointed-error paths.
  */
-import {
-  NotaDoc,
-  NotaSource,
-  renderDocument,
-  useDocState
-} from "@nota-lang/core";
+import { NotaDoc, renderDocument, useDocState } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -193,18 +188,12 @@ describe("heading mechanics", () => {
 });
 
 describe("label / ref", () => {
-  test("label binding uses document order, not location values or mount order", () => {
+  test("label binding follows registration order", () => {
     const Doc = () => (
       <NotaDoc>
-        <NotaSource pos={30}>
-          <Ref id="here" />
-        </NotaSource>
-        <NotaSource pos={20}>
-          <Label id="here" />
-        </NotaSource>
-        <NotaSource pos={10}>
-          <Heading>One</Heading>
-        </NotaSource>
+        <Heading>One</Heading>
+        <Label id="here" />
+        <Ref id="here" />
       </NotaDoc>
     );
     expect(clean(renderDocument(Doc).html)).toMatch(

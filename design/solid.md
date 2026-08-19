@@ -165,6 +165,10 @@ inspection client-side, chunk sniffing server-side). The declared-kind construct
 component is a plain Solid arrow (`%let Note = (props: { children?: unknown }) =>
 @aside{@(props.children)}`; the annotation types the LSP view and the emit strips it).
 
+Markup expressions have ordinary Solid evaluation semantics; they are not inert, reusable
+content values. Put reusable markup behind a component or function so it is evaluated where it
+is rendered (`%let Intro = () => @{# Hi}` followed by `@Intro{}`).
+
 Known sniffing limits (inherited from the spike, acceptable v0): a component rooted in dynamic
 text SSRs a marker-led chunk and categorizes as inline; the `data-category` declaration protocol
 is the documented fallback if this bites.
@@ -181,8 +185,9 @@ process:
   `anchor` and `ref`, [references.md](./references.md) — plus named `trailer` thunks) and *read*
   derived facts through pure derivations (heading ids/numbers, first-use footnote and citation
   numbers, `refsTo` backlinks). Registrations ≙ the old marks; memos ≙ the old queries; the store ≙
-  `DocIndex`. Unmount unregisters (`onCleanup`), so doc-state is **reactive**: a heading inserted
-  by a `<Show>` renumbers the document live — something the old design could never express.
+  `DocIndex`. Unmount unregisters (`onCleanup`), so removals update derived views immediately.
+  A remounted fact is a new registration and appends to document order; dynamic semantic
+  structure is not promised to track DOM insertion order.
 - **SSG renders twice.** Pass 1 renders to populate the store (forward reads resolve to
   placeholders). Pass 2 renders with pass 1's snapshot as the **seed**: a read whose fact isn't
   yet live falls back to the seed, so forward references are correct in static HTML. After pass
@@ -201,13 +206,13 @@ process:
 hydrate) are ~40 lines in `@nota-lang/core` — they replace `render`, `island`, capture mode, the
 manifest, and `hydrateDocument`'s replay machinery.
 
-The reader wraps component boundaries and the Heading/Label/Ref sugars in
-`<NotaSource pos={byteOffset}>`. The store sorts registrations by those source positions, with
-render-instance and local-registration order as tie-breakers. Hand-authored TSX without a source
-boundary falls back to mount order. Each registration receives a stable opaque `location`, but
-that identity carries no ordering semantics: snapshot order records document order, and
-`DocState.index(location)` serves the few cross-kind before/after queries. A later Solid
-evaluation therefore cannot reorder ordinary Nota anchors and references.
+The reader emits component calls directly. The store appends facts as their components register
+and assigns each occurrence an opaque sequential `location`; the snapshot array is document
+order, and `DocState.index(location)` serves the few cross-kind before/after queries. Equivalent
+SSG and hydration renders must therefore evaluate semantic components in the same order, which
+the convergence check enforces. This keeps static Nota documents simple and deterministic. The
+explicit tradeoff is that removing and remounting a heading, figure, footnote, or ref appends a
+new occurrence instead of recovering its former source or DOM position.
 
 `NotaDoc` adopts an outer store when one is provided (`useContext ?? createDocState()`), so the
 driver owns the store during SSG/hydration and a bare `<NotaDoc>` in tests/CSR is
@@ -350,8 +355,8 @@ The surviving system, by layer — with the judgment calls the sweep made explic
    ✅ playground on in-page babel-preset-solid (Solid UI, pure-CSR preview).
 3. ✅ Code decorations over resolved children. `data-category` protocol: still only if
    sniffing bites in practice.
-4. ✅ Paper port (store-numbered figures; Bnf tooltips explicit). DOM-order doc-state: still
-   deferred until dynamic-insertion renumbering matters in practice.
+4. ✅ Paper port (store-numbered figures; Bnf tooltips explicit). Doc-state intentionally uses
+   registration order; DOM-order tracking remains out of scope.
 
 Removed outright in the post-landing sweep: `@nota-lang/runtime`, `@nota-lang/react`,
 `@nota-lang/react-router` (git history keeps them).
