@@ -13,18 +13,32 @@ import {
   useNumbers
 } from "../src/refs";
 
-const heading = (title: string, pos: number, explicitId?: string): AnchorFact =>
-  ({ kind: "heading", rank: 1, title, explicitId, pos }) as AnchorFact;
+const location = (n: number) => `test:${n}`;
+const heading = (
+  title: string,
+  order: number,
+  explicitId?: string
+): AnchorFact => ({
+  kind: "heading",
+  rank: 1,
+  title,
+  explicitId,
+  location: location(order)
+});
 const anchor = (
   kind: string,
   id: string | undefined,
-  pos: number
-): AnchorFact => ({ kind, id, pos }) as AnchorFact;
+  order: number
+): AnchorFact => ({ kind, id, location: location(order) });
 const ref = (
   target: string | undefined,
-  pos: number,
-  targetPos?: number
-): RefFact => ({ target, targetPos, pos }) as RefFact;
+  order: number,
+  targetOrder?: number
+): RefFact => ({
+  target,
+  targetLocation: targetOrder === undefined ? undefined : location(targetOrder),
+  location: location(order)
+});
 
 describe("resolveAnchors — the flat namespace", () => {
   test("strong ids resolve; a strong/strong collision throws with both kinds", () => {
@@ -78,7 +92,7 @@ describe("resolveAnchors — the flat namespace", () => {
 });
 
 describe("numbering derivations", () => {
-  test("useNumbers: first-use order per distinct target, filtered, with first-ref pos", () => {
+  test("useNumbers: first-use order per distinct target, filtered, with its location", () => {
     const refs = [
       ref("a", 1),
       ref("skip", 2),
@@ -86,16 +100,16 @@ describe("numbering derivations", () => {
       ref("a", 4),
       ref(undefined, 5, 99)
     ];
-    const { numOf, firstRefPos } = useNumbers(refs, key => key !== "skip");
+    const { numOf, firstRefLocation } = useNumbers(refs, key => key !== "skip");
     expect(numOf.get("a")).toBe(1);
     expect(numOf.get("b")).toBe(2);
-    expect(numOf.get("#99")).toBe(3);
+    expect(numOf.get("#test:99")).toBe(3);
     expect(numOf.has("skip")).toBe(false);
-    expect(firstRefPos.get("a")).toBe(1);
-    expect(firstRefPos.get("#99")).toBe(5);
+    expect(firstRefLocation.get("a")).toBe(location(1));
+    expect(firstRefLocation.get("#test:99")).toBe(location(5));
   });
 
-  test("anchorOrdinals: 1-based per kind in pos order", () => {
+  test("anchorOrdinals: 1-based per kind in input order", () => {
     const ords = anchorOrdinals(
       [
         anchor("figure", "f1", 2),
@@ -104,9 +118,9 @@ describe("numbering derivations", () => {
       ],
       "figure"
     );
-    expect(ords.get(2)).toBe(1);
-    expect(ords.get(7)).toBe(2);
-    expect(ords.has(3)).toBe(false);
+    expect(ords.get(location(2))).toBe(1);
+    expect(ords.get(location(7))).toBe(2);
+    expect(ords.has(location(3))).toBe(false);
   });
 
   test("headingNumbers/headingIds over anchor facts keep the outline semantics", () => {
@@ -120,16 +134,19 @@ describe("numbering derivations", () => {
 });
 
 describe("keys + backlink feed", () => {
-  test("refTargetKey/anchorKey agree on the anonymous #pos convention", () => {
+  test("refTargetKey/anchorKey agree on anonymous locations", () => {
     expect(refTargetKey(ref("x", 1))).toBe("x");
-    expect(refTargetKey(ref(undefined, 1, 42))).toBe("#42");
+    expect(refTargetKey(ref(undefined, 1, 42))).toBe("#test:42");
     expect(anchorKey(anchor("footnote", "x", 3))).toBe("x");
-    expect(anchorKey(anchor("footnote", undefined, 3))).toBe("#3");
+    expect(anchorKey(anchor("footnote", undefined, 3))).toBe("#test:3");
   });
 
   test("refsTo lists a target's uses in order", () => {
     const refs = [ref("a", 1), ref("b", 2), ref("a", 3)];
-    expect(refsTo(refs, "a").map(r => r.pos)).toEqual([1, 3]);
+    expect(refsTo(refs, "a").map(r => r.location)).toEqual([
+      location(1),
+      location(3)
+    ]);
     expect(refsTo(refs, "c")).toEqual([]);
   });
 });

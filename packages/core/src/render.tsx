@@ -3,7 +3,6 @@
 import { type JSX, sharedConfig } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
-import { runRenderResets } from "./render-reset";
 import type { SmartOptions } from "./smart";
 
 /** A document component (the `.nota` emit's default export). */
@@ -43,7 +42,6 @@ export function collectDocState(
 ): Snapshot {
   const outer = sharedConfig.context;
   const state = createDocState(undefined, { smart: options.smart });
-  runRenderResets();
   try {
     renderToString(
       () => (
@@ -72,7 +70,6 @@ export function renderDocument(
   const seed = collectDocState(Doc, options);
 
   const pass2 = createDocState(seed, stateOptions);
-  runRenderResets();
   const html = renderToString(
     () => (
       <DocStateContext.Provider value={pass2}>
@@ -157,7 +154,6 @@ export function hydrateDocument(
   const root =
     opts.root ?? document.getElementById("nota-root") ?? document.body;
   const seed = opts.seed ?? readPageDocState();
-  runRenderResets();
   const state = createDocState(seed, { smart: opts.smart });
   const dispose = solidHydrate(
     () => (

@@ -95,15 +95,17 @@ describe("nota() → renderDocument, end to end", () => {
   test("the state script embeds the converged snapshot (anchor/ref wire format)", () => {
     expect(stateScript).toContain('id="nota-doc-state"');
     const inner = />(.*)<\/script>$/.exec(stateScript)?.[1] ?? "";
-    const snapshot = JSON.parse(inner) as {
-      anchor?: Array<{ kind: string; id?: string; title?: string }>;
-      ref?: Array<{ target?: string }>;
-    };
-    const anchors = snapshot.anchor ?? [];
+    const snapshot = JSON.parse(inner) as Array<{
+      kind: string;
+      fact: { kind?: string; id?: string; title?: string; target?: string };
+    }>;
+    const anchors = snapshot
+      .filter(entry => entry.kind === "anchor")
+      .map(entry => entry.fact);
     expect(anchors.filter(a => a.kind === "heading").map(a => a.title)).toEqual(
       ["Introduction", "Usage"]
     );
     expect(anchors.find(a => a.kind === "definition")?.id).toBe("nota");
-    expect((snapshot.ref ?? []).length).toBeGreaterThan(0);
+    expect(snapshot.filter(entry => entry.kind === "ref")).not.toHaveLength(0);
   });
 });

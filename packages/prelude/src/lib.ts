@@ -13,7 +13,6 @@ export {
 export {
   type BibEntry,
   type BibsetOptions,
-  bakeConfigBaseline,
   bibset,
   config,
   type LstsetOptions,
@@ -21,7 +20,6 @@ export {
   type MathsetOptions,
   mathset,
   type PreludeConfig,
-  resetConfig,
   resetConfigForTest,
   type SecsetOptions,
   secset
@@ -60,7 +58,6 @@ export {
   anchorKey,
   anchorOrdinals,
   anchorsOf,
-  counters,
   FACT_KINDS,
   headingIds,
   headingNumbers,

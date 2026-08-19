@@ -158,7 +158,7 @@ function AstNode(props: AstNodeProps) {
 }
 
 export interface AstPaneProps {
-  /** The ESTree JSON string from `parseAst` (empty before the first successful parse). */
+  /** The ESTree JSON string from reader analysis. */
   ast: string;
   /** The source text that produced `ast`, for slicing per-node previews. */
   source: string;

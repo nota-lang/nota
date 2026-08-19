@@ -6,14 +6,7 @@
  */
 
 import { expect, test } from "vitest";
-import {
-  compile,
-  compileVirtual,
-  compileWithMappings,
-  highlight,
-  highlightKindNames,
-  parseAst
-} from "../src/reader";
+import { analyze, compile, highlightKindNames } from "../src/reader";
 
 test("compile emits the document module (no runtime import — the integrator prepends it)", () => {
   const { code } = compile("# Hello World");
@@ -26,8 +19,12 @@ test("compile throws the rendered diagnostics on malformed input", () => {
   expect(() => compile("@em{unterminated")).toThrow(/Expected `\}`/);
 });
 
-test("parseAst returns the post-parse Nota tree as ESTree JSON with offsets", () => {
-  const { ast } = parseAst("# Hi");
+test("analyze returns every editor view from one recovered parse", () => {
+  const { ast, code, mappings, highlights } = analyze("# Hi");
+  expect(ast).not.toBeNull();
+  if (ast === null) {
+    throw new Error("analysis AST is missing");
+  }
   const tree = JSON.parse(ast);
   expect(tree.type).toBe("Program");
   const doc = tree.body[0].expression.kind;
@@ -41,16 +38,13 @@ test("parseAst returns the post-parse Nota tree as ESTree JSON with offsets", ()
     start: 2,
     end: 4
   });
-});
-
-test("compileWithMappings returns the mapped result shape", () => {
-  const { code, mappings } = compileWithMappings("# Hi");
   expect(code).toContain("export default function Doc()");
   expect(Array.isArray(mappings)).toBe(true);
+  expect(highlights.length).toBeGreaterThan(0);
 });
 
-test("compileVirtual recovers, reporting diagnostics instead of throwing", () => {
-  const { code, mappings, errors } = compileVirtual("@em{unterminated");
+test("analyze recovers, reporting diagnostics instead of throwing", () => {
+  const { code, mappings, errors } = analyze("@em{unterminated");
   expect(typeof code).toBe("string");
   expect(Array.isArray(mappings)).toBe(true);
   expect(errors).toHaveLength(1);
@@ -64,9 +58,7 @@ test("compileVirtual recovers, reporting diagnostics instead of throwing", () =>
 // reader's result types makes the emitted value match the declaration; assert that it does, since
 // only a round-trip through the real wasm can catch a regression here.
 test("an absent generatedLengths arrives as null, matching its declared type", () => {
-  const { mappings } = compileVirtual(
-    "# Hi\n\nsome @em{text} and @Foo[x=1]{y}\n"
-  );
+  const { mappings } = analyze("# Hi\n\nsome @em{text} and @Foo[x=1]{y}\n");
   expect(mappings.length).toBeGreaterThan(0);
   for (const m of mappings) {
     expect(
@@ -76,9 +68,9 @@ test("an absent generatedLengths arrives as null, matching its declared type", (
   }
 });
 
-test("highlight returns [start, end, kind] triples indexing highlightKindNames", () => {
-  const flat = highlight("# Hi");
-  expect(flat).toBeInstanceOf(Uint32Array);
+test("analysis highlights are triples indexing highlightKindNames", () => {
+  const flat = analyze("# Hi").highlights;
+  expect(Array.isArray(flat)).toBe(true);
   expect(flat.length % 3).toBe(0);
   expect(flat.length).toBeGreaterThan(0);
   const names = highlightKindNames();

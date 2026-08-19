@@ -36,9 +36,7 @@ describe("highlightSpans (node wasm reader)", () => {
     expect(names).toContain("js-keyword");
   });
 
-  test("throws on a source that fails to parse (caller serves last-good)", () => {
-    // A `%` block whose JS is broken makes the highlight parse fail. The plugin catches this and
-    // serves its cached tokens; here we just assert the throw contract.
-    expect(() => highlightSpans("% const = = =\n")).toThrow();
+  test("keeps spans available while the recovered parse reports errors", () => {
+    expect(highlightSpans("% const = = =\n")).toEqual(expect.any(Array));
   });
 });

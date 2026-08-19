@@ -1,12 +1,12 @@
 /**
  * Solid components over the unified anchor/reference registry. Missing targets remain pending
- * in unseeded renders and throw once a complete seed is available. Cross-kind `pos` values drive
- * ordering and stable self-lookups. See `design/references.md`.
+ * in unseeded renders and throw once a complete seed is available. See `design/references.md`.
  */
 
 import {
   type DocState,
   isSSRChunk,
+  type Location,
   parseOpeningTag,
   Reforest,
   type ResolvedChild,
@@ -89,8 +89,11 @@ function readRefs(state: DocState): RefFact[] {
 }
 
 /** Resolve the id namespace over the given anchors + the `bibset` source keys. */
-function resolution(anchors: AnchorFact[]): Map<string, ResolvedAnchor> {
-  return resolveAnchors(anchors, Object.keys(config().bibSrc));
+function resolution(
+  state: DocState,
+  anchors: AnchorFact[]
+): Map<string, ResolvedAnchor> {
+  return resolveAnchors(anchors, Object.keys(config(state).bibSrc));
 }
 
 /** Is `key` (a ref target key) a `kind`-anchor under `res` (anonymous keys check `anchors`)? */
@@ -101,8 +104,8 @@ function targetsKind(
   anchors: AnchorFact[]
 ): boolean {
   if (key.startsWith("#")) {
-    const pos = Number(key.slice(1));
-    return anchors.some(a => a.pos === pos && a.kind === kind);
+    const location = key.slice(1);
+    return anchors.some(a => a.location === location && a.kind === kind);
   }
   return res.get(key)?.fact.kind === kind;
 }
@@ -114,19 +117,18 @@ interface ReferenceModel {
   anchors: () => AnchorFact[];
   refs: () => RefFact[];
   headings: () => AnchorFact[];
-  /** `pos` → index into {@link headings} — a heading's own O(1) self-lookup. */
-  headingIndex: () => Map<number, number>;
+  headingIndex: () => Map<Location, number>;
   ids: () => string[];
   numbers: () => (string | undefined)[];
   resolved: () => Map<string, ResolvedAnchor>;
-  ordinalMaps: () => Map<string, Map<number, number>>;
+  ordinalMaps: () => Map<string, Map<Location, number>>;
   footnoteNumbering: () => {
     numOf: Map<string, number>;
-    firstRefPos: Map<string, number>;
+    firstRefLocation: Map<string, Location>;
   };
   bibNumbering: () => {
     labels: Map<string, number>;
-    firstRefPos: Map<string, number>;
+    firstRefLocation: Map<string, Location>;
   };
 }
 
@@ -148,22 +150,22 @@ function referenceModel(state: DocState): ReferenceModel {
       anchorsOf(anchors(), ANCHOR_KINDS.heading)
     );
     const headingIndex = createMemo(
-      () => new Map(headings().map((f, i) => [f.pos as number, i]))
+      () => new Map(headings().map((f, i) => [f.location, i]))
     );
     const ids = createMemo(() => headingIds(headings()));
     const numbers = createMemo(() =>
-      headingNumbers(headings(), config().numberDepth)
+      headingNumbers(headings(), config(state).numberDepth)
     );
-    const resolved = createMemo(() => resolution(anchors()));
+    const resolved = createMemo(() => resolution(state, anchors()));
     const ordinalMaps = createMemo(() => {
-      const maps = new Map<string, Map<number, number>>();
+      const maps = new Map<string, Map<Location, number>>();
       for (const anchor of anchors()) {
         let map = maps.get(anchor.kind);
         if (map === undefined) {
           map = new Map();
           maps.set(anchor.kind, map);
         }
-        map.set(anchor.pos as number, map.size + 1);
+        map.set(anchor.location, map.size + 1);
       }
       return maps;
     });
@@ -177,11 +179,11 @@ function referenceModel(state: DocState): ReferenceModel {
     const bibNumbering = createMemo(() => {
       const res = resolved();
       const rs = refs();
-      const labels = bibLabels(rs, res);
-      const { firstRefPos } = useNumbers(rs, key =>
+      const labels = bibLabels(state, rs, res);
+      const { firstRefLocation } = useNumbers(rs, key =>
         targetsKind(key, ANCHOR_KINDS.bib, res, anchors())
       );
-      return { labels, firstRefPos };
+      return { labels, firstRefLocation };
     });
     return {
       anchors,
@@ -225,10 +227,10 @@ export function Heading(
     rank,
     title: titleTextOf(resolved.toArray()),
     explicitId
-  } satisfies Omit<AnchorFact, "pos">);
-  const myPos = handle.fact.pos as number;
+  } satisfies Omit<AnchorFact, "location">);
+  const myLocation = handle.fact.location;
   const model = referenceModel(state);
-  const myIndex = () => model.headingIndex().get(myPos) ?? -1;
+  const myIndex = () => model.headingIndex().get(myLocation) ?? -1;
   const id = () => model.ids()[myIndex()];
   const num = () => model.numbers()[myIndex()];
   return (
@@ -318,17 +320,19 @@ export function Label(props: { id?: string }): JSX.Element {
   return null;
 }
 
-/** Nearest preceding heading of `pos`: its `[id, numberOrTitle]`, or null when none. */
+/** Nearest preceding heading: its `[id, numberOrTitle]`, or null when none. */
 function precedingHeading(
+  state: DocState,
   model: ReferenceModel,
-  pos: number
+  location: Location
 ): [string, string] | null {
   const headings = model.headings();
   const ids = model.ids();
   const nums = model.numbers();
+  const targetIndex = state.index(location);
   let t = -1;
   for (let i = 0; i < headings.length; i++) {
-    if ((headings[i].pos as number) < pos) {
+    if (state.index(headings[i].location) < targetIndex) {
       t = i;
     }
   }
@@ -344,10 +348,11 @@ function precedingHeading(
 /** The citation label map: distinct cited `bib` keys → 1-based label, by first-citation order
  * (`bibset({style: "alpha"})` re-sorts by author/title). */
 function bibLabels(
+  state: DocState,
   refs: RefFact[],
   res: Map<string, ResolvedAnchor>
 ): Map<string, number> {
-  const { bibSrc, bibStyle } = config();
+  const { bibSrc, bibStyle } = config(state);
   const order: string[] = [];
   const seen = new Set<string>();
   for (const r of refs) {
@@ -376,24 +381,29 @@ function bibLabels(
 }
 
 /** The footnote-use numbering model over the resolved facts (shared by marks and the list). */
-function footnoteModel(anchors: AnchorFact[], refs: RefFact[]) {
-  const res = resolveAnchors(anchors, Object.keys(config().bibSrc));
+function footnoteModel(
+  state: DocState,
+  anchors: AnchorFact[],
+  refs: RefFact[]
+) {
+  const res = resolveAnchors(anchors, Object.keys(config(state).bibSrc));
   return useNumbers(refs, key =>
     targetsKind(key, ANCHOR_KINDS.footnote, res, anchors)
   );
 }
 
-/** The reference `<sup>` for the footnote use at `refPos` targeting `targetKey`. Only the
+/** The reference `<sup>` for the footnote use at `refLocation` targeting `targetKey`. Only the
  * target's *first* use carries the `fnref-N` backlink id. */
 function FootnoteSup(props: {
   targetKey: string;
-  refPos: number;
+  refLocation: Location;
 }): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
   const num = () => model.footnoteNumbering().numOf.get(props.targetKey);
   const first = () =>
-    model.footnoteNumbering().firstRefPos.get(props.targetKey) === props.refPos;
+    model.footnoteNumbering().firstRefLocation.get(props.targetKey) ===
+    props.refLocation;
   return (
     <sup class="nota-fnref">
       <a
@@ -411,7 +421,7 @@ function FootnoteSup(props: {
  * first citing use carries the `citeref-N` backlink id. */
 function BibRefLink(props: {
   key_: string;
-  refPos: number;
+  refLocation: Location;
   page?: string;
   bare?: boolean;
   children?: JSX.Element;
@@ -420,7 +430,7 @@ function BibRefLink(props: {
   const model = referenceModel(state);
   const num = () => model.bibNumbering().labels.get(props.key_);
   const first = () =>
-    model.bibNumbering().firstRefPos.get(props.key_) === props.refPos;
+    model.bibNumbering().firstRefLocation.get(props.key_) === props.refLocation;
   const text = () => {
     const n = num() !== undefined ? String(num()) : PENDING;
     const page = props.page !== undefined ? `, p. ${props.page}` : "";
@@ -455,7 +465,7 @@ export function Ref(
   }
   const page = typeof props.page === "string" ? props.page : undefined;
   const handle = state.register(FACT_KINDS.ref, { target: key, page });
-  const myPos = handle.fact.pos as number;
+  const myLocation = handle.fact.location;
   const resolved = children(() => props.children);
   const hasAuthored = () => resolved.toArray().some(c => c != null);
   const body = () => (hasAuthored() ? resolved() : undefined);
@@ -492,7 +502,7 @@ export function Ref(
               </a>
             );
           case ANCHOR_KINDS.label: {
-            const h = precedingHeading(model, t.fact.pos as number);
+            const h = precedingHeading(state, model, t.fact.location);
             if (h === null) {
               if (state.seeded) {
                 throw new Error(
@@ -508,7 +518,7 @@ export function Ref(
             );
           }
           case ANCHOR_KINDS.heading: {
-            const i = model.headingIndex().get(t.fact.pos as number) ?? -1;
+            const i = model.headingIndex().get(t.fact.location) ?? -1;
             const num = model.numbers()[i];
             return (
               <a href={`#${t.id}`} class="nota-ref">
@@ -517,10 +527,10 @@ export function Ref(
             );
           }
           case ANCHOR_KINDS.footnote:
-            return <FootnoteSup targetKey={key} refPos={myPos} />;
+            return <FootnoteSup targetKey={key} refLocation={myLocation} />;
           case ANCHOR_KINDS.bib:
             return (
-              <BibRefLink key_={key} refPos={myPos} page={page}>
+              <BibRefLink key_={key} refLocation={myLocation} page={page}>
                 {body()}
               </BibRefLink>
             );
@@ -528,7 +538,7 @@ export function Ref(
             const n = model
               .ordinalMaps()
               .get(t.fact.kind)
-              ?.get(t.fact.pos as number);
+              ?.get(t.fact.location);
             const tooltip = t.fact.tooltip === true;
             return (
               <a
@@ -577,12 +587,12 @@ export function Footnote(props: ParentProps & { id?: string }): JSX.Element {
     content: () => props.children
   });
   const use = state.register(FACT_KINDS.ref, {
-    targetPos: anchor.fact.pos as number
+    targetLocation: anchor.fact.location
   });
   return (
     <FootnoteSup
-      targetKey={`#${anchor.fact.pos}`}
-      refPos={use.fact.pos as number}
+      targetKey={`#${anchor.fact.location}`}
+      refLocation={use.fact.location}
     />
   );
 }
@@ -593,10 +603,10 @@ export function FootnotesList(): JSX.Element {
   const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
     const refs = state.live(FACT_KINDS.ref) as RefFact[];
-    const { numOf } = footnoteModel(anchors, refs);
+    const { numOf } = footnoteModel(state, anchors, refs);
     const contentOf = (key: string): (() => JSX.Element) => {
       const a = key.startsWith("#")
-        ? anchors.find(x => x.pos === Number(key.slice(1)))
+        ? anchors.find(x => x.location === key.slice(1))
         : anchors.find(x => x.kind === ANCHOR_KINDS.footnote && x.id === key);
       return a?.content ?? (() => PENDING);
     };
@@ -651,7 +661,7 @@ export function Cite(props: ParentProps): JSX.Element {
   }
   const uses = keys.map(key => {
     const handle = state.register(FACT_KINDS.ref, { target: key });
-    return { key, refPos: handle.fact.pos as number };
+    return { key, refLocation: handle.fact.location };
   });
   // Validate resolution (pointed error when seeded; `?` labels render otherwise).
   const check = () => {
@@ -672,7 +682,9 @@ export function Cite(props: ParentProps): JSX.Element {
       <>
         {() => {
           check();
-          return <BibRefLink key_={uses[0].key} refPos={uses[0].refPos} />;
+          return (
+            <BibRefLink key_={uses[0].key} refLocation={uses[0].refLocation} />
+          );
         }}
       </>
     );
@@ -687,7 +699,7 @@ export function Cite(props: ParentProps): JSX.Element {
             {uses.map((u, i) => (
               <>
                 {i > 0 && ", "}
-                <BibRefLink key_={u.key} refPos={u.refPos} bare />
+                <BibRefLink key_={u.key} refLocation={u.refLocation} bare />
               </>
             ))}
             {"]"}

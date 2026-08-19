@@ -4,7 +4,12 @@
  * definitions (anchors + bank), Tex (KaTeX MathML), CodeBlock/CodeInline (sync shiki), and the
  * pointed-error paths.
  */
-import { NotaDoc, renderDocument, useDocState } from "@nota-lang/core";
+import {
+  NotaDoc,
+  NotaSource,
+  renderDocument,
+  useDocState
+} from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -17,7 +22,6 @@ import {
   CodeBlock,
   CodeInline,
   config,
-  counters,
   DefBank,
   Definition,
   FACT_KINDS,
@@ -75,8 +79,11 @@ describe("headings + numbering + toc", () => {
     const html = clean(rawHtml);
     // Title is not a heading anchor.
     expect(html).toContain('class="nota-title"');
-    expect(state.anchor).toHaveLength(3);
-    expect(state.anchor?.every(a => a.kind === "heading")).toBe(true);
+    const anchors = state
+      .filter(entry => entry.kind === FACT_KINDS.anchor)
+      .map(entry => entry.fact);
+    expect(anchors).toHaveLength(3);
+    expect(anchors.every(anchor => anchor.kind === "heading")).toBe(true);
     // Numbering: 1 / 1.1 / 2 with secnum spans.
     expect(html).toMatch(/<span class="nota-secnum"[^>]*>1<\/span>/);
     expect(html).toMatch(/<span class="nota-secnum"[^>]*>1\.1<\/span>/);
@@ -185,24 +192,26 @@ describe("heading mechanics", () => {
   });
 });
 
-describe("counters", () => {
-  test("counts facts by pos, keyed by pos; a reset fact restarts the count", () => {
-    const f = (pos: number) => ({ pos });
-    expect([...counters([f(2), f(5), f(9)], [f(4)]).entries()]).toEqual([
-      [2, 1],
-      [5, 1],
-      [9, 2]
-    ]);
-    // No resets: a plain running count.
-    expect([...counters([f(1), f(3)]).entries()]).toEqual([
-      [1, 1],
-      [3, 2]
-    ]);
-    expect(counters([]).size).toBe(0);
-  });
-});
-
 describe("label / ref", () => {
+  test("label binding uses document order, not location values or mount order", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <NotaSource pos={30}>
+          <Ref id="here" />
+        </NotaSource>
+        <NotaSource pos={20}>
+          <Label id="here" />
+        </NotaSource>
+        <NotaSource pos={10}>
+          <Heading>One</Heading>
+        </NotaSource>
+      </NotaDoc>
+    );
+    expect(clean(renderDocument(Doc).html)).toMatch(
+      /<a href="#one"[^>]*class="nota-ref"[^>]*>One<\/a>/
+    );
+  });
+
   test("a ref binds to the nearest preceding heading and shows its number", () => {
     const Doc = () => {
       secset({ numberDepth: 2 });
@@ -700,8 +709,8 @@ describe("figures", () => {
     expect(html).toMatch(
       /<a href="#fig-plot"[^>]*data-nota-def="plot"[^>]*>Figure 1<\/a>/
     );
-    // The figure body rides along as the tooltip bank.
-    expect(html).toMatch(/data-def="plot"[^>]*>[\s\S]*the plot/);
+    expect(html).toContain('data-def="plot" data-target="fig-plot"');
+    expect(html.match(/the plot/g)).toHaveLength(1);
   });
 
   test("the layout style ships exactly once, however many figures", () => {
@@ -876,9 +885,7 @@ describe("mathset", () => {
   });
 
   test("positionality survives the two-pass driver: a Tex before a mid-doc mathset stays MathML", () => {
-    // The regression this pins: pass 1 ends in html mode, and without a per-pass config reset
-    // pass 2 STARTS there — both formulas converge as KaTeX-HTML. Each pass must restart from
-    // the baked baseline (the drivers run the prelude's registered resetConfig).
+    // Pass 1 ends in HTML mode; pass 2 must still begin from its fresh session config.
     const Doc = () => (
       <NotaDoc>
         <Tex>{"a"}</Tex>
@@ -1033,8 +1040,7 @@ describe("tex + code", () => {
   });
 
   test("lstset positionality survives the two-pass driver: an earlier inline stays plain", () => {
-    // Same shape as the mathset two-pass regression: without the per-pass reset, pass 1's
-    // lang leaks into pass 2's start-state and the first inline highlights too.
+    // Same shape as the mathset two-pass regression: pass 1's language must not leak into pass 2.
     const Doc = () => (
       <NotaDoc>
         <CodeInline>{"f(x)"}</CodeInline>

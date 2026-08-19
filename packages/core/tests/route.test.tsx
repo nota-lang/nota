@@ -49,10 +49,11 @@ describe("notaRoute (server)", () => {
 
   test("the shell emits the converged snapshot for the client to claim with", () => {
     const seed = seedOf(renderPage(notaRoute(Doc)));
-    expect(seed.heading.map((h: { id: string }) => h.id)).toEqual([
-      "alpha",
-      "beta"
-    ]);
+    expect(
+      seed
+        .filter((entry: { kind: string }) => entry.kind === "heading")
+        .map((entry: { fact: { id: string } }) => entry.fact.id)
+    ).toEqual(["alpha", "beta"]);
   });
 
   test("pass 1 leaves the enclosing render's hydration keys alone", () => {

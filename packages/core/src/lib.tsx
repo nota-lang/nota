@@ -9,7 +9,6 @@ export * from "./entities";
 export * from "./nota-doc";
 export * from "./reforest";
 export * from "./render";
-export * from "./render-reset";
 export * from "./route";
 export * from "./shell";
 export * from "./smart";

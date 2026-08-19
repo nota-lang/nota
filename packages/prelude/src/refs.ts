@@ -1,10 +1,10 @@
 /**
  * Pure derivations for the unified anchor/reference registry. Authored ids are strong, heading
- * slugs are weak, bibliography keys are virtual, and anonymous anchors use their position.
+ * slugs are weak, bibliography keys are virtual, and anonymous anchors use their location.
  * See `design/references.md`.
  */
 
-import type { Fact } from "@nota-lang/core";
+import type { LocatedFact, Location } from "@nota-lang/core";
 import type { JSX } from "solid-js";
 
 /** Fact-kind keys in the document snapshot. */
@@ -22,8 +22,8 @@ export const ANCHOR_KINDS = {
   definition: "definition"
 } as const;
 
-/** A referenceable target. `content` and `bank` are live-only trailer payloads. */
-export interface AnchorFact extends Fact {
+/** A referenceable target. Function fields are live-only trailer payloads. */
+export interface AnchorFact extends LocatedFact {
   kind: string;
   id?: string;
   rank?: number;
@@ -34,15 +34,15 @@ export interface AnchorFact extends Fact {
   refPrefix?: string;
   content?: () => JSX.Element;
   bank?: () => JSX.Element;
-  pos?: number;
+  /** DOM id to clone when opening a tooltip for an already-rendered target. */
+  bankTarget?: string;
 }
 
-/** A recorded use. Anonymous inline footnotes use `targetPos` instead of `target`. */
-export interface RefFact extends Fact {
+/** A recorded use. Anonymous inline footnotes point directly to a target location. */
+export interface RefFact extends LocatedFact {
   target?: string;
-  targetPos?: number;
+  targetLocation?: Location;
   page?: string;
-  pos?: number;
 }
 
 /** A resolved anchor: the fact plus its *effective* id (headings: the deduped slug). */
@@ -51,6 +51,8 @@ export interface ResolvedAnchor {
   id: string;
   virtual?: boolean;
 }
+
+type HeadingData = Pick<AnchorFact, "rank" | "title" | "explicitId">;
 
 /** Slugify title text: lowercase, non-alphanumeric runs → `-`, trim edge `-`; empty → `"section"`. */
 export function slugify(text: string): string {
@@ -67,7 +69,7 @@ export function anchorsOf(anchors: AnchorFact[], kind: string): AnchorFact[] {
 }
 
 /** Effective heading ids. Authored ids are fixed; derived slugs avoid them and each other. */
-export function headingIds(headings: AnchorFact[]): string[] {
+export function headingIds(headings: HeadingData[]): string[] {
   const authored = new Set<string>();
   for (const f of headings) {
     if (f.explicitId === undefined) continue;
@@ -96,7 +98,7 @@ export function headingIds(headings: AnchorFact[]): string[] {
 
 /** Hierarchical section numbers. Skipped ranks collapse (`# / ###` becomes `1 / 1.1`). */
 export function headingNumbers(
-  headings: AnchorFact[],
+  headings: HeadingData[],
   depth: number
 ): (string | undefined)[] {
   const nums: (string | undefined)[] = [];
@@ -161,7 +163,11 @@ export function resolveAnchors(
   // Bibliography keys resolve without registrations.
   for (const key of bibKeys) {
     claim(key, {
-      fact: { kind: ANCHOR_KINDS.bib, id: key },
+      fact: {
+        kind: ANCHOR_KINDS.bib,
+        id: key,
+        location: `bib:${key}`
+      },
       id: key,
       virtual: true
     });
@@ -175,14 +181,14 @@ export function resolveAnchors(
   return byId;
 }
 
-/** The derivation key of a ref's target: its id, or `#pos` for an anonymous fused use. */
+/** The derivation key of a ref's target: its id, or an anonymous location. */
 export function refTargetKey(r: RefFact): string {
-  return r.target ?? `#${r.targetPos}`;
+  return r.target ?? `#${r.targetLocation}`;
 }
 
-/** The derivation key of an anchor: its id, or `#pos` when anonymous. */
+/** The derivation key of an anchor: its id, or its anonymous location. */
 export function anchorKey(a: AnchorFact): string {
-  return typeof a.id === "string" && a.id !== "" ? a.id : `#${a.pos}`;
+  return typeof a.id === "string" && a.id !== "" ? a.id : `#${a.location}`;
 }
 
 /** The recorded uses of `id`, in document order — the backlink feed. */
@@ -190,13 +196,13 @@ export function refsTo(refs: RefFact[], id: string): RefFact[] {
   return refs.filter(r => refTargetKey(r) === id);
 }
 
-/** Number distinct selected targets by first use and record each backlink position. */
+/** Number selected targets by first use and record each first-use location. */
 export function useNumbers(
   refs: RefFact[],
   targets: (key: string) => boolean
-): { numOf: Map<string, number>; firstRefPos: Map<string, number> } {
+): { numOf: Map<string, number>; firstRefLocation: Map<string, Location> } {
   const numOf = new Map<string, number>();
-  const firstRefPos = new Map<string, number>();
+  const firstRefLocation = new Map<string, Location>();
   let next = 1;
   for (const r of refs) {
     const key = refTargetKey(r);
@@ -206,44 +212,22 @@ export function useNumbers(
     if (!numOf.has(key)) {
       numOf.set(key, next);
       next += 1;
-      firstRefPos.set(key, r.pos as number);
+      firstRefLocation.set(key, r.location);
     }
   }
-  return { numOf, firstRefPos };
+  return { numOf, firstRefLocation };
 }
 
-/** Return the 1-based ordinal of each anchor of `kind`, keyed by `pos`. */
+/** Return the 1-based ordinal of each anchor of `kind`, keyed by location. */
 export function anchorOrdinals(
   anchors: AnchorFact[],
   kind: string
-): Map<number, number> {
-  const map = new Map<number, number>();
+): Map<Location, number> {
+  const map = new Map<Location, number>();
   let n = 0;
   for (const a of anchorsOf(anchors, kind)) {
     n += 1;
-    map.set(a.pos as number, n);
-  }
-  return map;
-}
-
-/** Count facts by position, restarting after each reset fact. */
-export function counters(
-  facts: Fact[],
-  resetFacts: Fact[] = []
-): Map<number, number> {
-  const events: { pos: number; count: boolean }[] = [
-    ...facts.map(f => ({ pos: f.pos as number, count: true })),
-    ...resetFacts.map(f => ({ pos: f.pos as number, count: false }))
-  ].sort((a, b) => a.pos - b.pos);
-  const map = new Map<number, number>();
-  let n = 0;
-  for (const ev of events) {
-    if (!ev.count) {
-      n = 0;
-    } else {
-      n += 1;
-      map.set(ev.pos, n);
-    }
+    map.set(a.location, n);
   }
   return map;
 }

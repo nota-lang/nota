@@ -52,6 +52,7 @@ const JSX_NAMESPACE = [
 
 const AMBIENT_STRUCTURAL = [
   "declare const NotaDoc: (props: { children?: unknown }) => unknown;",
+  "declare const NotaSource: (props: { pos: number; children?: unknown }) => unknown;",
   "declare const Reforest: (props: { children?: unknown; tight?: boolean }) => unknown;",
   "declare const UlLi: (props: { children?: unknown }) => unknown;",
   "declare const OlLi: (props: { children?: unknown }) => unknown;",

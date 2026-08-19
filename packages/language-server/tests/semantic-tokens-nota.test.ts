@@ -230,7 +230,7 @@ describe("kind coverage (reader ↔ token-map sync)", () => {
   // guard that caught `comment` and `emphasis-strike` being silently dropped after the 2026-08
   // sugar wave added them.
   test("every reader highlight kind yields a token (none silently dropped)", async () => {
-    const { highlightKindNames } = await import("@nota-lang/compiler/reader");
+    const { highlightKindNames } = await import("@nota-lang/compiler");
     for (const kind of highlightKindNames()) {
       const runs = flattenSpans([{ start: 0, end: 1, kind }]);
       expect(runs.length, `kind "${kind}" produced no run`).toBeGreaterThan(0);

@@ -1,6 +1,6 @@
 /** Convert recovered reader errors into source-level LSP diagnostics. */
 
-import { compileVirtual, type NotaError } from "@nota-lang/compiler";
+import { analyze, type NotaError } from "@nota-lang/compiler";
 import {
   type Diagnostic,
   DiagnosticSeverity,
@@ -14,7 +14,7 @@ export const NOTA_DIAGNOSTIC_SOURCE = "nota";
 export function notaSyntaxDiagnostics(source: string): Diagnostic[] {
   let errors: NotaError[];
   try {
-    ({ errors } = compileVirtual(source));
+    ({ errors } = analyze(source));
   } catch {
     return [];
   }

@@ -131,6 +131,23 @@ export function installDefTooltipHandlers(): void {
       return;
     }
     const tip = src.cloneNode(true) as HTMLElement;
+    const targetId = src.dataset.target;
+    if (targetId) {
+      const candidates = root?.querySelectorAll("[id]") ?? [];
+      const target =
+        Array.from(candidates).find(element => element.id === targetId) ??
+        doc.getElementById(targetId);
+      if (!target) {
+        return;
+      }
+      const content = target.cloneNode(true) as HTMLElement;
+      content.classList.add("nota-figure-tooltip");
+      content.removeAttribute("id");
+      for (const child of content.querySelectorAll("[id]")) {
+        child.removeAttribute("id");
+      }
+      tip.append(content);
+    }
     tip.classList.add("nota-def-tooltip-open");
     doc.body.appendChild(tip);
     const r = anchor.getBoundingClientRect();
@@ -213,14 +230,20 @@ export function DefBank(): JSX.Element {
   const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
     resolveAnchors(anchors, Object.keys(config().bibSrc)); // throws on duplicate ids
-    return anchors.filter(a => a.bank !== undefined);
+    return anchors.filter(
+      anchor => anchor.bank !== undefined || anchor.bankTarget !== undefined
+    );
   });
   onMount(installDefTooltipHandlers);
   return (
     <div class="nota-def-tooltips" aria-hidden="true">
       <For each={entries()}>
         {a => (
-          <div class="nota-def-tooltip" data-def={anchorKey(a)}>
+          <div
+            class="nota-def-tooltip"
+            data-def={anchorKey(a)}
+            data-target={a.bankTarget}
+          >
             {a.bank?.()}
           </div>
         )}

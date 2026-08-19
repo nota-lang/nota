@@ -1,7 +1,6 @@
 /** Run the playground's parse → emit → Babel → evaluation pipeline. */
 
-import { compile } from "@nota-lang/compiler";
-import { parseAst } from "@nota-lang/compiler/reader";
+import { analyze, bindImports } from "@nota-lang/compiler";
 import { compileAndEval, type DocFn } from "./solid-eval";
 
 export interface PipelineResult {
@@ -34,8 +33,12 @@ export function runPipeline(
   let ast: string;
   let jsx: string;
   try {
-    ast = parseAst(source).ast;
-    jsx = compile(source, { sourcePath: "doc.nota" }).code;
+    const result = analyze(source);
+    if (result.errors.length > 0) {
+      throw new Error(result.errors.map(error => error.message).join("\n"));
+    }
+    ast = result.ast;
+    jsx = bindImports(result.code, result.freeNames);
   } catch (err) {
     return { ...prev, error: errMessage(err) };
   }

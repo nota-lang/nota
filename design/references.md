@@ -19,10 +19,9 @@ Two fact kinds replace `heading` / `label` / `definition` / `footnote` / `footno
   component. The prelude ships kinds `heading`, `label`, `footnote`, `bib`, `definition`;
   paper adds `figure`. Kind-specific data is JSON-safe (rank/title for headings, labelText for
   definitions); non-JSON payloads (a footnote's body, a tooltip bank entry) ride as
-  live-only thunks that the snapshot drops, read only by position-complete trailers — the
+  live-only thunks that the snapshot drops, read only by document-end trailers — the
   store's existing `read()`/`live()` duality, unchanged.
-- **`ref`** — a use: `{ target, …data }`, registered by `Ref` (and the wrappers that lower to
-  it) at its document position.
+- **`ref`** — a use: `{ target, …data }`, registered by `Ref` and its wrappers.
 
 ### The namespace
 
@@ -40,13 +39,12 @@ strengths:
 Bib entries are **config-virtual** anchors: `bibset({src})` keys resolve as `bib`-kind anchors
 without a registration (config is positional module state, not a render). New capability that
 falls out: `&intro` reaches a heading directly (explicit id or slug) — no `@Label` required.
-Anchors may also be **anonymous** (no id): the inline `@Footnote{…}` registers one; anonymous
-anchors are unreferenceable and key derivations by `pos`.
+Anchors may also be **anonymous** (no id): the inline `@Footnote{…}` registers one. Anonymous
+anchors are unreferenceable and use their opaque location as an internal key.
 
 ### Derivations
 
-All pure functions over the two fact lists (seed-corrected on the server exactly like today's
-`headings()`):
+All pure functions consume the ordered anchor/ref views of the snapshot:
 
 - `resolveAnchors(anchors, bibSrc)` — the id → anchor map (strong first with duplicate
   detection, then virtual bib, then unshadowed weak slugs).
@@ -104,8 +102,8 @@ the unification.
   double-registering as definitions. The dblclick jump follows the reference's own `href`
   instead of a hard-coded `#def-` prefix (this also fixes the currently-broken figure jump).
 - **`Heading` / `Label` / `Toc`** — unchanged surfaces over `heading`/`label` anchors; `Toc`
-  is a view over the heading anchors. Components look their own fact up by `pos` (handle
-  identity), not by captured `seq` — fixing the stale-index hazard under dynamic unmount.
+  is a view over the heading anchors. Components use the handle's opaque location for identity,
+  not a captured sequence index.
 - Paper's **`Figure`/`Caption`** — `Figure` registers a `figure` anchor `{id?, href:
   "#fig-id", refPrefix: "Figure ", bank}` (no baked number string, no definition
   double-registration); `Caption` reads its figure's ordinal through a `FigureContext`
@@ -148,10 +146,10 @@ No new sigils, no new extent rules, no new highlight kinds (doc-state reuses `Si
 
 ## Wire format & two-pass
 
-The snapshot collapses to two ordered arrays, `anchor` and `ref` (`FACT_KINDS` shrinks
-accordingly; vite snapshot-shape assertions update). Numbering stays derived at read
-time — never baked into facts — so convergence and reactive renumbering hold by construction.
-Two-pass, seeding, hydration, `release()`: untouched.
+The snapshot is one document-ordered array of `{kind, fact}` entries. Each fact carries an opaque
+`location`; locations are compared only for identity, while array order (or `DocState.index` for
+cross-kind queries) answers before/after questions. Numbering is derived from ordered per-kind
+views and is never baked into facts, so convergence and reactive renumbering hold by construction.
 
 ## Editor story (deliberately deferred)
 

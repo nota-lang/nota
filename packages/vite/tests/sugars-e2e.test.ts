@@ -78,11 +78,13 @@ describe("doc-state sugars render the element forms' numbering", () => {
 
   test("the snapshot carries the sugar-registered facts (anchor/ref wire format)", () => {
     const inner = />(.*)<\/script>$/.exec(stateScript)?.[1] ?? "";
-    const snapshot = JSON.parse(inner) as {
-      anchor?: Array<{ kind: string; id?: string }>;
-      ref?: Array<{ target?: string }>;
-    };
-    const anchors = snapshot.anchor ?? [];
+    const snapshot = JSON.parse(inner) as Array<{
+      kind: string;
+      fact: { kind?: string; id?: string; target?: string };
+    }>;
+    const anchors = snapshot
+      .filter(entry => entry.kind === "anchor")
+      .map(entry => entry.fact);
     expect(anchors.filter(a => a.kind === "label").map(a => a.id)).toEqual([
       "sec-intro",
       "sec-usage"
@@ -93,7 +95,9 @@ describe("doc-state sugars render the element forms' numbering", () => {
       "b"
     ]);
     expect(
-      (snapshot.ref ?? [])
+      snapshot
+        .filter(entry => entry.kind === "ref")
+        .map(entry => entry.fact)
         .map(r => r.target)
         .filter(t => t === "a" || t === "b")
     ).toEqual(["a", "a", "b"]);

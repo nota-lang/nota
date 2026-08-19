@@ -189,8 +189,8 @@ process:
   2, the new snapshot must equal the seed — a mismatch is a pointed "document did not converge"
   error (the old "query output may not introduce new marks" rule, now emergent rather than
   legislated).
-- **Hydration seeds from the page.** The converged snapshot (plain JSON: ordered heading
-  facts, footnote order, cite set — numbers and ids, never vnodes) is embedded as
+- **Hydration seeds from the page.** The converged snapshot (plain JSON: one ordered array of
+  `{kind, fact}` entries — never vnodes) is embedded as
   `<script type="application/json" id="nota-doc-state">`. The client's `hydrateDocument` reads
   it, seeds the store, and calls Solid's `hydrate` — every doc-state read during claiming matches
   the server bytes; afterward live registrations take over and reactivity owns the numbers.
@@ -201,9 +201,13 @@ process:
 hydrate) are ~40 lines in `@nota-lang/core` — they replace `render`, `island`, capture mode, the
 manifest, and `hydrateDocument`'s replay machinery.
 
-Ordering caveat (v0): document order is approximated by registration order (= mount order). A
-dynamically *inserted* heading registers last and numbers last even if it sits mid-document;
-DOM-position-sorted registration is the v2 fix if it matters in practice.
+The reader wraps component boundaries and the Heading/Label/Ref sugars in
+`<NotaSource pos={byteOffset}>`. The store sorts registrations by those source positions, with
+render-instance and local-registration order as tie-breakers. Hand-authored TSX without a source
+boundary falls back to mount order. Each registration receives a stable opaque `location`, but
+that identity carries no ordering semantics: snapshot order records document order, and
+`DocState.index(location)` serves the few cross-kind before/after queries. A later Solid
+evaluation therefore cannot reorder ordinary Nota anchors and references.
 
 `NotaDoc` adopts an outer store when one is provided (`useContext ?? createDocState()`), so the
 driver owns the store during SSG/hydration and a bare `<NotaDoc>` in tests/CSR is
@@ -249,11 +253,9 @@ anchor/ref registry — [references.md](./references.md) is the spec of record f
   mid-document `%lstset(…)` affects subsequent code blocks only (statements execute in document
   order during the single component-body run), not "last write wins globally". This matches
   LaTeX's actual `\lstset` and is the more defensible semantics; flagged as an intentional
-  change. Because config is module-global and the driver renders twice, the reset-to-baked-
-  baseline runs at the start of **every** pass (and before hydration claims), via
-  `@nota-lang/core`'s `onRenderReset` seam — the prelude registers `resetConfig` at module
-  load; without the per-pass reset, pass 1's end-state seeds pass 2 and positionality is
-  destroyed in the converged HTML.
+  change. Each doc-state store owns its config instance, initialized from site setup. The two SSG
+  passes and hydration naturally start with separate instances; document mutations cannot leak
+  into another pass or document. There is no global reset registry or setup-bake step.
 
 ## SSG & the trades we're making
 
@@ -279,8 +281,8 @@ an island census.
   Ships JSX-preserved dist with a `"solid"` export condition (the consumer's vite-plugin-solid
   compiles it per target — precompiling would pin one target; reforest packaging gotcha).
 - **`@nota-lang/prelude`** — rewritten per above, same package name, JSX dist likewise.
-- **`@nota-lang/compiler`** — `compile()` now returns the JSX module (jsxify inside); prepends
-  the solid/prelude/solid-js ambient imports. `compileVirtual`/`highlightSpans` untouched.
+- **`@nota-lang/compiler`** — `compile()` returns strict JSX with imports. `analyze()` parses once
+  and caches the editor's virtual TSX, mappings, diagnostics, AST, free names, and highlights.
 - **`@nota-lang/vite`**, **`@nota-lang/cli`** — per above.
 - **Deleted**: `react` and `react-router` (git history keeps them). `paper` and `playground`
   are ported (see Follow-ups).
@@ -314,12 +316,10 @@ single-sourcing > drift tests > deliberately-manual-with-a-conformance-guard**:
 
 The surviving system, by layer — with the judgment calls the sweep made explicit:
 
-- **Reader (oxc, ~1k lines of Nota-specific Rust).** One lowering, Nota AST → Solid JSX; the
-  parser is purely syntactic. `compile_with_mappings` (mappings without EOF recovery) currently
-  has no product consumer (the LSP uses `compile_virtual`) — kept: it is the coherent middle
-  entry of the shared pipeline, ~30 lines of wrapper.
-- **`@nota-lang/compiler` (~150 lines of real code).** Reduced to its essence: run the reader,
-  bind free names to four module surfaces, pass through virtual/highlight. The one policy knob
+- **Reader (oxc).** One lowering and one result type. `compile` is the strict, TypeScript-stripped
+  build path; `analyze` recovers and derives all editor views from one parse.
+- **`@nota-lang/compiler`.** Runs the reader, binds free names to four module surfaces, and caches
+  recovered analyses by source. The one policy knob
   (`preludeModule`/`extraNames`) is the whole reason the shim exists as a seam — the reader
   stays mechanism. The canonical ambient name lists are exported from here and consumed by the
   LSP preamble generator (coverage-guarded) and the playground scope (imported), so the three
@@ -334,10 +334,10 @@ The surviving system, by layer — with the judgment calls the sweep made explic
 - **vite/cli.** The preset is [transform, vite-plugin-solid]; the CLI keeps the two-build
   structure because SSR and client genuinely need different compilations of the same graph —
   irreducible under per-target JSX compilation.
-- **Known consciously-accepted approximations** (unchanged from the landing): registration
-  order approximates document order (`pos`); a construct rendered inside a trailer thunk
-  registers at the trailer's position; a mid-document `@Footnotes` sees footnotes accumulated
-  so far; Definition bodies are not tooltip fallbacks (double-registration hazard).
+- **Known consciously-accepted approximations** (unchanged from the landing): a construct
+  rendered inside a trailer thunk registers at the trailer's position; a mid-document
+  `@Footnotes` sees footnotes accumulated so far; Definition bodies are not tooltip fallbacks
+  (double-registration hazard).
 
 ## Follow-ups — status
 

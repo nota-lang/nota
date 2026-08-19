@@ -15,9 +15,7 @@ import {
   createDocState,
   DOC_STATE_ID,
   DocStateContext,
-  type FactHandle,
   hydrateDocument,
-  onRenderReset,
   useDocState
 } from "../src/lib";
 import { Doc, PlainDoc } from "./fixtures/doc";
@@ -158,8 +156,7 @@ describe("ssg + hydration", () => {
       "Beta"
     ]);
 
-    // And back ON: a fresh registration (at the end — registration order approximates document
-    // order, the documented v0 caveat; gamma IS last here, so the order is also correct).
+    // And back ON: a fresh registration restores the final heading.
     click(toggle);
     expect([...nav.querySelectorAll("a")].map(a => a.textContent)).toEqual([
       "Alpha",
@@ -217,29 +214,6 @@ describe("ssg + hydration", () => {
 
     dispose();
     island.remove();
-  });
-
-  test("hydrateDocument runs the render resets once, before claiming", () => {
-    Object.assign(globalThis, {
-      _$HY: { events: [], completed: new WeakSet(), r: {} }
-    });
-    sharedConfig.done = false;
-    let runs = 0;
-    const off = onRenderReset(() => {
-      runs += 1;
-    });
-    const root = document.createElement("div");
-    document.body.appendChild(root);
-    root.innerHTML = ssrBody;
-    const dispose = hydrateDocument(Doc, {
-      root,
-      seed: JSON.parse(ssrState)
-    });
-    // One render on the client = one reset (replay starts from the baseline, like each SSG pass).
-    expect(runs).toBe(1);
-    dispose();
-    off();
-    root.remove();
   });
 });
 
@@ -324,11 +298,10 @@ describe("hydrateDocument fallbacks", () => {
 });
 
 describe("doc-state unregistration (client)", () => {
-  test("unmount unregisters via onCleanup and re-sequences seq; remount registers at the end", () => {
+  test("unmount unregisters via onCleanup; remount registers at the end", () => {
     const state = createDocState();
-    const handles: FactHandle[] = [];
     const Reg = (p: { id: string }) => {
-      handles.push(useDocState().register("heading", { id: p.id }));
+      useDocState().register("heading", { id: p.id });
       return null;
     };
     const [mid, setMid] = createSignal(true);
@@ -347,17 +320,12 @@ describe("doc-state unregistration (client)", () => {
       root
     );
     expect(state.live("heading").map(f => f.id)).toEqual(["a", "b", "c"]);
-    expect(handles.map(h => h.seq)).toEqual([1, 2, 3]);
 
     setMid(false); // <Show> unmounts b → onCleanup unregisters it
     expect(state.live("heading").map(f => f.id)).toEqual(["a", "c"]);
-    expect(handles[0].seq).toBe(1);
-    expect(handles[2].seq).toBe(2); // re-sequenced: c's per-kind seq shifted 3 → 2
 
-    setMid(true); // remount: b re-registers as a NEW registration, at the end (v0 order caveat)
+    setMid(true); // Without a NotaSource boundary, the remount appends.
     expect(state.live("heading").map(f => f.id)).toEqual(["a", "c", "b"]);
-    expect(handles).toHaveLength(4);
-    expect(handles[3].seq).toBe(3);
 
     dispose();
     root.remove();

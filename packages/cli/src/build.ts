@@ -45,7 +45,8 @@ export interface BuildOptions {
   /**
    * Path to a **site setup module** (the `--setup` flag): imported for side effects before
    * render in the SSR entry and in the client entry — `lstset`/`mathset`/`secset`/`bibset` site
-   * config, baked as the reset baseline. Absolute path, or relative to the caller's cwd.
+   * config becomes the initial state of each document session. Absolute path, or relative to the
+   * caller's cwd.
    */
   setupModule?: string;
   /**
@@ -134,8 +135,6 @@ function cliResolverPlugin(resolveFrom: string): VitePlugin {
 function setupEntrySource(ctx: PipelineContext): string {
   return ctx.setupModule !== undefined
     ? `import ${JSON.stringify(ctx.setupModule)};
-import { bakeConfigBaseline } from "@nota-lang/prelude";
-bakeConfigBaseline();
 `
     : "";
 }

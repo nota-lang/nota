@@ -8,23 +8,26 @@ import {
   ViewPlugin,
   type ViewUpdate
 } from "@codemirror/view";
+import { analyze, highlightKindNames } from "@nota-lang/compiler";
 import { makeByteConverter } from "@nota-lang/compiler/offsets";
-import { highlight, highlightKindNames } from "@nota-lang/compiler/reader";
 import { embeddedTokens } from "./embedded-langs";
 import { catppuccinHighlight } from "./highlight-style";
 import { PALETTE } from "./palette";
 
-/** Return reader highlight triples in CodeMirror's UTF-16 offset space. */
-function highlightUtf16(doc: string): Uint32Array {
-  const triples = highlight(doc);
+export interface NotaSpan {
+  from: number;
+  to: number;
+  kind: string;
+}
+
+/** Return reader highlights in CodeMirror's UTF-16 offset space. */
+function highlightUtf16(doc: string): NotaSpan[] {
   const offsets = makeByteConverter(doc);
-  const out = new Uint32Array(triples.length);
-  for (let i = 0; i + 2 < triples.length; i += 3) {
-    out[i] = offsets.toUtf16(triples[i]);
-    out[i + 1] = offsets.toUtf16(triples[i + 1]);
-    out[i + 2] = triples[i + 2];
-  }
-  return out;
+  return analyze(doc).highlights.map(span => ({
+    from: offsets.toUtf16(span.start),
+    to: offsets.toUtf16(span.end),
+    kind: span.kind
+  }));
 }
 
 const {
@@ -82,36 +85,23 @@ const notaTheme: Extension = EditorView.baseTheme(
   )
 );
 
-let kindDecorations: Decoration[] | null = null;
+let kindDecorations: Map<string, Decoration> | null = null;
 
-function decorationsForKinds(): Decoration[] {
+function decorationsForKinds(): Map<string, Decoration> {
   if (!kindDecorations) {
-    kindDecorations = highlightKindNames().map(name =>
-      Decoration.mark({ class: `cm-nota-${name}` })
+    kindDecorations = new Map(
+      highlightKindNames().map(name => [
+        name,
+        Decoration.mark({ class: `cm-nota-${name}` })
+      ])
     );
   }
   return kindDecorations;
 }
 
-export interface NotaSpan {
-  from: number;
-  to: number;
-  kind: string;
-}
-
 /** Highlight `source` into named UTF-16 spans. */
 export function highlightSpans(source: string): NotaSpan[] {
-  const names = highlightKindNames();
-  const triples = highlightUtf16(source);
-  const spans: NotaSpan[] = [];
-  for (let i = 0; i + 2 < triples.length; i += 3) {
-    spans.push({
-      from: triples[i],
-      to: triples[i + 1],
-      kind: names[triples[i + 2]] ?? `unknown-${triples[i + 2]}`
-    });
-  }
-  return spans;
+  return highlightUtf16(source);
 }
 
 export interface EmbeddedRegion {
@@ -123,8 +113,7 @@ export interface EmbeddedRegion {
 /** Recover embedded languages from the reader's ordered delimiter/language/content spans. */
 function embeddedRegionsOf(
   doc: string,
-  triples: Uint32Array,
-  names: string[]
+  spans: readonly NotaSpan[]
 ): EmbeddedRegion[] {
   const regions: EmbeddedRegion[] = [];
   let pendingLang: string | null = null;
@@ -136,10 +125,7 @@ function embeddedRegionsOf(
       style = null;
     }
   };
-  for (let i = 0; i + 2 < triples.length; i += 3) {
-    const from = triples[i];
-    const to = triples[i + 1];
-    const kind = names[triples[i + 2]];
+  for (const { from, to, kind } of spans) {
     if (kind === "style-text") {
       if (style && style.to === from) style.to = to;
       else {
@@ -170,7 +156,7 @@ function embeddedRegionsOf(
 /** Return embedded regions, or an empty list while the document does not parse. */
 export function embeddedRegions(doc: string): EmbeddedRegion[] {
   try {
-    return embeddedRegionsOf(doc, highlightUtf16(doc), highlightKindNames());
+    return embeddedRegionsOf(doc, highlightUtf16(doc));
   } catch {
     return [];
   }
@@ -184,15 +170,14 @@ export interface EmbeddedSpan {
 
 /** Tokenize embedded regions into absolute source spans. */
 export function embeddedHighlightSpans(doc: string): EmbeddedSpan[] {
-  let triples: Uint32Array;
+  let highlights: NotaSpan[];
   try {
-    triples = highlightUtf16(doc);
+    highlights = highlightUtf16(doc);
   } catch {
     return [];
   }
-  const names = highlightKindNames();
   const spans: EmbeddedSpan[] = [];
-  for (const region of embeddedRegionsOf(doc, triples, names)) {
+  for (const region of embeddedRegionsOf(doc, highlights)) {
     for (const token of embeddedTokens(
       doc.slice(region.from, region.to),
       region.lang
@@ -209,18 +194,17 @@ export function embeddedHighlightSpans(doc: string): EmbeddedSpan[] {
 
 /** Compute the decoration set for `doc`, or `null` when it doesn't parse (keep last-good). */
 function computeDecorations(doc: string): DecorationSet | null {
-  let triples: Uint32Array;
+  let highlights: NotaSpan[];
   try {
-    triples = highlightUtf16(doc);
+    highlights = highlightUtf16(doc);
   } catch {
     return null;
   }
-  const names = highlightKindNames();
   const marks = decorationsForKinds();
   const ranges: Range<Decoration>[] = [];
 
   const tokenized: EmbeddedRegion[] = [];
-  for (const region of embeddedRegionsOf(doc, triples, names)) {
+  for (const region of embeddedRegionsOf(doc, highlights)) {
     const tokens = embeddedTokens(
       doc.slice(region.from, region.to),
       region.lang
@@ -238,19 +222,15 @@ function computeDecorations(doc: string): DecorationSet | null {
   const isTokenized = (from: number) =>
     tokenized.some(r => from >= r.from && from < r.to);
 
-  for (let i = 0; i + 2 < triples.length; i += 3) {
-    const from = triples[i];
-    const to = triples[i + 1];
-    const kindIndex = triples[i + 2];
+  for (const { from, to, kind } of highlights) {
     if (!(to > from && to <= doc.length)) continue;
-    const kind = names[kindIndex];
     if (
       (kind === "code" || kind === "math" || kind === "style-text") &&
       isTokenized(from)
     ) {
       continue;
     }
-    const mark = marks[kindIndex];
+    const mark = marks.get(kind);
     if (mark) ranges.push(mark.range(from, to));
   }
   return Decoration.set(ranges, true);

@@ -1,9 +1,6 @@
-/**
- * Positional configuration for the prelude. Each render pass resets the module state to a
- * bakeable site baseline before document-order calls mutate it.
- */
+/** Positional, document-session configuration for the prelude. */
 
-import { onRenderReset } from "@nota-lang/core";
+import { type DocState, useOptionalDocState } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
 
 /** Options for {@link lstset}. All fields merge into the current document config. */
@@ -89,79 +86,67 @@ function clone(c: PreludeConfig): PreludeConfig {
   };
 }
 
-let baseline: PreludeConfig = clone(DEFAULTS);
-let current: PreludeConfig = clone(baseline);
+let setup: PreludeConfig = clone(DEFAULTS);
+const CONFIG_KEY = {};
+
+function current(session?: DocState): PreludeConfig {
+  const active = session ?? useOptionalDocState();
+  return active?.local(CONFIG_KEY, () => clone(setup)) ?? setup;
+}
 
 /** Set code options (listings-style). Positional; see module docs. */
 export function lstset(opts: LstsetOptions): void {
+  const config = current();
   if (opts.lang !== undefined) {
-    current.lang = opts.lang;
+    config.lang = opts.lang;
   }
   if (opts.theme !== undefined) {
-    current.theme = opts.theme;
+    config.theme = opts.theme;
   }
   if (opts.langs !== undefined) {
-    current.extraLangs.push(...(opts.langs.flat() as LanguageRegistration[]));
+    config.extraLangs.push(...(opts.langs.flat() as LanguageRegistration[]));
   }
   if (opts.themes !== undefined) {
-    current.extraThemes.push(...opts.themes);
+    config.extraThemes.push(...opts.themes);
   }
 }
 
 /** Set math options (KaTeX macros + output mode). Positional. */
 export function mathset(opts: MathsetOptions): void {
+  const config = current();
   if (opts.macros !== undefined) {
-    Object.assign(current.macros, opts.macros);
+    Object.assign(config.macros, opts.macros);
   }
   if (opts.output !== undefined) {
-    current.mathOutput = opts.output;
+    config.mathOutput = opts.output;
   }
 }
 
 /** Set the heading numbering depth. Positional (place before the headings it should govern). */
 export function secset(opts: SecsetOptions): void {
+  const config = current();
   if (opts.numberDepth !== undefined) {
-    current.numberDepth = opts.numberDepth;
+    config.numberDepth = opts.numberDepth;
   }
 }
 
 /** Set the citation source/style (`src` merges). Positional. */
 export function bibset(opts: BibsetOptions): void {
+  const config = current();
   if (opts.src !== undefined) {
-    Object.assign(current.bibSrc, opts.src);
+    Object.assign(config.bibSrc, opts.src);
   }
   if (opts.style !== undefined) {
-    current.bibStyle = opts.style;
+    config.bibStyle = opts.style;
   }
 }
 
-/**
- * Commit the *current* config as the reset baseline. Call once from site setup code (after your
- * `lstset`/`mathset` calls); {@link resetConfig} then restores this configuration.
- */
-export function bakeConfigBaseline(): void {
-  baseline = clone(current);
-}
-
-/**
- * Restore the baked baseline. Registered as a render reset below, so the drivers run it at the
- * start of every document render (each SSG pass; hydration before claiming) — callable directly
- * by hosts with their own render loop.
- */
-export function resetConfig(): void {
-  current = clone(baseline);
-}
-
-// Module-scope registration: config is render-scoped state, reset per pass (module docs above).
-onRenderReset(resetConfig);
-
 /** The live config (read by the default components at render time). */
-export function config(): Readonly<PreludeConfig> {
-  return current;
+export function config(session?: DocState): Readonly<PreludeConfig> {
+  return current(session);
 }
 
 /** Test hook: restore the shipped defaults as both current config and baseline. */
 export function resetConfigForTest(): void {
-  baseline = clone(DEFAULTS);
-  current = clone(baseline);
+  setup = clone(DEFAULTS);
 }

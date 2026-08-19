@@ -8,7 +8,6 @@ import { getRequestEvent, isServer } from "solid-js/web";
 import { parkDocPass } from "./doc-pass";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
 import { collectDocState, type DocComponent, readPageDocState } from "./render";
-import { runRenderResets } from "./render-reset";
 import type { SmartOptions } from "./smart";
 
 /** Options for {@link notaRoute}. */
@@ -40,7 +39,6 @@ export function notaRoute(
 ): () => JSX.Element {
   return () => {
     const seed = isServer ? collectDocState(Doc, options) : pageSeed();
-    runRenderResets();
     const state = createDocState(seed, { smart: options.smart });
     if (isServer) {
       // The shell emits the snapshot and checks convergence once this subtree has rendered.

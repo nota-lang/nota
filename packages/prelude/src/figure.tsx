@@ -48,18 +48,16 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
       ? {
           href: `#fig-${id}`,
           tooltip: true,
-          bank: () => <div class="nota-figure-tooltip">{props.children}</div>
+          bankTarget: `fig-${id}`
         }
       : {})
   });
-  const myPos = handle.fact.pos as number;
+  const location = handle.fact.location;
   const ordinals = createMemo(() =>
     anchorOrdinals(state.read(FACT_KINDS.anchor) as AnchorFact[], FIGURE_KIND)
   );
-  const ordinal = () => ordinals().get(myPos);
+  const ordinal = () => ordinals().get(location);
   if (id !== undefined) {
-    // The bank renders from the shared "definitions" trailer; registering it here (idempotent)
-    // covers documents whose only tooltip anchors are figures.
     state.trailer("definitions", () => <DefBank />);
   }
   // Idempotent per document, like the bank above: one `<style>` however many figures there are.

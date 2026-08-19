@@ -79,10 +79,15 @@ describe("default build (hydrating Solid app)", () => {
         out.html
       );
     expect(state).toBeTruthy();
-    const snapshot = JSON.parse(state?.[1] ?? "{}") as {
-      anchor?: Array<{ kind: string }>;
-    };
-    expect(snapshot.anchor?.filter(a => a.kind === "heading")).toHaveLength(2);
+    const snapshot = JSON.parse(state?.[1] ?? "[]") as Array<{
+      kind: string;
+      fact: { kind?: string };
+    }>;
+    expect(
+      snapshot.filter(
+        entry => entry.kind === "anchor" && entry.fact.kind === "heading"
+      )
+    ).toHaveLength(2);
     // The client bundle: referenced page-relative, on disk, self-contained IIFE.
     expect(out.html).toContain('<script src="./assets/index.js"></script>');
     expect(out.clientJsPath).toBeTruthy();

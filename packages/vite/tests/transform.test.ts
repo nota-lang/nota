@@ -49,9 +49,10 @@ describe("output surface", () => {
     if (!out) throw new Error("not transformed");
     expect(out.code).toContain("export default function Doc()");
     expect(out.code).toContain("<NotaDoc>");
+    expect(out.code).toContain("<NotaSource pos={0}>");
     expect(out.code).toContain("<UlLi>");
     expect(out.code).toMatch(
-      /import \{ NotaDoc, UlLi \} from "@nota-lang\/core";/
+      /import \{ NotaDoc, NotaSource, UlLi \} from "@nota-lang\/core";/
     );
     expect(out.code).toMatch(
       /import \{ Heading \} from "@nota-lang\/prelude";/

@@ -7,7 +7,9 @@ import { NotaDoc } from "@nota-lang/core";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
+  Caption,
   Definition,
+  Figure,
   installDefTooltipHandlers,
   Ref,
   resetConfigForTest,
@@ -121,6 +123,38 @@ describe("def tooltips (CSR)", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  test("figure tooltips clone the rendered figure without evaluating children again", () => {
+    resetDefTooltipHandlersForTest();
+    let evaluations = 0;
+    const Body = () => {
+      evaluations += 1;
+      return <Caption>{"A plotted result."}</Caption>;
+    };
+    const FigureDoc = () => (
+      <NotaDoc>
+        <Figure id="plot">
+          <Body />
+        </Figure>
+        <Ref id="plot" />
+      </NotaDoc>
+    );
+    root = document.createElement("div");
+    document.body.appendChild(root);
+    dispose = render(() => <FigureDoc />, root);
+    resetDefTooltipHandlersForTest();
+    installDefTooltipHandlers();
+
+    expect(evaluations).toBe(1);
+    const ref = root.querySelector('a[data-nota-def="plot"]');
+    if (!ref) throw new Error("no figure ref");
+    click(ref);
+
+    expect(evaluations).toBe(1);
+    const tip = document.querySelector(".nota-def-tooltip-open");
+    expect(tip?.textContent).toContain("A plotted result.");
+    expect(tip?.querySelector("#fig-plot")).toBeNull();
   });
 });
 

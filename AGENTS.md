@@ -4,9 +4,10 @@ Nota is a document language: `@`-syntax markup (after Pollen/Scribble) whose Rus
 compiles `.nota` files **directly to Solid JSX** — a document is a Solid component. Grouping
 (paragraphs/lists/sections) happens at runtime in core's `<Reforest>` pass over the rendered
 tree; cross-references resolve through the **unified anchor/ref registry** (one doc-state store;
-headings/labels/figures/footnotes/cites are anchors, uses are refs, found by stable `pos`, never
-by a captured sequence index). SSG runs a **two-pass render** so forward references converge in
-the static bytes; interactive pages hydrate through ordinary Solid hydration. The pre-Solid
+headings/labels/figures/footnotes/cites are anchors and uses are refs). Facts have opaque, stable
+locations; their snapshot order is separate from identity. SSG runs a **two-pass render** so
+forward references converge in the static bytes; interactive pages hydrate through ordinary
+Solid hydration. The pre-Solid
 architecture (hyperscript `h`/`decode`, islands/replay, the react packages) is deleted;
 `design/decode.md` is its archived spec.
 
@@ -24,7 +25,7 @@ Most tasks need only this file + the package map. For architecture/emit work:
   `oxc/`, then bump the pointer in the main repo. Architecture: `oxc/NOTA_READER.md`.
 - **`packages/*`** — the `@nota-lang/*` TypeScript packages, a **Depot** + pnpm workspace:
   - **core** — the Solid runtime: `<Reforest>` (SSR-chunk/DOM tree reconstruction + grouping),
-    the doc-state store (anchor/ref facts, by-`pos` identity), `render`/`hydrate` two-pass
+    the doc-state store (opaque fact locations + an ordered snapshot), `render`/`hydrate` two-pass
     drivers, `NotaDoc`, smart punctuation, entities. Plus the **host seam** for frameworks that
     own the render loop (`route.ts`/`shell.ts`/`doc-pass.ts`): `notaRoute(Doc)` runs
     `collectDocState` and renders against that seed from *inside* the host's `renderToString`,
@@ -34,8 +35,8 @@ Most tasks need only this file + the package map. For architecture/emit work:
     shiki, armed parts→decorations), the reference family (`Heading`/`Toc`/`Ref`/`Label`,
     footnotes as anchors+refs, `Cite`/`Bibliography`, `Figure`/`Subfigure`/`Caption` as
     figure-kind anchors with derived ordinals, `Smallcaps`), the definition-tooltip system
-    (per-doc banks, zero framework JS), and `lstset`/`mathset`/`secset`/`bibset` config (reset per render
-    pass via core's render-reset seam).
+    (per-doc banks, zero framework JS), and session-owned
+    `lstset`/`mathset`/`secset`/`bibset` config.
   - **compiler** — sync shim over the in-process wasm reader, which **lives in this package**:
     `build.mjs` copies `oxc/target/js` → `src/generated/` (gitignored) and re-exports it raw as
     `@nota-lang/compiler/reader`. Also the single-sourced emit-surface constants
@@ -62,7 +63,7 @@ Most tasks need only this file + the package map. For architecture/emit work:
     merge of `preamble.generated.ts` is ALWAYS suspect — regenerate, don't hand-resolve). Two
     flavors over `server-core.ts`: node/stdio (eglot launches this) and a browser worker
     (playground).
-  - **codemirror** — CM6 support, reader-driven: paints wasm `highlight()` spans as decorations;
+  - **codemirror** — CM6 support, reader-driven: paints shared `analyze()` spans as decorations;
     embedded code/math sub-tokenize via CM's parsers. The wasm module instantiates when the
     module graph loads — there is no consumer `init` step.
   - **playground** — browser editor; runs the language server in a Web Worker. Two load-bearing

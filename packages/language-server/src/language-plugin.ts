@@ -1,7 +1,7 @@
 /** Build Volar's virtual TSX document and mappings for a Nota source. */
 
 import {
-  compileVirtual,
+  analyze,
   type NotaError,
   type CodeMapping as ReaderCodeMapping
 } from "@nota-lang/compiler";
@@ -129,7 +129,7 @@ export function buildVirtual(source: string): {
   mappings: VolarCodeMapping[];
   errors: NotaError[];
 } {
-  const { code: bare, mappings, errors } = compileVirtual(source);
+  const { code: bare, mappings, errors } = analyze(source);
   const code = PREAMBLE + bare;
   const byteMappings = shiftMappings(
     extendMappings(source, bare, mappings),

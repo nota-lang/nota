@@ -18,8 +18,11 @@ export const MODULE_MAP: Record<string, Record<string, unknown>> = {
 /** Compile emitted JSX to Solid's DOM runtime. */
 export function babelCompile(jsxModule: string): string {
   const out = Babel.transform(jsxModule, {
-    filename: "doc.jsx",
-    presets: [[solidPreset, { generate: "dom", hydratable: false }]],
+    filename: "doc.tsx",
+    presets: [
+      ["typescript", { isTSX: true, allExtensions: true }],
+      [solidPreset, { generate: "dom", hydratable: false }]
+    ],
     sourceType: "module"
   });
   if (typeof out?.code !== "string") {

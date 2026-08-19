@@ -21,11 +21,12 @@ import {
   docStateJson,
   docStateScript,
   NotaDoc,
+  NotaSource,
   OlLi,
-  onRenderReset,
   parseOpeningTag,
   Reforest,
   renderDocument,
+  type Snapshot,
   scanOpeningTag,
   textOf,
   UlLi,
@@ -170,16 +171,21 @@ describe("scanOpeningTag / parseOpeningTag (exported opening-tag sniffers)", () 
 });
 
 describe("doc-state store", () => {
-  test("register/read live (pos-stamped); seeded reads pin until release", () => {
+  test("register/read live (location-stamped); seeded reads pin until release", () => {
     const live = createDocState();
     live.register("heading", { id: "a" });
     live.register("label", { key: "l" });
-    expect(live.read("heading")).toEqual([{ id: "a", pos: 1 }]);
-    expect(live.read("label")).toEqual([{ key: "l", pos: 2 }]); // pos is cross-kind document order
+    expect(live.read("heading")).toEqual([{ id: "a", location: "m:1" }]);
+    expect(live.read("label")).toEqual([{ key: "l", location: "m:2" }]);
 
-    const seeded = createDocState({ heading: [{ id: "a" }, { id: "b" }] });
+    const seeded = createDocState([
+      { kind: "heading", fact: { id: "a", location: "seed:a" } },
+      { kind: "heading", fact: { id: "b", location: "seed:b" } }
+    ]);
+    const pinned = seeded.read("heading");
     seeded.register("heading", { id: "a" });
     expect(seeded.read("heading")).toHaveLength(2); // seed-pinned
+    expect(seeded.read("heading")).toBe(pinned); // stable reactive value
     expect(seeded.live("heading")).toHaveLength(1);
     seeded.release();
     expect(seeded.read("heading")).toHaveLength(1); // live now
@@ -188,7 +194,9 @@ describe("doc-state store", () => {
   test("snapshot drops function-valued fields", () => {
     const s = createDocState();
     s.register("definition", { key: "k", tooltip: () => "jsx" });
-    expect(s.snapshot()).toEqual({ definition: [{ key: "k", pos: 1 }] });
+    expect(s.snapshot()).toEqual([
+      { kind: "definition", fact: { key: "k", location: "m:1" } }
+    ]);
   });
 
   test("useDocState outside NotaDoc is a pointed error", () => {
@@ -239,17 +247,22 @@ describe("collectDocState (pass 1 as a seam)", () => {
     expect(keysOf(withNested)).toEqual(keysOf(baseline));
   });
 
-  test("each call starts from the baked config baseline", () => {
-    // Same reset discipline as renderDocument's passes — otherwise a host calling pass 1 twice
-    // would inherit the previous document's end-state.
-    let resets = 0;
-    const dispose = onRenderReset(() => {
-      resets += 1;
-    });
-    collectDocState(Doc);
-    collectDocState(Doc);
-    dispose();
-    expect(resets).toBe(2);
+  test("each call owns fresh document-local state", () => {
+    const key = {};
+    const seen: number[] = [];
+    const Probe = () => {
+      const local = useDocState().local(key, () => ({ value: 0 }));
+      seen.push(local.value++);
+      return null;
+    };
+    const LocalDoc = () => (
+      <NotaDoc>
+        <Probe />
+      </NotaDoc>
+    );
+    collectDocState(LocalDoc);
+    collectDocState(LocalDoc);
+    expect(seen).toEqual([0, 0]);
   });
 });
 
@@ -264,7 +277,11 @@ describe("renderDocument (two-pass SSG)", () => {
     expect(nav?.[1]).not.toContain("Gamma"); // Show-gated heading is unmounted
     expect(html.indexOf("<nav")).toBeLessThan(html.indexOf('id="alpha"'));
     // The snapshot carries the converged facts.
-    expect(state.heading?.map(h => h.id)).toEqual(["alpha", "beta"]);
+    expect(
+      state
+        .filter(entry => entry.kind === "heading")
+        .map(entry => entry.fact.id)
+    ).toEqual(["alpha", "beta"]);
     // Reforested document shell.
     expect(html).toMatch(/^<article[^>]*class="nota-doc"/);
     expect(html).toMatch(/<ul[^>]*class="nota-list"/);
@@ -361,67 +378,72 @@ describe("renderDocument (two-pass SSG)", () => {
   });
 });
 
-describe("render-scoped resets (onRenderReset)", () => {
-  test("callbacks run at the start of each pass, in registration order", () => {
-    const log: string[] = [];
-    const offA = onRenderReset(() => log.push("a"));
-    const offB = onRenderReset(() => log.push("b"));
-    const Tiny = () => <NotaDoc>{"x"}</NotaDoc>;
-    renderDocument(Tiny);
-    expect(log).toEqual(["a", "b", "a", "b"]); // two passes, registration order each time
-
-    // Unregister removes exactly the returned callback.
-    offA();
-    log.length = 0;
-    renderDocument(Tiny);
-    expect(log).toEqual(["b", "b"]);
-    offB();
-    log.length = 0;
-    renderDocument(Tiny);
-    expect(log).toEqual([]);
-  });
-
-  test("positional module-global state is pass-consistent under the reset", () => {
-    // A stand-in for a config module: a global mutated mid-document, reset to its baseline.
-    let mode = "default";
-    const off = onRenderReset(() => {
-      mode = "default";
-    });
+describe("document sessions", () => {
+  test("session-local positional state is fresh for each pass", () => {
+    const key = {};
     const seen: string[] = [];
-    const Probe = () => {
-      seen.push(mode);
+    const Probe = (props: { change?: boolean }) => {
+      const local = useDocState().local(key, () => ({ mode: "default" }));
+      seen.push(local.mode);
+      if (props.change) local.mode = "changed";
       return null;
     };
     const Doc2 = () => (
       <NotaDoc>
-        <Probe />
-        {(() => {
-          mode = "changed";
-          return null;
-        })()}
+        <Probe change />
         <Probe />
       </NotaDoc>
     );
     renderDocument(Doc2);
-    // Both passes observe default-then-changed — pass 2 did NOT start from pass 1's end-state.
     expect(seen).toEqual(["default", "changed", "default", "changed"]);
-    off();
+  });
+
+  test("registrations follow reader source positions", () => {
+    const Register = (props: { id: string }) => {
+      useDocState().register("item", { id: props.id });
+      return null;
+    };
+    const Doc2 = () => (
+      <NotaDoc>
+        <NotaSource pos={20}>
+          <Register id="later" />
+        </NotaSource>
+        <NotaSource pos={10}>
+          <Register id="earlier" />
+        </NotaSource>
+      </NotaDoc>
+    );
+    const items = renderDocument(Doc2)
+      .state.filter(entry => entry.kind === "item")
+      .map(entry => entry.fact);
+    expect(items.map(item => item.id)).toEqual(["earlier", "later"]);
+    expect(items.every(item => typeof item.location === "string")).toBe(true);
+    expect(items[0].location).not.toBe(items[1].location);
   });
 });
 
 describe("docStateScript", () => {
   test("embeds JSON with < escaped", () => {
-    const tag = docStateScript({ heading: [{ text: "</script>alert(1)" }] });
+    const state: Snapshot = [
+      {
+        kind: "heading",
+        fact: { text: "</script>alert(1)", location: "test:1" }
+      }
+    ];
+    const tag = docStateScript(state);
     expect(tag).toContain(`id="${DOC_STATE_ID}"`);
     expect(tag).not.toContain("</script>alert");
     const inner = /<script[^>]*>(.*)<\/script>/.exec(tag)?.[1] ?? "";
-    expect(JSON.parse(inner)).toEqual({
-      heading: [{ text: "</script>alert(1)" }]
-    });
+    expect(JSON.parse(inner)).toEqual(state);
   });
 
   test("docStateJson is the same escaped content, without the wrapper", () => {
-    const state = { heading: [{ text: "</script>alert(1)" }] };
+    const state: Snapshot = [
+      {
+        kind: "heading",
+        fact: { text: "</script>alert(1)", location: "test:1" }
+      }
+    ];
     expect(docStateScript(state)).toContain(docStateJson(state));
     expect(docStateJson(state)).not.toContain("</script>alert");
     expect(JSON.parse(docStateJson(state))).toEqual(state);
@@ -442,7 +464,7 @@ describe("driver-owned store adoption", () => {
         </NotaDoc>
       </DocStateContext.Provider>
     ));
-    expect(outer.live("ping")).toEqual([{ ok: true, pos: 1 }]);
+    expect(outer.live("ping")).toEqual([{ ok: true, location: "m:1" }]);
   });
 
   test("a bare NotaDoc is self-sufficient", () => {

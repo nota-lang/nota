@@ -1,6 +1,6 @@
 /**
  * **Backend-failure degradation.** `createNotaVirtualCode`'s `try/catch` guards a true *backend*
- * failure — a desynced `@nota-lang/compiler` wasm build throwing from `compileVirtual` (Nota
+ * failure — a desynced `@nota-lang/compiler` wasm build throwing from `analyze` (Nota
  * syntax errors never throw; EOF recovery handles those). The server must stay alive: the
  * virtual code degrades to an empty TS module (preamble only, zero mappings) instead of
  * propagating the throw into Volar.
@@ -14,7 +14,7 @@ vi.mock("@nota-lang/compiler", async importOriginal => {
   const actual = await importOriginal<typeof import("@nota-lang/compiler")>();
   return {
     ...actual,
-    compileVirtual: () => {
+    analyze: () => {
       throw new Error("simulated desynced wasm backend");
     }
   };
@@ -23,7 +23,7 @@ vi.mock("@nota-lang/compiler", async importOriginal => {
 import { NOTA_LANGUAGE_ID, notaLanguagePlugin } from "../src/language-plugin";
 import { PREAMBLE } from "../src/preamble";
 
-describe("desynced wasm backend (compileVirtual throws)", () => {
+describe("desynced wasm backend (analyze throws)", () => {
   test("createVirtualCode degrades to an empty module instead of throwing", () => {
     const snapshot = ts.ScriptSnapshot.fromString("@p{hi}\n");
     const vcode = notaLanguagePlugin.createVirtualCode?.(
