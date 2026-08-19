@@ -7,8 +7,8 @@
  * this package's seam and not the prelude's component surface.
  */
 
-import { NotaDoc, textOf, useDocState } from "../../src/lib";
 import { children, createSignal, Index, type ParentProps } from "solid-js";
+import { NotaDoc, textOf, useDocState } from "../../src/lib";
 
 export function Counter() {
   const [n, setN] = createSignal(0);

@@ -7,17 +7,14 @@
 
 ;;; Commentary:
 
-;; A major mode for `.nota' documents: a conservative "never lie" font-lock
-;; tier (a transliteration of the deleted vscode-nota TextMate grammar) plus
-;; eglot wiring for the Volar-based `@nota-lang/language-server'.
+;; A major mode for `.nota' documents with conservative font-lock and Eglot.
 ;;
 ;; The font-lock tier only paints what is line-locally decidable; everything
 ;; context-sensitive (prop interiors, bodies, @(expr) heads, doc-state sugar,
 ;; verbatim re-arm) is left unpainted for the reader-driven LSP semantic
 ;; tokens (via e.g. `eglot-semtok') to paint faithfully.  Fenced regions
 ;; (``` code, $$ math, %%% statements, |{ }| verbatim) are marked as strings
-;; via `syntax-propertize-function' so the inline rules cannot fire inside
-;; them; their interiors render with `nota-raw'.
+;; via `syntax-propertize-function' so inline rules cannot fire inside them.
 
 ;;; Code:
 
@@ -98,8 +95,7 @@
 
 (defvar nota-mode-syntax-table
   (let ((st (make-syntax-table text-mode-syntax-table)))
-    ;; Prose, not code: no default string or escape syntax.  Raw regions are
-    ;; introduced explicitly by `nota--syntax-propertize'.
+    ;; Raw regions are introduced explicitly by `nota--syntax-propertize'.
     (modify-syntax-entry ?\" "." st)
     (modify-syntax-entry ?\\ "." st)
     (modify-syntax-entry ?` "." st)
@@ -114,26 +110,9 @@
 
 ;;;; Fence grammar (shared)
 
-;; The %%%/``` fence-delimiter shapes are needed at three call sites below --
-;; `nota--syntax-propertize' (which must capture just the delimiter's first
-;; char: a syntax-table generic string quote pairs on ONE character, so
-;; capturing the whole run would toggle once per char and silently cancel
-;; out on an even-length run), `nota--fence-open-re' (deciding whether
-;; embedded-code fontification should engage), and the close-line scanner
-;; inside `nota--match-embedded-fences' (finding where that fontification
-;; block ends). Single-sourced here instead of hand-written at each site.
-;;
-;; Each family has an OPEN shape, anchored at both ends (a fence opener
-;; stands alone on its line, mod an optional backtick language tag -- the
-;; reader's `scan_fenced_code' info-string rule / its `FENCE_LINE'), and a
-;; CLOSE shape, anchored only at the start (the reader's close scan --
-;; `find_backtick_close'/`scan_fenced_code' for backtick, `FENCE_CLOSE_LINE'
-;; for %%% -- tolerates trailing content after the run, e.g. a `}' closing
-;; an enclosing body, and resumes right past it; anchoring a CLOSE pattern
-;; at `$' would silently fail to close on such a line). tests/conformance.el's
-;; fence-agreement cases pin these against the reader (`lineClassifiers',
-;; which the reader exports, for %%%; `highlightSpans', since the reader
-;; exports no backtick line classifier, for backtick).
+;; Openers occupy a whole line; closers may have trailing markup.  The
+;; propertize regex captures one delimiter character because generic string
+;; quotes toggle per character, not per delimiter run.
 
 (defconst nota--fence-min-run 3
   "Minimum delimiter-char count for a %%%/``` fence (the reader's `{3,}').")
@@ -153,40 +132,31 @@
 otherwise matches `nota--percent-fence-open-re'.")
 
 (defconst nota--backtick-fence-open-re
-  (format "^[ \t]*`\\{%d,\\}[ \t]*\\(%s\\)[ \t]*$"
+  (format "^[ \t]*`\\{%d,\\}[ \t]*\\(%s\\)[^`\n]*$"
           nota--fence-min-run nota--backtick-fence-lang-re)
   "A ``` fence opener line (group 1: the language tag).")
 (defconst nota--backtick-fence-close-re
   (format "^[ \t]*`\\{%d,\\}" nota--fence-min-run)
   "A ``` fence closer line's leading run (trailing content is the caller's).")
 (defconst nota--backtick-fence-propertize-re
-  (format "^[ \t]*\\(`\\)`\\{%d,\\}[ \t]*%s[ \t]*$"
-          (1- nota--fence-min-run) nota--backtick-fence-lang-re)
+  (format "^[ \t]*\\(`\\)`\\{%d,\\}[^`\n]*$"
+          (1- nota--fence-min-run))
   "Group 1 is the single first backtick, for `nota--syntax-propertize's
 pairing; otherwise matches `nota--backtick-fence-open-re'.")
 
 (defconst nota--fence-open-re
-  (format "^[ \t]*\\(?:`\\{%d,\\}[ \t]*\\(%s\\)[ \t]*\\|\\(%%\\{%d,\\}\\)[ \t]*\\)$"
+  (format "^[ \t]*\\(?:`\\{%d,\\}[ \t]*\\(%s\\)[^`\n]*\\|\\(%%\\{%d,\\}\\)[ \t]*\\)$"
           nota--fence-min-run nota--backtick-fence-lang-re nota--fence-min-run)
   "A code-fence (group 1: language tag) or %%% fence (group 2, non-nil) opening line.")
 
 ;;;; Fenced regions (syntax-propertize)
 
-;; Each fence delimiter's first char is marked as a string quote.  String
-;; quotes pair on the same character, so distinct fence types (` vs $ vs %
-;; vs |) cannot mis-terminate one another, and a fence delimiter occurring
-;; inside another fence's interior is inert.
+;; Mark each fence delimiter's first character as a generic string quote.
 (defconst nota--syntax-propertize
   (syntax-propertize-rules
-   ;; %%% statement fence: shape shared with `nota--percent-fence-open-re' (see "Fence
-   ;; grammar" above).
    (nota--percent-fence-propertize-re (1 "\""))
-   ;; ``` code fence: shape shared with `nota--backtick-fence-open-re' (see "Fence grammar"
-   ;; above).
    (nota--backtick-fence-propertize-re (1 "\""))
-   ;; $$ display-math fence, alone on its line.
    ("^[ \t]*\\(\\$\\)\\$[ \t]*$" (1 "\""))
-   ;; Multi-line verbatim: |{ at end of line ... }| at line start.
    ("\\(|\\){[ \t]*$" (1 "\""))
    ("^[ \t]*}\\(|\\)" (1 "\"")))
   "Value of `syntax-propertize-function' for `nota-mode'.")
@@ -197,13 +167,8 @@ pairing; otherwise matches `nota--backtick-fence-open-re'.")
 
 ;;;; Embedded JS/TS fontification
 
-;; The Emacs analogue of the TextMate grammar's source.ts delegation (which the
-;; server's semantic tokens deliberately defer to on these lines): the
-;; line-locally decidable embedded-code regions -- a `%' statement line's rest,
-;; `%%%' fence interiors, and ts/js/json code-fence interiors -- are fontified
-;; natively by copying faces out of a hidden buffer running the real mode
-;; (org-src style).  Chars the embedded mode leaves unfaced are protected with
-;; `default' so the markup rules can never lie inside embedded code.
+;; Copy faces from native modes into supported embedded-code regions.  Apply
+;; `default' where the embedded mode has no face so markup rules cannot intrude.
 
 (defcustom nota-fontify-embedded t
   "Whether to fontify embedded JS/TS/JSON natively via their major modes."
@@ -324,9 +289,7 @@ fences opening before LIMIT; other fences keep their raw paint."
 
 ;;;; Emphasis matchers
 
-;; Emacs regexps lack lookaround, so the reader's word-boundary rule (an
-;; emphasis delimiter opens/closes only against a non-letter/digit) is an
-;; explicit char check around a delimiter-pair match.
+;; Emacs regexps lack lookaround, so check emphasis boundaries explicitly.
 
 (defconst nota--strong-re "\\(\\*\\)\\([^ \t\n*][^*\n]*?\\)\\(\\*\\)")
 (defconst nota--em-re "\\(_\\)\\([^ \t\n_][^_\n]*?\\)\\(_\\)")
@@ -355,16 +318,8 @@ fences opening before LIMIT; other fences keep their raw paint."
 
 ;;;; Comment / strike matchers
 
-;; `nota--match-line-comment' and `nota--match-block-comment' fire only on text that is both
-;; UNCLAIMED (no face yet from an earlier rule) and syntactically prose (not inside a fence,
-;; per `syntax-ppss') -- checked explicitly via `nota--claimed-p', since a same-line `//'/`/*'
-;; can trigger anywhere in the search region regardless of context (a `[href: "https://…"]'
-;; prop value, an inline code span). `nota--match-strike' (below), like the emphasis matchers
-;; above it, has no such check: it relies solely on the list-level nil-OVERRIDE that the top of
-;; `nota-font-lock-keywords' describes -- font-lock skips a highlight's face application
-;; outright when any character in its span already carries one, so bytes an earlier-listed
-;; rule already painted (embedded code, raw spans) simply can't take `nota-strike' either, just
-;; via the list's ordering rather than a check in the matcher itself.
+;; Comment matchers reject claimed or fenced text.  Emphasis and strike rely
+;; on font-lock's nil override and keyword ordering instead.
 
 (defun nota--claimed-p (pos)
   "Non-nil when POS already carries a face or sits inside a fence string.
@@ -441,10 +396,7 @@ unpainted (the LSP semantic tokens own it)."
 
 ;;;; Font-lock keywords
 
-;; All rules are single-line and use nil OVERRIDE, so earlier rules win --
-;; the elisp equivalent of TextMate's earliest-match/list-order tie-break in
-;; the "never lie" grammar this transliterates.  Constructs that are not
-;; line-locally decidable are deliberately left unpainted.
+;; Rules are single-line and use nil override, so earlier rules win.
 (defconst nota-font-lock-keywords
   `(;; Embedded-code regions first: native JS/TS/JSON faces claim their
     ;; bytes before any markup rule can touch them (the delegation tier).

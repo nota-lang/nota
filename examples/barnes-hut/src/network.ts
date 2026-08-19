@@ -1,13 +1,4 @@
-/**
- * The example network: Les Misérables character co-occurrences (77 nodes), the same graph the
- * original Idyll article and the Living Papers port use (data after Knuth's Stanford GraphBase,
- * via jheer/barnes-hut, BSD-3-Clause).
- *
- * {@link settledNetwork} places nodes deterministically (d3-force's phyllotaxis initialization,
- * recentered on the canvas) and pre-settles the force layout with synchronous ticks — the same
- * positions on every run, so the server-rendered SVG and the hydrating client agree, and the
- * zero-JS static page already shows a laid-out network rather than an unformed spiral.
- */
+/** Deterministic Les Misérables example network used by the Barnes-Hut explorable. */
 
 import {
   forceCenter,
@@ -17,7 +8,6 @@ import {
   type Simulation
 } from "d3-force";
 
-/** Canvas geometry shared by the network, the quadtree, and the component. */
 export const EXTENT: [[number, number], [number, number]] = [
   [1, 1],
   [513, 513]
@@ -300,7 +290,6 @@ const LINKS: [number, number][] = [
 
 export const NODE_COUNT = 77;
 
-/** d3-force's deterministic phyllotaxis initialization, recentered on the canvas. */
 function initialNodes(): BodyNode[] {
   const initialRadius = 10;
   const initialAngle = Math.PI * (3 - Math.sqrt(5));
@@ -321,12 +310,7 @@ export interface SettledNetwork {
   simulation: Simulation<BodyNode, BodyLink>;
 }
 
-/**
- * Build the network and settle it: a stopped simulation ticked synchronously — deterministic
- * (no coincident points, so d3-force never reaches for its jiggle RNG) and timer-free, safe to
- * run during SSG. The returned simulation is NOT running; the client restarts it for the live
- * layout.
- */
+/** Build and synchronously settle a stopped, SSG-safe simulation. */
 export function settledNetwork(charge = -30): SettledNetwork {
   const nodes = initialNodes();
   const links = LINKS.map(([s, t]) => ({

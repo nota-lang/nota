@@ -1,21 +1,12 @@
 /**
- * Numbered figures — `Figure`/`Subfigure`/`Caption` (design/references.md).
- *
- * A figure rides the **unified reference registry** like every other anchor: `Figure` registers a
- * `figure`-kind anchor — an extension kind, pure JSON data — whose number is its anchor-order
- * ordinal, derived at read time and never baked. An id'd figure is a strong anchor carrying
- * `href: "#fig-id"`, `refPrefix: "Figure "`, and a tooltip bank of the figure body, so `&id`
- * references render "Figure N" through {@link Ref}'s generic arm, link to the real `fig-`
- * element, and tooltip the figure itself. `Caption` reads its enclosing figure's ordinal through
- * context and prefixes "Figure N: "; a caption outside any figure renders unlabeled.
- *
- * Styling follows the prelude's rule of shipping no stylesheet: the layout rules ride in a
- * `<style>` rendered once per document, next to the anchor's tooltip bank.
+ * Figures use the unified anchor registry for numbering and references. Caption numbering comes
+ * from context; styles and tooltip support are installed once through document trailers.
  */
 
 import { useDocState } from "@nota-lang/core";
 import {
   createContext,
+  createMemo,
   type JSX,
   type ParentProps,
   Show,
@@ -62,11 +53,10 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
       : {})
   });
   const myPos = handle.fact.pos as number;
-  const ordinal = () =>
-    anchorOrdinals(
-      state.read(FACT_KINDS.anchor) as AnchorFact[],
-      FIGURE_KIND
-    ).get(myPos);
+  const ordinals = createMemo(() =>
+    anchorOrdinals(state.read(FACT_KINDS.anchor) as AnchorFact[], FIGURE_KIND)
+  );
+  const ordinal = () => ordinals().get(myPos);
   if (id !== undefined) {
     // The bank renders from the shared "definitions" trailer; registering it here (idempotent)
     // covers documents whose only tooltip anchors are figures.

@@ -1,12 +1,4 @@
-/**
- * Pretty-print an output pane for *display only* (the emitted JSX module / babel-compiled JS).
- * The wasm reader's codegen puts the whole `Doc()` body on one line; we reformat purely for the
- * pane, never touching the bytes the pipeline actually emits.
- *
- * "Easiest formatter that runs in the browser" = **Prettier standalone**: plain JS, no wasm init,
- * async `format()`. Standalone + the parser plugins load via dynamic `import()` so the formatter
- * stays off the initial bundle (it code-splits into lazy chunks).
- */
+/** Lazily format generated code for display. */
 
 type Parser = "babel";
 
@@ -16,7 +8,6 @@ function loadStandalone() {
   return standaloneP;
 }
 
-// Memoize the plugin set so we pay its module fetch + parse once, not per keystroke.
 let pluginsP: Promise<object[]> | null = null;
 function loadPlugins(): Promise<object[]> {
   if (!pluginsP) {
@@ -28,11 +19,7 @@ function loadPlugins(): Promise<object[]> {
   return pluginsP;
 }
 
-/**
- * Format `code` with the given Prettier parser for display. Falls back to the input unchanged on any
- * parse/print error — the emit is always valid, so this only guards
- * against a transient half-applied edit, and a raw pane beats a blank one.
- */
+/** Format code, falling back to the input on parse or print errors. */
 export async function formatCode(
   code: string,
   parser: Parser

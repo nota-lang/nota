@@ -1,8 +1,4 @@
-/**
- * The CM6 editor (left pane). A thin Solid wrapper that owns the `EditorView` lifecycle and
- * pushes doc changes up through `onChange`. The `language` extension (Nota highlighting) is held
- * in a Compartment so it can be swapped without rebuilding the editor.
- */
+/** Solid lifecycle wrapper around the editable CodeMirror pane. */
 
 import {
   defaultKeymap,
@@ -22,9 +18,7 @@ import { createEffect, onCleanup, onMount } from "solid-js";
 export interface EditorProps {
   value: string;
   onChange: (value: string) => void;
-  /** Language/highlighting extension; hot-swappable. */
   language?: Extension;
-  /** Static extensions included at mount (e.g. the LSP plugin); not hot-swappable. */
   extensions?: Extension;
 }
 
@@ -40,8 +34,6 @@ export function Editor(props: EditorProps) {
         lineNumbers(),
         history(),
         highlightActiveLine(),
-        // Tab indents / Shift-Tab dedents. CM6 leaves Tab unbound by default (it keeps Tab for
-        // focus traversal); this editor is the primary focus target, so we opt into tab-to-indent.
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         EditorView.lineWrapping,
         langCompartment.of(props.language ?? []),
@@ -61,7 +53,6 @@ export function Editor(props: EditorProps) {
     view = null;
   });
 
-  // Swap the language extension in/out whenever the `language` prop changes.
   createEffect(() => {
     const language = props.language;
     view?.dispatch({
@@ -69,7 +60,6 @@ export function Editor(props: EditorProps) {
     });
   });
 
-  // Reflect external `value` changes (e.g. "load example") back into the editor.
   createEffect(() => {
     const value = props.value;
     if (!view) return;

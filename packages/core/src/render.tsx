@@ -1,12 +1,4 @@
-/**
- * Render drivers — SSG (two-pass) + hydration (design/solid.md §Doc-state).
- *
- * A document's meaning is a fixpoint: forward references (a Toc above its headings, a `@ref` to
- * a later section) need whole-document knowledge no single pass has. {@link renderDocument} is
- * the LaTeX model collapsed into one process — render, snapshot, render again seeded — plus a
- * convergence check; {@link hydrateDocument} seeds the client store from the page so claiming
- * reproduces the server bytes, then releases to live reactivity.
- */
+/** Two-pass static rendering and hydration for documents with forward references. */
 
 import { type JSX, sharedConfig } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
@@ -42,19 +34,8 @@ export interface RenderedDocument {
 }
 
 /**
- * **Pass 1 alone**: render `Doc` into a throwaway string purely to collect its doc-state facts,
- * and return the snapshot — the seed a converged pass 2 renders against.
- *
- * Factored out of {@link renderDocument} because a host framework may need the seed *while it is
- * already rendering* (a SolidStart route wrapper runs inside the page's own `renderToString`, and
- * so cannot delegate the whole document to a driver). That case is the reason for the
- * `sharedConfig.context` save/restore: `renderToString` installs a fresh context — hydration-key
- * counter included — and never restores the previous one, so a nested call would renumber the
- * enclosing render's remaining keys and break hydration. Both are synchronous, which is what
- * makes save/restore sufficient.
- *
- * Runs the registered render resets ({@link onRenderReset}) first, for the reason in
- * {@link renderDocument}.
+ * Run the collection pass. Saving `sharedConfig.context` keeps a nested `renderToString` from
+ * disturbing the host render's hydration-key counter.
  */
 export function collectDocState(
   Doc: DocComponent,
@@ -79,16 +60,8 @@ export function collectDocState(
 }
 
 /**
- * SSG: render `Doc` twice. Pass 1 populates the store (forward reads see placeholders; its HTML
- * is discarded). Pass 2 renders with pass 1's snapshot pinned as the seed, so forward references
- * are correct in the static HTML. Pass 2's registrations must reproduce the seed — a mismatch
- * throws "did not converge" (a fact that depends on reading another fact cannot stabilize; the
- * old "query output may not introduce new marks" rule, now emergent).
- *
- * Each pass starts by running the registered render resets ({@link onRenderReset}) — positional
- * module-global config (the prelude's `mathset`/`lstset`/…) must start every pass from its baked
- * baseline, or pass 1's end-state leaks into pass 2 and a mid-document config call governs the
- * whole converged HTML.
+ * Render once to collect state, then again against that seed. The second pass must reproduce
+ * the first pass's registrations.
  */
 export function renderDocument(
   Doc: DocComponent,
@@ -109,14 +82,21 @@ export function renderDocument(
     renderOptions
   );
   const post = pass2.snapshot();
-  if (JSON.stringify(post) !== JSON.stringify(seed)) {
+  assertDocStateConverged(seed, post);
+  return { html, state: seed };
+}
+
+/** Throw when pass 2 did not reproduce pass 1's registrations. */
+export function assertDocStateConverged(seed: Snapshot, post: Snapshot): void {
+  const before = JSON.stringify(seed);
+  const after = JSON.stringify(post);
+  if (after !== before) {
     throw new Error(
       "nota: document did not converge — a registration changed between passes " +
         "(doc-state facts may not depend on reading other doc-state facts)\n" +
-        `pass 1: ${JSON.stringify(seed)}\npass 2: ${JSON.stringify(post)}`
+        `pass 1: ${before}\npass 2: ${after}`
     );
   }
-  return { html, state: seed };
 }
 
 /** The id of the embedded doc-state snapshot script. */
@@ -139,8 +119,8 @@ export function docStateScript(state: Snapshot): string {
   return `<script type="application/json" id="${DOC_STATE_ID}">${docStateJson(state)}</script>`;
 }
 
-/** The default seed transport: the page's embedded `#nota-doc-state` snapshot script. */
-function readPageSeed(): Snapshot | undefined {
+/** Read the snapshot embedded by {@link docStateScript}, if present. */
+export function readPageDocState(): Snapshot | undefined {
   const seedEl = document.getElementById(DOC_STATE_ID);
   return seedEl?.textContent != null && seedEl.textContent !== ""
     ? (JSON.parse(seedEl.textContent) as Snapshot)
@@ -169,24 +149,14 @@ export interface HydrateOptions {
   smart?: SmartOptions | false;
 }
 
-/**
- * Client boot: read the page's embedded snapshot ({@link docStateScript}), seed a store with it,
- * and `hydrate` — every doc-state read during claiming matches the server bytes. Once hydration
- * returns the seed is released: resolved reads switch to the (identical, converged) live facts
- * and reactivity owns the numbers from then on. Returns Solid's dispose function.
- *
- * Runs the registered render resets ({@link onRenderReset}) before claiming: replay re-executes
- * the document's config calls, and it must start from the same baked baseline the server passes
- * did — on a multi-document page (Astro islands) each hydration would otherwise inherit the
- * previous document's config end-state and mis-claim.
- */
+/** Hydrate against the embedded seed, then release the store to live reactivity. */
 export function hydrateDocument(
   Doc: DocComponent,
   opts: HydrateOptions = {}
 ): () => void {
   const root =
     opts.root ?? document.getElementById("nota-root") ?? document.body;
-  const seed = opts.seed ?? readPageSeed();
+  const seed = opts.seed ?? readPageDocState();
   runRenderResets();
   const state = createDocState(seed, { smart: opts.smart });
   const dispose = solidHydrate(

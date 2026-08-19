@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, test } from "vitest";
-import { LastGoodCache } from "../src/server-core";
+import { LastGoodCache, semanticTokensInRange } from "../src/server-core";
 
 /** A minimal `CloseSource` stub: records the listener `LastGoodCache` registers so the test can fire
  *  it manually, standing in for Volar's real `documents.onDidClose` event. */
@@ -62,5 +62,31 @@ describe("LastGoodCache", () => {
     expect(cache.get("file:///a.nota")).toBeUndefined();
     cache.set("file:///a.nota", ["second"]);
     expect(cache.get("file:///a.nota")).toEqual(["second"]);
+  });
+});
+
+describe("semanticTokensInRange", () => {
+  const tokens: [number, number, number, number, number][] = [
+    [0, 2, 3, 0, 0],
+    [1, 1, 4, 0, 0],
+    [2, 0, 2, 0, 0]
+  ];
+
+  test("uses exact characters and an exclusive range end", () => {
+    expect(
+      semanticTokensInRange(tokens, {
+        start: { line: 0, character: 5 },
+        end: { line: 2, character: 0 }
+      })
+    ).toEqual([tokens[1]]);
+  });
+
+  test("includes tokens that overlap either range boundary", () => {
+    expect(
+      semanticTokensInRange(tokens, {
+        start: { line: 0, character: 4 },
+        end: { line: 1, character: 2 }
+      })
+    ).toEqual([tokens[0], tokens[1]]);
   });
 });

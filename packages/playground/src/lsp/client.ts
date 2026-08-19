@@ -1,15 +1,4 @@
-/**
- * The editor-side LSP wiring: spawn the language-server worker, connect an
- * `@codemirror/lsp-client` over a `postMessage` {@link Transport}, and expose one CM6 extension
- * carrying the LSP feature set (diagnostics, completion, hover, signature help, rename, …).
- *
- * The transport is the only glue: `@codemirror/lsp-client` speaks header-less JSON strings, the
- * Volar browser server speaks structured-clone message objects — one `JSON.parse`/`stringify` pair
- * bridges them.
- *
- * One worker + client per page (module-level singleton): the playground has a single document, and
- * an `Editor` re-mount must not leak workers.
- */
+/** Connect CodeMirror's string LSP transport to the browser server worker. */
 
 import {
   LSPClient,
@@ -19,10 +8,8 @@ import {
 } from "@codemirror/lsp-client";
 import type { Extension } from "@codemirror/state";
 
-/** The (virtual) URI of the playground document; the server sees `/workspace/tsconfig.json`'s project. */
 export const NOTA_DOC_URI = "file:///workspace/doc.nota";
 
-/** Wrap a Worker's structured-clone postMessage channel as the client's string transport. */
 export function workerTransport(worker: Worker): Transport {
   const handlers = new Set<(value: string) => void>();
   worker.onmessage = event => {
@@ -46,10 +33,7 @@ export function workerTransport(worker: Worker): Transport {
 
 let cached: Extension | null = null;
 
-/**
- * The LSP editor extension for the playground document — or `[]` where workers are unavailable
- * (jsdom tests). Created once; safe to include in multiple editor instantiations.
- */
+/** Return the singleton LSP extension, or `[]` outside a worker-capable browser. */
 export function notaLsp(): Extension {
   if (cached === null) {
     if (typeof Worker === "undefined") {
@@ -61,8 +45,6 @@ export function notaLsp(): Extension {
       const client = new LSPClient({
         rootUri: "file:///workspace",
         extensions: languageServerExtensions(),
-        // The worker cold-starts typescript + the wasm reader on first use; don't let the default
-        // 3s request timeout race that.
         timeout: 15_000
       }).connect(workerTransport(worker));
       cached = LSPPlugin.create(client, NOTA_DOC_URI, "nota");

@@ -1,32 +1,6 @@
 /**
- * **The CLI build pipeline** (design/solid.md §SSG).
- *
- * `buildNotaFile(doc.nota) → BuildOutput`: one `.nota` file → a **document directory**
- * (`index.html` + `assets/`), produced by **two programmatic Vite builds** over one default
- * config (the `@nota-lang/vite` preset — `.nota → Solid JSX → per-target solid compile`):
- *
- * ```
- * doc.nota
- *   → vite build #1 (SSR):    a virtual wiring entry — import Doc; renderDocument(Doc)
- *                             (two passes, forward references converged) — bundled for Node,
- *                             assets emitted; the bundle is import()ed → html + state + the
- *                             Solid hydration script
- *   → unless --static: vite build #2 (client): a 3-line hydrateDocument entry → one IIFE
- *                             chunk at assets/index.js + the doc's CSS/assets
- *   → merge assets; assemble + write index.html
- *     (css <link>s; when hydrating: the Solid hydration script in <head>, the doc-state
- *     snapshot <script type="application/json">, and the client <script src>)
- * ```
- *
- * The **real `.nota` path is the module-graph entry** (Vite `root` = the doc's directory), so
- * doc-relative imports, `?url` asset imports, and CSS imports resolve exactly as in any Vite
- * app. Both builds share the same plugins/config, so the SSR HTML and the client hydration
- * agree byte-for-byte (asset URLs included — see `renderBuiltUrl`).
- *
- * **Hydration is standard Solid** — the whole document hydrates as one app, claiming the
- * build-time-reforested DOM (no islands, no manifest, no replay). `--static` skips the client
- * build entirely: a zero-JS page, fully readable, definition references degrading to anchor
- * jumps, widgets/tooltips inert.
+ * Build a Nota file with an SSR Vite bundle and, unless static, a client hydration bundle.
+ * Both builds share the real document root and URL policy. See `design/solid.md`.
  */
 
 import {
@@ -61,12 +35,7 @@ export interface BuildOptions {
   sourcePath?: string;
   /** Document `<title>` (default: the input basename, else `"Nota Document"`). */
   title?: string;
-  /**
-   * Package root whose `node_modules` pins the **framework-owned** bare specifiers
-   * (`FRAMEWORK_PACKAGES` — `@nota-lang/core`, `@nota-lang/prelude`, `solid-js`) — see
-   * {@link cliResolverPlugin}. Defaults to this package's root. Everything else (the doc's own
-   * imports) resolves from the doc's directory, as in any Vite app.
-   */
+  /** Package root used to resolve Nota and Solid dependencies. Defaults to the CLI package. */
   resolveFrom?: string;
   /**
    * Build with `NODE_ENV=development` (unminified client bundle, Solid dev warnings). Default
@@ -123,9 +92,7 @@ interface PipelineContext {
   setupModule?: string;
 }
 
-// ---------------------------------------------------------------------------------------------
-// The default Vite config (shared by both builds)
-// ---------------------------------------------------------------------------------------------
+// Vite configuration
 
 /** Serve string sources as virtual modules (`resolveId` → `\0`-prefixed, `load` → the source). */
 function virtualsPlugin(map: Record<string, string>): VitePlugin {
@@ -141,14 +108,7 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
   };
 }
 
-/**
- * Pin the framework-owned bare specifiers (`FRAMEWORK_PACKAGES` — `@nota-lang/core`,
- * `@nota-lang/prelude`, `solid-js`; + subpaths) to the CLI's own dependency copies, resolved
- * from {@link BuildOptions.resolveFrom}. This is what lets `nota build` work on a doc
- * **anywhere** — including inside a foreign JS project, whose own solid-js copy must not split
- * the reactive runtime or the doc-state context (one instance per page). Everything else
- * resolves from the doc's directory as usual.
- */
+/** Resolve Nota and Solid from one package root while leaving document imports local. */
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
   const anchor = join(resolveFrom, "package.json");
@@ -171,16 +131,18 @@ function cliResolverPlugin(resolveFrom: string): VitePlugin {
   };
 }
 
-/** The SSR wiring entry. */
-function ssrEntrySource(ctx: PipelineContext): string {
-  const setup =
-    ctx.setupModule !== undefined
-      ? `import ${JSON.stringify(ctx.setupModule)};
+function setupEntrySource(ctx: PipelineContext): string {
+  return ctx.setupModule !== undefined
+    ? `import ${JSON.stringify(ctx.setupModule)};
 import { bakeConfigBaseline } from "@nota-lang/prelude";
 bakeConfigBaseline();
 `
-      : "";
-  return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
+    : "";
+}
+
+/** The SSR wiring entry. */
+function ssrEntrySource(ctx: PipelineContext): string {
+  return `${setupEntrySource(ctx)}import Doc from ${JSON.stringify(ctx.absDocPath)};
 import { docStateScript, renderDocument } from "@nota-lang/core";
 import { generateHydrationScript } from "solid-js/web";
 const rendered = renderDocument(Doc);
@@ -194,14 +156,7 @@ export const result = {
 
 /** The client wiring entry: seed from the page snapshot, hydrate the document. */
 function clientEntrySource(ctx: PipelineContext): string {
-  const setup =
-    ctx.setupModule !== undefined
-      ? `import ${JSON.stringify(ctx.setupModule)};
-import { bakeConfigBaseline } from "@nota-lang/prelude";
-bakeConfigBaseline();
-`
-      : "";
-  return `${setup}import Doc from ${JSON.stringify(ctx.absDocPath)};
+  return `${setupEntrySource(ctx)}import Doc from ${JSON.stringify(ctx.absDocPath)};
 import { hydrateDocument } from "@nota-lang/core";
 hydrateDocument(Doc);
 `;
@@ -240,9 +195,7 @@ function sharedConfig(ctx: PipelineContext): InlineConfig {
   };
 }
 
-// ---------------------------------------------------------------------------------------------
-// The two builds
-// ---------------------------------------------------------------------------------------------
+// Builds
 
 /** The chunk/asset file names of one build, out-dir-relative. */
 interface EmittedFiles {
@@ -301,6 +254,15 @@ function rethrowBuildError(err: unknown): never {
   throw textFallback ?? err;
 }
 
+async function runViteBuild(config: InlineConfig): Promise<unknown> {
+  const { build } = await import("vite");
+  try {
+    return await build(config);
+  } catch (err) {
+    rethrowBuildError(err);
+  }
+}
+
 /**
  * Build #1 (SSR): bundle the SSR wiring entry for Node (workspace deps bundled in —
  * `ssr.noExternal` — the dists use bundler-style extensionless ESM imports Node can't resolve),
@@ -310,39 +272,32 @@ function rethrowBuildError(err: unknown): never {
 async function ssrRender(
   ctx: PipelineContext
 ): Promise<{ result: SsrResult } & EmittedFiles> {
-  const { build } = await import("vite");
   const ssrOutDir = join(ctx.workDir, "ssr");
   const docStem =
     basename(ctx.absDocPath)
       .replace(/\.[^.]+$/, "")
       .replace(/[^\w-]/g, "_") || "doc";
-  let res: unknown;
-  try {
-    res = await build({
-      ...sharedConfig(ctx),
-      build: {
-        ssr: true,
-        outDir: ssrOutDir,
-        emptyOutDir: false,
-        ssrEmitAssets: true,
-        // Never data-URI-inline assets: both builds must make the SAME decision for every asset
-        // URL (a divergence would break hydration byte-parity).
-        assetsInlineLimit: 0,
-        minify: false,
-        rollupOptions: {
-          input: { [docStem]: SSR_ENTRY_ID },
-          output: {
-            format: "es",
-            entryFileNames: "ssr-entry.mjs",
-            assetFileNames: "assets/[name]-[hash][extname]"
-          }
+  const res = await runViteBuild({
+    ...sharedConfig(ctx),
+    build: {
+      ssr: true,
+      outDir: ssrOutDir,
+      emptyOutDir: false,
+      ssrEmitAssets: true,
+      // Both builds must make the same inline decision for hydration parity.
+      assetsInlineLimit: 0,
+      minify: false,
+      rollupOptions: {
+        input: { [docStem]: SSR_ENTRY_ID },
+        output: {
+          format: "es",
+          entryFileNames: "ssr-entry.mjs",
+          assetFileNames: "assets/[name]-[hash][extname]"
         }
-      },
-      ssr: { noExternal: true }
-    });
-  } catch (err) {
-    rethrowBuildError(err);
-  }
+      }
+    },
+    ssr: { noExternal: true }
+  });
   const mod = (await import(
     pathToFileURL(join(ssrOutDir, "ssr-entry.mjs")).href
   )) as { result: SsrResult };
@@ -359,32 +314,26 @@ async function buildClient(
   ctx: PipelineContext,
   outDir: string
 ): Promise<EmittedFiles> {
-  const { build } = await import("vite");
-  let res: unknown;
-  try {
-    res = await build({
-      ...sharedConfig(ctx),
-      build: {
-        outDir,
-        emptyOutDir: false,
-        assetsDir: "assets",
-        modulePreload: false,
-        assetsInlineLimit: 0, // mirror the SSR build — see ssrRender
-        minify: ctx.nodeEnv !== "development",
-        rollupOptions: {
-          input: { index: CLIENT_ENTRY_ID },
-          output: {
-            // IIFE implies no code-splitting, so dynamic imports inline — one chunk.
-            format: "iife",
-            entryFileNames: "assets/[name].js",
-            assetFileNames: "assets/[name]-[hash][extname]"
-          }
+  const res = await runViteBuild({
+    ...sharedConfig(ctx),
+    build: {
+      outDir,
+      emptyOutDir: false,
+      assetsDir: "assets",
+      modulePreload: false,
+      assetsInlineLimit: 0,
+      minify: ctx.nodeEnv !== "development",
+      rollupOptions: {
+        input: { index: CLIENT_ENTRY_ID },
+        output: {
+          // IIFE avoids module-CORS under file:// and needs no code splitting.
+          format: "iife",
+          entryFileNames: "assets/[name].js",
+          assetFileNames: "assets/[name]-[hash][extname]"
         }
       }
-    });
-  } catch (err) {
-    rethrowBuildError(err);
-  }
+    }
+  });
   return emittedOf(res);
 }
 
@@ -417,9 +366,7 @@ function copySsrAssets(
   }
 }
 
-// ---------------------------------------------------------------------------------------------
-// HTML assembly
-// ---------------------------------------------------------------------------------------------
+// HTML
 
 /** HTML-escape for `<title>`/attribute splices. */
 function escapeHtml(s: string): string {
@@ -485,9 +432,7 @@ ${scripts.join("\n")}
 `;
 }
 
-// ---------------------------------------------------------------------------------------------
-// The driver
-// ---------------------------------------------------------------------------------------------
+// Public drivers
 
 /** Default out dir: the input with its extension stripped (`doc.nota → doc/`). */
 function defaultOutDir(absDocPath: string): string {

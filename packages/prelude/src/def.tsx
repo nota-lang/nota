@@ -1,30 +1,11 @@
 /**
- * Definitions & definition references — the tooltip system, Solid-native (design/solid.md).
- *
- * `@Definition[id: "nota"]{body}` registers a definition fact and renders its body in place
- * inside an anchor (`<span id="def-nota">`). A `@Ref[id: "nota"]` — usually the `&nota` sugar —
- * resolves to it (see ./doc-state's `Ref`) and renders `<a href="#def-nota" data-nota-def>`:
- * the **no-JS fallback is a real anchor jump** to the definition; with hydration, the delegated
- * handler intercepts the click and shows the tooltip in context (double-click jumps,
- * Escape/outside-click dismisses).
- *
- * The old vanilla-JS trailer (a script/style string pair injected into static HTML) is gone:
- * the tooltip bank is a Solid trailer component (`DefBank`) whose handlers attach in `onMount`
- * — SSR renders the bank inert; hydration arms it.
- *
- * **Bank content** = the `tooltip` prop if provided, else the definition's `label`, else its
- * key. (The old default also fell back to re-rendering the *body* — under replay-free Solid a
- * second body render would double-register any doc-state constructs inside it, so the body is
- * no longer a tooltip fallback; pass `tooltip` explicitly for rich tooltips.)
- *
- * **Math references.** {@link texRef}`(id, tex)` wraps TeX source in `\htmlData{nota-def=id}{…}`,
- * so rendered math participates in the same delegated handler. KaTeX only emits the data
- * attribute for HTML output — set `mathset({ output: "html" })`; under the default MathML
- * output the math renders correctly but un-wired.
+ * Definition anchors and delegated tooltips. References remain usable as anchor links without
+ * JavaScript; hydration adds click tooltips. `texRef` uses KaTeX's HTML extensions to join the
+ * same system when HTML output is enabled.
  */
 
 import { textOf, useDocState } from "@nota-lang/core";
-import { For, type JSX, onMount, type ParentProps } from "solid-js";
+import { createMemo, For, type JSX, onMount, type ParentProps } from "solid-js";
 
 import { config } from "./config";
 import {
@@ -111,18 +92,14 @@ a.nota-def-ref { text-decoration: none; border-bottom: 1px dotted currentColor; 
 .nota-definition { transition: background 0.8s; }
 .nota-def-target { background: #fff3b0; transition: background 0.2s; }`;
 
-let handlersInstalled = false;
+let handlerInstallations = new WeakMap<Document, () => void>();
 
-/**
- * The delegated tooltip behavior (the old DEF_TOOLTIP_SCRIPT, as real code): click a reference
- * to show its definition's bank entry in context, double-click to jump to the definition,
- * Escape/outside-click to dismiss. Installed once per document environment.
- */
+/** Install delegated tooltip behavior once on the current document. */
 export function installDefTooltipHandlers(): void {
-  if (handlersInstalled) {
+  const doc = document;
+  if (handlerInstallations.has(doc)) {
     return;
   }
-  handlersInstalled = true;
   let active: HTMLElement | null = null;
   let activeFor: Element | null = null;
   const hide = () => {
@@ -139,15 +116,11 @@ export function installDefTooltipHandlers(): void {
     }
     hide();
     const key = anchor.getAttribute("data-nota-def") ?? "";
-    // Resolve the bank within the triggering anchor's OWN document root (core render.tsx's
-    // `<article class="nota-doc">`) — a page hosting several documents (Astro islands) has one
-    // bank per document, and a page-global `document.querySelector` would always find the
-    // first, leaving every later document's refs silently un-tooltipped. Fall back to a
-    // page-wide lookup when no enclosing root is found (e.g. a bare CSR mount in tests).
+    // Prefer the bank in the triggering reference's document root.
     const root = anchor.closest("article.nota-doc");
     const bank =
       root?.querySelector(".nota-def-tooltips") ??
-      document.querySelector(".nota-def-tooltips");
+      doc.querySelector(".nota-def-tooltips");
     // CSS.escape is absent in some DOM shims (jsdom); keys are author-controlled, so fall back.
     const escaped =
       typeof CSS !== "undefined" && CSS.escape ? CSS.escape(key) : key;
@@ -159,13 +132,16 @@ export function installDefTooltipHandlers(): void {
     }
     const tip = src.cloneNode(true) as HTMLElement;
     tip.classList.add("nota-def-tooltip-open");
-    document.body.appendChild(tip);
+    doc.body.appendChild(tip);
     const r = anchor.getBoundingClientRect();
-    const doc = document.documentElement;
+    const rootElement = doc.documentElement;
     let left = window.scrollX + r.left + r.width / 2 - tip.offsetWidth / 2;
     left = Math.max(
       8,
-      Math.min(left, window.scrollX + doc.clientWidth - tip.offsetWidth - 8)
+      Math.min(
+        left,
+        window.scrollX + rootElement.clientWidth - tip.offsetWidth - 8
+      )
     );
     let top = window.scrollY + r.top - tip.offsetHeight - 8;
     if (top < window.scrollY + 4) {
@@ -176,7 +152,7 @@ export function installDefTooltipHandlers(): void {
     active = tip;
     activeFor = anchor;
   };
-  document.addEventListener("click", ev => {
+  const handleClick = (ev: MouseEvent) => {
     const t = ev.target as Element | null;
     const a = t?.closest?.("[data-nota-def]");
     if (a) {
@@ -187,8 +163,8 @@ export function installDefTooltipHandlers(): void {
     if (active && !t?.closest?.(".nota-def-tooltip-open")) {
       hide();
     }
-  });
-  document.addEventListener("dblclick", ev => {
+  };
+  const handleDoubleClick = (ev: MouseEvent) => {
     const t = ev.target as Element | null;
     const a = t?.closest?.("[data-nota-def]");
     if (!a) {
@@ -201,40 +177,44 @@ export function installDefTooltipHandlers(): void {
     const href = a.getAttribute("href") ?? "";
     const target =
       href.startsWith("#") && href.length > 1
-        ? document.getElementById(href.slice(1))
-        : document.getElementById(`def-${a.getAttribute("data-nota-def")}`);
+        ? doc.getElementById(href.slice(1))
+        : doc.getElementById(`def-${a.getAttribute("data-nota-def")}`);
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "center" });
       target.classList.add("nota-def-target");
       setTimeout(() => target.classList.remove("nota-def-target"), 1500);
     }
-  });
-  document.addEventListener("keydown", ev => {
+  };
+  const handleKeyDown = (ev: KeyboardEvent) => {
     if (ev.key === "Escape") {
       hide();
     }
+  };
+  doc.addEventListener("click", handleClick);
+  doc.addEventListener("dblclick", handleDoubleClick);
+  doc.addEventListener("keydown", handleKeyDown);
+  handlerInstallations.set(doc, () => {
+    hide();
+    doc.removeEventListener("click", handleClick);
+    doc.removeEventListener("dblclick", handleDoubleClick);
+    doc.removeEventListener("keydown", handleKeyDown);
   });
 }
 
-/** Test hook: allow a fresh handler installation (jsdom documents are per-test). */
+/** Test hook: remove the current document's handlers. */
 export function resetDefTooltipHandlersForTest(): void {
-  handlersInstalled = false;
+  handlerInstallations.get(document)?.();
+  handlerInstallations.delete(document);
 }
 
-/**
- * The `"definitions"` trailer: the hidden tooltip bank — one entry per **bank-carrying
- * anchor** of any kind (definitions; paper's tooltipped figures), SSR'd inert — + the
- * `onMount` handler installation. Duplicate ids throw here (via the namespace resolution) —
- * the trailer position sees every anchor above it, so a duplicate with no references is still
- * caught.
- */
+/** Render tooltip payloads and validate the complete anchor namespace. */
 export function DefBank(): JSX.Element {
   const state = useDocState();
-  const entries = () => {
+  const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
     resolveAnchors(anchors, Object.keys(config().bibSrc)); // throws on duplicate ids
     return anchors.filter(a => a.bank !== undefined);
-  };
+  });
   onMount(installDefTooltipHandlers);
   return (
     <div class="nota-def-tooltips" aria-hidden="true">

@@ -1,26 +1,4 @@
-/**
- * **Generator for the resolution-independent typing preamble** — the typed emit surface
- * (design/solid.md) made to type-check with no `node_modules`.
- *
- * The virtual `.tsx` is **Solid JSX**: it references the structural components
- * (`NotaDoc`/`Reforest`/`UlLi`/`OlLi`/`For`/`Dynamic`), the ambient prelude components
- * (`Tex`/`Heading`/…), and the `solid-js` state surface (`createSignal`, `Show`, …) as free
- * identifiers, and its markup is JSX syntax. For a `.nota` **outside** `packages/*` there is no
- * `node_modules` to resolve imports against, so the preamble supplies everything ambiently:
- *
- * - a **global `JSX` namespace** (classic JSX resolution — no `jsxImportSource`, hence no module
- *   resolution): `Element` is `unknown`-permissive; `IntrinsicElements` seeds common elements
- *   with their distinctive attributes over a permissive open-map base (the old runtime
- *   `NotaIntrinsicElements` table) — `@a[href]` completes and value-checks while `nota-*`/custom
- *   tags stay legal ("never lie");
- * - the structural + prelude + solid surfaces as **module-local ambient declarations** —
- *   `For`/`Show`/`createSignal` carry real generic signatures, so an `@for` body's item type
- *   flows from the iterable.
- *
- * The output is baked into `src/preamble.generated.ts` (via `scripts/gen-preamble.ts`) so the
- * shipped server carries the preamble as a constant; the `preamble-sync` test fails CI on drift.
- * Whole lines only — prepending shifts every generated offset by a clean constant.
- */
+/** Generate the resolution-independent ambient types prepended to virtual TSX. */
 
 import {
   AMBIENT_PRELUDE_NAMES,
@@ -29,16 +7,7 @@ import {
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 
-/**
- * The global JSX namespace (classic resolution — the TS project sets `jsx` so `.tsx` parses, and
- * this namespace types it without any `jsx-runtime` module lookup). `declare global` is legal
- * here because the virtual `.tsx` is a module (it has `export default`).
- */
-/**
- * The seeded per-tag attribute types of the `JSX.IntrinsicElements` table (over the permissive
- * open-map base). Structured (not inline strings) so the seeded tag set is introspectable — the
- * completions test asserts every seeded tag is also offered by `NOTA_HOST_TAGS`.
- */
+/** Intrinsics with attributes more specific than the open fallback. */
 export const SEEDED_INTRINSICS: Record<string, string> = {
   a: "{ href?: string; target?: string; rel?: string; download?: string | boolean }",
   img: '{ src?: string; alt?: string; width?: number | string; height?: number | string; loading?: "eager" | "lazy" }',
@@ -81,13 +50,6 @@ const JSX_NAMESPACE = [
   ""
 ].join("\n");
 
-/**
- * The `@nota-lang/core` structural surface the emit references free (design/solid.md §The
- * pipeline; the compiler's {@link CORE_RUNTIME_NAMES} + {@link SOLID_WEB_NAMES}): the document
- * wrapper, the restructurer, the list items, `Attrs` (the flow-position attrs-group marker
- * Reforest applies to its paragraph), Solid's `For` (typed generically — the `@for` item type
- * flows), and `Dynamic` for dynamic tags.
- */
 const AMBIENT_STRUCTURAL = [
   "declare const NotaDoc: (props: { children?: unknown }) => unknown;",
   "declare const Reforest: (props: { children?: unknown; tight?: boolean }) => unknown;",
@@ -99,11 +61,6 @@ const AMBIENT_STRUCTURAL = [
   ""
 ].join("\n");
 
-/**
- * The `solid-js` ambient state/control-flow surface (the compiler's {@link SOLID_AMBIENT_NAMES})
- * — pragmatic signatures: generics where inference pays (signals, memos, resources, `Show`,
- * `Index`), permissive `unknown` elsewhere.
- */
 const AMBIENT_SOLID = [
   "declare const createSignal: <T>(value: T, options?: { equals?: false | ((prev: T, next: T) => boolean); name?: string }) => [() => T, (v: T | ((prev: T) => T)) => T];",
   "declare const createMemo: <T>(fn: (prev?: T) => T, value?: T) => () => T;",
@@ -128,11 +85,6 @@ const AMBIENT_SOLID = [
   ""
 ].join("\n");
 
-/**
- * Ambient declarations for the prelude components + config fns (design/solid.md §The prelude).
- * Each is a plain component with its *real* named props over a permissive `[prop: string]:
- * unknown` tail — named props give completion + value-checking; the tail keeps "never lie".
- */
 const AMBIENT_PRELUDE = [
   "declare const CodeInline: (props: { children?: unknown; [prop: string]: unknown }) => unknown;",
   "declare const CodeBlock: (props: { lang?: string; children?: unknown; [prop: string]: unknown }) => unknown;",
@@ -160,20 +112,8 @@ const AMBIENT_PRELUDE = [
   ""
 ].join("\n");
 
-/**
- * Build the full typing preamble text: the global JSX namespace + the structural, solid-js, and
- * prelude surfaces as module-local ambient declarations. Whole lines only.
- *
- * Called at **build time** by `scripts/gen-preamble.ts` (baked into `preamble.generated.ts`) and
- * by the `preamble-sync` drift test.
- */
+/** Build the global JSX and ambient runtime declarations as whole lines. */
 export function buildPreamble(): string {
-  // Coverage guard: every name the emit can reference free — the union of ALL FOUR canonical
-  // compiler lists (structural `CORE_RUNTIME_NAMES`, `solid-js/web`'s `SOLID_WEB_NAMES`,
-  // `solid-js`'s `SOLID_AMBIENT_NAMES`, and `AMBIENT_PRELUDE_NAMES`) — must have a typing
-  // somewhere in the ambient body, so a name list growing without a preamble update fails
-  // generation (and the preamble-sync test in CI) instead of silently surfacing "Cannot find
-  // name" diagnostics. (A partial guard once missed `Attrs` exactly this way.)
   const ambientBody = AMBIENT_STRUCTURAL + AMBIENT_SOLID + AMBIENT_PRELUDE;
   const missing = [
     ...CORE_RUNTIME_NAMES,

@@ -155,6 +155,18 @@ describe("heading mechanics", () => {
         { rank: 1, title: "???" }
       ])
     ).toEqual(["same", "same-2", "x", "section"]);
+    expect(
+      headingIds([
+        { rank: 1, title: "X" },
+        { rank: 1, title: "Authored", explicitId: "x" }
+      ])
+    ).toEqual(["x-2", "x"]);
+    expect(() =>
+      headingIds([
+        { rank: 1, title: "A", explicitId: "x" },
+        { rank: 1, title: "B", explicitId: "x" }
+      ])
+    ).toThrow(/duplicate heading anchors for id "x"/);
   });
 
   test("Toc({depth}) caps the ranks shown", () => {

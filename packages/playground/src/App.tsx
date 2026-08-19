@@ -1,14 +1,4 @@
-/**
- * The Nota playground: the **entire pipeline client-side** (wasm reader + babel-preset-solid +
- * Solid, no server), visualized live. A CM6 editor on the left; an output pane on the right
- * whose four tabs each show one artifact of the pipeline:
- *
- *   | Tab          | Shows                          | Source                                  |
- *   | AST          | the post-parse Nota AST        | `parseAst(src).ast` (wasm)              |
- *   | JSX          | the emitted Solid JSX module   | `compile(src).code` (wasm + shim)       |
- *   | Compiled JS  | the babel-preset-solid output  | `babelCompile` (in-page babel)          |
- *   | Rendered     | the live document (pure CSR)   | `render(<Doc/>)` — reactive doc-state   |
- */
+/** Client-side Nota pipeline playground. */
 
 import { notaHighlighting } from "@nota-lang/codemirror";
 import { createEffect, createSignal, onCleanup, Show } from "solid-js";
@@ -23,17 +13,10 @@ import { loadSource, saveSource } from "./storage";
 
 type Tab = "ast" | "jsx" | "js" | "rendered";
 
-// The wasm reader instantiates when the module graph loads, so the reader-driven highlighting is
-// available synchronously.
 const language = notaHighlighting();
 
-// The language server: a Web Worker running the browser flavor of @nota-lang/language-server,
-// connected over postMessage. TS diagnostics/hover/completion arrive through this; highlighting
-// stays reader-driven (above). `[]` in worker-less environments (jsdom tests).
 const lsp = notaLsp();
 
-// A Record over `Tab` (not an array) so exhaustiveness is compile-checked in both directions:
-// a Tab without an entry, or an entry without a Tab, is a type error.
 const TAB_INFO: Record<Tab, { label: string; hint: string }> = {
   ast: { label: "AST", hint: "parsed tree" },
   jsx: { label: "JSX", hint: "emitted Solid module" },
@@ -46,12 +29,10 @@ const TABS = (Object.keys(TAB_INFO) as Tab[]).map(id => ({
 }));
 
 export function App() {
-  // Seed from the last-saved source (persisted in localStorage), falling back to the seed doc.
   const [source, setSource] = createSignal(loadSource() ?? DEFAULT_SNIPPET);
   const [tab, setTab] = createSignal<Tab>("jsx");
   const [result, setResult] = createSignal<PipelineResult>(EMPTY);
 
-  // Persist the source (debounced) so edits survive a refresh, and re-run the pipeline.
   createEffect(() => {
     const value = source();
     const save = setTimeout(() => saveSource(value), 150);

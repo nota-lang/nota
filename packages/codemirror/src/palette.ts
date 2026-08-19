@@ -1,8 +1,4 @@
-/**
- * Catppuccin Latte (light) — the one copy of the palette. `nota-mode.ts` (the kind theme),
- * `highlight-style.ts` (the embedded-language HighlightStyle), and the playground's token-dump
- * script all color through this map; the hexes were once re-typed in three files.
- */
+/** Shared Catppuccin Latte palette. */
 export const PALETTE = {
   teal: "#179299",
   blue: "#1e66f5",

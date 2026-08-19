@@ -1,13 +1,4 @@
-/**
- * A formatted + syntax-highlighted output pane. Prettier-formats its `code` for the chosen
- * `mode` ({@link formatCode}) and shows the result in a read-only CM6 {@link CodeView} with that
- * mode's language. Formatting is async (Prettier lazy-loads + returns a promise), so it runs in
- * an effect into a signal, showing the raw `code` until the first format lands.
- *
- * `mode` drives both halves: `"js"` → babel parser + JS highlight (the JSX/compiled tabs). `fill`
- * makes the view fill its container and scroll internally; without it the view grows to its
- * content.
- */
+/** Asynchronously format and display a read-only code pane. */
 
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import { CodeView } from "./CodeView";
@@ -22,7 +13,6 @@ export interface CodePaneProps {
   code: string;
   mode: keyof typeof MODES;
   testid: string;
-  /** Fill the container and scroll internally (vs. grow to content). */
   fill?: boolean;
 }
 
@@ -36,7 +26,6 @@ export function CodePane(props: CodePaneProps) {
     let live = true;
     setPretty(code);
     formatCode(code, parser).then(out => {
-      // Drop a stale format if `code` changed while we were awaiting.
       if (live) setPretty(out);
     });
     onCleanup(() => {

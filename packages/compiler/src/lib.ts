@@ -1,32 +1,6 @@
 /**
- * `@nota-lang/compiler` — the Node shim around the oxc Nota *reader*.
- *
- * The reader lives in the Rust fork (`oxc::nota::compile`); this package is the JS-side glue that
- * makes its output usable from Node. {@link compile} takes a `.nota` source string and returns the
- * reader's **Solid JSX** module (design/solid.md) with the imports the reader deliberately omits
- * **prepended** — every binding free-name-driven:
- *
- * 1. the `@nota-lang/core` import for the structural names the emit references free
- *    ({@link CORE_RUNTIME_NAMES} — derived from the reader's `emitSurface()`);
- * 2. the `solid-js` import for the ambient state/control-flow surface referenced free
- *    ({@link SOLID_AMBIENT_NAMES} — incl. `For` from `@for` loops), and `Dynamic` from
- *    `solid-js/web` for dynamic tags; and
- * 3. an ambient-prelude import binding the prelude names the module references *free* —
- *    the reader reports the emit's free names ({@link CompileResult.freeNames}, from real scope
- *    analysis), and the shim binds the intersection with {@link AMBIENT_PRELUDE_NAMES} (plus any
- *    integrator {@link PreludeOptions.extraNames}) to {@link PreludeOptions.module}. (A document
- *    binding of an emit-surface name — `%import { Tex } from …` — is a reader diagnostic;
- *    per-document overrides go through the integrator's prelude seam, not shadowing.)
- *
- * The reader stays mechanism (which names are free); which module supplies them is policy and
- * lives here, under the integrator's control (`prelude: false` disables the injection).
- *
- * The backend is the wasm reader itself, shipped **inside this package**: `src/generated/` is the
- * wasm-bindgen bundler-target build of `oxc/target/js`, copied in by `build.mjs` (gitignored;
- * rebuilt by `just nota-build` in `oxc/`) and re-exported raw as {@link ./reader.ts} —
- * `@nota-lang/compiler/reader` — for consumers that want the unwrapped entries. It exposes the
- * `oxc::nota` entries (`compile` / `compileVirtual` / `highlight` / `parseAst`) in-process — no
- * subprocess, no temp files — so installs need no Rust toolchain and no platform-specific binary.
+ * JavaScript policy around the in-process wasm reader. It binds the reader's free names to the
+ * Solid runtime and ambient prelude; `@nota-lang/compiler/reader` exposes the raw wasm surface.
  */
 
 import * as reader from "./reader.js";
@@ -37,12 +11,7 @@ export const CORE_RUNTIME_MODULE = "@nota-lang/core";
 /** The default module the ambient prelude binds from ({@link PreludeOptions.module}). */
 export const PRELUDE_MODULE = "@nota-lang/prelude";
 
-/**
- * Every module {@link compile} may prepend an import for — the framework-owned module family.
- * Integrator resolution policy derives from this one list (the vite plugin's emit-import
- * fallbacks, the CLI's pinned resolver, the playground's module map) instead of re-listing the
- * specifiers per package.
- */
+/** Framework modules that generated documents may import. */
 export const FRAMEWORK_MODULES: readonly string[] = [
   CORE_RUNTIME_MODULE,
   PRELUDE_MODULE,
@@ -62,11 +31,7 @@ export const FRAMEWORK_PACKAGES: readonly string[] = [
   )
 ];
 
-/**
- * The `solid-js` ambient surface (design/solid.md): the state/control-flow names a document's
- * `%`-code may reference free. Replaces the old React-hook ambient set — documents write Solid
- * idioms now. Bound from `"solid-js"` when the emit references them free.
- */
+/** Solid names available to embedded document code without an explicit import. */
 export const SOLID_AMBIENT_NAMES = [
   "createSignal",
   "createMemo",
@@ -91,67 +56,43 @@ export const SOLID_AMBIENT_NAMES = [
   "ErrorBoundary"
 ] as const;
 
-/**
- * The reader's grouped emit-name surface — the wasm-introspected truth the lists below derive
- * from (`oxc_transformer`'s `*_EMIT_NAMES`; see `emitSurface()` in the reader). Guarded like the
- * `freeNames` check in {@link compile} below: a wasm build predating `emitSurface()` would
- * otherwise kill every import of this package with a bare "reader.emitSurface is not a function"
- * TypeError instead of a pointed one.
- */
-let EMIT_SURFACE: ReturnType<typeof reader.emitSurface>;
-try {
-  EMIT_SURFACE = reader.emitSurface();
-} catch (err) {
-  throw new Error(
-    `nota: reader.emitSurface() is unavailable — stale src/generated wasm build? (${
-      err instanceof Error ? err.message : String(err)
-    })`
-  );
-}
+/** Fail early when the vendored wasm and TypeScript shim are out of sync. */
+const EMIT_SURFACE = (() => {
+  try {
+    return reader.emitSurface();
+  } catch (err) {
+    throw new Error(
+      `nota: reader.emitSurface() is unavailable — stale src/generated wasm build? (${
+        err instanceof Error ? err.message : String(err)
+      })`
+    );
+  }
+})();
 
-/**
- * The `@nota-lang/core` surface an emit may reference free: the structural names the reader's
- * JSX emit uses (`NotaDoc` always; `Reforest` for flow-container interiors; the list-item
- * components; `Attrs` — the flow-position attrs-group marker Reforest applies to its paragraph).
- * **Derived from the reader** (`emitSurface().structural`) — no hand-copied mirror to drift.
- */
+/** Structural runtime names reported by the reader. */
 export const CORE_RUNTIME_NAMES: readonly string[] = EMIT_SURFACE.structural;
 
-/**
- * The emitted document's default-export name (`export default function Doc() { … }`) — the one
- * {@link EMIT_SURFACE}`.reserved` name outside the four emit-name groups (`reserved` is `Doc` +
- * `structural`/`solid`/`solidWeb`/`prelude`; pinned by the compiler test suite: "the reader's
- * emit groups are covered by the ambient policy lists"). Consumers that must reference the
- * emitted default export by name (the vite plugin's `Doc.isNotaDoc` brand) derive it from here
- * instead of hardcoding `"Doc"`.
- */
-export const DOC_EXPORT_NAME: string = EMIT_SURFACE.reserved.filter(
+const documentExportNames = EMIT_SURFACE.reserved.filter(
   name =>
     !EMIT_SURFACE.structural.includes(name) &&
     !EMIT_SURFACE.solid.includes(name) &&
     !EMIT_SURFACE.solidWeb.includes(name) &&
     !EMIT_SURFACE.prelude.includes(name)
-)[0];
+);
+if (documentExportNames.length !== 1) {
+  throw new Error(
+    `nota: expected one document export name in emitSurface(), found ${documentExportNames.length}`
+  );
+}
+
+/** The emitted document function's name. */
+export const DOC_EXPORT_NAME: string = documentExportNames[0];
 
 /** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags).
  * Derived from the reader (`emitSurface().solidWeb`). */
 export const SOLID_WEB_NAMES: readonly string[] = EMIT_SURFACE.solidWeb;
 
-/**
- * The ambient prelude surface (design/solid.md §The prelude) — the names the reader's
- * emit may reference free without the document binding them:
- *
- * - the **component slots**: `Tex`/`CodeInline`/`CodeBlock` (math/code), `Heading` (`#` sugar), and
- *   the unified reference family (`<x>`/`&x[props]{body}` sugar lowers to `<Label>`/`<Ref>` JSX;
- *   `Footnote`/`Cite`/… are user-typed ambient names — design/references.md);
- * - the **config fns** (**positional** — design/solid.md: statements run in document order, so a
- *   mid-document call affects subsequent blocks only; reset per render): `lstset`/`mathset`/
- *   `secset`/`bibset`, surfacing as bare calls in embedded JS (`% secset({ … })`).
- *
- * {@link compile} binds whichever of these the emit references free (per the reader's scope
- * analysis) to the configured prelude module. One flat list: with real free-name metadata the old
- * tag-vs-call textual distinction is moot.
- */
+/** Components and configuration functions supplied by the default ambient prelude. */
 export const AMBIENT_PRELUDE_NAMES = [
   "Tex",
   "CodeInline",
@@ -208,12 +149,7 @@ export interface CompileOptions {
   prelude?: PreludeOptions | false;
 }
 
-/**
- * A standard [Source Map v3](https://tc39.es/ecma426/) object. Declared structurally here (rather
- * than pulling a bundler type) so the shim stays backend-agnostic; it is shaped to be assignable to
- * Vite/Rollup's sourcemap-input type (only `mappings` is required) so it flows straight through
- * `@nota-lang/vite`'s `transform` return.
- */
+/** Minimal source-map shape accepted by Vite and Rollup. */
 export interface SourceMapV3 {
   mappings: string;
   version?: number;
@@ -242,11 +178,7 @@ export interface CompileResult {
   map?: SourceMapV3;
 }
 
-/**
- * The ambient prelude import for `freeNames` under `prelude`, or `""` when nothing needs binding.
- * A name is bound iff the emit references it free **and** it belongs to the ambient surface
- * (built-ins + `extraNames`); dedup/shadowing is the reader's scope analysis, not textual guesses.
- */
+/** Build the ambient-prelude import for the reported free names. */
 function preludeImport(
   freeNames: string[],
   prelude: PreludeOptions | false | undefined
@@ -265,19 +197,7 @@ function preludeImport(
     : "";
 }
 
-/**
- * Compile a `.nota` source string to an emitted JS module.
- *
- * Runs the in-process wasm reader, then prepends the free-name-driven `@nota-lang/core` /
- * `solid-js` / `solid-js/web` imports ({@link bindFree}) followed by the ambient prelude import
- * for the free names the emit references (see {@link CompileOptions.prelude}). A reader
- * diagnostic is surfaced as the thrown `Error`'s message (raw text also on `.diagnostics`).
- *
- * @param source the `.nota` file contents
- * @param opts   optional {@link CompileOptions}
- * @returns the {@link CompileResult} (`{ code, freeNames, map? }`)
- * @throws if the reader reports a diagnostic — the error message carries the diagnostic text.
- */
+/** Compile Nota source to a Solid JSX module with its free-name imports prepended. */
 export function compile(
   source: string,
   opts: CompileOptions = {}
@@ -290,18 +210,13 @@ export function compile(
     throw toCompileError(err, opts.sourcePath);
   }
   if (!Array.isArray(freeNames)) {
-    // A wasm build predating free-name metadata would silently skip the prelude injection — the
-    // classic stale-artifact trap. Fail loudly instead (cf. validateVirtual).
+    // Do not silently skip imports when the vendored reader is stale.
     const where = opts.sourcePath ? ` (${opts.sourcePath})` : "";
     throw new Error(
       `nota: reader emit missing \`freeNames\` — stale src/generated wasm build?${where}`
     );
   }
 
-  // Prepend the imports the reader omits — every binding is free-name-driven (the reader's real
-  // scope analysis; JSX component references are ordinary identifier references): the
-  // @nota-lang/core structural/compat names, the solid-js ambient names, `Dynamic` from
-  // solid-js/web, then the ambient prelude bindings.
   const code =
     bindFree(freeNames, CORE_RUNTIME_NAMES, CORE_RUNTIME_MODULE) +
     bindFree(freeNames, SOLID_AMBIENT_NAMES, "solid-js") +
@@ -309,9 +224,7 @@ export function compile(
     preludeImport(freeNames, opts.prelude) +
     emitted;
 
-  // The reader does not surface a sourcemap yet. The prepended preamble shifts generated offsets
-  // by its line count, which a real map must account for (trivial to offset, and localized here
-  // — the one place that prepends). Kept undefined until the backend emits it.
+  // A future reader sourcemap must be shifted by the prepended imports.
   return { code, freeNames, map: undefined };
 }
 
@@ -393,15 +306,7 @@ export interface NotaError {
   len: number;
 }
 
-/**
- * The result of {@link compileVirtual}: the **bare** virtual `.tsx` (TS types preserved; runtime
- * import + ambient prelude *not* prepended — the language-server adds those), its
- * {@link CodeMapping}s, and any recovered {@link NotaError}s (empty for a well-formed file).
- *
- * The virtual path uses EOF error-recovery, so `compileVirtual` **does not throw** on unterminated
- * markup: it returns a best-effort `code` + `mappings` and reports the syntax/lowering problems in
- * `errors` for the language server to surface as diagnostics.
- */
+/** A recoverable virtual TSX emit for editor tooling. */
 export interface VirtualCompileResult {
   /** The emitted virtual `.tsx` module (type-preserving, no runtime/ambient preamble). */
   code: string;
@@ -411,53 +316,23 @@ export interface VirtualCompileResult {
   errors: NotaError[];
 }
 
-/**
- * The raw virtual-emit shape the wasm entry returns (a Rust `None` for `generatedLengths` arrives
- * as `undefined` — {@link validateVirtual} normalizes it to `null`).
- */
-interface VirtualJson {
+/** The raw wasm shape accepted by {@link validateVirtual}. @internal */
+export interface VirtualJson {
   code: string;
   mappings: CodeMapping[];
   errors?: NotaError[];
 }
 
-/**
- * Compile a `.nota` source to the **type-preserving virtual `.tsx`** emit + Volar CodeMappings.
- * The language server (`@nota-lang/language-server`) consumes this.
- *
- * Runs the in-process wasm reader's `compileVirtual`. Unlike {@link compile}, the runtime import is
- * **not** prepended here — the language-server `LanguagePlugin` prepends a runtime+ambient typing
- * preamble (so `NotaDoc`/`createSignal`/`Tex`/… type-check) and shifts the mappings by its length;
- * doing it here would double-shift.
- *
- * The reader uses **EOF error-recovery** on this path, so it does **not** fail on unterminated
- * markup: a syntax error yields a best-effort `code` + `mappings` and comes back in
- * {@link VirtualCompileResult.errors} for the language server to surface as LSP diagnostics.
- *
- * @param source the `.nota` file contents
- * @param opts   optional {@link CompileOptions}
- * @returns the {@link VirtualCompileResult} (`{ code, mappings, errors }`)
- * @throws only if the reader itself fails (a desynced wasm build). A *recoverable* Nota syntax
- *   error does not throw.
- */
+/** Compile recoverable, type-preserving TSX for editor tooling. */
 export function compileVirtual(
   source: string,
   opts: CompileOptions = {}
 ): VirtualCompileResult {
-  // The wasm entry returns the already-structured object (camelCase, `errors` always present).
-  // Validate the shape anyway — a desynced wasm build should surface a clear error here, not an
-  // `undefined` downstream.
   const raw = reader.compileVirtual(source) as VirtualJson;
   return validateVirtual(raw, opts.sourcePath);
 }
 
-/**
- * Validate + normalize a raw virtual-emit object (the wasm entry's return value) into a
- * {@link VirtualCompileResult}, so a desynced wasm build surfaces a clear error rather than a
- * downstream `undefined`. Exported for unit-testing the validation against hand-written shapes.
- *
- * @internal
- */
+/** Validate a raw wasm virtual emit. @internal */
 export function validateVirtual(
   parsed: VirtualJson,
   sourcePath?: string
@@ -466,8 +341,6 @@ export function validateVirtual(
     const where = sourcePath ? ` (${sourcePath})` : "";
     throw new Error(`nota: virtual emit missing \`code\`/\`mappings\`${where}`);
   }
-  // Light per-mapping validation: the parallel arrays must be present and equal-length. Cheap, and
-  // it catches a desynced backend before the offset-shift math runs in the language server.
   for (const m of parsed.mappings) {
     if (
       !Array.isArray(m.sourceOffsets) ||
@@ -481,8 +354,7 @@ export function validateVirtual(
       );
     }
   }
-  // Normalize `generatedLengths` to `null` (serde-wasm-bindgen serializes a Rust `None` as
-  // `undefined`; the declared type is `number[] | null`).
+  // Rust `None` may cross the wasm boundary as `undefined`.
   const mappings = parsed.mappings.map(m => ({
     ...m,
     generatedLengths: m.generatedLengths ?? null

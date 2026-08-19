@@ -1,31 +1,9 @@
 /**
- * Smart punctuation — Pollen's typography rules at the decode (Reforest) stage.
- *
- * The rules are transliterated from Pollen's `smart-quotes` / `smart-dashes` /
- * `smart-ellipses` (`pollen/unstable/typography.rkt`): seven ordered quote
- * replacements (apostrophes, sentence-ender closes, open/close by word
- * boundary), `---`→em / `--`→en dashes that eat surrounding space, and
- * `...`→`…`. Like Pollen's txexpr mode, quote *context* is judged over the
- * flattened text of the whole run — `_do '_@em{not'}` curls both quotes —
- * with excluded regions (code, math, …) contributing a neutral word-ish
- * placeholder so `` `code` ``'s apostrophe still reads as one.
- *
- * Two deliberate divergences from Pollen:
- *
- * 1. **Dashes eat horizontal whitespace only** (space/tab/nbsp, never `\n`) —
- *    a blank line inside a text child is Reforest's paragraph-break marker
- *    (`"\n\n"`), which a `\s`-greedy dash rule would destroy.
- * 2. The pass runs over Solid's *resolved* children — strings in place,
- *    client DOM via a text-node walk, server SSR chunks via an HTML-aware
- *    segment walk — so both sides transform the same text identically (the
- *    hydration contract). The transform is idempotent: curly quotes, `—`,
- *    `–`, and `…` are fixed points.
- *
- * Exclusions: text inside `code`/`pre`/`kbd`/`samp`/`script`/`style`/
- * `textarea`/`math`/`svg`, or any element carrying `data-nota-nosmart`, is
- * never touched (and reads as one opaque word for quote context).
+ * Pollen-compatible smart punctuation over resolved Solid children. Server and client walkers
+ * share quote context and skip code, math, SVG, and `data-nota-nosmart` subtrees.
  */
 
+import { htmlTokens } from "./html";
 import { isSSRChunk, type ResolvedChild, type SSRChunk } from "./reforest";
 
 /** Which smart-punctuation passes run (all default on); `false` disables the whole pass. */
@@ -51,9 +29,7 @@ const EXCLUDED_TAGS = new Set([
   "svg"
 ]);
 
-/** The per-element opt-out attribute (`@span[data-nota-nosmart: true]{…}`). Module-internal: the
- * reader emits this string directly (a cross-language wire contract), and no TS package outside
- * this module consumes it either. */
+/** Must match the opt-out attribute emitted by the reader. */
 const NOSMART_ATTR = "data-nota-nosmart";
 
 /** HTML void elements (never push nesting depth in the chunk walk). */
@@ -86,9 +62,8 @@ type Segment =
 
 const OPAQUE: Segment = { kind: "opaque" };
 
-// -------------------------------------------------------------------------------------------------
-// The string rules (Pollen's, verbatim modulo the dash whitespace class)
-// -------------------------------------------------------------------------------------------------
+// Pollen's string rules, except dashes consume horizontal whitespace only. Newlines delimit
+// paragraphs in Reforest and must survive this pass.
 
 /** Pollen's sentence-ender exceptions: a quote before one of these closes even at a word gap. */
 const ENDERS = ",.:;?!\\])}";
@@ -127,10 +102,6 @@ export function smartDashesString(text: string): string {
 export function smartEllipsesString(text: string): string {
   return text.replace(/\.{3}/g, "…");
 }
-
-// -------------------------------------------------------------------------------------------------
-// The segment pass
-// -------------------------------------------------------------------------------------------------
 
 /**
  * Transform an ordered segment list: quotes first over the flattened context
@@ -172,8 +143,6 @@ function push(out: Segment[], seg: Segment): void {
   out.push(seg);
 }
 
-// --- client: DOM text-node walk ------------------------------------------------------------------
-
 function collectNodeSegments(node: Node, out: Segment[]): void {
   if (node.nodeType === TEXT_NODE) {
     const text = node as Text;
@@ -199,12 +168,6 @@ function collectNodeSegments(node: Node, out: Segment[]): void {
     collectNodeSegments(child, out);
   }
 }
-
-// --- server: SSR-chunk HTML segment walk ---------------------------------------------------------
-
-/** A comment (`<!--#-->` hydration markers included) or a tag; attr values may hold `>`/quotes. */
-const TAG_OR_COMMENT =
-  /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
 
 interface ChunkPatch {
   start: number;
@@ -248,19 +211,17 @@ function collectChunkSegments(
     });
   };
 
-  TAG_OR_COMMENT.lastIndex = 0;
-  for (let m = TAG_OR_COMMENT.exec(html); m; m = TAG_OR_COMMENT.exec(html)) {
-    pushText(last, m.index);
-    last = TAG_OR_COMMENT.lastIndex;
-    if (m[0].startsWith("<!--")) continue; // comments (hydration markers): invisible
-    const closing = m[1] === "/";
-    const name = m[2].toLowerCase();
-    if (closing) {
+  for (const token of htmlTokens(html)) {
+    pushText(last, token.start);
+    last = token.end;
+    if (token.kind === "comment") continue;
+    if (token.closing) {
       // Serializer output is well-nested: pop the matching open.
       const wasExcluded = stack.pop() ?? false;
       if (wasExcluded) excludedDepth = Math.max(0, excludedDepth - 1);
-    } else if (!VOID_TAGS.has(name) && !m[3].endsWith("/")) {
-      const excluded = EXCLUDED_TAGS.has(name) || m[3].includes(NOSMART_ATTR);
+    } else if (!VOID_TAGS.has(token.name) && !token.selfClosing) {
+      const excluded =
+        EXCLUDED_TAGS.has(token.name) || token.attrs.includes(NOSMART_ATTR);
       stack.push(excluded);
       if (excluded) excludedDepth += 1;
     }
@@ -280,10 +241,6 @@ function collectChunkSegments(
     return { t: rebuilt };
   };
 }
-
-// -------------------------------------------------------------------------------------------------
-// Entry
-// -------------------------------------------------------------------------------------------------
 
 const DEFAULTS: Required<SmartOptions> = {
   quotes: true,

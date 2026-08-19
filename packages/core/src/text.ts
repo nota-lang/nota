@@ -1,16 +1,18 @@
-/**
- * textOf — see-through text extraction over resolved children.
- */
-
 import { decodeEntities } from "./entities";
+import { htmlTokens } from "./html";
 import { isSSRChunk, type ResolvedChild } from "./reforest";
 
-/**
- * The plain text of resolved children — `textContent` on the client, tag-strip + entity-decode
- * on SSR chunks. The same see-through-the-boundary trick `categorize` uses, applied to
- * text: this is how `Heading` recovers its title for slugs/Toc entries and how `Tex`/`CodeBlock`
- * recover their source.
- */
+function chunkText(html: string): string {
+  let text = "";
+  let from = 0;
+  for (const token of htmlTokens(html)) {
+    text += html.slice(from, token.start);
+    from = token.end;
+  }
+  return decodeEntities(text + html.slice(from));
+}
+
+/** Extract text from resolved children on either the DOM or SSR path. */
 export function textOf(cs: ResolvedChild[] | ResolvedChild): string {
   if (Array.isArray(cs)) {
     return cs.map(textOf).join("");
@@ -26,7 +28,7 @@ export function textOf(cs: ResolvedChild[] | ResolvedChild): string {
     return String(c);
   }
   if (isSSRChunk(c)) {
-    return decodeEntities(c.t.replace(/<[^>]*>/g, ""));
+    return chunkText(c.t);
   }
   return c.textContent ?? "";
 }

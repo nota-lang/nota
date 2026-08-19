@@ -1,18 +1,4 @@
-/**
- * **`@nota-lang/cli` entrypoint** — `nota build doc.nota → doc/` (a document directory).
- *
- * The simplest Nota integrator: one `.nota` file → one **document directory** (`index.html` +
- * `assets/`), built with Vite under a default config — so doc-relative imports, `?url` assets, and
- * CSS imports work as in any Vite app. Its page policy is trivial — the input file is the page.
- * All the work is in {@link "./build".buildNotaFile}; this is the thin argv/IO shell.
- *
- * Usage:
- * ```
- * nota build <doc.nota> [-o <outdir>] [--title <t>] [--setup <file>]
- * ```
- * With no `-o`, the output directory is the input with its extension stripped
- * (`doc.nota → doc/`).
- */
+/** Command-line wrapper around {@link "./build".buildNotaFile}. */
 
 import { relative } from "node:path";
 import { buildNotaFile } from "./build";

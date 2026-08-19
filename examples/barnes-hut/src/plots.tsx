@@ -1,18 +1,4 @@
-/**
- * The performance figures: hand-rolled Solid SVG line charts over the pre-recorded benchmark
- * data — no charting runtime, just memos over scales.
- *
- * θ is an ordered parameter, so the series wear an ordinal ramp (one blue, monotone
- * lightness, validated): darkest = exact/naïve, lightening as the approximation coarsens.
- * Text never wears a series color — line-end labels and legend text stay in ink; identity
- * rides the colored line, its end-dot, and the legend's line keys.
- *
- * The legend doubles as the focus control: hovering (or keyboard-focusing) a series — in
- * the legend, on a line, or from a `ThetaRef` in the prose — drives the shared `focus`
- * state through the same `value`/`set` protocol the sliders use, dimming every other
- * series in both charts at once. A crosshair snaps to the nearest measured point count and
- * reads out every series' value.
- */
+/** Interactive Solid SVG charts over the recorded Barnes-Hut benchmarks. */
 
 import {
   createMemo,
@@ -25,14 +11,12 @@ import {
 } from "solid-js";
 import { PERFORMANCE } from "./performance-data";
 
-/** One θ series: its parameter value, prose label, and ordinal-ramp color. */
 export interface ThetaSeries {
   theta: number;
   label: string;
   color: string;
 }
 
-/** Ordinal blue ramp (validated light-mode, monotone L): exact = darkest. */
 export const THETA_SERIES: ThetaSeries[] = [
   { theta: 0, label: "Naïve", color: "#0d366b" },
   { theta: 0.5, label: "θ = 0.5", color: "#1c5cab" },
@@ -43,16 +27,12 @@ export const THETA_SERIES: ThetaSeries[] = [
 export const seriesFor = (theta: number): ThetaSeries | undefined =>
   THETA_SERIES.find(s => s.theta === theta);
 
-/** The shared focus protocol: the focused θ, or null. */
 export interface FocusProps {
   focus: number | null;
   setFocus: (theta: number | null) => void;
 }
 
-/**
- * An inline prose reference to a θ series: ink text over a series-colored underline and
- * swatch; hovering it focuses the series in the charts (and vice versa never colors text).
- */
+/** Inline prose reference that focuses the matching chart series on hover. */
 export function ThetaRef(
   props: ParentProps & FocusProps & { theta: number }
 ): JSX.Element {
@@ -71,8 +51,6 @@ export function ThetaRef(
     </span>
   );
 }
-
-// ------------------------------------------------------------------------------- geometry
 
 const W = 640;
 const H = 230;
@@ -105,7 +83,6 @@ const fmtCount = (n: number) => n.toLocaleString("en-US");
 interface PlotDef {
   title: string;
   metric: (d: { time: number; error: number }) => number;
-  /** θ values plotted (the error plot omits the naïve baseline — its error is 0 by definition). */
   thetas: number[];
   y: Scale;
   yFormat: (v: number) => string;
@@ -132,8 +109,6 @@ const ERROR_PLOT: PlotDef = {
 
 const X = linearScale([0, 10000], [0, IW], [0, 2000, 4000, 6000, 8000, 10000]);
 
-// ------------------------------------------------------------------------------ the chart
-
 function seriesPoints(def: PlotDef, theta: number): [number, number][] {
   return PERFORMANCE.filter(d => d.theta === theta).map(d => [
     d.nodes,
@@ -159,8 +134,7 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
   const dimmed = (theta: number) =>
     props.focus !== null && props.focus !== theta;
 
-  // End labels: series can converge at the right edge, so spread colliding labels
-  // apart (≥14px) and give any label pushed off its line a short leader.
+  // Spread colliding end labels vertically.
   const labelYs = createMemo<Map<number, number>>(() => {
     const entries = lines()
       .map(l => ({ theta: l.s.theta, y: props.def.y(l.end[1]) }))
@@ -174,7 +148,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
     return new Map(entries.map(e => [e.theta, e.y]));
   });
 
-  // The crosshair: snap to the nearest measured point count.
   const [cursor, setCursor] = createSignal<number | null>(null);
   const onMove = (e: PointerEvent) => {
     const svg = e.currentTarget as SVGSVGElement;
@@ -212,7 +185,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
 
   return (
     <figure class="plot">
-      {/* The legend is the focus control: real buttons, keyboard-reachable. */}
       <div class="plot-legend">
         <For each={series()}>
           {s => (
@@ -247,7 +219,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
           {props.def.title}
         </text>
         <g transform={`translate(${M.left},${M.top})`}>
-          {/* recessive hairline grid + ink-token tick labels */}
           <For each={props.def.y.ticks}>
             {t => (
               <g transform={`translate(0,${props.def.y(t)})`}>
@@ -270,7 +241,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
             Number of points
           </text>
 
-          {/* crosshair */}
           <Show when={cursor() !== null}>
             <line
               class="plot-crosshair"
@@ -281,7 +251,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
             />
           </Show>
 
-          {/* the lines (2px, round caps), end-dots with surface rings, ink end-labels */}
           <For each={lines()}>
             {l => (
               // biome-ignore lint/a11y/noStaticElementInteractions: line hover mirrors the keyboard-reachable legend buttons
@@ -326,7 +295,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
             )}
           </For>
 
-          {/* crosshair dots on every series */}
           <Show when={readout()}>
             {r => (
               <Index each={r().rows}>
@@ -345,7 +313,6 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
         </g>
       </svg>
 
-      {/* the readout: one tooltip, every series; values lead */}
       <Show when={readout()}>
         {r => (
           <div
@@ -379,14 +346,12 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
   );
 }
 
-/** Running time vs point count, all four estimation strategies. */
 export function TimePlot(props: FocusProps): JSX.Element {
   return (
     <LinePlot def={TIME_PLOT} focus={props.focus} setFocus={props.setFocus} />
   );
 }
 
-/** Approximation error vs point count (the naïve baseline is zero by definition). */
 export function ErrorPlot(props: FocusProps): JSX.Element {
   return (
     <LinePlot def={ERROR_PLOT} focus={props.focus} setFocus={props.setFocus} />

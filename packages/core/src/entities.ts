@@ -1,8 +1,4 @@
-/**
- * The five HTML entities Solid's SSR escaping produces (`solid-js/web`'s `escape()`), and the
- * one decoder for them — the single copy (reforest's attr extraction, `textOf`, and the
- * prelude's decoration reconstruction all consume this; three hand-copies once agreed by luck).
- */
+/** The entities emitted by Solid's server-side HTML escaping. */
 
 const ENTITIES: Record<string, string> = {
   "&amp;": "&",

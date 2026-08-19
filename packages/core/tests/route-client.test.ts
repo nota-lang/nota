@@ -22,7 +22,10 @@ let pageHtml: string;
 
 beforeAll(() => {
   execSync("node tests/route-ssr.mjs", { cwd: pkgRoot, stdio: "pipe" });
-  pageHtml = readFileSync(join(pkgRoot, "tests/.built/route-page.html"), "utf8");
+  pageHtml = readFileSync(
+    join(pkgRoot, "tests/.built/route-page.html"),
+    "utf8"
+  );
 }, 60_000);
 
 beforeEach(() => {

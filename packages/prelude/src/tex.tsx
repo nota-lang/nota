@@ -1,18 +1,6 @@
 /**
- * The default math component: KaTeX → MathML, as a plain Solid component.
- *
- * `$…$` / `$$` fences lower to `<Tex display?>{parts}</Tex>`. Parts are verbatim raw runs plus
- * armed splices; KaTeX renders a *string*, so:
- *
- * - **string/number parts** (raw runs, armed scalars) concatenate into the TeX source —
- *   `$a_|@i$` with `i = 3` renders `a_3`;
- * - a **markup part** (`$x |@em{y}$`) is a **hard error** — KaTeX cannot host HTML mid-formula.
- *   `%import` a custom `Tex` for richer math.
- *
- * The part inspection uses Solid's `children()` resolution (strings/numbers pass through;
- * an element node or SSR chunk = a markup part). Output lands via `innerHTML` — a `<span>` for
- * inline (joins the paragraph run under Reforest's categorization) and a `<div>` for display
- * (a block). MathML needs no KaTeX stylesheet or fonts.
+ * KaTeX rendering for inline and display math. String and number parts form the TeX source;
+ * markup parts are rejected because KaTeX cannot embed JSX inside a formula.
  */
 
 import type { ResolvedChild } from "@nota-lang/core";

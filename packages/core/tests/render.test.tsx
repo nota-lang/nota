@@ -127,6 +127,10 @@ describe("reforest over SSR chunks", () => {
     ));
     expect(got).toBe("A & B C");
   });
+
+  test("textOf ignores greater-than signs in quoted attributes", () => {
+    expect(textOf({ t: '<span title="a > b">A &amp; B</span>' })).toBe("A & B");
+  });
 });
 
 describe("scanOpeningTag / parseOpeningTag (exported opening-tag sniffers)", () => {

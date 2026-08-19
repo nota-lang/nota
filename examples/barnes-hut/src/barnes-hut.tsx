@@ -1,21 +1,4 @@
-/**
- * The Barnes-Hut diagram as one declarative Solid component. d3 supplies the math (d3-force
- * for the layout physics, d3-quadtree via ./quadtree for the spatial index); Solid owns the
- * DOM: every layer of the SVG is a memo over the reactive inputs, so the component has no
- * update methods — the document just changes state, exactly like the prose does.
- *
- * Reactive props (all driven live by the document):
- * - `size`       inserted-point count 0..77 — the quadtree-construction step;
- * - `theta`      the Barnes-Hut θ threshold for force estimation;
- * - `charge`     force strength (negative repels, positive attracts);
- * - `layout`     run the live force-directed layout (nodes draggable);
- * - `estimate`   show the force-estimation probe (click/drag to move it);
- * - `accumulate` a counter — each bump replays the center-of-mass animation.
- *
- * SSR-safe by construction: the settled layout is deterministic, the simulation only starts
- * in `onMount`, and every animation is CSS driven by state, so the server and the client
- * render the same bytes and the static page is a faithful still.
- */
+/** Reactive, SSR-safe Barnes-Hut explorable rendered as Solid SVG. */
 
 import type { ForceManyBody } from "d3-force";
 import {
@@ -55,13 +38,11 @@ export interface BarnesHutProps {
 
 const BASE_RADIUS = 4;
 const DEFAULT_PROBE: Pt = { x: CENTER + 64, y: CENTER + 64 };
-/** Per-depth-group stage length of the accumulation animation (ms). */
 const ACCUM_STEP = 1400;
 
 export function BarnesHut(props: BarnesHutProps): JSX.Element {
-  const net = settledNetwork();
+  const net = settledNetwork(props.charge);
 
-  // Positions as a fine-grained store the simulation writes into on each tick.
   const [pts, setPts] = createStore(net.nodes.map(n => ({ x: n.x, y: n.y })));
   const syncPts = () =>
     batch(() => {
@@ -74,7 +55,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
   const step = () =>
     Math.max(0, Math.min(Math.floor(props.size), net.nodes.length));
 
-  // ------------------------------------------------------------------ the live simulation
   onMount(() => {
     net.simulation.on("tick", syncPts);
     if (props.layout) {
@@ -110,7 +90,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     )
   );
 
-  // ------------------------------------------------------------------ pointer interaction
   let svgEl!: SVGSVGElement;
   const toLocal = (e: PointerEvent): Pt => {
     const ctm = svgEl.getScreenCTM();
@@ -121,7 +100,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     return { x: p.x, y: p.y };
   };
 
-  // Node dragging (layout mode).
   const dragNode = (node: BodyNode, e: PointerEvent) => {
     if (!props.layout) {
       return;
@@ -139,16 +117,17 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     const up = () => {
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
       net.simulation.alphaTarget(0);
       node.fx = null;
       node.fy = null;
     };
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
     move(e);
   };
 
-  // The estimation probe (estimate mode): click or drag anywhere.
   const [probe, setProbe] = createSignal<Pt>(DEFAULT_PROBE);
   const probeDown = (e: PointerEvent) => {
     if (!props.estimate) {
@@ -161,9 +140,11 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     const up = () => {
       svgEl.removeEventListener("pointermove", move);
       svgEl.removeEventListener("pointerup", up);
+      svgEl.removeEventListener("pointercancel", up);
     };
     svgEl.addEventListener("pointermove", move);
     svgEl.addEventListener("pointerup", up);
+    svgEl.addEventListener("pointercancel", up);
   };
   createEffect(
     on(
@@ -177,8 +158,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     )
   );
 
-  // ------------------------------------------------------------------ derived geometry
-  /** The construction-phase tree: the first `size` points, with the step's new cells. */
   const construction = createMemo(() => {
     if (props.estimate || step() === 0) {
       return undefined;
@@ -187,7 +166,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     return insertionStep(points, points.length);
   });
 
-  /** The estimation-phase tree: all points, accumulated, probed at θ. */
   const estimation = createMemo(() => {
     if (!props.estimate) {
       return undefined;
@@ -199,7 +177,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     };
   });
 
-  // ------------------------------------------------------------ the accumulation animation
   const [accumStage, setAccumStage] = createSignal(-1);
   const [accumShown, setAccumShown] = createSignal(false);
   const [gathered, setGathered] = createSignal(false);
@@ -226,6 +203,7 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
         clearTimers();
         setAccumShown(true);
         setAccumStage(-1);
+        setGathered(false);
         const groups = accumGroupsMemo();
         groups.forEach((_, i) => {
           timers.push(
@@ -251,7 +229,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
       { defer: true }
     )
   );
-  // Any other phase change dismisses the accumulation overlay.
   createEffect(
     on(
       [() => props.estimate, () => props.layout, step],
@@ -264,7 +241,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     )
   );
 
-  /** The full-tree cell boxes shown while the accumulation overlay is up. */
   const accumBoxes = createMemo<Box[]>(() => {
     if (!accumShown()) {
       return [];
@@ -272,7 +248,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     return cellBoxes(buildTree(pts.map(p => ({ x: p.x, y: p.y }))));
   });
 
-  // ------------------------------------------------------------------ display rules
   const quadBoxes = createMemo<Box[]>(() => {
     const est = estimation();
     if (est) {
@@ -310,7 +285,6 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     return { x: p.x - est.result.fx * 90, y: p.y - est.result.fy * 90 };
   });
 
-  // ------------------------------------------------------------------ render
   return (
     <svg
       ref={svgEl}

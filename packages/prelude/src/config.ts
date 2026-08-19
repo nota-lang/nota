@@ -1,21 +1,6 @@
 /**
- * Prelude configuration: `lstset` / `mathset` + `secset` / `bibset` (design/solid.md §The
- * prelude).
- *
- * `lstset` (after LaTeX's listings package) sets the code options the default
- * `CodeInline`/`CodeBlock` consult; `mathset` the KaTeX macros/output the default `Tex` passes
- * through; `secset` the heading `numberDepth`; `bibset` the citation source/style.
- *
- * **Scope semantics (changed from decode.md, intentionally):** config calls are **positional** —
- * statements execute in document order during the single component-body run, so a mid-document
- * `% lstset(…)` affects subsequent code blocks only (matching LaTeX's actual `\lstset`), not
- * "last write wins globally". Config is module-global with a bakeable baseline: a site setup
- * module calls `lstset`/… then {@link bakeConfigBaseline}; {@link resetConfig} restores the
- * baseline. The reset is registered with `@nota-lang/core`'s render-reset seam
- * ({@link onRenderReset}) at module load, so every document render — **each SSG pass** of
- * `renderDocument`, and `hydrateDocument` before claiming — starts from the baseline. Without
- * the per-pass reset, pass 1's end-state would seed pass 2 and positionality would be destroyed
- * in the converged HTML.
+ * Positional configuration for the prelude. Each render pass resets the module state to a
+ * bakeable site baseline before document-order calls mutate it.
  */
 
 import { onRenderReset } from "@nota-lang/core";

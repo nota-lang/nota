@@ -1,11 +1,6 @@
 /**
- * Doc-state — the LaTeX `.aux` model, in process (design/solid.md §Doc-state).
- *
- * Components *register* facts (headings, footnotes, definitions, cites) during render and read
- * derived facts through memos. Registrations ≙ the old marks; memos ≙ the old queries; the store
- * ≙ `DocIndex`. Unmount unregisters (`onCleanup`), so doc-state is reactive: a heading inserted
- * by a `<Show>` renumbers the document live. The render drivers thread a store through
- * {@link DocStateContext}; a bare `NotaDoc` self-provisions one (tests, pure CSR).
+ * Per-document registrations used for references, numbering, and end-of-document trailers.
+ * Seeded stores support two-pass rendering; live registrations remain reactive on the client.
  */
 
 import {
@@ -19,8 +14,7 @@ import {
 import { isServer } from "solid-js/web";
 import type { SmartOptions } from "./smart";
 
-/** One registered fact. JSON-serializable fields survive {@link DocState.snapshot}; function-
- * valued fields (e.g. a definition's tooltip thunk) are for same-pass readers and are dropped. */
+/** Function-valued fields are live-only and omitted from snapshots. */
 export type Fact = Record<string, unknown>;
 
 /** A doc-state snapshot: kind → ordered JSON-safe facts. The wire format of the `.aux` model. */
@@ -34,32 +28,15 @@ export interface FactHandle {
 }
 
 export interface DocState {
-  /**
-   * Register a fact during render. The stored fact is `{...fact, pos}` where `pos` is a
-   * store-global 1-based sequence — cross-kind document order, what "nearest preceding heading"
-   * style queries key on. Returns its handle (`seq` is 1-based per kind). On the client the
-   * registration auto-unregisters when the owning computation is disposed, so doc-state is
-   * reactive under `<Show>`/`<For>`.
-   */
+  /** Register a fact, assigning global `pos` and per-kind `seq` values. */
   register(kind: string, fact: Fact): FactHandle;
   /** Remove a registration (rarely needed directly — see {@link register}). */
   unregister(h: FactHandle): void;
-  /**
-   * The **resolved** facts of a kind: the seed snapshot while one is pinned (SSG pass 2,
-   * hydration), else the live registrations (reactive). This is what forward-referencing
-   * readers (`Toc`, `Ref`) consume.
-   */
+  /** Read the pinned seed, or live facts after release. */
   read(kind: string): Fact[];
-  /**
-   * The **live** registrations of a kind (reactive, never seed-pinned). For readers positioned
-   * after all registrations — trailers — which need same-pass non-JSON fields (tooltip thunks).
-   */
+  /** Read live facts, including fields that cannot enter a snapshot. */
   live(kind: string): Fact[];
-  /**
-   * Unpin the seed — silently. Readers keep their current (seed-derived, converged-equal)
-   * values; the next live registration re-runs them against the live facts. Called after
-   * hydration completes.
-   */
+  /** Unpin the seed without notifying readers. */
   release(): void;
   /** The JSON-safe snapshot of live registrations (function-valued fields dropped). */
   snapshot(): Snapshot;
@@ -67,17 +44,13 @@ export interface DocState {
   trailer(name: string, thunk: () => JSX.Element): void;
   /** The registered trailer thunks, in registration order (reactive). */
   trailers(): (() => JSX.Element)[];
-  /** Set a positional flag (e.g. "footnotes-placed" — explicit placement overrides a trailer). */
+  /** Set a document flag. */
   flag(name: string): void;
-  /** Read a flag (reactive). Positional: set-before-read holds by tree order. */
+  /** Read a document flag reactively. */
   hasFlag(name: string): boolean;
   /** Was this store created with a seed (SSG pass 2 / hydration)? */
   readonly seeded: boolean;
-  /**
-   * The document's smart-punctuation setting (threaded from the render drivers; `undefined` ⇒
-   * defaults, `false` ⇒ off). Read by every `Reforest` pass under this store — server and client
-   * must agree, so it rides the store, not a component prop.
-   */
+  /** Document-wide smart-punctuation settings. */
   readonly smart?: SmartOptions | false;
 }
 
@@ -87,22 +60,14 @@ export interface DocStateOptions {
   smart?: SmartOptions | false;
 }
 
-/**
- * Create a per-document reactive store. With a `seed` (pass 1's snapshot during SSG pass 2; the
- * page-embedded snapshot during hydration), {@link DocState.read} serves the seed until
- * {@link DocState.release} — so forward references resolve to converged values while the live
- * registrations accumulate underneath.
- */
+/** Create a reactive store, optionally pinned to a snapshot until {@link DocState.release}. */
 export function createDocState(
   seed?: Snapshot,
   options: DocStateOptions = {}
 ): DocState {
   const [version, setVersion] = createSignal(0);
-  // Deliberately NOT a signal: release() must be silent. At release time live == seed (the
-  // document converged), so notifying readers would re-run every doc-state consumer to produce
-  // identical output — observable as DOM churn right after hydration. Instead readers keep
-  // serving the (equal) seed until the next real registration bumps `version`, which re-runs
-  // them under released = true.
+  // Release is silent because a converged live store equals its seed. The next registration
+  // bumps version and moves readers to live facts.
   let released = seed === undefined;
   let nextPos = 0;
   const facts = new Map<string, FactHandle[]>();
@@ -127,9 +92,7 @@ export function createDocState(
       };
       list.push(handle);
       bump();
-      // Client-side, tie the registration to the owning computation so conditional content
-      // unregisters on unmount. Server-side renderToString disposes its root after rendering,
-      // which would empty the store before snapshot() — so no cleanup there.
+      // Server roots dispose before snapshot(), so only client registrations auto-unregister.
       if (!isServer && getOwner()) {
         onCleanup(() => state.unregister(handle));
       }
@@ -197,10 +160,7 @@ export function createDocState(
 
 const DocStateContext = createContext<DocState>();
 
-/**
- * The current document's {@link DocState}. Pointed error outside a document — every doc-state
- * consumer (the prelude's `Heading`/`Ref`/`Footnote`/…) must render inside a `NotaDoc`.
- */
+/** Return the current document store. */
 export function useDocState(): DocState {
   const state = useContext(DocStateContext);
   if (!state) {

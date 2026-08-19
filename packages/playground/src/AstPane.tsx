@@ -1,22 +1,11 @@
-/**
- * The AST output pane: an **interactive tree** over the post-parse Nota AST. The reader hands
- * back ESTree JSON (`parseAst` → a string we `JSON.parse`); this renders it as a collapsible
- * tree where each row shows only the node's `type` and a one-line source preview, and a click on
- * the disclosure arrow drills into its children.
- *
- * The walk is generic — it assumes nothing about specific Nota node shapes:
- *   - a **node** is any object with a string `type` field;
- *   - a node's **children** are its node-valued fields, descending into arrays (label = path);
- *   - the **preview** is the first line of the source the node spans, so it works for every node
- *     kind without per-type code.
- *
- * `source` is the text that produced this AST (the pipeline keeps them paired), so node offsets
- * index the right characters even when the editor has raced ahead after a parse error.
- */
+/** Generic collapsible view over the reader's ESTree JSON. */
 
+import {
+  type ByteConverter,
+  makeByteConverter
+} from "@nota-lang/compiler/offsets";
 import { createMemo, createSignal, For, Show } from "solid-js";
 
-/** An AST node: a JSON object with a string `type`. Other fields are children or scalar props. */
 interface AstNodeValue {
   type: string;
   start?: number;
@@ -24,12 +13,9 @@ interface AstNodeValue {
   [key: string]: unknown;
 }
 
-/** Fields that describe the node itself rather than its children/props. */
 const META_KEYS = new Set(["type", "start", "end", "range"]);
 
-/** How deep the tree auto-expands. The Nota document sits under a fixed wrapper chain
- * (`Program → ExpressionStatement → NotaMarkup → NotaDocument`), so opening the first four
- * levels reveals the document's top-level items collapsed, ready to drill into. */
+// Open the fixed Program → ExpressionStatement → NotaMarkup → NotaDocument wrapper.
 const DEFAULT_OPEN_DEPTH = 4;
 
 const isNode = (value: unknown): value is AstNodeValue =>
@@ -38,7 +24,6 @@ const isNode = (value: unknown): value is AstNodeValue =>
   !Array.isArray(value) &&
   typeof (value as { type?: unknown }).type === "string";
 
-/** A node's child nodes, in field order, descending into arrays. Label is the field path. */
 function childEntries(
   node: AstNodeValue
 ): { label: string; node: AstNodeValue }[] {
@@ -56,7 +41,6 @@ function childEntries(
   return out;
 }
 
-/** A node's scalar (non-node) fields, shown as dim leaf rows when the node is expanded. */
 function scalarProps(node: AstNodeValue): { key: string; value: string }[] {
   const out: { key: string; value: string }[] = [];
   for (const [key, value] of Object.entries(node)) {
@@ -72,11 +56,18 @@ function scalarProps(node: AstNodeValue): { key: string; value: string }[] {
   return out;
 }
 
-/** First line of the source the node spans, trimmed + truncated; falls back to a `value`/`name`. */
-function preview(node: AstNodeValue, source: string): string {
+/** First source line covered by a byte-spanned AST node. */
+function preview(
+  node: AstNodeValue,
+  source: string,
+  offsets: ByteConverter
+): string {
   const { start, end } = node;
   if (typeof start === "number" && typeof end === "number" && end > start) {
-    const firstLine = source.slice(start, end).split("\n", 1)[0].trim();
+    const firstLine = source
+      .slice(offsets.toUtf16(start), offsets.toUtf16(end))
+      .split("\n", 1)[0]
+      .trim();
     return firstLine.length > 80 ? `${firstLine.slice(0, 79)}…` : firstLine;
   }
   const text = node.value ?? node.name;
@@ -88,6 +79,7 @@ interface AstNodeProps {
   /** The field path that reached this node from its parent (`null` for the root). */
   label: string | null;
   source: string;
+  offsets: ByteConverter;
   depth: number;
 }
 
@@ -105,7 +97,9 @@ function AstNode(props: AstNodeProps) {
         <span class="ast-field">{props.label}</span>
       </Show>
       <span class="ast-type">{props.node.type}</span>
-      <span class="ast-preview">{preview(props.node, props.source)}</span>
+      <span class="ast-preview">
+        {preview(props.node, props.source, props.offsets)}
+      </span>
     </>
   );
 
@@ -152,6 +146,7 @@ function AstNode(props: AstNodeProps) {
                 node={c.node}
                 label={c.label}
                 source={props.source}
+                offsets={props.offsets}
                 depth={props.depth + 1}
               />
             )}
@@ -170,7 +165,6 @@ export interface AstPaneProps {
 }
 
 export function AstPane(props: AstPaneProps) {
-  // Parse once per AST string; a malformed/empty string yields no tree (a placeholder shows).
   const root = createMemo<AstNodeValue | null>(() => {
     if (!props.ast) return null;
     try {
@@ -180,12 +174,19 @@ export function AstPane(props: AstPaneProps) {
       return null;
     }
   });
+  const offsets = createMemo(() => makeByteConverter(props.source));
 
   return (
     <div class="ast-tree" data-testid="pane-ast">
       <Show when={root()} fallback={<div class="ast-empty">No AST yet.</div>}>
         {r => (
-          <AstNode node={r()} label={null} source={props.source} depth={0} />
+          <AstNode
+            node={r()}
+            label={null}
+            source={props.source}
+            offsets={offsets()}
+            depth={0}
+          />
         )}
       </Show>
     </div>

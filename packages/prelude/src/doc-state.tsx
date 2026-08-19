@@ -1,26 +1,7 @@
 /**
- * The prelude doc-state constructs over the **unified reference registry**
- * (design/references.md): headings + numbering + a table of contents, `@Label`, the one `@Ref`
- * (every reference kind is a dispatch arm), footnotes, `@Cite`/`@Bibliography` — plain Solid
- * components over the `@nota-lang/core` doc-state store. Everything referenceable registers an
- * `anchor` fact; every use registers a `ref` fact; numbering/resolution/backlinks are the pure
- * derivations in ./refs.
- *
- * ## Resolution-error policy
- * A *missing target* (`@Ref` to nothing) throws **only when the store is seeded** — i.e. when
- * resolution runs against a complete document (SSG pass 2, hydration). Unseeded renders (SSG
- * pass 1, pure CSR) see the document *so far*, where a forward target legitimately hasn't
- * registered yet, so they render a visible `?` placeholder instead; in CSR it self-heals
- * reactively when the target mounts. *Duplicates* throw wherever detected — more facts never
- * fix a duplicate.
- *
- * ## Ordering
- * Facts carry the store's cross-kind `pos` (registration = mount order), which stands in for
- * the old global DFS `pos`: "nearest preceding heading" and first-use numbering key on it.
- * Components find their own fact by `pos` (never by captured `seq`, which the store
- * re-sequences on unmount). A construct rendered inside a trailer thunk (a cite in a footnote
- * body) registers at the trailer's position — an approximation of the old index-at-parent
- * semantics, flagged in the design doc.
+ * Solid components over the unified anchor/reference registry. Missing targets remain pending
+ * in unseeded renders and throw once a complete seed is available. Cross-kind `pos` values drive
+ * ordering and stable self-lookups. See `design/references.md`.
  */
 
 import {
@@ -47,7 +28,6 @@ import { config } from "./config";
 import {
   ANCHOR_KINDS,
   type AnchorFact,
-  anchorOrdinals,
   anchorsOf,
   FACT_KINDS,
   headingIds,
@@ -59,18 +39,9 @@ import {
   useNumbers
 } from "./refs";
 
-// =============================================================================================
 // Shared helpers
-// =============================================================================================
 
-/**
- * Title text of resolved heading/cite children, skipping the prelude's own meta elements
- * (footnote `<sup class="nota-fnref">`, cite links) so a footnote inside a heading doesn't leak
- * its number into the slug/Toc entry — the analogue of the old textContent's mark/query skip.
- * The chunk/Node dispatch (everything but the meta-class skip) delegates to `textOf`; the
- * class sniff shares core's quote-aware {@link parseOpeningTag} instead of a second,
- * double-quote-only opening-tag regex.
- */
+/** Extract title text while omitting reference metadata such as footnote numbers. */
 function titleTextOf(parts: ResolvedChild[]): string {
   const META_CLASS = /\bnota-(fnref|cite|secnum)\b/;
   const metaClass = (part: ResolvedChild): boolean => {
@@ -94,13 +65,13 @@ function titleTextOf(parts: ResolvedChild[]): string {
   return out;
 }
 
-/** The visible unresolved-forward-reference placeholder (unseeded renders only; see module docs). */
+/** Placeholder used before an unseeded forward reference resolves. */
 const PENDING = "?";
 
 /** The unresolved-forward placeholder link: `?` (or the authored text) with an inert href. */
 function PendingRef(props: { children?: JSX.Element }): JSX.Element {
   return (
-    // biome-ignore lint/a11y/useValidAnchor: pending refs keep the inert legacy "#" href — CSR self-heals it into the real target.
+    // biome-ignore lint/a11y/useValidAnchor: the target will update reactively in CSR.
     <a href="#" class="nota-ref">
       {props.children ?? PENDING}
     </a>
@@ -108,12 +79,12 @@ function PendingRef(props: { children?: JSX.Element }): JSX.Element {
 }
 
 /** The store's anchor facts (resolved view — seed-pinned during SSG pass 2 / hydration). */
-function readAnchors(state: ReturnType<typeof useDocState>): AnchorFact[] {
+function readAnchors(state: DocState): AnchorFact[] {
   return state.read(FACT_KINDS.anchor) as AnchorFact[];
 }
 
 /** The store's ref facts (resolved view). */
-function readRefs(state: ReturnType<typeof useDocState>): RefFact[] {
+function readRefs(state: DocState): RefFact[] {
   return state.read(FACT_KINDS.ref) as RefFact[];
 }
 
@@ -136,13 +107,9 @@ function targetsKind(
   return res.get(key)?.fact.kind === kind;
 }
 
-// =============================================================================================
-// Shared memoized reference model
-// =============================================================================================
+// Shared reference model
 
-/** Headings + their ids/numbers, the resolved id namespace, and footnote/bib use numbering —
- * everything downstream of one `state.read()` pair, computed once per doc-state instance and
- * shared by every consumer below instead of each re-deriving it independently. */
+/** Memoized derivations shared by every reference component in a document. */
 interface ReferenceModel {
   anchors: () => AnchorFact[];
   refs: () => RefFact[];
@@ -152,6 +119,7 @@ interface ReferenceModel {
   ids: () => string[];
   numbers: () => (string | undefined)[];
   resolved: () => Map<string, ResolvedAnchor>;
+  ordinalMaps: () => Map<string, Map<number, number>>;
   footnoteNumbering: () => {
     numOf: Map<string, number>;
     firstRefPos: Map<string, number>;
@@ -165,21 +133,8 @@ interface ReferenceModel {
 const referenceModels = new WeakMap<DocState, ReferenceModel>();
 
 /**
- * The shared memoized derivation layer for one doc-state instance. Every `Heading`/`Toc`/`Ref`/
- * `FootnoteSup`/`BibRefLink`/`Cite`/`Bibliography` reading the SAME store used to re-derive the
- * heading id/number arrays and re-run `resolveAnchors` independently per read — O(n²) across a
- * document's headings, and the namespace walked once per `Ref`/`Cite`/`Bibliography` instance.
- * One `createMemo` per derivation here, read by all of them instead.
- *
- * Built in its own detached root, not the calling component's: an earlier consumer (a
- * `<Show>`-wrapped heading, e.g.) may unmount before a later one reads the shared cache, and a
- * memo attached to THAT consumer's owner would be disposed along with it — frozen at its last
- * value for every later reader (exactly the unmount-before-later-consumer scenario the live-
- * renumbering tests pin: see csr.test.tsx). The root is intentionally never disposed; its
- * lifetime is the store's own — a per-document cache, reclaimed with the store (`referenceModels`
- * is a WeakMap, so nothing here outlives the last reference to its `DocState`) — the same
- * "verified benign module state" shape as this package's other long-lived caches (code.tsx's
- * highlighter, def.tsx's `handlersInstalled`).
+ * Build the model in a detached root so unmounting the first consumer cannot dispose shared
+ * memos. The WeakMap gives the model the same lifetime as its store.
  */
 function referenceModel(state: DocState): ReferenceModel {
   const cached = referenceModels.get(state);
@@ -200,6 +155,18 @@ function referenceModel(state: DocState): ReferenceModel {
       headingNumbers(headings(), config().numberDepth)
     );
     const resolved = createMemo(() => resolution(anchors()));
+    const ordinalMaps = createMemo(() => {
+      const maps = new Map<string, Map<number, number>>();
+      for (const anchor of anchors()) {
+        let map = maps.get(anchor.kind);
+        if (map === undefined) {
+          map = new Map();
+          maps.set(anchor.kind, map);
+        }
+        map.set(anchor.pos as number, map.size + 1);
+      }
+      return maps;
+    });
     const footnoteNumbering = createMemo(() => {
       const res = resolved();
       const as = anchors();
@@ -224,6 +191,7 @@ function referenceModel(state: DocState): ReferenceModel {
       ids,
       numbers,
       resolved,
+      ordinalMaps,
       footnoteNumbering,
       bibNumbering
     };
@@ -232,9 +200,7 @@ function referenceModel(state: DocState): ReferenceModel {
   return model;
 }
 
-// =============================================================================================
-// Heading + numbering
-// =============================================================================================
+// Headings
 
 /** Clamp a rank prop to 1–6 (defaults to 1). */
 function clampRank(rank: unknown): number {
@@ -245,14 +211,7 @@ function clampRank(rank: unknown): number {
   return Math.min(6, Math.max(1, n));
 }
 
-/**
- * The default `Heading` (the `#` sugar target). Props: `rank` (1–6), optional `id`; any other
- * props (a hoisted `# Title [class: "x"]` attrs group — notation.md §Attrs) spread onto the
- * rendered `<hN>`. Registers a `heading` anchor and renders `<hN id>` with a
- * `<span class="nota-secnum">` prefix when `rank ≤ secset({numberDepth})`. Effective id =
- * explicit prop ?? deduped slug of the title text; an explicit id is a **strong** anchor
- * (`&intro` resolves it), a slug is weak (resolvable until shadowed).
- */
+/** Register and render a heading, with an authored id or a deduplicated title slug. */
 export function Heading(
   props: ParentProps & { rank?: number; id?: string } & Record<string, unknown>
 ): JSX.Element {
@@ -282,18 +241,12 @@ export function Heading(
   );
 }
 
-/**
- * The default `Title`: the document title — an `<h1 class="nota-title">`, deliberately **not**
- * a heading anchor (no number, no TOC entry, no section nesting). Section headings start at
- * `#` (rank 1) below it, mirroring `\title` + `\section`.
- */
+/** Render the unnumbered document title. */
 export function Title(props: ParentProps): JSX.Element {
   return <h1 class="nota-title">{props.children}</h1>;
 }
 
-// =============================================================================================
-// Toc
-// =============================================================================================
+// Table of contents
 
 interface TocEntry {
   rank: number;
@@ -301,16 +254,12 @@ interface TocEntry {
   label: string;
 }
 
-/**
- * The default `Toc`: a `<nav class="nota-toc">` of nested heading links, from the resolved
- * heading anchors — correct above its headings (the store's seed) and reactive below them.
- * Optional `depth` prop caps the ranks shown. Renders nothing for a heading-less document.
- */
+/** Render a nested heading list, optionally capped by rank. */
 export function Toc(props: { depth?: number }): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
   const depth = typeof props.depth === "number" ? props.depth : 6;
-  const entries = (): TocEntry[] => {
+  const entries = createMemo((): TocEntry[] => {
     const facts = model.headings();
     const ids = model.ids();
     const nums = model.numbers();
@@ -324,7 +273,7 @@ export function Toc(props: { depth?: number }): JSX.Element {
             : (f.title ?? "")
       }))
       .filter(e => e.rank <= depth);
-  };
+  });
   // Recursive descent over ranks: deeper followers nest as a sublist inside their leader's item.
   const build = (
     es: TocEntry[],
@@ -354,15 +303,9 @@ export function Toc(props: { depth?: number }): JSX.Element {
   );
 }
 
-// =============================================================================================
-// Label / Ref — the unified reference
-// =============================================================================================
+// Labels and references
 
-/**
- * The default `Label`: a position marker that renders nothing — a **strong** `label` anchor.
- * A reference to it binds to the nearest *preceding* heading (LaTeX semantics). The key is the
- * authored `id` prop (the `<sec:intro>` sugar sets it); children are ignored.
- */
+/** Register a strong label at the current position. */
 export function Label(props: { id?: string }): JSX.Element {
   const state = useDocState();
   const id = typeof props.id === "string" ? props.id.trim() : "";
@@ -377,10 +320,9 @@ export function Label(props: { id?: string }): JSX.Element {
 
 /** Nearest preceding heading of `pos`: its `[id, numberOrTitle]`, or null when none. */
 function precedingHeading(
-  state: DocState,
+  model: ReferenceModel,
   pos: number
 ): [string, string] | null {
-  const model = referenceModel(state);
   const headings = model.headings();
   const ids = model.ids();
   const nums = model.numbers();
@@ -497,17 +439,8 @@ function BibRefLink(props: {
 }
 
 /**
- * The default `Ref` (the `&id` sugar) — THE reference. Registers a `ref` fact and renders by
- * the resolved anchor's kind:
- * - `definition` → tooltip-wired `<a data-nota-def>` (no-JS fallback: the `#def-id` jump);
- * - `label` → nearest preceding heading's number-or-title (LaTeX semantics);
- * - `heading` → the heading itself (explicit id or unshadowed slug — no `@Label` needed);
- * - `footnote` → the `<sup>` mark, numbered by first-use order;
- * - `bib` → the citation `[N]` (a `page` prop renders `[N, p. 33]`);
- * - any other kind (paper's `figure`) → the generic arm: `<a href={anchor.href ?? "#id"}>`
- *   labeled `refPrefix + ordinal`, tooltip-wired when the anchor declares one.
- * Authored children override the rendered text on every arm. Missing targets: pointed error
- * when seeded, `?` placeholder (reactive) otherwise; duplicate ids always throw.
+ * Register and render a unified reference. Built-in anchor kinds select their specialized
+ * markup; extension kinds use `href`, `refPrefix`, ordinal, and optional tooltip metadata.
  */
 export function Ref(
   props: ParentProps & { id?: string; page?: string }
@@ -559,7 +492,7 @@ export function Ref(
               </a>
             );
           case ANCHOR_KINDS.label: {
-            const h = precedingHeading(state, t.fact.pos as number);
+            const h = precedingHeading(model, t.fact.pos as number);
             if (h === null) {
               if (state.seeded) {
                 throw new Error(
@@ -592,11 +525,10 @@ export function Ref(
               </BibRefLink>
             );
           default: {
-            // Generic arm: extension kinds (paper's `figure`) are JSON data, no renderer
-            // registry — href + refPrefix + anchor-order ordinal (+ declared tooltip wiring).
-            const n = anchorOrdinals(model.anchors(), t.fact.kind).get(
-              t.fact.pos as number
-            );
+            const n = model
+              .ordinalMaps()
+              .get(t.fact.kind)
+              ?.get(t.fact.pos as number);
             const tooltip = t.fact.tooltip === true;
             return (
               <a
@@ -615,13 +547,11 @@ export function Ref(
   );
 }
 
-// =============================================================================================
-// Footnotes — definitions (labeled) + inline one-shots; uses are `Ref`s
-// =============================================================================================
+// Footnotes
 
 /** Register the auto-append trailer (idempotent): the footnote list at document end unless an
  * explicit `@Footnotes` placement set the flag. */
-function ensureFootnotesTrailer(state: ReturnType<typeof useDocState>): void {
+function ensureFootnotesTrailer(state: DocState): void {
   state.trailer("footnotes", () => (
     <Show when={!state.hasFlag("footnotes-placed")}>
       <FootnotesList />
@@ -629,14 +559,7 @@ function ensureFootnotesTrailer(state: ReturnType<typeof useDocState>): void {
   ));
 }
 
-/**
- * The default `Footnote` — both footnote forms:
- * - `@Footnote[id: "x"]: body…` — a **definition**: a strong `footnote` anchor carrying the
- *   body; renders nothing in place. References (`&x`) render the numbered mark; repeats share
- *   the number (first-use order).
- * - `@Footnote{body}` (id-less) — the **inline one-shot**: registers an anonymous anchor and
- *   its own use, fused, and renders the mark itself.
- */
+/** Register a labeled footnote definition or render an anonymous inline footnote. */
 export function Footnote(props: ParentProps & { id?: string }): JSX.Element {
   const state = useDocState();
   ensureFootnotesTrailer(state);
@@ -664,16 +587,10 @@ export function Footnote(props: ParentProps & { id?: string }): JSX.Element {
   );
 }
 
-/**
- * The default `FootnotesList`: the footnote section (`<ol>` of
- * `<li id="fn-N"><div>…content ↩</div></li>`), or nothing when no footnote use precedes it.
- * Reads **live** facts — a placed list renders the footnotes referenced *so far* (the
- * document-end trailer therefore sees all of them). Entry content decodes as flow (a
- * `<Reforest>` inside the `div`), with the backlink joining the final paragraph run.
- */
+/** Render the footnotes referenced so far from live facts. */
 export function FootnotesList(): JSX.Element {
   const state = useDocState();
-  const entries = () => {
+  const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
     const refs = state.live(FACT_KINDS.ref) as RefFact[];
     const { numOf } = footnoteModel(anchors, refs);
@@ -686,7 +603,7 @@ export function FootnotesList(): JSX.Element {
     return [...numOf.entries()]
       .sort((a, b) => a[1] - b[1])
       .map(([key, num]) => ({ num, content: contentOf(key) }));
-  };
+  });
   return (
     <Show when={entries().length > 0}>
       <section class="nota-footnotes">
@@ -709,26 +626,16 @@ export function FootnotesList(): JSX.Element {
   );
 }
 
-/**
- * The default `Footnotes`: explicit placement of the footnote list — sets the flag that
- * suppresses the auto-append trailer, and renders the list here (with the footnotes
- * referenced so far).
- */
+/** Place footnotes explicitly and suppress the automatic trailer. */
 export function Footnotes(): JSX.Element {
   const state = useDocState();
   state.flag("footnotes-placed");
   return <FootnotesList />;
 }
 
-// =============================================================================================
-// Cite / Bibliography
-// =============================================================================================
+// Citations
 
-/**
- * The default `Cite`: the multi-key/options wrapper over `bib`-kind references — registers one
- * `ref` fact per comma-separated key in its body and renders `[N]` links to the bibliography
- * (multi-key: `[1, 2]`). `&key` is the plain single-citation short form.
- */
+/** Render one or more comma-separated bibliography references as a citation group. */
 export function Cite(props: ParentProps): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
@@ -811,19 +718,14 @@ function BibEntryLine(props: { key_: string }): JSX.Element {
   );
 }
 
-/**
- * The default `Bibliography`: the cited entries as an `<ol class="nota-bibliography">` in
- * label order (`<li id="bib-key">`), each entry ending with a ↩ backlink to its first citing
- * site (`#citeref-N`) — the citation counterpart of the footnote arrow. Uncited source entries
- * are omitted; nothing renders when nothing is cited.
- */
+/** Render cited bibliography entries in label order. */
 export function Bibliography(): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
-  const ordered = () => {
+  const ordered = createMemo(() => {
     const labels = model.bibNumbering().labels;
     return [...labels.entries()].sort((a, b) => a[1] - b[1]);
-  };
+  });
   return (
     <Show when={ordered().length > 0}>
       <ol class="nota-bibliography">

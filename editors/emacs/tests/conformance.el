@@ -123,6 +123,8 @@
      (line . "%%%%%"))
     ((name . "backtick-open-indented") (family . "backtick") (role . "open")
      (line . "   ```js"))
+    ((name . "backtick-open-extra-info") (family . "backtick") (role . "open")
+     (line . "```js linenos"))
     ((name . "backtick-close-trailing-content") (family . "backtick") (role . "close")
      (line . "```!!!"))
     ((name . "backtick-close-more-ticks-than-open") (family . "backtick") (role . "close")

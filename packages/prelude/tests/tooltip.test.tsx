@@ -8,6 +8,7 @@ import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Definition,
+  installDefTooltipHandlers,
   Ref,
   resetConfigForTest,
   resetDefTooltipHandlersForTest
@@ -52,6 +53,8 @@ describe("def tooltips (CSR)", () => {
     root = document.createElement("div");
     document.body.appendChild(root);
     dispose = render(() => <Doc />, root);
+    resetDefTooltipHandlersForTest();
+    installDefTooltipHandlers();
 
     const ref = root.querySelector("a[data-nota-def]");
     if (!ref) throw new Error("no def ref");
@@ -59,6 +62,7 @@ describe("def tooltips (CSR)", () => {
 
     // Click the reference: the bank entry clones open onto the body.
     click(ref);
+    expect(document.querySelectorAll(".nota-def-tooltip-open")).toHaveLength(1);
     const tip = document.querySelector(".nota-def-tooltip-open");
     expect(tip).toBeTruthy();
     expect(tip?.textContent).toBe("A document language.");

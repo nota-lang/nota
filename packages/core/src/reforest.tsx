@@ -1,18 +1,6 @@
 /**
- * Reforest — the restructuring pass: categorize → parse → rewrap (design/solid.md §Reforest).
- *
- * Solid's `children()` helper resolves descendants *through* component boundaries to real DOM
- * nodes (client) or serialized SSR chunks (server). Because Solid binds reactivity to node
- * identity rather than tree position, re-parenting those nodes — wrapping inline runs in `<p>`,
- * coalescing list items, nesting heading-led sections — is semantically transparent, and the
- * deterministic pass derives the same forest on both sides, which is what makes hydration of a
- * reforested document work (proven by the reforest spike: build-time-reforested HTML hydrates
- * with zero mutations).
- *
- * Vendored from the `reforest` spike (`~/Code/reforest`, our own code) with two Nota-specific
- * divergences: sections **nest** (a heading owns following siblings until the next heading of
- * rank ≤ its own — decode.md §struct semantics; the spike was flat by design) and wrapper classes
- * are `nota-para`/`nota-list`/`nota-section`.
+ * Reconstruct paragraphs, lists, and nested sections from Solid's resolved children. The same
+ * categorization and parsing run over DOM nodes and serialized SSR chunks.
  */
 
 import {
@@ -58,9 +46,7 @@ export type Category =
   | { kind: "attrs" }
   | { kind: "skip" };
 
-/** The attrs-marker attribute the {@link Attrs} component renders (notation.md §Attrs). Module-
- * internal: the reader emits this string directly (a cross-language wire contract, so no import
- * is possible on that side), and no TS package outside this module consumes it either. */
+/** Must match the marker emitted directly by the Rust reader. */
 const ATTRS_MARKER = "data-nota-attrs";
 
 /** Solid's hydration-key bookkeeping attribute (`solid-js/web` stamps it on SSR output). */
@@ -69,12 +55,7 @@ export const HYDRATION_KEY_ATTR = "data-hk";
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 
-/**
- * Phrasing-content tags per the HTML content model (abridged; `math`/`svg` deliberately
- * inline). Exported for the emit-policy consistency check: the reader's `FLOW_TAGS` (interiors
- * wrapped in `<Reforest>`) must be disjoint from this set — a flow container categorizing inline
- * would dissolve its own paragraphs.
- */
+/** Phrasing tags. Reader flow tags must remain disjoint from this exported set. */
 export const INLINE_TAGS = new Set([
   "a",
   "abbr",
@@ -115,15 +96,7 @@ export const INLINE_TAGS = new Set([
 
 const HEADING_RE = /^h([1-6])$/;
 
-/**
- * Quote-aware scan of an SSR chunk's opening tag: the tag name and the raw text of its attribute
- * region — double- and single-quoted attribute values may contain a literal `>` without ending
- * the tag (a naive `[^>]*` attr group truncates there). The one place that knows where an
- * opening tag ends, shared by {@link categorize} (attrs-marker / list-kind sniffing) and
- * {@link extractAttrs} (full name/value extraction) — and exported for other packages that sniff
- * SSR chunk text (the prelude's code decorations and title-text extraction) instead of
- * hand-rolling a second, usually less quote-safe, opening-tag regex.
- */
+/** Scan an SSR chunk's opening tag without splitting quoted attribute values. */
 export function scanOpeningTag(
   html: string
 ): { tag: string; attrs: string } | null {
@@ -136,12 +109,7 @@ export function scanOpeningTag(
 /** Attribute-token regex over an already-bounded attrs region (name, optionally `="value"`). */
 const ATTR_TOKEN_RE = /([a-zA-Z_:][-\w:.]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g;
 
-/**
- * {@link scanOpeningTag} plus attribute-token parsing in one call: the tag name (lowercased) and
- * its attributes as a name→value record (bare/valueless attributes map to `""`; entity-decoded).
- * The general-purpose facade for callers that want structured attrs instead of the raw region —
- * {@link extractAttrs} layers marker-stripping on top for Reforest's own paragraph-attrs use.
- */
+/** Parse a lowercased tag name and entity-decoded string attributes. */
 export function parseOpeningTag(
   html: string
 ): { tag: string; attrs: ExtractedAttrs } | null {
@@ -156,11 +124,7 @@ export function parseOpeningTag(
   return { tag: opening.tag.toLowerCase(), attrs };
 }
 
-/**
- * Is `name` present as an actual attribute of the (quote-aware-bounded) attrs region — not
- * merely as a substring inside some OTHER attribute's quoted value? A raw `blob.includes(name)`
- * false-positives on the latter (e.g. a `title="mentions data-nota-attrs"` chunk).
- */
+/** Check a parsed attribute region without matching text inside quoted values. */
 function hasAttrToken(attrs: string, name: string): boolean {
   for (const a of attrs.matchAll(ATTR_TOKEN_RE)) {
     if (a[1] === name) return true;
@@ -185,9 +149,7 @@ export function categorize(c: ResolvedChild): Category {
     return { kind: "inline" };
   }
   if (isSSRChunk(c)) {
-    // Server: recover the root tag (and list kind) by sniffing the serialized chunk. The chunk
-    // is a component's already-rendered output, so this sees through component boundaries the
-    // same way node inspection does on the client.
+    // The serialized root corresponds to the DOM element inspected on the client.
     const opening = scanOpeningTag(c.t);
     if (!opening) return { kind: "inline" }; // marker-led or bare-text chunk
     if (hasAttrToken(opening.attrs, ATTRS_MARKER)) return { kind: "attrs" };
@@ -214,11 +176,7 @@ export type ExtractedAttrs = Record<string, string>;
 
 const SKIPPED_MARKER_ATTRS = new Set([ATTRS_MARKER, HYDRATION_KEY_ATTR]);
 
-/**
- * Pull the string attributes off an attrs marker (client: real attributes; server: the chunk's
- * opening tag). This is why attrs sugar carries **string-valued** props only — anything else
- * cannot round-trip through the rendered marker.
- */
+/** Extract marker attributes. Non-string values cannot round-trip through serialized HTML. */
 function extractAttrs(c: Node | SSRChunk): ExtractedAttrs {
   const out: ExtractedAttrs = {};
   if (isSSRChunk(c)) {
@@ -277,8 +235,7 @@ const PARA_BREAK = /[ \t]*\n\s*\n[ \t]*/;
 export interface ParseOptions {
   /**
    * Tight mode (`<li>`, authored `@p{…}` interiors): coalesce list-item runs only — inline runs
-   * pass through unwrapped (no `<p>`, no paragraph breaks) and headings/blocks pass through bare
-   * (no sections). This is the old struct's "tight nodes get only groupLists".
+   * pass through unwrapped and headings do not create sections.
    */
   tight?: boolean;
 }
@@ -313,8 +270,7 @@ export function parse(cs: ResolvedChild[], opts: ParseOptions = {}): Item[] {
           : { kind: "para", nodes: run, attrs }
       );
     } else if (attrs && !tight) {
-      // A lone attrs marker (its own paragraph position) attaches to the preceding paragraph;
-      // after any other item it has no target and is dropped (v0 — use native props there).
+      // A lone marker attaches to the preceding paragraph and is otherwise ignored.
       const t = target();
       const last = t[t.length - 1];
       if (last?.kind === "para") {
@@ -495,7 +451,7 @@ export function Attrs(props: Record<string, unknown>): JSX.Element {
 }
 
 /** Extra list-item props (a hoisted `- item [class: "hot"]` attrs group) spread onto the `<li>`. */
-type LiProps = ParentProps & Record<string, unknown>;
+export type LiProps = ParentProps & Record<string, unknown>;
 
 /**
  * An unordered list item (the reader's `-` marker); runs of these coalesce into a `<ul>`.

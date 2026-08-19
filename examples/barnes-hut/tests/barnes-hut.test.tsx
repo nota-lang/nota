@@ -44,6 +44,12 @@ describe("BarnesHut SSR", () => {
     expect(render({ layout: true })).toBe(render({ layout: true }));
   });
 
+  test("the initial settled layout uses the requested charge", () => {
+    expect(render({ layout: true, charge: -100 })).not.toBe(
+      render({ layout: true, charge: -30 })
+    );
+  });
+
   test("construction phase: quadtree cells, insertion flash, dimmed tail", () => {
     const html = render({ size: 5, layout: false });
     // Cells drawn (root + splits), the flash layer, and the newest point's pop.

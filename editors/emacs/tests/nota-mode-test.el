@@ -194,6 +194,11 @@ regression here manifests as a HANG, not a failed assertion."
     (should-not (nota-test--face-of "notATag" 'nota-tag))
     (should (nota-test--face-of "em{y}" 'nota-tag))))
 
+(ert-deftest nota-code-fence-info-string-extra ()
+  (nota-test--with-buffer "```ts linenos\nconst x = 1;\n```\nafter *strong*\n"
+    (should (nota-test--face-of "const" 'font-lock-keyword-face))
+    (should (nota-test--face-of "strong" 'nota-strong))))
+
 (ert-deftest nota-code-fence-unknown-lang-stays-raw ()
   (nota-test--with-buffer "```python\ndef f(): pass\n```\ndone\n"
     (should (nota-test--face-of "def f" 'nota-raw))
