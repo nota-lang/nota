@@ -54,14 +54,23 @@ export const MODULE_MAP: Record<string, Record<string, unknown>> = {
   ...GRAMMARS
 };
 
+/** The compiler emits per-submodule prelude imports (`@nota-lang/prelude/tex`). */
+const PRELUDE_SUBMODULE = /^@nota-lang\/prelude\/[\w-]+$/;
+
 /** Resolve `specifier`, degrading an uncarried grammar to an empty registration. */
 export function resolveModule(
   specifier: string
 ): Record<string, unknown> | undefined {
-  return (
-    MODULE_MAP[specifier] ??
-    (GRAMMAR_SPECIFIER.test(specifier) ? { default: [] } : undefined)
-  );
+  const direct = MODULE_MAP[specifier];
+  if (direct) {
+    return direct;
+  }
+  // Every ambient name is re-exported by the barrel, so one namespace answers for all of
+  // prelude's submodules — the split exists to help a bundler, and there is no bundler here.
+  if (PRELUDE_SUBMODULE.test(specifier)) {
+    return prelude as unknown as Record<string, unknown>;
+  }
+  return GRAMMAR_SPECIFIER.test(specifier) ? { default: [] } : undefined;
 }
 
 /** Compile emitted JSX to Solid's DOM runtime. */

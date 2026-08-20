@@ -17,7 +17,7 @@ import {
   Cite,
   CodeBlock,
   CodeInline,
-  config,
+  codeConfig,
   Def,
   DefBank,
   FACT_KINDS,
@@ -28,6 +28,7 @@ import {
   Label,
   loadedLangNames,
   lstset,
+  mathConfig,
   mathset,
   Note,
   Notes,
@@ -733,7 +734,7 @@ describe("figures", () => {
     expect(html.match(/the plot/g)).toHaveLength(1);
   });
 
-  test("the layout style ships exactly once, however many figures", () => {
+  test("the layout ships as a stylesheet, never as markup", () => {
     const Doc = () => (
       <NotaDoc>
         <Figure>
@@ -745,7 +746,11 @@ describe("figures", () => {
       </NotaDoc>
     );
     const html = renderDocument(Doc).html;
-    expect(html.match(/\.nota-caption-label/g)?.length ?? 0).toBe(1);
+    // `figure.tsx` imports ./figure.css, so the rules reach the page through the bundler once,
+    // rather than being written into the rendered document — no `<style>`, no rule text, and
+    // nothing that scales with the number of figures.
+    expect(html).not.toContain("<style");
+    expect(html).not.toContain(".nota-caption-label");
     expect(html).toContain('class="nota-subfigure"');
   });
 
@@ -773,7 +778,7 @@ describe("figures", () => {
 });
 
 describe("definitions", () => {
-  test("anchor in place, tooltip bank + style in the trailer, def-aware Ref", () => {
+  test("anchor in place, tooltip bank in the trailer, def-aware Ref", () => {
     const Doc = () => (
       <NotaDoc>
         <Def id="nota" Label={() => "Nota"} tooltip="A document language.">
@@ -793,7 +798,10 @@ describe("definitions", () => {
     // The bank trailer: hidden, one entry, with the style inline.
     expect(html).toMatch(/<div class="nota-def-tooltips" aria-hidden="true"/);
     expect(html).toMatch(/data-def="nota"[^>]*>A document language\./);
-    expect(html).toContain(".nota-def-tooltip-open");
+    // The tooltip's own rules are in ./def.css now, imported by def.tsx — the trailer still
+    // emits the bank markup the tooltip is populated from, but no rule text rides the document.
+    expect(html).not.toContain(".nota-def-tooltip-open");
+    expect(html).not.toContain("<style");
   });
 
   test("the rendered definition body is the default tooltip target", () => {
@@ -947,7 +955,7 @@ describe("mathset", () => {
       </NotaDoc>
     );
     expect(clean(renderDocument(GdefOnly).html)).toContain("42");
-    expect("\\ans" in config().macros).toBe(false);
+    expect("\\ans" in mathConfig().macros).toBe(false);
     const UsesGdef = () => (
       <NotaDoc>
         <Tex>{"\\ans"}</Tex>
@@ -1243,7 +1251,7 @@ describe("tex + code", () => {
 describe("list consistency (single-sourced surfaces)", () => {
   test("the config default theme is a preloaded theme", () => {
     resetConfigForTest();
-    expect(BASE_THEME_NAMES).toContain(config().theme);
+    expect(BASE_THEME_NAMES).toContain(codeConfig().theme);
   });
 });
 

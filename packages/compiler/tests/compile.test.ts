@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
 import { describe, expect, test } from "vitest";
 import {
+  AMBIENT_PRELUDE_MODULES,
   AMBIENT_PRELUDE_NAMES,
   CORE_RUNTIME_NAMES,
   compile,
@@ -156,12 +157,24 @@ describe("compile (non-ASCII input — no wasm heap corruption)", () => {
 });
 
 describe("compile (ambient prelude injection + freeNames)", () => {
-  test("free Tex/CodeInline references get a prelude import", () => {
+  test("free Tex/CodeInline references import their own prelude submodules", () => {
     const { code } = compile("Math $x^2$ and `f(x)`\n");
-    // Sorted (the reader reports free names sorted; the filter preserves order).
+    // Not the barrel: `Tex` comes from prelude/tex and `CodeInline` from prelude/code, so a
+    // document with math but no code never makes shiki reachable, and vice versa. Modules in
+    // sorted order, names within a module in the reader's (sorted) free-name order.
     expect(code).toMatch(
-      /^import \{ CodeInline, Tex \} from "@nota-lang\/prelude";$/m
+      /^import \{ CodeInline \} from "@nota-lang\/prelude\/code";$/m
     );
+    expect(code).toMatch(
+      /^import \{ Tex \} from "@nota-lang\/prelude\/tex";$/m
+    );
+    expect(code).not.toMatch(/from "@nota-lang\/prelude";/);
+  });
+
+  test("a document with only math never names the code module", () => {
+    const { code } = compile("Math $x^2$.\n");
+    expect(code).toContain('from "@nota-lang/prelude/tex"');
+    expect(code).not.toContain("@nota-lang/prelude/code");
   });
 
   test("no ambient refs → no prelude import", () => {
@@ -172,7 +185,7 @@ describe("compile (ambient prelude injection + freeNames)", () => {
   test("a config-fn call (secset) injects; a prose mention of its text does not", () => {
     const injected = compile("% secset({ n: 1 })\n# Title\n");
     expect(injected.code).toMatch(
-      /^import \{ Heading, secset \} from "@nota-lang\/prelude";$/m
+      /^import \{ Heading, secset \} from "@nota-lang\/prelude\/doc-state";$/m
     );
     const prose = compile("@p{secset( is not a call}\n");
     expect(prose.code).not.toContain("@nota-lang/prelude");
@@ -440,9 +453,10 @@ describe("fence grammars are auto-registered", () => {
     expect(code).toContain(
       `export default function ${DOC_EXPORT_NAME}() {\n\tlstset({ langs: [__notaLang_rust] });`
     );
-    // …and `lstset` must be bound, which means it joins the ambient prelude import.
+    // …and `lstset` rides the code module's import: it configures what CodeBlock highlights
+    // with, so a fenced document names one module rather than two.
     expect(code).toMatch(
-      /import \{[^}]*\blstset\b[^}]*\} from "@nota-lang\/prelude";/
+      /^import \{ CodeBlock, lstset \} from "@nota-lang\/prelude\/code";$/m
     );
   });
 
@@ -518,8 +532,19 @@ test("a document that already calls lstset does not import it twice", () => {
   const { code } = compile(
     '% lstset({ lang: "rust" })\n\n```rust\nfn f() {}\n```\n'
   );
-  const specifier = /import \{([^}]*)\} from "@nota-lang\/prelude";/.exec(code);
-  expect(specifier, "prelude import present").toBeTruthy();
+  const specifier = /import \{([^}]*)\} from "@nota-lang\/prelude\/code";/.exec(
+    code
+  );
+  expect(specifier, "code import present").toBeTruthy();
   const bound = (specifier?.[1] ?? "").split(",").map(n => n.trim());
   expect(bound.filter(n => n === "lstset")).toHaveLength(1);
+});
+
+test("every ambient name is mapped to a prelude submodule, and vice versa", () => {
+  // AMBIENT_PRELUDE_NAMES fixes the surface and its order (the language server's preamble is
+  // generated from it); AMBIENT_PRELUDE_MODULES says where each name lives. Adding a component
+  // to one and not the other yields either an unresolvable emit or a name with no import.
+  expect([...AMBIENT_PRELUDE_NAMES].sort()).toEqual(
+    Object.keys(AMBIENT_PRELUDE_MODULES).sort()
+  );
 });

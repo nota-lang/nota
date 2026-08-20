@@ -1,0 +1,30 @@
+/*
+ * The figure family's layout. Imported by figure.tsx rather than inlined as a `<style>` element,
+ * so a bundler minifies and extracts it once for the page instead of the component writing it
+ * into every rendered document — and so a document with no figures never pulls it in at all
+ * (package.json marks css effectful, the module around it side-effect-free).
+ */
+
+.nota-figure {
+  margin: 1.5em auto;
+  text-align: center;
+}
+
+.nota-figure img {
+  max-width: 100%;
+}
+
+.nota-subfigure {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.nota-caption {
+  font-size: 90%;
+  text-align: center;
+  margin-top: 0.5em;
+}
+
+.nota-caption-label {
+  font-weight: bold;
+}

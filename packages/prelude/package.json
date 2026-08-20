@@ -10,12 +10,42 @@
   "exports": {
     ".": {
       "types": "./dist/lib.d.ts",
-      "solid": "./dist/lib.js",
       "default": "./dist/lib.js"
-    }
+    },
+    "./code": {
+      "types": "./dist/code.d.ts",
+      "default": "./dist/code.jsx"
+    },
+    "./def": {
+      "types": "./dist/def.d.ts",
+      "default": "./dist/def.jsx"
+    },
+    "./doc-state": {
+      "types": "./dist/doc-state.d.ts",
+      "default": "./dist/doc-state.jsx"
+    },
+    "./figure": {
+      "types": "./dist/figure.d.ts",
+      "default": "./dist/figure.jsx"
+    },
+    "./refs": {
+      "types": "./dist/refs.d.ts",
+      "default": "./dist/refs.js"
+    },
+    "./session-config": {
+      "types": "./dist/session-config.d.ts",
+      "default": "./dist/session-config.js"
+    },
+    "./tex": {
+      "types": "./dist/tex.d.ts",
+      "default": "./dist/tex.jsx"
+    },
+    "./*.css": "./dist/*.css"
   },
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "depot": {
     "platform": "browser",
     "target": "lib",

@@ -107,7 +107,59 @@ export const DOC_EXPORT_NAME: string = documentExportNames[0];
  * Derived from the reader (`emitSurface().solidWeb`). */
 export const SOLID_WEB_NAMES: readonly string[] = EMIT_SURFACE.solidWeb;
 
-/** Components and configuration functions supplied by the default ambient prelude. */
+/**
+ * Which `@nota-lang/prelude` submodule supplies each ambient name.
+ *
+ * The emit imports from these directly rather than from the package barrel. A barrel makes every
+ * ambient name look like a dependency on every other one: `export { Tex } from "./tex"` keeps
+ * katex reachable from a document with no math, and `export { CodeBlock } from "./code"` keeps
+ * the shiki engine reachable from a document with no code. `sideEffects: false` lets a bundler
+ * see through that, but only if it is trusted and only for a bundler that implements it —
+ * importing the module that actually holds the name needs neither.
+ *
+ * It also decides which stylesheets a page loads: `./figure` and `./def` import their own CSS, so
+ * a document reaches those rules exactly when it renders those components.
+ *
+ * This is a claim about prelude's file layout, which the compiler cannot check — the drift test
+ * in packages/playground (which depends on both) fails if a name moves.
+ */
+export const AMBIENT_PRELUDE_MODULES: Readonly<Record<string, string>> = {
+  Tex: "tex",
+  CodeInline: "code",
+  CodeBlock: "code",
+  Heading: "doc-state",
+  Title: "doc-state",
+  Toc: "doc-state",
+  Label: "doc-state",
+  Ref: "doc-state",
+  Note: "doc-state",
+  Notes: "doc-state",
+  NotesList: "doc-state",
+  Cite: "doc-state",
+  Bibliography: "doc-state",
+  Def: "def",
+  texRef: "def",
+  Figure: "figure",
+  Subfigure: "figure",
+  Caption: "figure",
+  Smallcaps: "figure",
+  // The positional setters sit with what they configure, not in a config grab-bag: `lstset`
+  // registers grammars the code module highlights with, `mathset` the macros and output mode the
+  // tex module renders through, `secset`/`bibset` the numbering and citation state doc-state
+  // owns. A document reaching for one of them therefore reaches for the module it is about.
+  lstset: "code",
+  mathset: "tex",
+  secset: "doc-state",
+  bibset: "doc-state"
+};
+
+/**
+ * Components and configuration functions supplied by the default ambient prelude.
+ *
+ * Ordered, and kept as its own list rather than derived from {@link AMBIENT_PRELUDE_MODULES}:
+ * the language server's generated preamble declares the surface in this order, so grouping it by
+ * submodule would churn that file for no reason. `compile.test.ts` pins the two key sets equal.
+ */
 export const AMBIENT_PRELUDE_NAMES = [
   "Tex",
   "CodeInline",
@@ -209,7 +261,20 @@ export interface CompileResult {
   map?: SourceMapV3;
 }
 
-/** Build the ambient-prelude import for the reported free names. */
+/**
+ * Build the ambient-prelude imports for the reported free names.
+ *
+ * For the default prelude these are *submodule* imports — `@nota-lang/prelude/tex` rather than
+ * the package barrel — so a document depends on the modules holding the names it uses and
+ * nothing else (see {@link AMBIENT_PRELUDE_MODULES}). Names are grouped per module and the
+ * modules emitted in a stable order, because the emit is compared byte-for-byte by tests and by
+ * the two-pass render's convergence check.
+ *
+ * Two cases still bind through one module. A custom {@link PreludeOptions.module} is a single
+ * module by definition — the integrator's own surface, whose internal layout the compiler knows
+ * nothing about — and {@link PreludeOptions.extraNames} name exports of that module rather than
+ * of prelude's submodules, so they follow the same path.
+ */
 function preludeImport(
   freeNames: string[],
   prelude: PreludeOptions | false | undefined
@@ -217,15 +282,45 @@ function preludeImport(
   if (prelude === false) {
     return "";
   }
-  const module = prelude?.module ?? PRELUDE_MODULE;
-  const ambient = new Set<string>([
-    ...AMBIENT_PRELUDE_NAMES,
-    ...(prelude?.extraNames ?? [])
-  ]);
-  const needed = freeNames.filter(name => ambient.has(name));
-  return needed.length > 0
-    ? `import { ${needed.join(", ")} } from ${JSON.stringify(module)};\n`
-    : "";
+  const custom = prelude?.module !== undefined;
+  const extras = new Set(prelude?.extraNames ?? []);
+  const barrel = prelude?.module ?? PRELUDE_MODULE;
+
+  const bind = (names: string[], module: string) =>
+    names.length > 0
+      ? `import { ${names.join(", ")} } from ${JSON.stringify(module)};\n`
+      : "";
+
+  if (custom) {
+    const ambient = new Set([...AMBIENT_PRELUDE_NAMES, ...extras]);
+    return bind(
+      freeNames.filter(name => ambient.has(name)),
+      barrel
+    );
+  }
+
+  const byModule = new Map<string, string[]>();
+  for (const name of freeNames) {
+    const module = AMBIENT_PRELUDE_MODULES[name];
+    if (module !== undefined) {
+      byModule.set(module, [...(byModule.get(module) ?? []), name]);
+    }
+  }
+  const submodules = [...byModule.keys()]
+    .sort()
+    .map(module =>
+      bind(byModule.get(module) as string[], `${barrel}/${module}`)
+    )
+    .join("");
+  // Extra ambient names are the integrator's, and live on the barrel even when prelude is the
+  // default one (a site setup module re-exporting its own components).
+  return (
+    submodules +
+    bind(
+      freeNames.filter(n => extras.has(n)),
+      barrel
+    )
+  );
 }
 
 /** A JS identifier for the grammar bound to fence tag `lang` (tags may hold `+`, `-`, `#`). */

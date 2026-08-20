@@ -22,7 +22,7 @@ import githubDark from "shiki/themes/github-dark.mjs";
 import githubLight from "shiki/themes/github-light.mjs";
 import { children, type JSX, type ParentProps } from "solid-js";
 
-import { config } from "./config";
+import { sessionConfig } from "./session-config";
 
 // Highlighter
 
@@ -72,7 +72,7 @@ function sameItems<T>(left: T[], right: T[]): boolean {
 
 /** The current highlighter, rebuilt only when the grammar/theme registration set changes. */
 function highlighter(): HighlighterCore {
-  const cfg = config();
+  const cfg = codeConfig();
   const langs = [...BASE_LANGS, ...cfg.extraLangs];
   const themes = [...BASE_THEMES, ...cfg.extraThemes];
   if (
@@ -190,7 +190,7 @@ function reconstruct(parts: ResolvedChild[]): Reconstruction {
 
 /** Resolve the effective lang, warning once on an unknown one. `undefined` → plain. */
 function effectiveLang(explicit: string | undefined): string | undefined {
-  const lang = explicit ?? config().lang;
+  const lang = explicit ?? codeConfig().lang;
   if (lang !== undefined && !hasLang(lang)) {
     warnOnce(
       `no grammar loaded for lang "${lang}". Grammars are opt-in: import one from shiki ` +
@@ -212,7 +212,7 @@ export function CodeBlock(props: ParentProps & { lang?: string }): JSX.Element {
     const { text, decorations } = reconstruct(resolved.toArray());
     const out = highlighter().codeToHtml(text, {
       lang,
-      theme: config().theme,
+      theme: codeConfig().theme,
       decorations
     });
     return <div class="nota-code-block" innerHTML={out} />;
@@ -232,11 +232,74 @@ export function CodeInline(props: ParentProps): JSX.Element {
     const { text, decorations } = reconstruct(resolved.toArray());
     const out = highlighter().codeToHtml(text, {
       lang,
-      theme: config().theme,
+      theme: codeConfig().theme,
       structure: "inline",
       decorations
     });
     return <code class="nota-code-inline" innerHTML={out} />;
   }
   return <code class="nota-code-inline">{resolved()}</code>;
+}
+
+// Configuration
+
+/** What `lstset` controls: the grammars and theme the code components highlight with. */
+export interface CodeConfig {
+  /** Default highlight language for fences without a tag and for inline code. */
+  lang: string | undefined;
+  /** The active theme name. */
+  theme: string;
+  /** Grammars registered through {@link LstsetOptions.langs}. */
+  extraLangs: LanguageRegistration[];
+  /** Themes registered through {@link LstsetOptions.themes}. */
+  extraThemes: ThemeRegistrationAny[];
+}
+
+const CODE = sessionConfig<CodeConfig>(
+  () => ({
+    lang: undefined,
+    theme: "github-light",
+    extraLangs: [],
+    extraThemes: []
+  }),
+  c => ({
+    ...c,
+    extraLangs: [...c.extraLangs],
+    extraThemes: [...c.extraThemes]
+  })
+);
+
+/** The code configuration for the active document session. */
+export function codeConfig(): Readonly<CodeConfig> {
+  return CODE.read();
+}
+
+/** Options for {@link lstset}. All fields merge into the current document config. */
+export interface LstsetOptions {
+  /** Default highlight language for fences without a tag and for inline code. */
+  lang?: string;
+  /** Shiki theme name. Must be a preloaded theme (`github-light`/`github-dark`) or one
+   *  registered via {@link LstsetOptions.themes}. */
+  theme?: string;
+  /** Extension grammars (shiki `LanguageRegistration`s). Accumulate. */
+  langs?: LanguageRegistration[] | LanguageRegistration[][];
+  /** Extension themes (shiki theme registrations). Accumulate. */
+  themes?: ThemeRegistrationAny[];
+}
+
+/** Set code options (listings-style). Positional; see module docs. */
+export function lstset(opts: LstsetOptions): void {
+  const config = CODE.update();
+  if (opts.lang !== undefined) {
+    config.lang = opts.lang;
+  }
+  if (opts.theme !== undefined) {
+    config.theme = opts.theme;
+  }
+  if (opts.langs !== undefined) {
+    config.extraLangs.push(...(opts.langs.flat() as LanguageRegistration[]));
+  }
+  if (opts.themes !== undefined) {
+    config.extraThemes.push(...opts.themes);
+  }
 }

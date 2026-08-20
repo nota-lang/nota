@@ -23,7 +23,7 @@ import {
   type ParentProps
 } from "solid-js";
 
-import { config } from "./config";
+import { bibConfig } from "./doc-state";
 import {
   ANCHOR_KINDS,
   type AnchorFact,
@@ -31,6 +31,8 @@ import {
   FACT_KINDS,
   resolveAnchors
 } from "./refs";
+
+import "./def.css";
 
 /**
  * The default `Def`. Props: `id` (required), `Label` (component shown by
@@ -93,18 +95,6 @@ export function texRef(id: string, tex: string): string {
   }
   return `\\htmlData{nota-def=${id}}{${tex}}`;
 }
-
-/**
- * Default tooltip styling (override freely — everything hangs off the `nota-def-*` classes).
- * The `--nota-tooltip-available-*` vars are written by Floating UI's `size` middleware: an
- * open tooltip never exceeds the space its placement actually has.
- */
-export const DEF_TOOLTIP_STYLE = `.nota-def-tooltips { display: none; }
-.nota-def-tooltip-open { position: absolute; left: 0; top: 0; background: white; border: 1px solid black; padding: 0.4em 0.7em; max-width: min(30em, var(--nota-tooltip-available-width, 30em)); max-height: var(--nota-tooltip-available-height, none); overflow-y: auto; z-index: 1000; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); }
-a.nota-def-ref { text-decoration: none; border-bottom: 1px dotted currentColor; cursor: pointer; color: inherit; }
-[data-nota-def] { cursor: pointer; }
-.nota-def { transition: background 0.8s; }
-.nota-def-target { background: #fff3b0; transition: background 0.2s; }`;
 
 /** Gap between a reference and its tooltip, and the viewport margin flip/shift respect. */
 const TOOLTIP_GAP = 8;
@@ -279,7 +269,7 @@ export function DefBank(): JSX.Element {
   const state = useDocState();
   const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
-    resolveAnchors(anchors, Object.keys(config().bibSrc)); // throws on duplicate ids
+    resolveAnchors(anchors, Object.keys(bibConfig().src)); // throws on duplicate ids
     return anchors.filter(
       anchor => anchor.bank !== undefined || anchor.bankTarget !== undefined
     );
@@ -298,7 +288,6 @@ export function DefBank(): JSX.Element {
           </div>
         )}
       </For>
-      <style innerHTML={DEF_TOOLTIP_STYLE} />
     </div>
   );
 }

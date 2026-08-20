@@ -1,0 +1,46 @@
+/*
+ * Definition references and their tooltips. Imported by def.tsx — see figure.css for why these
+ * are stylesheets rather than rendered `<style>` elements.
+ *
+ * The tooltip is page-anchored and sized against the space its placement actually has; the
+ * `--nota-tooltip-available-*` custom properties are written by def.tsx's Floating UI middleware,
+ * so the max-width/max-height here are the fallbacks used before the first measurement.
+ */
+
+.nota-def-tooltips {
+  display: none;
+}
+
+.nota-def-tooltip-open {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: white;
+  border: 1px solid black;
+  padding: 0.4em 0.7em;
+  max-width: min(30em, var(--nota-tooltip-available-width, 30em));
+  max-height: var(--nota-tooltip-available-height, none);
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+a.nota-def-ref {
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+  cursor: pointer;
+  color: inherit;
+}
+
+[data-nota-def] {
+  cursor: pointer;
+}
+
+.nota-def {
+  transition: background 0.8s;
+}
+
+.nota-def-target {
+  background: #fff3b0;
+  transition: background 0.2s;
+}

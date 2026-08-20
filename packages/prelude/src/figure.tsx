@@ -1,9 +1,14 @@
 /**
  * Figures use the unified anchor registry for numbering and references. Caption numbering comes
- * from context; styles and tooltip support are installed once through document trailers.
+ * from context; tooltip support is installed once through a document trailer.
+ *
+ * The layout lives in `./figure.css`, imported here so it rides this module: a bundler extracts
+ * and minifies it once per page, and a document that never renders a figure never pulls it in.
  */
 
 import { useDocState } from "@nota-lang/core";
+
+import "./figure.css";
 import {
   createContext,
   createMemo,
@@ -17,13 +22,6 @@ import { type AnchorFact, anchorOrdinals, FACT_KINDS } from "./refs";
 
 /** The anchor kind figures register. */
 export const FIGURE_KIND = "figure";
-
-/** The layout rules for the figure family (see the module note on styling). */
-export const FIGURE_STYLE = `.nota-figure { margin: 1.5em auto; text-align: center; }
-.nota-figure img { max-width: 100%; }
-.nota-subfigure { display: inline-block; vertical-align: top; }
-.nota-caption { font-size: 90%; text-align: center; margin-top: 0.5em; }
-.nota-caption-label { font-weight: bold; }`;
 
 /** The enclosing figure's ordinal accessor, provided by `Figure` for its `Caption`. */
 const FigureContext = createContext<() => number | undefined>();
@@ -60,8 +58,6 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
   if (id !== undefined) {
     state.trailer("definitions", () => <DefBank />);
   }
-  // Idempotent per document, like the bank above: one `<style>` however many figures there are.
-  state.trailer("figure-style", () => <style innerHTML={FIGURE_STYLE} />);
   return (
     <FigureContext.Provider value={ordinal}>
       <figure

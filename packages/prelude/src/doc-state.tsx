@@ -23,8 +23,6 @@ import {
   splitProps
 } from "solid-js";
 import { Dynamic, isServer } from "solid-js/web";
-
-import { config } from "./config";
 import {
   ANCHOR_KINDS,
   type AnchorFact,
@@ -38,6 +36,7 @@ import {
   resolveAnchors,
   useNumbers
 } from "./refs";
+import { sessionConfig } from "./session-config";
 
 // Shared helpers
 
@@ -93,7 +92,7 @@ function resolution(
   state: DocState,
   anchors: AnchorFact[]
 ): Map<string, ResolvedAnchor> {
-  return resolveAnchors(anchors, Object.keys(config(state).bibSrc));
+  return resolveAnchors(anchors, Object.keys(bibConfig(state).src));
 }
 
 /** Is `key` (a ref target key) a `kind`-anchor under `res` (anonymous keys check `anchors`)? */
@@ -154,7 +153,7 @@ function referenceModel(state: DocState): ReferenceModel {
     );
     const ids = createMemo(() => headingIds(headings()));
     const numbers = createMemo(() =>
-      headingNumbers(headings(), config(state).numberDepth)
+      headingNumbers(headings(), secConfig(state).numberDepth)
     );
     const resolved = createMemo(() => resolution(state, anchors()));
     const ordinalMaps = createMemo(() => {
@@ -352,7 +351,7 @@ function bibLabels(
   refs: RefFact[],
   res: Map<string, ResolvedAnchor>
 ): Map<string, number> {
-  const { bibSrc, bibStyle } = config(state);
+  const { src: bibSrc, style: bibStyle } = bibConfig(state);
   const order: string[] = [];
   const seen = new Set<string>();
   for (const r of refs) {
@@ -382,7 +381,7 @@ function bibLabels(
 
 /** The note-use numbering model over the resolved facts (shared by marks and the list). */
 function noteModel(state: DocState, anchors: AnchorFact[], refs: RefFact[]) {
-  const res = resolveAnchors(anchors, Object.keys(config(state).bibSrc));
+  const res = resolveAnchors(anchors, Object.keys(bibConfig(state).src));
   return useNumbers(refs, key =>
     targetsKind(key, ANCHOR_KINDS.note, res, anchors)
   );
@@ -715,7 +714,7 @@ export function Cite(props: ParentProps): JSX.Element {
 
 /** One bibliography entry's text: `"Author. Title. Year."` from present fields, + url link. */
 function BibEntryLine(props: { key_: string }): JSX.Element {
-  const entry = config().bibSrc[props.key_] ?? {};
+  const entry = bibConfig().src[props.key_] ?? {};
   const text = [entry.author, entry.title, entry.year]
     .filter(f => f != null && f !== "")
     .map(f => `${String(f)}.`)
@@ -755,4 +754,86 @@ export function Bibliography(): JSX.Element {
       </ol>
     </Show>
   );
+}
+
+// Configuration
+
+/** What `secset` controls: heading numbering depth. */
+export interface SecConfig {
+  /** Number headings of rank ≤ this depth. `0` = numbering off. */
+  numberDepth: number;
+}
+
+const SEC = sessionConfig<SecConfig>(
+  () => ({ numberDepth: 0 }),
+  c => ({ ...c })
+);
+
+/** The numbering configuration for `session`, or for the active document session. */
+export function secConfig(session?: DocState): Readonly<SecConfig> {
+  return SEC.read(session);
+}
+
+/** One bibliography entry (the fields `@Bibliography` renders; all optional). */
+export interface BibEntry {
+  author?: string;
+  title?: string;
+  year?: string | number;
+  url?: string;
+}
+
+/** What `bibset` controls: the citation source and label style. */
+export interface BibConfig {
+  /** The citation source, keyed by cite key. */
+  src: Record<string, BibEntry>;
+  /** Label style; see {@link BibsetOptions.style}. */
+  style: "numeric" | "alpha";
+}
+
+const BIB = sessionConfig<BibConfig>(
+  () => ({ src: {}, style: "numeric" }),
+  c => ({ ...c, src: { ...c.src } })
+);
+
+/**
+ * The citation configuration for the active document session.
+ *
+ * Read by `./def` as well: definition anchors and bibliography entries share an id space, so
+ * anchor resolution has to see the cite keys to report a collision.
+ */
+export function bibConfig(session?: DocState): Readonly<BibConfig> {
+  return BIB.read(session);
+}
+
+/** Options for {@link secset} (heading numbering). */
+export interface SecsetOptions {
+  /** Number headings of rank ≤ this depth (0 = off, the default). */
+  numberDepth?: number;
+}
+
+/** Set the heading numbering depth. Positional (place before the headings it should govern). */
+export function secset(opts: SecsetOptions): void {
+  const config = SEC.update();
+  if (opts.numberDepth !== undefined) {
+    config.numberDepth = opts.numberDepth;
+  }
+}
+
+/** Options for {@link bibset} (citations). */
+export interface BibsetOptions {
+  /** The citation source, keyed by cite key. Merges into the current source. */
+  src?: Record<string, BibEntry>;
+  /** Label style: `"numeric"` (order of first citation; default) or `"alpha"` (sorted by author/title). */
+  style?: "numeric" | "alpha";
+}
+
+/** Set the citation source/style (`src` merges). Positional. */
+export function bibset(opts: BibsetOptions): void {
+  const config = BIB.update();
+  if (opts.src !== undefined) {
+    Object.assign(config.src, opts.src);
+  }
+  if (opts.style !== undefined) {
+    config.style = opts.style;
+  }
 }

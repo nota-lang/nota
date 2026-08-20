@@ -6,26 +6,16 @@
 export {
   BASE_THEME_NAMES,
   CodeBlock,
+  type CodeConfig,
   CodeInline,
+  codeConfig,
+  type LstsetOptions,
   loadedLangNames,
+  lstset,
   resetCodeWarningsForTest
 } from "./code";
+
 export {
-  type BibEntry,
-  type BibsetOptions,
-  bibset,
-  config,
-  type LstsetOptions,
-  lstset,
-  type MathsetOptions,
-  mathset,
-  type PreludeConfig,
-  resetConfigForTest,
-  type SecsetOptions,
-  secset
-} from "./config";
-export {
-  DEF_TOOLTIP_STYLE,
   Def,
   DefBank,
   installDefTooltipHandlers,
@@ -33,7 +23,12 @@ export {
   texRef
 } from "./def";
 export {
+  type BibConfig,
+  type BibEntry,
   Bibliography,
+  type BibsetOptions,
+  bibConfig,
+  bibset,
   Cite,
   Heading,
   Label,
@@ -41,13 +36,16 @@ export {
   Notes,
   NotesList,
   Ref,
+  type SecConfig,
+  type SecsetOptions,
+  secConfig,
+  secset,
   Title,
   Toc
 } from "./doc-state";
 export {
   Caption,
   FIGURE_KIND,
-  FIGURE_STYLE,
   Figure,
   Smallcaps,
   Subfigure
@@ -69,4 +67,11 @@ export {
   slugify,
   useNumbers
 } from "./refs";
-export { Tex } from "./tex";
+export { resetConfigForTest } from "./session-config";
+export {
+  type MathConfig,
+  type MathsetOptions,
+  mathConfig,
+  mathset,
+  Tex
+} from "./tex";
