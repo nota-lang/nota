@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/prelude",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The standard ambient prelude for Nota: Tex, code highlighting, doc-state components, and definition tooltips.",
   "files": [
     "dist"
@@ -10,34 +10,42 @@
   "exports": {
     ".": {
       "types": "./dist/lib.d.ts",
+      "solid": "./dist/lib.js",
       "default": "./dist/lib.js"
     },
     "./code": {
       "types": "./dist/code.d.ts",
+      "solid": "./dist/code.jsx",
       "default": "./dist/code.jsx"
     },
     "./def": {
       "types": "./dist/def.d.ts",
+      "solid": "./dist/def.jsx",
       "default": "./dist/def.jsx"
     },
     "./doc-state": {
       "types": "./dist/doc-state.d.ts",
+      "solid": "./dist/doc-state.jsx",
       "default": "./dist/doc-state.jsx"
     },
     "./figure": {
       "types": "./dist/figure.d.ts",
+      "solid": "./dist/figure.jsx",
       "default": "./dist/figure.jsx"
     },
     "./refs": {
       "types": "./dist/refs.d.ts",
+      "solid": "./dist/refs.js",
       "default": "./dist/refs.js"
     },
     "./session-config": {
       "types": "./dist/session-config.d.ts",
+      "solid": "./dist/session-config.js",
       "default": "./dist/session-config.js"
     },
     "./tex": {
       "types": "./dist/tex.d.ts",
+      "solid": "./dist/tex.jsx",
       "default": "./dist/tex.jsx"
     },
     "./*.css": "./dist/*.css"

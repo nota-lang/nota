@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The Nota runtime.",
   "files": [
     "dist"
@@ -9,9 +9,12 @@
   "types": "dist/lib.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/lib.d.ts",
+      "solid": "./dist/lib.jsx",
       "default": "./dist/lib.jsx"
     },
     "./*": {
+      "solid": "./dist/*.js",
       "default": "./dist/*.js"
     }
   },
