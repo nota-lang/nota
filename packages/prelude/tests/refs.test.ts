@@ -44,16 +44,16 @@ describe("resolveAnchors — the flat namespace", () => {
   test("strong ids resolve; a strong/strong collision throws with both kinds", () => {
     const res = resolveAnchors([
       anchor("label", "a", 1),
-      anchor("definition", "b", 2)
+      anchor("def", "b", 2)
     ]);
     expect(res.get("a")?.fact.kind).toBe("label");
-    expect(res.get("b")?.fact.kind).toBe("definition");
+    expect(res.get("b")?.fact.kind).toBe("def");
     expect(() =>
-      resolveAnchors([anchor("label", "x", 1), anchor("definition", "x", 2)])
-    ).toThrow(/duplicate anchor id "x" \(a label and a definition\)/);
+      resolveAnchors([anchor("label", "x", 1), anchor("def", "x", 2)])
+    ).toThrow(/duplicate anchor id "x" \(a label and a def\)/);
     expect(() =>
-      resolveAnchors([anchor("footnote", "x", 1), anchor("footnote", "x", 2)])
-    ).toThrow(/duplicate footnote anchors for id "x"/);
+      resolveAnchors([anchor("note", "x", 1), anchor("note", "x", 2)])
+    ).toThrow(/duplicate note anchors for id "x"/);
   });
 
   test("heading slugs are weak: resolvable, deduped, silently shadowed by strong", () => {
@@ -65,9 +65,9 @@ describe("resolveAnchors — the flat namespace", () => {
     // A strong anchor takes the id; the slug is shadowed without error.
     const shadowed = resolveAnchors([
       heading("Nota", 1),
-      anchor("definition", "nota", 2)
+      anchor("def", "nota", 2)
     ]);
-    expect(shadowed.get("nota")?.fact.kind).toBe("definition");
+    expect(shadowed.get("nota")?.fact.kind).toBe("def");
   });
 
   test("an explicit heading id is strong: it collides like any authored id", () => {
@@ -86,7 +86,7 @@ describe("resolveAnchors — the flat namespace", () => {
   });
 
   test("anonymous anchors never enter the namespace", () => {
-    const res = resolveAnchors([anchor("footnote", undefined, 1)]);
+    const res = resolveAnchors([anchor("note", undefined, 1)]);
     expect(res.size).toBe(0);
   });
 });
@@ -137,8 +137,8 @@ describe("keys + backlink feed", () => {
   test("refTargetKey/anchorKey agree on anonymous locations", () => {
     expect(refTargetKey(ref("x", 1))).toBe("x");
     expect(refTargetKey(ref(undefined, 1, 42))).toBe("#test:42");
-    expect(anchorKey(anchor("footnote", "x", 3))).toBe("x");
-    expect(anchorKey(anchor("footnote", undefined, 3))).toBe("#test:3");
+    expect(anchorKey(anchor("note", "x", 3))).toBe("x");
+    expect(anchorKey(anchor("note", undefined, 3))).toBe("#test:3");
   });
 
   test("refsTo lists a target's uses in order", () => {

@@ -119,7 +119,7 @@ definition + reference (static content #sym.plus a tooltip behavior), and one is
 
 # Results
 
-We ran *forty* trials; the @Definition[id: "sd"]{standard deviation} was low.
+We ran *forty* trials; the @Def[id: "sd"]{standard deviation} was low.
 
 @for (r of ["mean", "max"]) {
   - the @r was stable
@@ -165,11 +165,11 @@ export const Trials = blockComponent((children, props) => {
 
 The oxc reader turns `doc.nota` into an ordinary JS module. Not JSX — *hyperscript*: plain
 calls to `h`, `Fragment`, `decode`. The compiler shim prepends the runtime import; ambient
-prelude names (`Heading`, `Definition`, `Ref`, …) are injected by the integrator.
+prelude names (`Heading`, `Def`, `Ref`, …) are injected by the integrator.
 
 ```js
 import { h, decode, Fragment, moduleRef } from "@nota-lang/runtime";
-import { Definition, Heading, Ref } from "@nota-lang/prelude";   // integrator-injected
+import { Def, Heading, Ref } from "@nota-lang/prelude";   // integrator-injected
 import { Trials } from "./trials.jsx";
 import stats from "./stats.json";
 
@@ -178,7 +178,7 @@ export default function Doc() {
     h(Heading, { rank: 1 }, ["Results"]),
     "\n", "\n",
     "We ran ", h("strong", {}, ["forty"]), " trials; the ",
-    h(Definition, { id: "sd" }, ["standard deviation"]), " was low.",
+    h(Def, { id: "sd" }, ["standard deviation"]), " was low.",
     "\n", "\n",
     ["mean", "max"].map((r, _i) =>
       Fragment({ key: _i }, h("nota-ul-li", {}, ["the ", r, " was stable"]))
@@ -239,7 +239,7 @@ the tree handed to `decode` is:
   ⟨Heading, {rank: 1}, ["Results"]⟩,                 ← plain function tag: static TEMPLATE
   "\n", "\n",
   "We ran ", ⟨"strong", {}, ["forty"]⟩, " trials; the ",
-  ⟨Definition, {id: "sd"}, ["standard deviation"]⟩,  ← template (prelude slot)
+  ⟨Def, {id: "sd"}, ["standard deviation"]⟩,  ← template (prelude slot)
   " was low.",
   "\n", "\n",
   ⟨FRAG, {key: 0}, [ ⟨"nota-ul-li", {}, ["the ", "mean", " was stable"]⟩ ]⟩,
@@ -255,7 +255,7 @@ the tree handed to `decode` is:
 
 Three kinds of function can sit in tag position, and the distinction drives everything:
 
-- *Templates* — plain functions (`Heading`, `Definition`, `Ref` are prelude *slots*, i.e.
+- *Templates* — plain functions (`Heading`, `Def`, `Ref` are prelude *slots*, i.e.
   plain functions consulting the component registry). Expanded *eagerly at build*, spliced
   into the tree (§5.2). Zero client cost.
 - *Boundaries* — functions marked by `inlineComponent`/`blockComponent` (`isComp`). *Never
@@ -302,8 +302,8 @@ splice their children into the parent's stream. After `normalize`:
   Query(q_h1),                                        ← from Heading: renders the real <h1>
   "\n", "\n",
   "We ran ", ⟨"strong", {}, ["forty"]⟩, " trials; the ",
-  Mark(definition, {key: "sd", body: […]}),           ← from Definition
-  ⟨"span", {id: "def-sd", class: "nota-definition"}, ["standard deviation"]⟩,
+  Mark(def, {key: "sd", body: […]}),           ← from Def
+  ⟨"span", {id: "def-sd", class: "nota-def"}, ["standard deviation"]⟩,
   " was low.",
   "\n", "\n",
   ⟨"nota-ul-li", {}, ["the ", "mean", " was stable"]⟩,   ← @for fragments dissolved
@@ -334,7 +334,7 @@ A single depth-first walk collects the marks:
   [`definition`], [1], [2], [`{key: "sd", body: […]}`],
 )
 
-This is the whole trick behind two-pass constructs (ToC, numbering, refs, footnotes,
+This is the whole trick behind two-pass constructs (ToC, numbering, refs, notes,
 bibliographies): the tree already exists in full before anything renders, so *forward
 reference is a scoping problem, not a temporal one*. One evaluation; tree passes do the rest.
 
@@ -398,7 +398,7 @@ After `struct`:
   ⟨"section", {}, [
     ⟨"h1", {id: "results"}, ["Results"]⟩,
     ⟨"p", {}, ["We ran ", ⟨"strong", {}, ["forty"]⟩, " trials; the ",
-               ⟨"span", {id: "def-sd", class: "nota-definition"}, ["standard deviation"]⟩,
+               ⟨"span", {id: "def-sd", class: "nota-def"}, ["standard deviation"]⟩,
                " was low."]⟩,
     ⟨"ul", {}, [ ⟨"li", …⟩, ⟨"li", …⟩ ]⟩,
     ⟨"p", {}, [⟨"a", {class: "nota-def-ref", href: "#def-sd", "data-nota-def": "sd"}, ["sd"]⟩,
@@ -437,7 +437,7 @@ each *boundary* renders as an island via `island(v)`:
 <section>
   <h1 id="results">Results</h1>
   <p>We ran <strong>forty</strong> trials; the
-     <span id="def-sd" class="nota-definition">standard deviation</span> was low.</p>
+     <span id="def-sd" class="nota-def">standard deviation</span> was low.</p>
   <ul>
     <li>the mean was stable</li>
     <li>the max was stable</li>
@@ -690,7 +690,7 @@ The design's economics, measured on the branch examples (gzip):
     framework + driver],
 )
 
-Each step is opt-in and local: a `Definition` buys the second row; the first
+Each step is opt-in and local: a `Def` buys the second row; the first
 `blockComponent` buys the third — and *only* the framework + that component's own module
 graph, never the document's.
 
@@ -715,7 +715,7 @@ transformed document module, so "who imports `Doc`" stays a per-mode choice.]
 *The `(children, props)` body signature.* `blockComponent((children, props) => …)` — children
 first, unlike React's single-props convention. A destructure in first position
 (`({data}) => …`) silently reads `children`. A reader/type-level hint is queued; until then,
-this footnote is the hint.
+this note is the hint.
 
 *Inline islands with block shells.* An `inlineComponent` whose shell renders a block element
 (a `figure`) gets `p`-wrapped by `groupParas`; the browser's parser then ejects it — a lint

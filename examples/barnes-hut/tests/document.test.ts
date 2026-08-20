@@ -5,7 +5,7 @@
  * IIFE in document order) and drive the prose controls — the acceptance test that the
  * explorable actually explores:
  *
- * - SSR bakes the whole article (title, diagram, sliders, plots, footnote);
+ * - SSR bakes the whole article (title, diagram, sliders, plots, note);
  * - hydration claims it, and an @Do action link flips the diagram into construction mode;
  * - the step slider inserts points (quadtree cells appear and grow);
  * - a legend button focuses a θ series (the other series dim in BOTH charts).
@@ -74,7 +74,7 @@ describe("the built page", () => {
     expect(html).toContain('class="bh"');
     expect((html.match(/<input type="range"/g) ?? []).length).toBe(3);
     expect((html.match(/class="plot-line"/g) ?? []).length).toBe(7);
-    expect(html).toContain("To promote visibility"); // the footnote's body
+    expect(html).toContain("To promote visibility"); // the note's body
     expect(html).toContain('<link rel="stylesheet"');
   });
 

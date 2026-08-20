@@ -17,19 +17,20 @@ export const FACT_KINDS = {
 export const ANCHOR_KINDS = {
   heading: "heading",
   label: "label",
-  footnote: "footnote",
+  note: "note",
   bib: "bib",
-  definition: "definition"
+  def: "def"
 } as const;
 
-/** A referenceable target. Function fields are live-only trailer payloads. */
+/** A referenceable target. Function fields are available only during the live render. */
 export interface AnchorFact extends LocatedFact {
   kind: string;
   id?: string;
   rank?: number;
   title?: string;
   explicitId?: string;
-  labelText?: string;
+  /** Rich reference label, available only during the live render. */
+  label?: () => JSX.Element;
   href?: string;
   refPrefix?: string;
   content?: () => JSX.Element;
@@ -38,7 +39,7 @@ export interface AnchorFact extends LocatedFact {
   bankTarget?: string;
 }
 
-/** A recorded use. Anonymous inline footnotes point directly to a target location. */
+/** A recorded use. Anonymous inline notes point directly to a target location. */
 export interface RefFact extends LocatedFact {
   target?: string;
   targetLocation?: Location;

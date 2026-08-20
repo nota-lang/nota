@@ -43,7 +43,7 @@ let ssrScopedBody: string;
 let ssrPlainBody: string;
 
 /** The fixture's smart-punct sentence, as the server must have transformed it. */
-const SMART_SENTENCE = "She said “stop”–then—a pause… done.";
+const SMART_SENTENCE = "She said “stop” – then — a pause… done.";
 
 const click = (el: Element) =>
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));

@@ -84,9 +84,11 @@ describe("prose sugars render", () => {
   });
 
   test("smart punctuation transforms prose but leaves code/math raw", () => {
-    // Curly quotes/apostrophe, en/em dashes (eating horizontal whitespace), ellipsis — and the
-    // source's literal em dash is a fixed point.
-    expect(html).toContain("material—“quotes”, ‘singles’, it’s 5–or 6—dots…");
+    // Curly quotes/apostrophe, en/em dashes (spacing untouched), ellipsis — and the source's
+    // literal em dash is a fixed point, spacing included.
+    expect(html).toContain(
+      "material — “quotes”, ‘singles’, it’s 5 – or 6 — dots…"
+    );
     // Inside `code` and $math$ the same characters stay raw (excluded regions).
     expect(html).toContain('>"code" -- ...</code>');
     expect(html).toContain(

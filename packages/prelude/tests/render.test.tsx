@@ -1,6 +1,6 @@
 /**
  * The prelude over the two-pass SSG driver: headings + numbering + slug dedup, the forward Toc,
- * Label/Ref binding, footnotes (labeled + anonymous, list + backlinks), Cite/Bibliography,
+ * Label/Ref binding, notes (labeled + anonymous, list + backlinks), Cite/Bibliography,
  * definitions (anchors + bank), Tex (KaTeX MathML), CodeBlock/CodeInline (sync shiki), and the
  * pointed-error paths.
  */
@@ -17,19 +17,19 @@ import {
   CodeBlock,
   CodeInline,
   config,
+  Def,
   DefBank,
-  Definition,
   FACT_KINDS,
   Figure,
-  Footnote,
-  Footnotes,
-  FootnotesList,
   Heading,
   headingIds,
   headingNumbers,
   Label,
   lstset,
   mathset,
+  Note,
+  Notes,
+  NotesList,
   Ref,
   resetCodeWarningsForTest,
   resetConfigForTest,
@@ -126,6 +126,27 @@ describe("heading mechanics", () => {
     expect(html).toContain('<h6 id="deep"');
     expect(html).toContain('<h1 id="shallow"');
     expect(html).toContain('<h1 id="plain"');
+  });
+
+  test("reference metadata in a heading is omitted from its slug and Toc text", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Toc />
+        <Heading>
+          {"Results"}
+          <Note>{"caveat"}</Note>
+        </Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    // The note mark renders in the heading…
+    expect(html).toMatch(/<h1 id="results"[^>]*>[\s\S]*nota-noteref/);
+    // …but titleTextOf skips `nota-noteref`, so neither the slug nor the Toc entry
+    // absorbs the note number.
+    expect(html).not.toContain('id="results-1"');
+    const toc = /<nav class="nota-toc">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+    expect(toc).toContain("Results");
+    expect(toc).not.toMatch(/Results\s*1/);
   });
 
   test("extra props (a hoisted attrs group) spread onto the h-tag", () => {
@@ -277,107 +298,110 @@ describe("label / ref", () => {
   });
 });
 
-describe("footnotes", () => {
+describe("notes", () => {
   test("labeled + anonymous numbering, shared labels, the list, backlinks", () => {
     const Doc = () => (
       <NotaDoc>
         {"First"}
         <Ref id="a" />
         {" then"}
-        <Footnote>{"inline note"}</Footnote>
+        <Note>{"inline note"}</Note>
         {" and again"}
         <Ref id="a" />
         {".\n\n"}
-        <Footnote id="a">{"the labeled body"}</Footnote>
+        <Note id="a">{"the labeled body"}</Note>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
     // Distinct-label first-appearance numbering: a=1, anonymous=2; the repeat shares 1.
-    expect(html).toMatch(/<a id="fnref-1" href="#fn-1"[^>]*>1<\/a>/);
-    expect(html).toMatch(/<a id="fnref-2" href="#fn-2"[^>]*>2<\/a>/);
+    expect(html).toMatch(/<a id="noteref-1" href="#note-1"[^>]*>1<\/a>/);
+    expect(html).toMatch(/<a id="noteref-2" href="#note-2"[^>]*>2<\/a>/);
     // The repeated reference has no id (only the first backlinks).
-    expect(html.match(/id="fnref-1"/g)).toHaveLength(1);
-    expect(html.match(/href="#fn-1"/g)).toHaveLength(2);
+    expect(html.match(/id="noteref-1"/g)).toHaveLength(1);
+    expect(html.match(/href="#note-1"/g)).toHaveLength(2);
     // The auto-appended list: entries in number order with backlinks.
-    const list =
-      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    const list = /<section class="nota-notes"[^>]*>([\s\S]*)<\/section>/.exec(
+      html
+    );
     expect(list).toBeTruthy();
-    expect(list?.[1]).toContain('id="fn-1"');
+    expect(list?.[1]).toContain('id="note-1"');
     expect(list?.[1]).toContain("the labeled body");
     expect(list?.[1]).toContain("inline note");
-    expect(list?.[1]).toMatch(/<a href="#fnref-1" class="nota-fnbacklink"/);
+    expect(list?.[1]).toMatch(/<a href="#noteref-1" class="nota-notebacklink"/);
   });
 
-  test("no footnotes → no list; explicit placement suppresses the trailer", () => {
+  test("no notes → no list; explicit placement suppresses the trailer", () => {
     const None = () => <NotaDoc>{"clean"}</NotaDoc>;
-    expect(renderDocument(None).html).not.toContain("nota-footnotes");
+    expect(renderDocument(None).html).not.toContain("nota-notes");
 
     const Placed = () => (
       <NotaDoc>
-        <Footnote>{"n"}</Footnote>
-        <Footnotes />
+        <Note>{"n"}</Note>
+        <Notes />
         {"After the placed list."}
       </NotaDoc>
     );
     const html = clean(renderDocument(Placed).html);
     // Exactly one list (placed), not two (trailer suppressed).
-    expect(html.match(/nota-footnotes/g)).toHaveLength(1);
-    expect(html.indexOf("nota-footnotes")).toBeLessThan(
+    expect(html.match(/nota-notes/g)).toHaveLength(1);
+    expect(html.indexOf("nota-notes")).toBeLessThan(
       html.indexOf("After the placed")
     );
   });
 
-  test("a paragraph break in a footnote body decodes into two paragraphs", () => {
+  test("a paragraph break in a note body decodes into two paragraphs", () => {
     const Doc = () => (
       <NotaDoc>
         {"Text"}
         <Ref id="p" />
-        <Footnote id="p">{"first fn para.\n\nsecond fn para."}</Footnote>
+        <Note id="p">{"first fn para.\n\nsecond fn para."}</Note>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
-    const list =
-      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    const list = /<section class="nota-notes"[^>]*>([\s\S]*)<\/section>/.exec(
+      html
+    );
     expect(list).toBeTruthy();
     // Flow decoding via Reforest: two nota-para inside the entry, backlink in the last.
     expect(list?.[1]?.match(/<p class="nota-para">/g)).toHaveLength(2);
     expect(list?.[1]).toMatch(
-      /<p class="nota-para">second fn para\.[\s\S]*?nota-fnbacklink/
+      /<p class="nota-para">second fn para\.[\s\S]*?nota-notebacklink/
     );
   });
 
-  test("an unreferenced @Footnote[id] definition is dropped silently", () => {
+  test("an unreferenced @Note[id] definition is dropped silently", () => {
     const Doc = () => (
       <NotaDoc>
         {"Body"}
-        <Footnote>{"used note"}</Footnote>
-        <Footnote id="ghost">{"never shown"}</Footnote>
+        <Note>{"used note"}</Note>
+        <Note id="ghost">{"never shown"}</Note>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
-    const list =
-      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    const list = /<section class="nota-notes"[^>]*>([\s\S]*)<\/section>/.exec(
+      html
+    );
     expect(list?.[1]?.match(/<li /g)).toHaveLength(1);
     expect(html).not.toContain("never shown");
   });
 
-  test("a standalone FootnotesList renders in place without suppressing the trailer", () => {
+  test("a standalone NotesList renders in place without suppressing the trailer", () => {
     const Doc = () => (
       <NotaDoc>
-        <Footnote>{"one"}</Footnote>
-        <FootnotesList />
-        <Footnote>{"two"}</Footnote>
+        <Note>{"one"}</Note>
+        <NotesList />
+        <Note>{"two"}</Note>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
     const lists = [
       ...html.matchAll(
-        /<section class="nota-footnotes"[^>]*>([\s\S]*?)<\/section>/g
+        /<section class="nota-notes"[^>]*>([\s\S]*?)<\/section>/g
       )
     ];
-    // Unlike @Footnotes, FootnotesList sets no placement flag: the trailer still appends.
+    // Unlike @Notes, NotesList sets no placement flag: the trailer still appends.
     expect(lists).toHaveLength(2);
-    // The placed list sees the footnotes accumulated so far; the trailer sees all.
+    // The placed list sees the notes accumulated so far; the trailer sees all.
     expect(lists[0][1].match(/<li /g)).toHaveLength(1);
     expect(lists[1][1].match(/<li /g)).toHaveLength(2);
   });
@@ -395,11 +419,11 @@ describe("footnotes", () => {
     const Doc = () => (
       <NotaDoc>
         <Ref id="d" />
-        <Footnote id="d">{"one"}</Footnote>
-        <Footnote id="d">{"two"}</Footnote>
+        <Note id="d">{"one"}</Note>
+        <Note id="d">{"two"}</Note>
       </NotaDoc>
     );
-    expect(() => renderDocument(Doc)).toThrow(/duplicate footnote anchors/);
+    expect(() => renderDocument(Doc)).toThrow(/duplicate note anchors/);
   });
 });
 
@@ -550,9 +574,9 @@ describe("unified references (&id across kinds)", () => {
     const Doc = () => (
       <NotaDoc>
         <Heading rank={1}>Nota</Heading>
-        <Definition id="nota" label="the language">
+        <Def id="nota" Label={() => "the language"}>
           {"Nota"}
-        </Definition>
+        </Def>
         {"see "}
         <Ref id="nota" />
       </NotaDoc>
@@ -569,41 +593,42 @@ describe("unified references (&id across kinds)", () => {
       <NotaDoc>
         <Heading rank={1}>H</Heading>
         <Label id="x" />
-        <Definition id="x">{"body"}</Definition>
+        <Def id="x">{"body"}</Def>
       </NotaDoc>
     );
     expect(() => renderDocument(Doc)).toThrow(
-      /duplicate anchor id "x" \(a label and a definition\)/
+      /duplicate anchor id "x" \(a label and a def\)/
     );
   });
 
-  test("footnote definitions are referenced with &id: shared numbers, list, no in-place render", () => {
+  test("note definitions are referenced with &id: shared numbers, list, no in-place render", () => {
     const Doc = () => (
       <NotaDoc>
         {"First"}
         <Ref id="x" />
         {" then"}
-        <Footnote>{"anon note"}</Footnote>
+        <Note>{"anon note"}</Note>
         {" again"}
         <Ref id="x" />
         {".\n\n"}
-        <Footnote id="x">{"labeled body"}</Footnote>
+        <Note id="x">{"labeled body"}</Note>
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
     // First-use order: x=1, anon=2; the repeat shares 1; only the first carries the backlink id.
-    expect(html).toMatch(/<a id="fnref-1" href="#fn-1"[^>]*>1<\/a>/);
-    expect(html).toMatch(/<a id="fnref-2" href="#fn-2"[^>]*>2<\/a>/);
-    expect(html.match(/href="#fn-1"/g)).toHaveLength(2);
-    expect(html.match(/id="fnref-1"/g)).toHaveLength(1);
-    const list =
-      /<section class="nota-footnotes"[^>]*>([\s\S]*)<\/section>/.exec(html);
+    expect(html).toMatch(/<a id="noteref-1" href="#note-1"[^>]*>1<\/a>/);
+    expect(html).toMatch(/<a id="noteref-2" href="#note-2"[^>]*>2<\/a>/);
+    expect(html.match(/href="#note-1"/g)).toHaveLength(2);
+    expect(html.match(/id="noteref-1"/g)).toHaveLength(1);
+    const list = /<section class="nota-notes"[^>]*>([\s\S]*)<\/section>/.exec(
+      html
+    );
     expect(list?.[1]?.match(/<li /g)).toHaveLength(2);
     expect(list?.[1]).toContain("labeled body");
     expect(list?.[1]).toContain("anon note");
     // The definition renders nothing at its own position (its body only appears in the list).
     expect(html.indexOf("labeled body")).toBeGreaterThan(
-      html.indexOf("nota-footnotes")
+      html.indexOf("nota-notes")
     );
   });
 
@@ -639,7 +664,7 @@ describe("unified references (&id across kinds)", () => {
         tooltip: true,
         bank: () => props.bank
       });
-      state.trailer("definitions", () => <DefBank />);
+      state.trailer("defs", () => <DefBank />);
       return <figure id={`fig-${props.id}`} />;
     };
     const Doc = () => (
@@ -745,16 +770,16 @@ describe("definitions", () => {
   test("anchor in place, tooltip bank + style in the trailer, def-aware Ref", () => {
     const Doc = () => (
       <NotaDoc>
-        <Definition id="nota" label="Nota" tooltip="A document language.">
+        <Def id="nota" Label={() => "Nota"} tooltip="A document language.">
           {"Nota"}
-        </Definition>
+        </Def>
         {" is referenced as "}
         <Ref id="nota" />
         {"."}
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
-    expect(html).toMatch(/<span id="def-nota" class="nota-definition"/);
+    expect(html).toMatch(/<span id="def-nota" class="nota-def"/);
     // The def-ref: a REAL anchor (no-JS fallback) wired for the tooltip handler.
     expect(html).toMatch(
       /<a href="#def-nota"[^>]*class="nota-ref nota-def-ref"[^>]*data-nota-def="nota"[^>]*>Nota<\/a>/
@@ -765,28 +790,96 @@ describe("definitions", () => {
     expect(html).toContain(".nota-def-tooltip-open");
   });
 
-  test("duplicate definitions are a pointed error", () => {
+  test("the rendered definition body is the default tooltip target", () => {
     const Doc = () => (
       <NotaDoc>
-        <Definition id="d">{"one"}</Definition>
-        <Definition id="d">{"two"}</Definition>
-      </NotaDoc>
-    );
-    expect(() => renderDocument(Doc)).toThrow(
-      /duplicate definition anchors for id "d"/
-    );
-  });
-
-  test("Definition({block}) renders a div flow container instead of a span", () => {
-    const Doc = () => (
-      <NotaDoc>
-        <Definition id="blk" block tooltip="tip">
-          {"Block body"}
-        </Definition>
+        <Def id="term" Label={() => "Term"}>
+          <strong>{"The full definition."}</strong>
+        </Def>
+        <Ref id="term" />
       </NotaDoc>
     );
     const html = clean(renderDocument(Doc).html);
-    expect(html).toMatch(/<div id="def-blk" class="nota-definition">/);
+    expect(html).toMatch(/<a href="#def-term"[^>]*>Term<\/a>/);
+    expect(html).toMatch(/data-def="term"[^>]*data-target="def-term"/);
+    expect(html.match(/The full definition\./g)).toHaveLength(1);
+  });
+
+  test("definition labels preserve arbitrary components", () => {
+    const Label = () => (
+      <span class="term-label">
+        <em>{"Rich"}</em> {"label"}
+      </span>
+    );
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="term" Label={Label}>
+          {"The definition."}
+        </Def>
+        <Ref id="term" />
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<a href="#def-term"[^>]*><span class="term-label"><em>Rich<\/em> label<\/span><\/a>/
+    );
+  });
+
+  test("rich definition labels resolve across forward references", () => {
+    const Label = () => (
+      <span class="term-label">
+        <em>{"Forward"}</em> {"label"}
+      </span>
+    );
+    const Doc = () => (
+      <NotaDoc>
+        <Ref id="term" />
+        <Def id="term" Label={Label}>
+          {"The definition."}
+        </Def>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<a href="#def-term"[^>]*><span class="term-label"><em>Forward<\/em> label<\/span><\/a>/
+    );
+  });
+
+  test("the retired lowercase label prop gives a migration error", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="term" {...{ label: "Term" }}>
+          {"The definition."}
+        </Def>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(
+      /label was replaced by the component prop Label/
+    );
+  });
+
+  test("duplicate definitions are a pointed error", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="d">{"one"}</Def>
+        <Def id="d">{"two"}</Def>
+      </NotaDoc>
+    );
+    expect(() => renderDocument(Doc)).toThrow(
+      /duplicate def anchors for id "d"/
+    );
+  });
+
+  test("Def({block}) renders a div flow container instead of a span", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="blk" block tooltip="tip">
+          {"Block body"}
+        </Def>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/<div id="def-blk" class="nota-def">/);
     expect(html).not.toMatch(/<span id="def-blk"/);
   });
 });
@@ -907,9 +1000,9 @@ describe("texRef", () => {
       mathset({ output: "html" });
       return (
         <NotaDoc>
-          <Definition id="dep" label="dep" tooltip="The dependency relation.">
+          <Def id="dep" Label={() => "dep"} tooltip="The dependency relation.">
             {"deps"}
-          </Definition>
+          </Def>
           {" as "}
           <Tex>{texRef("dep", "\\kappa")}</Tex>
         </NotaDoc>

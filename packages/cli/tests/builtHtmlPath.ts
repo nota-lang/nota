@@ -29,7 +29,7 @@ export const CONDITIONAL_BUILT_DIR = join(here, ".conditional.built");
 /**
  * The dynamic fixture's built document directory (`integration/dynamic.nota` — the `<Dynamic>`
  * hydration surface: prelude `Heading` (`<Dynamic component={"h"+rank}>`) + a forward `@Toc`, an
- * `@(expr){…}` dynamic tag whose expression is a component, a `@Definition`/`&ref` pair (the def
+ * `@(expr){…}` dynamic tag whose expression is a component, a `@Def`/`&ref` pair (the def
  * tooltip's hydration path), and a signal-driven counter).
  */
 export const DYNAMIC_BUILT_DIR = join(here, ".dynamic.built");

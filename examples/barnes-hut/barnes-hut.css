@@ -125,8 +125,8 @@ a {
   text-underline-offset: 2px;
 }
 
-/* Footnotes (prelude defaults, lightly dressed). */
-.nota-footnotes {
+/* Notes (prelude defaults, lightly dressed). */
+.nota-notes {
   font-size: 0.85em;
   color: var(--ink-2);
 }

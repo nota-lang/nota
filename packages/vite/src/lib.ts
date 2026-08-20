@@ -1,6 +1,8 @@
 /** Vite transform and Solid preset for `.nota` modules. See `design/solid.md`. */
 
+import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
+import { dirname, join, resolve } from "node:path";
 import {
   compile,
   DOC_EXPORT_NAME,
@@ -53,6 +55,106 @@ export const DEDUPED_PACKAGES: readonly string[] = [
   ...SOLID_JSX_DIST_PACKAGES
 ];
 
+/**
+ * Packages that must be a singleton in a bundle but that the *host* owns, not Nota — the editor
+ * stack `@nota-lang/codemirror` plugs into.
+ *
+ * CodeMirror and Lezer compare by identity: a `Facet`/`StateField` instance keys its own value,
+ * a `Language` is looked up by reference through the `language` facet, and `@lezer/highlight`
+ * `Tag`s are compared with `==`. Two physical copies of any of them is a correctness problem,
+ * not a size problem ("Unrecognized extension value in extension set", an extension that applies
+ * to nobody, highlighting that silently comes out colourless). Upstream CodeMirror declares
+ * these as ordinary `dependencies` and leans on semver unification, which holds within one
+ * lockfile and fails the moment there is not one: a `link:`ed package resolving out of its own
+ * store, an incompatible pin somewhere in the graph, a second install root.
+ *
+ * The rule is by scope rather than by name because there is no line to draw inside these two:
+ * every `@codemirror/*` publishes extensions and every `@lezer/*` publishes a parser or the node
+ * types one is read through, so a duplicate anywhere in either scope is a duplicate that matters.
+ */
+const SINGLETON_SCOPES: readonly string[] = ["@codemirror", "@lezer"];
+
+/** Unscoped members of the same set. `style-mod` keys its stylesheets by module identity. */
+const SINGLETON_PACKAGES: readonly string[] = ["style-mod"];
+
+/** Does `pkg` have to be a singleton? */
+function isSingleton(pkg: string): boolean {
+  return (
+    SINGLETON_PACKAGES.includes(pkg) ||
+    SINGLETON_SCOPES.some(scope => pkg.startsWith(`${scope}/`))
+  );
+}
+
+/** The package names under `<dir>/node_modules`, scopes expanded, that must be singletons. */
+function singletonsUnder(dir: string): string[] {
+  const modules = join(dir, "node_modules");
+  const installed = (pkg: string) =>
+    existsSync(join(modules, pkg, "package.json"));
+  const scoped = SINGLETON_SCOPES.flatMap(scope =>
+    existsSync(join(modules, scope))
+      ? readdirSync(join(modules, scope)).map(name => `${scope}/${name}`)
+      : []
+  );
+  return [...SINGLETON_PACKAGES, ...scoped].filter(installed);
+}
+
+/**
+ * The `resolve.dedupe` list for a project rooted at `root`: the framework packages, which the
+ * preset requires outright, plus every singleton that project can resolve.
+ *
+ * Deduping a package the root *cannot* resolve is not a no-op — Vite sets the resolution basedir
+ * to the root and does not fall back to the importer, so naming an absent package turns a
+ * working import into an unresolved one. Hence a list read off the install rather than a fixed
+ * one: a Nota site with no editors in it has none of these and must not be told to look.
+ */
+export function dedupedPackages(root: string): string[] {
+  const singletons = new Set<string>();
+  // Node resolution walks up from the importer, and so does a deduped resolution from the root.
+  for (let dir = resolve(root); ; dir = dirname(dir)) {
+    for (const pkg of singletonsUnder(dir)) {
+      singletons.add(pkg);
+    }
+    if (dirname(dir) === dir) {
+      break;
+    }
+  }
+  return [...DEDUPED_PACKAGES, ...[...singletons].sort()];
+}
+
+/**
+ * Which singleton packages the finished module graph holds more than one copy of, by package
+ * directory.
+ *
+ * Deduping can only reach what the project root can resolve, so the packages that slip through
+ * are precisely the ones nothing depends on *directly*: two `@codemirror/lang-*` from different
+ * stores each drag their own `@codemirror/autocomplete` along, and the result is two completion
+ * state fields quietly failing to be the same one. Reading it off the module graph catches that
+ * regardless of how the copies got there, and the remedy is always the same — name the package
+ * in the project's own dependencies so `resolve.dedupe` has a root copy to unify on.
+ */
+export function duplicateSingletons(
+  moduleIds: Iterable<string>
+): Map<string, string[]> {
+  const copies = new Map<string, Set<string>>();
+  for (const id of moduleIds) {
+    // The innermost `node_modules/<pkg>/` is the package the module belongs to.
+    const owner = [
+      ...id.matchAll(/node_modules\/((?:@[^/]+\/)?[^/]+)\//g)
+    ].pop();
+    if (!owner || !isSingleton(owner[1])) {
+      continue;
+    }
+    const dir = id.slice(0, owner.index + owner[0].length);
+    const seen = copies.get(owner[1]) ?? new Set<string>();
+    copies.set(owner[1], seen.add(dir));
+  }
+  return new Map(
+    [...copies]
+      .filter(([, dirs]) => dirs.size > 1)
+      .map(([pkg, dirs]) => [pkg, [...dirs].sort()])
+  );
+}
+
 /** Compile claimed extensions before vite-plugin-solid; asset queries pass through untouched. */
 export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
@@ -75,7 +177,9 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   return {
     name: "@nota-lang/vite",
     enforce: "pre",
-    config: () => ({ resolve: { dedupe: [...DEDUPED_PACKAGES] } }),
+    config: userConfig => ({
+      resolve: { dedupe: dedupedPackages(userConfig.root ?? process.cwd()) }
+    }),
     async resolveId(source: string, importer: string | undefined) {
       if (
         !EMIT_IMPORT_FALLBACKS.some(
@@ -103,6 +207,17 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
       const { code: out, map } = compile(code, { sourcePath: id, prelude });
       // Brand the component for host renderers. This line sits beyond any mapped range.
       return { code: `${out}\n${DOC_EXPORT_NAME}.isNotaDoc = true;\n`, map };
+    },
+    buildEnd() {
+      // Identity bugs from a duplicated singleton surface far from their cause (a dead
+      // keybinding, an extension the editor rejects), so say it here, where the cause is known.
+      for (const [pkg, dirs] of duplicateSingletons(this.getModuleIds())) {
+        this.warn(
+          `${dirs.length} copies of ${pkg} in this build. It compares by identity, so the ` +
+            `copies will not recognise each other's state. Add "${pkg}" to this project's ` +
+            `dependencies to give resolve.dedupe a copy to unify on:\n  ${dirs.join("\n  ")}`
+        );
+      }
     }
   };
 }

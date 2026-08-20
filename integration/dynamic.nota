@@ -11,7 +11,7 @@ this paragraph sits under it.
 
 A dynamic tag whose expression is a component: @(Fancy){highlighted}.
 
-@Definition[id: "nota", label: "Nota", tooltip: "A document language."]{Nota} is defined here;
+@Def[id: "nota", Label: () => "Nota", tooltip: "A document language."]{Nota} is defined here;
 the reference &nota pops a tooltip after hydration.
 
 %let Counter = () => {

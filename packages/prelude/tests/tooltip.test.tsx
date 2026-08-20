@@ -8,7 +8,7 @@ import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Caption,
-  Definition,
+  Def,
   Figure,
   installDefTooltipHandlers,
   Ref,
@@ -39,9 +39,9 @@ const click = (el: Element) =>
 function Doc() {
   return (
     <NotaDoc>
-      <Definition id="nota" label="Nota" tooltip="A document language.">
+      <Def id="nota" Label={() => "Nota"} tooltip="A document language.">
         {"Nota"}
-      </Definition>
+      </Def>
       {" is referenced as "}
       <Ref id="nota" />
       {"."}
@@ -50,6 +50,36 @@ function Doc() {
 }
 
 describe("def tooltips (CSR)", () => {
+  test("the default tooltip clones the rendered definition body", () => {
+    resetDefTooltipHandlersForTest();
+    let evaluations = 0;
+    const Body = () => {
+      evaluations += 1;
+      return <strong>{"The rendered definition."}</strong>;
+    };
+    const DefaultDoc = () => (
+      <NotaDoc>
+        <Def id="term" Label={() => "Term"}>
+          <Body />
+        </Def>
+        <Ref id="term" />
+      </NotaDoc>
+    );
+    root = document.createElement("div");
+    document.body.appendChild(root);
+    dispose = render(() => <DefaultDoc />, root);
+
+    expect(evaluations).toBe(1);
+    const ref = root.querySelector("a[data-nota-def]");
+    if (!ref) throw new Error("no def ref");
+    click(ref);
+
+    const tip = document.querySelector(".nota-def-tooltip-open");
+    expect(tip?.textContent).toBe("The rendered definition.");
+    expect(tip?.querySelector(".nota-def")?.hasAttribute("id")).toBe(false);
+    expect(evaluations).toBe(1);
+  });
+
   test("click shows the tooltip; outside-click and Escape dismiss", () => {
     resetDefTooltipHandlersForTest();
     root = document.createElement("div");
@@ -173,9 +203,9 @@ describe("def tooltips on a multi-document page (Astro-islands scenario)", () =>
     function Doc1() {
       return (
         <NotaDoc>
-          <Definition id="shared" label="One" tooltip="Doc ONE's tooltip.">
+          <Def id="shared" Label={() => "One"} tooltip="Doc ONE's tooltip.">
             {"shared"}
-          </Definition>{" "}
+          </Def>{" "}
           <Ref id="shared" />
         </NotaDoc>
       );
@@ -183,9 +213,9 @@ describe("def tooltips on a multi-document page (Astro-islands scenario)", () =>
     function Doc2() {
       return (
         <NotaDoc>
-          <Definition id="shared" label="Two" tooltip="Doc TWO's tooltip.">
+          <Def id="shared" Label={() => "Two"} tooltip="Doc TWO's tooltip.">
             {"shared"}
-          </Definition>{" "}
+          </Def>{" "}
           <Ref id="shared" />
         </NotaDoc>
       );
@@ -207,6 +237,177 @@ describe("def tooltips on a multi-document page (Astro-islands scenario)", () =>
       dispose2();
       root1.remove();
       root2.remove();
+    }
+  });
+});
+
+/**
+ * jsdom has no layout engine — every rect is 0×0 and the viewport is empty — so Floating UI
+ * would have nothing to flip or shift against. Stub the three measurements it reads (the
+ * viewport box, the floating element's size, the reference's rects) and the real middleware
+ * chain runs.
+ */
+const VIEWPORT = { width: 800, height: 600 };
+const TIP = { width: 200, height: 100 };
+
+const rect = (
+  left: number,
+  top: number,
+  width: number,
+  height: number
+): DOMRect =>
+  ({
+    x: left,
+    y: top,
+    left,
+    top,
+    right: left + width,
+    bottom: top + height,
+    width,
+    height,
+    toJSON: () => ({})
+  }) as DOMRect;
+
+const clickAt = (el: Element, x: number, y: number) =>
+  el.dispatchEvent(
+    new MouseEvent("click", {
+      bubbles: true,
+      detail: 1,
+      clientX: x,
+      clientY: y
+    })
+  );
+
+/** Render `Doc`, hand back its reference `<a>` with layout under the test's control. */
+function openable(): HTMLElement {
+  resetDefTooltipHandlersForTest();
+  root = document.createElement("div");
+  document.body.appendChild(root);
+  dispose = render(() => <Doc />, root);
+  const ref = root.querySelector("a[data-nota-def]") as HTMLElement | null;
+  if (!ref) throw new Error("no def ref");
+  return ref;
+}
+
+const openTip = (): HTMLElement => {
+  const tip = document.querySelector(".nota-def-tooltip-open");
+  if (!tip) throw new Error("no open tooltip");
+  return tip as HTMLElement;
+};
+
+describe("def tooltip placement (Floating UI)", () => {
+  let sizeDescriptors: [string, PropertyDescriptor | undefined][] = [];
+
+  beforeEach(() => {
+    for (const [prop, value] of [
+      ["clientWidth", VIEWPORT.width],
+      ["clientHeight", VIEWPORT.height]
+    ] as const) {
+      Object.defineProperty(document.documentElement, prop, {
+        configurable: true,
+        get: () => value
+      });
+    }
+    sizeDescriptors = (["offsetWidth", "offsetHeight"] as const).map(prop => [
+      prop,
+      Object.getOwnPropertyDescriptor(HTMLElement.prototype, prop)
+    ]);
+    for (const [prop, size] of [
+      ["offsetWidth", TIP.width],
+      ["offsetHeight", TIP.height]
+    ] as const) {
+      Object.defineProperty(HTMLElement.prototype, prop, {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.classList.contains("nota-def-tooltip-open") ? size : 0;
+        }
+      });
+    }
+  });
+
+  afterEach(() => {
+    for (const prop of ["clientWidth", "clientHeight"] as const) {
+      delete (document.documentElement as unknown as Record<string, unknown>)[
+        prop
+      ];
+    }
+    for (const [prop, descriptor] of sizeDescriptors) {
+      if (descriptor)
+        Object.defineProperty(HTMLElement.prototype, prop, descriptor);
+    }
+  });
+
+  test("the tooltip centers above its reference, and flips below when the top is tight", async () => {
+    const ref = openable();
+    ref.getBoundingClientRect = () => rect(400, 300, 40, 14);
+
+    click(ref);
+    const tip = openTip();
+    await vi.waitFor(() => expect(tip.dataset.placement).toBe("top"));
+    // Centered on the reference (400 + 40/2 − 200/2), one 8px gap above it (300 − 100 − 8).
+    expect(tip.style.left).toBe("320px");
+    expect(tip.style.top).toBe("192px");
+    // `size` publishes the room the chosen placement actually has: the viewport minus the
+    // 8px margin on each side, and above the reference minus the gap.
+    expect(tip.style.getPropertyValue("--nota-tooltip-available-width")).toBe(
+      "784px"
+    );
+    expect(tip.style.getPropertyValue("--nota-tooltip-available-height")).toBe(
+      "284px"
+    );
+
+    // Same reference, now near the top of the viewport: `flip` puts the tooltip underneath.
+    click(ref); // toggle closed
+    ref.getBoundingClientRect = () => rect(400, 10, 40, 14);
+    click(ref);
+    const flipped = openTip();
+    await vi.waitFor(() => expect(flipped.dataset.placement).toBe("bottom"));
+    expect(flipped.style.left).toBe("320px");
+    expect(flipped.style.top).toBe("32px"); // 10 + 14 + 8
+  });
+
+  test("a reference broken across two lines anchors to the line that was clicked", async () => {
+    const ref = openable();
+    // The tail of one line and the head of the next — disjoint boxes, as `inline` expects.
+    const first = rect(600, 300, 180, 14);
+    const second = rect(300, 320, 100, 14);
+    ref.getClientRects = () => [first, second] as unknown as DOMRectList;
+    ref.getBoundingClientRect = () => rect(300, 300, 480, 34);
+
+    clickAt(ref, 350, 327); // inside the second line's box
+    const tip = openTip();
+    // Centered on the second line (300 + 100/2 − 100), NOT on the union of both lines
+    // (which would be 440), and sitting above that line (320 − 100 − 8).
+    await vi.waitFor(() => expect(tip.style.left).toBe("250px"));
+    expect(tip.style.top).toBe("212px");
+  });
+
+  test("an open tooltip tracks its reference, and dismissal stops the tracking", async () => {
+    const ref = openable();
+    let top = 300;
+    ref.getBoundingClientRect = () => rect(400, top, 40, 14);
+
+    click(ref);
+    const tip = openTip();
+    await vi.waitFor(() => expect(tip.style.top).toBe("192px"));
+
+    // The page scrolls under the reference: `autoUpdate` repositions the open tooltip, which
+    // the old one-shot measurement never did.
+    top = 200;
+    window.dispatchEvent(new Event("scroll"));
+    await vi.waitFor(() => expect(tip.style.top).toBe("92px"));
+
+    const removals = vi.spyOn(window, "removeEventListener");
+    try {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+      );
+      expect(document.querySelector(".nota-def-tooltip-open")).toBeNull();
+      expect(removals.mock.calls.some(([type]) => type === "scroll")).toBe(
+        true
+      );
+    } finally {
+      removals.mockRestore();
     }
   });
 });

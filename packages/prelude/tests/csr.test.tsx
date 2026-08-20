@@ -11,9 +11,10 @@ import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   CodeBlock,
-  Footnote,
+  Def,
   Heading,
   Label,
+  Note,
   Ref,
   resetConfigForTest,
   secset
@@ -36,6 +37,35 @@ afterEach(() => {
 });
 
 describe("unseeded forward references (CSR)", () => {
+  test("each definition reference renders its own rich label", () => {
+    const RichLabel = () => {
+      const [presses, setPresses] = createSignal(0);
+      return (
+        <em class="term-label" onMouseDown={() => setPresses(n => n + 1)}>
+          Term {presses()}
+        </em>
+      );
+    };
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="term" Label={RichLabel}>
+          {"The definition."}
+        </Def>
+        <Ref id="term" />
+        <Ref id="term" />
+      </NotaDoc>
+    );
+    if (!root) throw new Error("no root");
+    dispose = render(() => <Doc />, root);
+
+    const labels = root.querySelectorAll("a.nota-def-ref > .term-label");
+    expect(labels).toHaveLength(2);
+    expect(labels[0]).not.toBe(labels[1]);
+    labels[0]?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    expect(labels[0]?.textContent).toBe("Term 1");
+    expect(labels[1]?.textContent).toBe("Term 0");
+  });
+
   test("a Ref ahead of its target shows ? and self-heals when the target registers", () => {
     const [show, setShow] = createSignal(false);
     const Doc = () => (
@@ -56,38 +86,41 @@ describe("unseeded forward references (CSR)", () => {
     const pending = root.querySelector("a.nota-ref");
     expect(pending?.textContent).toBe("?");
     expect(pending?.getAttribute("href")).toBe("#");
+    const slot = pending?.parentElement;
+    expect(slot?.classList.contains("nota-ref-slot")).toBe(true);
 
     // The target mounts → the label/heading facts register → the ref heals reactively.
     setShow(true);
     const healed = root.querySelector("a.nota-ref");
     expect(healed?.textContent).toBe("Target");
     expect(healed?.getAttribute("href")).toBe("#target");
+    expect(healed?.parentElement).toBe(slot);
   });
 
-  test("a footnote ref ahead of its @Footnote shows ? and becomes the mark when it mounts", () => {
+  test("a note ref ahead of its @Note shows ? and becomes the mark when it mounts", () => {
     const [show, setShow] = createSignal(false);
     const Doc = () => (
       <NotaDoc>
         {"Note"}
         <Ref id="n" />
         <Show when={show()}>
-          <Footnote id="n">{"the labeled body"}</Footnote>
+          <Note id="n">{"the labeled body"}</Note>
         </Show>
       </NotaDoc>
     );
     if (!root) throw new Error("no root");
     dispose = render(() => <Doc />, root);
 
-    // Unseeded + unresolved: the ref can't even know it's a footnote yet — the generic
+    // Unseeded + unresolved: the ref can't even know it's a note yet — the generic
     // pending placeholder, no mark, no list.
     expect(root.querySelector("a.nota-ref")?.textContent).toBe("?");
-    expect(root.querySelector("sup.nota-fnref")).toBeNull();
-    expect(root.querySelector(".nota-fn-content")).toBeNull();
+    expect(root.querySelector("sup.nota-noteref")).toBeNull();
+    expect(root.querySelector(".nota-note-content")).toBeNull();
 
-    // The definition mounts → the ref re-dispatches into the footnote arm and the list fills.
+    // The definition mounts → the ref re-dispatches into the note arm and the list fills.
     setShow(true);
-    expect(root.querySelector("sup.nota-fnref")?.textContent).toBe("1");
-    const content = root.querySelector(".nota-fn-content");
+    expect(root.querySelector("sup.nota-noteref")?.textContent).toBe("1");
+    const content = root.querySelector(".nota-note-content");
     expect(content?.textContent).toContain("the labeled body");
     expect(content?.textContent).not.toContain("?");
   });
@@ -128,31 +161,31 @@ describe("live renumbering (unmount-before-later-consumer)", () => {
     ).toEqual(["1", "2"]);
   });
 
-  test("a later footnote mark's number re-derives after an earlier footnote unmounts", () => {
+  test("a later note mark's number re-derives after an earlier note unmounts", () => {
     const [show, setShow] = createSignal(true);
     const Doc = () => (
       <NotaDoc>
         <Show when={show()}>
-          <Footnote>{"first note"}</Footnote>
+          <Note>{"first note"}</Note>
         </Show>
-        <Footnote>{"second note"}</Footnote>
-        <Footnote>{"third note"}</Footnote>
+        <Note>{"second note"}</Note>
+        <Note>{"third note"}</Note>
       </NotaDoc>
     );
     if (!root) throw new Error("no root");
     dispose = render(() => <Doc />, root);
 
-    const supsBefore = Array.from(root.querySelectorAll("sup.nota-fnref"));
+    const supsBefore = Array.from(root.querySelectorAll("sup.nota-noteref"));
     expect(supsBefore.map(s => s.textContent)).toEqual(["1", "2", "3"]);
 
-    setShow(false); // unmount the first footnote mark
+    setShow(false); // unmount the first note mark
 
-    const supsAfter = Array.from(root.querySelectorAll("sup.nota-fnref"));
+    const supsAfter = Array.from(root.querySelectorAll("sup.nota-noteref"));
     expect(supsAfter.map(s => s.textContent)).toEqual(["1", "2"]);
     const hrefs = supsAfter.map(s =>
       s.querySelector("a")?.getAttribute("href")
     );
-    expect(hrefs).toEqual(["#fn-1", "#fn-2"]);
+    expect(hrefs).toEqual(["#note-1", "#note-2"]);
   });
 });
 

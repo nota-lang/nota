@@ -43,7 +43,7 @@ So the whole design collapses to:
 | trailer registry (`registerTrailer`) | store-registered trailers + `<TrailerOutlet>` in `NotaDoc` |
 | component registry (`slot`/`registerComponents`) | lexical `%import` + the integrator's `preludeModule` |
 | `inlineComponent`/`blockComponent` | deleted — plain Solid arrows; categorization is by *rendered root tag* |
-| vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onMount` delegation) |
+| vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onMount` delegation, Floating UI placement) |
 | `@nota-lang/react`, `@nota-lang/react-router` | removed from the workspace |
 | `@nota-lang/runtime` | deleted (the LSP preamble is self-contained ambient declarations) |
 
@@ -154,8 +154,9 @@ claim the transformed text. Quote *context* is judged over the flattened text of
 (Pollen's txexpr flatten: `do '` + `<em>not'</em>` curls both), with excluded regions —
 `code`/`pre`/`kbd`/`samp`/`script`/`style`/`textarea`/`math`/`svg` and anything carrying
 `data-nota-nosmart` — contributing one opaque word-ish placeholder. Two deliberate divergences
-from Pollen: dashes eat **horizontal whitespace only** (a `\s`-greedy rule would destroy the
-`"\n\n"` paragraph-break contract), and the pass is idempotent by construction (curly quotes,
+from Pollen: dashes are a pure character substitution that **touches no whitespace** (Pollen sets
+them tight; here spacing is the document's call, and it also keeps the `"\n\n"` paragraph-break
+contract intact by construction), and the pass is idempotent by construction (curly quotes,
 `—`, `–`, `…` are fixed points — re-running over hydrated text is a no-op). Default **on**;
 `renderDocument`/`hydrateDocument` thread a `smart` option (per-flag or `false`) through the
 doc-state store to every Reforest under it — server and client must agree, like `renderId`. Categorization is post-resolution — **a component is "inline" or
@@ -183,7 +184,7 @@ process:
 - **The store.** `createDocState()` — a per-document reactive store behind a context.
   Components *register* facts during render (two kinds since the unified-references branch —
   `anchor` and `ref`, [references.md](./references.md) — plus named `trailer` thunks) and *read*
-  derived facts through pure derivations (heading ids/numbers, first-use footnote and citation
+  derived facts through pure derivations (heading ids/numbers, first-use note and citation
   numbers, `refsTo` backlinks). Registrations ≙ the old marks; memos ≙ the old queries; the store ≙
   `DocIndex`. Unmount unregisters (`onCleanup`), so removals update derived views immediately.
   A remounted fact is a new registration and appends to document order; dynamic semantic
@@ -211,21 +212,21 @@ and assigns each occurrence an opaque sequential `location`; the snapshot array 
 order, and `DocState.index(location)` serves the few cross-kind before/after queries. Equivalent
 SSG and hydration renders must therefore evaluate semantic components in the same order, which
 the convergence check enforces. This keeps static Nota documents simple and deterministic. The
-explicit tradeoff is that removing and remounting a heading, figure, footnote, or ref appends a
+explicit tradeoff is that removing and remounting a heading, figure, note, or ref appends a
 new occurrence instead of recovering its former source or DOM position.
 
 `NotaDoc` adopts an outer store when one is provided (`useContext ?? createDocState()`), so the
 driver owns the store during SSG/hydration and a bare `<NotaDoc>` in tests/CSR is
-self-sufficient. Trailers: a prelude component that *needs* a document-end appendix (footnotes
+self-sufficient. Trailers: a prelude component that *needs* a document-end appendix (notes
 list, definition tooltip bank) registers a named trailer thunk idempotently on first use;
-`NotaDoc` renders a `<TrailerOutlet>` after the reforested children. Explicit `@Footnotes`
+`NotaDoc` renders a `<TrailerOutlet>` after the reforested children. Explicit `@Notes`
 placement sets a store flag the default trailer checks — same override semantics as the old
 registry, no registry.
 
 ## The prelude, Solid-native
 
 Every component becomes a plain Solid component over the store. The behavioral specs from
-decode.md §Doc-state carry over (slugs/dedup, footnote label semantics, backlinks, duplicate
+decode.md §Doc-state carry over (slugs/dedup, note label semantics, backlinks, duplicate
 errors); the **unified-references branch** then collapses the per-feature mechanisms into the
 anchor/ref registry — [references.md](./references.md) is the spec of record for this family:
 
@@ -236,17 +237,19 @@ anchor/ref registry — [references.md](./references.md) is the spec of record f
   uses for categorization.
 - **`Toc`** renders `<nav>` from the heading anchors (seed-corrected on the server).
 - **`Label`** is a strong `label` anchor; the one **`Ref`** dispatches on its resolved
-  anchor's kind (definition tooltip / nearest-heading label / direct heading / footnote mark /
+  anchor's kind (definition tooltip / nearest-heading label / direct heading / note mark /
   citation / the generic figure arm).
-- **Footnotes/Cite/Bibliography**: first-use numbering and only-render-what's-cited are the
-  registry's `refNumber`/`referenced` derivations; footnote ↩ and citation `citeref` backlinks
+- **Notes/Cite/Bibliography**: first-use numbering and only-render-what's-cited are the
+  registry's `refNumber`/`referenced` derivations; note ↩ and citation `citeref` backlinks
   come from the recorded uses.
-- **`Definition`/def-refs**: the anchor renders in place; references render **real anchors**
+- **`Def`/def-refs**: the anchor renders in place; references render **real anchors**
   (`<a href="#def-key" data-nota-def="key">`) — no-JS clicks jump to the definition (progressive
   enhancement the old scriptful design didn't have). The tooltip bank + delegated
   click/dblclick/Escape handling become a Solid trailer component whose handlers attach in
   `onMount` — the `DEF_TOOLTIP_SCRIPT` string, its `<style>`/`<script>` injection, and the
-  window-global guard are deleted. `texRef` is unchanged (a TeX-source wrapper).
+  window-global guard are deleted. Placement is **Floating UI** (`@floating-ui/dom`), not
+  hand-rolled rect math: `offset`/`inline`/`flip`/`shift`/`size` over an `autoUpdate` loop —
+  see `design/references.md`. `texRef` is unchanged (a TeX-source wrapper).
 - **`Tex`**: KaTeX→MathML sync as before; output lands via Solid's `innerHTML` (SSR-safe). Armed
   parts: scalars were stringified into the TeX source by the emit already; a vnode-armed part is
   detected via resolution and stays a fatal diagnostic.
@@ -341,8 +344,7 @@ The surviving system, by layer — with the judgment calls the sweep made explic
   irreducible under per-target JSX compilation.
 - **Known consciously-accepted approximations** (unchanged from the landing): a construct
   rendered inside a trailer thunk registers at the trailer's position; a mid-document
-  `@Footnotes` sees footnotes accumulated so far; Definition bodies are not tooltip fallbacks
-  (double-registration hazard).
+  `@Notes` sees notes accumulated so far.
 
 ## Follow-ups — status
 

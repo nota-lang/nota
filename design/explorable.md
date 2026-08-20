@@ -56,7 +56,7 @@ library code?
   page is empty where the diagrams go. Nota SSRs the diagram: the deterministic pre-settled
   force layout (stopped simulation, synchronous ticks, phyllotaxis init) bakes real content
   into the HTML, `--static` included, and the client claims it byte-for-byte.
-- **Document machinery coexists.** The footnote, headings, smart punctuation, and math run
+- **Document machinery coexists.** The note, headings, smart punctuation, and math run
   through the ordinary prelude *in the same document as* the interactivity — LP keeps these in
   pandoc, a separate system from its reactive layer.
 - **Types end to end.** The components are TS; the doc's `%`-code is typed for the LSP. LP's

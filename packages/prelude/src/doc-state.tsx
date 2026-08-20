@@ -22,7 +22,7 @@ import {
   Show,
   splitProps
 } from "solid-js";
-import { Dynamic } from "solid-js/web";
+import { Dynamic, isServer } from "solid-js/web";
 
 import { config } from "./config";
 import {
@@ -41,9 +41,9 @@ import {
 
 // Shared helpers
 
-/** Extract title text while omitting reference metadata such as footnote numbers. */
+/** Extract title text while omitting reference metadata such as note numbers. */
 function titleTextOf(parts: ResolvedChild[]): string {
-  const META_CLASS = /\bnota-(fnref|cite|secnum)\b/;
+  const META_CLASS = /\bnota-(noteref|cite|secnum)\b/;
   const metaClass = (part: ResolvedChild): boolean => {
     if (part === null || part === undefined || typeof part !== "object") {
       return false;
@@ -122,7 +122,7 @@ interface ReferenceModel {
   numbers: () => (string | undefined)[];
   resolved: () => Map<string, ResolvedAnchor>;
   ordinalMaps: () => Map<string, Map<Location, number>>;
-  footnoteNumbering: () => {
+  noteNumbering: () => {
     numOf: Map<string, number>;
     firstRefLocation: Map<string, Location>;
   };
@@ -169,11 +169,11 @@ function referenceModel(state: DocState): ReferenceModel {
       }
       return maps;
     });
-    const footnoteNumbering = createMemo(() => {
+    const noteNumbering = createMemo(() => {
       const res = resolved();
       const as = anchors();
       return useNumbers(refs(), key =>
-        targetsKind(key, ANCHOR_KINDS.footnote, res, as)
+        targetsKind(key, ANCHOR_KINDS.note, res, as)
       );
     });
     const bibNumbering = createMemo(() => {
@@ -194,7 +194,7 @@ function referenceModel(state: DocState): ReferenceModel {
       numbers,
       resolved,
       ordinalMaps,
-      footnoteNumbering,
+      noteNumbering,
       bibNumbering
     };
   });
@@ -380,35 +380,31 @@ function bibLabels(
   return new Map(ordered.map((key, i) => [key, i + 1]));
 }
 
-/** The footnote-use numbering model over the resolved facts (shared by marks and the list). */
-function footnoteModel(
-  state: DocState,
-  anchors: AnchorFact[],
-  refs: RefFact[]
-) {
+/** The note-use numbering model over the resolved facts (shared by marks and the list). */
+function noteModel(state: DocState, anchors: AnchorFact[], refs: RefFact[]) {
   const res = resolveAnchors(anchors, Object.keys(config(state).bibSrc));
   return useNumbers(refs, key =>
-    targetsKind(key, ANCHOR_KINDS.footnote, res, anchors)
+    targetsKind(key, ANCHOR_KINDS.note, res, anchors)
   );
 }
 
-/** The reference `<sup>` for the footnote use at `refLocation` targeting `targetKey`. Only the
- * target's *first* use carries the `fnref-N` backlink id. */
-function FootnoteSup(props: {
+/** The reference `<sup>` for the note use at `refLocation` targeting `targetKey`. Only the
+ * target's *first* use carries the `noteref-N` backlink id. */
+function NoteSup(props: {
   targetKey: string;
   refLocation: Location;
 }): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
-  const num = () => model.footnoteNumbering().numOf.get(props.targetKey);
+  const num = () => model.noteNumbering().numOf.get(props.targetKey);
   const first = () =>
-    model.footnoteNumbering().firstRefLocation.get(props.targetKey) ===
+    model.noteNumbering().firstRefLocation.get(props.targetKey) ===
     props.refLocation;
   return (
-    <sup class="nota-fnref">
+    <sup class="nota-noteref">
       <a
-        id={num() !== undefined && first() ? `fnref-${num()}` : undefined}
-        href={`#fn-${num() ?? ""}`}
+        id={num() !== undefined && first() ? `noteref-${num()}` : undefined}
+        href={`#note-${num() ?? ""}`}
       >
         {num() !== undefined ? String(num()) : PENDING}
       </a>
@@ -475,7 +471,7 @@ export function Ref(
     if (t === undefined) {
       if (state.seeded) {
         throw new Error(
-          `@Ref: no anchor for id "${key}" (no @Label, @Definition, @Footnote, heading id, or bibliography entry)`
+          `@Ref: no anchor for id "${key}" (no @Label, @Def, @Note, heading id, or bibliography entry)`
         );
       }
       return null;
@@ -483,131 +479,138 @@ export function Ref(
     return t;
   };
 
-  return (
-    <>
-      {() => {
-        const t = target();
-        if (t === null) {
+  const content = () => {
+    const t = target();
+    if (t === null) {
+      return <PendingRef>{body()}</PendingRef>;
+    }
+    switch (t.fact.kind) {
+      case ANCHOR_KINDS.def: {
+        const live = (state.live(FACT_KINDS.anchor) as AnchorFact[]).find(
+          anchor => anchor.location === t.fact.location
+        );
+        return (
+          <a
+            href={`#def-${t.id}`}
+            class="nota-ref nota-def-ref"
+            data-nota-def={t.id}
+          >
+            {body() ?? live?.label?.() ?? t.id}
+          </a>
+        );
+      }
+      case ANCHOR_KINDS.label: {
+        const h = precedingHeading(state, model, t.fact.location);
+        if (h === null) {
+          if (state.seeded) {
+            throw new Error(
+              `@Ref: no heading precedes @Label "${key}" (a ref binds to the nearest preceding heading)`
+            );
+          }
           return <PendingRef>{body()}</PendingRef>;
         }
-        switch (t.fact.kind) {
-          case ANCHOR_KINDS.definition:
-            return (
-              <a
-                href={`#def-${t.id}`}
-                class="nota-ref nota-def-ref"
-                data-nota-def={t.id}
-              >
-                {body() ?? t.fact.labelText ?? t.id}
-              </a>
-            );
-          case ANCHOR_KINDS.label: {
-            const h = precedingHeading(state, model, t.fact.location);
-            if (h === null) {
-              if (state.seeded) {
-                throw new Error(
-                  `@Ref: no heading precedes @Label "${key}" (a ref binds to the nearest preceding heading)`
-                );
-              }
-              return <PendingRef>{body()}</PendingRef>;
-            }
-            return (
-              <a href={`#${h[0]}`} class="nota-ref">
-                {body() ?? h[1]}
-              </a>
-            );
-          }
-          case ANCHOR_KINDS.heading: {
-            const i = model.headingIndex().get(t.fact.location) ?? -1;
-            const num = model.numbers()[i];
-            return (
-              <a href={`#${t.id}`} class="nota-ref">
-                {body() ?? (num !== undefined ? num : (t.fact.title ?? ""))}
-              </a>
-            );
-          }
-          case ANCHOR_KINDS.footnote:
-            return <FootnoteSup targetKey={key} refLocation={myLocation} />;
-          case ANCHOR_KINDS.bib:
-            return (
-              <BibRefLink key_={key} refLocation={myLocation} page={page}>
-                {body()}
-              </BibRefLink>
-            );
-          default: {
-            const n = model
-              .ordinalMaps()
-              .get(t.fact.kind)
-              ?.get(t.fact.location);
-            const tooltip = t.fact.tooltip === true;
-            return (
-              <a
-                href={t.fact.href ?? `#${t.id}`}
-                class={tooltip ? "nota-ref nota-def-ref" : "nota-ref"}
-                data-nota-def={tooltip ? t.id : undefined}
-              >
-                {body() ??
-                  `${t.fact.refPrefix ?? ""}${n !== undefined ? n : PENDING}`}
-              </a>
-            );
-          }
-        }
-      }}
-    </>
+        return (
+          <a href={`#${h[0]}`} class="nota-ref">
+            {body() ?? h[1]}
+          </a>
+        );
+      }
+      case ANCHOR_KINDS.heading: {
+        const i = model.headingIndex().get(t.fact.location) ?? -1;
+        const num = model.numbers()[i];
+        return (
+          <a href={`#${t.id}`} class="nota-ref">
+            {body() ?? (num !== undefined ? num : (t.fact.title ?? ""))}
+          </a>
+        );
+      }
+      case ANCHOR_KINDS.note:
+        return <NoteSup targetKey={key} refLocation={myLocation} />;
+      case ANCHOR_KINDS.bib:
+        return (
+          <BibRefLink key_={key} refLocation={myLocation} page={page}>
+            {body()}
+          </BibRefLink>
+        );
+      default: {
+        const n = model.ordinalMaps().get(t.fact.kind)?.get(t.fact.location);
+        const tooltip = t.fact.tooltip === true;
+        return (
+          <a
+            href={t.fact.href ?? `#${t.id}`}
+            class={tooltip ? "nota-ref nota-def-ref" : "nota-ref"}
+            data-nota-def={tooltip ? t.id : undefined}
+          >
+            {body() ??
+              `${t.fact.refPrefix ?? ""}${n !== undefined ? n : PENDING}`}
+          </a>
+        );
+      }
+    }
+  };
+
+  // In pure CSR, resolving a forward target can replace the reference's root node after
+  // Reforest has moved it into a paragraph. Keep Solid's reconciliation point inside a stable
+  // inline parent. Seeded SSG/hydration never changes branches and retains the lean markup.
+  return state.seeded || isServer ? (
+    // biome-ignore lint/complexity/noUselessFragments: the fragment makes the accessor a Solid child
+    <>{content}</>
+  ) : (
+    <span class="nota-ref-slot">{content()}</span>
   );
 }
 
-// Footnotes
+// Notes
 
-/** Register the auto-append trailer (idempotent): the footnote list at document end unless an
- * explicit `@Footnotes` placement set the flag. */
-function ensureFootnotesTrailer(state: DocState): void {
-  state.trailer("footnotes", () => (
-    <Show when={!state.hasFlag("footnotes-placed")}>
-      <FootnotesList />
+/** Register the auto-append trailer (idempotent): the note list at document end unless an
+ * explicit `@Notes` placement set the flag. */
+function ensureNotesTrailer(state: DocState): void {
+  state.trailer("notes", () => (
+    <Show when={!state.hasFlag("notes-placed")}>
+      <NotesList />
     </Show>
   ));
 }
 
-/** Register a labeled footnote definition or render an anonymous inline footnote. */
-export function Footnote(props: ParentProps & { id?: string }): JSX.Element {
+/** Register a labeled note definition or render an anonymous inline note. */
+export function Note(props: ParentProps & { id?: string }): JSX.Element {
   const state = useDocState();
-  ensureFootnotesTrailer(state);
+  ensureNotesTrailer(state);
   const id = typeof props.id === "string" ? props.id.trim() : "";
   if (id !== "") {
     state.register(FACT_KINDS.anchor, {
-      kind: ANCHOR_KINDS.footnote,
+      kind: ANCHOR_KINDS.note,
       id,
       content: () => props.children
     });
     return null;
   }
   const anchor = state.register(FACT_KINDS.anchor, {
-    kind: ANCHOR_KINDS.footnote,
+    kind: ANCHOR_KINDS.note,
     content: () => props.children
   });
   const use = state.register(FACT_KINDS.ref, {
     targetLocation: anchor.fact.location
   });
   return (
-    <FootnoteSup
+    <NoteSup
       targetKey={`#${anchor.fact.location}`}
       refLocation={use.fact.location}
     />
   );
 }
 
-/** Render the footnotes referenced so far from live facts. */
-export function FootnotesList(): JSX.Element {
+/** Render the notes referenced so far from live facts. */
+export function NotesList(): JSX.Element {
   const state = useDocState();
   const entries = createMemo(() => {
     const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
     const refs = state.live(FACT_KINDS.ref) as RefFact[];
-    const { numOf } = footnoteModel(state, anchors, refs);
+    const { numOf } = noteModel(state, anchors, refs);
     const contentOf = (key: string): (() => JSX.Element) => {
       const a = key.startsWith("#")
         ? anchors.find(x => x.location === key.slice(1))
-        : anchors.find(x => x.kind === ANCHOR_KINDS.footnote && x.id === key);
+        : anchors.find(x => x.kind === ANCHOR_KINDS.note && x.id === key);
       return a?.content ?? (() => PENDING);
     };
     return [...numOf.entries()]
@@ -616,14 +619,14 @@ export function FootnotesList(): JSX.Element {
   });
   return (
     <Show when={entries().length > 0}>
-      <section class="nota-footnotes">
+      <section class="nota-notes">
         <ol>
           {entries().map(e => (
-            <li id={`fn-${e.num}`}>
-              <div class="nota-fn-content">
+            <li id={`note-${e.num}`}>
+              <div class="nota-note-content">
                 <Reforest>
                   {e.content()}{" "}
-                  <a href={`#fnref-${e.num}`} class="nota-fnbacklink">
+                  <a href={`#noteref-${e.num}`} class="nota-notebacklink">
                     ↩
                   </a>
                 </Reforest>
@@ -636,11 +639,11 @@ export function FootnotesList(): JSX.Element {
   );
 }
 
-/** Place footnotes explicitly and suppress the automatic trailer. */
-export function Footnotes(): JSX.Element {
+/** Place notes explicitly and suppress the automatic trailer. */
+export function Notes(): JSX.Element {
   const state = useDocState();
-  state.flag("footnotes-placed");
-  return <FootnotesList />;
+  state.flag("notes-placed");
+  return <NotesList />;
 }
 
 // Citations

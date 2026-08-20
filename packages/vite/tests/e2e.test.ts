@@ -76,18 +76,18 @@ describe("nota() → renderDocument, end to end", () => {
     expect(html).toMatch(/<code class="nota-code-inline"[^>]*>f\(x\)/);
   });
 
-  test("the definition anchors, its ref, the footnote, and the trailers land", () => {
+  test("the definition anchors, its ref, the note, and the trailers land", () => {
     expect(html).toMatch(
-      /<span id="def-nota" class="nota-definition"[^>]*>Nota<\/span>/
+      /<span id="def-nota" class="nota-def"[^>]*>Nota<\/span>/
     );
     expect(html).toMatch(
       /<a href="#def-nota"[^>]*data-nota-def="nota"[^>]*>Nota<\/a>/
     );
     expect(html).toMatch(
-      /<sup class="nota-fnref"><a id="fnref-1" href="#fn-1"/
+      /<sup class="nota-noteref"><a id="noteref-1" href="#note-1"/
     );
-    // Trailers at document end: footnote list, then the def tooltip bank.
-    expect(html).toMatch(/<section class="nota-footnotes">/);
+    // Trailers at document end: note list, then the def tooltip bank.
+    expect(html).toMatch(/<section class="nota-notes">/);
     expect(html).toContain("Documents are programs.");
     expect(html).toMatch(/<div class="nota-def-tooltips" aria-hidden="true">/);
   });
@@ -105,7 +105,7 @@ describe("nota() → renderDocument, end to end", () => {
     expect(anchors.filter(a => a.kind === "heading").map(a => a.title)).toEqual(
       ["Introduction", "Usage"]
     );
-    expect(anchors.find(a => a.kind === "definition")?.id).toBe("nota");
+    expect(anchors.find(a => a.kind === "def")?.id).toBe("nota");
     expect(snapshot.filter(entry => entry.kind === "ref")).not.toHaveLength(0);
   });
 });

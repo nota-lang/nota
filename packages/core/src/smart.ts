@@ -1,6 +1,7 @@
 /**
- * Pollen-compatible smart punctuation over resolved Solid children. Server and client walkers
- * share quote context and skip code, math, SVG, and `data-nota-nosmart` subtrees.
+ * Smart punctuation over resolved Solid children, following Pollen's rules except that dashes
+ * leave surrounding whitespace alone. Server and client walkers share quote context and skip
+ * code, math, SVG, and `data-nota-nosmart` subtrees.
  */
 
 import { htmlTokens } from "./html";
@@ -10,7 +11,7 @@ import { isSSRChunk, type ResolvedChild, type SSRChunk } from "./reforest";
 export interface SmartOptions {
   /** Curly double/single quotes + apostrophes (Pollen's seven ordered rules). */
   quotes?: boolean;
-  /** `---` → `—` (em), `--` → `–` (en); horizontal whitespace around them is eaten. */
+  /** `---` → `—` (em), `--` → `–` (en); surrounding whitespace is preserved. */
   dashes?: boolean;
   /** `...` → `…`. */
   ellipses?: boolean;
@@ -62,8 +63,8 @@ type Segment =
 
 const OPAQUE: Segment = { kind: "opaque" };
 
-// Pollen's string rules, except dashes consume horizontal whitespace only. Newlines delimit
-// paragraphs in Reforest and must survive this pass.
+// Pollen's string rules, except that dashes are a pure character substitution: they touch no
+// whitespace at all, so the `"\n\n"` paragraph breaks Reforest depends on always survive.
 
 /** Pollen's sentence-ender exceptions: a quote before one of these closes even at a word gap. */
 const ENDERS = ",.:;?!\\])}";
@@ -88,12 +89,14 @@ export function smartQuotesString(text: string): string {
   return out;
 }
 
-/** Horizontal whitespace (space/tab/nbsp — never `\n`, the paragraph-break contract). */
-const H = "[ \\t\\u00A0]";
-const EM_DASH = new RegExp(`${H}*(?:---|—)${H}*`, "g");
-const EN_DASH = new RegExp(`${H}*(?:--|–)${H}*`, "g");
+const EM_DASH = /---/g;
+const EN_DASH = /--/g;
 
-/** `---`→em then `--`→en (em first, else it would read as en+`-`), eating surrounding space. */
+/**
+ * `---`→em then `--`→en (em first, else it would read as en+`-`). Whitespace around the dash is
+ * left exactly as authored: `a --- b` → `a — b`, `a---b` → `a—b`. Spacing is the document's
+ * call, not the pass's.
+ */
 export function smartDashesString(text: string): string {
   return text.replace(EM_DASH, "—").replace(EN_DASH, "–");
 }

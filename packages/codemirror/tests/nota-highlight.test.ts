@@ -108,13 +108,13 @@ describe("reader-driven highlighting of integration/mega.nota", () => {
     const spans = highlightSpans(MEGA);
     // The sugars reuse existing kinds (no new wire discriminants): the delimiter bytes paint
     // `sigil`, the label ident paints `interpolation` (the `@name` kind — a name-like
-    // reference). (`[^`/`]:` retired with the footnote digraphs — design/references.md.)
+    // reference). (`[^`/`]:` retired with the note digraphs — design/references.md.)
     expect(excerpts(spans, MEGA, "sigil")).toEqual(
       expect.arrayContaining(["<", ">", "&"])
     );
     // `sec-kebab` pins the restored kebab charset (Typst-minus-period): the `-` is a label
     // continue char, so `<sec-kebab>` / `&sec-kebab` classify as one ident, not `sec` + `-kebab`.
-    // The `n1`/`n2`/`n3` footnote uses are now `&`-refs (post-punctuation glue).
+    // The `n1`/`n2`/`n3` note uses are now `&`-refs (post-punctuation glue).
     expect(excerpts(spans, MEGA, "interpolation")).toEqual(
       expect.arrayContaining(["sec_flow", "sec-kebab", "n1", "n2", "n3"])
     );

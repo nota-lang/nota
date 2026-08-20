@@ -3,6 +3,7 @@
  * `.nota`. SolidStart does not discover `.nota` files through its filesystem router.
  */
 
+import { solidStart } from "@solidjs/start/config";
 import type { PluginOption } from "vite";
 import { type NotaPluginOptions, nota } from "./lib.js";
 
@@ -25,12 +26,7 @@ export interface NotaStartOptions {
 }
 
 /** Return the SolidStart plugin array with Nota support enabled. */
-export async function notaStart(
-  options: NotaStartOptions = {}
-): Promise<PluginOption[]> {
-  const { solidStart } = (await import("@solidjs/start/config")) as {
-    solidStart: (opts?: Record<string, unknown>) => PluginOption[];
-  };
+export function notaStart(options: NotaStartOptions = {}): PluginOption[] {
   const startOptions = options.start ?? {};
   const extensions = [...(startOptions.extensions ?? [])];
   if (!extensions.includes(NOTA_EXTENSION)) {

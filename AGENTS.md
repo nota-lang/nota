@@ -4,7 +4,7 @@ Nota is a document language: `@`-syntax markup (after Pollen/Scribble) whose Rus
 compiles `.nota` files **directly to Solid JSX** — a document is a Solid component. Grouping
 (paragraphs/lists/sections) happens at runtime in core's `<Reforest>` pass over the rendered
 tree; cross-references resolve through the **unified anchor/ref registry** (one doc-state store;
-headings/labels/figures/footnotes/cites are anchors and uses are refs). Facts have opaque, stable
+headings/labels/figures/notes/cites are anchors and uses are refs). Facts have opaque, stable
 locations assigned in registration order; their snapshot order is separate from identity. SSG
 runs a **two-pass render** so forward references converge in the static bytes; interactive pages
 hydrate through ordinary Solid hydration. The pre-Solid
@@ -15,8 +15,8 @@ architecture (hyperscript `h`/`decode`, islands/replay, the react packages) is d
 Most tasks need only this file + the package map. For architecture/emit work:
 - **`design/solid.md`** — the current architecture spec (reforest tiers, doc-state, two-pass
   drivers, hydration, the Astro integration).
-- **`design/references.md`** — the unified anchor/ref model (`&id` across kinds, footnote defs
-  via `@Footnote[id]`, resolution-error policy).
+- **`design/references.md`** — the unified anchor/ref model (`&id` across kinds, note defs
+  via `@Note[id]`, resolution-error policy).
 - **`design/notation.md`** — surface syntax; its banner scopes the archived emit forms.
 - Reader internals live with the code: **`oxc/NOTA_READER.md`**.
 
@@ -33,9 +33,9 @@ Most tasks need only this file + the package map. For architecture/emit work:
     app in the host's shell — to emit and convergence-check. None of it imports SolidStart.
   - **prelude** — the ambient stdlib: `Tex` (KaTeX→MathML), `CodeInline`/`CodeBlock` (sync
     shiki, armed parts→decorations), the reference family (`Heading`/`Toc`/`Ref`/`Label`,
-    footnotes as anchors+refs, `Cite`/`Bibliography`, `Figure`/`Subfigure`/`Caption` as
+    notes as anchors+refs, `Cite`/`Bibliography`, `Figure`/`Subfigure`/`Caption` as
     figure-kind anchors with derived ordinals, `Smallcaps`), the definition-tooltip system
-    (per-doc banks, zero framework JS), and session-owned
+    (per-doc banks; Floating UI places the open tooltip), and session-owned
     `lstset`/`mathset`/`secset`/`bibset` config.
   - **compiler** — sync shim over the in-process wasm reader, which **lives in this package**:
     `build.mjs` copies `oxc/target/js` → `src/generated/` (gitignored) and re-exports it raw as
@@ -52,6 +52,17 @@ Most tasks need only this file + the package map. For architecture/emit work:
     `SOLID_JSX_DIST_PACKAGES`). A new package that ships Solid-compiled JSX in its dist (like
     the retired paper/explorable) MUST join `SOLID_JSX_DIST_PACKAGES` — currently empty — or a
     host's derived `noExternal`/`optimizeDeps` lists silently miss it.
+    It owns the **host's** singletons too (`dedupedPackages()`): every `@codemirror/*`,
+    `@lezer/*` and `style-mod` found in the host's own `node_modules`, discovered per project
+    rather than listed, since deduping a name the root cannot resolve turns a working import
+    into an unresolved one (Vite sets the basedir to the root and does not fall back). The
+    scopes are taken whole — a `Language`, a parser and a `Tag` are all compared by reference,
+    so there is no line to draw inside them. What dedupe cannot reach — a singleton nothing
+    depends on *directly*, dragged in twice by two `lang-*` from different stores —
+    `duplicateSingletons()` reports as a `buildEnd` warning naming both paths; the fix is for
+    the host to make it a direct dependency. `@nota-lang/codemirror` peers the four it imports
+    (`@codemirror/state|view|language`, `@lezer/highlight`) so the app owns that copy; a
+    `link:`ed checkout still resolves from its own store, which is what the dedupe is for.
   - **cli** — `nota build doc.nota → doc/`: two programmatic vite builds (SSR render, then
     client) with NODE_ENV pinned; pins `FRAMEWORK_PACKAGES` resolution so a doc builds anywhere;
     links CSS in hydrating builds; zero-JS output for island-free docs.

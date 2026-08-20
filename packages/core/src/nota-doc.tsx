@@ -4,7 +4,7 @@ import { type JSX, type ParentProps, useContext } from "solid-js";
 import { createDocState, DocStateContext, useDocState } from "./doc-state";
 import { Reforest } from "./reforest";
 
-/** Renders the registered trailer thunks (footnote list, definition bank) at document end. */
+/** Renders the registered trailer thunks (note list, definition bank) at document end. */
 function TrailerOutlet(): JSX.Element {
   const state = useDocState();
   return <>{state.trailers().map(thunk => thunk())}</>;

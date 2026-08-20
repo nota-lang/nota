@@ -385,11 +385,11 @@ has no paragraph former and renders inert — use the element's native props the
 
 ### Doc-state references
 Two inline sugars for the **unified reference registry** ([references.md](./references.md) —
-sections, definitions, citations, footnotes, and figures are all anchors referenced the same
+sections, definitions, citations, notes, and figures are all anchors referenced the same
 way), each a **rewrite to the element form** — so they inherit the element machinery (line
 clamp, positional rules, bounded-frame clipping) instead of new extent rules: `<id>` declares a
 `@Label` anchor and `&id` is `@Ref`, the one reference (what it renders — a section number, a
-footnote mark, a citation `[N]`, a definition tooltip, "Figure N" — is the *anchor's* kind, not
+note mark, a citation `[N]`, a definition tooltip, "Figure N" — is the *anchor's* kind, not
 the sugar's). The label charset is **Typst minus period** — start `[A-Za-z0-9_]`, continue
 `[A-Za-z0-9_:-]`, ASCII-only. Digits may start a label; kebab labels work (`<sec-intro>`,
 `&sec-intro`); the colon is a continue char (`<sec:intro>`); the period is **not** in the set,
@@ -397,7 +397,7 @@ so `&sec.` reads the id as `sec` and leaves the `.` literal, and `$`/Unicode are
 chars. `<` and `&` carry a **left-boundary guard** — they fire at the start of a body/line, or
 after whitespace, opening punctuation (`(` `[` `{` quote), or **closing/terminal punctuation**
 (`.` `,` `;` `:` `!` `?` `)` `]` `}`) — so `Vec<T>`, `R&D`, `a<b`, `a&b` stay literal prose
-(ident-adjacency blocks), a footnote use glues after its sentence (`As shown.&note`), and the
+(ident-adjacency blocks), a note use glues after its sentence (`As shown.&note`), and the
 start restriction keeps arrow-like prose literal (`<->`, `<-x>`). `<ident>` must close with `>`
 on its opening line (the line clamp); `&ident` ends at the first non-ident char; a non-matching
 open (`< b`, `<.x>`, `&,`) is literal text.
@@ -419,10 +419,10 @@ As shown.&note1          → "As shown." + @Ref[id: "note1"]{}  // guard fires a
 &sec-intro{that section} → @Ref[id: "sec-intro"]{that section} // glued body: authored text
 &sec.  Vec<T>  <->  &sec[1] → literal tails                   // period / guard / start / non-props [
 ```
-There is **no footnote sugar**: a footnote *use* is `&id` (numbered by first-use order;
-repeats share one number and one list entry), and a footnote *definition* is the ordinary
-element + colon form — `@Footnote[id: "n1"]: body…` — or the id-less inline one-shot
-`@Footnote{body}`. The list auto-appends at document end unless `@Footnotes` places it
+There is **no note sugar**: a note *use* is `&id` (numbered by first-use order;
+repeats share one number and one list entry), and a note *definition* is the ordinary
+element + colon form — `@Note[id: "n1"]: body…` — or the id-less inline one-shot
+`@Note{body}`. The list auto-appends at document end unless `@Notes` places it
 (references.md §The components). The `[^…]` digraphs of earlier drafts are retired: `[^n]` is
 plain prose. The escapes `\<`, `\&` yield the literal characters via the standard escape
 machinery.
@@ -563,7 +563,7 @@ form of exactly these calls.
 | `<sec-intro>` | `h(Label, { id: "sec-intro" }, [])` (boundary-guarded — `Vec<T>`, `<->` stay text) |
 | `&sec-intro` | `h(Ref, { id: "sec-intro" }, [])` (boundary-guarded — `R&D` stays text; fires after closing punct too) |
 | `&k[page: "33"]{Smith}` | `h(Ref, { id: "k", page: "33" }, ["Smith"])` (glued postfix groups — references.md §Syntax) |
-| `@Footnote[id: "n1"]: body` | `h(Footnote, { id: "n1" }, ["body"])` (an ordinary element — nothing reader-privileged) |
+| `@Note[id: "n1"]: body` | `h(Note, { id: "n1" }, ["body"])` (an ordinary element — nothing reader-privileged) |
 | `@aside[class: "x"]: body` | `h("aside", { class: "x" }, ["body"])` (props compose with a colon body) |
 | `@code\|{@foo{x}}\|` | `h("code", {}, [String.raw`@foo{x}`])` |
 | `` `@x` `` | `h(CodeInline, {}, [String.raw`@x`])` |

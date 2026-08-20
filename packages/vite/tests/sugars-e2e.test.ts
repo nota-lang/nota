@@ -1,8 +1,8 @@
 /**
  * Doc-state **sugars** e2e (`tests/fixtures/sugars.nota`): the same full pipeline as
  * ./e2e.test.ts, but the fixture uses the inline sugar forms — `<label>` anchors and `&ref`
- * references (including post-punctuation footnote uses, `shown.&a`) — with footnote
- * definitions in their canonical `@Footnote[id]: …` element form (design/references.md; the
+ * references (including post-punctuation note uses, `shown.&a`) — with note
+ * definitions in their canonical `@Note[id]: …` element form (design/references.md; the
  * `[^…]` digraphs are retired). The sugars are reader rewrites *to* the element forms, so the
  * rendered numbering/links must be indistinguishable from what the element-form e2e pins.
  */
@@ -54,26 +54,24 @@ describe("doc-state sugars render the element forms' numbering", () => {
     expect(html).not.toContain("sec-intro<");
   });
 
-  test("&id footnote uses number in order and share entries; @Footnote[id] bodies form the list", () => {
+  test("&id note uses number in order and share entries; @Note[id] bodies form the list", () => {
     // The first `&a` carries the backlink id; the repeat shares number 1 without one.
     expect(html).toContain(
-      '<sup class="nota-fnref"><a id="fnref-1" href="#fn-1">1</a></sup>'
+      '<sup class="nota-noteref"><a id="noteref-1" href="#note-1">1</a></sup>'
     );
     expect(html).toContain(
-      '<sup class="nota-fnref"><a href="#fn-1">1</a></sup>'
+      '<sup class="nota-noteref"><a href="#note-1">1</a></sup>'
     );
     expect(html).toContain(
-      '<sup class="nota-fnref"><a id="fnref-2" href="#fn-2">2</a></sup>'
+      '<sup class="nota-noteref"><a id="noteref-2" href="#note-2">2</a></sup>'
     );
-    const fns = /<section class="nota-footnotes">([\s\S]*?)<\/section>/.exec(
-      html
-    );
+    const fns = /<section class="nota-notes">([\s\S]*?)<\/section>/.exec(html);
     expect(fns).toBeTruthy();
-    expect(fns?.[1]).toContain('<li id="fn-1">');
+    expect(fns?.[1]).toContain('<li id="note-1">');
     expect(fns?.[1]).toContain("The shared note body.");
     expect(fns?.[1]).toContain("The second note body.");
     // Two entries — the shared mark did not duplicate its body.
-    expect(fns?.[1]?.match(/<li id="fn-/g)).toHaveLength(2);
+    expect(fns?.[1]?.match(/<li id="note-/g)).toHaveLength(2);
   });
 
   test("the snapshot carries the sugar-registered facts (anchor/ref wire format)", () => {
@@ -89,8 +87,8 @@ describe("doc-state sugars render the element forms' numbering", () => {
       "sec-intro",
       "sec-usage"
     ]);
-    // `&a`/`&a`/`&b` uses are refs; the `@Footnote[id]` definitions are footnote anchors.
-    expect(anchors.filter(a => a.kind === "footnote").map(a => a.id)).toEqual([
+    // `&a`/`&a`/`&b` uses are refs; the `@Note[id]` definitions are note anchors.
+    expect(anchors.filter(a => a.kind === "note").map(a => a.id)).toEqual([
       "a",
       "b"
     ]);

@@ -26,8 +26,8 @@ export {
 } from "./config";
 export {
   DEF_TOOLTIP_STYLE,
+  Def,
   DefBank,
-  Definition,
   installDefTooltipHandlers,
   resetDefTooltipHandlersForTest,
   texRef
@@ -35,11 +35,11 @@ export {
 export {
   Bibliography,
   Cite,
-  Footnote,
-  Footnotes,
-  FootnotesList,
   Heading,
   Label,
+  Note,
+  Notes,
+  NotesList,
   Ref,
   Title,
   Toc

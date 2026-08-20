@@ -265,9 +265,16 @@ describe("smart punctuation (the string rules + the DOM walk)", () => {
   test("Pollen's own test vectors", async () => {
     const { smartDashesString, smartQuotesString, smartEllipsesString } =
       await import("../src/smart");
+    // Pollen sets dashes tight; Nota does not touch the author's spacing (see smart.ts).
     expect(smartDashesString("I had --- maybe 13 -- 20 --- hob-nobs.")).toBe(
-      "I had—maybe 13–20—hob-nobs."
+      "I had — maybe 13 – 20 — hob-nobs."
     );
+    expect(smartDashesString("tight---em and tight--en")).toBe(
+      "tight—em and tight–en"
+    );
+    // An already-smart dash is a fixed point, spacing included (idempotence).
+    expect(smartDashesString("a — b")).toBe("a — b");
+    expect(smartDashesString("a – b")).toBe("a – b");
     const tricky =
       '"Why," she could\'ve asked, "are we in O‘ahu watching \'Mame\'?"';
     expect(smartQuotesString(tricky)).toBe(
@@ -281,8 +288,8 @@ describe("smart punctuation (the string rules + the DOM walk)", () => {
     );
     expect(smartQuotesString('("No.")')).toBe("(“No.”)");
     expect(smartEllipsesString("so...")).toBe("so…");
-    // The Nota divergence: dashes never eat a newline (the paragraph-break contract).
-    expect(smartDashesString("a --\n\nb")).toBe("a–\n\nb");
+    // The Nota divergence: dashes touch no whitespace, so the paragraph break survives.
+    expect(smartDashesString("a --\n\nb")).toBe("a –\n\nb");
   });
 
   test("the DOM walk transforms text nodes, skips exclusions, and is idempotent", async () => {

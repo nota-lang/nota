@@ -117,12 +117,16 @@ importers:
       '@codemirror/lang-markdown':
         specifier: ^6.5.0
         version: 6.5.0
-      '@codemirror/language':
-        specifier: ^6.10.3
-        version: 6.12.3
       '@codemirror/legacy-modes':
         specifier: ^6.5.3
         version: 6.5.3
+      '@nota-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+    devDependencies:
+      '@codemirror/language':
+        specifier: ^6.10.3
+        version: 6.12.3
       '@codemirror/state':
         specifier: ^6.4.1
         version: 6.7.1
@@ -132,9 +136,6 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.3
         version: 1.2.3
-      '@nota-lang/compiler':
-        specifier: workspace:*
-        version: link:../compiler
 
   packages/compiler:
     devDependencies:
@@ -269,6 +270,9 @@ importers:
 
   packages/prelude:
     dependencies:
+      '@floating-ui/dom':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@nota-lang/core':
         specifier: workspace:*
         version: link:../core
@@ -752,6 +756,15 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@floating-ui/core@1.8.0':
+    resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
+
+  '@floating-ui/dom@1.8.0':
+    resolution: {integrity: sha512-yXSrzeHZBTZadLOlfyhCkJHNeLJnHRnRInwdZ40L7ZiaAtrBwoYlsDrX3v5zB1Utk7CLfzcOVnVVWoXEky7Ceg==}
+
+  '@floating-ui/utils@0.2.12':
+    resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
@@ -2578,6 +2591,17 @@ snapshots:
     optional: true
 
   '@exodus/bytes@1.15.1': {}
+
+  '@floating-ui/core@1.8.0':
+    dependencies:
+      '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/dom@1.8.0':
+    dependencies:
+      '@floating-ui/core': 1.8.0
+      '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/utils@0.2.12': {}
 
   '@gerrit0/mini-shiki@3.23.0':
     dependencies:

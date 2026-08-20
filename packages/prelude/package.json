@@ -21,6 +21,7 @@
     "depot-version": "0.3.4"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.8.0",
     "@nota-lang/core": "workspace:*",
     "katex": "^0.16.22",
     "shiki": "^3.9.2"

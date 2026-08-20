@@ -192,9 +192,9 @@ describe("doc-state store", () => {
 
   test("snapshot drops function-valued fields", () => {
     const s = createDocState();
-    s.register("definition", { key: "k", tooltip: () => "jsx" });
+    s.register("def", { key: "k", tooltip: () => "jsx" });
     expect(s.snapshot()).toEqual([
-      { kind: "definition", fact: { key: "k", location: "m:1" } }
+      { kind: "def", fact: { key: "k", location: "m:1" } }
     ]);
   });
 
@@ -322,14 +322,14 @@ describe("renderDocument (two-pass SSG)", () => {
   test("flags are positional (set before read in tree order)", () => {
     const Place = () => {
       const state = useDocState();
-      state.flag("footnotes-placed");
+      state.flag("notes-placed");
       return null;
     };
     const Trailer = () => {
       const state = useDocState();
-      state.trailer("footnotes", () => (
-        <Show when={!state.hasFlag("footnotes-placed")}>
-          <div class="footnotes">list</div>
+      state.trailer("notes", () => (
+        <Show when={!state.hasFlag("notes-placed")}>
+          <div class="notes">list</div>
         </Show>
       ));
       return null;
@@ -345,8 +345,8 @@ describe("renderDocument (two-pass SSG)", () => {
         <Trailer />
       </NotaDoc>
     );
-    expect(renderDocument(Placed).html).not.toContain("footnotes");
-    expect(renderDocument(Unplaced).html).toContain("footnotes");
+    expect(renderDocument(Placed).html).not.toContain("notes");
+    expect(renderDocument(Unplaced).html).toContain("notes");
   });
 
   test("multiple trailers render after the body in registration order; re-registration is a no-op", () => {
@@ -515,7 +515,7 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
         <code>{'"raw" -- ...'}</code>
       </Reforest>
     ));
-    expect(html).toContain("He said “yes”–it’s 5…");
+    expect(html).toContain("He said “yes” – it’s 5…");
     // Solid's SSR leaves `"` unescaped in text content — the code interior stays raw.
     expect(html).toContain('"raw" -- ...');
   });
@@ -550,7 +550,7 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
   test("renderDocument threads the smart setting through both passes", () => {
     const Doc2 = () => <NotaDoc>{'"quoted" -- dashed'}</NotaDoc>;
     const on = renderDocument(Doc2);
-    expect(on.html).toContain("“quoted”–dashed");
+    expect(on.html).toContain("“quoted” – dashed");
     const off = renderDocument(Doc2, { smart: false });
     expect(off.html).toContain('"quoted" -- dashed');
   });
@@ -560,15 +560,15 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
     const noQuotes = renderToString(() => (
       <Reforest smart={{ quotes: false }}>{prose}</Reforest>
     ));
-    expect(noQuotes).toContain('"x"–y…'); // quotes raw; dashes + ellipses still transform
+    expect(noQuotes).toContain('"x" – y…'); // quotes raw; dashes + ellipses still transform
     const noDashes = renderToString(() => (
       <Reforest smart={{ dashes: false }}>{prose}</Reforest>
     ));
-    expect(noDashes).toContain("“x” -- y…"); // dashes (and their whitespace) raw
+    expect(noDashes).toContain("“x” -- y…"); // dashes raw
     const noEllipses = renderToString(() => (
       <Reforest smart={{ ellipses: false }}>{prose}</Reforest>
     ));
-    expect(noEllipses).toContain("“x”–y...");
+    expect(noEllipses).toContain("“x” – y...");
     const allOff = renderToString(() => (
       <Reforest smart={{ quotes: false, dashes: false, ellipses: false }}>
         {prose}
@@ -580,13 +580,20 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
   test("renderDocument threads per-flag options (not just false)", () => {
     const Doc2 = () => <NotaDoc>{'"quoted" -- dashed...'}</NotaDoc>;
     const { html } = renderDocument(Doc2, { smart: { quotes: false } });
-    expect(html).toContain('"quoted"–dashed…');
+    expect(html).toContain('"quoted" – dashed…');
   });
 
-  test("a paragraph break survives the dash rule (horizontal whitespace only)", () => {
+  test("a paragraph break survives the dash rule (no whitespace is touched)", () => {
     const html = renderToString(() => <Reforest>{"a --\n\nb"}</Reforest>);
-    // Two paragraphs — the en dash must not eat the blank line.
-    expect(html).toMatch(/<p[^>]*>a\s*–<\/p>/);
+    // Two paragraphs, and the space before the dash is kept verbatim.
+    expect(html).toMatch(/<p[^>]*>a –<\/p>/);
     expect(html).toMatch(/<p[^>]*>b<\/p>/);
+  });
+
+  test("dash spacing is the author's: spaced stays spaced, tight stays tight", () => {
+    const html = renderToString(() => (
+      <Reforest>{"spaced --- out and tight---in"}</Reforest>
+    ));
+    expect(html).toContain("spaced — out and tight—in");
   });
 });

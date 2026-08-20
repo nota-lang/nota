@@ -13,6 +13,6 @@ Hello *world* — a forward reference to @Ref[id: "sec:usage"]{}, math $x^2$, an
 
 @Label[id: "sec:usage"]{}
 
-@Definition[id: "nota"][label: "Nota"]{Nota} is a document language.@Footnote{Documents are programs.}
+@Def[id: "nota"][Label: () => "Nota"]{Nota} is a document language.@Note{Documents are programs.}
 
 Referenced: @Ref[id: "nota"]{}.
