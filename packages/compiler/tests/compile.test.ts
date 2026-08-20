@@ -446,7 +446,7 @@ describe("fence grammars are auto-registered", () => {
     const { code, fenceLangs } = compile("```rust\nfn main() {}\n```\n");
     expect(fenceLangs).toEqual(["rust"]);
     expect(code).toContain(
-      'import __notaLang_rust from "shiki/langs/rust.mjs";'
+      'import __notaLang_rust from "@shikijs/langs/rust";'
     );
     // Inside `Doc`, not at module scope: `lstset` outside a document session writes the
     // session-wide baseline and would leak this document's grammars into every other one.
@@ -462,14 +462,14 @@ describe("fence grammars are auto-registered", () => {
 
   test("aliases resolve, because a fence tag is written the way a reader writes it", () => {
     const { code } = compile("```js\nlet x = 1;\n```\n");
-    expect(code).toContain('import __notaLang_js from "shiki/langs/js.mjs";');
+    expect(code).toContain('import __notaLang_js from "@shikijs/langs/js";');
     expect(SHIKI_LANG_MODULES.has("js")).toBe(true);
   });
 
   test("a tag that is not a JS identifier still binds", () => {
     const { code } = compile("```objective-c\nint x;\n```\n");
     expect(code).toContain(
-      'import __notaLang_objective_c from "shiki/langs/objective-c.mjs";'
+      'import __notaLang_objective_c from "@shikijs/langs/objective-c";'
     );
     expect(code).toContain("lstset({ langs: [__notaLang_objective_c] });");
   });
@@ -482,23 +482,23 @@ describe("fence grammars are auto-registered", () => {
     expect(code).toContain(
       "lstset({ langs: [__notaLang_python, __notaLang_rust] });"
     );
-    expect(code.match(/shiki\/langs\/rust\.mjs/g)).toHaveLength(1);
+    expect(code.match(/@shikijs\/langs\/rust/g)).toHaveLength(1);
   });
 
   test("an unknown tag emits no import, leaving it to the runtime warning", () => {
     const { code, fenceLangs } = compile("```wibble\n?\n```\n");
     // Reported, so a caller can diagnose it…
     expect(fenceLangs).toEqual(["wibble"]);
-    // …but never imported: `shiki/langs/wibble.mjs` would fail the bundler, and documents that
+    // …but never imported: `@shikijs/langs/wibble` would fail the bundler, and documents that
     // register their own grammars through `lstset({ langs })` legitimately fence unknown tags.
-    expect(code).not.toContain("shiki/langs");
+    expect(code).not.toContain("@shikijs/langs");
     expect(code).not.toContain("lstset");
   });
 
   test("an untagged fence registers nothing (its language is a runtime value)", () => {
     const { code, fenceLangs } = compile("```\nplain\n```\n");
     expect(fenceLangs).toEqual([]);
-    expect(code).not.toContain("shiki/langs");
+    expect(code).not.toContain("@shikijs/langs");
   });
 
   test("the injected call precedes the document's own % directives", () => {
@@ -514,7 +514,7 @@ describe("fence grammars are auto-registered", () => {
     const { code } = compile("```rust\nfn main() {}\n```\n", {
       grammars: false
     });
-    expect(code).not.toContain("shiki/langs");
+    expect(code).not.toContain("@shikijs/langs");
     expect(code).not.toContain("lstset");
   });
 

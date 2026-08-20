@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/prelude",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The standard ambient prelude for Nota: Tex, code highlighting, doc-state components, and definition tooltips.",
   "files": [
     "dist"
@@ -63,12 +63,16 @@
     "@floating-ui/dom": "^1.8.0",
     "@nota-lang/core": "workspace:*",
     "katex": "^0.16.22",
-    "shiki": "^3.9.2"
+    "@shikijs/core": "^4.4.3",
+    "@shikijs/engine-javascript": "^4.4.3",
+    "@shikijs/themes": "^4.4.3",
+    "@shikijs/types": "^4.4.3"
   },
   "peerDependencies": {
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
+    "@shikijs/langs": "^4.4.3",
     "@types/katex": "^0.16.7",
     "jsdom": "^29.1.1",
     "solid-js": "^1.9.3",

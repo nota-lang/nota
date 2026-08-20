@@ -70,7 +70,7 @@ describe("runPipeline: fenced code highlights", () => {
       EMPTY
     );
     expect(error).toBeNull();
-    expect(jsx).toContain('import __notaLang_rust from "shiki/langs/rust.mjs"');
+    expect(jsx).toContain('import __notaLang_rust from "@shikijs/langs/rust"');
     expect(jsx).toContain("lstset({ langs: [__notaLang_rust] })");
 
     const host = document.createElement("div");
@@ -91,7 +91,7 @@ describe("runPipeline: fenced code highlights", () => {
   it("an unknown fence tag still renders, just unhighlighted", () => {
     const { Doc, error, jsx } = runPipeline("```wibble\n?\n```\n", EMPTY);
     expect(error).toBeNull();
-    expect(jsx).not.toContain("shiki/langs");
+    expect(jsx).not.toContain("@shikijs/langs");
 
     const host = document.createElement("div");
     document.body.appendChild(host);

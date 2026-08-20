@@ -1,25 +1,25 @@
 /** Compile emitted Solid JSX and evaluate it against the playground's module map. */
 
 import * as Babel from "@babel/standalone";
-import { SHIKI_LANGS_MODULE } from "@nota-lang/compiler";
+import { SHIKI_LANGS_MODULE, shikiLangModule } from "@nota-lang/compiler";
 import * as notaCore from "@nota-lang/core";
 import * as prelude from "@nota-lang/prelude";
+import css from "@shikijs/langs/css";
+import html from "@shikijs/langs/html";
+import javascript from "@shikijs/langs/javascript";
+import json from "@shikijs/langs/json";
+import python from "@shikijs/langs/python";
+import rust from "@shikijs/langs/rust";
+import shellscript from "@shikijs/langs/shellscript";
+import typescript from "@shikijs/langs/typescript";
 import solidPreset from "babel-preset-solid";
-import css from "shiki/langs/css.mjs";
-import html from "shiki/langs/html.mjs";
-import javascript from "shiki/langs/javascript.mjs";
-import json from "shiki/langs/json.mjs";
-import python from "shiki/langs/python.mjs";
-import rust from "shiki/langs/rust.mjs";
-import shellscript from "shiki/langs/shellscript.mjs";
-import typescript from "shiki/langs/typescript.mjs";
 import * as solidJs from "solid-js";
 import * as solidWeb from "solid-js/web";
 
 /**
  * The grammars an evaluated document can highlight with.
  *
- * A fenced language tag compiles to `import … from "shiki/langs/<tag>.mjs"`, since grammars are
+ * A fenced language tag compiles to `import … from "@shikijs/langs/<tag>"`, since grammars are
  * opt-in and a fence tag is how a document asks for one. A real build resolves that against the
  * filesystem; the playground resolves against {@link MODULE_MAP}, so it carries the grammars it
  * chooses to honour. A tag outside this set resolves to an empty registration rather than
@@ -37,13 +37,13 @@ const GRAMMARS: Record<string, Record<string, unknown>> = Object.fromEntries(
     shellscript,
     typescript
   }).map(([name, grammar]) => [
-    `${SHIKI_LANGS_MODULE}/${name}.mjs`,
+    shikiLangModule(name),
     { default: grammar } as unknown as Record<string, unknown>
   ])
 );
 
 /** A compiler-emitted grammar import, whether or not {@link GRAMMARS} carries it. */
-const GRAMMAR_SPECIFIER = new RegExp(`^${SHIKI_LANGS_MODULE}/[\\w.+-]+\\.mjs$`);
+const GRAMMAR_SPECIFIER = new RegExp(`^${SHIKI_LANGS_MODULE}/[\\w.+-]+$`);
 
 /** Modules available to evaluated documents. */
 export const MODULE_MAP: Record<string, Record<string, unknown>> = {

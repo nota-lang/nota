@@ -102,6 +102,10 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
+    devDependencies:
+      '@shikijs/langs':
+        specifier: ^4.4.3
+        version: 4.4.3
 
   packages/codemirror:
     dependencies:
@@ -142,9 +146,9 @@ importers:
       '@babel/parser':
         specifier: ^7.28.0
         version: 7.29.8
-      shiki:
-        specifier: ^3.9.2
-        version: 3.23.0
+      '@shikijs/langs':
+        specifier: ^4.4.3
+        version: 4.4.3
 
   packages/core:
     devDependencies:
@@ -242,15 +246,15 @@ importers:
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
+      '@shikijs/langs':
+        specifier: ^4.4.3
+        version: 4.4.3
       babel-preset-solid:
         specifier: ^1.9.3
         version: 1.9.12(@babel/core@7.29.7)(solid-js@1.9.13)
       prettier:
         specifier: ^3.8.4
         version: 3.9.6
-      shiki:
-        specifier: ^3.9.2
-        version: 3.23.0
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13
@@ -282,13 +286,25 @@ importers:
       '@nota-lang/core':
         specifier: workspace:*
         version: link:../core
+      '@shikijs/core':
+        specifier: ^4.4.3
+        version: 4.4.3
+      '@shikijs/engine-javascript':
+        specifier: ^4.4.3
+        version: 4.4.3
+      '@shikijs/themes':
+        specifier: ^4.4.3
+        version: 4.4.3
+      '@shikijs/types':
+        specifier: ^4.4.3
+        version: 4.4.3
       katex:
         specifier: ^0.16.22
         version: 0.16.47
-      shiki:
-        specifier: ^3.9.2
-        version: 3.23.0
     devDependencies:
+      '@shikijs/langs':
+        specifier: ^4.4.3
+        version: 4.4.3
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.8
@@ -1068,15 +1084,9 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@shikijs/core@3.23.0':
-    resolution: {integrity: sha512-NSWQz0riNb67xthdm5br6lAkvpDJRTgB36fxlo37ZzM2yq0PQFFzbd8psqC2XMPgCzo1fW6cVi18+ArJ44wqgA==}
-
   '@shikijs/core@4.4.3':
     resolution: {integrity: sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==}
     engines: {node: '>=20'}
-
-  '@shikijs/engine-javascript@3.23.0':
-    resolution: {integrity: sha512-aHt9eiGFobmWR5uqJUViySI1bHMqrAgamWE1TYSUoftkAeCCAiGawPMwM+VCadylQtF4V3VNOZ5LmfItH5f3yA==}
 
   '@shikijs/engine-javascript@4.4.3':
     resolution: {integrity: sha512-FbOjFJp9VLdo1Wevs10BBtVxiTWwNLqZh5Gkhjgda/ioL15YOgeSl9n+6XMa3qRlPQzfhFNe641SrynFHYG0nQ==}
@@ -1819,9 +1829,6 @@ packages:
   seroval@1.6.2:
     resolution: {integrity: sha512-mPT+SD2TrlB6wvte1KkYOYUkubaTbd6pZ/6Kk3C9nxzrHmCZyhxOO7XGAeL7f+yLKZglzGtM9odUVvg/EhO+vQ==}
     engines: {node: '>=10'}
-
-  shiki@3.23.0:
-    resolution: {integrity: sha512-55Dj73uq9ZXL5zyeRPzHQsK7Nbyt6Y10k5s7OjuFZGMhpp4r/rsLBH0o/0fstIzX1Lep9VxefWljK/SKCzygIA==}
 
   shiki@4.4.3:
     resolution: {integrity: sha512-Mb/GvXPHBAXdgGIcnfU5L3ldpn1XcxrGkPHwqgRx17/I2XRfqlFKk2vGkHWINn1kdXvzJZeuO3is6I9KLPFm0g==}
@@ -2819,13 +2826,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@shikijs/core@3.23.0':
-    dependencies:
-      '@shikijs/types': 3.23.0
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
-      hast-util-to-html: 9.0.5
-
   '@shikijs/core@4.4.3':
     dependencies:
       '@shikijs/primitive': 4.4.3
@@ -2833,12 +2833,6 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
       hast-util-to-html: 9.0.5
-
-  '@shikijs/engine-javascript@3.23.0':
-    dependencies:
-      '@shikijs/types': 3.23.0
-      '@shikijs/vscode-textmate': 10.0.2
-      oniguruma-to-es: 4.3.6
 
   '@shikijs/engine-javascript@4.4.3':
     dependencies:
@@ -3666,17 +3660,6 @@ snapshots:
   seroval@1.5.4: {}
 
   seroval@1.6.2: {}
-
-  shiki@3.23.0:
-    dependencies:
-      '@shikijs/core': 3.23.0
-      '@shikijs/engine-javascript': 3.23.0
-      '@shikijs/engine-oniguruma': 3.23.0
-      '@shikijs/langs': 3.23.0
-      '@shikijs/themes': 3.23.0
-      '@shikijs/types': 3.23.0
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
 
   shiki@4.4.3:
     dependencies:

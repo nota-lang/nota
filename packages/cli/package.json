@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Build a single .nota document into a static page directory: nota build doc.nota -> doc/.",
   "bin": {
     "nota": "bin/nota.mjs"
@@ -28,5 +28,8 @@
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/cli"
+  },
+  "devDependencies": {
+    "@shikijs/langs": "^4.4.3"
   }
 }

@@ -10,16 +10,23 @@ import {
   type ResolvedChild,
   textOf
 } from "@nota-lang/core";
-import {
-  createHighlighterCoreSync,
-  type DecorationItem,
-  type HighlighterCore,
-  type LanguageRegistration,
-  type ThemeRegistrationAny
-} from "shiki/core";
-import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
-import githubDark from "shiki/themes/github-dark.mjs";
-import githubLight from "shiki/themes/github-light.mjs";
+// Shiki's granular packages, never the `shiki` umbrella. `shiki/core` is condition-sensitive --
+// under the `unwasm` condition (which Nitro adds by default) it resolves to an entry that
+// registers `() => import("shiki/wasm")`, and `shiki/wasm` under the same condition is the raw
+// 466 KB `onig.wasm`. That drags Oniguruma into every consumer's graph and breaks bundlers that
+// cannot resolve a wasm module's `env` import -- to service a loader that is never called, since
+// the engine below is the pure-JS one. `@shikijs/*` have no conditional exports, so there is
+// nothing for a downstream build to rewire.
+import { createHighlighterCoreSync } from "@shikijs/core";
+import type {
+  DecorationItem,
+  HighlighterCore,
+  LanguageRegistration,
+  ThemeRegistrationAny
+} from "@shikijs/core/types";
+import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
+import githubDark from "@shikijs/themes/github-dark";
+import githubLight from "@shikijs/themes/github-light";
 import { children, type JSX, type ParentProps } from "solid-js";
 
 import { sessionConfig } from "./session-config";
@@ -33,7 +40,7 @@ import { sessionConfig } from "./session-config";
  * needs and ships only that:
  *
  * ```
- * %import rust from "shiki/langs/rust.mjs"
+ * %import rust from "@shikijs/langs/rust"
  * % lstset({ langs: [rust] })
  * ```
  *
@@ -194,7 +201,7 @@ function effectiveLang(explicit: string | undefined): string | undefined {
   if (lang !== undefined && !hasLang(lang)) {
     warnOnce(
       `no grammar loaded for lang "${lang}". Grammars are opt-in: import one from shiki ` +
-        `(%import ${lang} from "shiki/langs/${lang}.mjs") and register it with ` +
+        `(%import ${lang} from "@shikijs/langs/${lang}") and register it with ` +
         `lstset({ langs: [${lang}] }), or import { COMMON_LANGS } from ` +
         `"@nota-lang/prelude/langs" for the common set.`
     );

@@ -11,8 +11,20 @@ export { SHIKI_LANG_MODULES } from "./shiki-langs.generated.js";
 /** The Solid-runtime module the emit's structural names are bound to. */
 export const CORE_RUNTIME_MODULE = "@nota-lang/core";
 
-/** The module a fence tag's grammar is imported from (`shiki/langs/<tag>.mjs`). */
-export const SHIKI_LANGS_MODULE = "shiki/langs";
+/**
+ * The package a fence tag's grammar is imported from.
+ *
+ * `@shikijs/langs`, never the `shiki` umbrella. `shiki`'s exports are condition-sensitive, and
+ * under the `unwasm` condition (which Nitro adds by default) `shiki/core` pulls in the Oniguruma
+ * wasm engine. Generated documents should not be able to drag that into an integrator's bundle
+ * because they happened to contain a fence.
+ */
+export const SHIKI_LANGS_MODULE = "@shikijs/langs";
+
+/** The module specifier for fence tag `lang`'s grammar (`@shikijs/langs/rust`). */
+export function shikiLangModule(lang: string): string {
+  return `${SHIKI_LANGS_MODULE}/${lang}`;
+}
 
 /** The default module the ambient prelude binds from ({@link PreludeOptions.module}). */
 export const PRELUDE_MODULE = "@nota-lang/prelude";
@@ -20,9 +32,9 @@ export const PRELUDE_MODULE = "@nota-lang/prelude";
 /**
  * Framework modules that generated documents may import.
  *
- * `shiki` is here because a fenced language tag compiles to `import … from
- * "shiki/langs/<tag>.mjs"` ({@link CompileOptions.grammars}). A document is not required to
- * depend on shiki to write ```rust, so integrators resolve these against their own dependency
+ * `@shikijs/langs` is here because a fenced language tag compiles to `import … from
+ * "@shikijs/langs/<tag>"` ({@link CompileOptions.grammars}). A document is not required to
+ * depend on it to write ```rust, so integrators resolve these against their own dependency
  * tree when the document's own directory cannot — the same fallback the prelude and the Solid
  * runtime already rely on.
  */
@@ -216,7 +228,7 @@ export interface CompileOptions {
   prelude?: PreludeOptions | false;
   /**
    * Auto-register a shiki grammar for every fenced language tag: ```rust gets an
-   * `import` of `shiki/langs/rust.mjs` and an `lstset({ langs })` call at the top of the
+   * `import` of `@shikijs/langs/rust` and an `lstset({ langs })` call at the top of the
    * document.
    *
    * On by default, and the reason grammars can be opt-in at all — a document says which
@@ -333,7 +345,7 @@ function grammarBinding(lang: string): string {
  *
  * Only tags shiki actually publishes a module for get an import. An unknown tag — a typo, or a
  * grammar the document registers itself through `lstset({ langs })` — is left alone: emitting
- * `shiki/langs/wibble.mjs` would fail the *bundler*, whose error names generated code rather than
+ * `@shikijs/langs/wibble` would fail the *bundler*, whose error names generated code rather than
  * the fence that caused it, and would break the documents that legitimately supply their own
  * grammars. Those still reach the runtime's "no grammar loaded for lang …" warning.
  *
@@ -353,7 +365,7 @@ function grammarBindings(fenceLangs: string[]): {
     .map(
       lang =>
         `import ${grammarBinding(lang)} from ${JSON.stringify(
-          `${SHIKI_LANGS_MODULE}/${lang}.mjs`
+          shikiLangModule(lang)
         )};\n`
     )
     .join("");

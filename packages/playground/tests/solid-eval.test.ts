@@ -109,9 +109,9 @@ describe("evalModule", () => {
 describe("MODULE_MAP", () => {
   it("still lists the same four framework modules", () => {
     // Plus one entry per grammar the playground carries for fenced code — those are keyed
-    // `shiki/langs/<tag>.mjs` and covered by the grammar cases below.
+    // `@shikijs/langs/<tag>` and covered by the grammar cases below.
     expect(
-      Object.keys(MODULE_MAP).filter(k => !k.startsWith("shiki/langs/"))
+      Object.keys(MODULE_MAP).filter(k => !k.startsWith("@shikijs/langs/"))
     ).toEqual([
       "solid-js",
       "solid-js/web",
@@ -121,10 +121,10 @@ describe("MODULE_MAP", () => {
   });
 
   it("carries a grammar for a fenced tag, and tolerates one it does not", () => {
-    // A fence tag compiles to `import … from "shiki/langs/<tag>.mjs"`. An uncarried tag must
+    // A fence tag compiles to `import … from "@shikijs/langs/<tag>"`. An uncarried tag must
     // degrade to an empty registration rather than fail the whole document.
-    expect(resolveModule("shiki/langs/rust.mjs")?.default).toBeTruthy();
-    expect(resolveModule("shiki/langs/wibble.mjs")).toEqual({ default: [] });
+    expect(resolveModule("@shikijs/langs/rust")?.default).toBeTruthy();
+    expect(resolveModule("@shikijs/langs/wibble")).toEqual({ default: [] });
     expect(resolveModule("left-pad")).toBeUndefined();
   });
 
@@ -134,7 +134,7 @@ describe("MODULE_MAP", () => {
     const { code: jsx } = compile("```rust\nfn main() {}\n```\n", {
       sourcePath: "doc.nota"
     });
-    expect(jsx).toContain('import __notaLang_rust from "shiki/langs/rust.mjs"');
+    expect(jsx).toContain('import __notaLang_rust from "@shikijs/langs/rust"');
     const { Doc } = compileAndEval(jsx);
     const host = document.createElement("div");
     const dispose = render(() => Doc({}), host);

@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import wasm from "vite-plugin-wasm";
 
 /**
- * Two projects: **build** (node) drives the pipeline directly; **hydration** (jsdom) loads the
+ * Three projects: **build** (node) drives the pipeline directly; **hydration** (jsdom) loads the
  * document directories a Node globalSetup built and executes their client bundles — the
  * "browser loads the emitted page" acceptance test.
  *
@@ -31,6 +31,18 @@ export default defineConfig(() => ({
           deps: inlineDeps,
           testTimeout: 120_000,
           hookTimeout: 120_000
+        }
+      },
+      {
+        // The published artifacts, installed outside the workspace. No plugins and no inlining:
+        // the point is to resolve exactly as a stranger's install would, so anything this
+        // project's transform pipeline would paper over must not be applied.
+        test: {
+          name: "packaging",
+          environment: "node",
+          include: ["tests/packaging.test.ts"],
+          testTimeout: 900_000,
+          hookTimeout: 900_000
         }
       },
       {

@@ -21,7 +21,7 @@ import { MODULE_MAP, resolveModule } from "../src/solid-eval";
 
 describe("cross-package list consistency", () => {
   test("MODULE_MAP resolves every module the compiler may prepend", () => {
-    // `shiki/langs` is a prefix, not a specifier: the compiler emits `shiki/langs/<tag>.mjs`
+    // `@shikijs/langs` is a prefix, not a specifier: the compiler emits `@shikijs/langs/<tag>`
     // per fence tag, and `resolveModule` answers for the whole family — carrying the grammars
     // the playground honours and degrading the rest to an empty registration.
     const keys = Object.keys(MODULE_MAP);
@@ -43,7 +43,7 @@ describe("cross-package list consistency", () => {
     // languages this repo's documents and examples actually fence must sub-tokenize — a
     // rendered-but-unhighlighted fence language fails here instead of drifting silently.
     // Only the languages the editor claims to sub-tokenize: `languageFor` maps a fence tag to a
-    // CodeMirror mode, and it deliberately covers a fraction of shiki's 346 grammars.
+    // CodeMirror mode, and it deliberately covers a fraction of shiki's 360 grammars.
     const fenced = ["javascript", "typescript", "rust", "python"];
     for (const name of fenced) {
       expect(SHIKI_LANG_MODULES.has(name), `${name} is a shiki grammar`).toBe(

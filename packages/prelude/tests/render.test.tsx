@@ -5,9 +5,12 @@
  * pointed-error paths.
  */
 import { NotaDoc, renderDocument, useDocState } from "@nota-lang/core";
-import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
-import javascript from "shiki/langs/javascript.mjs";
-import rust from "shiki/langs/rust.mjs";
+import type {
+  LanguageRegistration,
+  ThemeRegistrationAny
+} from "@shikijs/core/types";
+import javascript from "@shikijs/langs/javascript";
+import rust from "@shikijs/langs/rust";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   BASE_THEME_NAMES,
@@ -1269,9 +1272,7 @@ describe("grammars are opt-in", () => {
     expect(html).toMatch(
       /<pre class="nota-code-block"[^>]*><code[^>]*>fn main/
     );
-    expect(warn.mock.calls.flat().join("\n")).toMatch(
-      /shiki\/langs\/rust\.mjs/
-    );
+    expect(warn.mock.calls.flat().join("\n")).toMatch(/@shikijs\/langs\/rust/);
     warn.mockRestore();
   });
 

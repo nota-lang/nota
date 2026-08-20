@@ -6,7 +6,7 @@
  * covered in render.test.tsx).
  */
 import { NotaDoc } from "@nota-lang/core";
-import javascript from "shiki/langs/javascript.mjs";
+import javascript from "@shikijs/langs/javascript";
 import { createSignal, Show } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
