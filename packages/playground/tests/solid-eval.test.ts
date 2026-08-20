@@ -13,7 +13,12 @@ import * as notaCore from "@nota-lang/core";
 import * as solidJs from "solid-js";
 import { render } from "solid-js/web";
 import { describe, expect, it } from "vitest";
-import { compileAndEval, evalModule, MODULE_MAP } from "../src/solid-eval";
+import {
+  compileAndEval,
+  evalModule,
+  MODULE_MAP,
+  resolveModule
+} from "../src/solid-eval";
 
 describe("evalModule", () => {
   it("a template literal whose content has lines starting `import`/`export` survives byte-for-byte", () => {
@@ -103,12 +108,38 @@ describe("evalModule", () => {
 
 describe("MODULE_MAP", () => {
   it("still lists the same four framework modules", () => {
-    expect(Object.keys(MODULE_MAP)).toEqual([
+    // Plus one entry per grammar the playground carries for fenced code — those are keyed
+    // `shiki/langs/<tag>.mjs` and covered by the grammar cases below.
+    expect(
+      Object.keys(MODULE_MAP).filter(k => !k.startsWith("shiki/langs/"))
+    ).toEqual([
       "solid-js",
       "solid-js/web",
       "@nota-lang/core",
       "@nota-lang/prelude"
     ]);
+  });
+
+  it("carries a grammar for a fenced tag, and tolerates one it does not", () => {
+    // A fence tag compiles to `import … from "shiki/langs/<tag>.mjs"`. An uncarried tag must
+    // degrade to an empty registration rather than fail the whole document.
+    expect(resolveModule("shiki/langs/rust.mjs")?.default).toBeTruthy();
+    expect(resolveModule("shiki/langs/wibble.mjs")).toEqual({ default: [] });
+    expect(resolveModule("left-pad")).toBeUndefined();
+  });
+
+  it("evaluates a fenced document end to end, grammar and all", () => {
+    // The whole path: the compiler emits the grammar import for ```rust, the evaluator resolves
+    // it out of MODULE_MAP, and the prelude highlights against the registration.
+    const { code: jsx } = compile("```rust\nfn main() {}\n```\n", {
+      sourcePath: "doc.nota"
+    });
+    expect(jsx).toContain('import __notaLang_rust from "shiki/langs/rust.mjs"');
+    const { Doc } = compileAndEval(jsx);
+    const host = document.createElement("div");
+    const dispose = render(() => Doc({}), host);
+    expect(host.querySelector("pre.shiki")).toBeTruthy();
+    dispose();
   });
 });
 

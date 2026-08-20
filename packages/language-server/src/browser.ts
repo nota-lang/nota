@@ -23,6 +23,12 @@ const TSCONFIG = JSON.stringify({
     module: "esnext",
     moduleResolution: "bundler",
     target: "es2022",
+    // Explicit, not defaulted from `target`. A bare `target: "es2022"` resolves to
+    // `lib.es2022.full.d.ts`, whose closure drags in scripthost and webworker.importscripts, and
+    // it leaves the host guessing which `lib.*.d.ts` files it must supply — this server's host
+    // is an in-memory filesystem in a Web Worker (see `tsLibs`), so "which files" is a bundling
+    // decision that has to be written down somewhere. Here is that somewhere.
+    lib: ["es2022", "dom", "dom.iterable"],
     allowJs: true,
     skipLibCheck: true,
     strict: true,

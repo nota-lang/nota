@@ -15,6 +15,7 @@
     }
   },
   "type": "module",
+  "sideEffects": false,
   "depot": {
     "platform": "browser",
     "target": "lib",

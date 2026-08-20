@@ -6,6 +6,7 @@
  * covered in render.test.tsx).
  */
 import { NotaDoc } from "@nota-lang/core";
+import javascript from "shiki/langs/javascript.mjs";
 import { createSignal, Show } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -14,6 +15,7 @@ import {
   Def,
   Heading,
   Label,
+  lstset,
   Note,
   Ref,
   resetConfigForTest,
@@ -25,6 +27,8 @@ let root: HTMLDivElement | null = null;
 
 beforeEach(() => {
   resetConfigForTest();
+  // Grammars are opt-in (src/langs.ts); register the one the shiki cases below assume.
+  lstset({ langs: [javascript] });
   root = document.createElement("div");
   document.body.appendChild(root);
 });

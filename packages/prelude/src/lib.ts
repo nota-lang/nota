@@ -4,10 +4,10 @@
  */
 
 export {
-  BASE_LANG_NAMES,
   BASE_THEME_NAMES,
   CodeBlock,
   CodeInline,
+  loadedLangNames,
   resetCodeWarningsForTest
 } from "./code";
 export {

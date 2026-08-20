@@ -314,9 +314,10 @@ single-sourcing > drift tests > deliberately-manual-with-a-conformance-guard**:
   is a diagnostic; per-doc override goes through the integrator's prelude seam.
 - **TS families are single-sourced**: `FRAMEWORK_MODULES`/`FRAMEWORK_PACKAGES` (compiler) feed
   vite's fallbacks + dedupe and the CLI's pinned-resolver regex; core
-  owns the entity decoder and DOM-marker constants; prelude introspects `BASE_LANG_NAMES` from
-  the shiki grammars and names the snapshot wire keys (`FACT_KINDS`); codemirror owns the
-  palette and exports `KIND_STYLES`.
+  owns the entity decoder and DOM-marker constants; prelude bundles no grammar and reports the
+  registered set through `loadedLangNames()`, single-sourcing the curated list as
+  `COMMON_LANGS` (`@nota-lang/prelude/langs`), and names the snapshot wire keys (`FACT_KINDS`);
+  codemirror owns the palette and exports `KIND_STYLES`.
 - **Policy stays hand-written but alarmed**: the ambient name lists (⊆-surface loops), the
   preamble's type declarations (real-type snapshot tests), `KIND_STYLES` (key-set equality with
   `highlightKindNames()`), and the emacs font-lock tier (`tests/conformance.el` —

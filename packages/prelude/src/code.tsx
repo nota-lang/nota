@@ -18,17 +18,6 @@ import {
   type ThemeRegistrationAny
 } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
-import css from "shiki/langs/css.mjs";
-import html from "shiki/langs/html.mjs";
-import javascript from "shiki/langs/javascript.mjs";
-import json from "shiki/langs/json.mjs";
-import jsx from "shiki/langs/jsx.mjs";
-import markdown from "shiki/langs/markdown.mjs";
-import python from "shiki/langs/python.mjs";
-import rust from "shiki/langs/rust.mjs";
-import shellscript from "shiki/langs/shellscript.mjs";
-import tsx from "shiki/langs/tsx.mjs";
-import typescript from "shiki/langs/typescript.mjs";
 import githubDark from "shiki/themes/github-dark.mjs";
 import githubLight from "shiki/themes/github-light.mjs";
 import { children, type JSX, type ParentProps } from "solid-js";
@@ -37,27 +26,31 @@ import { config } from "./config";
 
 // Highlighter
 
-/** The curated default grammar set. Extend at runtime via `lstset({ langs })`. */
-const BASE_LANGS = [
-  ...javascript,
-  ...typescript,
-  ...jsx,
-  ...tsx,
-  ...json,
-  ...python,
-  ...rust,
-  ...shellscript,
-  ...html,
-  ...css,
-  ...markdown
-];
+/**
+ * No grammar is bundled by default. A shiki grammar is ~50-190 KB of generated TextMate JSON, so
+ * a preloaded set is paid for by every document on every page whether or not it highlights
+ * anything — the eleven this package used to preload were 1 MB. A document registers what it
+ * needs and ships only that:
+ *
+ * ```
+ * %import rust from "shiki/langs/rust.mjs"
+ * % lstset({ langs: [rust] })
+ * ```
+ *
+ * `@nota-lang/prelude/langs` re-exports the old curated set as `COMMON_LANGS` for callers that
+ * want all eleven back in one line — opt-in, so the cost is visible at the import site.
+ */
+const BASE_LANGS: LanguageRegistration[] = [];
 const BASE_THEMES = [githubLight, githubDark];
 
-/** Names and aliases available to editors without extra registration. */
-export const BASE_LANG_NAMES: readonly string[] = BASE_LANGS.flatMap(g => [
-  g.name,
-  ...(g.aliases ?? [])
-]);
+/**
+ * The grammar names and aliases the highlighter will accept right now — the bundled set plus
+ * everything `lstset({ langs })` has registered in the current document session. Dynamic by
+ * necessity: with grammars opt-in there is no static answer.
+ */
+export function loadedLangNames(): readonly string[] {
+  return highlighter().getLoadedLanguages();
+}
 
 /** The preloaded theme names (`lstset({ theme })` accepts these without extra registration). */
 export const BASE_THEME_NAMES: readonly string[] = BASE_THEMES.flatMap(t =>
@@ -200,7 +193,10 @@ function effectiveLang(explicit: string | undefined): string | undefined {
   const lang = explicit ?? config().lang;
   if (lang !== undefined && !hasLang(lang)) {
     warnOnce(
-      `no grammar loaded for lang "${lang}" (load one via lstset({ langs: [...] }))`
+      `no grammar loaded for lang "${lang}". Grammars are opt-in: import one from shiki ` +
+        `(%import ${lang} from "shiki/langs/${lang}.mjs") and register it with ` +
+        `lstset({ langs: [${lang}] }), or import { COMMON_LANGS } from ` +
+        `"@nota-lang/prelude/langs" for the common set.`
     );
     return undefined;
   }

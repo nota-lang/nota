@@ -58,3 +58,47 @@ describe("runPipeline", () => {
     host.remove();
   });
 });
+
+describe("runPipeline: fenced code highlights", () => {
+  // This is the path the app actually runs — `analyze` + `bindImports`, not `compile`. It gets
+  // its own case because the two diverged once: `bindImports` took `fenceLangs` as an optional
+  // argument, `pipeline.ts` did not pass it, and every fence in the playground silently rendered
+  // plain while the `compile`-based tests stayed green.
+  it("a ```rust fence renders highlighted, not plain", () => {
+    const { Doc, error, jsx } = runPipeline(
+      "```rust\nfn main() {\n}\n```\n",
+      EMPTY
+    );
+    expect(error).toBeNull();
+    expect(jsx).toContain('import __notaLang_rust from "shiki/langs/rust.mjs"');
+    expect(jsx).toContain("lstset({ langs: [__notaLang_rust] })");
+
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const dispose = render(() => (Doc as () => unknown)(), host);
+    expect(
+      host.querySelector("pre.shiki"),
+      "shiki emitted a themed <pre>"
+    ).toBeTruthy();
+    expect(
+      host.querySelector('span[style*="color"]'),
+      "tokens are coloured"
+    ).toBeTruthy();
+    dispose();
+    host.remove();
+  });
+
+  it("an unknown fence tag still renders, just unhighlighted", () => {
+    const { Doc, error, jsx } = runPipeline("```wibble\n?\n```\n", EMPTY);
+    expect(error).toBeNull();
+    expect(jsx).not.toContain("shiki/langs");
+
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const dispose = render(() => (Doc as () => unknown)(), host);
+    expect(host.querySelector("pre.nota-code-block")).toBeTruthy();
+    expect(host.querySelector("pre.shiki")).toBeNull();
+    dispose();
+    host.remove();
+  });
+});

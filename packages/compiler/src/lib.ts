@@ -4,19 +4,34 @@
  */
 
 import * as reader from "./reader.js";
+import { SHIKI_LANG_MODULES } from "./shiki-langs.generated.js";
+
+export { SHIKI_LANG_MODULES } from "./shiki-langs.generated.js";
 
 /** The Solid-runtime module the emit's structural names are bound to. */
 export const CORE_RUNTIME_MODULE = "@nota-lang/core";
 
+/** The module a fence tag's grammar is imported from (`shiki/langs/<tag>.mjs`). */
+export const SHIKI_LANGS_MODULE = "shiki/langs";
+
 /** The default module the ambient prelude binds from ({@link PreludeOptions.module}). */
 export const PRELUDE_MODULE = "@nota-lang/prelude";
 
-/** Framework modules that generated documents may import. */
+/**
+ * Framework modules that generated documents may import.
+ *
+ * `shiki` is here because a fenced language tag compiles to `import … from
+ * "shiki/langs/<tag>.mjs"` ({@link CompileOptions.grammars}). A document is not required to
+ * depend on shiki to write ```rust, so integrators resolve these against their own dependency
+ * tree when the document's own directory cannot — the same fallback the prelude and the Solid
+ * runtime already rely on.
+ */
 export const FRAMEWORK_MODULES: readonly string[] = [
   CORE_RUNTIME_MODULE,
   PRELUDE_MODULE,
   "solid-js",
-  "solid-js/web"
+  "solid-js/web",
+  SHIKI_LANGS_MODULE
 ];
 
 /** The unique package roots of {@link FRAMEWORK_MODULES} (dedupe/pinning is per-package). */
@@ -147,6 +162,17 @@ export interface CompileOptions {
    * object). Default: inject from `"@nota-lang/prelude"`.
    */
   prelude?: PreludeOptions | false;
+  /**
+   * Auto-register a shiki grammar for every fenced language tag: ```rust gets an
+   * `import` of `shiki/langs/rust.mjs` and an `lstset({ langs })` call at the top of the
+   * document.
+   *
+   * On by default, and the reason grammars can be opt-in at all — a document says which
+   * languages it highlights simply by tagging its fences, and pays for exactly those rather than
+   * for a preloaded set. `false` for integrators that resolve imports themselves against a fixed
+   * module map (the in-browser evaluator), where an unresolvable specifier is a hard error.
+   */
+  grammars?: boolean;
 }
 
 /** Minimal source-map shape accepted by Vite and Rollup. */
@@ -174,6 +200,11 @@ export interface CompileResult {
    * genuinely unbound user references — useful for diagnostics ("unbound name …").
    */
   freeNames: string[];
+  /**
+   * The language tags on this document's fenced code blocks, sorted and deduplicated — every tag
+   * as written, whether or not a grammar was found for it.
+   */
+  fenceLangs: string[];
   /** A {@link SourceMapV3}, when the backend produces one (the reader does not yet — see notes). */
   map?: SourceMapV3;
 }
@@ -197,6 +228,67 @@ function preludeImport(
     : "";
 }
 
+/** A JS identifier for the grammar bound to fence tag `lang` (tags may hold `+`, `-`, `#`). */
+function grammarBinding(lang: string): string {
+  return `__notaLang_${lang.replace(/[^A-Za-z0-9_$]/g, "_")}`;
+}
+
+/**
+ * The grammar imports for `fenceLangs`, and the `lstset` call that registers them.
+ *
+ * Only tags shiki actually publishes a module for get an import. An unknown tag — a typo, or a
+ * grammar the document registers itself through `lstset({ langs })` — is left alone: emitting
+ * `shiki/langs/wibble.mjs` would fail the *bundler*, whose error names generated code rather than
+ * the fence that caused it, and would break the documents that legitimately supply their own
+ * grammars. Those still reach the runtime's "no grammar loaded for lang …" warning.
+ *
+ * The registration is a statement at the top of the document function rather than at module
+ * scope, because `lstset` outside a document session writes the session-wide *baseline* and would
+ * leak one document's grammars into every other document on the page.
+ */
+function grammarBindings(fenceLangs: string[]): {
+  imports: string;
+  register: string;
+} {
+  const known = fenceLangs.filter(lang => SHIKI_LANG_MODULES.has(lang));
+  if (known.length === 0) {
+    return { imports: "", register: "" };
+  }
+  const imports = known
+    .map(
+      lang =>
+        `import ${grammarBinding(lang)} from ${JSON.stringify(
+          `${SHIKI_LANGS_MODULE}/${lang}.mjs`
+        )};\n`
+    )
+    .join("");
+  const langs = known.map(grammarBinding).join(", ");
+  return { imports, register: `lstset({ langs: [${langs}] });` };
+}
+
+/**
+ * Splice `statement` in as the first statement of the emitted document function.
+ *
+ * String surgery on generated output, which is safe in the way surgery on *user* source would not
+ * be: the reader emits this header verbatim, and `emitted_document_header_is_spliceable` in
+ * tests/compile.test.ts fails if that ever stops being true.
+ */
+function injectIntoDoc(emitted: string, statement: string): string {
+  if (statement === "") {
+    return emitted;
+  }
+  const header = `export default function ${DOC_EXPORT_NAME}() {`;
+  const at = emitted.indexOf(header);
+  if (at === -1) {
+    throw new Error(
+      `nota: cannot register fence grammars — the reader's emit no longer opens with ` +
+        `\`${header}\`. Update injectIntoDoc() in @nota-lang/compiler.`
+    );
+  }
+  const end = at + header.length;
+  return `${emitted.slice(0, end)}\n\t${statement}${emitted.slice(end)}`;
+}
+
 /** Compile Nota source to a Solid JSX module with its free-name imports prepended. */
 export function compile(
   source: string,
@@ -204,37 +296,72 @@ export function compile(
 ): CompileResult {
   let emitted: string;
   let freeNames: string[];
+  let fenceLangs: string[];
   try {
-    ({ code: emitted, freeNames } = reader.compile(source));
+    ({ code: emitted, freeNames, fenceLangs } = reader.compile(source));
   } catch (err) {
     throw toCompileError(err, opts.sourcePath);
   }
-  if (!Array.isArray(freeNames)) {
+  if (!Array.isArray(freeNames) || !Array.isArray(fenceLangs)) {
     // Do not silently skip imports when the vendored reader is stale.
     const where = opts.sourcePath ? ` (${opts.sourcePath})` : "";
     throw new Error(
-      `nota: reader emit missing \`freeNames\` — stale src/generated wasm build?${where}`
+      `nota: reader emit missing \`freeNames\`/\`fenceLangs\` — stale src/generated wasm ` +
+        `build?${where}`
     );
   }
 
-  const code = bindImports(emitted, freeNames, opts);
+  const code = bindImports({ code: emitted, freeNames, fenceLangs }, opts);
 
   // A future reader sourcemap must be shifted by the prepended imports.
-  return { code, freeNames, map: undefined };
+  return { code, freeNames, fenceLangs, map: undefined };
 }
 
-/** Bind a bare reader emit to its runtime and ambient imports. */
+/** A bare reader emit — what `reader.compile`/`reader.analyze` return, narrowed to what binding needs. */
+export interface ReaderEmit {
+  /** The emitted module, before imports are prepended. */
+  code: string;
+  /** Root-unresolved value identifiers, sorted. */
+  freeNames: string[];
+  /** Fenced language tags, sorted and deduplicated. */
+  fenceLangs: string[];
+}
+
+/**
+ * Bind a bare reader emit to its runtime and ambient imports, and register the grammars its
+ * fences ask for.
+ *
+ * Takes the whole emit rather than its fields: a caller that passed `code` and `freeNames` and
+ * forgot `fenceLangs` would get a document that compiles, renders, and silently highlights
+ * nothing — the failure is invisible at the call site, so the call site does not get to make it.
+ *
+ * Registering adds `lstset` to the names the prelude import must bind, which is why the grammar
+ * work happens before `preludeImport` reads the free-name list.
+ */
 export function bindImports(
-  emitted: string,
-  freeNames: string[],
+  emit: ReaderEmit,
   opts: CompileOptions = {}
 ): string {
+  const { code: emitted, freeNames, fenceLangs } = emit;
+  const { imports, register } =
+    opts.grammars === false
+      ? { imports: "", register: "" }
+      : grammarBindings(fenceLangs);
+  const body = injectIntoDoc(emitted, register);
+  // The injected call references `lstset` free, so the prelude import has to cover it — unless
+  // the document already calls `lstset` itself, in which case it is in `freeNames` and adding it
+  // again would emit `import { lstset, lstset }`.
+  const names =
+    register === "" || freeNames.includes("lstset")
+      ? freeNames
+      : [...freeNames, "lstset"];
   return (
-    bindFree(freeNames, CORE_RUNTIME_NAMES, CORE_RUNTIME_MODULE) +
-    bindFree(freeNames, SOLID_AMBIENT_NAMES, "solid-js") +
-    bindFree(freeNames, SOLID_WEB_NAMES, "solid-js/web") +
-    preludeImport(freeNames, opts.prelude) +
-    emitted
+    bindFree(names, CORE_RUNTIME_NAMES, CORE_RUNTIME_MODULE) +
+    bindFree(names, SOLID_AMBIENT_NAMES, "solid-js") +
+    bindFree(names, SOLID_WEB_NAMES, "solid-js/web") +
+    preludeImport(names, opts.prelude) +
+    imports +
+    body
   );
 }
 
@@ -287,6 +414,8 @@ export interface HighlightSpan {
 export interface AnalysisResult {
   code: string;
   freeNames: string[];
+  /** Fenced language tags, sorted and deduplicated — see {@link CompileResult.fenceLangs}. */
+  fenceLangs: string[];
   mappings: CodeMapping[];
   errors: NotaError[];
   ast: string;
@@ -339,6 +468,7 @@ export function analyze(source: string): AnalysisResult {
   const result: AnalysisResult = {
     code: raw.code,
     freeNames: raw.freeNames,
+    fenceLangs: raw.fenceLangs,
     mappings,
     errors: raw.errors,
     ast: raw.ast,

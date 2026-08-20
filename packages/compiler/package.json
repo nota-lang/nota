@@ -27,6 +27,7 @@
     "directory": "packages/compiler"
   },
   "devDependencies": {
-    "@babel/parser": "^7.28.0"
+    "@babel/parser": "^7.28.0",
+    "shiki": "^3.9.2"
   }
 }

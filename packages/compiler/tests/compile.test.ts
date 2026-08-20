@@ -20,6 +20,7 @@ import {
   CORE_RUNTIME_NAMES,
   compile,
   DOC_EXPORT_NAME,
+  SHIKI_LANG_MODULES,
   SOLID_AMBIENT_NAMES,
   SOLID_WEB_NAMES
 } from "../src/lib";
@@ -425,4 +426,100 @@ describe("compile (2026-08 sugars: comments, hr, strike, links, images, attrs)",
     expect(freeNames).toContain("Attrs");
     expect(code).toMatch(/^import \{ .*Attrs.* \} from "@nota-lang\/core";/m);
   });
+});
+
+describe("fence grammars are auto-registered", () => {
+  test("a tagged fence imports its grammar and registers it inside the document", () => {
+    const { code, fenceLangs } = compile("```rust\nfn main() {}\n```\n");
+    expect(fenceLangs).toEqual(["rust"]);
+    expect(code).toContain(
+      'import __notaLang_rust from "shiki/langs/rust.mjs";'
+    );
+    // Inside `Doc`, not at module scope: `lstset` outside a document session writes the
+    // session-wide baseline and would leak this document's grammars into every other one.
+    expect(code).toContain(
+      `export default function ${DOC_EXPORT_NAME}() {\n\tlstset({ langs: [__notaLang_rust] });`
+    );
+    // …and `lstset` must be bound, which means it joins the ambient prelude import.
+    expect(code).toMatch(
+      /import \{[^}]*\blstset\b[^}]*\} from "@nota-lang\/prelude";/
+    );
+  });
+
+  test("aliases resolve, because a fence tag is written the way a reader writes it", () => {
+    const { code } = compile("```js\nlet x = 1;\n```\n");
+    expect(code).toContain('import __notaLang_js from "shiki/langs/js.mjs";');
+    expect(SHIKI_LANG_MODULES.has("js")).toBe(true);
+  });
+
+  test("a tag that is not a JS identifier still binds", () => {
+    const { code } = compile("```objective-c\nint x;\n```\n");
+    expect(code).toContain(
+      'import __notaLang_objective_c from "shiki/langs/objective-c.mjs";'
+    );
+    expect(code).toContain("lstset({ langs: [__notaLang_objective_c] });");
+  });
+
+  test("repeated tags register once, in sorted order", () => {
+    const { code, fenceLangs } = compile(
+      "```rust\na\n```\n\n```python\nb\n```\n\n```rust\nc\n```\n"
+    );
+    expect(fenceLangs).toEqual(["python", "rust"]);
+    expect(code).toContain(
+      "lstset({ langs: [__notaLang_python, __notaLang_rust] });"
+    );
+    expect(code.match(/shiki\/langs\/rust\.mjs/g)).toHaveLength(1);
+  });
+
+  test("an unknown tag emits no import, leaving it to the runtime warning", () => {
+    const { code, fenceLangs } = compile("```wibble\n?\n```\n");
+    // Reported, so a caller can diagnose it…
+    expect(fenceLangs).toEqual(["wibble"]);
+    // …but never imported: `shiki/langs/wibble.mjs` would fail the bundler, and documents that
+    // register their own grammars through `lstset({ langs })` legitimately fence unknown tags.
+    expect(code).not.toContain("shiki/langs");
+    expect(code).not.toContain("lstset");
+  });
+
+  test("an untagged fence registers nothing (its language is a runtime value)", () => {
+    const { code, fenceLangs } = compile("```\nplain\n```\n");
+    expect(fenceLangs).toEqual([]);
+    expect(code).not.toContain("shiki/langs");
+  });
+
+  test("the injected call precedes the document's own % directives", () => {
+    const { code } = compile(
+      "% secset({ numberDepth: 2 })\n\n```python\nx\n```\n"
+    );
+    expect(code.indexOf("lstset({ langs:")).toBeLessThan(
+      code.indexOf("secset({ numberDepth: 2 })")
+    );
+  });
+
+  test("grammars: false leaves the emit alone, for scope-based evaluators", () => {
+    const { code } = compile("```rust\nfn main() {}\n```\n", {
+      grammars: false
+    });
+    expect(code).not.toContain("shiki/langs");
+    expect(code).not.toContain("lstset");
+  });
+
+  test("the emitted document header stays spliceable", () => {
+    // injectIntoDoc() splices the registration in after this exact header. It throws rather than
+    // emitting a broken module if the reader changes shape, but failing here says why.
+    const { code } = compile("Hi.\n");
+    expect(code).toContain(`export default function ${DOC_EXPORT_NAME}() {`);
+  });
+});
+
+test("a document that already calls lstset does not import it twice", () => {
+  // `freeNames` already carries `lstset` for the user's own call; the injected registration must
+  // not add a second binding to the same import specifier.
+  const { code } = compile(
+    '% lstset({ lang: "rust" })\n\n```rust\nfn f() {}\n```\n'
+  );
+  const specifier = /import \{([^}]*)\} from "@nota-lang\/prelude";/.exec(code);
+  expect(specifier, "prelude import present").toBeTruthy();
+  const bound = (specifier?.[1] ?? "").split(",").map(n => n.trim());
+  expect(bound.filter(n => n === "lstset")).toHaveLength(1);
 });

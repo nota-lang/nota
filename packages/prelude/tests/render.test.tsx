@@ -6,9 +6,10 @@
  */
 import { NotaDoc, renderDocument, useDocState } from "@nota-lang/core";
 import type { LanguageRegistration, ThemeRegistrationAny } from "shiki/core";
+import javascript from "shiki/langs/javascript.mjs";
+import rust from "shiki/langs/rust.mjs";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-  BASE_LANG_NAMES,
   BASE_THEME_NAMES,
   Bibliography,
   bibset,
@@ -25,6 +26,7 @@ import {
   headingIds,
   headingNumbers,
   Label,
+  loadedLangNames,
   lstset,
   mathset,
   Note,
@@ -45,6 +47,10 @@ import {
 beforeEach(() => {
   resetConfigForTest();
   resetCodeWarningsForTest();
+  // Grammars are opt-in (see src/langs.ts). Registering outside a document session sets the
+  // baseline every session clones — the "site setup module" path — so the highlighting tests
+  // below read as they did when `javascript` was preloaded.
+  lstset({ langs: [javascript] });
 });
 
 // Hydration keys and insertion-marker comments are claim-time bookkeeping; strip them so
@@ -1239,10 +1245,53 @@ describe("list consistency (single-sourced surfaces)", () => {
     resetConfigForTest();
     expect(BASE_THEME_NAMES).toContain(config().theme);
   });
+});
 
-  test("BASE_LANG_NAMES is introspected non-empty and includes the canonical grammars", () => {
-    for (const name of ["typescript", "python", "rust"]) {
-      expect(BASE_LANG_NAMES).toContain(name);
-    }
+describe("grammars are opt-in", () => {
+  test("an unregistered lang falls back to plain and says how to register it", () => {
+    resetConfigForTest();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Doc = () => (
+      <NotaDoc>
+        <CodeBlock lang="rust">{"fn main() {}"}</CodeBlock>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).not.toMatch(/<pre class="shiki/);
+    expect(html).toMatch(
+      /<pre class="nota-code-block"[^>]*><code[^>]*>fn main/
+    );
+    expect(warn.mock.calls.flat().join("\n")).toMatch(
+      /shiki\/langs\/rust\.mjs/
+    );
+    warn.mockRestore();
+  });
+
+  test("nothing is preloaded: a fresh config knows no grammar", () => {
+    resetConfigForTest();
+    expect(loadedLangNames()).toEqual([]);
+  });
+
+  test("lstset({langs}) is what makes a grammar available", () => {
+    resetConfigForTest();
+    const Doc = () => (
+      <NotaDoc>
+        {(() => {
+          lstset({ langs: [rust] });
+          return null;
+        })()}
+        <CodeBlock lang="rust">{"fn main() {}"}</CodeBlock>
+      </NotaDoc>
+    );
+    expect(clean(renderDocument(Doc).html)).toMatch(/<pre class="shiki/);
+  });
+
+  test("registering two grammars makes exactly those available", () => {
+    resetConfigForTest();
+    lstset({ langs: [rust, javascript] });
+    const loaded = loadedLangNames();
+    expect(loaded).toContain("rust");
+    expect(loaded).toContain("javascript");
+    expect(loaded).not.toContain("python");
   });
 });

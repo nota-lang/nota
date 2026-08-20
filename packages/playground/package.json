@@ -19,11 +19,12 @@
     "@codemirror/view": "^6.34.1",
     "@nota-lang/codemirror": "workspace:*",
     "@nota-lang/compiler": "workspace:*",
+    "@nota-lang/core": "workspace:*",
     "@nota-lang/language-server": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
-    "@nota-lang/core": "workspace:*",
     "babel-preset-solid": "^1.9.3",
     "prettier": "^3.8.4",
+    "shiki": "^3.9.2",
     "solid-js": "^1.9.3",
     "typescript": "^6.0.3"
   },

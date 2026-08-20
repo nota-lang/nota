@@ -174,9 +174,14 @@ describe("the asset pipeline", () => {
 describe("--setup", () => {
   test("a site lstset runs before render (highlighted code in static HTML)", async () => {
     const setupPath = join(tmpBase, "setup.mjs");
+    // `lang` selects a default for *untagged* fences, which carry no tag for the compiler to
+    // auto-import from — so a setup module still registers the grammar itself, and the pinned
+    // resolver has to reach shiki for it.
     writeFileSync(
       setupPath,
-      `import { lstset } from "@nota-lang/prelude";\nlstset({ lang: "js" });\n`
+      `import { lstset } from "@nota-lang/prelude";\n` +
+        `import js from "shiki/langs/js.mjs";\n` +
+        `lstset({ lang: "js", langs: [js] });\n`
     );
     const out = await buildNota("Some code:\n\n```\nlet x = 1;\n```\n", {
       sourcePath: "code.nota",

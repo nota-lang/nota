@@ -38,7 +38,9 @@ export function runPipeline(
       throw new Error(result.errors.map(error => error.message).join("\n"));
     }
     ast = result.ast;
-    jsx = bindImports(result.code, result.freeNames);
+    // The whole analysis result: `bindImports` needs `fenceLangs` to register the grammars this
+    // document's fences ask for, and passing fields piecemeal is how that gets forgotten.
+    jsx = bindImports(result);
   } catch (err) {
     return { ...prev, error: errMessage(err) };
   }

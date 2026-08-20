@@ -1,19 +1,68 @@
 /** Compile emitted Solid JSX and evaluate it against the playground's module map. */
 
 import * as Babel from "@babel/standalone";
+import { SHIKI_LANGS_MODULE } from "@nota-lang/compiler";
 import * as notaCore from "@nota-lang/core";
 import * as prelude from "@nota-lang/prelude";
 import solidPreset from "babel-preset-solid";
+import css from "shiki/langs/css.mjs";
+import html from "shiki/langs/html.mjs";
+import javascript from "shiki/langs/javascript.mjs";
+import json from "shiki/langs/json.mjs";
+import python from "shiki/langs/python.mjs";
+import rust from "shiki/langs/rust.mjs";
+import shellscript from "shiki/langs/shellscript.mjs";
+import typescript from "shiki/langs/typescript.mjs";
 import * as solidJs from "solid-js";
 import * as solidWeb from "solid-js/web";
+
+/**
+ * The grammars an evaluated document can highlight with.
+ *
+ * A fenced language tag compiles to `import … from "shiki/langs/<tag>.mjs"`, since grammars are
+ * opt-in and a fence tag is how a document asks for one. A real build resolves that against the
+ * filesystem; the playground resolves against {@link MODULE_MAP}, so it carries the grammars it
+ * chooses to honour. A tag outside this set resolves to an empty registration rather than
+ * failing the document — the fence then renders plain, which is what an unrecognised tag does in
+ * a real build too.
+ */
+const GRAMMARS: Record<string, Record<string, unknown>> = Object.fromEntries(
+  Object.entries({
+    css,
+    html,
+    javascript,
+    json,
+    python,
+    rust,
+    shellscript,
+    typescript
+  }).map(([name, grammar]) => [
+    `${SHIKI_LANGS_MODULE}/${name}.mjs`,
+    { default: grammar } as unknown as Record<string, unknown>
+  ])
+);
+
+/** A compiler-emitted grammar import, whether or not {@link GRAMMARS} carries it. */
+const GRAMMAR_SPECIFIER = new RegExp(`^${SHIKI_LANGS_MODULE}/[\\w.+-]+\\.mjs$`);
 
 /** Modules available to evaluated documents. */
 export const MODULE_MAP: Record<string, Record<string, unknown>> = {
   "solid-js": solidJs as unknown as Record<string, unknown>,
   "solid-js/web": solidWeb as unknown as Record<string, unknown>,
   "@nota-lang/core": notaCore as unknown as Record<string, unknown>,
-  "@nota-lang/prelude": prelude as unknown as Record<string, unknown>
+  "@nota-lang/prelude": prelude as unknown as Record<string, unknown>,
+  ...GRAMMARS
 };
+
+/** Resolve `specifier`, degrading an uncarried grammar to an empty registration. */
+export function resolveModule(
+  specifier: string
+): Record<string, unknown> | undefined {
+  return (
+    MODULE_MAP[specifier] ??
+    (GRAMMAR_SPECIFIER.test(specifier) ? { default: [] } : undefined)
+  );
+}
 
 /** Compile emitted JSX to Solid's DOM runtime. */
 export function babelCompile(jsxModule: string): string {
@@ -78,7 +127,7 @@ function importExportPlugin(
         if (specifier === undefined) {
           return;
         }
-        const mod = MODULE_MAP[specifier];
+        const mod = resolveModule(specifier);
         if (!mod) {
           problem.specifier = specifier;
           return;
