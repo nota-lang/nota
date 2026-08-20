@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/compiler",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Node shim around the oxc Nota reader: compiles .nota source to Solid JSX with the ambient imports prepended.",
   "files": [
     "dist"

@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/vite",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Vite integration for .nota: a two-plugin preset (transform to Solid JSX + vite-plugin-solid) compiling per build target.",
   "files": [
     "dist"
@@ -8,12 +8,10 @@
   "main": "dist/lib.js",
   "exports": {
     ".": {
-      "types": "./dist/lib.d.ts",
       "default": "./dist/lib.js"
     },
-    "./solid-start": {
-      "types": "./dist/solid-start.d.ts",
-      "default": "./dist/solid-start.js"
+    "./*": {
+      "default": "./dist/*.js"
     }
   },
   "type": "module",

@@ -1,7 +1,7 @@
 {
   "name": "@nota-lang/core",
-  "version": "0.1.0",
-  "description": "The Nota runtime, specialized to Solid: Reforest restructuring, the doc-state store, and the render/hydrate drivers.",
+  "version": "0.2.0",
+  "description": "The Nota runtime.",
   "files": [
     "dist"
   ],
@@ -9,9 +9,10 @@
   "types": "dist/lib.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/lib.d.ts",
-      "solid": "./dist/lib.jsx",
       "default": "./dist/lib.jsx"
+    },
+    "./*": {
+      "default": "./dist/*.js"
     }
   },
   "type": "module",
