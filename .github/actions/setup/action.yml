@@ -6,10 +6,19 @@ runs:
       - name: Install depot
         uses: cognitive-engineering-lab/depot/actions/install@main
 
-      - name: Install wasm-pack + binaryen
+      - name: Install Binaryen
+        env:
+          BINARYEN_VERSION: "132"
+        run: |
+          mkdir -p "$RUNNER_TEMP/binaryen"
+          curl -fsSL "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/binaryen-version_${BINARYEN_VERSION}-x86_64-linux.tar.gz" \
+            | tar xz --strip-components=1 -C "$RUNNER_TEMP/binaryen"
+          echo "$RUNNER_TEMP/binaryen/bin" >> "$GITHUB_PATH"
+
+      - name: Install wasm-pack
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-bindgen@0.2.126,binaryen@0.13.0
+          tool: wasm-bindgen@0.2.126
 
       - name: Install Just
         uses: extractions/setup-just@v3
