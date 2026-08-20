@@ -6,10 +6,10 @@ runs:
       - name: Install depot
         uses: cognitive-engineering-lab/depot/actions/install@main
 
-      - name: Install wasm-pack
+      - name: Install wasm-pack + binaryen
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-bindgen@0.2.126
+          tool: wasm-bindgen@0.2.126,binaryen@0.13.0
 
       - name: Install Just
         uses: extractions/setup-just@v3
