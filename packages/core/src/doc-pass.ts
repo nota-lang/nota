@@ -1,6 +1,7 @@
 /**
- * One-shot handoff from a host-rendered Nota route to its document shell. Request objects are
- * safe under concurrency; the module fallback requires synchronous, non-interleaved SSR.
+ * One-shot handoff from a host-rendered Nota route to its document shell or streaming asset.
+ * Request objects are safe under concurrency; the module fallback requires synchronous,
+ * non-interleaved SSR.
  */
 
 import type { DocState, Snapshot } from "./doc-state";

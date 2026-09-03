@@ -8,8 +8,8 @@
  * render's hydration keys are untouched by the nested collection passes, and non-convergence is
  * loud.
  */
-import type { JSX } from "solid-js";
-import { renderToString } from "solid-js/web";
+import { type JSX, lazy, Suspense } from "solid-js";
+import { renderToString, renderToStringAsync } from "solid-js/web";
 import { describe, expect, test } from "vitest";
 import { notaRoute } from "../src/route";
 import { NotaDocState } from "../src/shell";
@@ -27,6 +27,31 @@ function renderPage(Route: () => JSX.Element): string {
       <body>
         <div id="app">
           <Route />
+        </div>
+        <NotaDocState />
+      </body>
+    </html>
+  ));
+}
+
+/**
+ * SolidStart's async SSR ordering: the shell renders while the lazy route is still suspended.
+ * The route cannot park its document pass until a later microtask, after `<NotaDocState/>` has
+ * already found an empty handoff channel.
+ */
+function renderLazyPage(Route: () => JSX.Element): Promise<string> {
+  const LazyRoute = lazy(async () => {
+    await Promise.resolve();
+    return { default: Route };
+  });
+  return renderToStringAsync(() => (
+    <html lang="en">
+      <head></head>
+      <body>
+        <div id="app">
+          <Suspense>
+            <LazyRoute />
+          </Suspense>
         </div>
         <NotaDocState />
       </body>
@@ -60,6 +85,20 @@ describe("notaRoute (server)", () => {
         .filter((entry: { kind: string }) => entry.kind === "heading")
         .map((entry: { fact: { id: string } }) => entry.fact.id)
     ).toEqual(["alpha", "beta"]);
+  });
+
+  test("an async shell emits state parked by a lazy route", async () => {
+    const html = await renderLazyPage(notaRoute(Doc));
+    const seed = seedOf(html);
+    expect(
+      seed
+        .filter((entry: { kind: string }) => entry.kind === "heading")
+        .map((entry: { fact: { id: string } }) => entry.fact.id)
+    ).toEqual(["alpha", "beta"]);
+    expect(html.match(/id="nota-doc-state"/g)).toHaveLength(1);
+    expect(html.indexOf('id="nota-doc-state"')).toBeLessThan(
+      html.indexOf("</head>")
+    );
   });
 
   test("the collection passes leave the enclosing render's hydration keys alone", () => {

@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/core",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "The Nota runtime.",
   "files": [
     "dist"

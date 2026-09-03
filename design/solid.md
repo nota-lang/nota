@@ -213,9 +213,11 @@ process:
 hydrate) are a short module in `@nota-lang/core` — they replace `render`, `island`, capture mode,
 the manifest, and `hydrateDocument`'s replay machinery. A host that owns its own render loop
 (`notaRoute` under SolidStart) instead iterates in `collectDocState` and lets the shell's
-`NotaDocState` check the host's render, which is the budget's last pass; that seam costs one
-render more than the document's fixpoint depth, because the seed must be proven before the host
-commits bytes it cannot take back.
+`NotaDocState` check the host's render, which is the budget's last pass. Under streaming SSR a
+lazy route can settle after the shell has already checked the handoff; the route also registers a
+Solid asset thunk, evaluated after async fragments settle, which consumes and emits the pass only
+when the shell did not. That seam costs one render more than the document's fixpoint depth,
+because the seed must be proven before the host commits bytes it cannot take back.
 
 The reader emits component calls directly. The store appends facts as their components register
 and assigns each occurrence an opaque sequential `location`; the snapshot array is document
