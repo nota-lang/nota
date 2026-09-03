@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/codemirror",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CodeMirror 6 language support for Nota, reader-driven: highlighting, embedded-language sub-tokenizing, and a shared highlight style.",
   "files": [
     "dist"

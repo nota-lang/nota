@@ -1,6 +1,6 @@
 {
   "name": "@nota-lang/cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Build a single .nota document into a static page directory: nota build doc.nota -> doc/.",
   "bin": {
     "nota": "bin/nota.mjs"
