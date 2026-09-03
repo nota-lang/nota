@@ -7,7 +7,11 @@ import { createComponent, type JSX, onMount, sharedConfig } from "solid-js";
 import { getRequestEvent, isServer } from "solid-js/web";
 import { parkDocPass } from "./doc-pass";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
-import { collectDocState, type DocComponent, readPageDocState } from "./render";
+import {
+  collectDocPasses,
+  type DocComponent,
+  readPageDocState
+} from "./render";
 import type { SmartOptions } from "./smart";
 
 /** Options for {@link notaRoute}. */
@@ -17,6 +21,12 @@ export interface NotaRouteOptions {
    * reproduces the server text by re-running the same transform.
    */
   smart?: SmartOptions | false;
+  /**
+   * The document's fixpoint pass budget, counting the host's own render as the last pass. `0`
+   * means no cap. Default: the budget the build baked into `Doc`, else
+   * {@link DEFAULT_MAX_PASSES}. See {@link RenderDocumentOptions.maxPasses}.
+   */
+  maxPasses?: number;
 }
 
 /** Client navigations must not reuse the snapshot left by the server-rendered route. */
@@ -38,11 +48,17 @@ export function notaRoute(
   options: NotaRouteOptions = {}
 ): () => JSX.Element {
   return () => {
-    const seed = isServer ? collectDocState(Doc, options) : pageSeed();
+    const collected = isServer ? collectDocPasses(Doc, options) : undefined;
+    const seed = collected ? collected.seed : pageSeed();
     const state = createDocState(seed, { smart: options.smart });
-    if (isServer) {
-      // The shell emits the snapshot and checks convergence once this subtree has rendered.
-      parkDocPass(getRequestEvent(), { seed: seed as Snapshot, state });
+    if (collected) {
+      // The shell emits the snapshot and checks convergence once this subtree has rendered —
+      // that render is the last pass of the budget, hence the +1.
+      parkDocPass(getRequestEvent(), {
+        seed: collected.seed,
+        state,
+        passes: collected.passes + 1
+      });
     } else {
       // Switch from the hydration seed to live registrations after claiming.
       onMount(() => state.release());

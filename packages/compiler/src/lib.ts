@@ -280,7 +280,7 @@ export interface CompileResult {
  * the package barrel — so a document depends on the modules holding the names it uses and
  * nothing else (see {@link AMBIENT_PRELUDE_MODULES}). Names are grouped per module and the
  * modules emitted in a stable order, because the emit is compared byte-for-byte by tests and by
- * the two-pass render's convergence check.
+ * the fixpoint render's convergence check.
  *
  * Two cases still bind through one module. A custom {@link PreludeOptions.module} is a single
  * module by definition — the integrator's own surface, whose internal layout the compiler knows

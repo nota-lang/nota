@@ -64,7 +64,7 @@ bare JSX module ── @nota-lang/compiler ──▶ + free-name-driven ambient 
 vite-plugin-solid  (dom | ssr+hydratable — the consumer's build target decides)
   ▼                                      ▼
 client module                     server module
-  hydrate(() => <Doc/>, root)       renderDocument(Doc) → { html, state }   (two-pass, see §Doc-state)
+  hydrate(() => <Doc/>, root)       renderDocument(Doc) → { html, state }   (fixpoint, see §Doc-state)
 ```
 
 **Landed:** the reader now emits this JSX **natively** (oxc branch `solid`); the interim
@@ -189,12 +189,18 @@ process:
   `DocIndex`. Unmount unregisters (`onCleanup`), so removals update derived views immediately.
   A remounted fact is a new registration and appends to document order; dynamic semantic
   structure is not promised to track DOM insertion order.
-- **SSG renders twice.** Pass 1 renders to populate the store (forward reads resolve to
-  placeholders). Pass 2 renders with pass 1's snapshot as the **seed**: a read whose fact isn't
-  yet live falls back to the seed, so forward references are correct in static HTML. After pass
-  2, the new snapshot must equal the seed — a mismatch is a pointed "document did not converge"
-  error (the old "query output may not introduce new marks" rule, now emergent rather than
-  legislated).
+- **SSG renders to a fixpoint.** Pass 1 renders to populate the store (forward reads resolve to
+  placeholders). Each later pass renders with the previous pass's snapshot as the **seed**: a
+  read whose fact isn't yet live falls back to the seed, so forward references are correct in
+  static HTML. The driver stops at the first pass that *reproduces its own seed* — that pass is
+  a fixpoint, since rendering again could only produce the same bytes. Most documents reach it
+  on pass 2; a fact derived from other facts settles one level per pass.
+
+  Iteration is capped by **`maxPasses`** (default 5; `0` = no cap), configurable on the vite
+  plugin, which bakes it into each compiled document, and overridable per call. Spending the
+  budget without a fixpoint is a pointed "document did not converge" error — the old "query
+  output may not introduce new marks" rule, now emergent, weakened (a fact *may* read other
+  facts), and bounded (one that changes every pass has no fixpoint to reach).
 - **Hydration seeds from the page.** The converged snapshot (plain JSON: one ordered array of
   `{kind, fact}` entries — never vnodes) is embedded as
   `<script type="application/json" id="nota-doc-state">`. The client's `hydrateDocument` reads
@@ -203,9 +209,13 @@ process:
 - **Pure CSR** (dev server, playground): no seed; forward references resolve reactively a tick
   after first render. Correct by construction, just not pre-resolved.
 
-`renderDocument(Doc)` (two-pass + convergence + snapshot) and `hydrateDocument(Doc, opts)` (seed +
-hydrate) are ~40 lines in `@nota-lang/core` — they replace `render`, `island`, capture mode, the
-manifest, and `hydrateDocument`'s replay machinery.
+`renderDocument(Doc)` (iterate + converge + snapshot) and `hydrateDocument(Doc, opts)` (seed +
+hydrate) are a short module in `@nota-lang/core` — they replace `render`, `island`, capture mode,
+the manifest, and `hydrateDocument`'s replay machinery. A host that owns its own render loop
+(`notaRoute` under SolidStart) instead iterates in `collectDocState` and lets the shell's
+`NotaDocState` check the host's render, which is the budget's last pass; that seam costs one
+render more than the document's fixpoint depth, because the seed must be proven before the host
+commits bytes it cannot take back.
 
 The reader emits component calls directly. The store appends facts as their components register
 and assigns each occurrence an opaque sequential `location`; the snapshot array is document

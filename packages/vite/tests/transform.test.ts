@@ -2,6 +2,7 @@
  * Transform-hook unit tests (the hook invoked directly — no Vite build): extension claiming,
  * the asset-query carve-out, and the compiled JSX surface.
  */
+import type { DocComponent } from "@nota-lang/core";
 import { describe, expect, test } from "vitest";
 import { nota, notaTransform } from "../src/lib";
 
@@ -61,6 +62,28 @@ describe("output surface", () => {
     // The host-renderer brand rides after the emit (Astro check() dispatch).
     expect(out.code).toContain("export default function Doc()");
     expect(out.code).toContain("Doc.isNotaDoc = true;");
+  });
+
+  test("maxPasses rides on the compiled document; unset leaves the emit alone", () => {
+    const plain = getTransform()(DOC, "/x/doc.nota");
+    expect(plain?.code).not.toContain("notaRenderOptions");
+    // Typed against core's `DocComponent`, so renaming the property there breaks this line
+    // rather than silently emitting a field the render drivers no longer read.
+    const key: keyof DocComponent = "notaRenderOptions";
+    const capped = getTransform({ maxPasses: 3 })(DOC, "/x/doc.nota");
+    expect(capped?.code).toContain(`Doc.${key} = {"maxPasses":3};`);
+    const uncapped = getTransform({ maxPasses: 0 })(DOC, "/x/doc.nota");
+    expect(uncapped?.code).toContain(
+      'Doc.notaRenderOptions = {"maxPasses":0};'
+    );
+  });
+
+  test("a budget that could never converge fails the config, not the build", () => {
+    for (const maxPasses of [1, -1, 2.5]) {
+      expect(() => notaTransform({ maxPasses })).toThrow(
+        /maxPasses must be 0 \(no cap\) or an integer >= 2/
+      );
+    }
   });
 
   test("preludeModule redirects the ambient import; false disables it", () => {

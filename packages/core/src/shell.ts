@@ -22,6 +22,6 @@ export function NotaDocState(): JSX.Element {
   const pass = takeDocPass(getRequestEvent());
   if (!pass) return null;
   const post = pass.state.snapshot();
-  assertDocStateConverged(pass.seed, post);
+  assertDocStateConverged(pass.seed, post, pass.passes);
   return ssr(docStateScript(pass.seed)) as unknown as JSX.Element;
 }

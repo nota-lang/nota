@@ -7,10 +7,13 @@ import type { DocState, Snapshot } from "./doc-state";
 
 /** What a Nota route parks for the shell to finish. */
 export interface DocPass {
-  /** Pass 1's snapshot: what pass 2 rendered against, and what the client must hydrate with. */
+  /** The collected fixpoint: what the host's render ran against, and what the client hydrates
+   * with. */
   seed: Snapshot;
-  /** The pass-2 store, for the shell's convergence check once the document has rendered. */
+  /** The final pass's store, for the shell's convergence check once the document rendered. */
   state: DocState;
+  /** Passes spent by the time the shell checks, for the divergence report. */
+  passes?: number;
 }
 
 const requestPasses = new WeakMap<object, DocPass>();

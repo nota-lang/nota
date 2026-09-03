@@ -36,6 +36,21 @@ export interface NotaPluginOptions {
    */
   extraAmbientNames?: string[];
   /**
+   * How many passes a document gets to reach its fixpoint. Rendering iterates — each pass is
+   * seeded with the previous pass's facts, which is what resolves forward references and lets a
+   * fact derived from other facts settle — and stops at the first pass that reproduces its own
+   * seed. A document still moving after `maxPasses` is a build error.
+   *
+   * `0` means no cap: iterate until the document stabilizes, which for a document that never
+   * does is an infinite build. Default: `@nota-lang/core`'s `DEFAULT_MAX_PASSES` (5). Any other
+   * value must be an integer >= 2 — a fixpoint is only observable once one pass has reproduced
+   * the pass before it.
+   *
+   * Baked into each compiled document, so it reaches every renderer (`renderDocument`,
+   * `notaRoute`) without the host restating it; an explicit call-site option still wins.
+   */
+  maxPasses?: number;
+  /**
    * `false` to omit the bundled vite-plugin-solid (the app configures its own — remember to add
    * `".nota"` to its `extensions`). Default: included, with
    * `{ extensions: [".nota"], solid: { hydratable: true } }`.
@@ -155,9 +170,28 @@ export function duplicateSingletons(
   );
 }
 
+/**
+ * The render defaults to bake into every compiled document, as source lines. Mirrors core's own
+ * `checkMaxPasses` rule so a mistyped budget is a config error, not a per-document render error.
+ */
+function renderDefaultsEmit(options: NotaPluginOptions): string {
+  const { maxPasses } = options;
+  if (maxPasses === undefined) {
+    return "";
+  }
+  if (!Number.isInteger(maxPasses) || maxPasses < 0 || maxPasses === 1) {
+    throw new Error(
+      `@nota-lang/vite: maxPasses must be 0 (no cap) or an integer >= 2, got ${maxPasses}`
+    );
+  }
+  return `${DOC_EXPORT_NAME}.notaRenderOptions = ${JSON.stringify({ maxPasses })};\n`;
+}
+
 /** Compile claimed extensions before vite-plugin-solid; asset queries pass through untouched. */
 export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
+  // Validate at plugin construction: a bad budget fails the config, not the first document.
+  const renderDefaults = renderDefaultsEmit(options);
   const prelude =
     options.preludeModule === false
       ? (false as const)
@@ -205,8 +239,12 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
       }
       // A compile error throws; Vite surfaces it as a build/overlay error against this id.
       const { code: out, map } = compile(code, { sourcePath: id, prelude });
-      // Brand the component for host renderers. This line sits beyond any mapped range.
-      return { code: `${out}\n${DOC_EXPORT_NAME}.isNotaDoc = true;\n`, map };
+      // Brand the component for host renderers, and attach the configured render defaults.
+      // These lines sit beyond any mapped range.
+      return {
+        code: `${out}\n${DOC_EXPORT_NAME}.isNotaDoc = true;\n${renderDefaults}`,
+        map
+      };
     },
     buildEnd() {
       // Identity bugs from a duplicated singleton surface far from their cause (a dead

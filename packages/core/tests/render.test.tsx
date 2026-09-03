@@ -1,7 +1,7 @@
 /**
  * The server half (ssr project — JSX compiled with generate:"ssr", node conditions): Reforest
- * over SSR chunks, the doc-state store, the two-pass renderDocument driver (forward references,
- * convergence), trailers, and the snapshot embed.
+ * over SSR chunks, the doc-state store, the fixpoint renderDocument driver (forward references,
+ * convergence, the pass budget), trailers, and the snapshot embed.
  */
 import {
   createSignal,
@@ -14,9 +14,12 @@ import { describe, expect, test } from "vitest";
 import {
   Attrs,
   categorize,
+  checkMaxPasses,
   collectDocState,
   createDocState,
+  DEFAULT_MAX_PASSES,
   DOC_STATE_ID,
+  type DocComponent,
   DocStateContext,
   docStateJson,
   docStateScript,
@@ -207,7 +210,7 @@ describe("doc-state store", () => {
   });
 });
 
-describe("collectDocState (pass 1 as a seam)", () => {
+describe("collectDocState (the host-driven seam)", () => {
   test("returns the same seed renderDocument converges on", () => {
     expect(collectDocState(Doc)).toEqual(renderDocument(Doc).state);
   });
@@ -261,11 +264,13 @@ describe("collectDocState (pass 1 as a seam)", () => {
     );
     collectDocState(LocalDoc);
     collectDocState(LocalDoc);
-    expect(seen).toEqual([0, 0]);
+    // Two calls, two passes each (this document converges immediately) — and every one of the
+    // four renders starts its session from scratch.
+    expect(seen).toEqual([0, 0, 0, 0]);
   });
 });
 
-describe("renderDocument (two-pass SSG)", () => {
+describe("renderDocument (fixpoint SSG)", () => {
   test("forward references resolve: the Toc above its headings lists them", () => {
     const { html, state } = renderDocument(Doc);
     // The nav precedes the headings in the HTML yet contains their entries.
@@ -298,10 +303,10 @@ describe("renderDocument (two-pass SSG)", () => {
     expect(scoped.state).toEqual(plain.state);
   });
 
-  test("a fact derived from reading another fact fails convergence", () => {
+  test("a fact derived from reading another fact settles on a later pass", () => {
     const Echo = () => {
       const state = useDocState();
-      // Registers one fact per already-visible heading — pass 2 sees more than pass 1.
+      // Registers the heading count — pass 1 sees none, pass 2 sees one, pass 3 agrees.
       state.register("echo", { n: state.read("heading").length });
       return null;
     };
@@ -310,13 +315,17 @@ describe("renderDocument (two-pass SSG)", () => {
       state.register("heading", { id: "x" });
       return <h2>x</h2>;
     };
-    const Bad = () => (
+    const Chained = () => (
       <NotaDoc>
         <Echo />
         <H />
       </NotaDoc>
     );
-    expect(() => renderDocument(Bad)).toThrow(/did not converge/);
+    expect(
+      renderDocument(Chained)
+        .state.filter(entry => entry.kind === "echo")
+        .map(entry => entry.fact.n)
+    ).toEqual([1]);
   });
 
   test("flags are positional (set before read in tree order)", () => {
@@ -374,6 +383,127 @@ describe("renderDocument (two-pass SSG)", () => {
     expect(html).toContain(">first<");
     expect(html).toContain(">second<");
     expect(html).not.toContain("OVERRIDE");
+  });
+});
+
+describe("the fixpoint pass budget", () => {
+  /**
+   * A document needing exactly `to + 1` passes: `climb` reads its own previous value and steps
+   * one toward `to`, so each pass resolves one level more and the pass after it reaches `to`
+   * reproduces it. `passes()` is how many renders the driver actually ran.
+   */
+  function climbDoc(to: number): { Doc: DocComponent; passes: () => number } {
+    let passes = 0;
+    const Climb = () => {
+      const state = useDocState();
+      const prev = (state.read("climb")[0]?.n as number | undefined) ?? 0;
+      state.register("climb", { n: Math.min(prev + 1, to) });
+      return null;
+    };
+    const Doc: DocComponent = () => {
+      passes += 1;
+      return (
+        <NotaDoc>
+          <Climb />
+        </NotaDoc>
+      );
+    };
+    return { Doc, passes: () => passes };
+  }
+
+  const climbedTo = (rendered: { state: Snapshot }) =>
+    rendered.state.find(entry => entry.kind === "climb")?.fact.n;
+
+  test("a document that converges early stops there", () => {
+    const { Doc, passes } = climbDoc(1);
+    expect(climbedTo(renderDocument(Doc))).toBe(1);
+    // The two-pass case: pass 2 reproduced pass 1, so no third pass ran.
+    expect(passes()).toBe(2);
+  });
+
+  test("each extra pass resolves one more level of derivation", () => {
+    const { Doc, passes } = climbDoc(3);
+    expect(climbedTo(renderDocument(Doc))).toBe(3);
+    expect(passes()).toBe(4);
+  });
+
+  test(`the default budget is ${DEFAULT_MAX_PASSES} passes`, () => {
+    const { Doc, passes } = climbDoc(DEFAULT_MAX_PASSES);
+    expect(() => renderDocument(Doc)).toThrow(
+      new RegExp(`did not converge in ${DEFAULT_MAX_PASSES} passes`)
+    );
+    expect(passes()).toBe(DEFAULT_MAX_PASSES);
+  });
+
+  test("maxPasses raises the budget", () => {
+    const { Doc, passes } = climbDoc(DEFAULT_MAX_PASSES);
+    expect(climbedTo(renderDocument(Doc, { maxPasses: 8 }))).toBe(
+      DEFAULT_MAX_PASSES
+    );
+    expect(passes()).toBe(DEFAULT_MAX_PASSES + 1);
+  });
+
+  test("maxPasses lowers it too — a document that would settle still throws", () => {
+    const { Doc, passes } = climbDoc(3);
+    expect(() => renderDocument(Doc, { maxPasses: 2 })).toThrow(
+      /did not converge in 2 passes/
+    );
+    expect(passes()).toBe(2);
+  });
+
+  test("maxPasses: 0 is no cap", () => {
+    const { Doc, passes } = climbDoc(DEFAULT_MAX_PASSES + 4);
+    expect(climbedTo(renderDocument(Doc, { maxPasses: 0 }))).toBe(
+      DEFAULT_MAX_PASSES + 4
+    );
+    expect(passes()).toBe(DEFAULT_MAX_PASSES + 5);
+  });
+
+  test("a document with no fixpoint spends the budget and throws", () => {
+    let passes = 0;
+    // `echo` flips every pass: no budget settles it.
+    const Flip = () => {
+      const state = useDocState();
+      const prev = state.read("echo")[0]?.n as number | undefined;
+      state.register("echo", { n: prev === 1 ? 0 : 1 });
+      return null;
+    };
+    const Doc = () => {
+      passes += 1;
+      return (
+        <NotaDoc>
+          <Flip />
+        </NotaDoc>
+      );
+    };
+    expect(() => renderDocument(Doc)).toThrow(/no fixpoint to reach/);
+    expect(passes).toBe(DEFAULT_MAX_PASSES);
+  });
+
+  test("the budget baked into the component is the default; a call-site option wins", () => {
+    const { Doc } = climbDoc(3);
+    Doc.notaRenderOptions = { maxPasses: 2 };
+    expect(() => renderDocument(Doc)).toThrow(/did not converge in 2 passes/);
+    expect(climbedTo(renderDocument(Doc, { maxPasses: 4 }))).toBe(3);
+  });
+
+  test("collectDocState leaves the last pass of the budget to the host", () => {
+    // It stops one short so the host's own render is the pass the shell checks — that render
+    // reproduces this seed, for a total of exactly `maxPasses`.
+    const { Doc, passes } = climbDoc(2);
+    expect(collectDocState(Doc, { maxPasses: 3 })[0].fact.n).toBe(2);
+    expect(passes()).toBe(2);
+  });
+
+  test("a budget that could never converge is a pointed error", () => {
+    const { Doc } = climbDoc(1);
+    for (const maxPasses of [1, -1, 2.5, Number.NaN]) {
+      expect(() => renderDocument(Doc, { maxPasses })).toThrow(
+        /maxPasses must be 0 \(no cap\) or an integer >= 2/
+      );
+    }
+    expect(() => checkMaxPasses(0)).not.toThrow();
+    expect(() => checkMaxPasses(2)).not.toThrow();
   });
 });
 

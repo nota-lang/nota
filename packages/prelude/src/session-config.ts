@@ -13,7 +13,7 @@
  *   path, where an integrator establishes defaults before rendering; and
  * - a **session copy**, cloned from the baseline the first time a document touches the slot.
  *
- * The copy is what makes the two-pass render sound. Pass 1 and pass 2 are separate sessions, so a
+ * The copy is what makes the fixpoint render sound. Every pass is a separate session, so a
  * `% lstset(…)` halfway through a document must not leak from one pass into the next, and two
  * documents rendered on one page must not see each other's configuration.
  */

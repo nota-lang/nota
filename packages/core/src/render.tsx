@@ -1,17 +1,46 @@
-/** Two-pass static rendering and hydration for documents with forward references. */
+/** Fixpoint static rendering and hydration for documents with forward references. */
 
 import { type JSX, sharedConfig } from "solid-js";
 import { renderToString, hydrate as solidHydrate } from "solid-js/web";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
 import type { SmartOptions } from "./smart";
 
+/** Render defaults a build step may bake into a document component. */
+export interface DocRenderDefaults {
+  /** See {@link RenderDocumentOptions.maxPasses}. */
+  maxPasses?: number;
+}
+
 /** A document component (the `.nota` emit's default export). */
-export type DocComponent = () => JSX.Element;
+export interface DocComponent {
+  (): JSX.Element;
+  /** Branded by `@nota-lang/vite`, for host renderers that dispatch on component kind. */
+  isNotaDoc?: boolean;
+  /** Defaults baked in by `@nota-lang/vite`; an explicit call-site option overrides them. */
+  notaRenderOptions?: DocRenderDefaults;
+}
+
+/** The pass budget a document gets to reach its fixpoint when nothing configures one. */
+export const DEFAULT_MAX_PASSES = 5;
+
+/**
+ * Check a pass budget, returning it. `1` is rejected along with the negatives and non-integers:
+ * the first pass has no seed to reproduce, so convergence is only observable from the second,
+ * and a budget of one could only ever fail.
+ */
+export function checkMaxPasses(maxPasses: number): number {
+  if (!Number.isInteger(maxPasses) || maxPasses < 0 || maxPasses === 1) {
+    throw new Error(
+      `nota: maxPasses must be 0 (no cap) or an integer >= 2, got ${maxPasses}`
+    );
+  }
+  return maxPasses;
+}
 
 /** Options for {@link renderDocument}. */
 export interface RenderDocumentOptions {
   /**
-   * Hydration-key prefix, forwarded to both passes' `renderToString`. A host page holding
+   * Hydration-key prefix, forwarded to every pass' `renderToString`. A host page holding
    * several hydrating documents (e.g. Astro islands) allocates one per document so each claims
    * its own key space; the client must pass the same id to {@link hydrateDocument}.
    */
@@ -22,28 +51,57 @@ export interface RenderDocumentOptions {
    * identically on both sides, which is what makes hydration claim the transformed text.
    */
   smart?: SmartOptions | false;
+  /**
+   * How many passes the document gets to reach its fixpoint before {@link renderDocument}
+   * gives up and throws. Two is the minimum that can converge; each pass beyond it lets a fact
+   * that reads other facts settle one level deeper. `0` means no cap — a document that never
+   * stabilizes then renders forever, so only set it where divergence is impossible.
+   *
+   * Default: the {@link DocComponent.notaRenderOptions} the build baked into `Doc` (see
+   * `@nota-lang/vite`'s `maxPasses`), else {@link DEFAULT_MAX_PASSES}.
+   */
+  maxPasses?: number;
 }
 
 /** The result of {@link renderDocument}. */
 export interface RenderedDocument {
-  /** The document HTML (pass 2 — forward references resolved). */
+  /** The document HTML (the converged pass — forward references resolved). */
   html: string;
   /** The converged doc-state snapshot; embed via {@link docStateScript} for hydration. */
   state: Snapshot;
 }
 
+/** The pass budget in force for `Doc`: call site, else the component's baked-in default. */
+function resolveMaxPasses(
+  Doc: DocComponent,
+  options: RenderDocumentOptions
+): number {
+  return checkMaxPasses(
+    options.maxPasses ?? Doc.notaRenderOptions?.maxPasses ?? DEFAULT_MAX_PASSES
+  );
+}
+
+/** One pass' output. `json` is the snapshot's wire form, the identity passes compare on. */
+interface PassResult {
+  html: string;
+  snapshot: Snapshot;
+  json: string;
+}
+
 /**
- * Run the collection pass. Saving `sharedConfig.context` keeps a nested `renderToString` from
+ * Render `Doc` once against `seed` (`undefined` on the first pass, whose forward reads see only
+ * what precedes them). Saving `sharedConfig.context` keeps a nested `renderToString` from
  * disturbing the host render's hydration-key counter.
  */
-export function collectDocState(
+function renderPass(
   Doc: DocComponent,
-  options: RenderDocumentOptions = {}
-): Snapshot {
+  seed: Snapshot | undefined,
+  options: RenderDocumentOptions
+): PassResult {
   const outer = sharedConfig.context;
-  const state = createDocState(undefined, { smart: options.smart });
+  const state = createDocState(seed, { smart: options.smart });
   try {
-    renderToString(
+    const html = renderToString(
       () => (
         <DocStateContext.Provider value={state}>
           <Doc />
@@ -51,49 +109,123 @@ export function collectDocState(
       ),
       { renderId: options.renderId }
     );
+    const snapshot = state.snapshot();
+    return { html, snapshot, json: JSON.stringify(snapshot) };
   } finally {
     sharedConfig.context = outer;
   }
-  return state.snapshot();
+}
+
+/** Where {@link iterate} stopped. */
+interface FixpointResult extends PassResult {
+  /** The wire form of the snapshot the last pass rendered against (`undefined` if it was first). */
+  seedJson: string | undefined;
+  /** Passes actually run. */
+  passes: number;
+  /** Did the last pass reproduce the snapshot it rendered against? */
+  converged: boolean;
 }
 
 /**
- * Render once to collect state, then again against that seed. The second pass must reproduce
- * the first pass's registrations.
+ * Re-render, each pass seeded with the one before it, until a pass reproduces its own seed or
+ * `cap` passes have run (`0` = no cap). The seeded store pins reads to the seed, so a pass that
+ * reproduces it is a fixpoint: rendering again could only produce the same HTML.
+ */
+function iterate(
+  Doc: DocComponent,
+  options: RenderDocumentOptions,
+  cap: number
+): FixpointResult {
+  let prev = renderPass(Doc, undefined, options);
+  let passes = 1;
+  let seedJson: string | undefined;
+  while (cap === 0 || passes < cap) {
+    const pass = renderPass(Doc, prev.snapshot, options);
+    passes += 1;
+    seedJson = prev.json;
+    if (pass.json === prev.json) {
+      return { ...pass, seedJson, passes, converged: true };
+    }
+    prev = pass;
+  }
+  return { ...prev, seedJson, passes, converged: false };
+}
+
+/**
+ * {@link collectDocState}, plus the passes it took — a host that owns the final render parks
+ * this so its convergence check can name the budget that ran out.
+ */
+export function collectDocPasses(
+  Doc: DocComponent,
+  options: RenderDocumentOptions = {}
+): { seed: Snapshot; passes: number } {
+  const cap = resolveMaxPasses(Doc, options);
+  // One pass of the budget belongs to the host's own render, which is the one the shell checks.
+  const result = iterate(Doc, options, cap === 0 ? 0 : cap - 1);
+  return { seed: result.snapshot, passes: result.passes };
+}
+
+/**
+ * Run the collection passes for a host that owns the final render (`notaRoute`): the seed the
+ * host's pass must reproduce. Stops one pass short of the budget, leaving the host's render to
+ * spend the last one; a document still moving by then is reported by the shell's convergence
+ * check rather than here.
+ *
+ * A host page costs one render more than its fixpoint depth, because the seed has to be *proven*
+ * before the host commits bytes it cannot take back — unlike {@link renderDocument}, which owns
+ * the last pass and can keep going. `maxPasses: 2` spends nothing on proof: one collection pass,
+ * and the host's render is the check.
+ */
+export function collectDocState(
+  Doc: DocComponent,
+  options: RenderDocumentOptions = {}
+): Snapshot {
+  return collectDocPasses(Doc, options).seed;
+}
+
+/**
+ * Render to a fixpoint: each pass is seeded with the previous pass's registrations, so forward
+ * references (a Toc above its headings) resolve, and facts derived from other facts settle over
+ * successive passes. Returns the first pass that reproduced its own seed; throws once
+ * {@link RenderDocumentOptions.maxPasses} passes have run without one.
  */
 export function renderDocument(
   Doc: DocComponent,
   options: RenderDocumentOptions = {}
 ): RenderedDocument {
-  const renderOptions = { renderId: options.renderId };
-  const stateOptions = { smart: options.smart };
-  const seed = collectDocState(Doc, options);
-
-  const pass2 = createDocState(seed, stateOptions);
-  const html = renderToString(
-    () => (
-      <DocStateContext.Provider value={pass2}>
-        <Doc />
-      </DocStateContext.Provider>
-    ),
-    renderOptions
-  );
-  const post = pass2.snapshot();
-  assertDocStateConverged(seed, post);
-  return { html, state: seed };
+  const cap = resolveMaxPasses(Doc, options);
+  const result = iterate(Doc, options, cap);
+  if (!result.converged) {
+    throw notConverged(result.seedJson ?? "(none)", result.json, result.passes);
+  }
+  return { html: result.html, state: result.snapshot };
 }
 
-/** Throw when pass 2 did not reproduce pass 1's registrations. */
-export function assertDocStateConverged(seed: Snapshot, post: Snapshot): void {
+/** Throw when the final pass did not reproduce the snapshot it rendered against. */
+export function assertDocStateConverged(
+  seed: Snapshot,
+  post: Snapshot,
+  passes?: number
+): void {
   const before = JSON.stringify(seed);
   const after = JSON.stringify(post);
   if (after !== before) {
-    throw new Error(
-      "nota: document did not converge — a registration changed between passes " +
-        "(doc-state facts may not depend on reading other doc-state facts)\n" +
-        `pass 1: ${before}\npass 2: ${after}`
-    );
+    throw notConverged(before, after, passes);
   }
+}
+
+/**
+ * The divergence error. A fact may read other facts — that is what the extra passes buy — but
+ * one that keeps changing every pass has no fixpoint and no budget will settle it.
+ */
+function notConverged(before: string, after: string, passes?: number): Error {
+  const budget = passes === undefined ? "" : ` in ${passes} passes`;
+  return new Error(
+    `nota: document did not converge${budget} — a registration changed between the last two ` +
+      "passes (raise maxPasses if the document needs more of them; a fact that changes on " +
+      "every pass has no fixpoint to reach)\n" +
+      `before: ${before}\nafter: ${after}`
+  );
 }
 
 /** The id of the embedded doc-state snapshot script. */

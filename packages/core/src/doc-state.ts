@@ -1,6 +1,7 @@
 /**
  * Per-document registrations used for references, numbering, and end-of-document trailers.
- * Seeded stores support two-pass rendering; live registrations remain reactive on the client.
+ * Seeded stores are one pass of the fixpoint render; live registrations remain reactive on the
+ * client.
  */
 
 import {
@@ -64,7 +65,7 @@ export interface DocState {
   flag(name: string): void;
   /** Read a document flag reactively. */
   hasFlag(name: string): boolean;
-  /** Was this store created with a seed (SSG pass 2 / hydration)? */
+  /** Was this store created with a seed (any SSG pass after the first / hydration)? */
   readonly seeded: boolean;
   /** Document-wide smart-punctuation settings. */
   readonly smart?: SmartOptions | false;

@@ -4,15 +4,21 @@
  *
  * The shape under test mirrors `StartServer`: a shell whose body holds the app subtree and then
  * `<NotaDocState/>`, so the shell's script sees the pass the route parked. What must hold:
- * forward references are resolved in the *server bytes* (the two-pass payoff), the enclosing
- * render's hydration keys are untouched by the nested pass 1, and non-convergence is loud.
+ * forward references are resolved in the *server bytes* (the fixpoint payoff), the enclosing
+ * render's hydration keys are untouched by the nested collection passes, and non-convergence is
+ * loud.
  */
 import type { JSX } from "solid-js";
 import { renderToString } from "solid-js/web";
 import { describe, expect, test } from "vitest";
 import { notaRoute } from "../src/route";
 import { NotaDocState } from "../src/shell";
-import { DivergentDoc, Doc, PlainRoute } from "./fixtures/route-doc";
+import {
+  DivergentDoc,
+  Doc,
+  PlainRoute,
+  SettlingDoc
+} from "./fixtures/route-doc";
 
 /** The `StartServer` shape: app subtree, then the shell's trailing scripts. */
 function renderPage(Route: () => JSX.Element): string {
@@ -56,7 +62,7 @@ describe("notaRoute (server)", () => {
     ).toEqual(["alpha", "beta"]);
   });
 
-  test("pass 1 leaves the enclosing render's hydration keys alone", () => {
+  test("the collection passes leave the enclosing render's hydration keys alone", () => {
     // Without the sharedConfig save/restore in core's collectDocState, the nested render would
     // renumber every key after the route and the client would claim nothing.
     const keys = (html: string) =>
@@ -67,9 +73,26 @@ describe("notaRoute (server)", () => {
     expect(new Set(withDoc).size).toBe(withDoc.length);
   });
 
-  test("a non-converging document throws from the shell", () => {
+  test("a document needing a third pass settles before the host's render", () => {
+    // collectDocPasses spends its budget up front, so the host render is the pass that
+    // reproduces the seed — the shell's check passes and the emitted snapshot is the fixpoint.
+    const seed = seedOf(renderPage(notaRoute(SettlingDoc)));
+    expect(
+      seed
+        .filter((entry: { kind: string }) => entry.kind === "echo")
+        .map((entry: { fact: { n: number } }) => entry.fact.n)
+    ).toEqual([1]);
+  });
+
+  test("a non-converging document throws from the shell, naming the budget", () => {
     expect(() => renderPage(notaRoute(DivergentDoc))).toThrow(
-      /did not converge/
+      /did not converge in 5 passes/
+    );
+  });
+
+  test("maxPasses caps the passes the route spends", () => {
+    expect(() => renderPage(notaRoute(SettlingDoc, { maxPasses: 2 }))).toThrow(
+      /did not converge in 2 passes/
     );
   });
 

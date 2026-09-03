@@ -77,7 +77,7 @@ function PendingRef(props: { children?: JSX.Element }): JSX.Element {
   );
 }
 
-/** The store's anchor facts (resolved view — seed-pinned during SSG pass 2 / hydration). */
+/** The store's anchor facts (resolved view — seed-pinned during a seeded pass / hydration). */
 function readAnchors(state: DocState): AnchorFact[] {
   return state.read(FACT_KINDS.anchor) as AnchorFact[];
 }

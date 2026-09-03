@@ -1,7 +1,7 @@
 /**
  * The fixture document for both suites: a *forward* reference (a Toc rendered above the headings
- * it lists) is the whole reason a document needs two passes, and a counter gives hydration
- * something to prove it claimed rather than rebuilt.
+ * it lists) is the whole reason a document needs more than one pass, and a counter gives
+ * hydration something to prove it claimed rather than rebuilt.
  *
  * Deliberately built from core's store primitives rather than the prelude, so these tests pin
  * this package's seam and not the prelude's component surface.
@@ -67,8 +67,12 @@ export function OtherDoc() {
   );
 }
 
-/** A document whose facts depend on reading facts — can never converge. */
-export function DivergentDoc() {
+/**
+ * A document that needs a third pass: `echo` counts the headings, which the first pass has not
+ * registered yet when it renders. Pass 2 sees one, pass 3 reproduces it — a fixpoint one level
+ * deeper than the forward reference in {@link Doc}.
+ */
+export function SettlingDoc() {
   const Echo = () => {
     const state = useDocState();
     state.register("echo", { n: state.read("heading").length });
@@ -77,6 +81,22 @@ export function DivergentDoc() {
   return (
     <NotaDoc>
       <Echo />
+      <MiniHeading id="alpha">Alpha</MiniHeading>
+    </NotaDoc>
+  );
+}
+
+/** A document with no fixpoint at all: `echo` flips between 1 and 0 on every pass. */
+export function DivergentDoc() {
+  const Flip = () => {
+    const state = useDocState();
+    const prev = state.read("echo")[0]?.n as number | undefined;
+    state.register("echo", { n: prev === 1 ? 0 : 1 });
+    return null;
+  };
+  return (
+    <NotaDoc>
+      <Flip />
       <MiniHeading id="alpha">Alpha</MiniHeading>
     </NotaDoc>
   );

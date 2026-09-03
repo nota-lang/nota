@@ -1,5 +1,5 @@
 /**
- * The Solid runtime for Nota documents: tree restructuring, document state, and two-pass
+ * The Solid runtime for Nota documents: tree restructuring, document state, and fixpoint
  * rendering. See `design/solid.md`.
  */
 
