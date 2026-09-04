@@ -58,7 +58,10 @@ describe("nota() → renderDocument, end to end", () => {
     expect(html).toMatch(
       /<h1 id="usage" ?><span class="nota-secnum">2<\/span>/
     );
-    const nav = /<nav class="nota-toc">([\s\S]*?)<\/nav>/.exec(html);
+    // `\s*` on the class values below: the prelude's host-attribute pass merges an
+    // authored `class` into these, which makes the attribute a dynamic expression, and
+    // Solid's SSR emits a trailing space for one. Matches `prelude/tests/render.test.tsx`.
+    const nav = /<nav class="nota-toc\s*">([\s\S]*?)<\/nav>/.exec(html);
     expect(nav).toBeTruthy();
     expect(nav?.[1]).toContain("1 Introduction");
     expect(nav?.[1]).toContain("2 Usage");
@@ -72,13 +75,13 @@ describe("nota() → renderDocument, end to end", () => {
   });
 
   test("math and code render (KaTeX MathML, shiki-less inline code)", () => {
-    expect(html).toMatch(/<span class="nota-tex"[^>]*><span class="katex"/);
-    expect(html).toMatch(/<code class="nota-code-inline"[^>]*>f\(x\)/);
+    expect(html).toMatch(/<span class="nota-tex\s*"[^>]*><span class="katex"/);
+    expect(html).toMatch(/<code class="nota-code-inline\s*"[^>]*>f\(x\)/);
   });
 
   test("the definition anchors, its ref, the note, and the trailers land", () => {
     expect(html).toMatch(
-      /<span id="def-nota" class="nota-def"[^>]*>Nota<\/span>/
+      /<span id="def-nota" class="nota-def\s*"[^>]*>Nota<\/span>/
     );
     expect(html).toMatch(
       /<a href="#def-nota"[^>]*data-nota-def="nota"[^>]*>Nota<\/a>/

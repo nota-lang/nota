@@ -22,19 +22,20 @@
   },
   "dependencies": {
     "@nota-lang/compiler": "workspace:*",
-    "@nota-lang/prelude": "workspace:*",
     "@nota-lang/core": "workspace:*",
+    "@nota-lang/prelude": "workspace:*",
+    "@orcid/bibtex-parse-js": "^0.0.25",
     "solid-js": "^1.9.3",
     "vite-plugin-solid": "^2.11.10"
   },
   "peerDependencies": {
-    "vite": "^8.0.16",
-    "@solidjs/start": "^2.0.0"
+    "@solidjs/start": "^2.0.0",
+    "vite": "^8.0.16"
   },
   "devDependencies": {
+    "@solidjs/start": "^2.0.0",
     "jsdom": "^29.1.1",
-    "vite": "^8.0.16",
-    "@solidjs/start": "^2.0.0"
+    "vite": "^8.0.16"
   },
   "license": "MIT",
   "repository": {

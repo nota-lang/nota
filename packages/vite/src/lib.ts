@@ -1,4 +1,9 @@
-/** Vite transform and Solid preset for `.nota` modules. See `design/solid.md`. */
+/**
+ * Vite transform and Solid preset for `.nota` modules. See `design/solid.md`.
+ *
+ * The same transform also serves `?bib` imports — `import bib from "./refs.bib?bib"` reads a
+ * BibTeX file into a JSON module, keyed for `bibset({ src: bib })`. See `./bib`.
+ */
 
 import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -11,6 +16,9 @@ import {
 } from "@nota-lang/compiler";
 import type { Plugin } from "vite";
 import viteSolid from "vite-plugin-solid";
+import { parseBib } from "./bib.js";
+
+export { type BibDatabase, type BibtexEntry, parseBib } from "./bib.js";
 
 /** The default extension set, shared by the transform and the solid-preset config below. */
 const DEFAULT_EXTENSIONS = [".nota"];
@@ -19,8 +27,9 @@ const packageRequire = createRequire(import.meta.url);
 /** Options for the {@link nota} preset. */
 export interface NotaPluginOptions {
   /**
-   * File extensions this plugin claims (each with the leading dot). Defaults to `[".nota"]`.
-   * An id is transformed iff it ends with one of these (after stripping any `?query` suffix).
+   * File extensions this plugin compiles as documents (each with the leading dot). Defaults to
+   * `[".nota"]`. An id is compiled iff it ends with one of these, after stripping any `?query`
+   * suffix — independently of `?bib`, which is decided by the query and takes precedence.
    */
   extensions?: string[];
   /**
@@ -187,7 +196,29 @@ function renderDefaultsEmit(options: NotaPluginOptions): string {
   return `${DOC_EXPORT_NAME}.notaRenderOptions = ${JSON.stringify({ maxPasses })};\n`;
 }
 
-/** Compile claimed extensions before vite-plugin-solid; asset queries pass through untouched. */
+/**
+ * The asset pipeline's queries. A `?raw`/`?url`/`?inline` import wants the file as bytes,
+ * whatever its extension, so it is never this plugin's to transform.
+ */
+const ASSET_QUERY = /(?:^|&)(?:raw|url|inline)(?:&|=|$)/;
+
+/** The query that asks for a BibTeX file as JSON: `import bib from "./refs.bib?bib"`. */
+const BIB_QUERY = /(?:^|&)bib(?:&|=|$)/;
+
+/** An id's query string, with any `#fragment` stripped. */
+function queryOf(id: string): string {
+  return id.split("?")[1]?.split("#")[0] ?? "";
+}
+
+/** An id's path, with any `?query` and `#fragment` stripped. */
+function pathOf(id: string): string {
+  return id.split("?")[0].split("#")[0];
+}
+
+/**
+ * Compile claimed extensions before vite-plugin-solid, and read `?bib` imports as JSON; asset
+ * queries pass through untouched.
+ */
 export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
   // Validate at plugin construction: a bad budget fails the config, not the first document.
@@ -201,11 +232,7 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
         };
 
   function claims(id: string): boolean {
-    const [path, query = ""] = id.split("?");
-    if (/(?:^|&)(raw|url|inline)(?:&|=|$)/.test(query.split("#")[0])) {
-      return false;
-    }
-    return extensions.some(ext => path.split("#")[0].endsWith(ext));
+    return extensions.some(ext => pathOf(id).endsWith(ext));
   }
 
   return {
@@ -234,6 +261,20 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
       }
     },
     transform(code: string, id: string) {
+      const query = queryOf(id);
+      if (ASSET_QUERY.test(query)) {
+        return null;
+      }
+      if (BIB_QUERY.test(query)) {
+        // A parse error throws, same as a `.nota` compile error does, and surfaces against
+        // this id. The emit is wholly generated from a non-JS source — no line of output came
+        // from a line of input, which is what an empty `mappings` tells Vite.
+        const bib = parseBib(code, pathOf(id));
+        return {
+          code: `export default ${JSON.stringify(bib)};\n`,
+          map: { mappings: "" as const }
+        };
+      }
       if (!claims(id)) {
         return null;
       }

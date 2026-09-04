@@ -1,0 +1,9 @@
+%import bib from "./refs.bib?bib"
+%bibset({ src: bib })
+
+Knuth wrote the definitive account @Cite{knuth84}, and explorable explanations
+came later @Cite{victor11}.
+
+# References
+
+@Bibliography{}

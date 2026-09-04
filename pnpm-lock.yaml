@@ -335,6 +335,9 @@ importers:
       '@nota-lang/prelude':
         specifier: workspace:*
         version: link:../prelude
+      '@orcid/bibtex-parse-js':
+        specifier: ^0.0.25
+        version: 0.0.25
       solid-js:
         specifier: ^1.9.3
         version: 1.9.13
@@ -852,6 +855,9 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@orcid/bibtex-parse-js@0.0.25':
+    resolution: {integrity: sha512-n6VuG5/WjiifC1DoUzq0sUCWNSbAyRZznBgvPcY4jVZ/2eJiMv2tNUAt2NukbnFExOUa0RyTOFsqhH2MGpiLgQ==}
 
   '@oxc-parser/binding-android-arm-eabi@0.141.0':
     resolution: {integrity: sha512-jk7086MFvR/T4DG9IY7MKBVt1PMxvSZoz/TvnifodvS0pjghVwJHRttnAExhlwdMOgHv1TmLdENnbNpYk2zjvA==}
@@ -2706,6 +2712,8 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@orcid/bibtex-parse-js@0.0.25': {}
 
   '@oxc-parser/binding-android-arm-eabi@0.141.0':
     optional: true
