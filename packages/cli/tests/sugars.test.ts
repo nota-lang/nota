@@ -44,13 +44,24 @@ describe("prose sugars render", () => {
     expect(html).toMatch(
       /<article class="nota-doc"><section class="nota-section"><h1/
     );
-    // The interior block comment merges its neighbors into ONE paragraph…
-    const first = /<p class="nota-para">([\s\S]*?)<\/p>/.exec(html)?.[1] ?? "";
-    expect(first).toContain("stay literal prose.");
-    expect(first).toContain("// stays literal slashes");
-    // …and exactly three paragraphs form (intro, smart-punct, closing) — a phantom break
-    // anywhere would split one and bump the count.
-    expect(html.match(/<p class="nota-para/g)).toHaveLength(3);
+    // `@img` is a block-level element (not in INLINE_TAGS), so it splits the intro into a
+    // paragraph before it and one after — that split is real, not a phantom from the comment.
+    // The interior block comment merges ITS neighbors (within the post-image paragraph) into one…
+    const paragraphs = [
+      ...html.matchAll(/<p class="nota-para[^"]*">([\s\S]*?)<\/p>/g)
+    ].map(m => m[1]);
+    const withComment = paragraphs.find(p =>
+      p.includes("// stays literal slashes")
+    );
+    expect(withComment).toContain("stay literal prose.");
+    expect(withComment).toContain("// stays literal slashes");
+    // …and exactly four paragraphs form (pre-image intro, post-image intro, smart-punct,
+    // closing) — a phantom break anywhere else would split one further and bump the count.
+    expect(html.match(/<p class="nota-para/g)).toHaveLength(4);
+    // The image itself renders as its own block, between the two intro paragraphs.
+    expect(html).toMatch(
+      /<\/p><img src="sample\.svg" alt="An owl"><p class="nota-para/
+    );
     // No comment text leaks (line, block — nested — or trailing-in-item).
     expect(html).not.toContain("comment-only line");
     expect(html).not.toContain("a nested");

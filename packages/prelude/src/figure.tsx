@@ -15,9 +15,11 @@ import {
   type JSX,
   type ParentProps,
   Show,
+  splitProps,
   useContext
 } from "solid-js";
 import { DefBank } from "./def";
+import { mergeClass, withClass } from "./html-attrs";
 import { type AnchorFact, anchorOrdinals, FACT_KINDS } from "./refs";
 
 /** The anchor kind figures register. */
@@ -32,11 +34,14 @@ const FigureContext = createContext<() => number | undefined>();
  * links here, and tooltips the figure body); without one the figure is anonymous — it still
  * counts in the numbering.
  */
-export function Figure(props: ParentProps & { id?: string }): JSX.Element {
+export function Figure(
+  props: ParentProps & { id?: string } & Record<string, unknown>
+): JSX.Element {
   const state = useDocState();
+  const [local, rest] = splitProps(props, ["id", "children", "class"]);
   const id =
-    typeof props.id === "string" && props.id.trim() !== ""
-      ? props.id.trim()
+    typeof local.id === "string" && local.id.trim() !== ""
+      ? local.id.trim()
       : undefined;
   const handle = state.register(FACT_KINDS.anchor, {
     kind: FIGURE_KIND,
@@ -62,17 +67,32 @@ export function Figure(props: ParentProps & { id?: string }): JSX.Element {
     <FigureContext.Provider value={ordinal}>
       <figure
         id={id !== undefined ? `fig-${id}` : undefined}
-        class="nota-figure"
+        {...(withClass(
+          mergeClass("nota-figure", local.class),
+          rest
+        ) as JSX.HTMLAttributes<HTMLElement>)}
       >
-        {props.children}
+        {local.children}
       </figure>
     </FigureContext.Provider>
   );
 }
 
 /** One subfigure within a `Figure` (typically laid out side by side). */
-export function Subfigure(props: ParentProps): JSX.Element {
-  return <div class="nota-subfigure">{props.children}</div>;
+export function Subfigure(
+  props: ParentProps & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "class"]);
+  return (
+    <div
+      {...(withClass(
+        mergeClass("nota-subfigure", local.class),
+        rest
+      ) as JSX.HTMLAttributes<HTMLDivElement>)}
+    >
+      {local.children}
+    </div>
+  );
 }
 
 /**
@@ -80,20 +100,43 @@ export function Subfigure(props: ParentProps): JSX.Element {
  * ordinal, read through context (correct even when an earlier figure mounts later). A caption
  * outside any figure renders unlabeled.
  */
-export function Caption(props: ParentProps): JSX.Element {
+export function Caption(
+  props: ParentProps & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "class"]);
   const ordinal = useContext(FigureContext);
   const number = () => ordinal?.();
   return (
-    <figcaption class="nota-caption">
+    <figcaption
+      {...(withClass(
+        mergeClass("nota-caption", local.class),
+        rest
+      ) as JSX.HTMLAttributes<HTMLElement>)}
+    >
       <Show when={number() !== undefined}>
         <span class="nota-caption-label">{`Figure ${number()}: `}</span>
       </Show>
-      {props.children}
+      {local.children}
     </figcaption>
   );
 }
 
 /** Small-caps text. */
-export function Smallcaps(props: ParentProps): JSX.Element {
-  return <span style="font-variant: small-caps;">{props.children}</span>;
+export function Smallcaps(
+  props: ParentProps & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "style", "class"]);
+  const style =
+    typeof local.style === "string" && local.style.trim() !== ""
+      ? `font-variant: small-caps; ${local.style}`
+      : "font-variant: small-caps;";
+  const cls = typeof local.class === "string" ? local.class : undefined;
+  return (
+    <span
+      style={style}
+      {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLSpanElement>)}
+    >
+      {local.children}
+    </span>
+  );
 }

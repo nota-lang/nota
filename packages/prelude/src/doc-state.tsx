@@ -23,6 +23,7 @@ import {
   splitProps
 } from "solid-js";
 import { Dynamic, isServer } from "solid-js/web";
+import { mergeClass, withClass } from "./html-attrs";
 import {
   ANCHOR_KINDS,
   type AnchorFact,
@@ -243,8 +244,20 @@ export function Heading(
 }
 
 /** Render the unnumbered document title. */
-export function Title(props: ParentProps): JSX.Element {
-  return <h1 class="nota-title">{props.children}</h1>;
+export function Title(
+  props: ParentProps & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "class"]);
+  return (
+    <h1
+      {...(withClass(
+        mergeClass("nota-title", local.class),
+        rest
+      ) as JSX.HTMLAttributes<HTMLHeadingElement>)}
+    >
+      {local.children}
+    </h1>
+  );
 }
 
 // Table of contents
@@ -256,10 +269,13 @@ interface TocEntry {
 }
 
 /** Render a nested heading list, optionally capped by rank. */
-export function Toc(props: { depth?: number }): JSX.Element {
+export function Toc(
+  props: { depth?: number } & Record<string, unknown>
+): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
-  const depth = typeof props.depth === "number" ? props.depth : 6;
+  const [local, rest] = splitProps(props, ["depth", "class"]);
+  const depth = typeof local.depth === "number" ? local.depth : 6;
   const entries = createMemo((): TocEntry[] => {
     const facts = model.headings();
     const ids = model.ids();
@@ -297,7 +313,12 @@ export function Toc(props: { depth?: number }): JSX.Element {
   };
   return (
     <Show when={entries().length > 0}>
-      <nav class="nota-toc">
+      <nav
+        {...(withClass(
+          mergeClass("nota-toc", local.class),
+          rest
+        ) as JSX.HTMLAttributes<HTMLElement>)}
+      >
         <ul>{build(entries(), { i: 0 }, 0)}</ul>
       </nav>
     </Show>
@@ -733,16 +754,22 @@ function BibEntryLine(props: { key_: string }): JSX.Element {
 }
 
 /** Render cited bibliography entries in label order. */
-export function Bibliography(): JSX.Element {
+export function Bibliography(props: Record<string, unknown>): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
+  const [local, rest] = splitProps(props, ["class"]);
   const ordered = createMemo(() => {
     const labels = model.bibNumbering().labels;
     return [...labels.entries()].sort((a, b) => a[1] - b[1]);
   });
   return (
     <Show when={ordered().length > 0}>
-      <ol class="nota-bibliography">
+      <ol
+        {...(withClass(
+          mergeClass("nota-bibliography", local.class),
+          rest
+        ) as JSX.HTMLAttributes<HTMLOListElement>)}
+      >
         {ordered().map(([key, num]) => (
           <li id={`bib-${key}`}>
             <BibEntryLine key_={key} />{" "}

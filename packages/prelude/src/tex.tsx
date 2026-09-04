@@ -5,8 +5,9 @@
 
 import type { ResolvedChild } from "@nota-lang/core";
 import katex from "katex";
-import { children, type JSX, type ParentProps } from "solid-js";
+import { children, type JSX, type ParentProps, splitProps } from "solid-js";
 
+import { mergeClass, withClass } from "./html-attrs";
 import { sessionConfig } from "./session-config";
 
 /** Concatenate the TeX source from the resolved parts; throw pointedly on a markup part. */
@@ -48,9 +49,12 @@ const TRUSTED_COMMANDS = new Set([
 ]);
 
 /** The default `Tex` (see module docs). Props: `display` (the `$$` fence sets it). */
-export function Tex(props: ParentProps & { display?: boolean }): JSX.Element {
+export function Tex(
+  props: ParentProps & { display?: boolean } & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["display", "children", "class"]);
   const resolved = children(() => props.children);
-  const display = props.display === true;
+  const display = local.display === true;
   const html = katex.renderToString(texSource(resolved.toArray()), {
     // `mathset({ output: "html" })` opts into HTML output (KaTeX CSS required; enables texRef
     // definition references — MathML output drops \htmlData attributes).
@@ -63,9 +67,21 @@ export function Tex(props: ParentProps & { display?: boolean }): JSX.Element {
     macros: { ...mathConfig().macros }
   });
   return display ? (
-    <div class="nota-tex-display" innerHTML={html} />
+    <div
+      innerHTML={html}
+      {...(withClass(
+        mergeClass("nota-tex-display", local.class),
+        rest
+      ) as JSX.HTMLAttributes<HTMLDivElement>)}
+    />
   ) : (
-    <span class="nota-tex" innerHTML={html} />
+    <span
+      innerHTML={html}
+      {...(withClass(
+        mergeClass("nota-tex", local.class),
+        rest
+      ) as JSX.HTMLAttributes<HTMLSpanElement>)}
+    />
   );
 }
 

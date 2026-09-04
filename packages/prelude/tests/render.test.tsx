@@ -121,6 +121,25 @@ describe("headings + numbering + toc", () => {
     const html = clean(renderDocument(Empty).html);
     expect(html).not.toContain("nota-toc");
   });
+
+  test("Title/Toc merge a custom class and pass through other attrs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Title class="big" data-test="title">
+          The Document
+        </Title>
+        <Toc class="side" data-test="toc" />
+        <Heading rank={1}>Intro</Heading>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<h1 class="nota-title big"[^>]*data-test="title"[^>]*>The Document<\/h1>/
+    );
+    expect(html).toMatch(
+      /<nav class="nota-toc side"[^>]*data-test="toc"[^>]*>/
+    );
+  });
 });
 
 describe("heading mechanics", () => {
@@ -154,7 +173,8 @@ describe("heading mechanics", () => {
     // …but titleTextOf skips `nota-noteref`, so neither the slug nor the Toc entry
     // absorbs the note number.
     expect(html).not.toContain('id="results-1"');
-    const toc = /<nav class="nota-toc">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+    const toc =
+      /<nav class="nota-toc"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
     expect(toc).toContain("Results");
     expect(toc).not.toMatch(/Results\s*1/);
   });
@@ -531,6 +551,24 @@ describe("cite / bibliography", () => {
     expect(() => renderDocument(Doc)).toThrow(/@Cite: empty key/);
   });
 
+  test("Bibliography merges a custom class and passes through other attrs", () => {
+    const Doc = () => {
+      bibset({
+        src: { knuth84: { author: "Knuth", title: "TeXbook", year: 1984 } }
+      });
+      return (
+        <NotaDoc>
+          <Cite>{"knuth84"}</Cite>
+          <Bibliography class="refs" data-test="bib" />
+        </NotaDoc>
+      );
+    };
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<ol class="nota-bibliography refs"[^>]*data-test="bib"[^>]*>/
+    );
+  });
+
   test("an unknown cite key is a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
@@ -778,6 +816,45 @@ describe("figures", () => {
       /<span style="font-variant:\s?small-caps;">acm<\/span>/
     );
   });
+
+  test("Figure/Subfigure/Caption merge a custom class and pass through other attrs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Figure id="one" class="hero" data-test="fig">
+          <Subfigure class="left" data-test="sub">
+            {"a"}
+          </Subfigure>
+          <Caption class="cap" data-test="cap">
+            {"first"}
+          </Caption>
+        </Figure>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<figure id="fig-one" class="nota-figure hero"[^>]*data-test="fig"[^>]*>/
+    );
+    expect(html).toMatch(
+      /<div class="nota-subfigure left"[^>]*data-test="sub"[^>]*>a<\/div>/
+    );
+    expect(html).toMatch(
+      /<figcaption class="nota-caption cap"[^>]*data-test="cap"[^>]*>/
+    );
+  });
+
+  test("Smallcaps merges a custom class and style with its own", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Smallcaps class="tag" style="color: red;" data-test="sc">
+          {"acm"}
+        </Smallcaps>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(/style="font-variant:\s?small-caps;\s?color: red;"/);
+    expect(html).toMatch(/class="tag"/);
+    expect(html).toMatch(/data-test="sc"/);
+  });
 });
 
 describe("definitions", () => {
@@ -898,6 +975,20 @@ describe("definitions", () => {
     const html = clean(renderDocument(Doc).html);
     expect(html).toMatch(/<div id="def-blk" class="nota-def">/);
     expect(html).not.toMatch(/<span id="def-blk"/);
+  });
+
+  test("Def merges a custom class and passes through other attrs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Def id="styled" class="term" data-test="def" tooltip="tip">
+          {"Styled"}
+        </Def>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<span id="def-styled" class="nota-def term"[^>]*data-test="def"[^>]*>Styled<\/span>/
+    );
   });
 });
 
@@ -1071,6 +1162,26 @@ describe("tex + code", () => {
     expect(html).not.toMatch(/<p[^>]*>[^<]*<div class="nota-tex-display"/);
   });
 
+  test("Tex merges a custom class and passes through other attrs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <Tex class="eqn" data-test="tex">
+          {"x"}
+        </Tex>
+        <Tex display class="eqn-d" data-test="tex-d">
+          {"y"}
+        </Tex>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<span class="nota-tex eqn"[^>]*data-test="tex"[^>]*><span class="katex"/
+    );
+    expect(html).toMatch(
+      /<div class="nota-tex-display eqn-d"[^>]*data-test="tex-d"[^>]*>/
+    );
+  });
+
   test("a markup part inside math is a pointed error", () => {
     const Doc = () => (
       <NotaDoc>
@@ -1099,6 +1210,32 @@ describe("tex + code", () => {
       /<pre class="nota-code-block"[^>]*><code[^>]*>plain text/
     );
     expect(html).toMatch(/<code class="nota-code-inline"[^>]*>f\(x\)/);
+  });
+
+  test("CodeBlock/CodeInline merge a custom class and pass through other attrs", () => {
+    const Doc = () => (
+      <NotaDoc>
+        <CodeBlock lang="js" class="hi" data-test="block">
+          {"let x = 1;"}
+        </CodeBlock>
+        <CodeBlock lang="nolang" class="hi2" data-test="plain">
+          {"plain text"}
+        </CodeBlock>
+        <CodeInline class="hi3" data-test="inline">
+          {"f(x)"}
+        </CodeInline>
+      </NotaDoc>
+    );
+    const html = clean(renderDocument(Doc).html);
+    expect(html).toMatch(
+      /<div class="nota-code-block hi"[^>]*data-test="block"[^>]*><pre class="shiki/
+    );
+    expect(html).toMatch(
+      /<pre class="nota-code-block hi2"[^>]*data-test="plain"[^>]*><code[^>]*>plain text/
+    );
+    expect(html).toMatch(
+      /<code class="nota-code-inline hi3"[^>]*data-test="inline"[^>]*>f\(x\)/
+    );
   });
 
   test("armed elements become shiki decorations over their text range", () => {

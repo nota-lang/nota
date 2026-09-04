@@ -27,8 +27,9 @@ import type {
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import githubDark from "@shikijs/themes/github-dark";
 import githubLight from "@shikijs/themes/github-light";
-import { children, type JSX, type ParentProps } from "solid-js";
+import { children, type JSX, type ParentProps, splitProps } from "solid-js";
 
+import { mergeClass, withClass } from "./html-attrs";
 import { sessionConfig } from "./session-config";
 
 // Highlighter
@@ -211,10 +212,14 @@ function effectiveLang(explicit: string | undefined): string | undefined {
 }
 
 /** Render a highlighted fence, or plain code when no grammar is available. */
-export function CodeBlock(props: ParentProps & { lang?: string }): JSX.Element {
+export function CodeBlock(
+  props: ParentProps & { lang?: string } & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["lang", "children", "class"]);
   const resolved = children(() => props.children);
-  const explicit = typeof props.lang === "string" ? props.lang : undefined;
+  const explicit = typeof local.lang === "string" ? local.lang : undefined;
   const lang = effectiveLang(explicit);
+  const cls = mergeClass("nota-code-block", local.class);
   if (lang !== undefined) {
     const { text, decorations } = reconstruct(resolved.toArray());
     const out = highlighter().codeToHtml(text, {
@@ -222,19 +227,28 @@ export function CodeBlock(props: ParentProps & { lang?: string }): JSX.Element {
       theme: codeConfig().theme,
       decorations
     });
-    return <div class="nota-code-block" innerHTML={out} />;
+    return (
+      <div
+        innerHTML={out}
+        {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLDivElement>)}
+      />
+    );
   }
   return (
-    <pre class="nota-code-block">
+    <pre {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLPreElement>)}>
       <code>{resolved()}</code>
     </pre>
   );
 }
 
 /** Render inline code, highlighted when `lstset` provides a language. */
-export function CodeInline(props: ParentProps): JSX.Element {
+export function CodeInline(
+  props: ParentProps & Record<string, unknown>
+): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "class"]);
   const resolved = children(() => props.children);
   const lang = effectiveLang(undefined);
+  const cls = mergeClass("nota-code-inline", local.class);
   if (lang !== undefined) {
     const { text, decorations } = reconstruct(resolved.toArray());
     const out = highlighter().codeToHtml(text, {
@@ -243,9 +257,18 @@ export function CodeInline(props: ParentProps): JSX.Element {
       structure: "inline",
       decorations
     });
-    return <code class="nota-code-inline" innerHTML={out} />;
+    return (
+      <code
+        innerHTML={out}
+        {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLElement>)}
+      />
+    );
   }
-  return <code class="nota-code-inline">{resolved()}</code>;
+  return (
+    <code {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLElement>)}>
+      {resolved()}
+    </code>
+  );
 }
 
 // Configuration

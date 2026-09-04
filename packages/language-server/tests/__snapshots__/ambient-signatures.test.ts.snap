@@ -1,24 +1,24 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`real upstream signatures (change → review the preamble declaration) > prelude component surface 1`] = `
-"Tex: (props: import("solid-js").ParentProps & { display?: boolean; }) => import("solid-js").JSX.Element
-CodeInline: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-CodeBlock: (props: import("solid-js").ParentProps & { lang?: string; }) => import("solid-js").JSX.Element
+"Tex: (props: import("solid-js").ParentProps & { display?: boolean; } & Record<string, unknown>) => import("solid-js").JSX.Element
+CodeInline: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
+CodeBlock: (props: import("solid-js").ParentProps & { lang?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
 Heading: (props: import("solid-js").ParentProps & { rank?: number; id?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Title: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-Toc: (props: { depth?: number; }) => import("solid-js").JSX.Element
+Title: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
+Toc: (props: { depth?: number; } & Record<string, unknown>) => import("solid-js").JSX.Element
 Label: (props: { id?: string; }) => import("solid-js").JSX.Element
 Ref: (props: import("solid-js").ParentProps & { id?: string; page?: string; }) => import("solid-js").JSX.Element
-Def: (props: import("solid-js").ParentProps & { id?: string; Label?: import("solid-js").Component; tooltip?: import("solid-js").JSX.Element; block?: boolean; }) => import("solid-js").JSX.Element
-Figure: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
-Subfigure: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-Caption: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-Smallcaps: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
+Def: (props: import("solid-js").ParentProps & { id?: string; Label?: import("solid-js").Component; tooltip?: import("solid-js").JSX.Element; block?: boolean; } & Record<string, unknown>) => import("solid-js").JSX.Element
+Figure: (props: import("solid-js").ParentProps & { id?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
+Subfigure: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
+Caption: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
+Smallcaps: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
 Note: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
 Notes: () => import("solid-js").JSX.Element
 NotesList: () => import("solid-js").JSX.Element
 Cite: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-Bibliography: () => import("solid-js").JSX.Element
+Bibliography: (props: Record<string, unknown>) => import("solid-js").JSX.Element
 lstset: (opts: import("@nota-lang/prelude").LstsetOptions) => void
 mathset: (opts: import("@nota-lang/prelude").MathsetOptions) => void
 secset: (opts: import("@nota-lang/prelude").SecsetOptions) => void

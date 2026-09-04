@@ -20,10 +20,12 @@ import {
   For,
   type JSX,
   onMount,
-  type ParentProps
+  type ParentProps,
+  splitProps
 } from "solid-js";
 
 import { bibConfig } from "./doc-state";
+import { mergeClass, withClass } from "./html-attrs";
 import {
   ANCHOR_KINDS,
   type AnchorFact,
@@ -45,21 +47,29 @@ export function Def(
     Label?: Component;
     tooltip?: JSX.Element;
     block?: boolean;
-  }
+  } & Record<string, unknown>
 ): JSX.Element {
   const state = useDocState();
-  const key = typeof props.id === "string" ? props.id.trim() : "";
+  const [local, rest] = splitProps(props, [
+    "id",
+    "Label",
+    "tooltip",
+    "block",
+    "children",
+    "class"
+  ]);
+  const key = typeof local.id === "string" ? local.id.trim() : "";
   if (key === "") {
     throw new Error('@Def: missing id (e.g. @Def[id: "nota"]{…})');
   }
   if ("label" in props) {
     throw new Error("@Def: label was replaced by the component prop Label");
   }
-  const Label = props.Label;
+  const Label = local.Label;
   if (Label !== undefined && typeof Label !== "function") {
     throw new Error("@Def: Label must be a component (e.g. Label: () => @{…})");
   }
-  const tooltip = props.tooltip;
+  const tooltip = local.tooltip;
   state.register(FACT_KINDS.anchor, {
     kind: ANCHOR_KINDS.def,
     id: key,
@@ -70,13 +80,20 @@ export function Def(
       : { bankTarget: `def-${key}` })
   });
   state.trailer("defs", () => <DefBank />);
-  return props.block === true ? (
-    <div id={`def-${key}`} class="nota-def">
-      {props.children}
+  const cls = mergeClass("nota-def", local.class);
+  return local.block === true ? (
+    <div
+      id={`def-${key}`}
+      {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLDivElement>)}
+    >
+      {local.children}
     </div>
   ) : (
-    <span id={`def-${key}`} class="nota-def">
-      {props.children}
+    <span
+      id={`def-${key}`}
+      {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLSpanElement>)}
+    >
+      {local.children}
     </span>
   );
 }
