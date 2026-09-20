@@ -1,0 +1,13 @@
+%secset({ numberDepth: 2 })
+
+@Toc{}
+
+# Introduction
+
+A forward reference to section &sec-usage, written before the section it names exists.
+
+# Usage
+
+<sec-usage>
+
+Nota documents converge before the bytes are written.

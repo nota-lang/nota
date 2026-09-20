@@ -1,7 +1,7 @@
 /** Mount the latest evaluated document into the rendered pane. */
 
+import { createComponent, render } from "@solidjs/web";
 import { createEffect, onCleanup } from "solid-js";
-import { createComponent, render } from "solid-js/web";
 import type { DocFn } from "./solid-eval";
 
 export interface RenderedPaneProps {
@@ -13,28 +13,46 @@ export interface RenderedPaneProps {
 export function RenderedPane(props: RenderedPaneProps) {
   let host!: HTMLDivElement;
   let dispose: (() => void) | null = null;
+  /** Mount ticket: a queued mount that is no longer the latest request is dropped. */
+  let generation = 0;
 
-  createEffect(() => {
-    const Doc = props.Doc;
-    void props.docVersion;
-    if (!props.active) {
-      return;
-    }
+  const teardown = () => {
     dispose?.();
     dispose = null;
-    host.textContent = "";
-    if (Doc) {
-      try {
-        dispose = render(() => createComponent(Doc as () => never, {}), host);
-      } catch (err) {
-        console.error("[nota] preview render failed:", err);
+  };
+
+  // Keep the preview mounted while hidden. Dispose only on remount or pane teardown.
+  createEffect(
+    () => [props.Doc, props.docVersion, props.active] as const,
+    ([Doc, , active]) => {
+      if (!active) {
+        return;
       }
+      const ticket = ++generation;
+      // render() flushes, which is forbidden inside an effect callback.
+      queueMicrotask(() => {
+        if (ticket !== generation) {
+          return;
+        }
+        teardown();
+        host.textContent = "";
+        if (Doc) {
+          try {
+            dispose = render(
+              () => createComponent(Doc as () => never, {}),
+              host
+            );
+          } catch (err) {
+            console.error("[nota] preview render failed:", err);
+          }
+        }
+      });
     }
-  });
+  );
 
   onCleanup(() => {
-    dispose?.();
-    dispose = null;
+    generation++;
+    teardown();
   });
 
   return <div class="rendered-frame" data-testid="pane-rendered" ref={host} />;

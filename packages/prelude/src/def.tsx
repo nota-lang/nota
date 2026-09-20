@@ -14,14 +14,14 @@ import {
   size
 } from "@floating-ui/dom";
 import { useDocState } from "@nota-lang/core";
+import type { JSX } from "@solidjs/web";
 import {
   type Component,
   createMemo,
   For,
-  type JSX,
-  onMount,
-  type ParentProps,
-  splitProps
+  omit,
+  onSettled,
+  type ParentProps
 } from "solid-js";
 
 import { bibConfig } from "./doc-state";
@@ -50,26 +50,27 @@ export function Def(
   } & Record<string, unknown>
 ): JSX.Element {
   const state = useDocState();
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     "id",
     "Label",
     "tooltip",
     "block",
     "children",
     "class"
-  ]);
-  const key = typeof local.id === "string" ? local.id.trim() : "";
+  );
+  const key = typeof props.id === "string" ? props.id.trim() : "";
   if (key === "") {
     throw new Error('@Def: missing id (e.g. @Def[id: "nota"]{…})');
   }
   if ("label" in props) {
     throw new Error("@Def: label was replaced by the component prop Label");
   }
-  const Label = local.Label;
+  const Label = props.Label;
   if (Label !== undefined && typeof Label !== "function") {
     throw new Error("@Def: Label must be a component (e.g. Label: () => @{…})");
   }
-  const tooltip = local.tooltip;
+  const tooltip = props.tooltip;
   state.register(FACT_KINDS.anchor, {
     kind: ANCHOR_KINDS.def,
     id: key,
@@ -80,20 +81,20 @@ export function Def(
       : { bankTarget: `def-${key}` })
   });
   state.trailer("defs", () => <DefBank />);
-  const cls = mergeClass("nota-def", local.class);
-  return local.block === true ? (
+  const cls = mergeClass("nota-def", props.class);
+  return props.block === true ? (
     <div
       id={`def-${key}`}
       {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLDivElement>)}
     >
-      {local.children}
+      {props.children}
     </div>
   ) : (
     <span
       id={`def-${key}`}
       {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLSpanElement>)}
     >
-      {local.children}
+      {props.children}
     </span>
   );
 }
@@ -291,7 +292,8 @@ export function DefBank(): JSX.Element {
       anchor => anchor.bank !== undefined || anchor.bankTarget !== undefined
     );
   });
-  onMount(installDefTooltipHandlers);
+  // Call on both sides for hydration-id parity. Handlers are shared for the page's lifetime.
+  onSettled(installDefTooltipHandlers);
   return (
     <div class="nota-def-tooltips" aria-hidden="true">
       <For each={entries()}>

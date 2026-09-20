@@ -1,13 +1,6 @@
 /**
- * Browser stand-in for the node builtin `assert`, wired in via `resolve.alias` in
- * vite.config.ts. `babel-preset-solid`'s plugin chain (`@babel/helper-module-imports`) does
- * `require("assert")` and calls the module value directly; without this alias vite externalizes
- * the builtin to a non-callable stub, and compiling any document throws
- * "_assert is not a function" the first time the preset injects a `solid-js/web` import.
- *
- * CJS on purpose: the consumer is CJS, and `require()` of an ESM shim would hand it a
- * non-callable namespace object. Only the surface helper-module-imports touches is implemented
- * (call + `.fail`), plus `.ok`/`.default` for interop completeness.
+ * Callable CJS assert for Babel's helper-module-imports. Without the Vite alias, browser
+ * builds get a non-callable stub; Node tests alone cannot detect that failure.
  */
 function assert(value, message) {
   if (!value) {

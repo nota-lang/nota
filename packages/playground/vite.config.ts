@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
+import solid from "@solidjs/vite-plugin";
 import { defineConfig } from "vite";
-import solid from "vite-plugin-solid";
 import wasm from "vite-plugin-wasm";
 
 export default defineConfig(({ mode }) => ({
@@ -16,16 +16,11 @@ export default defineConfig(({ mode }) => ({
     plugins: () => [wasm()]
   },
   resolve: {
-    // babel-preset-solid's plugin chain (@babel/helper-module-imports) requires the node
-    // builtin `assert`; vite externalizes builtins to non-callable stubs in the browser, which
-    // broke in-page document compilation ("_assert is not a function"). The alias applies in
-    // tests too, so vitest resolves `assert` exactly like the browser bundle instead of
-    // silently falling back to node's builtin.
+    // Babel requires a callable assert; Vite's browser builtin stub is not callable.
     alias: {
       assert: fileURLToPath(new URL("./src/assert-shim.cjs", import.meta.url))
     },
-    // In tests, resolve solid-js to its browser dev build (not the SSR build), so components
-    // render real DOM nodes under jsdom.
+    // Use browser dev runtimes for jsdom tests.
     ...(mode === "test" ? { conditions: ["browser", "development"] } : {})
   },
   test: {

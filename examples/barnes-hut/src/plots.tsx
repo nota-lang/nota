@@ -1,11 +1,10 @@
 /** Interactive Solid SVG charts over the recorded Barnes-Hut benchmarks. */
 
+import type { JSX } from "@solidjs/web";
 import {
   createMemo,
   createSignal,
   For,
-  Index,
-  type JSX,
   type ParentProps,
   Show
 } from "solid-js";
@@ -40,8 +39,7 @@ export function ThetaRef(
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover-to-focus is a redundant enhancement; the chart legends expose the same control as keyboard-reachable buttons
     <span
-      class="theta-ref"
-      classList={{ "is-focused": props.focus === props.theta }}
+      class={["theta-ref", { "is-focused": props.focus === props.theta }]}
       style={{ "--series-color": color() }}
       onMouseEnter={() => props.setFocus(props.theta)}
       onMouseLeave={() => props.setFocus(null)}
@@ -190,8 +188,7 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
           {s => (
             <button
               type="button"
-              class="plot-legend-item"
-              classList={{ "is-dimmed": dimmed(s.theta) }}
+              class={["plot-legend-item", { "is-dimmed": dimmed(s.theta) }]}
               onMouseEnter={() => props.setFocus(s.theta)}
               onMouseLeave={() => props.setFocus(null)}
               onFocus={() => props.setFocus(s.theta)}
@@ -255,8 +252,7 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
             {l => (
               // biome-ignore lint/a11y/noStaticElementInteractions: line hover mirrors the keyboard-reachable legend buttons
               <g
-                class="plot-series"
-                classList={{ "is-dimmed": dimmed(l.s.theta) }}
+                class={["plot-series", { "is-dimmed": dimmed(l.s.theta) }]}
                 onMouseEnter={() => props.setFocus(l.s.theta)}
                 onMouseLeave={() => props.setFocus(null)}
               >
@@ -297,7 +293,7 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
 
           <Show when={readout()}>
             {r => (
-              <Index each={r().rows}>
+              <For each={r().rows} keyed={false}>
                 {row => (
                   <circle
                     class="plot-cursor-dot"
@@ -307,7 +303,7 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
                     fill={row().s.color}
                   />
                 )}
-              </Index>
+              </For>
             )}
           </Show>
         </g>
@@ -326,8 +322,10 @@ function LinePlot(props: FocusProps & { def: PlotDef }): JSX.Element {
             <For each={r().rows}>
               {row => (
                 <div
-                  class="plot-tooltip-row"
-                  classList={{ "is-dimmed": dimmed(row.s.theta) }}
+                  class={[
+                    "plot-tooltip-row",
+                    { "is-dimmed": dimmed(row.s.theta) }
+                  ]}
                 >
                   <span
                     class="plot-legend-key"

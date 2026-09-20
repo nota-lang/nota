@@ -3,21 +3,20 @@
  * categorization and parsing run over DOM nodes and serialized SSR chunks.
  */
 
+import { type JSX, NoHydration } from "@solidjs/web";
 import {
   children,
   createMemo,
-  type JSX,
+  omit,
   type ParentProps,
-  splitProps,
   useContext
 } from "solid-js";
-import { NoHydration } from "solid-js/web";
 import { DocStateContext } from "./doc-state";
 import { decodeEntities } from "./entities";
 import { type SmartOptions, smarten } from "./smart";
 
 /**
- * A serialized SSR output chunk, as produced by solid-js/web's server `ssr()` runtime. On the
+ * A serialized SSR output chunk, as produced by @solidjs/web's server `ssr()` runtime. On the
  * server, `children()` resolves to these instead of Nodes.
  */
 export type SSRChunk = { t: string };
@@ -49,8 +48,8 @@ export type Category =
 /** Must match the marker emitted directly by the Rust reader. */
 const ATTRS_MARKER = "data-nota-attrs";
 
-/** Solid's hydration-key bookkeeping attribute (`solid-js/web` stamps it on SSR output). */
-export const HYDRATION_KEY_ATTR = "data-hk";
+/** Solid's hydration-key bookkeeping attribute (`@solidjs/web` stamps it on SSR output). */
+export const HYDRATION_KEY_ATTR = "_hk";
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
@@ -422,9 +421,14 @@ export function Reforest(props: ReforestProps): JSX.Element {
   const resolved = children(() => props.children);
   const view = createMemo(() =>
     renderItems(
-      parse(smarten(resolved.toArray(), props.smart ?? state?.smart), {
-        tight: props.tight === true
-      })
+      // Solid's opaque children are DOM nodes or SSR chunks in our renderers.
+      parse(
+        smarten(
+          resolved.toArray() as ResolvedChild[],
+          props.smart ?? state?.smart
+        ),
+        { tight: props.tight === true }
+      )
     )
   );
   return <>{view()}</>;
@@ -456,20 +460,20 @@ export type LiProps = ParentProps & Record<string, unknown>;
  * Non-children props (a hoisted trailing attrs group) spread onto the rendered `<li>`.
  */
 export function UlLi(props: LiProps): JSX.Element {
-  const [own, rest] = splitProps(props, ["children"]);
+  const rest = omit(props, "children");
   return (
     <li {...(rest as JSX.LiHTMLAttributes<HTMLLIElement>)} data-list="ul">
-      <Reforest tight>{own.children}</Reforest>
+      <Reforest tight>{props.children}</Reforest>
     </li>
   );
 }
 
 /** An ordered list item (the reader's `+` marker); runs of these coalesce into an `<ol>`. */
 export function OlLi(props: LiProps): JSX.Element {
-  const [own, rest] = splitProps(props, ["children"]);
+  const rest = omit(props, "children");
   return (
     <li {...(rest as JSX.LiHTMLAttributes<HTMLLIElement>)} data-list="ol">
-      <Reforest tight>{own.children}</Reforest>
+      <Reforest tight>{props.children}</Reforest>
     </li>
   );
 }

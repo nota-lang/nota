@@ -57,10 +57,10 @@ beforeEach(() => {
   lstset({ langs: [javascript] });
 });
 
-// Hydration keys and insertion-marker comments are claim-time bookkeeping; strip them so
-// assertions read the document structure.
+// Hydration keys (`_hk=…`, unquoted in Solid 2) and insertion-marker comments are claim-time
+// bookkeeping; strip them so assertions read the document structure.
 const clean = (html: string) =>
-  html.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  html.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 describe("headings + numbering + toc", () => {
   const Doc = () => {
@@ -1258,7 +1258,7 @@ describe("tex + code", () => {
     expect(html).toMatch(
       /<span[^>]*class="hl"[^>]*data-note="target"[^>]*>x<\/span>/
     );
-    expect(html).not.toMatch(/class="hl"[^>]*data-hk/);
+    expect(html).not.toMatch(/class="hl"[^>]*_hk/);
   });
 
   test("lstset({lang}) is positional: a later block highlights, config resets per test", () => {

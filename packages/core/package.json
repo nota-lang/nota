@@ -26,14 +26,16 @@
     "depot-version": "0.3.4"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.0"
+    "@solidjs/web": "^2.0.0-rc.8",
+    "solid-js": "^2.0.0-rc.8"
   },
   "devDependencies": {
     "@nota-lang/compiler": "workspace:*",
     "jsdom": "^29.1.1",
-    "solid-js": "^1.9.3",
+    "@solidjs/web": "2.0.0-rc.8",
+    "solid-js": "2.0.0-rc.8",
     "vite": "^8.0.16",
-    "vite-plugin-solid": "^2.11.10",
+    "@solidjs/vite-plugin": "3.0.0-next.43",
     "vite-plugin-wasm": "^3.5.0",
     "vitest": "^4.1.8"
   },

@@ -26,6 +26,9 @@ const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const SSR_ENTRY_ID = "virtual:nota-ssr-entry";
 const CLIENT_ENTRY_ID = "virtual:nota-client-entry";
 
+/** Framework packages resolved from the CLI installation. */
+const PINNED_PACKAGES: readonly string[] = FRAMEWORK_PACKAGES;
+
 /** Options for {@link buildNotaFile} / {@link buildNota}. */
 export interface BuildOptions {
   /**
@@ -113,9 +116,8 @@ function virtualsPlugin(map: Record<string, string>): VitePlugin {
 function cliResolverPlugin(resolveFrom: string): VitePlugin {
   // A phantom importer inside the CLI package: `this.resolve` walks node_modules up from here.
   const anchor = join(resolveFrom, "package.json");
-  // Derived from the compiler's framework-package list (the same family the vite plugin dedupes)
-  // — the 2026-08 core rename slipped past this regex while it was hand-written.
-  const escaped = FRAMEWORK_PACKAGES.map(p =>
+  // Pin emitted imports. signals resolves through solid-js; the CLI cannot resolve it directly.
+  const escaped = PINNED_PACKAGES.map(p =>
     p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   );
   const pinned = new RegExp(`^(?:${escaped.join("|")})(?:\\/|$)`);
@@ -143,7 +145,7 @@ function setupEntrySource(ctx: PipelineContext): string {
 function ssrEntrySource(ctx: PipelineContext): string {
   return `${setupEntrySource(ctx)}import Doc from ${JSON.stringify(ctx.absDocPath)};
 import { docStateScript, renderDocument } from "@nota-lang/core";
-import { generateHydrationScript } from "solid-js/web";
+import { generateHydrationScript } from "@solidjs/web";
 const rendered = renderDocument(Doc);
 export const result = {
   html: rendered.html,
@@ -263,10 +265,8 @@ async function runViteBuild(config: InlineConfig): Promise<unknown> {
 }
 
 /**
- * Build #1 (SSR): bundle the SSR wiring entry for Node (workspace deps bundled in —
- * `ssr.noExternal` — the dists use bundler-style extensionless ESM imports Node can't resolve),
- * emitting the doc's CSS/assets, then `import()` the bundle and read the rendered result.
- * `renderDocument` is synchronous, so the result is available at module-load time.
+ * Bundle and render the SSR entry in a unique work directory, avoiding Node's module cache.
+ * Bundle workspace dependencies because their extensionless imports need Vite resolution.
  */
 async function ssrRender(
   ctx: PipelineContext

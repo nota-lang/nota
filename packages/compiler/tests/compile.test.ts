@@ -23,6 +23,7 @@ import {
   DOC_EXPORT_NAME,
   SHIKI_LANG_MODULES,
   SOLID_AMBIENT_NAMES,
+  SOLID_WEB_MODULE,
   SOLID_WEB_NAMES
 } from "../src/lib";
 
@@ -331,9 +332,10 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
     expect(AMBIENT_PRELUDE_NAMES.filter(n => !surface.has(n))).toEqual([]);
   });
 
-  // solid-js is not a dependency of this package either; resolve it the way a built document
-  // would — through @nota-lang/core's own dependency graph. `createRequire` from that package
-  // loads the CJS server build; the export *surface* is identical across solid's builds.
+  // Neither solid-js nor @solidjs/web is a dependency of this package; resolve them the way a
+  // built document would — through @nota-lang/core's own dependency graph. Solid 2 ships ESM
+  // only, but both entry points are await-free, so node's `require(esm)` returns the namespace;
+  // the export *surface* is identical across solid's builds.
   const solidRequire = createRequire(
     join(repoRoot, "packages", "core", "package.json")
   );
@@ -343,8 +345,8 @@ describe("the ambient name lists cover their surfaces (full list↔surface loops
     expect(SOLID_AMBIENT_NAMES.filter(n => !(n in solid))).toEqual([]);
   });
 
-  test("SOLID_WEB_NAMES ⊆ solid-js/web's exports", () => {
-    const web = solidRequire("solid-js/web") as Record<string, unknown>;
+  test("SOLID_WEB_NAMES ⊆ @solidjs/web's exports", () => {
+    const web = solidRequire(SOLID_WEB_MODULE) as Record<string, unknown>;
     expect(SOLID_WEB_NAMES.filter(n => !(n in web))).toEqual([]);
   });
 

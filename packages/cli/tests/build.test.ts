@@ -36,7 +36,7 @@ const tmpBase = mkdtempSync(join(tmpdir(), "nota-cli-test-"));
 afterAll(() => rmSync(tmpBase, { recursive: true, force: true }));
 
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 describe("static build (--static: zero-JS)", () => {
   test("a pure-markup doc emits only index.html, reforested, script-free", async () => {
@@ -197,9 +197,8 @@ describe("--setup", () => {
 describe("production artifact", () => {
   test("the client bundle carries production Solid even under an ambient NODE_ENV", async () => {
     // This suite runs with NODE_ENV=test (vitest). Vite fills NODE_ENV from `mode` only when
-    // UNSET, and solid-js's `development` export condition keys off it — without the pipeline
-    // pinning NODE_ENV, shipped bundles silently carried Solid's dev build (its dev-only
-    // "multiple instances of Solid" banner is the marker asserted on here).
+    // UNSET, and Solid's `development` export condition keys off it — without the pipeline
+    // pinning NODE_ENV, shipped bundles silently carried Solid's dev build.
     const out = await buildNota("Just *text*.\n", {
       sourcePath: "env.nota",
       resolveFrom: pkgRoot,
@@ -207,14 +206,26 @@ describe("production artifact", () => {
     });
     expect(out.clientJsPath).toBeDefined();
     const bundle = readFileSync(out.clientJsPath as string, "utf8");
-    expect(bundle).not.toContain("multiple instances of Solid");
-    // Exactly ONE Solid client runtime in the bundle — the resolve.dedupe invariant (a second
-    // solid-js copy leaves enableHydration() uncalled in one of them, so claiming silently
-    // misses). Marker: "_$DX_DELEGATE", dom-expressions' event-delegation registry key. It is a
-    // quoted property-name STRING (minification cannot rename it), it appears exactly once in
-    // solid-js/web's client runtime (verified against the shipped dist), and it is absent from
-    // app code — so its count equals the number of bundled Solid runtimes.
-    expect(bundle.match(/_\$DX_DELEGATE/g)).toHaveLength(1);
+    // Dev-build marker #1: Solid 2 kept 1.x's duplicate-copy banner verbatim —
+    // `if (!globalThis.Solid$$) globalThis.Solid$$ = true; else console.warn("You appear to have
+    // multiple instances of Solid. …")` in solid-js/dist/solid.dev.js, absent from
+    // dist/solid.js.
+    expect(bundle).not.toContain(
+      "You appear to have multiple instances of Solid"
+    );
+    // Dev-build marker #2: Solid 2's dev-only diagnostics machinery. `DEV.setConsoleFooter`
+    // appends a repair-guide footer to every diagnostic, and the guide path
+    // ("…/skills/reactivity-diagnostics/SKILL.md") is a string literal that appears in
+    // solid-js/dist/solid.dev.js and never in dist/solid.js — so it also pins that the
+    // `development` condition did not leak in through a transitive resolution.
+    expect(bundle).not.toContain("reactivity-diagnostics");
+    // One copy of each runtime: duplicates leave hydration disabled in one graph.
+    // These markers survive minification in the shipped bundle.
+    expect(bundle.match(/_\$SOLID_EVENT_OWNER/g)).toHaveLength(1);
+    // `Symbol("NoHydrateContext")` is solid-js's own, and standing in for @solidjs/signals too:
+    // the reactive graph is a dependency of solid-js ALONE (@solidjs/web reaches it through
+    // solid-js), so one solid-js directory implies one @solidjs/signals directory.
+    expect(bundle.match(/NoHydrateContext/g)).toHaveLength(1);
   });
 });
 

@@ -18,7 +18,8 @@ let html = "";
 let stateScript = "";
 
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  // Solid 2 emits hydration keys unquoted, as `_hk=…` (1.x: `data-hk="…"`).
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 beforeAll(async () => {
   server = await createServer({

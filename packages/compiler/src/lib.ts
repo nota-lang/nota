@@ -29,6 +29,9 @@ export function shikiLangModule(lang: string): string {
 /** The default module the ambient prelude binds from ({@link PreludeOptions.module}). */
 export const PRELUDE_MODULE = "@nota-lang/prelude";
 
+/** DOM/SSR runtime module. Dedupe this package alongside solid-js. */
+export const SOLID_WEB_MODULE = "@solidjs/web";
+
 /**
  * Framework modules that generated documents may import.
  *
@@ -42,7 +45,7 @@ export const FRAMEWORK_MODULES: readonly string[] = [
   CORE_RUNTIME_MODULE,
   PRELUDE_MODULE,
   "solid-js",
-  "solid-js/web",
+  SOLID_WEB_MODULE,
   SHIKI_LANGS_MODULE
 ];
 
@@ -63,24 +66,23 @@ export const SOLID_AMBIENT_NAMES = [
   "createSignal",
   "createMemo",
   "createEffect",
-  "createResource",
   "createContext",
   "useContext",
-  "batch",
+  "createStore",
   "untrack",
-  "on",
-  "onMount",
+  "flush",
+  "onSettled",
   "onCleanup",
   "children",
-  "mergeProps",
-  "splitProps",
+  "merge",
+  "omit",
   "Show",
   "For",
-  "Index",
+  "Repeat",
   "Switch",
   "Match",
-  "Suspense",
-  "ErrorBoundary"
+  "Loading",
+  "Errored"
 ] as const;
 
 /** Fail early when the vendored wasm and TypeScript shim are out of sync. */
@@ -115,8 +117,7 @@ if (documentExportNames.length !== 1) {
 /** The emitted document function's name. */
 export const DOC_EXPORT_NAME: string = documentExportNames[0];
 
-/** The `solid-js/web` names the emit may reference free (`Dynamic` — dynamic `@(expr)` tags).
- * Derived from the reader (`emitSurface().solidWeb`). */
+/** Free DOM/SSR runtime names, derived from the reader. */
 export const SOLID_WEB_NAMES: readonly string[] = EMIT_SURFACE.solidWeb;
 
 /**
@@ -465,7 +466,7 @@ export function bindImports(
   return (
     bindFree(names, CORE_RUNTIME_NAMES, CORE_RUNTIME_MODULE) +
     bindFree(names, SOLID_AMBIENT_NAMES, "solid-js") +
-    bindFree(names, SOLID_WEB_NAMES, "solid-js/web") +
+    bindFree(names, SOLID_WEB_NAMES, SOLID_WEB_MODULE) +
     preludeImport(names, opts.prelude) +
     imports +
     body

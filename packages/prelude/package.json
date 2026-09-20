@@ -69,15 +69,17 @@
     "@shikijs/types": "^4.4.3"
   },
   "peerDependencies": {
-    "solid-js": "^1.9.0"
+    "@solidjs/web": "^2.0.0-rc.8",
+    "solid-js": "^2.0.0-rc.8"
   },
   "devDependencies": {
     "@shikijs/langs": "^4.4.3",
     "@types/katex": "^0.16.7",
     "jsdom": "^29.1.1",
-    "solid-js": "^1.9.3",
+    "@solidjs/web": "2.0.0-rc.8",
+    "solid-js": "2.0.0-rc.8",
     "vite": "^8.0.16",
-    "vite-plugin-solid": "^2.11.10",
+    "@solidjs/vite-plugin": "3.0.0-next.43",
     "vitest": "^4.1.8"
   },
   "license": "MIT",

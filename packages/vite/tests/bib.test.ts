@@ -259,7 +259,7 @@ describe("?bib end to end", () => {
     const out = mod.run();
     // Same scrub as ./e2e.test.ts: hydration keys and Solid's SSR boundary comments.
     html = out.html
-      .replace(/\s*data-hk="[^"]*"/g, "")
+      .replace(/\s*_hk=[^\s>]+/g, "")
       .replace(/<!--\/?!?\$?-->/g, "");
     bib = out.bib;
   }, 60_000);

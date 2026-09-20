@@ -5,14 +5,23 @@
  * signals propagate).
  */
 
-import { render } from "solid-js/web";
+import { render } from "@solidjs/web";
+import { flush } from "solid-js";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SNIPPET } from "../src/default-snippet";
 import { GOLDEN_NOTA } from "../src/golden";
 import { EMPTY, runPipeline } from "../src/pipeline";
 
-const click = (el: Element) =>
+/**
+ * Click, then drain the graph. Solid 2 queues writes: a setter inside an event handler is
+ * visible to reads only after the next microtask, so the handler's effect on the DOM is
+ * asserted after an explicit `flush()`. Same graph as the evaluated document (MODULE_MAP hands
+ * it this page's `solid-js`), so the synchronous drain is the whole story.
+ */
+const click = (el: Element) => {
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  flush();
+};
 
 describe("runPipeline", () => {
   it("the seed document compiles clean through every stage", () => {

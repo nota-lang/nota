@@ -1,5 +1,4 @@
 %%%
-import { createMutable } from "solid-js/store";
 import { Action, Slider } from "./src/inputs";
 import { Sticky } from "./src/layout";
 import "./explorable.css";
@@ -7,9 +6,9 @@ import { BarnesHut } from "./src/barnes-hut";
 import { ErrorPlot, ThetaRef, TimePlot } from "./src/plots";
 import "./barnes-hut.css";
 
-// The document's reactive state: one mutable store. Reads track, writes update —
-// in prose, in controls, and in the diagram alike.
-const S = createMutable({
+// The document's reactive state: one store. Reads track; writes go through `patch`,
+// which mutates the draft — in prose, in controls, and in the diagram alike.
+const [S, setS] = createStore({
   charge: -30,      // force strength (negative repels, positive attracts)
   step: 0,          // points inserted into the quadtree
   theta: 0,         // the Barnes-Hut θ threshold
@@ -19,15 +18,24 @@ const S = createMutable({
   focus: null as number | null  // θ series focused in the figures
 });
 
+// Every write goes through one draft. `fields` may be a live props object whose values
+// are getters over this very store (`step: Math.min(S.step + 1, 77)`); those reads go to
+// the settled store, not to `s`, so a patch always reads the pre-patch state.
+const patch = (fields: Partial<typeof S>) => {
+  setS(s => {
+    Object.assign(s, fields);
+  });
+};
+
 // Document-local prose controls: @Do[…]{…} is an action link whose props are the
 // state patch (evaluated at click time), and @T[theta: …]{…} references a θ series
 // in the figures, focusing it on hover.
 const Do = (props: { children?: unknown }) => {
-  const [own, patch] = splitProps(props, ["children"]);
-  return @Action[do: () => Object.assign(S, patch)]{@(own.children)};
+  const fields = omit(props, "children");
+  return @Action[do: () => patch(fields)]{@(props.children)};
 };
 const T = (props: { theta: number; children?: unknown }) =>
-  @ThetaRef[theta: props.theta, focus: S.focus, setFocus: f => S.focus = f]{
+  @ThetaRef[theta: props.theta, focus: S.focus, setFocus: f => patch({focus: f})]{
     @(props.children)};
 %%%
 
@@ -75,7 +83,7 @@ _To get a sense of how this force-directed layout works, drag the nodes or use t
 Negative values indicate repulsive forces, while positive values indicate attractive
 forces.
 
-@Slider[value: S.charge, set: v => S.charge = v,
+@Slider[value: S.charge, set: v => patch({charge: v}),
         min: -30, max: 10, step: 1, label: "Force strength"]
 
 A straightforward approach to computing N-body forces is to consider all pairs of
@@ -127,7 +135,7 @@ more fine-grained cells are added until all points reside in their own cell.
 
 _Advance the slider to add each point and produce the full quadtree._
 
-@Slider[value: S.step, set: v => S.step = v,
+@Slider[value: S.step, set: v => patch({step: v}),
         min: 0, max: 77, step: 1, label: "Inserted points"]
 
 ## Step 2: Calculate Centers of Mass
@@ -176,7 +184,7 @@ than or equal to the cell's width.
 
 _Adjust the $\Theta$ parameter to view its effect on force estimation._
 
-@Slider[value: S.theta, set: v => S.theta = v,
+@Slider[value: S.theta, set: v => patch({theta: v}),
         min: 0, max: 2, step: 0.1, label: "Theta Θ", format: v => v.toFixed(1)]
 
 How does the number of considered points change based on the probe location and
@@ -196,7 +204,7 @@ For each point count, we average the results from 50 separate runs of force esti
 each time using a different set of points placed at uniformly random coordinates within
 a 900 × 500 pixel rectangle.
 
-@TimePlot[focus: S.focus, setFocus: f => S.focus = f]
+@TimePlot[focus: S.focus, setFocus: f => patch({focus: f})]
 
 The running time results confirm that the Barnes-Hut approximation can significantly
 speed up computation. As expected, the @T[theta: 0]{naïve approach} exhibits a quadratic
@@ -212,7 +220,7 @@ results of the naïve scheme and Barnes-Hut. In the context of a force-directed 
 layout, this error represents the difference (in pixels) between node positions after
 applying the naïve and approximate methods.
 
-@ErrorPlot[focus: S.focus, setFocus: f => S.focus = f]
+@ErrorPlot[focus: S.focus, setFocus: f => patch({focus: f})]
 
 Looking at the error results, we first see that the average error is relatively small:
 only ~5% of a single pixel in difference! However, we should take care interpreting

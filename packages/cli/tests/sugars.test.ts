@@ -20,7 +20,7 @@ const tmpBase = mkdtempSync(join(tmpdir(), "nota-sugars-test-"));
 afterAll(() => rmSync(tmpBase, { recursive: true, force: true }));
 
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 let html = "";
 beforeAll(async () => {

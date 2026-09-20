@@ -20,7 +20,8 @@
     "@nota-lang/prelude": "workspace:*",
     "@nota-lang/core": "workspace:*",
     "@nota-lang/vite": "workspace:*",
-    "solid-js": "^1.9.3",
+    "@solidjs/web": "2.0.0-rc.8",
+    "solid-js": "2.0.0-rc.8",
     "vite": "^8.0.16"
   },
   "license": "MIT",

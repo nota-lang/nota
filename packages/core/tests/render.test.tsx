@@ -3,13 +3,14 @@
  * over SSR chunks, the doc-state store, the fixpoint renderDocument driver (forward references,
  * convergence, the pass budget), trailers, and the snapshot embed.
  */
+import type { JSX } from "@solidjs/web";
+import { renderToString } from "@solidjs/web";
 import {
   createSignal,
-  type JSX,
+  getOwner,
   children as resolveChildren,
   Show
 } from "solid-js";
-import { renderToString } from "solid-js/web";
 import { describe, expect, test } from "vitest";
 import {
   Attrs,
@@ -32,7 +33,8 @@ import {
   scanOpeningTag,
   textOf,
   UlLi,
-  useDocState
+  useDocState,
+  useOptionalDocState
 } from "../src/lib";
 import { Doc } from "./fixtures/doc";
 
@@ -208,6 +210,17 @@ describe("doc-state store", () => {
     };
     expect(() => renderToString(() => <Bad />)).toThrow(/inside <NotaDoc>/);
   });
+
+  test("with no owner at all: optional read is undefined, strict read is still nota's error", () => {
+    // Solid 2's `useContext` throws `NoOwnerError` when there is no owner to read a context map
+    // from, where 1.x returned the context default. Module-scope callers are legitimate — the
+    // prelude's positional setters run from site setup modules — so the contract lives here:
+    // "no owner" means "no document", and the strict read must still fail with nota's message
+    // rather than a raw NoOwnerError.
+    expect(getOwner()).toBeNull();
+    expect(useOptionalDocState()).toBeUndefined();
+    expect(() => useDocState()).toThrow(/no document state/);
+  });
 });
 
 describe("collectDocState (the host-driven seam)", () => {
@@ -217,9 +230,10 @@ describe("collectDocState (the host-driven seam)", () => {
 
   test("nested inside an enclosing render, hydration keys are undisturbed", () => {
     // The load-bearing property for host frameworks that call pass 1 from inside their own
-    // renderToString (SolidStart route wrappers): renderToString installs a fresh
-    // sharedConfig.context and never restores it, so without the save/restore the enclosing
-    // render's remaining keys would renumber and hydration would miss.
+    // renderToString (as a self-hosting `<NotaDoc>` does): a nested renderToString installs a fresh
+    // sharedConfig.context — in Solid 2 the head registry and asset tracking — and never
+    // restores it. Keys are owner-tree based now, so this also pins that the nesting itself
+    // costs the enclosing render nothing.
     const Marked = () => (
       <div>
         <span>a</span>
@@ -227,26 +241,23 @@ describe("collectDocState (the host-driven seam)", () => {
       </div>
     );
     const keysOf = (html: string) =>
-      [...html.matchAll(/data-hk="([^"]*)"/g)].map(m => m[1]);
+      [...html.matchAll(/\s_hk=([^\s>]+)/g)].map(m => m[1]);
 
-    const baseline = renderToString(() => (
-      <div>
-        <Marked />
-        <Marked />
-      </div>
-    ));
-    const withNested = renderToString(() => (
-      <div>
-        <Marked />
-        {(() => {
-          collectDocState(Doc);
-          return null;
-        })()}
-        <Marked />
-      </div>
-    ));
-    expect(keysOf(baseline).length).toBeGreaterThan(0);
-    expect(keysOf(withNested)).toEqual(keysOf(baseline));
+    // Same tree either way — only the nested render differs, so the dynamic slot itself (which
+    // costs an id of its own) cannot account for a difference.
+    const page = (nest: boolean) =>
+      renderToString(() => (
+        <div>
+          <Marked />
+          {(() => {
+            if (nest) collectDocState(Doc);
+            return null;
+          })()}
+          <Marked />
+        </div>
+      ));
+    expect(keysOf(page(false)).length).toBeGreaterThan(0);
+    expect(keysOf(page(true))).toEqual(keysOf(page(false)));
   });
 
   test("each call owns fresh document-local state", () => {
@@ -297,7 +308,7 @@ describe("renderDocument (fixpoint SSG)", () => {
   test("renderId prefixes every hydration key; state is unaffected", () => {
     const plain = renderDocument(Doc);
     const scoped = renderDocument(Doc, { renderId: "i7" });
-    const keys = [...scoped.html.matchAll(/data-hk="([^"]*)"/g)].map(m => m[1]);
+    const keys = [...scoped.html.matchAll(/\s_hk=([^\s>]+)/g)].map(m => m[1]);
     expect(keys.length).toBeGreaterThan(0);
     expect(keys.every(k => k.startsWith("i7"))).toBe(true);
     expect(scoped.state).toEqual(plain.state);
@@ -582,11 +593,11 @@ describe("driver-owned store adoption", () => {
       return null;
     };
     renderToString(() => (
-      <DocStateContext.Provider value={outer}>
+      <DocStateContext value={outer}>
         <NotaDoc>
           <Register />
         </NotaDoc>
-      </DocStateContext.Provider>
+      </DocStateContext>
     ));
     expect(outer.live("ping")).toEqual([{ ok: true, location: "m:1" }]);
   });
@@ -632,7 +643,10 @@ describe("attrs markers over SSR chunks (notation.md §Attrs)", () => {
         {"second"}
       </Reforest>
     ));
-    expect(html).toMatch(/class="nota-para x\s*"[^>]*>first para<\/p>/);
+    // Solid 2 leaves an insertion marker in a multi-slot paragraph; the attrs still landed.
+    expect(html).toMatch(
+      /class="nota-para x\s*"[^>]*>first para(?:<!--[^>]*-->)*<\/p>/
+    );
     expect(html).toContain("second</p>");
   });
 });
@@ -668,11 +682,9 @@ describe("smart punctuation over SSR chunks (Pollen rules at the decode stage)",
     expect(off).toContain('"x" -- y...');
 
     const viaStore = renderToString(() => (
-      <DocStateContext.Provider
-        value={createDocState(undefined, { smart: false })}
-      >
+      <DocStateContext value={createDocState(undefined, { smart: false })}>
         <Reforest>{'"x" -- y...'}</Reforest>
-      </DocStateContext.Provider>
+      </DocStateContext>
     ));
     expect(viaStore).toContain('"x" -- y...');
   });

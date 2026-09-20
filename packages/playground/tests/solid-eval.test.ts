@@ -10,10 +10,11 @@
 
 import { compile } from "@nota-lang/compiler";
 import * as notaCore from "@nota-lang/core";
+import { render } from "@solidjs/web";
 import * as solidJs from "solid-js";
-import { render } from "solid-js/web";
 import { describe, expect, it } from "vitest";
 import {
+  babelCompile,
   compileAndEval,
   evalModule,
   MODULE_MAP,
@@ -114,10 +115,38 @@ describe("MODULE_MAP", () => {
       Object.keys(MODULE_MAP).filter(k => !k.startsWith("@shikijs/langs/"))
     ).toEqual([
       "solid-js",
-      "solid-js/web",
+      "@solidjs/web",
       "@nota-lang/core",
       "@nota-lang/prelude"
     ]);
+  });
+
+  it("carries the specifier babel-preset-solid actually emits", () => {
+    // The preset injects the runtime imports itself, from its `moduleName` option — `solid-js/web`
+    // in 1.x, `@solidjs/web` in 2.x. The key the evaluator resolves against has to be whatever
+    // the compiled module asks for, so read it off a real compile rather than off the option.
+    const compiled = babelCompile(
+      'export default function Doc() { return <p class="x">hi</p>; }'
+    );
+    const specifiers = [...compiled.matchAll(/from ["']([^"']+)["']/g)].map(
+      m => m[1]
+    );
+    expect(specifiers).toContain("@solidjs/web");
+    expect(specifiers).not.toContain("solid-js/web");
+    for (const specifier of specifiers) {
+      expect(resolveModule(specifier), specifier).toBeTruthy();
+    }
+  });
+
+  it("compiles pure-CSR DOM output: no hydration markers, no ssr runtime", () => {
+    // `generate: "dom"` + `hydratable: false`. Hydratable dom output threads hydration ids
+    // (`_$getNextElement`/`_hk`) through every template; there is no server pass here to claim.
+    const compiled = babelCompile(
+      'export default function Doc() { return <p class="x">hi</p>; }'
+    );
+    expect(compiled).toContain("_$template");
+    expect(compiled).not.toContain("_hk");
+    expect(compiled).not.toMatch(/getNextElement|getHydrationKey|ssr\(/);
   });
 
   it("carries a grammar for a fenced tag, and tolerates one it does not", () => {
@@ -140,6 +169,38 @@ describe("MODULE_MAP", () => {
     const dispose = render(() => Doc({}), host);
     expect(host.querySelector("pre.shiki")).toBeTruthy();
     dispose();
+  });
+});
+
+describe("the `assert` browser shim", () => {
+  /** Pin the callable assert alias: Node tests can pass while browser builds use a broken stub. */
+  it("is what `assert` resolves to, in tests as in the browser bundle", async () => {
+    // The BARE specifier is the subject here: it is what a browser bundle and the alias both
+    // see, and `node:assert` would bypass the alias and make this test assert nothing.
+    // biome-ignore lint/style/useNodejsImportProtocol: the un-prefixed specifier is the point.
+    const mod = await import("assert");
+    const resolved = (mod as { default: unknown }).default as {
+      (value: unknown, message?: string): void;
+      default?: unknown;
+      fail?: unknown;
+    };
+    expect(typeof resolved, "callable, unlike Vite's browser stub").toBe(
+      "function"
+    );
+    // node's builtin `assert` is the `ok` function and has no self-referential `default`.
+    expect(resolved.name).toBe("assert");
+    expect(resolved.default).toBe(resolved);
+    expect(typeof resolved.fail).toBe("function");
+    expect(() => resolved(false, "nope")).toThrow("nope");
+  });
+
+  it("carries a document through the preset's import injection", () => {
+    // The end-to-end consequence: the injection path helper-module-imports drives is exactly
+    // what emits the runtime import, so a compile that produces one proves the shim's surface
+    // is sufficient.
+    expect(
+      babelCompile("export default function Doc() { return <p>x</p>; }")
+    ).toContain('from "@solidjs/web"');
   });
 });
 

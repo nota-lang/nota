@@ -11,6 +11,6 @@
       "vite/client",
       "node"
     ],
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   }
 }

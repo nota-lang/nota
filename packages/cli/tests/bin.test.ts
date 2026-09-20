@@ -34,7 +34,7 @@ const outDir = mkdtempSync(join(tmpdir(), "nota-bin-"));
 afterAll(() => rmSync(outDir, { recursive: true, force: true }));
 
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 let stdout = "";
 let rawHtml = "";
@@ -183,7 +183,7 @@ describe("the mega surface, rendered", () => {
   // BUG (reader↔runtime seam, found 2026-08-16): a markup-valued prop on a HOST element —
   // mega's `@figure[cap:@em{a caption}]` — serializes the compiled SSR chunk *unescaped* into
   // the attribute value:
-  //   <figure data-hk="…" cap="<em data-hk="…">a caption</em>">
+  //   <figure _hk=… cap="<em _hk=…>a caption</em>">
   // The inner quotes terminate the attribute — malformed HTML (a browser reparses the tail as
   // junk attributes/text). Solid's `escape()` passes non-string values through (by design, for
   // chunks in *content* position), so the emit/runtime needs to stringify-or-reject markup

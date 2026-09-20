@@ -3,9 +3,9 @@
  * divergence from the flat reforest spike), list coalescing + whitespace bridging, tight mode
  * (UlLi interiors), see-through categorization, and state preservation across restructuring.
  */
-import type { JSX } from "solid-js";
-import { createSignal, Show } from "solid-js";
-import { render } from "solid-js/web";
+import type { JSX } from "@solidjs/web";
+import { render } from "@solidjs/web";
+import { createSignal, flush, Show } from "solid-js";
 import { afterEach, describe, expect, test } from "vitest";
 import { Attrs, OlLi, Reforest, textOf, UlLi } from "../src/lib";
 
@@ -27,8 +27,11 @@ afterEach(() => {
   disposers = [];
 });
 
-const click = (el: Element) =>
+// Solid 2 batches signal writes to a microtask; `flush()` applies them before the assertion.
+const click = (el: Element) => {
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  flush();
+};
 
 const tags = (el: Element) => Array.from(el.children).map(c => c.tagName);
 
@@ -233,6 +236,7 @@ describe("state preservation", () => {
     expect(btn.textContent).toBe("clicks: 3");
 
     setBlocky(true);
+    flush();
     expect(tags(root)).toEqual(["P", "BLOCKQUOTE", "P"]);
     // Same node (not remounted), same state, still reactive.
     expect(root.querySelector("button")).toBe(btn);
@@ -241,6 +245,7 @@ describe("state preservation", () => {
     expect(btn.textContent).toBe("clicks: 4");
 
     setBlocky(false);
+    flush();
     expect(root.querySelectorAll("p")).toHaveLength(1);
     expect(root.querySelector("button")?.textContent).toBe("clicks: 4");
   });

@@ -5,7 +5,7 @@
  */
 
 import type { LocatedFact, Location } from "@nota-lang/core";
-import type { JSX } from "solid-js";
+import type { JSX } from "@solidjs/web";
 
 /** Fact-kind keys in the document snapshot. */
 export const FACT_KINDS = {

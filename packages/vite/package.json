@@ -1,7 +1,7 @@
 {
   "name": "@nota-lang/vite",
   "version": "0.2.1",
-  "description": "Vite integration for .nota: a two-plugin preset (transform to Solid JSX + vite-plugin-solid) compiling per build target.",
+  "description": "Vite integration for .nota: a two-plugin preset (transform to Solid JSX + @solidjs/vite-plugin) compiling per build target.",
   "files": [
     "dist"
   ],
@@ -25,16 +25,26 @@
     "@nota-lang/core": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
     "@orcid/bibtex-parse-js": "^0.0.25",
-    "solid-js": "^1.9.3",
-    "vite-plugin-solid": "^2.11.10"
+    "@solidjs/vite-plugin": "3.0.0-next.43",
+    "@solidjs/web": "2.0.0-rc.8",
+    "solid-js": "2.0.0-rc.8"
   },
   "peerDependencies": {
-    "@solidjs/start": "^2.0.0",
+    "filesystem-routing": "^0.3.1",
     "vite": "^8.0.16"
   },
+  "peerDependenciesMeta": {
+    "filesystem-routing": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@solidjs/start": "^2.0.0",
+    "@solidjs/prerender": "0.2.0",
+    "@solidjs/router": "2.0.0-next.24",
+    "@tsrx/oxc": "0.13.0",
+    "filesystem-routing": "0.3.1",
     "jsdom": "^29.1.1",
+    "prerender-crawler": "0.2.0",
     "vite": "^8.0.16"
   },
   "license": "MIT",
@@ -42,10 +52,5 @@
     "type": "git",
     "url": "git+https://github.com/nota-lang/nota.git",
     "directory": "packages/vite"
-  },
-  "peerDependenciesMeta": {
-    "@solidjs/start": {
-      "optional": true
-    }
   }
 }

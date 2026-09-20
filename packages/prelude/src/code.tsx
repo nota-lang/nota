@@ -27,7 +27,8 @@ import type {
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import githubDark from "@shikijs/themes/github-dark";
 import githubLight from "@shikijs/themes/github-light";
-import { children, type JSX, type ParentProps, splitProps } from "solid-js";
+import type { JSX } from "@solidjs/web";
+import { children, omit, type ParentProps, untrack } from "solid-js";
 
 import { mergeClass, withClass } from "./html-attrs";
 import { sessionConfig } from "./session-config";
@@ -119,7 +120,7 @@ export function resetCodeWarningsForTest(): void {
 
 // Source recovery
 
-/** Hydration bookkeeping attributes that must not ride into a decoration's properties. */
+/** Hydration attributes excluded from decoration properties. */
 const BOOKKEEPING_ATTRS = new Set([HYDRATION_KEY_ATTR]);
 
 /** The root tag + attributes of a resolved element part (DOM node or SSR chunk), if any. */
@@ -215,13 +216,16 @@ function effectiveLang(explicit: string | undefined): string | undefined {
 export function CodeBlock(
   props: ParentProps & { lang?: string } & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["lang", "children", "class"]);
+  const rest = omit(props, "lang", "children", "class");
   const resolved = children(() => props.children);
-  const explicit = typeof local.lang === "string" ? local.lang : undefined;
+  const explicit = typeof props.lang === "string" ? props.lang : undefined;
   const lang = effectiveLang(explicit);
-  const cls = mergeClass("nota-code-block", local.class);
+  const cls = mergeClass("nota-code-block", props.class);
   if (lang !== undefined) {
-    const { text, decorations } = reconstruct(resolved.toArray());
+    // Read source once at render.
+    const { text, decorations } = untrack(() =>
+      reconstruct(resolved.toArray() as ResolvedChild[])
+    );
     const out = highlighter().codeToHtml(text, {
       lang,
       theme: codeConfig().theme,
@@ -245,12 +249,15 @@ export function CodeBlock(
 export function CodeInline(
   props: ParentProps & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class"]);
+  const rest = omit(props, "children", "class");
   const resolved = children(() => props.children);
   const lang = effectiveLang(undefined);
-  const cls = mergeClass("nota-code-inline", local.class);
+  const cls = mergeClass("nota-code-inline", props.class);
   if (lang !== undefined) {
-    const { text, decorations } = reconstruct(resolved.toArray());
+    // Read source once at render.
+    const { text, decorations } = untrack(() =>
+      reconstruct(resolved.toArray() as ResolvedChild[])
+    );
     const out = highlighter().codeToHtml(text, {
       lang,
       theme: codeConfig().theme,

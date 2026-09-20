@@ -5,6 +5,7 @@
  * checked against it.
  */
 
+import { SOLID_WEB_MODULE } from "@nota-lang/compiler";
 import { emitSurface } from "@nota-lang/compiler/reader";
 import { describe, expect, test } from "vitest";
 import * as core from "../src/lib";
@@ -26,5 +27,13 @@ describe("reader emit surface ↔ @nota-lang/core", () => {
         `emitSurface().structural names "${name}", which @nota-lang/core does not export`
       ).toBeDefined();
     }
+  });
+
+  test("the emit's framework runtime is the module this package compiles against", () => {
+    // Core's JSX and the reader's emitted `solidWeb` imports must name the same package, or a
+    // document gets two Solid runtimes on one page (hydration silently off — see AGENTS.md).
+    const { solidWeb } = emitSurface();
+    expect(solidWeb.length).toBeGreaterThan(0);
+    expect(SOLID_WEB_MODULE).toBe("@solidjs/web");
   });
 });

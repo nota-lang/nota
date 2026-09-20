@@ -11,6 +11,7 @@
  *
  * On that harness we assert, through the real virtual-`.tsx` pipeline:
  * - **hover** on an ambient (`createSignal`) shows its real signature (was `any`: "no inferred type");
+ * - the ambient **call shapes track the framework major** (Solid 2's two-phase `createEffect`);
  * - a **wrong attribute value on a known host tag** (`@a[href: 123]` → `<a href={123}>`) is a TS
  *   error (the preamble's `JSX.IntrinsicElements` attribute map);
  * - an **unknown tag** (`@custom-el[foo: 1]`) is legal (the open string-index fallback);
@@ -104,6 +105,27 @@ describe("typed surface resolves with no node_modules (D3)", () => {
     // The generic signature instantiates at the call site — a real type, not `any`.
     expect(hover).toMatch(/createSignal/);
     expect(hover).toContain("value: number");
+  });
+
+  test("the ambients track Solid 2's call shapes: `createEffect` is two-phase", () => {
+    // Solid 2 split `createEffect` into (compute, effect); the 1.x one-argument spelling does not
+    // exist. A preamble that still described the 1.x shape would type-check a call that never
+    // runs, so the arity is the sharpest single probe that the ambient block was regenerated
+    // against the v2 name list rather than carried over.
+    const stale =
+      "%let [n] = createSignal(0)\n%let e = createEffect(() => n())\n";
+    const arity = noNodeModulesHarness(stale)
+      .diagnostics()
+      .find(d => /Expected 2-3 arguments/.test(d.message));
+    expect(
+      arity,
+      JSON.stringify(noNodeModulesHarness(stale).diagnostics())
+    ).toBeDefined();
+
+    // …and the v2 form is clean.
+    const current =
+      "%let [n] = createSignal(0)\n%let e = createEffect(() => n(), () => {})\n";
+    expect(noNodeModulesHarness(current).diagnostics()).toEqual([]);
   });
 });
 

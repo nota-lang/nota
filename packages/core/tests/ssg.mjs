@@ -1,5 +1,5 @@
 // SSG build step for the hydrate e2e: load tests/fixtures/ssg-entry.tsx through Vite's SSR
-// pipeline (vite-plugin-solid with ssr: true compiles JSX with generate: "ssr" + hydration keys)
+// pipeline (@solidjs/vite-plugin with ssr: true compiles JSX with generate: "ssr" + hydration keys)
 // and write the rendered body + doc-state snapshot to tests/.built/.
 //
 // Deliberately NOT the package vitest config: the SSG pass is its own build target (the dom
@@ -7,8 +7,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import solid from "@solidjs/vite-plugin";
 import { createServer } from "vite";
-import solid from "vite-plugin-solid";
 
 const pkgRoot = fileURLToPath(new URL("..", import.meta.url));
 

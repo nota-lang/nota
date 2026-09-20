@@ -9,13 +9,13 @@
 import { useDocState } from "@nota-lang/core";
 
 import "./figure.css";
+import type { JSX } from "@solidjs/web";
 import {
   createContext,
   createMemo,
-  type JSX,
+  omit,
   type ParentProps,
   Show,
-  splitProps,
   useContext
 } from "solid-js";
 import { DefBank } from "./def";
@@ -25,8 +25,8 @@ import { type AnchorFact, anchorOrdinals, FACT_KINDS } from "./refs";
 /** The anchor kind figures register. */
 export const FIGURE_KIND = "figure";
 
-/** The enclosing figure's ordinal accessor, provided by `Figure` for its `Caption`. */
-const FigureContext = createContext<() => number | undefined>();
+/** Enclosing figure ordinal. A null default permits captions outside figures. */
+const FigureContext = createContext<(() => number | undefined) | null>(null);
 
 /**
  * A numbered figure — a `figure`-kind anchor. Optional `id`: when set, the `<figure>` gets
@@ -38,10 +38,10 @@ export function Figure(
   props: ParentProps & { id?: string } & Record<string, unknown>
 ): JSX.Element {
   const state = useDocState();
-  const [local, rest] = splitProps(props, ["id", "children", "class"]);
+  const rest = omit(props, "id", "children", "class");
   const id =
-    typeof local.id === "string" && local.id.trim() !== ""
-      ? local.id.trim()
+    typeof props.id === "string" && props.id.trim() !== ""
+      ? props.id.trim()
       : undefined;
   const handle = state.register(FACT_KINDS.anchor, {
     kind: FIGURE_KIND,
@@ -64,17 +64,17 @@ export function Figure(
     state.trailer("definitions", () => <DefBank />);
   }
   return (
-    <FigureContext.Provider value={ordinal}>
+    <FigureContext value={ordinal}>
       <figure
         id={id !== undefined ? `fig-${id}` : undefined}
         {...(withClass(
-          mergeClass("nota-figure", local.class),
+          mergeClass("nota-figure", props.class),
           rest
         ) as JSX.HTMLAttributes<HTMLElement>)}
       >
-        {local.children}
+        {props.children}
       </figure>
-    </FigureContext.Provider>
+    </FigureContext>
   );
 }
 
@@ -82,15 +82,15 @@ export function Figure(
 export function Subfigure(
   props: ParentProps & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class"]);
+  const rest = omit(props, "children", "class");
   return (
     <div
       {...(withClass(
-        mergeClass("nota-subfigure", local.class),
+        mergeClass("nota-subfigure", props.class),
         rest
       ) as JSX.HTMLAttributes<HTMLDivElement>)}
     >
-      {local.children}
+      {props.children}
     </div>
   );
 }
@@ -103,20 +103,20 @@ export function Subfigure(
 export function Caption(
   props: ParentProps & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class"]);
+  const rest = omit(props, "children", "class");
   const ordinal = useContext(FigureContext);
   const number = () => ordinal?.();
   return (
     <figcaption
       {...(withClass(
-        mergeClass("nota-caption", local.class),
+        mergeClass("nota-caption", props.class),
         rest
       ) as JSX.HTMLAttributes<HTMLElement>)}
     >
       <Show when={number() !== undefined}>
         <span class="nota-caption-label">{`Figure ${number()}: `}</span>
       </Show>
-      {local.children}
+      {props.children}
     </figcaption>
   );
 }
@@ -125,18 +125,18 @@ export function Caption(
 export function Smallcaps(
   props: ParentProps & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "style", "class"]);
+  const rest = omit(props, "children", "style", "class");
   const style =
-    typeof local.style === "string" && local.style.trim() !== ""
-      ? `font-variant: small-caps; ${local.style}`
+    typeof props.style === "string" && props.style.trim() !== ""
+      ? `font-variant: small-caps; ${props.style}`
       : "font-variant: small-caps;";
-  const cls = typeof local.class === "string" ? local.class : undefined;
+  const cls = typeof props.class === "string" ? props.class : undefined;
   return (
     <span
       style={style}
       {...(withClass(cls, rest) as JSX.HTMLAttributes<HTMLSpanElement>)}
     >
-      {local.children}
+      {props.children}
     </span>
   );
 }

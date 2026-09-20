@@ -48,6 +48,7 @@ export function sessionConfig<T>(
   const key = {};
   let setup = defaults();
   const update = (session?: DocState): T => {
+    // Setup-module calls may have no reactive owner.
     const active = session ?? useOptionalDocState();
     return active?.local(key, () => copy(setup)) ?? setup;
   };

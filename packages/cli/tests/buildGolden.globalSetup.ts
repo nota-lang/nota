@@ -14,7 +14,7 @@
  *   swap (the thing `<Show>` buys over the interpolated ternary it replaced) and the two static
  *   fallback-less branches, plus an `else if` chain (nested `<Show>` fallbacks).
  * - `dynamic.nota` — the `<Dynamic>` hydration surface (prelude `Heading`, an `@(expr)` dynamic
- *   tag) + the definition tooltip's hydration path (`DefBank`'s `onMount` handlers) + a counter.
+ *   tag) + the definition tooltip's hydration path (`DefBank`'s `onSettled` handlers) + a counter.
  */
 
 import { dirname, join } from "node:path";

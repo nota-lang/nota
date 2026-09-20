@@ -1,6 +1,6 @@
 /**
  * The full-pipeline e2e: a real `.nota` file → the nota() preset (reader's native Solid JSX
- * emit → vite-plugin-solid SSR compile) → `renderDocument` (fixpoint, seeded) — executed inside
+ * emit → @solidjs/vite-plugin's SSR compile) → `renderDocument` (fixpoint, seeded) — executed
  * the Vite SSR module graph via a fixture entry, so the doc-state context is one instance.
  *
  * This is the live loop the old `packages/react/tests/integration.test.ts` + compiler e2e
@@ -18,7 +18,8 @@ let html = "";
 let stateScript = "";
 
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  // Solid 2 emits hydration keys unquoted, as `_hk=…` (1.x: `data-hk="…"`).
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 beforeAll(async () => {
   server = await createServer({

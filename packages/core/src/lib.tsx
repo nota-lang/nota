@@ -3,13 +3,10 @@
  * rendering. See `design/solid.md`.
  */
 
-export * from "./doc-pass";
 export * from "./doc-state";
 export * from "./entities";
 export * from "./nota-doc";
 export * from "./reforest";
 export * from "./render";
-export * from "./route";
-export * from "./shell";
 export * from "./smart";
 export * from "./text";

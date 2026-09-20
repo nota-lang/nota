@@ -117,7 +117,7 @@ function AstNode(props: AstNodeProps) {
           type="button"
           class="ast-row"
           style={indent}
-          aria-expanded={open()}
+          aria-expanded={open() ? "true" : "false"}
           onClick={() => setOpen(o => !o)}
         >
           <Head />

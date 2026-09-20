@@ -13,16 +13,17 @@ import {
   textOf,
   useDocState
 } from "@nota-lang/core";
+import { Dynamic, isServer, type JSX } from "@solidjs/web";
 import {
   children,
   createMemo,
   createRoot,
-  type JSX,
+  omit,
   type ParentProps,
+  runWithOwner,
   Show,
-  splitProps
+  untrack
 } from "solid-js";
-import { Dynamic, isServer } from "solid-js/web";
 import { mergeClass, withClass } from "./html-attrs";
 import {
   ANCHOR_KINDS,
@@ -134,70 +135,74 @@ interface ReferenceModel {
 
 const referenceModels = new WeakMap<DocState, ReferenceModel>();
 
-/**
- * Build the model in a detached root so unmounting the first consumer cannot dispose shared
- * memos. The WeakMap gives the model the same lifetime as its store.
- */
+/** Detached roots have no hydration id; transparent memos compute live without requesting one. */
+function modelMemo<T>(compute: () => T): () => T {
+  return createMemo(compute, { transparent: true });
+}
+
+/** Detach from the first consumer so its disposal cannot freeze the shared model. */
 function referenceModel(state: DocState): ReferenceModel {
   const cached = referenceModels.get(state);
   if (cached !== undefined) {
     return cached;
   }
-  const model = createRoot((): ReferenceModel => {
-    const anchors = createMemo(() => readAnchors(state));
-    const refs = createMemo(() => readRefs(state));
-    const headings = createMemo(() =>
-      anchorsOf(anchors(), ANCHOR_KINDS.heading)
-    );
-    const headingIndex = createMemo(
-      () => new Map(headings().map((f, i) => [f.location, i]))
-    );
-    const ids = createMemo(() => headingIds(headings()));
-    const numbers = createMemo(() =>
-      headingNumbers(headings(), secConfig(state).numberDepth)
-    );
-    const resolved = createMemo(() => resolution(state, anchors()));
-    const ordinalMaps = createMemo(() => {
-      const maps = new Map<string, Map<Location, number>>();
-      for (const anchor of anchors()) {
-        let map = maps.get(anchor.kind);
-        if (map === undefined) {
-          map = new Map();
-          maps.set(anchor.kind, map);
+  const model = runWithOwner(null, () =>
+    createRoot((): ReferenceModel => {
+      const anchors = modelMemo(() => readAnchors(state));
+      const refs = modelMemo(() => readRefs(state));
+      const headings = modelMemo(() =>
+        anchorsOf(anchors(), ANCHOR_KINDS.heading)
+      );
+      const headingIndex = modelMemo(
+        () => new Map(headings().map((f, i) => [f.location, i]))
+      );
+      const ids = modelMemo(() => headingIds(headings()));
+      const numbers = modelMemo(() =>
+        headingNumbers(headings(), secConfig(state).numberDepth)
+      );
+      const resolved = modelMemo(() => resolution(state, anchors()));
+      const ordinalMaps = modelMemo(() => {
+        const maps = new Map<string, Map<Location, number>>();
+        for (const anchor of anchors()) {
+          let map = maps.get(anchor.kind);
+          if (map === undefined) {
+            map = new Map();
+            maps.set(anchor.kind, map);
+          }
+          map.set(anchor.location, map.size + 1);
         }
-        map.set(anchor.location, map.size + 1);
-      }
-      return maps;
-    });
-    const noteNumbering = createMemo(() => {
-      const res = resolved();
-      const as = anchors();
-      return useNumbers(refs(), key =>
-        targetsKind(key, ANCHOR_KINDS.note, res, as)
-      );
-    });
-    const bibNumbering = createMemo(() => {
-      const res = resolved();
-      const rs = refs();
-      const labels = bibLabels(state, rs, res);
-      const { firstRefLocation } = useNumbers(rs, key =>
-        targetsKind(key, ANCHOR_KINDS.bib, res, anchors())
-      );
-      return { labels, firstRefLocation };
-    });
-    return {
-      anchors,
-      refs,
-      headings,
-      headingIndex,
-      ids,
-      numbers,
-      resolved,
-      ordinalMaps,
-      noteNumbering,
-      bibNumbering
-    };
-  });
+        return maps;
+      });
+      const noteNumbering = modelMemo(() => {
+        const res = resolved();
+        const as = anchors();
+        return useNumbers(refs(), key =>
+          targetsKind(key, ANCHOR_KINDS.note, res, as)
+        );
+      });
+      const bibNumbering = modelMemo(() => {
+        const res = resolved();
+        const rs = refs();
+        const labels = bibLabels(state, rs, res);
+        const { firstRefLocation } = useNumbers(rs, key =>
+          targetsKind(key, ANCHOR_KINDS.bib, res, anchors())
+        );
+        return { labels, firstRefLocation };
+      });
+      return {
+        anchors,
+        refs,
+        headings,
+        headingIndex,
+        ids,
+        numbers,
+        resolved,
+        ordinalMaps,
+        noteNumbering,
+        bibNumbering
+      };
+    })
+  );
   referenceModels.set(state, model);
   return model;
 }
@@ -218,14 +223,15 @@ export function Heading(
   props: ParentProps & { rank?: number; id?: string } & Record<string, unknown>
 ): JSX.Element {
   const state = useDocState();
-  const [, rest] = splitProps(props, ["rank", "id", "children"]);
+  const rest = omit(props, "rank", "id", "children");
   const resolved = children(() => props.children);
   const rank = clampRank(props.rank);
   const explicitId = typeof props.id === "string" ? props.id : undefined;
   const handle = state.register(FACT_KINDS.anchor, {
     kind: ANCHOR_KINDS.heading,
     rank,
-    title: titleTextOf(resolved.toArray()),
+    // Capture the title once at registration.
+    title: untrack(() => titleTextOf(resolved.toArray() as ResolvedChild[])),
     explicitId
   } satisfies Omit<AnchorFact, "location">);
   const myLocation = handle.fact.location;
@@ -247,15 +253,15 @@ export function Heading(
 export function Title(
   props: ParentProps & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class"]);
+  const rest = omit(props, "children", "class");
   return (
     <h1
       {...(withClass(
-        mergeClass("nota-title", local.class),
+        mergeClass("nota-title", props.class),
         rest
       ) as JSX.HTMLAttributes<HTMLHeadingElement>)}
     >
-      {local.children}
+      {props.children}
     </h1>
   );
 }
@@ -274,8 +280,8 @@ export function Toc(
 ): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
-  const [local, rest] = splitProps(props, ["depth", "class"]);
-  const depth = typeof local.depth === "number" ? local.depth : 6;
+  const rest = omit(props, "depth", "class");
+  const depth = typeof props.depth === "number" ? props.depth : 6;
   const entries = createMemo((): TocEntry[] => {
     const facts = model.headings();
     const ids = model.ids();
@@ -315,7 +321,7 @@ export function Toc(
     <Show when={entries().length > 0}>
       <nav
         {...(withClass(
-          mergeClass("nota-toc", local.class),
+          mergeClass("nota-toc", props.class),
           rest
         ) as JSX.HTMLAttributes<HTMLElement>)}
       >
@@ -483,7 +489,8 @@ export function Ref(
   const handle = state.register(FACT_KINDS.ref, { target: key, page });
   const myLocation = handle.fact.location;
   const resolved = children(() => props.children);
-  const hasAuthored = () => resolved.toArray().some(c => c != null);
+  const hasAuthored = () =>
+    (resolved.toArray() as ResolvedChild[]).some(c => c != null);
   const body = () => (hasAuthored() ? resolved() : undefined);
 
   const target = (): ResolvedAnchor | null => {
@@ -623,20 +630,30 @@ export function Note(props: ParentProps & { id?: string }): JSX.Element {
 /** Render the notes referenced so far from live facts. */
 export function NotesList(): JSX.Element {
   const state = useDocState();
-  const entries = createMemo(() => {
-    const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
-    const refs = state.live(FACT_KINDS.ref) as RefFact[];
-    const { numOf } = noteModel(state, anchors, refs);
-    const contentOf = (key: string): (() => JSX.Element) => {
-      const a = key.startsWith("#")
-        ? anchors.find(x => x.location === key.slice(1))
-        : anchors.find(x => x.kind === ANCHOR_KINDS.note && x.id === key);
-      return a?.content ?? (() => PENDING);
-    };
-    return [...numOf.entries()]
-      .sort((a, b) => a[1] - b[1])
-      .map(([key, num]) => ({ num, content: contentOf(key) }));
-  });
+  const entries = createMemo(
+    () => {
+      const anchors = state.live(FACT_KINDS.anchor) as AnchorFact[];
+      const refs = state.live(FACT_KINDS.ref) as RefFact[];
+      const { numOf } = noteModel(state, anchors, refs);
+      const contentOf = (key: string): (() => JSX.Element) => {
+        const a = key.startsWith("#")
+          ? anchors.find(x => x.location === key.slice(1))
+          : anchors.find(x => x.kind === ANCHOR_KINDS.note && x.id === key);
+        return a?.content ?? (() => PENDING);
+      };
+      return [...numOf.entries()]
+        .sort((a, b) => a[1] - b[1])
+        .map(([key, num]) => ({ num, content: contentOf(key) }));
+    },
+    {
+      // Ignore fact bumps that leave the notes unchanged, preserving hydrated DOM.
+      equals: (prev, next) =>
+        prev.length === next.length &&
+        prev.every(
+          (e, i) => e.num === next[i].num && e.content === next[i].content
+        )
+    }
+  );
   return (
     <Show when={entries().length > 0}>
       <section class="nota-notes">
@@ -673,7 +690,7 @@ export function Cite(props: ParentProps): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
   const resolved = children(() => props.children);
-  const keys = titleTextOf(resolved.toArray())
+  const keys = untrack(() => titleTextOf(resolved.toArray() as ResolvedChild[]))
     .split(",")
     .map(s => s.trim())
     .filter(s => s !== "");
@@ -757,7 +774,7 @@ function BibEntryLine(props: { key_: string }): JSX.Element {
 export function Bibliography(props: Record<string, unknown>): JSX.Element {
   const state = useDocState();
   const model = referenceModel(state);
-  const [local, rest] = splitProps(props, ["class"]);
+  const rest = omit(props, "class");
   const ordered = createMemo(() => {
     const labels = model.bibNumbering().labels;
     return [...labels.entries()].sort((a, b) => a[1] - b[1]);
@@ -766,7 +783,7 @@ export function Bibliography(props: Record<string, unknown>): JSX.Element {
     <Show when={ordered().length > 0}>
       <ol
         {...(withClass(
-          mergeClass("nota-bibliography", local.class),
+          mergeClass("nota-bibliography", props.class),
           rest
         ) as JSX.HTMLAttributes<HTMLOListElement>)}
       >

@@ -2,7 +2,7 @@
 
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView, lineNumbers } from "@codemirror/view";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, onSettled } from "solid-js";
 
 export interface CodeViewProps {
   value: string;
@@ -13,7 +13,7 @@ export function CodeView(props: CodeViewProps) {
   let host!: HTMLDivElement;
   let view: EditorView | null = null;
 
-  onMount(() => {
+  onSettled(() => {
     const extensions: Extension[] = [
       lineNumbers(),
       EditorView.lineWrapping,
@@ -22,23 +22,25 @@ export function CodeView(props: CodeViewProps) {
     ];
     if (props.language) extensions.push(props.language);
     view = new EditorView({ doc: props.value, extensions, parent: host });
+    return () => {
+      view?.destroy();
+      view = null;
+    };
   });
 
-  onCleanup(() => {
-    view?.destroy();
-    view = null;
-  });
-
-  createEffect(() => {
-    const value = props.value;
-    if (!view) return;
-    const current = view.state.doc.toString();
-    if (current !== value) {
-      view.dispatch({
-        changes: { from: 0, to: current.length, insert: value }
-      });
+  // The constructor seeds the value if this effect runs before setup.
+  createEffect(
+    () => props.value,
+    value => {
+      if (!view) return;
+      const current = view.state.doc.toString();
+      if (current !== value) {
+        view.dispatch({
+          changes: { from: 0, to: current.length, insert: value }
+        });
+      }
     }
-  });
+  );
 
   return <div class="code-view" ref={host} />;
 }

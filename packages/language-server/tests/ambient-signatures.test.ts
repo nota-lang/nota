@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import {
   AMBIENT_PRELUDE_NAMES,
   SOLID_AMBIENT_NAMES,
+  SOLID_WEB_MODULE,
   SOLID_WEB_NAMES
 } from "@nota-lang/compiler";
 import ts from "typescript";
@@ -65,13 +66,28 @@ function realSignatures(
     const decl = stmt.declarationList.declarations[0];
     const name = decl.name.getText(source);
     const type = checker.getTypeAtLocation(decl);
-    out[name] = checker.typeToString(
-      type,
-      decl,
-      ts.TypeFormatFlags.NoTruncation
+    out[name] = normalizeModulePaths(
+      checker.typeToString(type, decl, ts.TypeFormatFlags.NoTruncation)
     );
   }
   return out;
+}
+
+/**
+ * Collapse `import("…/node_modules/…/pkg/dist/types/x")` down to `import("pkg")`.
+ *
+ * TS prints a *path* rather than a bare specifier whenever the declaring package is not
+ * resolvable from this package's own `node_modules` — under pnpm's strict layout that is every
+ * transitive dependency. Solid 2 made that load-bearing: `onCleanup` is re-exported from
+ * `@solidjs/signals`, which `language-server` does not depend on directly, so its signature
+ * renders with the virtual store's directory name (`.pnpm/@solidjs+signals@2.0.0-rc.8/…`) baked
+ * in — an installer- and version-shaped string in a snapshot whose subject is the *signature*.
+ */
+function normalizeModulePaths(sig: string): string {
+  return sig.replace(
+    /"[^"]*node_modules\/(?:\.pnpm\/[^/"]+\/node_modules\/)?((?:@[^/"]+\/)?[^/"]+)[^"]*"/g,
+    '"$1"'
+  );
 }
 
 const render = (sigs: Record<string, string>): string =>
@@ -87,8 +103,10 @@ describe("real upstream signatures (change → review the preamble declaration)"
     expect(render(sigs)).toMatchSnapshot();
   });
 
-  test("solid-js/web surface", () => {
-    const sigs = realSignatures("solid-js/web", SOLID_WEB_NAMES);
+  // The module string is the compiler's, not a literal: Solid 2 moved `solid-js/web` out into
+  // `@solidjs/web`, and a stale literal here would probe a module that no longer resolves.
+  test(`${SOLID_WEB_MODULE} surface`, () => {
+    const sigs = realSignatures(SOLID_WEB_MODULE, SOLID_WEB_NAMES);
     expect(Object.values(sigs).filter(s => s === "any")).toEqual([]);
     expect(render(sigs)).toMatchSnapshot();
   });

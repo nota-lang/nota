@@ -23,9 +23,10 @@
     "@nota-lang/language-server": "workspace:*",
     "@nota-lang/prelude": "workspace:*",
     "@shikijs/langs": "^4.4.3",
-    "babel-preset-solid": "^1.9.3",
+    "babel-preset-solid": "2.0.0-rc.2",
     "prettier": "^3.8.4",
-    "solid-js": "^1.9.3",
+    "@solidjs/web": "2.0.0-rc.8",
+    "solid-js": "2.0.0-rc.8",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
@@ -33,6 +34,6 @@
     "@types/babel__standalone": "^7.1.9",
     "jsdom": "^29.1.1",
     "normalize.css": "^8.0.1",
-    "vite-plugin-solid": "^2.11.10"
+    "@solidjs/vite-plugin": "3.0.0-next.43"
   }
 }

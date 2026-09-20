@@ -4,8 +4,9 @@
  */
 
 import type { ResolvedChild } from "@nota-lang/core";
+import type { JSX } from "@solidjs/web";
 import katex from "katex";
-import { children, type JSX, type ParentProps, splitProps } from "solid-js";
+import { children, omit, type ParentProps, untrack } from "solid-js";
 
 import { mergeClass, withClass } from "./html-attrs";
 import { sessionConfig } from "./session-config";
@@ -52,25 +53,29 @@ const TRUSTED_COMMANDS = new Set([
 export function Tex(
   props: ParentProps & { display?: boolean } & Record<string, unknown>
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ["display", "children", "class"]);
+  const rest = omit(props, "display", "children", "class");
   const resolved = children(() => props.children);
-  const display = local.display === true;
-  const html = katex.renderToString(texSource(resolved.toArray()), {
-    // `mathset({ output: "html" })` opts into HTML output (KaTeX CSS required; enables texRef
-    // definition references — MathML output drops \htmlData attributes).
-    output: mathConfig().output,
-    displayMode: display,
-    trust: ctx => TRUSTED_COMMANDS.has(ctx.command),
-    strict: (errorCode: string) =>
-      errorCode === "htmlExtension" ? "ignore" : "warn",
-    // copy: KaTeX mutates the macros table on \gdef; the doc-global table must stay config-owned
-    macros: { ...mathConfig().macros }
-  });
+  const display = props.display === true;
+  // Read source once at render.
+  const html = katex.renderToString(
+    untrack(() => texSource(resolved.toArray() as ResolvedChild[])),
+    {
+      // `mathset({ output: "html" })` opts into HTML output (KaTeX CSS required; enables texRef
+      // definition references — MathML output drops \htmlData attributes).
+      output: mathConfig().output,
+      displayMode: display,
+      trust: ctx => TRUSTED_COMMANDS.has(ctx.command),
+      strict: (errorCode: string) =>
+        errorCode === "htmlExtension" ? "ignore" : "warn",
+      // copy: KaTeX mutates the macros table on \gdef; the doc-global table must stay config-owned
+      macros: { ...mathConfig().macros }
+    }
+  );
   return display ? (
     <div
       innerHTML={html}
       {...(withClass(
-        mergeClass("nota-tex-display", local.class),
+        mergeClass("nota-tex-display", props.class),
         rest
       ) as JSX.HTMLAttributes<HTMLDivElement>)}
     />
@@ -78,7 +83,7 @@ export function Tex(
     <span
       innerHTML={html}
       {...(withClass(
-        mergeClass("nota-tex", local.class),
+        mergeClass("nota-tex", props.class),
         rest
       ) as JSX.HTMLAttributes<HTMLSpanElement>)}
     />

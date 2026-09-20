@@ -48,7 +48,9 @@ function bodyOf(doc: string): string {
 /** Boot the page: install the body, then eval head bootstrap + client IIFE in order. */
 function boot() {
   // Reset Solid's hydration handshake (a realm global) — see cli/tests/hydration.test.ts.
-  (globalThis as { _$HY?: unknown })._$HY = undefined;
+  // v2 sets `_$HY.done` on a `setTimeout` right after hydration, and `hydrate()` silently
+  // falls back to a client `render()` once it is up, so the delete is load-bearing.
+  delete (globalThis as { _$HY?: unknown })._$HY;
   const headScript = html.match(/<head>[\s\S]*?<script>([\s\S]*?)<\/script>/i);
   const src = html.match(/<script src="\.\/(assets\/[^"]+)"><\/script>/);
   if (!headScript || !src) {
@@ -67,9 +69,12 @@ function boot() {
 const click = (el: Element) =>
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => setTimeout(resolve, ms));
+
 describe("the built page", () => {
   test("SSR bakes the whole article", () => {
-    expect(html).toContain('<h1 data-hk="'); // headings hydratable
+    expect(html).toContain("<h1 _hk="); // headings hydratable
     expect(html).toContain("The Barnes-Hut Approximation");
     expect(html).toContain('class="bh"');
     expect((html.match(/<input type="range"/g) ?? []).length).toBe(3);
@@ -114,6 +119,14 @@ describe("the built page", () => {
     await Promise.resolve();
     expect(qa(".bh-quads rect").length).toBeGreaterThan(cellsAt1);
 
+    // An action whose patch READS the store (`step: Math.min(S.step + 1, 77)`): the prop
+    // getter must see the settled value, not the setter's draft.
+    const insertMore = actions.find(a => a.textContent?.includes("insertion"));
+    expect(insertMore).toBeTruthy();
+    click(insertMore as Element);
+    await Promise.resolve();
+    expect(slider.value).toBe("41");
+
     // "we can compute interactions with centers of mass" → estimation with θ=1:
     // probe + net-force vector + approximated cells appear.
     // (Button text spans a source line, so its textContent holds a soft "\n" break —
@@ -143,6 +156,56 @@ describe("the built page", () => {
     legend.dispatchEvent(new FocusEvent("focus"));
     await Promise.resolve();
     expect(qa(".plot-series.is-dimmed").length).toBe(5);
+  });
+
+  /**
+   * The live layout: d3's tick handler writes every point into the store as ONE draft and the
+   * SVG follows. Under Solid 2 that write is only visible after the flush, so this pins the
+   * tick → draft → DOM path end to end (it is what `batch` used to buy).
+   */
+  test("the running simulation moves the rendered nodes", async () => {
+    boot();
+    const qa = (sel: string) => [...document.querySelectorAll(sel)];
+    const cxs = () => qa(".bh-nodes circle").map(c => c.getAttribute("cx"));
+
+    const before = cxs();
+    expect(before).toHaveLength(77);
+    await sleep(200);
+    expect(cxs()).not.toEqual(before);
+
+    // Park the simulation so it does not keep ticking past this test.
+    const reset = qa("button.nota-action").find(a =>
+      a.textContent?.includes("a set of two-dimensional input points")
+    );
+    click(reset as Element);
+    await Promise.resolve();
+  });
+
+  /**
+   * The center-of-mass arc, which the phase actions above never reach. It is the one place a
+   * single store write carries BOTH a phase change (`layout: false`) and the `accumulate` bump
+   * that starts the animation: under Solid 2 those land in one flush, so the "a phase changed,
+   * cancel the animation" rule and the "accumulate bumped, start it" rule have to be decided
+   * together rather than by two effects racing in creation order.
+   */
+  test("the centers-of-mass action plays the accumulation animation", async () => {
+    boot();
+    const qa = (sel: string) => [...document.querySelectorAll(sel)];
+
+    const accumulate = qa("button.nota-action").find(a =>
+      a.textContent?.includes("we calculate centers of mass")
+    );
+    expect(accumulate).toBeTruthy();
+    expect(qa(".bh-accum").length).toBe(0);
+
+    click(accumulate as Element);
+    await Promise.resolve();
+    expect(qa(".bh-accum").length).toBe(1);
+
+    // Stage 0 pops 600 ms in (real timers: the page's own setTimeout chain).
+    await sleep(750);
+    expect(qa(".bh-com-pop").length).toBeGreaterThan(0);
+    expect(qa(".bh-flash-box").length).toBeGreaterThan(0);
   });
 
   test("assets exist on disk", () => {

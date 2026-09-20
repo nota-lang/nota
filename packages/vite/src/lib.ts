@@ -9,19 +9,20 @@ import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import {
+  CORE_RUNTIME_MODULE,
   compile,
   DOC_EXPORT_NAME,
   FRAMEWORK_MODULES,
   FRAMEWORK_PACKAGES
 } from "@nota-lang/compiler";
+import solid from "@solidjs/vite-plugin";
 import type { Plugin } from "vite";
-import viteSolid from "vite-plugin-solid";
 import { parseBib } from "./bib.js";
 
 export { type BibDatabase, type BibtexEntry, parseBib } from "./bib.js";
 
-/** The default extension set, shared by the transform and the solid-preset config below. */
-const DEFAULT_EXTENSIONS = [".nota"];
+/** Document extensions shared by the transform and JSX presets. */
+export const DEFAULT_EXTENSIONS: readonly string[] = [".nota"];
 const packageRequire = createRequire(import.meta.url);
 
 /** Options for the {@link nota} preset. */
@@ -45,24 +46,18 @@ export interface NotaPluginOptions {
    */
   extraAmbientNames?: string[];
   /**
-   * How many passes a document gets to reach its fixpoint. Rendering iterates — each pass is
-   * seeded with the previous pass's facts, which is what resolves forward references and lets a
-   * fact derived from other facts settle — and stops at the first pass that reproduces its own
-   * seed. A document still moving after `maxPasses` is a build error.
-   *
-   * `0` means no cap: iterate until the document stabilizes, which for a document that never
-   * does is an infinite build. Default: `@nota-lang/core`'s `DEFAULT_MAX_PASSES` (5). Any other
-   * value must be an integer >= 2 — a fixpoint is only observable once one pass has reproduced
-   * the pass before it.
-   *
-   * Baked into each compiled document, so it reaches every renderer (`renderDocument`,
-   * `notaRoute`) without the host restating it; an explicit call-site option still wins.
+   * Fixpoint pass budget: default 5, 0 unlimited, otherwise an integer >= 2.
+   * Emitted as component metadata for drivers and module-global defaults for self-hosted documents.
+   * Explicit render options or NotaDoc props win.
    */
   maxPasses?: number;
   /**
-   * `false` to omit the bundled vite-plugin-solid (the app configures its own — remember to add
-   * `".nota"` to its `extensions`). Default: included, with
-   * `{ extensions: [".nota"], solid: { hydratable: true } }`.
+   * `false` to omit the bundled `@solidjs/vite-plugin` (the app configures its own — remember to
+   * add `".nota"` to its `extensions`). Default: included, with
+   * `{ extensions: [".nota"], ssr: true, solid: { hydratable: true } }`.
+   *
+   * `@nota-lang/vite/start` passes `false` here and constructs start mode's instance itself:
+   * exactly one JSX transform may claim `.nota`.
    */
   solid?: boolean;
 }
@@ -80,23 +75,15 @@ export const DEDUPED_PACKAGES: readonly string[] = [
 ];
 
 /**
- * Packages that must be a singleton in a bundle but that the *host* owns, not Nota — the editor
- * stack `@nota-lang/codemirror` plugs into.
- *
- * CodeMirror and Lezer compare by identity: a `Facet`/`StateField` instance keys its own value,
- * a `Language` is looked up by reference through the `language` facet, and `@lezer/highlight`
- * `Tag`s are compared with `==`. Two physical copies of any of them is a correctness problem,
- * not a size problem ("Unrecognized extension value in extension set", an extension that applies
- * to nobody, highlighting that silently comes out colourless). Upstream CodeMirror declares
- * these as ordinary `dependencies` and leans on semver unification, which holds within one
- * lockfile and fails the moment there is not one: a `link:`ed package resolving out of its own
- * store, an incompatible pin somewhere in the graph, a second install root.
- *
- * The rule is by scope rather than by name because there is no line to draw inside these two:
- * every `@codemirror/*` publishes extensions and every `@lezer/*` publishes a parser or the node
- * types one is read through, so a duplicate anywhere in either scope is a duplicate that matters.
+ * Host-owned singleton scopes: duplicate instances break identity-based lookups.
+ * Discover only packages the host can resolve; pnpm may hide transitive signals.
+ * Unreachable duplicates are reported by duplicateSingletons.
  */
-const SINGLETON_SCOPES: readonly string[] = ["@codemirror", "@lezer"];
+const SINGLETON_SCOPES: readonly string[] = [
+  "@codemirror",
+  "@lezer",
+  "@solidjs"
+];
 
 /** Unscoped members of the same set. `style-mod` keys its stylesheets by module identity. */
 const SINGLETON_PACKAGES: readonly string[] = ["style-mod"];
@@ -123,13 +110,8 @@ function singletonsUnder(dir: string): string[] {
 }
 
 /**
- * The `resolve.dedupe` list for a project rooted at `root`: the framework packages, which the
- * preset requires outright, plus every singleton that project can resolve.
- *
- * Deduping a package the root *cannot* resolve is not a no-op — Vite sets the resolution basedir
- * to the root and does not fall back to the importer, so naming an absent package turns a
- * working import into an unresolved one. Hence a list read off the install rather than a fixed
- * one: a Nota site with no editors in it has none of these and must not be told to look.
+ * Framework packages plus host-resolvable singletons. Vite dedupe does not fall back
+ * to the importer when a package is absent from the root.
  */
 export function dedupedPackages(root: string): string[] {
   const singletons = new Set<string>();
@@ -142,19 +124,16 @@ export function dedupedPackages(root: string): string[] {
       break;
     }
   }
+  // `@solidjs/web` is in both lists (unconditional, and a member of the `@solidjs` scope).
+  for (const pkg of DEDUPED_PACKAGES) {
+    singletons.delete(pkg);
+  }
   return [...DEDUPED_PACKAGES, ...[...singletons].sort()];
 }
 
 /**
- * Which singleton packages the finished module graph holds more than one copy of, by package
- * directory.
- *
- * Deduping can only reach what the project root can resolve, so the packages that slip through
- * are precisely the ones nothing depends on *directly*: two `@codemirror/lang-*` from different
- * stores each drag their own `@codemirror/autocomplete` along, and the result is two completion
- * state fields quietly failing to be the same one. Reading it off the module graph catches that
- * regardless of how the copies got there, and the remedy is always the same — name the package
- * in the project's own dependencies so `resolve.dedupe` has a root copy to unify on.
+ * Report singleton packages loaded from multiple directories; hosts must install them directly
+ * so resolve.dedupe can reach them.
  */
 export function duplicateSingletons(
   moduleIds: Iterable<string>
@@ -179,9 +158,12 @@ export function duplicateSingletons(
   );
 }
 
+/** Import alias for emitted render defaults. */
+const RENDER_DEFAULTS_ALIAS = "__notaDefaults";
+
 /**
- * The render defaults to bake into every compiled document, as source lines. Mirrors core's own
- * `checkMaxPasses` rule so a mistyped budget is a config error, not a per-document render error.
+ * Emit driver metadata and self-hosted module defaults. The latter are global: last import wins.
+ * Validate the budget here so invalid values fail at build time.
  */
 function renderDefaultsEmit(options: NotaPluginOptions): string {
   const { maxPasses } = options;
@@ -193,7 +175,12 @@ function renderDefaultsEmit(options: NotaPluginOptions): string {
       `@nota-lang/vite: maxPasses must be 0 (no cap) or an integer >= 2, got ${maxPasses}`
     );
   }
-  return `${DOC_EXPORT_NAME}.notaRenderOptions = ${JSON.stringify({ maxPasses })};\n`;
+  const bag = JSON.stringify({ maxPasses });
+  return (
+    `${DOC_EXPORT_NAME}.notaRenderOptions = ${bag};\n` +
+    `import { setDocRenderDefaults as ${RENDER_DEFAULTS_ALIAS} } from ${JSON.stringify(CORE_RUNTIME_MODULE)};\n` +
+    `${RENDER_DEFAULTS_ALIAS}(${bag});\n`
+  );
 }
 
 /**
@@ -216,7 +203,7 @@ function pathOf(id: string): string {
 }
 
 /**
- * Compile claimed extensions before vite-plugin-solid, and read `?bib` imports as JSON; asset
+ * Compile claimed extensions before `@solidjs/vite-plugin`, and read `?bib` imports as JSON; asset
  * queries pass through untouched.
  */
 export function notaTransform(options: NotaPluginOptions = {}): Plugin {
@@ -301,18 +288,22 @@ export function notaTransform(options: NotaPluginOptions = {}): Plugin {
   };
 }
 
-/** Return the Nota transform and, by default, a matching vite-plugin-solid instance. */
+/**
+ * Nota plus one JSX transform. Explicit hydratable overrides the plugin's Vitest default.
+ * Use @nota-lang/vite/start for start-mode sites.
+ */
 export function nota(options: NotaPluginOptions = {}): Plugin[] {
   const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
   const plugins: Plugin[] = [notaTransform(options)];
   if (options.solid !== false) {
-    const s = viteSolid({
-      extensions,
-      // This enables per-transform DOM/SSR selection; it does not force every transform to SSR.
-      ssr: true,
-      solid: { hydratable: true }
-    }) as unknown as Plugin | Plugin[];
-    plugins.push(...(Array.isArray(s) ? s : [s]));
+    plugins.push(
+      ...solid({
+        extensions: [...extensions],
+        // This enables per-transform DOM/SSR selection; it does not force every transform to SSR.
+        ssr: true,
+        solid: { hydratable: true }
+      })
+    );
   }
   return plugins;
 }

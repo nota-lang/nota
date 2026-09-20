@@ -2,18 +2,8 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 /**
- * `@nota-lang/cli` build config — the depot `script` bundle (`src/main.ts` → `dist/cli.js`,
- * ESM). (Tests live in `vitest.config.ts`, which vitest prefers over this file.)
- *
- * The bundle inlines NOTHING: every bare specifier stays external and resolves at runtime from
- * this package's declared dependencies, keeping the pnpm topology intact. (Inlining
- * `@nota-lang/vite` used to drag in `vite-plugin-solid`, whose load-time
- * `createRequire(import.meta.url).resolve("solid-refresh/…")` broke twice over: a CJS bundle
- * rewrites `import.meta.url` to `undefined`, and even under ESM the bundled copy can't resolve
- * solid-refresh from the CLI's node_modules.) The CLI process itself only imports
- * `@nota-lang/vite` + (dynamically) `vite`; `@nota-lang/core`, `@nota-lang/prelude`, and
- * `solid-js` are install-time deps for the inner builds' pinned resolver, referenced only from
- * generated entry code.
+ * Build the CLI as ESM and externalize dependencies so plugins resolve peers from their own
+ * installations. Framework dependencies also serve the inner builds' pinned resolver.
  */
 export default defineConfig(({ mode }) => ({
   build: {

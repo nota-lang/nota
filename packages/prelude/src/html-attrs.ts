@@ -12,20 +12,14 @@ export function mergeClass(base: string, extra: unknown): string {
     : base;
 }
 
-/**
- * `rest` plus `cls` applied as a `classList` entry rather than a `class` attribute.
- *
- * Solid's SSR spread (`ssrSpread`/`ssrElement` in `solid-js/web`) always renders a `class` prop as
- * `"<value> "` — a trailing space reserved for a `classList` suffix — whenever the element also
- * spreads other props, even when that suffix is empty. Routing the merged class through
- * `classList` instead sidesteps that code path (its single-key case renders with no padding) and
- * keeps output identical to the pre-spread markup. `classList`'s DOM/SSR implementations both
- * split a multi-token key like `"nota-figure hero"` into its constituent classes, so a
- * space-joined merge works as a single key.
- */
+/** Merge classes, placing class first for stable SSR attribute order. */
 export function withClass(
   cls: string | undefined,
   rest: Record<string, unknown>
 ): Record<string, unknown> {
-  return cls === undefined ? rest : { classList: { [cls]: true }, ...rest };
+  if (cls === undefined) {
+    return rest;
+  }
+  const { class: extra, ...others } = rest;
+  return { class: mergeClass(cls, extra), ...others };
 }

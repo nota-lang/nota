@@ -18,14 +18,14 @@ server. Because Solid binds reactivity to **node identity**, not tree position, 
 re-parents resolved nodes is semantically transparent: state and subscriptions survive. That is
 exactly the license decode needed. The `~/Code/reforest` spike proved the load-bearing property:
 HTML reforested at build time is **hydrated by Solid with zero mutations** (claiming is
-`data-hk`-registry-keyed, hence position-independent), and post-hydration restructuring preserves
-widget state.
+hydration-key-registry-keyed — `_hk=…` under Solid 2, `data-hk="…"` in 1.x — hence
+position-independent), and post-hydration restructuring preserves widget state.
 
 So the whole design collapses to:
 
 > **A `.nota` document is a Solid component.** The reader emits ordinary Solid JSX wrapped in
-> `<NotaDoc>` (a provider + `<Reforest>`). vite-plugin-solid compiles it per target (dom / ssr /
-> hydratable); `renderToString` is SSG; `hydrate` is the client. Nota's runtime surface is one
+> `<NotaDoc>` (a provider + `<Reforest>`). `@solidjs/vite-plugin` compiles it per target (dom /
+> ssr / hydratable); `renderToString` is SSG; `hydrate` is the client. Nota's runtime surface is one
 > restructuring component and a document-state store.
 
 ## The reduction
@@ -36,14 +36,14 @@ So the whole design collapses to:
 | `▸` flag, `withFlag`, dual-mode `h`/`decode` | gone — one mode, Solid's |
 | `Adapter` + `setAdapter` (React/Solid) | gone — Solid is the substrate |
 | `struct` (groupLists/Paras/Sections) + tag tables | `<Reforest>` (categorize → parse → rewrap) |
-| `serialize` + escaping | `solid-js/web` `renderToString` |
+| `serialize` + escaping | `@solidjs/web` `renderToString` |
 | islands, `<nota-island>`, manifest, `freshId` | gone — the document hydrates as one Solid app |
 | replay hydration (capture/replay/determinism guard) | standard `hydrate()` + a JSON state seed |
 | `mark`/`query`/`DocIndex`/force/index passes | the **doc-state store**: registrations + memos |
 | trailer registry (`registerTrailer`) | store-registered trailers + `<TrailerOutlet>` in `NotaDoc` |
 | component registry (`slot`/`registerComponents`) | lexical `%import` + the integrator's `preludeModule` |
 | `inlineComponent`/`blockComponent` | deleted — plain Solid arrows; categorization is by *rendered root tag* |
-| vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onMount` delegation, Floating UI placement) |
+| vanilla-JS def-tooltip trailer (script/style strings) | a Solid tooltip component (`onSettled` delegation, Floating UI placement) |
 | `@nota-lang/react`, `@nota-lang/react-router` | removed from the workspace |
 | `@nota-lang/runtime` | deleted (the LSP preamble is self-contained ambient declarations) |
 
@@ -59,9 +59,9 @@ doc.nota
   │  oxc reader (branch solid): native Solid JSX emit + freeNames
   ▼
 bare JSX module ── @nota-lang/compiler ──▶ + free-name-driven ambient imports
-  │                 (@nota-lang/core, solid-js, solid-js/web, @nota-lang/prelude)
+  │                 (@nota-lang/core, solid-js, @solidjs/web, @nota-lang/prelude)
   ▼
-vite-plugin-solid  (dom | ssr+hydratable — the consumer's build target decides)
+@solidjs/vite-plugin  (dom | ssr+hydratable — the consumer's build target decides)
   ▼                                      ▼
 client module                     server module
   hydrate(() => <Doc/>, root)       renderDocument(Doc) → { html, state }   (fixpoint, see §Doc-state)
@@ -115,7 +115,7 @@ Four of those rows carry semantics:
 
 The compiler shim prepends the free-name-driven imports: `@nota-lang/core`
 (NotaDoc/Reforest/UlLi/OlLi + the compat constructors), `solid-js` (the ambient state surface:
-`createSignal`, `Show`, `For`, … — documents write Solid idioms in `%`-code), `solid-js/web`
+`createSignal`, `Show`, `For`, … — documents write Solid idioms in `%`-code), `@solidjs/web`
 (`Dynamic`, for dynamic tags), and `@nota-lang/prelude` (unchanged policy mechanism).
 
 ## `<Reforest>` — decode, resolved
@@ -201,23 +201,51 @@ process:
   budget without a fixpoint is a pointed "document did not converge" error — the old "query
   output may not introduce new marks" rule, now emergent, weakened (a fact *may* read other
   facts), and bounded (one that changes every pass has no fixpoint to reach).
+
+  The budget reaches a document by two paths, because the two renderers get hold of it
+  differently. `renderDocument` is *handed the component*, so it reads
+  `Doc.notaRenderOptions` — per document. A self-hosting `<NotaDoc>` is handed nothing, so it
+  reads `setDocRenderDefaults({ maxPasses?, smart? })`, a module-level default the transform
+  calls at module scope. That default is **module-global**: the last compiled document to
+  evaluate wins. Harmless while one build configures every document, which is the only
+  arrangement that exists today; per-document props (`<NotaDoc maxPasses= smart=>`) are the
+  escape hatch and the shape a reader-emitted form would use.
 - **Hydration seeds from the page.** The converged snapshot (plain JSON: one ordered array of
   `{kind, fact}` entries — never vnodes) is embedded as
   `<script type="application/json" id="nota-doc-state">`. The client's `hydrateDocument` reads
   it, seeds the store, and calls Solid's `hydrate` — every doc-state read during claiming matches
-  the server bytes; afterward live registrations take over and reactivity owns the numbers.
+  the server bytes; afterward live registrations take over and reactivity owns the numbers. A
+  document that hosts *itself* suffixes that id with its own hydration key
+  (`nota-doc-state-<hk>`), since a page may carry several documents and only the hydration key
+  is a name both sides agree on by construction; the bare id stays the cli's, which puts exactly
+  one document on a page.
 - **Pure CSR** (dev server, playground): no seed; forward references resolve reactively a tick
   after first render. Correct by construction, just not pre-resolved.
 
 `renderDocument(Doc)` (iterate + converge + snapshot) and `hydrateDocument(Doc, opts)` (seed +
 hydrate) are a short module in `@nota-lang/core` — they replace `render`, `island`, capture mode,
 the manifest, and `hydrateDocument`'s replay machinery. A host that owns its own render loop
-(`notaRoute` under SolidStart) instead iterates in `collectDocState` and lets the shell's
-`NotaDocState` check the host's render, which is the budget's last pass. Under streaming SSR a
-lazy route can settle after the shell has already checked the handoff; the route also registers a
-Solid asset thunk, evaluated after async fragments settle, which consumes and emits the pass only
-when the shell did not. That seam costs one render more than the document's fixpoint depth,
-because the seed must be proven before the host commits bytes it cannot take back.
+needs neither: **`NotaDoc` is the seam**, so a `.nota` default export is renderable by anything
+that can render a Solid component, with no wrapper (it was a wrapper once — `notaRoute(Doc)` —
+until the wrapper turned out to be the document's own business). `NotaDoc` dispatches on what it
+finds:
+
+- **An outer store in context** — a driver, or an enclosing document: use it, unchanged.
+- **Server, no outer store**: prove the fixpoint over its own body *before* returning
+  (`proveDocFixpoint` over a thunk that re-instantiates `props.children`, so every pass renders
+  the tree the real render will), publish the converged seed through Solid's ambient head
+  registry (`useHead` under key `nota-doc-state:<hk>`, rendering
+  `<script type="application/json" id="nota-doc-state-<hk>">`), and render against it.
+- **Client, hydrating**: read that seed back and register the identical tag, so the head registry
+  adopts the server's element instead of inserting a second one.
+- **Anything else** (CSR, a client-side navigation): a live store with no seed — the page's
+  snapshot describes the document the server sent, not the one being navigated to.
+  `sharedConfig.hydrating` is what tells the last two apart.
+
+Both sides take the hydration key at the same point in the component body, which is what lets
+several documents share one page's `<head>` and what keeps the id layout identical on both
+sides. The seam costs at most one render more than the document's fixpoint depth, because the
+seed must be proven before the host commits bytes it cannot take back.
 
 The reader emits component calls directly. The store appends facts as their components register
 and assigns each occurrence an opaque sequential `location`; the snapshot array is document
@@ -259,7 +287,8 @@ anchor/ref registry — [references.md](./references.md) is the spec of record f
   enhancement the old scriptful design didn't have). The tooltip bank + delegated
   click/dblclick/Escape handling become a Solid trailer component whose handlers attach in
   `onMount` — the `DEF_TOOLTIP_SCRIPT` string, its `<style>`/`<script>` injection, and the
-  window-global guard are deleted. Placement is **Floating UI** (`@floating-ui/dom`), not
+  window-global guard are deleted. (The handlers attach in `onSettled`, unconditionally on both
+  sides: a lifecycle call made on one side only shifts every hydration id allocated after it.) Placement is **Floating UI** (`@floating-ui/dom`), not
   hand-rolled rect math: `offset`/`inline`/`flip`/`shift`/`size` over an `autoUpdate` loop —
   see `design/references.md`. `texRef` is unchanged (a TeX-source wrapper).
 - **`Tex`**: KaTeX→MathML sync as before; output lands via Solid's `innerHTML` (SSR-safe). Armed
@@ -280,9 +309,55 @@ anchor/ref registry — [references.md](./references.md) is the spec of record f
 ## SSG & the trades we're making
 
 `@nota-lang/vite`'s `nota()` returns a two-plugin preset: the `.nota → JSX` transform
-(`enforce: "pre"`) followed by a pre-configured `vite-plugin-solid` claiming `.nota` (the
+(`enforce: "pre"`) followed by a pre-configured `@solidjs/vite-plugin` claiming `.nota` (the
 solid-mdx pattern; `{ solid: false }` opts out for apps that configure their own). The island
 registry / `generateClientEntry` are deleted.
+
+A **site** — many documents behind a router, rather than the cli's one-document builds — uses
+`@nota-lang/vite/start`: `notaStart()` composes `nota({ solid: false })` with a **start-mode**
+`@solidjs/vite-plugin` (`start`, `ssr: true`, `.nota` added to `extensions`). Start mode is where
+SolidStart's serving layer now lives, so the plugin owns the entries, the dev SSR middleware and
+the client+server builds, and the site's whole config is `notaStart()` beside its own plugins.
+Static output is then the site's own policy: `prerender({ mode: "static" })` from
+`prerender-crawler` crawls the built server handler and writes one hydratable page per route into
+`dist/client`, with `announceRoutes` (`@solidjs/prerender`) seeding routes nothing links to. Under
+a Vite `base` the crawler is given explicit base-prefixed `pages` with `filename`s, since it
+otherwise files each page at its URL path. Neither package is a dependency of `@nota-lang/vite`.
+
+Nitro is not in this picture: its crawler's vendored HTML parser does not understand Solid 2's
+unquoted `_hk=…` attributes and swallows the `href` it is meant to follow.
+
+**A `.nota` file is a route module.** Start mode's own routing does not scan documents, but
+nothing about a document resists being a page: its default export hosts itself (§Doc-state), so
+it needs no driving. What resists is the *scanner* — `filesystem-routing`'s built-in convention
+decides pagehood by parsing a module's exports, and a document is not JavaScript at scan time.
+`@nota-lang/vite/file-routes` answers that by convention rather than by analysis:
+`notaFileRoutes()` configures the standard `fileRoutes()` plugin with document extensions and
+a `toRoute` callback. Documents are pages by extension; other files delegate to a fresh
+`PageFileSystemRouter` with the callback cleared, preserving export analysis for layout routes
+and ordinary modules. The standard plugin owns root-relative directories and scanning.
+`src/routes/lectures/intro.nota` is `/lectures/intro`; chrome around a document is a layout route
+(`src/routes/lectures.tsx`), which is also why `wrap()` — chrome from inside a document — stays
+deferred. The plugin goes *after* `notaStart()`, whose transforms must reach the file first.
+`filesystem-routing` is an optional peer dependency of `@nota-lang/vite`.
+
+The host owning the render still has one consequence: the convergence proof has to happen
+*before* the host commits bytes. `NotaDoc` runs the fixpoint up front and registers a static seed
+string, rather than checking convergence in a `useHead` getter at flush time. The head runtime
+wraps every getter in try/catch and drops the tag on a throw, which would turn a non-converging
+document into a seedless page with exit 0; under `renderToStream` a suspended route's head
+boundary also commits before its subtree has registered anything. Paid for by one extra pass in
+the worst case (a document that needs exactly `maxPasses`); typical documents cost the same as
+before.
+
+One thing the seam cannot defend itself against: `sharedConfig.context`, where `useHead` finds
+the running render's head registry, is module-global in `@solidjs/web`, and a **lazy** route's
+continuation resumes under whatever context is installed when its module promise settles. Two
+pages prerendered concurrently therefore swap head tags — the document's seed lands in the other
+page's `<head>`, bodies unaffected, exit code 0. It is not Nota's (a bare `useHead` in a `.tsx`
+route and Solid's own module-preload links cross the same way), and file-system routing is what
+exposes it, since every file route is `lazy`. Until it is fixed upstream, a static build crawls
+serially: `prerender({ concurrency: 1 })`.
 
 `@nota-lang/cli` keeps its UX (`nota build doc.nota → doc/`) and its two-build structure, but the
 builds become boring: an SSR build (solid `ssr: true, hydratable`) whose entry calls
@@ -298,12 +373,22 @@ an island census.
 
 - **`@nota-lang/core`** — rewritten: `Reforest`/`UlLi`/`OlLi` (vendored + nested sections),
   `NotaDoc`, the doc-state store, `renderDocument`/`hydrateDocument`, `textOf`, compat shims.
-  Ships JSX-preserved dist with a `"solid"` export condition (the consumer's vite-plugin-solid
-  compiles it per target — precompiling would pin one target; reforest packaging gotcha).
+  Ships JSX-preserved dist with a `"solid"` export condition (the consumer's
+  `@solidjs/vite-plugin` compiles it per target — precompiling would pin one target; reforest
+  packaging gotcha). The host seam is `NotaDoc` itself: `route.ts` (`notaRoute`), `shell.ts`,
+  `doc-pass.ts`, `doc-pass-script.ts` and the `NotaDocState` component are all deleted — the head
+  registry replaced the request-scoped channel they existed to carry, and the document then
+  absorbed the wrapper.
 - **`@nota-lang/prelude`** — rewritten per above, same package name, JSX dist likewise.
 - **`@nota-lang/compiler`** — `compile()` returns strict JSX with imports. `analyze()` parses once
   and caches the editor's virtual TSX, mappings, diagnostics, AST, free names, and highlights.
-- **`@nota-lang/vite`**, **`@nota-lang/cli`** — per above.
+- **`@nota-lang/vite`** — per above, plus the `@nota-lang/vite/start` subpath (`notaStart`) for
+  start-mode sites and `@nota-lang/vite/file-routes` (`notaFileRoutes`)
+  for routing documents by filename; the SolidStart preset (`src/solid-start.ts`) is deleted.
+- **`@nota-lang/cli`** — per above.
+- **Solid 2.** The runtime is `solid-js` + `@solidjs/web` (the `solid-js/web` and `solid-js/store`
+  subpaths are gone, and JSX types now live in `@solidjs/web`), over `@solidjs/signals`, compiled
+  by `@solidjs/vite-plugin` (formerly `vite-plugin-solid`). All three must be singletons per page.
 - **Deleted**: `react` and `react-router` (git history keeps them). `paper` and `playground`
   are ported (see Follow-ups).
 - **`@nota-lang/runtime`** — deleted (the LSP preamble now generates from ambient
@@ -352,7 +437,7 @@ The surviving system, by layer — with the judgment calls the sweep made explic
   (the old "tight nodes get only groupLists" as a Reforest prop rather than a tag table).
 - **Prelude.** Plain components + pure derivations. `titleTextOf` stays prelude-side (it knows
   the prelude's own meta classes); generic `textOf` stays runtime-side.
-- **vite/cli.** The preset is [transform, vite-plugin-solid]; the CLI keeps the two-build
+- **vite/cli.** The preset is [transform, `@solidjs/vite-plugin`]; the CLI keeps the two-build
   structure because SSR and client genuinely need different compilations of the same graph —
   irreducible under per-target JSX compilation.
 - **Known consciously-accepted approximations** (unchanged from the landing): a construct

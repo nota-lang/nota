@@ -1,5 +1,5 @@
 import { analyze } from "@nota-lang/compiler";
-import { render } from "solid-js/web";
+import { render } from "@solidjs/web";
 import { expect, test } from "vitest";
 import { AstPane } from "../src/AstPane";
 

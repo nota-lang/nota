@@ -1,6 +1,6 @@
 /** Asynchronously format and display a read-only code pane. */
 
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, untrack } from "solid-js";
 import { CodeView } from "./CodeView";
 import { formatCode } from "./format";
 import { jsLanguage } from "./js-mode";
@@ -17,21 +17,24 @@ export interface CodePaneProps {
 }
 
 export function CodePane(props: CodePaneProps) {
-  const { parser, language } = MODES[props.mode];
+  // Mode is fixed for the pane; the effect below tracks later code changes.
+  const { parser, language } = MODES[untrack(() => props.mode)];
   const lang = language();
-  const [pretty, setPretty] = createSignal(props.code);
+  const [pretty, setPretty] = createSignal(untrack(() => props.code));
 
-  createEffect(() => {
-    const code = props.code;
-    let live = true;
-    setPretty(code);
-    formatCode(code, parser).then(out => {
-      if (live) setPretty(out);
-    });
-    onCleanup(() => {
-      live = false;
-    });
-  });
+  createEffect(
+    () => props.code,
+    code => {
+      let live = true;
+      setPretty(code);
+      formatCode(code, parser).then(out => {
+        if (live) setPretty(out);
+      });
+      return () => {
+        live = false;
+      };
+    }
+  );
 
   return (
     <div

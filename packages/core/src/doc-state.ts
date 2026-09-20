@@ -4,15 +4,14 @@
  * client.
  */
 
+import { isServer, type JSX } from "@solidjs/web";
 import {
   createContext,
   createSignal,
   getOwner,
-  type JSX,
   onCleanup,
   useContext
 } from "solid-js";
-import { isServer } from "solid-js/web";
 import type { SmartOptions } from "./smart";
 
 /** Opaque identity for one document fact. It carries no ordering semantics. */
@@ -59,7 +58,7 @@ export interface DocState {
   snapshot(): Snapshot;
   /** Register a document-end trailer thunk, idempotent by name (first registration wins). */
   trailer(name: string, thunk: () => JSX.Element): void;
-  /** The registered trailer thunks, in registration order (reactive). */
+  /** Registered trailer thunks in insertion order (reactive). Shared array: do not mutate. */
   trailers(): (() => JSX.Element)[];
   /** Set a document flag. */
   flag(name: string): void;
@@ -86,7 +85,12 @@ export function createDocState(
   seed?: Snapshot,
   options: DocStateOptions = {}
 ): DocState {
-  const [version, setVersion] = createSignal(0);
+  // Registrations write bookkeeping signals from component bodies.
+  const [version, setVersion] = createSignal(0, { ownedWrite: true });
+  // Track trailers separately: fact registrations must not rebuild hydrated trailer DOM.
+  const [trailerVersion, setTrailerVersion] = createSignal(0, {
+    ownedWrite: true
+  });
   // Release is silent because a converged live store equals its seed. The next registration
   // bumps version and moves readers to live facts.
   let released = seed === undefined;
@@ -100,9 +104,17 @@ export function createDocState(
     seededFacts.set(entry.kind, facts);
   }
   const trailerMap = new Map<string, () => JSX.Element>();
+  // Replace only when a trailer is added, preserving identity for structural readers.
+  let trailerList: (() => JSX.Element)[] = [];
   const flags = new Set<string>();
   const locals = new Map<object, unknown>();
-  const bump = () => setVersion(v => v + 1);
+  // Only client readers need invalidation; server writes produce SERVER_WRITE diagnostics.
+  const bump = () => {
+    if (!isServer) setVersion(v => v + 1);
+  };
+  const bumpTrailers = () => {
+    if (!isServer) setTrailerVersion(v => v + 1);
+  };
 
   const liveOf = (kind: string): LocatedFact[] => {
     version();
@@ -155,12 +167,13 @@ export function createDocState(
     trailer(name, thunk) {
       if (!trailerMap.has(name)) {
         trailerMap.set(name, thunk);
-        bump();
+        trailerList = [...trailerMap.values()];
+        bumpTrailers();
       }
     },
     trailers() {
-      version();
-      return [...trailerMap.values()];
+      trailerVersion();
+      return trailerList;
     },
     flag(name) {
       flags.add(name);
@@ -191,12 +204,18 @@ export function createDocState(
   return state;
 }
 
-const DocStateContext = createContext<DocState>();
+// Solid throws for missing contexts without a non-undefined default.
+const DocStateContext = createContext<DocState | null>(null);
+
+/** Allow setup-module setters outside any reactive owner; useContext itself would throw. */
+function docStateInContext(): DocState | null {
+  return getOwner() === null ? null : useContext(DocStateContext);
+}
 
 /** Return the current document store. */
 export function useDocState(): DocState {
-  const state = useContext(DocStateContext);
-  if (!state) {
+  const state = docStateInContext();
+  if (state === null) {
     throw new Error(
       "nota: no document state in context — doc-state components must render inside <NotaDoc>"
     );
@@ -206,7 +225,7 @@ export function useDocState(): DocState {
 
 /** Return the current document store, if called during a document render. */
 export function useOptionalDocState(): DocState | undefined {
-  return useContext(DocStateContext);
+  return docStateInContext() ?? undefined;
 }
 
 /** The context, exported for the render drivers; prefer {@link useDocState} in components. */

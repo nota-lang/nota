@@ -1,14 +1,13 @@
-/**
- * The fixture document for both suites: a *forward* reference (a Toc rendered above the headings
- * it lists) is the whole reason a document needs more than one pass, and a counter gives
- * hydration something to prove it claimed rather than rebuilt.
- *
- * Deliberately built from core's store primitives rather than the prelude, so these tests pin
- * this package's seam and not the prelude's component surface.
- */
+/** Forward-reference and interaction fixtures using core primitives, independent of prelude. */
 
-import { children, createSignal, Index, type ParentProps } from "solid-js";
-import { NotaDoc, textOf, useDocState } from "../../src/lib";
+import {
+  children,
+  createSignal,
+  For,
+  type ParentProps,
+  untrack
+} from "solid-js";
+import { NotaDoc, type SmartOptions, textOf, useDocState } from "../../src/lib";
 
 export function Counter() {
   const [n, setN] = createSignal(0);
@@ -24,7 +23,8 @@ function MiniHeading(props: ParentProps & { id: string }) {
   const resolved = children(() => props.children);
   state.register("heading", {
     id: props.id,
-    text: textOf(resolved.toArray())
+    // One-shot read at registration; see the note in fixtures/doc.tsx.
+    text: untrack(() => textOf(resolved.toArray()))
   });
   return <h2 id={props.id}>{resolved()}</h2>;
 }
@@ -33,11 +33,23 @@ function MiniToc() {
   const state = useDocState();
   return (
     <nav class="toc">
-      <Index each={state.read("heading")}>
+      <For each={state.read("heading")} keyed={false}>
         {e => <a href={`#${e().id as string}`}>{e().text as string}</a>}
-      </Index>
+      </For>
     </nav>
   );
+}
+
+/**
+ * Registers the "colophon" trailer on first use (idempotent), renders nothing in place — core's
+ * stand-in for the prelude's `DefBank`/`NotesList`, so this fixture exercises `TrailerOutlet`
+ * under a real hydrate.
+ */
+function WithColophon() {
+  useDocState().trailer("colophon", () => (
+    <footer class="colophon">fin</footer>
+  ));
+  return null;
 }
 
 /** The forward-reference document: the Toc precedes the headings it must list. */
@@ -52,11 +64,12 @@ export function Doc() {
       {"Alpha body text."}
       <MiniHeading id="beta">Beta</MiniHeading>
       {"Beta body text."}
+      <WithColophon />
     </NotaDoc>
   );
 }
 
-/** A second, distinct document — the client-navigation case (renders unseeded). */
+/** A second, distinct document — the client-navigation and two-documents-per-page cases. */
 export function OtherDoc() {
   return (
     <NotaDoc>
@@ -67,19 +80,29 @@ export function OtherDoc() {
   );
 }
 
+/** Two whole documents on one page: each hosts itself, each claims its own seed. */
+export function Pair() {
+  return (
+    <>
+      <Doc />
+      <OtherDoc />
+    </>
+  );
+}
+
 /**
  * A document that needs a third pass: `echo` counts the headings, which the first pass has not
  * registered yet when it renders. Pass 2 sees one, pass 3 reproduces it — a fixpoint one level
  * deeper than the forward reference in {@link Doc}.
  */
-export function SettlingDoc() {
+export function SettlingDoc(props: { maxPasses?: number }) {
   const Echo = () => {
     const state = useDocState();
     state.register("echo", { n: state.read("heading").length });
     return null;
   };
   return (
-    <NotaDoc>
+    <NotaDoc maxPasses={props.maxPasses}>
       <Echo />
       <MiniHeading id="alpha">Alpha</MiniHeading>
     </NotaDoc>
@@ -100,6 +123,11 @@ export function DivergentDoc() {
       <MiniHeading id="alpha">Alpha</MiniHeading>
     </NotaDoc>
   );
+}
+
+/** Smart-punctuation probe: straight forms in, curly forms out unless the pass is off. */
+export function SmartDoc(props: { smart?: SmartOptions | false }) {
+  return <NotaDoc smart={props.smart}>{'"quoted" -- dashed'}</NotaDoc>;
 }
 
 /** Stand-in for a route that is not a Nota document. */

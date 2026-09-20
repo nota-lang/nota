@@ -13,7 +13,7 @@ import {
   keymap,
   lineNumbers
 } from "@codemirror/view";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, onSettled } from "solid-js";
 
 export interface EditorProps {
   value: string;
@@ -27,7 +27,7 @@ export function Editor(props: EditorProps) {
   let view: EditorView | null = null;
   const langCompartment = new Compartment();
 
-  onMount(() => {
+  onSettled(() => {
     view = new EditorView({
       doc: props.value,
       extensions: [
@@ -46,30 +46,34 @@ export function Editor(props: EditorProps) {
       ],
       parent: host
     });
+    return () => {
+      view?.destroy();
+      view = null;
+    };
   });
 
-  onCleanup(() => {
-    view?.destroy();
-    view = null;
-  });
-
-  createEffect(() => {
-    const language = props.language;
-    view?.dispatch({
-      effects: langCompartment.reconfigure(language ?? [])
-    });
-  });
-
-  createEffect(() => {
-    const value = props.value;
-    if (!view) return;
-    const current = view.state.doc.toString();
-    if (current !== value) {
-      view.dispatch({
-        changes: { from: 0, to: current.length, insert: value }
+  // Initial applies may precede setup; the constructor seeds both props.
+  createEffect(
+    () => props.language,
+    language => {
+      view?.dispatch({
+        effects: langCompartment.reconfigure(language ?? [])
       });
     }
-  });
+  );
+
+  createEffect(
+    () => props.value,
+    value => {
+      if (!view) return;
+      const current = view.state.doc.toString();
+      if (current !== value) {
+        view.dispatch({
+          changes: { from: 0, to: current.length, insert: value }
+        });
+      }
+    }
+  );
 
   return <div class="editor" ref={host} />;
 }

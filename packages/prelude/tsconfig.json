@@ -7,7 +7,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   },
   "typedocOptions": {
     "entryPoints": [

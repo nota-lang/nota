@@ -11,8 +11,9 @@ import { describe, expect, test } from "vitest";
 import { Action, Slider } from "../src/inputs";
 import { Sticky } from "../src/layout";
 
+// v2 emits unquoted `_hk=…` hydration keys (1.x wrote `data-hk="…"`).
 const clean = (h: string) =>
-  h.replace(/\s*data-hk="[^"]*"/g, "").replace(/<!--\/?!?\$?-->/g, "");
+  h.replace(/\s*_hk=[^\s>]+/g, "").replace(/<!--\/?!?\$?-->/g, "");
 
 describe("Slider", () => {
   test("renders label, range attributes, current value, and readout", () => {

@@ -1,25 +1,6 @@
 /**
- * **Packaging smoke test** — the published artifacts, consumed the way a stranger consumes them.
- *
- * Every other test in this repo resolves `@nota-lang/*` through the workspace's `link:`
- * overrides, which means the whole class of packaging bug is invisible to them: a missing export
- * condition, an `exports` map naming a file that is not built, a stale artifact shadowing a real
- * one. Each of those has shipped at least once. So this suite packs the real tarballs, installs
- * them into a scratch project *outside* the workspace, and drives the CLI from there.
- *
- * The three failures it is built to catch, all of which happened:
- *
- * - **No `solid` condition.** `vite-plugin-solid` decides whether to compile a dependency's JSX
- *   by looking for a `solid` key in its `exports`. Without one, prelude stayed external, Node
- *   loaded raw JSX, and downstream builds died on `ERR_MODULE_NOT_FOUND`.
- * - **An `exports` map that does not match the build.** A `./*` wildcard mapped to `./dist/*.js`
- *   while tsc emitted `.jsx`, so every subpath 404'd.
- * - **Stale `dist` artifacts.** `dist/` is not cleaned between builds, so a renamed module can
- *   leave a `.js` beside its `.jsx`; extensionless imports resolve `.js` first and load the dead
- *   copy.
- *
- * Slow by nature — it packs and installs. That is the price of testing the artifact rather than
- * the source.
+ * Pack and install into a scratch project outside the workspace. Exercise published exports,
+ * JSX compilation, and stale-artifact resolution through the shipped CLI.
  */
 
 import { execFileSync } from "node:child_process";
@@ -55,6 +36,35 @@ interface Packed {
 
 let scratch: string;
 let packed: Packed[];
+
+/** The CLI's own manifest: the source of truth for what the consumer fixture has to declare. */
+const cliManifest = JSON.parse(
+  readFileSync(join(here, "..", "package.json"), "utf8")
+) as {
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+};
+
+/**
+ * What a consumer must install *besides* the Nota packages, read off the CLI's manifest so the
+ * fixture cannot drift from the workspace.
+ *
+ * - **`solid-js` + `@solidjs/web`.** Solid 2 is two packages, and both are peers of
+ *   `@nota-lang/core` and `@nota-lang/prelude` (`solid-js/web` no longer exists; the emit imports
+ *   the scoped one). Pinned rather than left to pnpm's auto-install-peers, because a peer range
+ *   resolved against the live registry is exactly the drift this suite must not have.
+ * - **`@shikijs/langs`.** A tagged fence (```` ```rust ````) compiles to
+ *   `import … from "@shikijs/langs/rust"`, which the CLI's pinned resolver looks up from the CLI
+ *   package — and the CLI declares the grammars as a *dev* dependency, so a consumer install has
+ *   none. Node's walk from the anchor reaches the consumer root's `node_modules`, so a consumer
+ *   that declares it works; one that does not gets "failed to resolve @shikijs/langs/<tag>". That
+ *   is the shipped contract, and this fixture is a consumer that holds up its end.
+ */
+const CONSUMER_DEPS: Record<string, string> = {
+  "solid-js": cliManifest.dependencies["solid-js"],
+  "@solidjs/web": cliManifest.dependencies["@solidjs/web"],
+  "@shikijs/langs": cliManifest.devDependencies["@shikijs/langs"]
+};
 
 /** Every workspace package that `pnpm -r publish` would push. */
 function publishablePackages(): {
@@ -105,20 +115,33 @@ beforeAll(() => {
         // Every package is a direct dependency, not just the CLI: pnpm's isolated layout only
         // exposes direct dependencies at the root, and the resolution test below has to ask the
         // questions a consumer of each package would ask.
-        dependencies: overrides,
-        pnpm: { overrides }
+        //
+        // See CONSUMER_DEPS: the peers a consumer of these packages has to bring itself.
+        dependencies: { ...overrides, ...CONSUMER_DEPS }
       },
       null,
       2
     )
   );
-  // `--ignore-workspace` is the point of the exercise: without it pnpm would find the monorepo
-  // above this directory and resolve through its `link:` overrides, testing nothing.
-  run(
-    "pnpm",
-    ["install", "--ignore-workspace", "--no-frozen-lockfile", "--silent"],
-    scratch
+  // The overrides have to be repeated for the *transitive* `@nota-lang/*` edges. `pnpm pack`
+  // rewrote every `workspace:*` to a plain version, so without them prelude's dependency on
+  // `@nota-lang/core` resolves from the REGISTRY — the published copy quietly shadowing the
+  // tarball under test, which is the one outcome this suite must never have.
+  //
+  // They live in `pnpm-workspace.yaml`, not in package.json's `pnpm` field: pnpm 11 stopped
+  // reading that field (it warns and ignores it). Writing the file also makes this directory its
+  // own workspace root, which is what `--ignore-workspace` used to buy — pnpm stops here and
+  // never walks up to the monorepo and its `link:` overrides. The flag itself must go: under it
+  // pnpm ignores the workspace file, overrides and all.
+  writeFileSync(
+    join(scratch, "pnpm-workspace.yaml"),
+    `packages: []\noverrides:\n${Object.entries(overrides)
+      .map(
+        ([name, spec]) => `  ${JSON.stringify(name)}: ${JSON.stringify(spec)}`
+      )
+      .join("\n")}\n`
   );
+  run("pnpm", ["install", "--no-frozen-lockfile", "--silent"], scratch);
 }, 900_000);
 
 afterAll(() => {
@@ -127,9 +150,11 @@ afterAll(() => {
 
 describe("the packed tarballs", () => {
   test("a package that ships JSX declares the solid condition", () => {
-    // vite-plugin-solid's `containsSolidField` walks `exports` for a `solid` key and adds the
-    // package to `ssr.noExternal` on the strength of it. A JSX-shipping package without one is
-    // handed to Node raw.
+    // `@solidjs/vite-plugin`'s `containsSolidField` walks `exports` for a `solid` key and adds
+    // the package to `ssr.noExternal` on the strength of it. A JSX-shipping package without one
+    // is handed to Node raw. The 3.x rewrite kept the function and the walk verbatim (verified
+    // in `@solidjs/vite-plugin@3.0.0-next.43`'s `dist/esm/index.mjs`), so this check is
+    // unchanged by the rename.
     for (const p of packed) {
       const files = tarballFiles(p.tarball);
       const shipsJsx = files.some(f => f.endsWith(".jsx"));

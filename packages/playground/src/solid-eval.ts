@@ -12,9 +12,9 @@ import python from "@shikijs/langs/python";
 import rust from "@shikijs/langs/rust";
 import shellscript from "@shikijs/langs/shellscript";
 import typescript from "@shikijs/langs/typescript";
+import * as solidWeb from "@solidjs/web";
 import solidPreset from "babel-preset-solid";
 import * as solidJs from "solid-js";
-import * as solidWeb from "solid-js/web";
 
 /**
  * The grammars an evaluated document can highlight with.
@@ -45,10 +45,10 @@ const GRAMMARS: Record<string, Record<string, unknown>> = Object.fromEntries(
 /** A compiler-emitted grammar import, whether or not {@link GRAMMARS} carries it. */
 const GRAMMAR_SPECIFIER = new RegExp(`^${SHIKI_LANGS_MODULE}/[\\w.+-]+$`);
 
-/** Modules available to evaluated documents. */
+/** Evaluated documents share the page's runtime instances. */
 export const MODULE_MAP: Record<string, Record<string, unknown>> = {
   "solid-js": solidJs as unknown as Record<string, unknown>,
-  "solid-js/web": solidWeb as unknown as Record<string, unknown>,
+  "@solidjs/web": solidWeb as unknown as Record<string, unknown>,
   "@nota-lang/core": notaCore as unknown as Record<string, unknown>,
   "@nota-lang/prelude": prelude as unknown as Record<string, unknown>,
   ...GRAMMARS
@@ -73,7 +73,7 @@ export function resolveModule(
   return GRAMMAR_SPECIFIER.test(specifier) ? { default: [] } : undefined;
 }
 
-/** Compile emitted JSX to Solid's DOM runtime. */
+/** Compile to the DOM runtime without hydration; the preview is CSR-only. */
 export function babelCompile(jsxModule: string): string {
   const out = Babel.transform(jsxModule, {
     filename: "doc.tsx",

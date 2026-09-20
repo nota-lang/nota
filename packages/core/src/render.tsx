@@ -1,7 +1,11 @@
 /** Fixpoint static rendering and hydration for documents with forward references. */
 
-import { type JSX, sharedConfig } from "solid-js";
-import { renderToString, hydrate as solidHydrate } from "solid-js/web";
+import {
+  type JSX,
+  renderToString,
+  hydrate as solidHydrate
+} from "@solidjs/web";
+import { sharedConfig } from "solid-js";
 import { createDocState, DocStateContext, type Snapshot } from "./doc-state";
 import type { SmartOptions } from "./smart";
 
@@ -9,7 +13,24 @@ import type { SmartOptions } from "./smart";
 export interface DocRenderDefaults {
   /** See {@link RenderDocumentOptions.maxPasses}. */
   maxPasses?: number;
+  /** See {@link RenderDocumentOptions.smart}. */
+  smart?: SmartOptions | false;
 }
+
+/**
+ * Defaults for self-hosted NotaDoc; explicit props win. Replaces the whole bag.
+ * Module-global: the last imported document wins. Drivers use Doc.notaRenderOptions instead.
+ */
+export function setDocRenderDefaults(defaults: DocRenderDefaults): void {
+  moduleDefaults = { ...defaults };
+}
+
+/** The defaults {@link setDocRenderDefaults} installed. */
+export function docRenderDefaults(): DocRenderDefaults {
+  return moduleDefaults;
+}
+
+let moduleDefaults: DocRenderDefaults = {};
 
 /** A document component (the `.nota` emit's default export). */
 export interface DocComponent {
@@ -69,6 +90,8 @@ export interface RenderedDocument {
   html: string;
   /** The converged doc-state snapshot; embed via {@link docStateScript} for hydration. */
   state: Snapshot;
+  /** Passes spent reaching the fixpoint, for a host that renders the document once more. */
+  passes: number;
 }
 
 /** The pass budget in force for `Doc`: call site, else the component's baked-in default. */
@@ -88,31 +111,27 @@ interface PassResult {
   json: string;
 }
 
-/**
- * Render `Doc` once against `seed` (`undefined` on the first pass, whose forward reads see only
- * what precedes them). Saving `sharedConfig.context` keeps a nested `renderToString` from
- * disturbing the host render's hydration-key counter.
- */
+/** Re-instantiate the document tree on every fixpoint pass. */
+export type DocContent = () => JSX.Element;
+
+/** Render against a seed, restoring the enclosing render's head/asset registry afterward. */
 function renderPass(
-  Doc: DocComponent,
+  content: DocContent,
   seed: Snapshot | undefined,
   options: RenderDocumentOptions
 ): PassResult {
-  const outer = sharedConfig.context;
+  const cfg = sharedConfig as { context?: unknown };
+  const outer = cfg.context;
   const state = createDocState(seed, { smart: options.smart });
   try {
     const html = renderToString(
-      () => (
-        <DocStateContext.Provider value={state}>
-          <Doc />
-        </DocStateContext.Provider>
-      ),
+      () => <DocStateContext value={state}>{content()}</DocStateContext>,
       { renderId: options.renderId }
     );
     const snapshot = state.snapshot();
     return { html, snapshot, json: JSON.stringify(snapshot) };
   } finally {
-    sharedConfig.context = outer;
+    cfg.context = outer;
   }
 }
 
@@ -132,15 +151,15 @@ interface FixpointResult extends PassResult {
  * reproduces it is a fixpoint: rendering again could only produce the same HTML.
  */
 function iterate(
-  Doc: DocComponent,
+  content: DocContent,
   options: RenderDocumentOptions,
   cap: number
 ): FixpointResult {
-  let prev = renderPass(Doc, undefined, options);
+  let prev = renderPass(content, undefined, options);
   let passes = 1;
   let seedJson: string | undefined;
   while (cap === 0 || passes < cap) {
-    const pass = renderPass(Doc, prev.snapshot, options);
+    const pass = renderPass(content, prev.snapshot, options);
     passes += 1;
     seedJson = prev.json;
     if (pass.json === prev.json) {
@@ -152,29 +171,23 @@ function iterate(
 }
 
 /**
- * {@link collectDocState}, plus the passes it took — a host that owns the final render parks
- * this so its convergence check can name the budget that ran out.
+ * {@link collectDocState}, plus the passes it took, for a host that wants to name the budget in
+ * its own convergence report.
  */
 export function collectDocPasses(
   Doc: DocComponent,
   options: RenderDocumentOptions = {}
 ): { seed: Snapshot; passes: number } {
   const cap = resolveMaxPasses(Doc, options);
-  // One pass of the budget belongs to the host's own render, which is the one the shell checks.
-  const result = iterate(Doc, options, cap === 0 ? 0 : cap - 1);
+  // One pass of the budget belongs to the host's own render, which is the pass that has to
+  // reproduce this seed.
+  const result = iterate(() => <Doc />, options, cap === 0 ? 0 : cap - 1);
   return { seed: result.snapshot, passes: result.passes };
 }
 
 /**
- * Run the collection passes for a host that owns the final render (`notaRoute`): the seed the
- * host's pass must reproduce. Stops one pass short of the budget, leaving the host's render to
- * spend the last one; a document still moving by then is reported by the shell's convergence
- * check rather than here.
- *
- * A host page costs one render more than its fixpoint depth, because the seed has to be *proven*
- * before the host commits bytes it cannot take back — unlike {@link renderDocument}, which owns
- * the last pass and can keep going. `maxPasses: 2` spends nothing on proof: one collection pass,
- * and the host's render is the check.
+ * Collect a seed with one pass reserved for the host to verify convergence.
+ * NotaDoc uses proveDocFixpoint instead because useHead swallows verification errors.
  */
 export function collectDocState(
   Doc: DocComponent,
@@ -194,11 +207,24 @@ export function renderDocument(
   options: RenderDocumentOptions = {}
 ): RenderedDocument {
   const cap = resolveMaxPasses(Doc, options);
-  const result = iterate(Doc, options, cap);
+  const result = iterate(() => <Doc />, options, cap);
   if (!result.converged) {
     throw notConverged(result.seedJson ?? "(none)", result.json, result.passes);
   }
-  return { html: result.html, state: result.snapshot };
+  return { html: result.html, state: result.snapshot, passes: result.passes };
+}
+
+/** Prove convergence before the host commits bytes. cap must pass checkMaxPasses (0 = unlimited). */
+export function proveDocFixpoint(
+  content: DocContent,
+  options: RenderDocumentOptions,
+  cap: number
+): Snapshot {
+  const result = iterate(content, options, cap);
+  if (!result.converged) {
+    throw notConverged(result.seedJson ?? "(none)", result.json, result.passes);
+  }
+  return result.snapshot;
 }
 
 /** Throw when the final pass did not reproduce the snapshot it rendered against. */
@@ -231,12 +257,7 @@ function notConverged(before: string, after: string, passes?: number): Error {
 /** The id of the embedded doc-state snapshot script. */
 export const DOC_STATE_ID = "nota-doc-state";
 
-/**
- * The snapshot as embeddable script *content*: JSON with `<` escaped, so `</script>`-shaped
- * content cannot break out of the element. Exported for hosts that build the `<script>` as a
- * framework element rather than raw HTML (`@nota-lang/solid-start` renders it as JSX so both
- * sides of hydration produce identical bytes).
- */
+/** JSON safe for script content; escape < to prevent closing the script element. */
 export function docStateJson(state: Snapshot): string {
   return JSON.stringify(state).replace(/</g, "\\u003c");
 }
@@ -248,9 +269,11 @@ export function docStateScript(state: Snapshot): string {
   return `<script type="application/json" id="${DOC_STATE_ID}">${docStateJson(state)}</script>`;
 }
 
-/** Read the snapshot embedded by {@link docStateScript}, if present. */
-export function readPageDocState(): Snapshot | undefined {
-  const seedEl = document.getElementById(DOC_STATE_ID);
+/** Read an embedded snapshot. Self-hosted documents pass a hydration-keyed id. */
+export function readPageDocState(
+  id: string = DOC_STATE_ID
+): Snapshot | undefined {
+  const seedEl = document.getElementById(id);
   return seedEl?.textContent != null && seedEl.textContent !== ""
     ? (JSON.parse(seedEl.textContent) as Snapshot)
     : undefined;
@@ -289,9 +312,9 @@ export function hydrateDocument(
   const state = createDocState(seed, { smart: opts.smart });
   const dispose = solidHydrate(
     () => (
-      <DocStateContext.Provider value={state}>
+      <DocStateContext value={state}>
         <Doc />
-      </DocStateContext.Provider>
+      </DocStateContext>
     ),
     root,
     { renderId: opts.renderId }

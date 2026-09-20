@@ -12,9 +12,10 @@
 import {
   children,
   createSignal,
-  Index,
+  For,
   type ParentProps,
-  Show
+  Show,
+  untrack
 } from "solid-js";
 import { NotaDoc, textOf, UlLi, useDocState } from "../../src/lib";
 
@@ -33,7 +34,10 @@ function MiniHeading(props: ParentProps & { id: string }) {
   state.register("heading", {
     id: props.id,
     rank: 2,
-    text: textOf(resolved.toArray())
+    // `untrack`: the title is read once, at registration. Solid 2 treats a component body as a
+    // strict-read scope and warns (STRICT_READ_UNTRACKED) unless the one-shot intent is stated —
+    // and the hydration suite asserts the console stayed silent.
+    text: untrack(() => textOf(resolved.toArray()))
   });
   return <h2 id={props.id}>{resolved()}</h2>;
 }
@@ -42,9 +46,9 @@ function MiniToc() {
   const state = useDocState();
   return (
     <nav class="toc">
-      <Index each={state.read("heading")}>
+      <For each={state.read("heading")} keyed={false}>
         {e => <a href={`#${e().id as string}`}>{e().text as string}</a>}
-      </Index>
+      </For>
     </nav>
   );
 }

@@ -1,17 +1,12 @@
 /// <reference types="vitest" />
+
+import solid from "@solidjs/vite-plugin";
 import { defineConfig } from "vite";
-import solid from "vite-plugin-solid";
 import wasm from "vite-plugin-wasm";
 
 /**
- * Two vitest projects, because Solid ships two builds selected by export conditions and
- * vite-plugin-solid compiles JSX per target:
- *
- * - **ssr** — Node env + `node` conditions → Solid's *server* build; JSX compiles with
- *   `generate: "ssr"` (+ hydration keys). Runs the renderDocument/doc-state/serialization half.
- * - **dom** — jsdom env + `browser` conditions → Solid's *client* build; JSX compiles to real
- *   DOM. Runs the Reforest behavior suite and the SSG→hydrate e2e (whose server half is built
- *   out-of-process by tests/ssg.mjs — vite-plugin-solid can only compile one flavor per project).
+ * Separate server and browser JSX projects. Force hydratable: true because the plugin disables
+ * it under Vitest; these suites exercise real hydration.
  */
 const inlineDeps = { inline: [/^(?!.*vitest).*$/] };
 
@@ -34,7 +29,8 @@ export default defineConfig(({ mode }) => ({
           include: [
             "tests/render.test.tsx",
             "tests/emit-surface.test.ts",
-            "tests/route.test.tsx"
+            "tests/doc-host-ssr.test.tsx",
+            "tests/server-write.test.ts"
           ],
           deps: inlineDeps
         }
@@ -49,7 +45,7 @@ export default defineConfig(({ mode }) => ({
           include: [
             "tests/reforest.test.tsx",
             "tests/hydrate.test.tsx",
-            "tests/route-client.test.ts"
+            "tests/doc-host.test.ts"
           ],
           deps: inlineDeps
         }

@@ -4,9 +4,12 @@
  *
  * - the framework packages are deduped unconditionally (two copies of the doc-state context or
  *   Solid's runtime split the page's reactive state), and
- * - the host-owned singletons (CodeMirror, Lezer) are deduped *only when installed*, because
- *   Vite resolves a deduped id from the project root and reports an unresolved import rather
- *   than falling back — so listing a package a site does not have breaks that site's build.
+ * - the rest of the identity-compared set — the host-owned editor stack (CodeMirror, Lezer) and
+ *   the `@solidjs` runtime family beyond `@solidjs/web` — is deduped *only when installed*,
+ *   because Vite resolves a deduped id from the project root and reports an unresolved import
+ *   rather than falling back, so listing a package a site does not have breaks that site's build.
+ *   `@solidjs/signals` is the case that makes the rule bite: it is a transitive dependency, so
+ *   under pnpm a site's root usually cannot resolve it at all.
  */
 
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -78,6 +81,38 @@ describe("dedupedPackages", () => {
     expect(deduped).not.toContain("@codemirror/view");
   });
 
+  test("keeps the @solidjs runtime family to one copy, when reachable", () => {
+    // Solid 2 is split across the scope: `@solidjs/signals` is the reactive graph `solid-js` and
+    // `@solidjs/web` both observe through, and the router/meta layers key their context and head
+    // registry by module identity. Two copies split the page exactly as two `solid-js` would.
+    const deduped = dedupedPackages(
+      projectRoot(["@solidjs/signals", "@solidjs/router", "@solidjs/meta"])
+    );
+    expect(deduped).toEqual([
+      ...DEDUPED_PACKAGES,
+      "@solidjs/meta",
+      "@solidjs/router",
+      "@solidjs/signals"
+    ]);
+  });
+
+  test("does not name @solidjs/signals when the root cannot resolve it", () => {
+    // The reason it is not in the unconditional list: `@solidjs/signals` is nobody's declared
+    // dependency, so under pnpm's layout it is absent from the root's `node_modules` — and
+    // deduping an unresolvable name turns a working import into an unresolved one.
+    expect(DEDUPED_PACKAGES).not.toContain("@solidjs/signals");
+    expect(dedupedPackages(projectRoot(["@solidjs/router"]))).not.toContain(
+      "@solidjs/signals"
+    );
+  });
+
+  test("names @solidjs/web once, not twice", () => {
+    // It is both a framework package (unconditional) and a member of the `@solidjs` scope.
+    const deduped = dedupedPackages(projectRoot(["@solidjs/web"]));
+    expect(deduped.filter(p => p === "@solidjs/web")).toHaveLength(1);
+    expect(deduped).toEqual([...DEDUPED_PACKAGES]);
+  });
+
   test("picks up scope members it has never heard of", () => {
     // The list is read off the install: a grammar package added by the site needs no release.
     expect(dedupedPackages(projectRoot(["@lezer/svelte"]))).toContain(
@@ -130,6 +165,16 @@ describe("duplicateSingletons", () => {
   test("ignores packages outside the singleton scopes", () => {
     const ids = [copy("app", "prettier"), copy("linked", "prettier")];
     expect(duplicateSingletons(ids).size).toBe(0);
+  });
+
+  test("reports two copies of a Solid runtime package", () => {
+    // The duplicate dedupe cannot reach: nothing declares `@solidjs/signals`, so two packages
+    // from different stores each bring their own, and the page gets two reactive graphs.
+    const ids = [
+      copy("app", "@solidjs/signals"),
+      copy("linked", "@solidjs/signals")
+    ];
+    expect([...duplicateSingletons(ids).keys()]).toEqual(["@solidjs/signals"]);
   });
 
   test("holds the whole @codemirror and @lezer scopes to the rule", () => {

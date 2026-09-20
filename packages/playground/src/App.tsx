@@ -1,7 +1,7 @@
 /** Client-side Nota pipeline playground. */
 
 import { notaHighlighting } from "@nota-lang/codemirror";
-import { createEffect, createSignal, onCleanup, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { AstPane } from "./AstPane";
 import { CodePane } from "./CodePane";
 import { DEFAULT_SNIPPET } from "./default-snippet";
@@ -33,17 +33,20 @@ export function App() {
   const [tab, setTab] = createSignal<Tab>("jsx");
   const [result, setResult] = createSignal<PipelineResult>(EMPTY);
 
-  createEffect(() => {
-    const value = source();
-    const save = setTimeout(() => saveSource(value), 150);
-    const run = setTimeout(() => {
-      setResult(prev => runPipeline(value, prev));
-    }, 150);
-    onCleanup(() => {
-      clearTimeout(save);
-      clearTimeout(run);
-    });
-  });
+  // Cancel pending persistence and compilation when the source changes.
+  createEffect(
+    () => source(),
+    value => {
+      const save = setTimeout(() => saveSource(value), 150);
+      const run = setTimeout(() => {
+        setResult(prev => runPipeline(value, prev));
+      }, 150);
+      return () => {
+        clearTimeout(save);
+        clearTimeout(run);
+      };
+    }
+  );
 
   return (
     <div class="playground">

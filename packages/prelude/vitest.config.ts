@@ -1,13 +1,8 @@
 /// <reference types="vitest" />
+import solid from "@solidjs/vite-plugin";
 import { defineConfig } from "vite";
-import solid from "vite-plugin-solid";
 
-/**
- * Two vitest projects (the @nota-lang/core pattern): **ssr** (node conditions, JSX compiled
- * with generate:"ssr") drives renderDocument over full documents — headings/numbering/Toc/
- * Ref/notes/cite/definitions/Tex/CodeBlock; **dom** (jsdom, browser conditions) drives the
- * client-side tooltip behavior + the pure-CSR resolution semantics.
- */
+/** Separate SSR and DOM projects; both need hydratable output despite Vitest's default. */
 const inlineDeps = { inline: [/^(?!.*vitest).*$/] };
 
 export default defineConfig(({ mode }) => ({
@@ -34,7 +29,11 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "dom",
           environment: "jsdom",
-          include: ["tests/tooltip.test.tsx", "tests/csr.test.tsx"],
+          include: [
+            "tests/tooltip.test.tsx",
+            "tests/csr.test.tsx",
+            "tests/hydrate.test.tsx"
+          ],
           deps: inlineDeps
         }
       }

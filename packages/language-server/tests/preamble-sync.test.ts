@@ -57,8 +57,8 @@ describe("preamble generation", () => {
 
   test("covers every canonical ambient name (the union of all four compiler lists)", () => {
     // The full free-name surface an emit can reference: structural (`@nota-lang/core`),
-    // `solid-js/web`, `solid-js`, and the ambient prelude. A loop, not a spot check — a name
-    // added to any list without a preamble declaration must fail here.
+    // `@solidjs/web` (`SOLID_WEB_MODULE`), `solid-js`, and the ambient prelude. A loop, not a
+    // spot check — a name added to any list without a preamble declaration must fail here.
     const allNames = [
       ...CORE_RUNTIME_NAMES,
       ...SOLID_WEB_NAMES,
@@ -70,6 +70,38 @@ describe("preamble generation", () => {
         new RegExp(`^declare (const|function) ${name}\\b`, "m").test(PREAMBLE),
         `preamble is missing an ambient declaration for '${name}'`
       ).toBe(true);
+    }
+  });
+
+  test("declares NOTHING outside that surface (a name dropped upstream leaves no ghost)", () => {
+    // The mirror of the coverage loop, and the direction a framework major makes load-bearing:
+    // Solid 2 removed `onMount`, `splitProps`, `mergeProps`, `batch`, `on`, `createResource`,
+    // `Index`, `Suspense` and `ErrorBoundary`. Their hand-written declarations kept type-checking
+    // and kept showing up in completions after the compiler stopped binding them — a document
+    // would have compiled to a reference to a primitive that no longer exists. Coverage alone
+    // cannot see that; exactness can.
+    const declared = [
+      ...PREAMBLE.matchAll(/^declare (?:const|function) (\w+)/gm)
+    ].map(m => m[1]);
+    const canonical = [
+      ...CORE_RUNTIME_NAMES,
+      ...SOLID_WEB_NAMES,
+      ...SOLID_AMBIENT_NAMES,
+      ...AMBIENT_PRELUDE_NAMES
+    ];
+    expect([...declared].sort()).toEqual([...canonical].sort());
+    for (const gone of [
+      "onMount",
+      "splitProps",
+      "mergeProps",
+      "batch",
+      "on",
+      "createResource",
+      "Index",
+      "Suspense",
+      "ErrorBoundary"
+    ]) {
+      expect(declared, `'${gone}' is a Solid 1.x name`).not.toContain(gone);
     }
   });
 

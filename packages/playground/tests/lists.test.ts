@@ -8,7 +8,8 @@ import {
   AMBIENT_PRELUDE_MODULES,
   FRAMEWORK_MODULES,
   SHIKI_LANG_MODULES,
-  SHIKI_LANGS_MODULE
+  SHIKI_LANGS_MODULE,
+  SOLID_AMBIENT_NAMES
 } from "@nota-lang/compiler";
 import * as barrel from "@nota-lang/prelude";
 import * as code from "@nota-lang/prelude/code";
@@ -17,6 +18,8 @@ import * as docState from "@nota-lang/prelude/doc-state";
 import * as figure from "@nota-lang/prelude/figure";
 import * as tex from "@nota-lang/prelude/tex";
 import { describe, expect, test } from "vitest";
+import { DEFAULT_SNIPPET } from "../src/default-snippet";
+import { GOLDEN_NOTA } from "../src/golden";
 import { MODULE_MAP, resolveModule } from "../src/solid-eval";
 
 describe("cross-package list consistency", () => {
@@ -98,5 +101,53 @@ describe("the compiler's map of prelude's layout", () => {
       name => !(name in ns)
     );
     expect(missing).toEqual([]);
+  });
+});
+
+describe("the documents the playground ships", () => {
+  /**
+   * Solid names the reader still lets a document write bare, but that Solid 2 deleted. Embedded
+   * document code is type-checked by the LSP worker against the generated preamble, whose ambient
+   * set is `SOLID_AMBIENT_NAMES` — so one of these in the seed greets every visitor with a red
+   * squiggle in the editor (and, for the ones that are values rather than types, a runtime
+   * `ReferenceError` in the Rendered pane).
+   */
+  const REMOVED_IN_SOLID_2 = [
+    "onMount",
+    "splitProps",
+    "mergeProps",
+    "batch",
+    "createResource",
+    "Index",
+    "Suspense",
+    "ErrorBoundary",
+    "classList"
+  ];
+
+  const SHIPPED: [string, string][] = [
+    ["DEFAULT_SNIPPET", DEFAULT_SNIPPET],
+    ["GOLDEN_NOTA", GOLDEN_NOTA]
+  ];
+
+  test("name only Solid APIs that survive into 2.0", () => {
+    const vocabulary = [...REMOVED_IN_SOLID_2, ...SOLID_AMBIENT_NAMES];
+    const ambient: readonly string[] = SOLID_AMBIENT_NAMES;
+    for (const [label, source] of SHIPPED) {
+      const used = vocabulary.filter(name =>
+        new RegExp(`\\b${name}\\b`).test(source)
+      );
+      expect(
+        used.filter(name => !ambient.includes(name)),
+        label
+      ).toEqual([]);
+    }
+  });
+
+  test("the seed exercises at least one ambient Solid name", () => {
+    // Otherwise the guard above passes vacuously forever.
+    const ambient: readonly string[] = SOLID_AMBIENT_NAMES;
+    expect(
+      ambient.filter(name => new RegExp(`\\b${name}\\b`).test(GOLDEN_NOTA))
+    ).toContain("createSignal");
   });
 });

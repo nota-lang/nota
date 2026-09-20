@@ -1,19 +1,17 @@
 /** Reactive, SSR-safe Barnes-Hut explorable rendered as Solid SVG. */
 
+import type { JSX } from "@solidjs/web";
 import type { ForceManyBody } from "d3-force";
 import {
-  batch,
   createEffect,
   createMemo,
   createSignal,
+  createStore,
   For,
-  type JSX,
-  on,
-  onCleanup,
-  onMount,
-  Show
+  onSettled,
+  Show,
+  untrack
 } from "solid-js";
-import { createStore } from "solid-js/store";
 import { type BodyNode, CENTER, SIZE, settledNetwork } from "./network";
 import {
   accumulate as accumulateMass,
@@ -41,53 +39,54 @@ const DEFAULT_PROBE: Pt = { x: CENTER + 64, y: CENTER + 64 };
 const ACCUM_STEP = 1400;
 
 export function BarnesHut(props: BarnesHutProps): JSX.Element {
-  const net = settledNetwork(props.charge);
+  // Seed once; the charge effect handles later changes.
+  const net = settledNetwork(untrack(() => props.charge));
 
   const [pts, setPts] = createStore(net.nodes.map(n => ({ x: n.x, y: n.y })));
   const syncPts = () =>
-    batch(() => {
+    setPts(s => {
       for (let i = 0; i < net.nodes.length; i++) {
-        setPts(i, "x", net.nodes[i].x);
-        setPts(i, "y", net.nodes[i].y);
+        s[i].x = net.nodes[i].x;
+        s[i].y = net.nodes[i].y;
       }
     });
 
   const step = () =>
     Math.max(0, Math.min(Math.floor(props.size), net.nodes.length));
 
-  onMount(() => {
+  // Call on both sides for hydration-id parity.
+  onSettled(() => {
     net.simulation.on("tick", syncPts);
-    if (props.layout) {
+    if (untrack(() => props.layout)) {
       net.simulation.alpha(0.3).restart();
     }
-    onCleanup(() => net.simulation.stop());
+    return () => {
+      net.simulation.stop();
+      clearTimers();
+    };
   });
 
   createEffect(
-    on(
-      () => props.layout,
-      run => {
-        if (run) {
-          net.simulation.alpha(0.5).alphaTarget(0).restart();
-        } else {
-          net.simulation.stop();
-        }
-      },
-      { defer: true }
-    )
+    () => props.layout,
+    run => {
+      if (run) {
+        net.simulation.alpha(0.5).alphaTarget(0).restart();
+      } else {
+        net.simulation.stop();
+      }
+    },
+    { defer: true }
   );
 
   createEffect(
-    on(
-      () => props.charge,
-      c => {
-        (net.simulation.force("charge") as ForceManyBody<BodyNode>).strength(c);
-        if (props.layout) {
-          net.simulation.alpha(0.5).alphaTarget(0).restart();
-        }
-      },
-      { defer: true }
-    )
+    () => props.charge,
+    c => {
+      (net.simulation.force("charge") as ForceManyBody<BodyNode>).strength(c);
+      if (untrack(() => props.layout)) {
+        net.simulation.alpha(0.5).alphaTarget(0).restart();
+      }
+    },
+    { defer: true }
   );
 
   let svgEl!: SVGSVGElement;
@@ -147,15 +146,13 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     svgEl.addEventListener("pointercancel", up);
   };
   createEffect(
-    on(
-      () => props.estimate,
-      active => {
-        if (!active) {
-          setProbe(DEFAULT_PROBE);
-        }
-      },
-      { defer: true }
-    )
+    () => props.estimate,
+    active => {
+      if (!active) {
+        setProbe(DEFAULT_PROBE);
+      }
+    },
+    { defer: true }
   );
 
   const construction = createMemo(() => {
@@ -180,13 +177,12 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
   const [accumStage, setAccumStage] = createSignal(-1);
   const [accumShown, setAccumShown] = createSignal(false);
   const [gathered, setGathered] = createSignal(false);
-  const accumGroupsMemo = createMemo<ComCell[][]>(() => {
-    if (!accumShown()) {
-      return [];
-    }
-    const tree = accumulateMass(buildTree(pts.map(p => ({ x: p.x, y: p.y }))));
-    return comGroups(tree);
-  });
+  // Compute directly after writes; the memo still sees the pre-flush accumShown value.
+  const comGroupsNow = (): ComCell[][] =>
+    comGroups(accumulateMass(buildTree(pts.map(p => ({ x: p.x, y: p.y })))));
+  const accumGroupsMemo = createMemo<ComCell[][]>(() =>
+    accumShown() ? comGroupsNow() : []
+  );
   let timers: ReturnType<typeof setTimeout>[] = [];
   const clearTimers = () => {
     for (const t of timers) {
@@ -194,51 +190,50 @@ export function BarnesHut(props: BarnesHutProps): JSX.Element {
     }
     timers = [];
   };
-  onCleanup(clearTimers);
 
+  const playAccumulation = () => {
+    setAccumShown(true);
+    setAccumStage(-1);
+    setGathered(false);
+    const groups = untrack(comGroupsNow);
+    groups.forEach((_, i) => {
+      timers.push(
+        setTimeout(
+          () => {
+            setGathered(false);
+            setAccumStage(i);
+            timers.push(setTimeout(() => setGathered(true), 60));
+          },
+          600 + i * ACCUM_STEP
+        )
+      );
+    });
+    timers.push(
+      setTimeout(
+        () => setAccumStage(groups.length),
+        600 + groups.length * ACCUM_STEP + 800
+      )
+    );
+  };
+
+  /**
+   * Handle phase changes and accumulation together: a single patch may change both.
+   * An accumulation bump starts playback; other phase changes cancel it.
+   */
+  let playedAccum = untrack(() => props.accumulate);
   createEffect(
-    on(
-      () => props.accumulate,
-      () => {
-        clearTimers();
-        setAccumShown(true);
-        setAccumStage(-1);
-        setGathered(false);
-        const groups = accumGroupsMemo();
-        groups.forEach((_, i) => {
-          timers.push(
-            setTimeout(
-              () => {
-                batch(() => {
-                  setGathered(false);
-                  setAccumStage(i);
-                });
-                timers.push(setTimeout(() => setGathered(true), 60));
-              },
-              600 + i * ACCUM_STEP
-            )
-          );
-        });
-        timers.push(
-          setTimeout(
-            () => setAccumStage(groups.length),
-            600 + groups.length * ACCUM_STEP + 800
-          )
-        );
-      },
-      { defer: true }
-    )
-  );
-  createEffect(
-    on(
-      [() => props.estimate, () => props.layout, step],
-      () => {
-        clearTimers();
-        setAccumShown(false);
-        setAccumStage(-1);
-      },
-      { defer: true }
-    )
+    () => [props.accumulate, props.estimate, props.layout, step()] as const,
+    ([accumulate]) => {
+      clearTimers();
+      if (accumulate !== playedAccum) {
+        playedAccum = accumulate;
+        playAccumulation();
+        return;
+      }
+      setAccumShown(false);
+      setAccumStage(-1);
+    },
+    { defer: true }
   );
 
   const accumBoxes = createMemo<Box[]>(() => {

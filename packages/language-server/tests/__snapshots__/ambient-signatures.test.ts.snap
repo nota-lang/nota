@@ -1,24 +1,26 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`real upstream signatures (change → review the preamble declaration) > @solidjs/web surface 1`] = `"Dynamic: <T extends import("@solidjs/web").ValidComponent>(props: import("@solidjs/web").DynamicProps<T>) => import("@solidjs/web").JSX.Element"`;
+
 exports[`real upstream signatures (change → review the preamble declaration) > prelude component surface 1`] = `
-"Tex: (props: import("solid-js").ParentProps & { display?: boolean; } & Record<string, unknown>) => import("solid-js").JSX.Element
-CodeInline: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
-CodeBlock: (props: import("solid-js").ParentProps & { lang?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Heading: (props: import("solid-js").ParentProps & { rank?: number; id?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Title: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
-Toc: (props: { depth?: number; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Label: (props: { id?: string; }) => import("solid-js").JSX.Element
-Ref: (props: import("solid-js").ParentProps & { id?: string; page?: string; }) => import("solid-js").JSX.Element
-Def: (props: import("solid-js").ParentProps & { id?: string; Label?: import("solid-js").Component; tooltip?: import("solid-js").JSX.Element; block?: boolean; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Figure: (props: import("solid-js").ParentProps & { id?: string; } & Record<string, unknown>) => import("solid-js").JSX.Element
-Subfigure: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
-Caption: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
-Smallcaps: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("solid-js").JSX.Element
-Note: (props: import("solid-js").ParentProps & { id?: string; }) => import("solid-js").JSX.Element
-Notes: () => import("solid-js").JSX.Element
-NotesList: () => import("solid-js").JSX.Element
-Cite: (props: import("solid-js").ParentProps) => import("solid-js").JSX.Element
-Bibliography: (props: Record<string, unknown>) => import("solid-js").JSX.Element
+"Tex: (props: import("solid-js").ParentProps & { display?: boolean; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+CodeInline: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+CodeBlock: (props: import("solid-js").ParentProps & { lang?: string; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Heading: (props: import("solid-js").ParentProps & { rank?: number; id?: string; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Title: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Toc: (props: { depth?: number; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Label: (props: { id?: string; }) => import("@solidjs/web").JSX.Element
+Ref: (props: import("solid-js").ParentProps & { id?: string; page?: string; }) => import("@solidjs/web").JSX.Element
+Def: (props: import("solid-js").ParentProps & { id?: string; Label?: import("solid-js").Component; tooltip?: import("@solidjs/web").JSX.Element; block?: boolean; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Figure: (props: import("solid-js").ParentProps & { id?: string; } & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Subfigure: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Caption: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Smallcaps: (props: import("solid-js").ParentProps & Record<string, unknown>) => import("@solidjs/web").JSX.Element
+Note: (props: import("solid-js").ParentProps & { id?: string; }) => import("@solidjs/web").JSX.Element
+Notes: () => import("@solidjs/web").JSX.Element
+NotesList: () => import("@solidjs/web").JSX.Element
+Cite: (props: import("solid-js").ParentProps) => import("@solidjs/web").JSX.Element
+Bibliography: (props: Record<string, unknown>) => import("@solidjs/web").JSX.Element
 lstset: (opts: import("@nota-lang/prelude").LstsetOptions) => void
 mathset: (opts: import("@nota-lang/prelude").MathsetOptions) => void
 secset: (opts: import("@nota-lang/prelude").SecsetOptions) => void
@@ -27,27 +29,24 @@ texRef: (id: string, tex: string) => string"
 `;
 
 exports[`real upstream signatures (change → review the preamble declaration) > solid-js ambient surface 1`] = `
-"createSignal: { <T>(): import("solid-js").Signal<T | undefined>; <T>(value: T, options?: import("solid-js").SignalOptions<T>): import("solid-js").Signal<T>; }
-createMemo: { <Next extends Prev, Prev = Next>(fn: import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Prev>, Next>): import("solid-js").Accessor<Next>; <Next extends Prev, Init = Next, Prev = Next>(fn: import("solid-js").EffectFunction<Init | Prev, Next>, value: Init, options?: import("solid-js").MemoOptions<Next>): import("solid-js").Accessor<Next>; }
-createEffect: { <Next>(fn: import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>, Next>): void; <Next, Init = Next>(fn: import("solid-js").EffectFunction<Init | Next, Next>, value: Init, options?: import("solid-js").EffectOptions & { render?: boolean; }): void; }
-createResource: { <T, R = unknown, I = T>(fetcher: (k: true, info: import("solid-js").ResourceFetcherInfo<T | I, R>) => T | Promise<T>, options: import("solid-js").ResourceOptions<T | I, true> & { initialValue: I; }): import("solid-js").InitializedResourceReturn<T | I, R>; <T, R = unknown>(fetcher: import("solid-js").ResourceFetcher<true, T, R>, options?: import("solid-js").ResourceOptions<import("solid-js").NoInfer<T>, true>): import("solid-js").ResourceReturn<T, R>; <T, S, R = unknown, I = T>(source: import("solid-js").ResourceSource<S>, fetcher: (k: S, info: import("solid-js").ResourceFetcherInfo<T | I, R>) => T | Promise<T>, options: import("solid-js").ResourceOptions<T | I, S> & { initialValue: I; }): import("solid-js").InitializedResourceReturn<T | I, R>; <T, S, R = unknown>(source: import("solid-js").ResourceSource<S>, fetcher: import("solid-js").ResourceFetcher<S, T, R>, options?: import("solid-js").ResourceOptions<import("solid-js").NoInfer<T>, S>): import("solid-js").ResourceReturn<T, R>; }
-createContext: { <T>(defaultValue?: undefined, options?: import("solid-js").EffectOptions): import("solid-js").Context<T | undefined>; <T>(defaultValue: T, options?: import("solid-js").EffectOptions): import("solid-js").Context<T>; }
+"createSignal: { <T>(): import("solid-js").Signal<T | undefined>; <T>(value: Exclude<T, Function>, options?: import("solid-js").SignalOptions<T>): import("solid-js").Signal<T>; <T>(fn: import("solid-js").ComputeFunction<import("solid-js").NoInfer<T>, T>, options: (import("solid-js").SignalOptions<T> & import("solid-js").MemoOptions<T>) & { loadingValue: T; }): import("solid-js").Signal<T>; <T>(fn: import("solid-js").ComputeFunction<undefined | import("solid-js").NoInfer<T>, T>, options?: import("solid-js").SignalOptions<T> & import("solid-js").MemoOptions<T>): import("solid-js").Signal<T>; }
+createMemo: { <T>(compute: import("solid-js").ComputeFunction<import("solid-js").NoInfer<T>, T>, options: import("solid-js").MemoOptions<T> & { loadingValue: T; }): import("solid-js").SourceAccessor<T>; <T>(compute: import("solid-js").ComputeFunction<undefined | import("solid-js").NoInfer<T>, T>, options?: import("solid-js").MemoOptions<T>): import("solid-js").SourceAccessor<T>; }
+createEffect: <T>(compute: import("solid-js").ComputeFunction<undefined | import("solid-js").NoInfer<T>, T>, effectFn: import("solid-js").EffectFunction<import("solid-js").NoInfer<T>, T> | import("solid-js").EffectBundle<import("solid-js").NoInfer<T>, T>, options?: import("solid-js").EffectOptions) => void
+createContext: <T>(defaultValue?: T, options?: import("solid-js").EffectOptions) => import("solid-js").Context<T>
 useContext: <T>(context: import("solid-js").Context<T>) => T
-batch: <T>(fn: import("solid-js").Accessor<T>) => T
-untrack: <T>(fn: import("solid-js").Accessor<T>) => T
-on: { <S, Next extends Prev, Prev = Next>(deps: import("solid-js").AccessorArray<S> | import("solid-js").Accessor<S>, fn: import("solid-js").OnEffectFunction<S, undefined | import("solid-js").NoInfer<Prev>, Next>, options?: import("solid-js").OnOptions & { defer?: false; }): import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>, import("solid-js").NoInfer<Next>>; <S, Next extends Prev, Prev = Next>(deps: import("solid-js").AccessorArray<S> | import("solid-js").Accessor<S>, fn: import("solid-js").OnEffectFunction<S, undefined | import("solid-js").NoInfer<Prev>, Next>, options: import("solid-js").OnOptions | { defer: true; }): import("solid-js").EffectFunction<undefined | import("solid-js").NoInfer<Next>>; }
-onMount: (fn: () => void) => void
-onCleanup: <T extends () => any>(fn: T) => T
-children: (fn: import("solid-js").Accessor<import("solid-js").JSX.Element>) => import("solid-js").ChildrenReturn
-mergeProps: <T extends unknown[]>(...sources: T) => import("solid-js").MergeProps<T>
-splitProps: <T extends Record<any, any>, K extends [readonly (keyof T)[], ...(readonly (keyof T)[])[]]>(props: T, ...keys: K) => import("solid-js").SplitProps<T, K>
-Show: { <T, TRenderFunction extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed?: false; fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; <T, TRenderFunction extends (item: NonNullable<T>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed: true; fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; }
-For: <T extends readonly any[], U extends import("solid-js").JSX.Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").JSX.Element; children: (item: T[number], index: import("solid-js").Accessor<number>) => U; }) => import("solid-js").JSX.Element
-Index: <T extends readonly any[], U extends import("solid-js").JSX.Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").JSX.Element; children: (item: import("solid-js").Accessor<T[number]>, index: number) => U; }) => import("solid-js").JSX.Element
-Switch: (props: { fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element
-Match: { <T, TRenderFunction extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed?: false; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; <T, TRenderFunction extends (item: NonNullable<T>) => import("solid-js").JSX.Element>(props: { when: T | undefined | null | false; keyed: true; children: import("solid-js").JSX.Element | (TRenderFunction extends () => unknown ? never : TRenderFunction); }): import("solid-js").JSX.Element; }
-Suspense: (props: { fallback?: import("solid-js").JSX.Element; children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element
-ErrorBoundary: (props: { fallback: import("solid-js").JSX.Element | ((err: any, reset: () => void) => import("solid-js").JSX.Element); children: import("solid-js").JSX.Element; }) => import("solid-js").JSX.Element"
+createStore: { <T extends object = {}>(initialValue: (T extends Function ? never : T) | import("solid-js").Store<T extends Function ? never : T>, options?: import("solid-js").StoreOptions): [get: import("solid-js").Store<T>, set: import("solid-js").StoreSetter<T>]; <T extends object = {}>(fn: (draft: T) => void | T | Promise<void | T> | AsyncIterable<void | T>, seed: Partial<T> | import("solid-js").Store<T extends Function ? never : T>, options?: import("solid-js").ProjectionOptions): [get: import("solid-js").Refreshable<import("solid-js").Store<T>>, set: import("solid-js").StoreSetter<T>]; }
+untrack: <T>(fn: () => T, strictReadLabel?: string | false) => T
+flush: { (): void; <T>(fn: () => T): T; }
+onSettled: (callback: () => void | (() => void)) => void
+onCleanup: (fn: import("@solidjs/signals").Disposable) => import("@solidjs/signals").Disposable
+children: (fn: import("solid-js").Accessor<import("solid-js").Element>) => import("solid-js").ChildrenReturn
+merge: <T extends unknown[]>(...sources: T) => import("solid-js").Merge<T>
+omit: <T extends Record<any, any>, K extends readonly (keyof T)[]>(props: T, ...keys: K) => import("solid-js").Omit<T, K>
+Show: { <T>(props: { when: T | undefined | null | false; keyed: true; fallback?: import("solid-js").Element; children: import("solid-js").Element; }): import("solid-js").Element; <T, F extends (item: NonNullable<T>) => import("solid-js").Element>(props: { when: T | undefined | null | false; keyed: true; fallback?: import("solid-js").Element; children: Parameters<F>["length"] extends 0 ? never : F; }): import("solid-js").Element; <T>(props: { when: T | undefined | null | false; keyed?: false; fallback?: import("solid-js").Element; children: import("solid-js").Element; }): import("solid-js").Element; <T, F extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").Element>(props: { when: T | undefined | null | false; keyed?: false; fallback?: import("solid-js").Element; children: Parameters<F>["length"] extends 0 ? never : F; }): import("solid-js").Element; }
+For: { <T extends readonly any[], U extends import("solid-js").Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").Element; keyed?: true; children: (item: T[number], index: import("solid-js").Accessor<number>) => U; }): import("solid-js").Element; <T extends readonly any[], U extends import("solid-js").Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").Element; keyed: false; children: (item: import("solid-js").Accessor<T[number]>, index: number) => U; }): import("solid-js").Element; <T extends readonly any[], U extends import("solid-js").Element>(props: { each: T | undefined | null | false; fallback?: import("solid-js").Element; keyed: (item: T[number]) => any; children: (item: import("solid-js").Accessor<T[number]>, index: import("solid-js").Accessor<number>) => U; }): import("solid-js").Element; }
+Repeat: <T extends import("solid-js").Element>(props: { count: number; from?: number | undefined; fallback?: import("solid-js").Element; children: ((index: number) => T) | T; }) => import("solid-js").Element
+Switch: (props: { fallback?: import("solid-js").Element; children: import("solid-js").Element; }) => import("solid-js").Element
+Match: { <T>(props: { when: T | undefined | null | false; keyed: true; children: import("solid-js").Element; }): import("solid-js").Element; <T, F extends (item: NonNullable<T>) => import("solid-js").Element>(props: import("solid-js").KeyedMatchProps<T, F>): import("solid-js").Element; <T>(props: { when: T | undefined | null | false; keyed?: false; children: import("solid-js").Element; }): import("solid-js").Element; <T, F extends (item: import("solid-js").Accessor<NonNullable<T>>) => import("solid-js").Element>(props: import("solid-js").MatchProps<T, F>): import("solid-js").Element; <T>(props: import("solid-js").AnyMatchProps<T>): import("solid-js").Element; }
+Loading: (props: { fallback?: import("solid-js").Element; on?: any; children: import("solid-js").Element; }) => import("solid-js").Element
+Errored: (props: { fallback: import("solid-js").Element | ((err: () => unknown, reset: () => void) => import("solid-js").Element); children: import("solid-js").Element; }) => import("solid-js").Element"
 `;
-
-exports[`real upstream signatures (change → review the preamble declaration) > solid-js/web surface 1`] = `"Dynamic: <T extends import("solid-js").ValidComponent>(props: import("solid-js/web").DynamicProps<T>) => import("solid-js").JSX.Element"`;

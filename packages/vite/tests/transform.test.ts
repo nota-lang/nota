@@ -67,6 +67,7 @@ describe("output surface", () => {
   test("maxPasses rides on the compiled document; unset leaves the emit alone", () => {
     const plain = getTransform()(DOC, "/x/doc.nota");
     expect(plain?.code).not.toContain("notaRenderOptions");
+    expect(plain?.code).not.toContain("setDocRenderDefaults");
     // Typed against core's `DocComponent`, so renaming the property there breaks this line
     // rather than silently emitting a field the render drivers no longer read.
     const key: keyof DocComponent = "notaRenderOptions";
@@ -76,6 +77,19 @@ describe("output surface", () => {
     expect(uncapped?.code).toContain(
       'Doc.notaRenderOptions = {"maxPasses":0};'
     );
+  });
+
+  test("maxPasses also installs core's module-level default", () => {
+    // `Doc.notaRenderOptions` only reaches `renderDocument`, which is handed the component. A
+    // document that hosts *itself* (a file-system route: no driver store, its own fixpoint) has
+    // no such handoff, so the budget arrives as a module-scope call instead.
+    const capped = getTransform({ maxPasses: 3 })(DOC, "/x/doc.nota");
+    expect(capped?.code).toContain(
+      'import { setDocRenderDefaults as __notaDefaults } from "@nota-lang/core";'
+    );
+    expect(capped?.code).toContain('__notaDefaults({"maxPasses":3});');
+    const uncapped = getTransform({ maxPasses: 0 })(DOC, "/x/doc.nota");
+    expect(uncapped?.code).toContain('__notaDefaults({"maxPasses":0});');
   });
 
   test("a budget that could never converge fails the config, not the build", () => {
@@ -128,7 +142,7 @@ describe("the one-solid-js invariant", () => {
 });
 
 describe("the preset shape", () => {
-  test("nota() bundles vite-plugin-solid; { solid: false } omits it", () => {
+  test("nota() bundles @solidjs/vite-plugin; { solid: false } omits it", () => {
     const full = nota();
     expect(full.length).toBeGreaterThan(1);
     expect(full[0].name).toBe("@nota-lang/vite");

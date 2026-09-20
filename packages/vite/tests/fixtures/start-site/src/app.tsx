@@ -1,5 +1,10 @@
-// Minimal app entry: solidStart() refuses to configure without one (it globs for
-// `<appRoot>/app.{j,t}sx` at plugin-construction time).
+// The start-mode root component (`src/app.tsx` is the convention). `announceRoutes` puts every
+// static route on the prerender crawler's hint header, so `/hidden` — which nothing links to — is
+// rendered as well.
+import { announceRoutes } from "@solidjs/prerender";
+import { Router } from "./router";
+
 export default function App() {
-  return null;
+  announceRoutes(Router);
+  return <Router>{props => <main>{props.children}</main>}</Router>;
 }

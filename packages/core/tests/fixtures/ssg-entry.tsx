@@ -1,7 +1,7 @@
 /**
  * SSG entry for the hydrate e2e: server-renders the fixture document (two-pass, seeded) to
  * hydratable HTML. Loaded through Vite's SSR pipeline by tests/ssg.mjs, so JSX here and in the
- * imported modules compiles to solid-js/web server calls.
+ * imported modules compiles to @solidjs/web server calls.
  */
 import { renderDocument } from "../../src/lib";
 import { Doc, PlainDoc } from "./doc";

@@ -4,11 +4,14 @@
  * self-heals reactively when its target registers (the resolution-error policy's CSR half).
  * Plus the client/DOM-node path of armed shiki decorations (SSR chunks are the other half,
  * covered in render.test.tsx).
+ *
+ * Every signal write here is followed by `flush()`: Solid 2 queues writes to a microtask, so the
+ * DOM (and a plain read) still shows the previous value when the setter returns.
  */
 import { NotaDoc } from "@nota-lang/core";
 import javascript from "@shikijs/langs/javascript";
-import { createSignal, Show } from "solid-js";
-import { render } from "solid-js/web";
+import { render } from "@solidjs/web";
+import { createSignal, flush, Show } from "solid-js";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   CodeBlock,
@@ -66,6 +69,7 @@ describe("unseeded forward references (CSR)", () => {
     expect(labels).toHaveLength(2);
     expect(labels[0]).not.toBe(labels[1]);
     labels[0]?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    flush();
     expect(labels[0]?.textContent).toBe("Term 1");
     expect(labels[1]?.textContent).toBe("Term 0");
   });
@@ -95,6 +99,7 @@ describe("unseeded forward references (CSR)", () => {
 
     // The target mounts → the label/heading facts register → the ref heals reactively.
     setShow(true);
+    flush();
     const healed = root.querySelector("a.nota-ref");
     expect(healed?.textContent).toBe("Target");
     expect(healed?.getAttribute("href")).toBe("#target");
@@ -123,6 +128,7 @@ describe("unseeded forward references (CSR)", () => {
 
     // The definition mounts → the ref re-dispatches into the note arm and the list fills.
     setShow(true);
+    flush();
     expect(root.querySelector("sup.nota-noteref")?.textContent).toBe("1");
     const content = root.querySelector(".nota-note-content");
     expect(content?.textContent).toContain("the labeled body");
@@ -153,6 +159,7 @@ describe("live renumbering (unmount-before-later-consumer)", () => {
     ).toEqual(["1", "2", "3"]);
 
     setShow(false); // unmount "First" — Second and Third re-sequence underneath it
+    flush();
 
     const headingsAfter = Array.from(root.querySelectorAll("h1"));
     expect(
@@ -183,6 +190,7 @@ describe("live renumbering (unmount-before-later-consumer)", () => {
     expect(supsBefore.map(s => s.textContent)).toEqual(["1", "2", "3"]);
 
     setShow(false); // unmount the first note mark
+    flush();
 
     const supsAfter = Array.from(root.querySelectorAll("sup.nota-noteref"));
     expect(supsAfter.map(s => s.textContent)).toEqual(["1", "2"]);
@@ -217,7 +225,7 @@ describe("armed shiki decorations (DOM-node path)", () => {
     expect(deco?.getAttribute("data-note")).toBe("target");
     expect(deco?.textContent).toBe("x");
     // …minus hydration bookkeeping.
-    expect(deco?.hasAttribute("data-hk")).toBe(false);
+    expect(deco?.hasAttribute("_hk")).toBe(false);
     // The whole reconstructed source tokenized around it.
     expect(block?.textContent).toContain("let x = 1;");
   });

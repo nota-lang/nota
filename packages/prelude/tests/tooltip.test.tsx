@@ -4,7 +4,8 @@
  * (a bare NotaDoc self-store) — the hydration path is covered by the CLI acceptance suite.
  */
 import { NotaDoc } from "@nota-lang/core";
-import { render } from "solid-js/web";
+import { type JSX, render } from "@solidjs/web";
+import { flush } from "solid-js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Caption,
@@ -32,6 +33,17 @@ afterEach(() => {
     tip.remove();
   }
 });
+
+/**
+ * Render and settle. `DefBank` installs the delegated handlers from `onSettled`, which runs
+ * after the first settle rather than synchronously with the render (1.x's `onMount` did), so a
+ * click dispatched before the queue drains would land on a document with no listeners.
+ */
+const mount = (component: () => JSX.Element, target: HTMLElement) => {
+  const dispose = render(component, target);
+  flush();
+  return dispose;
+};
 
 const click = (el: Element) =>
   el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -67,7 +79,7 @@ describe("def tooltips (CSR)", () => {
     );
     root = document.createElement("div");
     document.body.appendChild(root);
-    dispose = render(() => <DefaultDoc />, root);
+    dispose = mount(() => <DefaultDoc />, root);
 
     expect(evaluations).toBe(1);
     const ref = root.querySelector("a[data-nota-def]");
@@ -84,7 +96,7 @@ describe("def tooltips (CSR)", () => {
     resetDefTooltipHandlersForTest();
     root = document.createElement("div");
     document.body.appendChild(root);
-    dispose = render(() => <Doc />, root);
+    dispose = mount(() => <Doc />, root);
     resetDefTooltipHandlersForTest();
     installDefTooltipHandlers();
 
@@ -122,7 +134,7 @@ describe("def tooltips (CSR)", () => {
     resetDefTooltipHandlersForTest();
     root = document.createElement("div");
     document.body.appendChild(root);
-    dispose = render(() => <Doc />, root);
+    dispose = mount(() => <Doc />, root);
 
     const ref = root.querySelector("a[data-nota-def]");
     if (!ref) throw new Error("no def ref");
@@ -172,7 +184,7 @@ describe("def tooltips (CSR)", () => {
     );
     root = document.createElement("div");
     document.body.appendChild(root);
-    dispose = render(() => <FigureDoc />, root);
+    dispose = mount(() => <FigureDoc />, root);
     resetDefTooltipHandlersForTest();
     installDefTooltipHandlers();
 
@@ -221,8 +233,8 @@ describe("def tooltips on a multi-document page (Astro-islands scenario)", () =>
       );
     }
 
-    const dispose1 = render(() => <Doc1 />, root1);
-    const dispose2 = render(() => <Doc2 />, root2);
+    const dispose1 = mount(() => <Doc1 />, root1);
+    const dispose2 = mount(() => <Doc2 />, root2);
     try {
       const ref2 = root2.querySelector("a[data-nota-def]");
       if (!ref2) throw new Error("no def ref in doc2");
@@ -283,7 +295,7 @@ function openable(): HTMLElement {
   resetDefTooltipHandlersForTest();
   root = document.createElement("div");
   document.body.appendChild(root);
-  dispose = render(() => <Doc />, root);
+  dispose = mount(() => <Doc />, root);
   const ref = root.querySelector("a[data-nota-def]") as HTMLElement | null;
   if (!ref) throw new Error("no def ref");
   return ref;
